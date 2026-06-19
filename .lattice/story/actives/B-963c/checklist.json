@@ -57,32 +57,32 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: build passed and review-escalation smoke passed 11 checks, including explicit high-risk policy requiring full 3x2 without first-round findings.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: review-escalation smoke passed 11 checks, including explicit high-risk policy requiring full 3x2 without first-round findings.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: high-risk prose or paths do not trigger without explicit policy fact remains covered.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: high-risk prose or paths do not trigger without explicit policy fact remains covered.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: smoke asserts authorityDone/fullAuthorityDone/productionDone false, degraded fallback disallow behavior, and policy-only failure text names explicit high-risk policy.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: smoke asserts authorityDone/fullAuthorityDone/productionDone false, degraded fallback semantics, and policy-only failure text.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         }
       ]
     },
@@ -144,40 +144,40 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: gap_analyze healthy=true, gaps array empty, dashboard shows Gaps: 0 high / 0 medium.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: gap_analyze healthy=true, gaps array empty, dashboard shows Gaps: 0 high / 0 medium.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "manual_transcript",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: Process Fact Contract verified with review_escalation_policy_set and runtime review_escalation_done_gate predicate binding.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: Process Fact Contract verified with explicit high-risk review escalation policy binding intact.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: convergence_check reports No high-priority gaps and Code annotations compliant as passed; remaining false convergence is only unfinished stories.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: convergence_check reports No high-priority gaps and Code annotations compliant as passed; remaining non-convergence is only unfinished stories.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Fresh post-F-001 fix evidence: smoke and contract checks protect the exact explicitlyConfiguredHighRiskPolicyRequires3x2 predicate across evaluator, registry, command schema, and regression coverage.",
-          "headHash": "2034703fce7c32d11684361437ef962d4eedf4f5",
-          "materialHash": "b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223",
-          "timestamp": "2026-06-19T21:29:52.410Z"
+          "note": "Post-main-merge fresh evidence: smoke and contract checks protect explicitlyConfiguredHighRiskPolicyRequires3x2 across evaluator, registry, command schema, and regression coverage.",
+          "headHash": "59fe1aface46429652a88d09714fad3066620c67",
+          "materialHash": "b4017320fab412251e20ac6bba1b251c6dc9b06f30a3a48e3ad6ec7fb2f1c7fb",
+          "timestamp": "2026-06-19T21:41:15.712Z"
         }
       ]
     }
