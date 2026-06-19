@@ -136,7 +136,7 @@
       "desc": "quality-cleanup: version-bump-smoke.ts:215 test-group comment says \"// 14.\" but this is the second test labelled 14 (the first is at line 184); the actual sequential number should be 16 (after 15 at line 196); misleads navigation when reading/debugging the test list",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T20:35:29.210Z",
@@ -147,7 +147,11 @@
         "packages/main/src/tasks/version-bump-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-version",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the duplicate '// 14.' test-group comment was relabelled '// 15b.'; numbering is now unique (807008bfc).",
+      "resolvedAt": "2026-06-19T20:45:45.065Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
