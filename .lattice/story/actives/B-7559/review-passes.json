@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T01:50:01.500Z",
       "reviewRunId": "B-7559:RR-015",
       "_hash": "8862a043fdc15f5d84764f38c0790d1954911d4f15b1447a5822420590c53205"
+    },
+    {
+      "id": "B-7559:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "§4 enforcement model is now internally consistent end-to-end. §4.3 cond.1 correctly restricts the hard block to tier-1 literal-path intersection only (zero false positives); tier-2 shared-directory-prefix is explicitly advisory-only — confirmed consistent with §4.2 policy and §4.3 cond.2/cond.3. §4.2, §4.3 cond.2, and §4.7 are fully aligned: broadGlobBlocks=true (strict) → hard block for BROAD+parallelSafe:yes; broadGlobBlocks=false (light/balanced) → advisory only. Gate purity (§4.4): mode check is caller-side; broadGlobBlocks is used inside evaluateDecompositionGate as a pure cfg parameter — not a side-effect violation. §4.8 peer-unreadable fail-closed path correctly routes through caller mode check. No dead code, no type-safety issues, and no I/O shell isolation violations (doc-only story). Only pre-existing §1.3 shorthand (broad-glob described as hard-blocked without mentioning broadGlobBlocks condition) is present but was not introduced by this fix and resolves on forward-reference to §4.2.",
+      "createdAt": "2026-06-19T02:55:47.210Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-019",
+      "_hash": "d689637f584e8a2b594ecfaeac160b637598d5943e7bc5885c1b541775cfd7fc"
     }
   ]
 }
