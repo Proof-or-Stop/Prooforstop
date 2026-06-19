@@ -1,0 +1,65 @@
+{
+  "storyId": "B-02a6",
+  "checkedAt": "2026-06-19T05:18:59.050Z",
+  "reviewRound": "2026-06-19T05:07:35.197Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/safe-init-commit.ts (new file)",
+      "promise": "createSafeInitCommitOnHead commits ONLY the story metadata dir onto the current branch HEAD, making the INIT leaf a tracked (clean-proof) git object from birth",
+      "verifiedBy": "diff + grep",
+      "evidence": "New file in diff: createSafeInitCommitOnHead uses git add -f + git commit --only -- storyRel; refContainsStoryMetadata checks HEAD tree for idempotency"
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-create.ts#commitSafeInitMetadata",
+      "promise": "commitSafeInitMetadata is called at all 4 story_create exit points (from-draft, normal INIT, non-git INIT, IDEA) inside the withReentrantMainWriteLock block",
+      "verifiedBy": "diff + grep (lines 285/294/432/773/842/852 of story-create.ts)",
+      "evidence": "withReentrantMainWriteLock opens at line 285; commitSafeInitMetadata defined inside at line 294; called at lines 432, 773, 842, 852 — all within the lock body"
+    },
+    {
+      "docPath": "packages/main/src/handlers/worktree.ts#INIT_CHECK bootstrap idempotent",
+      "promise": "INIT_CHECK bootstrap is idempotent: when main HEAD already carries the story metadata (safe-init commit landed), branch straight from HEAD instead of running createScopedStoryBootstrapCommit",
+      "verifiedBy": "diff + grep (line 919 worktree.ts)",
+      "evidence": "refContainsStoryMetadata(repoRoot, HEAD, storyIndexRel) branch at line 919; uses git update-ref to point story/<id> at HEAD; no duplicate init commit produced"
+    },
+    {
+      "docPath": "packages/main/src/handlers/worktree.ts#discard tombstone fallback",
+      "promise": "story_discard has a tombstone fallback: when purgeSafeInitCommit cannot HEAD~1-reset (init commit buried under later commits), commitDiscardMetadata commits the deletion so main converges to a clean tree",
+      "verifiedBy": "diff + grep (lines 1395-1416 worktree.ts)",
+      "evidence": "purgeResult checked for startsWith match; if no safe reset, withReentrantMainWriteLock calls commitDiscardMetadata; output includes discard metadata committed"
+    },
+    {
+      "docPath": "packages/main/src/core/story-metadata-protection.ts#broadened unsafe predicate",
+      "promise": "Protection predicate broadened to unsafe = !tracked (any untracked leaf is clean-prone), covering the !ignored && !tracked INIT window the old ignored && !tracked predicate missed",
+      "verifiedBy": "diff + grep (line 147 story-metadata-protection.ts)",
+      "evidence": "const unsafe = !tracked (line 147); wouldBeCleaned = ignored && !tracked retained as diagnostic only; module comment updated with INIT-window rationale"
+    },
+    {
+      "docPath": "packages/main/src/handlers/doctor.ts#INIT window surface",
+      "promise": "lattice doctor surfaces the INIT-window case distinctly: per-leaf risk line names allowlisted-but-uncommitted (INIT window) removed by a plain git clean -fd vs the ignored+untracked ClawCreek case",
+      "verifiedBy": "diff + grep (lines 1029-1033 doctor.ts)",
+      "evidence": "risk label branches on leaf.ignored: false branch emits allowlisted-but-uncommitted (INIT window) removed by a plain git clean -fd"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/init-window-data-loss-smoke.js PASS (verified live this session). Smoke drives the REAL story_create CLI in a throwaway git repo with the production .gitignore allowlist, asserts git cat-file -e HEAD:<leaf> (safe-init commit present), runs git clean -fd and git clean -fdx, asserts index.json bytes survive both. Also asserts an ignored runtime leaf outside the actives allowlist IS removed by git clean -fdx. transcript-diff.md output: INIT metadata survives concurrent git clean -fd on the shared checkout"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/review-pass-discard-smoke.js PASS (verified live this session). Covers assertPurgeDropsSafeInitCommit (init commit at HEAD -> reset --hard HEAD~1 succeeds) AND assertPurgeTombstonesBuriedSafeInitCommit (B-02a6 F-003: init commit buried under a later unrelated commit -> purgeSafeInitCommit bails -> commitDiscardMetadata tombstone fires -> main converges to clean tree, both buried and burying commits remain reachable). transcript-diff.md output: review pass and discard smoke passed"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "story-metadata-protection-smoke.ts rewired by CHK-003: new predicate unit checks (allowlisted-but-uncommitted -> unsafe; tracked -> safe), new bootstrap case (d) asserts DATA-LOSS warning fires for uncommitted INIT-window leaf, new doctor case asserts INIT-window risk line present and committed leaf clears flag. validate --story=B-02a6 transcript: 9/9 verification intents covered, 5 configured commands all pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified by direct code inspection of the diff. Both primary smokes ran and passed live in this session: init-window-data-loss (story_create->safe-init commit->git clean -fd/x survival) and review-pass-discard (HEAD purge AND buried tombstone paths). Broadened predicate, worktree idempotent bootstrap, discard tombstone fallback, and doctor surface all present in code and covered by real-machine regression tests. No production code deleted. No CJK in production source."
+  },
+  "_hash": "bf39ab22a602bc1f29921ac22f1f2f66ce28fc717c82b079053906336c3199e1"
+}
