@@ -107,6 +107,24 @@
       ],
       "signatureTag": "edge|ts|concept-cleanup-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4033:F-006",
+      "desc": "[Codex host P2] entriesOverlap under-flagged single-segment root literals: globsOverlap([docs],[docs/*]) returned false because the literal was reduced to its parent dir. Fixed by comparing the literal full path (e.dir) against the wildcard dir.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:28:50.682Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-004",
+      "_hash": "1e0b133b9762d7b99743bb0e5a7d863149fce703906c87c4d7006c4597bd675a",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-entriesoverlap",
+      "signatureTagSource": "auto"
     }
   ]
 }
