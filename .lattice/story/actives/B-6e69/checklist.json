@@ -105,11 +105,49 @@
       "title": "Verify runtime and gate contract preservation",
       "context": "Run build plus process/runtime fact contract checks and targeted reviewer/owner gate smokes to prove the extraction preserved enforcement semantics.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-3-runtime-root-activity-ownership-and-reviewer-gates",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/parallel-decomposition-spec.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Build, process-fact contract, ownership contract, and lock/reviewer smokes stay green after the runtime/gate extraction.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript build and process-fact contract pass after extraction; cli-engine compatibility exports continue compiling all existing consumers.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "command-ownership-contract and main-write-lock-coverage continue to pass, proving ownership class/gate and main shared mutation semantics did not drift.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation does not move flag parsing, aliases, command catalog, lifecycle special dispatch, INIT_CHECK metadata sync, or recover_evidence dispatch in this story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
