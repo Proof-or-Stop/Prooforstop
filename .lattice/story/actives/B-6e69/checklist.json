@@ -90,9 +90,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T17:05:36.360Z",
-      "endTime": null,
+      "endTime": "2026-06-19T17:07:47.092Z",
       "userSees": "Expected transcript includes \"command ownership contract passed\" and \"reviewer-readonly command policy smoke passed\" after gate helper extraction.",
       "files": {
         "modify": [
@@ -130,7 +130,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Command ownership contract passed after moving ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers; existing consumers still import compatibility exports from cli-engine.ts.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.406Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output confirmed B-META finding, validate --story/no-story, delivery_check_set delivery actor, and dev-memory ownership boundary rules resolve as documented after extraction.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.676Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/reviewer-readonly-command-policy-smoke.js",
+          "result": "pass",
+          "note": "Reviewer-readonly smoke passed: LATTICE_REVIEWER_READONLY=1 blocks reviewerWrite/storyScopedMutating/mainSharedMutating/dangerous/unclassified commands before artifacts or owner-lease mutation, while normal reviewerWrite remains allowed without the env.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.947Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
