@@ -211,9 +211,9 @@
       "id": "CHK-003",
       "title": "Gate semantics: valid while storyFilesHash unchanged; whole-tree drift -> re-attestation warning + smoke",
       "context": "Change the freshness/escalation evaluators so a binding is VALID when storyFilesHash matches even if the whole-tree materialHash drifted; surface whole-tree drift as a re-attestation-REQUIRED warning (never silent rebind). Smoke: an unrelated main merge leaving the storys own files unchanged keeps bindings valid (warning only); a change to the storys own files still invalidates and requires re-attestation; existing strict whole-tree behavior remains available.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T21:59:05.363Z",
-      "endTime": null,
+      "endTime": "2026-06-19T22:03:47.023Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
@@ -270,7 +270,69 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "review-escalation and flow-stability smokes cover unrelated main merge: matching storyFilesHash keeps records valid and emits re-attestation advisories.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.126Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "verifier/checklist freshness callbacks pass evidence.storyFilesHash, so matching story hashes avoid stale coverage/recover_evidence solely from unrelated materialHash drift.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.214Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "smokes change a story-owned material file after recording evidence and assert storyFilesHash changes and records become stale/rejected.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.296Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "legacy evidence without storyFilesHash remains on strict materialHash freshness behavior because downgrade only occurs when recorded and current storyFilesHash exist and match.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.379Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "freshness, validation details, reviewer advisories, and review escalation reports expose explicit re-attestation advisories for whole-tree drift rather than silently claiming full freshness.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.462Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review escalation smoke rejects host verdict records after story-owned files change even though unrelated-drift warning behavior exists.",
+          "headHash": "c135bc20680cc88e198213a65235e5643b7482ea",
+          "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+          "timestamp": "2026-06-19T22:03:47.552Z"
+        }
+      ]
     }
   ]
 }
