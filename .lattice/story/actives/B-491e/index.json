@@ -4,7 +4,7 @@
   "title": "Remove Authority bundle generation from public Lattice CLI",
   "description": "Clean up Lattice CLI so it consumes server-generated Authority bundle files instead of generating basic or senior bundle material locally.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-2026-06-19",
   "keywords": [
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-19T00:40:33.233Z",
   "startedAt": "2026-06-19T00:40:33.233Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T02:12:18.099Z",
   "events": [
     {
       "phase": "INIT",
@@ -80,12 +80,15 @@
       "branch": "story/B-491e",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:12:18.099Z",
+      "branch": "story/B-491e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-491e",
-    "branch": "story/B-491e",
-    "createdAt": "2026-06-19T00:44:30.296Z"
-  },
   "currentReviewRound": "2026-06-19T01:26:28.023Z"
 }
