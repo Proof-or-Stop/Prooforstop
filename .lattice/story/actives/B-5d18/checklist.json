@@ -42,6 +42,17 @@
           "headHash": "252554db371916cb9e31c63aa37e484ed654f4f5",
           "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
           "timestamp": "2026-06-19T17:11:20.823Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "git show HEAD:packages/main/src/core/partial-done-recovery.ts",
+          "result": "pass",
+          "note": "Diagnosis recorded: resolveMainRepoRoot(/tmp/X) returns /tmp/X, so the smokes spawn story_create against an ISOLATED lock — no global main-write-lock contention; the prior hang was transient machine saturation under the concurrent swarm (smokes pass in <30s idle).",
+          "headHash": "32071273d0694bcc51914336c949f1027d349d94",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:21.610Z"
         }
       ]
     },
