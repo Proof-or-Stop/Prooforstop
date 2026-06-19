@@ -55,6 +55,24 @@
       ],
       "signatureTag": "edge|ts|codex-host-entriesoverlap",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4033:F-004",
+      "desc": "[Codex host P1] validateWriteSetGrammar accepted empty-directory wildcards (/* and /**) because dir is empty after slice; classifyBroadness(/*) reported narrow, so an effectively repo-wide scope could slip through both the grammar and broadness checks.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:11:42.407Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "0343884c44ae75ab1d01fa2324401740c5ead69c4bb5b339e414d66facabc541",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-validatewritesetgrammar",
+      "signatureTagSource": "auto"
     }
   ]
 }
