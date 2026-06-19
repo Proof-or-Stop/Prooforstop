@@ -320,7 +320,7 @@
       "desc": "doc-code-drift: spec §3 intro bullet (line 147) shows `scope_boundary_set --storyId <id> --allowedScope <semantic dirs>` without the required `--userConfirmed=true` flag. The CLI schema (cli-engine.ts line 585) declares `userConfirmed: z.boolean()` without `.optional()`, so this command will fail validation if copied verbatim. The round-1 F-009 fix only patched the template-block examples (§3.1 line 181, §3.2 line 223, §3.3 line 256, §5.1 line 468) but left the first-exposure shorthand bullet in §3 incomplete. An implementer reading §3 before the templates sees the wrong signature.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T02:11:57.721Z",
@@ -332,7 +332,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "missing|md|code-drift-spec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: §3 intro shorthand bullet (line 147) now includes --userConfirmed=true on scope_boundary_set.",
+      "resolvedAt": "2026-06-19T02:20:24.569Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-016",
