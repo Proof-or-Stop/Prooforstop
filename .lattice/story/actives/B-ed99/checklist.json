@@ -11,7 +11,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "A material code diff story with one valid current-material local review round satisfies the review assurance floor without requiring 3x2 by default",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A docs-only markdown diff is not classified as material code and is not overblocked by the zero-review code floor",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "A material code diff story with zero current-material review evidence is blocked before DONE with an actionable review assurance floor message",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

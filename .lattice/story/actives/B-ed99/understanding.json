@@ -1,0 +1,29 @@
+{
+  "task": "Implement a mechanical DONE review assurance floor for Lattice code-changing stories.",
+  "outcome": "When a developer tries to mark a code-changing story DONE without the required review assurance, the terminal shows a DONE Gate Checklist row named Review assurance floor with a concrete blocker such as zero current-material review evidence or failure-triggered 3x1 missing; when the evidence is valid, the same row passes while authorityDone/fullAuthorityDone/productionDone remain false for local evidence.",
+  "facts": [
+    "B-503b accepted docs/requirements/decisions/review-assurance-floor-execution-plan.md as the policy truth source.",
+    "Existing DONE checklist already consumes evaluateReviewEscalation from packages/main/src/core/review-escalation.ts.",
+    "Existing host verdict process events are written by autopilot_review_submit and checked by packages/main/src/core/host-independence.ts with materialDigest, validationDigest, promptDigest, host/session/key binding.",
+    "Existing review escalation only triggers on first REVIEW round countable findings >= 2, so it does not catch zero-review material code DONE.",
+    "Local host verdict evidence is Non-authority and existing verdict summaries keep authorityDone, fullAuthorityDone, and productionDone false."
+  ],
+  "constraints": [
+    "Do not force every code change through 3x2 by default.",
+    "Do not treat docs-only typo/annotation work as material code diff.",
+    "Do not claim Authority Server completion without receipt-backed Authority proof.",
+    "Only fix the real correctness gap: DONE can close material code changes without the documented review assurance floor.",
+    "Follow consistency of logic by keeping DONE oracle and machine.canFinish on the same evaluator."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T01:32:16.486Z"
+}
