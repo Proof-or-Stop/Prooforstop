@@ -24,10 +24,16 @@ interface ParsedEntry {
   dir: string;
 }
 
-/** Normalize a path entry: strip a leading `./` and a trailing `/`. */
+/**
+ * Normalize a path entry to a canonical form so semantically-equal paths compare equal:
+ * strip a leading `./`, collapse repeated `/` and mid-path `/./` segments, and drop a
+ * trailing `/`. e.g. `src/./a.ts` and `src//a.ts` both canonicalize to `src/a.ts`, so
+ * the overlap check does not miss a collision on a redundant-but-equivalent path.
+ */
 function normalizeEntry(entry: string): string {
   let e = entry.trim();
   if (e.startsWith('./')) e = e.slice(2);
+  e = e.replace(/\/+/g, '/').replace(/\/\.(?=\/|$)/g, '');
   if (e.length > 1 && e.endsWith('/')) e = e.slice(0, -1);
   return e;
 }

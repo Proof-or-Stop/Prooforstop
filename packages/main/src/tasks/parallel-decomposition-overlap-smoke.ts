@@ -103,4 +103,10 @@ check('root literal vs its children-glob (docs vs docs/*) overlaps', globsOverla
 check('root literal vs its subtree (docs vs docs/**) overlaps', globsOverlap(['docs'], ['docs/**']).overlap === true);
 check('distinct root file vs unrelated dir-glob (README.md vs README/*): no overlap', globsOverlap(['README.md'], ['README/*']).overlap === false);
 
+// 12. redundant path segments canonicalize so equivalent paths collide (no missed overlap).
+check('src/./a.ts vs src/a.ts overlaps (canonicalized)', globsOverlap(['src/./a.ts'], ['src/a.ts']).overlap === true);
+check('src//a.ts vs src/a.ts overlaps (canonicalized)', globsOverlap(['src//a.ts'], ['src/a.ts']).overlap === true);
+const c3 = { storyId: 'B-t', allowedModify: ['src/./a.ts'], allowedCreate: ['src//a.ts'] } as unknown as ScopeContractData;
+check('computeWriteSet dedupes redundant-but-equal paths', computeWriteSet(c3).length === 1);
+
 console.log(`parallel-decomposition-overlap smoke passed: ${passed} assertions`);
