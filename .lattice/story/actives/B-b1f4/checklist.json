@@ -148,7 +148,55 @@
       "context": "Add/extend a smoke (e.g. packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts or a new usage-ledger-primary-total-smoke.ts wired into package.json + run-all-smokes) asserting: a codex (openai adapter) and a gemini provider-reported final each contribute their input+output to summary.primaryReportedTotal AND diagnostics bySource['provider-reported'].primaryKnown, while summary.providerReportedTotal and bySource.known STILL exclude them (unknownCount unchanged); an anthropic/claude record (all four dims known) appears in BOTH the strict four-field total and the primary total. Run the full smoke suite green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke runs end-to-end: creates codex (openai adapter, input=500, output=200, cache*=null), gemini (input=800, output=120, cacheCreation=null, cacheRead=40), and claude (input=500, output=200, cacheCreation=10, cacheRead=50) records via dispatch helpers, then asserts summary.primaryReportedTotal = 2320 and summary.primaryReportedCount = 3. WHY: the primary aggregate must include all three provider-reported records since all have non-null input+output",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same records: asserts summary.providerReportedTotal = 760 (claude only) and summary.providerReportedCount = 1, summary.unknownCount = 2 (codex+gemini four-field unknown). WHY: strict four-field semantics unchanged — cache-less providers still excluded from providerReportedTotal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same records via buildUsageReport: asserts overall.bySource[\"provider-reported\"].primaryKnown.input = 1800, primaryKnown.output = 520, primaryKnownCount = 3; AND overall.bySource[\"provider-reported\"].known = {input:500, output:200, cacheCreation:10, cacheRead:50}, knownCount = 1. WHY: diagnostics primary aggregate end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke is wired into package.json scripts AND run-all-smokes.ts (or equivalent entry), and the full smoke suite exits 0. WHY: confirms the new smoke is discoverable and does not break existing smokes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke verifies that an estimate record does NOT contribute to primaryReportedTotal (stays at 2320, not inflated by estimate input+output). WHY: confirms estimate exclusion in the end-to-end path, matching summary.ts unit behavior",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke verifies that an unavailable record does NOT contribute to primaryReportedTotal. WHY: confirms unavailable exclusion in end-to-end path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts that providerReportedTotal, estimateSubtotal, estimateCount, and unknownCount values are byte-identical to what they would be WITHOUT the primary-aggregate feature (i.e., the new feature is purely additive and does not perturb existing aggregate values). WHY: regression safety — the story must not change any existing aggregate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts that diagnostics.ts known/knownCount/unknownCount per source are unchanged from pre-feature values (codex+gemini unknownCount=1 each in provider-reported, claude knownCount=1). WHY: four-field diagnostics aggregate must not be perturbed by the addition of primaryKnown",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
