@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add done_prepare command surface and preflight",
+      "context": "Create the CLI command entry and handler input contract for a pre-DONE readiness assistant. It must resolve the requested story/worktree, require TEST phase, require a clean worktree before mutation, and avoid any version-file mutation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Orchestrate merge-main, stale evidence classification, validate, and done_closure",
+      "context": "Reuse existing Lattice logic where possible. Stale evidence must be classified with dry-run semantics first; only safely refreshable evidence can be refreshed, otherwise output rerun commands and stop.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Report runtime-change post-DONE finalization guidance without mutating versions",
+      "context": "Detect runtime-affecting diffs and report postDoneRuntimeVersionBumpRequired/postDoneNext. Do not touch package.json, lockfiles, or LATTICE_CLI_VERSION in done_prepare.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Render host-neutral readiness output and clean-tree blockers",
+      "context": "Output PASS/BLOCKED summaries that distinguish localDoneReady, degraded-single-host local assurance, two-host status, Authority receipt backed completion, and production completion. If prepare produced metadata changes, block at cleanTree with exact files and commit guidance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add focused smoke coverage for done_prepare behavior",
+      "context": "Cover clean ready path, dirty tree preflight, stale evidence classification, validate failure, runtime change detection without version mutation, docs-only no-finalization guidance, degraded-single-host wording, and dryRun no-mutation behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
