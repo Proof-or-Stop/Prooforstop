@@ -1,0 +1,190 @@
+{
+  "command": "lattice validate --story=B-491e --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — source search shows no public CLI command or task generates lattice_authority_trust.env or lattice_senior_* bundles\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — existing authority consumption and receipt verification paths still read env/config values\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — senior bundle generation cannot be triggered through CLI code paths\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check — docs describe authority_trust/client env files as server-provided\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (README.md) — normal developer path still does not require PROJECT_ID or GATE_ACTOR variables\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check — public docs do not expose private server generation steps\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — authority client/status smoke tests pass after cleanup\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — build passes with generation imports removed\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test — search/test coverage prevents accidental reintroduction of local senior bundle generation\"],\"warnings\":[],\"timestamp\":\"2026-06-19T01:38:24.062Z\",\"headSha\":\"94dcc9c68c5f9d7631caec2bf69ef5255610b324\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":11154},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":275},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":270}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"source search shows no public CLI command or task generates lattice_authority_trust.env or lattice_senior_* bundles\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"rg \\\"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\\\" packages/main/src docs\",\"result\":\"pass\",\"note\":\"No matches remained for public Authority bundle generation entrypoints or wording.\",\"headHash\":\"4e269ed8d2a8ec98cbb0dbb484546c444988b414\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:21.561Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"existing authority consumption and receipt verification paths still read env/config values\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js\",\"result\":\"pass\",\"note\":\"Focused authority client and status smokes passed after generator removal; they directly write operator/server handoff fixtures and prove existing env/trust consumption still reads server-provided config values.\",\"headHash\":\"4e269ed8d2a8ec98cbb0dbb484546c444988b414\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:21.561Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"senior bundle generation cannot be triggered through CLI code paths\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js\",\"result\":\"pass\",\"note\":\"Focused smokes consume hand-written Authority handoff fixtures and no longer call local basic or senior bundle generation.\",\"headHash\":\"4e269ed8d2a8ec98cbb0dbb484546c444988b414\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:21.561Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"docs describe authority_trust/client env files as server-provided\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg \\\"generate the bundle|generate .*bundle locally|locally in the target workspace\\\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md\",\"result\":\"pass\",\"note\":\"Docs now describe operator/server-provided handoff files consumed by the CLI, with ordinary developer files separated from advanced/live runner senior files.\",\"headHash\":\"4e269ed8d2a8ec98cbb0dbb484546c444988b414\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:21.561Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"normal developer path still does not require PROJECT_ID or GATE_ACTOR variables\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"operator/server-provided pair|relative sidecar paths|Normal local story development does not require developers to set\\\" README.md\",\"result\":\"pass\",\"note\":\"README at source commit 635b9f6d7 documents operator/server-provided handoff files, says relative sidecar paths stay beside the trust env, and keeps ordinary developers free of PROJECT_ID/GATE_ACTOR unless they switch to live runner or receipt/gate-consumption flows.\",\"headHash\":\"e804cbd7714b23f8232ea35d0aa1d0b8aefae985\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:12.636Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"public docs do not expose private server generation steps\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg \\\"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|lattice_senior_.*generated\\\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md\",\"result\":\"pass\",\"note\":\"No public docs reference CLI generator internals or senior generated bundle wording.\",\"headHash\":\"4e269ed8d2a8ec98cbb0dbb484546c444988b414\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:21.561Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"authority client/status smoke tests pass after cleanup\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js\",\"result\":\"pass\",\"note\":\"Authority client/status smokes passed at source commit 635b9f6d7 with server-style handoff fixtures: bundleRoot holds lattice_authority_trust.env pointing to ./lattice_staging-client.env while a separate consumer cwd contains a conflicting sidecar, proving the CLI resolves the key beside the trust env file.\",\"headHash\":\"0c5605b07e14fcffd078e399e51c53c96631643b\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:02.199Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"build passes with generation imports removed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"TypeScript build passed at source commit 635b9f6d7 after resolving trust-env sidecar paths relative to the loaded trust env file and adjusting handoff smoke coverage.\",\"headHash\":\"635b9f6d781b66b714ffa1686db4cfe03f47081a\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:23:52.991Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"search/test coverage prevents accidental reintroduction of local senior bundle generation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"rg \\\"generate the bundle|generate .*bundle locally|locally in the target workspace|regenerated on the destination machine|buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle\\\" README.md docs packages/main/src\",\"result\":\"pass\",\"note\":\"Residual search returned no matches at source commit 635b9f6d7, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.\",\"headHash\":\"7c71726a1bdf9f6a8916850399555698ddb6fec8\",\"materialHash\":\"ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f\",\"timestamp\":\"2026-06-19T01:24:07.083Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T01:38:25.169Z",
+  "headHash": "94dcc9c68c5f9d7631caec2bf69ef5255610b324",
+  "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "source search shows no public CLI command or task generates lattice_authority_trust.env or lattice_senior_* bundles",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\" packages/main/src docs",
+          "result": "pass",
+          "note": "No matches remained for public Authority bundle generation entrypoints or wording.",
+          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:21.561Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "existing authority consumption and receipt verification paths still read env/config values",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Focused authority client and status smokes passed after generator removal; they directly write operator/server handoff fixtures and prove existing env/trust consumption still reads server-provided config values.",
+          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:21.561Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "senior bundle generation cannot be triggered through CLI code paths",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Focused smokes consume hand-written Authority handoff fixtures and no longer call local basic or senior bundle generation.",
+          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:21.561Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "docs describe authority_trust/client env files as server-provided",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "result": "pass",
+          "note": "Docs now describe operator/server-provided handoff files consumed by the CLI, with ordinary developer files separated from advanced/live runner senior files.",
+          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:21.561Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "normal developer path still does not require PROJECT_ID or GATE_ACTOR variables",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"operator/server-provided pair|relative sidecar paths|Normal local story development does not require developers to set\" README.md",
+          "result": "pass",
+          "note": "README at source commit 635b9f6d7 documents operator/server-provided handoff files, says relative sidecar paths stay beside the trust env, and keeps ordinary developers free of PROJECT_ID/GATE_ACTOR unless they switch to live runner or receipt/gate-consumption flows.",
+          "headHash": "e804cbd7714b23f8232ea35d0aa1d0b8aefae985",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:12.636Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "public docs do not expose private server generation steps",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|lattice_senior_.*generated\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "result": "pass",
+          "note": "No public docs reference CLI generator internals or senior generated bundle wording.",
+          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:21.561Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "authority client/status smoke tests pass after cleanup",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Authority client/status smokes passed at source commit 635b9f6d7 with server-style handoff fixtures: bundleRoot holds lattice_authority_trust.env pointing to ./lattice_staging-client.env while a separate consumer cwd contains a conflicting sidecar, proving the CLI resolves the key beside the trust env file.",
+          "headHash": "0c5605b07e14fcffd078e399e51c53c96631643b",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:02.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "build passes with generation imports removed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed at source commit 635b9f6d7 after resolving trust-env sidecar paths relative to the loaded trust env file and adjusting handoff smoke coverage.",
+          "headHash": "635b9f6d781b66b714ffa1686db4cfe03f47081a",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:23:52.991Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "search/test coverage prevents accidental reintroduction of local senior bundle generation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace|regenerated on the destination machine|buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle\" README.md docs packages/main/src",
+          "result": "pass",
+          "note": "Residual search returned no matches at source commit 635b9f6d7, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.",
+          "headHash": "7c71726a1bdf9f6a8916850399555698ddb6fec8",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:07.083Z"
+        }
+      }
+    ]
+  }
+}
