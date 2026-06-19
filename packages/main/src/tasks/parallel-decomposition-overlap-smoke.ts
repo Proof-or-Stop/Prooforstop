@@ -112,4 +112,10 @@ check('././src/** normalizes to a valid broad entry', validateWriteSetGrammar(['
 const c3 = { storyId: 'B-t', allowedModify: ['src/./a.ts'], allowedCreate: ['src//a.ts'] } as unknown as ScopeContractData;
 check('computeWriteSet dedupes redundant-but-equal paths', computeWriteSet(c3).length === 1);
 
+// 13. parent-directory ".." segments are rejected (terminal src/.. is not canonicalized away).
+const dots = validateWriteSetGrammar(['src/..', 'foo/../bar', 'src/a.ts']);
+check('terminal src/.. rejected', dots.invalid.some((i) => i.entry === 'src/..'));
+check('mid-path ../ rejected', dots.invalid.some((i) => i.entry === 'foo/../bar'));
+check('.. rejection leaves valid literal alone', !dots.invalid.some((i) => i.entry === 'src/a.ts'));
+
 console.log(`parallel-decomposition-overlap smoke passed: ${passed} assertions`);

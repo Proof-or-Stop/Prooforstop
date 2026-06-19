@@ -61,6 +61,10 @@ export function validateWriteSetGrammar(entries: string[]): {
       invalid.push({ entry: raw, reason: 'bare top-level wildcard is not supported' });
       continue;
     }
+    if (e.split('/').includes('..')) {
+      invalid.push({ entry: raw, reason: 'parent-directory ".." segments are not allowed' });
+      continue;
+    }
     const starCount = (e.match(/\*/g) ?? []).length;
     if (starCount === 0) continue; // literal — always valid
     if (e.endsWith('/**')) {
