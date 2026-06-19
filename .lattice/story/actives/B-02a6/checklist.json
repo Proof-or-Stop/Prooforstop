@@ -117,6 +117,17 @@
           "headHash": "d3fa56db788612c79b6abf27dbfca7fc6851c7b9",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:54:14.464Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "adversarial: a blank/whitespace leaf throws at the consumer (runtime re-validation, never silently safe); ignored && !tracked stays unsafe (ClawCreek); and installing the allowlist via doctor --repair alone does NOT make an uncommitted leaf safe (still unsafe until committed). All asserted in the protection smoke.",
+          "headHash": "f3b4e88166aecb9b0992ec7a75bc7bcd17bc377a",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:22.286Z"
         }
       ]
     }
