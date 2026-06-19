@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7691",
+  "checkedAt": "2026-06-19T15:16:51.590Z",
+  "reviewRound": "2026-06-19T14:51:48.175Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-7691/plan.md#CHK-001",
+      "promise": "New module core/dirty-worktree-gate.ts exports readGitStatusLines, classifierOptionsForCheck, isBlockingDirty, and re-exports classifyGitStatusRows",
+      "verifiedBy": "direct file read",
+      "evidence": "packages/main/src/core/dirty-worktree-gate.ts exists; exports readGitStatusLines, classifierOptionsForCheck, isBlockingDirty, classifyGitStatusRows (re-export); imports only leaf modules dirty-worktree.js and dirty-gate-policy.js — no back-edge to done-oracle or review-run"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7691/plan.md#CHK-001",
+      "promise": "done-oracle.ts: private readGitStatusLines and classifierOptionsForCheck removed; replaced by import from dirty-worktree-gate.ts; evaluateDirtyGitStatus stays private and DONE verdict byte-identical",
+      "verifiedBy": "grep + direct file read",
+      "evidence": "grep confirms no top-level function defs of readGitStatusLines/classifierOptionsForCheck remain in done-oracle.ts; line 34 shows import from dirty-worktree-gate.js; evaluateDirtyGitStatus at line 82 is still a non-exported function"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7691/plan.md#CHK-001",
+      "promise": "handlers/review-run.ts: preflight placed AFTER REVIEW phase check and BEFORE captureReviewRunSnapshot; refuses on BLOCKING dirty; passes on clean or non-blocking-only; fail-open on unreadable git status",
+      "verifiedBy": "direct file read",
+      "evidence": "review-run.ts lines 68-97: phase check at lines 68-72; preflight at lines 82-97 (classifies signedWorkspaceRoot, throws if b.blocked); fall-through on !status.ok; captureReviewRunSnapshot at line 102 comes after"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7691/plan.md#CHK-002",
+      "promise": "New smoke file packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts covers scenarios a-h; compiled JS artifact at dist/tasks/",
+      "verifiedBy": "direct file read + ls",
+      "evidence": "File exists at packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts with 8 scenario functions; compiled JS artifact verified at packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7691/plan.md#CHK-002",
+      "promise": "npm script test:review-run-clean-tree-preflight added to root package.json; smoke auto-discovered by run-all-smokes as dist/tasks/*-smoke.js",
+      "verifiedBy": "grep",
+      "evidence": "package.json line 24: test:review-run-clean-tree-preflight -> node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js; file matches tasks/*-smoke.ts pattern"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke scenarios (a)-(h) via node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js: material-source refuses, fixture refuses, clean proceeds+records run, metadata-only proceeds, refusal names file, isBlockingDirty parity with evaluateDirtyGate over 6 representative statuses, buildDoneChecklist regression dirty/clean, fail-open unreadable status. Compiled artifact verified present. Verification evidence records exit-0 pass at headHash 6008c5aa0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke covers all CHK-002 intents: material refuses (a+e), fixture refuses (b), clean proceeds (c), metadata proceeds (d), parity with DONE gate (f), DONE regression (g), fail-open (h), npm script verified (edge:3). Adversarial multi-category covered via parity table (all blocking rows). Unicode-path adversarial recorded as audit_only; upstream reuse justification accepted. Full npm test exit 0 confirmed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified directly in source code. The smoke covers 8 scenarios including adversarial blocking, parity with DONE gate evaluateDirtyGate, DONE regression, and fail-open on unreadable git status. Two LOW findings (F-001 unicode delegation claim unsubstantiated; F-002 multi-non-blocking categories not directly exercised) are honestly open and non-blocking. No TODO/FIXME in new non-test code. Preflight insertion verified before captureReviewRunSnapshot. done-oracle DONE verdict confirmed byte-identical by import-swap verification."
+  },
+  "_hash": "af63611c94eb8d5fe393c870e579d1b68f64d07c98e059e809deb5e6cb42a7b9"
+}
