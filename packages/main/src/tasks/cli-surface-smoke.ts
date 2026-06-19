@@ -136,33 +136,21 @@ const configDoctor = runJson<{ schemaVersion: string; migration: { cliFirst: boo
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 
-const reviewEscalation = runJson<{ schemaVersion: string }>([
+const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolean }>([
   'lattice',
-  'review',
-  'escalation',
-  'status',
-  '--storyId=B-a776',
+  'conduit',
+  'explain',
   '--json',
 ]);
-assert.equal(reviewEscalation.schemaVersion, 'lattice.review_escalation_status.v1');
+assert.equal(conduitExplain.schemaVersion, 'lattice.conduit_explain.v1');
+assert.equal(conduitExplain.authorityChanged, false);
 
-const autopilotReview = runJson<{ schemaVersion: string; storyId: string }>([
-  'lattice',
-  'autopilot',
-  'review',
-  'status',
-  '--storyId=B-a776',
-  '--json',
-]);
-assert.equal(autopilotReview.schemaVersion, 'lattice.verdict_summary.v1');
-assert.equal(autopilotReview.storyId, 'B-a776');
-
-const invalidCwd = mkdtempSync(join(tmpdir(), 'lattice-cli-surface-'));
+const invalidRoot = mkdtempSync(join(tmpdir(), 'lattice-cli-surface-root-'));
 try {
   const invalid = spawnSync(process.execPath, [
     cliBin(),
     '--root',
-    repoRoot,
+    invalidRoot,
     'checklist_update',
     JSON.stringify({
       storyId: 'B-smoke',
@@ -172,7 +160,7 @@ try {
       },
     }),
   ], {
-    cwd: invalidCwd,
+    cwd: invalidRoot,
     env: { ...process.env, LATTICE_NO_HOOKS: '1' },
     encoding: 'utf8',
   });
@@ -181,7 +169,7 @@ try {
   assert.match(invalid.stderr, /verificationIntent\.happy\.0\.type/);
   assert.doesNotMatch(invalid.stderr, /Command "checklist_update" is not available in .* phase/);
 } finally {
-  rmSync(invalidCwd, { recursive: true, force: true });
+  rmSync(invalidRoot, { recursive: true, force: true });
 }
 
 assert.ok(ownerLeaseHelpBlock('story_advance')?.includes('--forceTakeover'), 'ownership-gate helper surface still renders owner meta help');
