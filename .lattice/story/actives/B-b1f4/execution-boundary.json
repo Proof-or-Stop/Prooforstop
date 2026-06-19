@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b1f4",
+  "allowedCommands": [
+    "cd packages/main && npm run build",
+    "git *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node packages/main/dist/tasks/run-all-smokes.js*",
+    "npm run build",
+    "npm run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/usage-ledger/diagnostics.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
+    "packages/main/src/tasks/",
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+    "packages/main/src/tasks/usage-ledger-report.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/usage-ledger/adapters/",
+    "packages/main/src/core/usage-ledger/record.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Additive primary (input+output) aggregate only; no changes to strict four-field semantics, pricing, adapters, or record schema; preserve zero-cross-module-import invariant.",
+  "createdAt": "2026-06-19T12:34:24.148Z",
+  "updatedAt": "2026-06-19T12:34:24.148Z",
+  "_hash": "6f27938bb399ba5f47feeed3afc63b99955483855bf6702a495af5adde20ca8c"
+}

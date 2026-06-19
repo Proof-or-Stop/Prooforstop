@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-b1f4",
+  "checkedAt": "2026-06-19T12:34:47.118Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "c8e6bb588a5bf4cb3faf5a06f82c2a152e09c3bb6acbc9f079ea410219d4e0d1",
+  "executionBoundaryHash": "6f27938bb399ba5f47feeed3afc63b99955483855bf6702a495af5adde20ca8c",
+  "freshnessHash": "a87d3c76c428851e384b48cf0d4368a0764897d7b8c3ee74eb93046ef7adf980",
+  "effectiveExcludedKeywords": [
+    "Do NOT change computeCost or any pricing logic (cost stays four-field-only)",
+    "Do NOT change the strict four-field providerReportedTotal / known rollup semantics",
+    "Do NOT infer cacheCreation/cacheRead as 0 for cache-less providers (no provider-unreported value may be invented)",
+    "Do NOT introduce any cross-module import into usage-ledger (preserve zero-cross-module-import invariant)",
+    "Do NOT modify the openai/gemini/anthropic adapters or the record schema/validator",
+    "Do NOT wire the report/diagnostics into any gate (informational-only must stay informational-only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do NOT change computeCost or any pricing logic (cost stays four-field-only)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT change computeCost or any pricing logic (cost stays four-field-only)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT change the strict four-field providerReportedTotal / known rollup semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT change the strict four-field providerReportedTotal / known rollup semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT infer cacheCreation/cacheRead as 0 for cache-less providers (no provider-unreported value may be invented)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT infer cacheCreation/cacheRead as 0 for cache-less providers (no provider-unreported value may be invented)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT introduce any cross-module import into usage-ledger (preserve zero-cross-module-import invariant)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT introduce any cross-module import into usage-ledger (preserve zero-cross-module-import invariant)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT modify the openai/gemini/anthropic adapters or the record schema/validator",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT modify the openai/gemini/anthropic adapters or the record schema/validator",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT wire the report/diagnostics into any gate (informational-only must stay informational-only)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT wire the report/diagnostics into any gate (informational-only must stay informational-only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5450a782dc94c5f1802c6fbc540ff5d6882cfcbd9174e83d91ddc38548cbffd1"
+}

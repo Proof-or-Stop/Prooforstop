@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b1f4",
+  "mode": "feature",
+  "allowed": [
+    "Add/extend a smoke under packages/main/src/tasks/ (wired into package.json + run-all-smokes) asserting codex/gemini contribute to primary only, claude to both",
+    "packages/main/src/core/usage-ledger/diagnostics.ts: add a per-source primary aggregate (primaryKnown {input,output} + primaryKnownCount) to SourceTokenTotals, rolled up per group + overall",
+    "packages/main/src/core/usage-ledger/summary.ts: add an additive primaryReportedTotal + primaryReportedCount (input+output) to UsageSummary and a primaryTotal field to DerivedRecordTotal",
+    "packages/main/src/tasks/usage-ledger-report.ts: optionally surface the primary aggregate in renderHuman output",
+    "Update in-module doc comments describing the new additive aggregate"
+  ],
+  "excluded": [
+    "Do NOT change computeCost or any pricing logic (cost stays four-field-only)",
+    "Do NOT change the strict four-field providerReportedTotal / known rollup semantics",
+    "Do NOT infer cacheCreation/cacheRead as 0 for cache-less providers (no provider-unreported value may be invented)",
+    "Do NOT introduce any cross-module import into usage-ledger (preserve zero-cross-module-import invariant)",
+    "Do NOT modify the openai/gemini/anthropic adapters or the record schema/validator",
+    "Do NOT wire the report/diagnostics into any gate (informational-only must stay informational-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scope derived from the user-provided GOAL for the B-12d7 F-004 follow-up: additive primary (input+output) aggregate, distinct from strict four-field providerReportedTotal, no inference, invariants preserved.",
+  "createdAt": "2026-06-19T12:34:05.606Z",
+  "updatedAt": "2026-06-19T12:34:05.606Z",
+  "_hash": "c8e6bb588a5bf4cb3faf5a06f82c2a152e09c3bb6acbc9f079ea410219d4e0d1"
+}
