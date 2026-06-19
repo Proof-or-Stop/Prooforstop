@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T20:04:58.357Z",
       "reviewRunId": "B-aa8a:RR-004",
       "_hash": "9714257ccec4318aa37b310944cc56efea5e43838085606acc1201cf99e88bd7"
+    },
+    {
+      "id": "B-aa8a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): 28 intents reviewed against the 51-assertion version-bump-smoke. 27/28 intents fully covered; 1 medium finding filed (B-aa8a:F-004) — CHK-001:happy:4 smoke checks version numbers in the return line but does not assert the literal word \"auto-bumped\" that the intent specifies. All staleness is hash-drift only (materialHash moved after the round-2 commit); no functional coverage gap beyond F-004. Round-1 high finding F-001 (CHK-001:adversarial:1 read-only) is resolved: the smoke now tests read-only atomicity for BOTH the root (first write, lines 179-181) and the brand (last write, lines 185-187). No blocker.",
+      "createdAt": "2026-06-19T20:08:32.716Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-006",
+      "_hash": "154da27bbc13d7138d23ff372f26ef8472fbca28c756e6f476094321078b7150"
     }
   ]
 }
