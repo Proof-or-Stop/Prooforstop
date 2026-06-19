@@ -57,6 +57,27 @@
       ],
       "signatureTag": "missing|ts|mutation-coverage-overclaimed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb36:F-004",
+      "desc": "done_prepare bypasses the required commit-required stop for prepare-generated metadata. In packages/main/src/handlers/done-prepare.ts:610 it delegates safe stale verification evidence refresh to createChecklistHandlers(ctx).verification_evidence_refresh_stale({ storyId }). That handler rewrites checklist evidence and then calls autoCommitStoryMetadata at packages/main/src/handlers/checklist.ts:1039-1045, whose implementation stages and commits the story metadata at packages/main/src/core/auto-commit-metadata.ts:200-218. As a result, done_prepare can produce and auto-commit metadata, then see a clean tree and print PASS, instead of blocking at cleanTree with exact files as required by docs/requirements/decisions/done-prepare-automation-execution-plan.md:293-308 and acceptance lines 604-605. The concept contract says the first implementation must not auto-commit prepare-generated metadata; callers need the explicit commit-required stop before DONE.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T23:21:16.365Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-003",
+      "_hash": "14083fcf46fdd1ae667dcb1ccab876ced52df546defc4053710e6846d5a323bb",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|prepare-bypasses-required",
+      "signatureTagSource": "auto"
     }
   ]
 }
