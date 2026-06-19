@@ -4,7 +4,7 @@
   "title": "Story 1 — Static overlap engine: computeWriteSet + globsOverlap",
   "description": "Implement the static, tiered glob-overlap engine for the parallel-decomposition gate (spec docs/parallel-decomposition-spec.md Section 4.2): computeWriteSet(contract) and globsOverlap(a,b) with literal-path intersection plus shared-directory-prefix heuristic and broadness classification, plus the scope_contract_set grammar validator that rejects mid-path ** and bare *. Lives in a NEW file core/parallel-decomposition-overlap.ts so it is file-disjoint from Story 2 (gate verdict) and runs in parallel.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "parallel-decomposition",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-19T12:30:37.489Z",
   "startedAt": "2026-06-19T12:30:37.489Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T15:14:18.005Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,127 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:48:03.560Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:51:08.171Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:58:13.357Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:12:27.849Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:12:28.388Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:29:31.337Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:29:31.983Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:40:42.961Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:40:45.503Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:52:09.989Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:52:10.850Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:07:40.096Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:07:40.976Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:15:47.465Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T15:14:18.005Z",
+      "branch": "story/B-4033",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4033",
-    "branch": "story/B-4033",
-    "createdAt": "2026-06-19T12:47:50.541Z"
-  }
+  "currentReviewRound": "2026-06-19T14:07:40.976Z"
 }

@@ -28,11 +28,10 @@ import {
 import type { OracleRow } from './oracle-row.js';
 import {
   classifyGitStatusRows,
-  dirtyWorktreeClassifierOptionsForStory,
-  dirtyWorktreeClassifierOptionsFromConfig,
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
 import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import { readGitStatusLines, classifierOptionsForCheck } from './dirty-worktree-gate.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from './evidence-freshness.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import {
@@ -69,36 +68,12 @@ export function checkMainDivergence(gitCwd: string): { behind: number; needsSync
   }
 }
 
-// B-6666 CHK-001: gitCwd is the resolved git cwd (wrapper-root aware). On a
-// wrapper-root layout the bare metadataRoot is not a git repo, so reading
-// `git status` from it errors -> the git-working-tree DONE row falsely blocks.
-function readGitStatusLines(gitCwd: string): { ok: true; lines: string[] } | { ok: false; error: string } {
-  try {
-    const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
-      cwd: gitCwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { ok: true, lines: raw.split('\n').map(line => line.trimEnd()).filter(Boolean) };
-  } catch (e: any) {
-    return { ok: false, error: e?.message || String(e) };
-  }
-}
-
-// Task B-6326: DONE gate dirty output uses the shared ownership classifier.
-// Task B-cf60: when a storyId/store is available, mix in declaredArtifactPaths from the
-// per-story declared-artifacts.json so declared paths flip from unexpected → declared.
-function classifierOptionsForCheck(
-  config: ReturnType<typeof loadConfig>,
-  storyId: string | undefined,
-  store: StoryStore | undefined,
-  projectRoot?: string,
-) {
-  if (storyId && store) {
-    return dirtyWorktreeClassifierOptionsForStory(config, storyId, store, projectRoot);
-  }
-  return dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot);
-}
+// B-7691: readGitStatusLines + classifierOptionsForCheck moved VERBATIM to
+// core/dirty-worktree-gate.ts (pure move, zero logic change) and imported above
+// so the review_run_start clean-tree preflight can reuse the EXACT same git read
+// + classifier-options resolution without importing done-oracle (cycle).
+// evaluateDirtyGitStatus (with the 'done-gate' audit) stays here and keeps using
+// them — the DONE verdict path is byte-identical.
 
 // Task B-4b22: dirty git-working-tree row uses the shared dirty-gate-policy
 // evaluator (single source of truth). Both summary (row.detail) and hint

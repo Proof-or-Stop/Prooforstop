@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fc82",
+  "mode": "feature",
+  "allowed": [
+    "Relocate the clean-tree preflight block to before captureReviewRunSnapshot in handlers/review-run.ts",
+    "Strengthen review-run-clean-tree-preflight-smoke.ts with an end-to-end ordering assertion"
+  ],
+  "excluded": [
+    "cross-project usage aggregation",
+    "storyFilesHash whole-tree-drift root-cause work",
+    "the done-premerge mainSha re-check capability"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Operator approved fixing the codex-found ordering bug; in-file invariants (isBlockingDirty / DONE gate / materialHash / freshness guard untouched) are guarded inside the CHK contexts.",
+  "createdAt": "2026-06-19T16:06:39.641Z",
+  "updatedAt": "2026-06-19T16:06:39.641Z",
+  "_hash": "419897520d816115496a2b59dc8fe3bf5abbc59866a9875b34b0724ddd6e15ee"
+}

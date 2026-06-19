@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-7691:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. (1) readGitStatusLines and classifierOptionsForCheck have zero private definitions remaining in done-oracle.ts; done-oracle imports them from dirty-worktree-gate.ts. (2) recover-evidence.ts has its own pre-existing private readGitStatusLines (different signature: returns string[], fail-open to [], not the {ok,lines|error} union); this file was NOT modified in this story — it is pre-existing and not a residue of the B-7691 extraction. (3) Naming is consistent: dirty-worktree.ts (classifier), dirty-gate-policy.ts (blocking table), dirty-worktree-gate.ts (new shared read+options); all three co-exist without naming collision. (4) isBlockingDirty is defined only in dirty-worktree-gate.ts, consumed only in review-run.ts and the smoke test. (5) evaluateDirtyGitStatus remains private in done-oracle.ts with zero external references. (6) classifyGitStatusRows re-exported from dirty-worktree-gate.ts is consumed correctly by review-run.ts and the smoke test via that re-export path. No concept deletion, replacement, or orphaned residue found.",
+      "createdAt": "2026-06-19T14:58:48.758Z",
+      "reviewRound": "2026-06-19T14:51:48.175Z",
+      "reviewRunId": "B-7691:RR-001",
+      "_hash": "49e67478590ad7a6bd16c90dfab05603e7deab200644f5672ebb9669888577c0"
+    },
+    {
+      "id": "B-7691:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type-safety, or I/O isolation issues found. All four changed files reviewed: (1) dirty-worktree-gate.ts — new module, all imports used (DIRTY_WORKTREE_CATEGORIES, classifyGitStatusRows, dirtyWorktreeClassifierOptionsForStory, dirtyWorktreeClassifierOptionsFromConfig, DirtyWorktreeClassification, DIRTY_GATE_POLICY), no back-edges to done-oracle or review-run, catch(e:any) properly returns e.message; (2) done-oracle.ts — classifyGitStatusRows still used at line 91, execSync still used at lines 61+490, moved functions replaced by import; (3) review-run.ts — all four imported symbols from dirty-worktree-gate used (readGitStatusLines, classifierOptionsForCheck, classifyGitStatusRows, isBlockingDirty), existing catch{} at resolveGitTopLevel is pre-existing; (4) smoke test — all imports used, all catch paths handled, finally blocks ensure temp dir cleanup. Key invariants verified: no cycles, single policy source (DIRTY_GATE_POLICY), fail-open contract, DONE gate verdict unchanged.",
+      "createdAt": "2026-06-19T15:02:49.412Z",
+      "reviewRound": "2026-06-19T14:51:48.175Z",
+      "reviewRunId": "B-7691:RR-002",
+      "_hash": "0ff6da1a53e1a11b7f40dc95e41e779a5ee59ac76c7ce9f61d47a125aa5b6725"
+    },
+    {
+      "id": "B-7691:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all must-priority verificationIntents across CHK-001 (12 intents) and CHK-002 (11 intents) have verificationEvidence with result=pass. The 4 audit_only verdicts are structurally sound: edge:1/edge:2 (runtime_artifact and declared_artifact non-blocking) are correctly covered by construction via the shared DIRTY_GATE_POLICY table proven by the parity test; adversarial:4 (non-REVIEW phase rejection) is verified by reading handlers/review-run.ts where the phase check precedes the preflight. Two low-severity advisory gaps filed: F-001 (CHK-002:adversarial:1 delegation to upstream classifier unicode tests is unsubstantiated — no octal-escaped quoted path test found) and F-002 (CHK-001:edge:3 mixed non-blocking categories not directly exercised, only single-category scenarios tested). No blocker findings. Evidence is concrete and binds to specific smoke scenarios (a)-(h) in review-run-clean-tree-preflight-smoke.ts.",
+      "createdAt": "2026-06-19T15:05:26.188Z",
+      "reviewRound": "2026-06-19T14:51:48.175Z",
+      "reviewRunId": "B-7691:RR-003",
+      "_hash": "82d9ad56b248d2c7eafdad534e6788e089af2f97b8cf7b3beb0f595b9ee635cb"
+    }
+  ]
+}

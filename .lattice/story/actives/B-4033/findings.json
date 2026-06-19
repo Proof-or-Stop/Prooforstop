@@ -1,0 +1,226 @@
+{
+  "findings": [
+    {
+      "id": "B-4033:F-001",
+      "desc": "computeWriteSet includes allowedTest but plan.md, checklist context, and userSees declare only allowedModify+allowedCreate: plan.md says dedupe(allowedModify++allowedCreate); scope-check feature says unions allowedModify+allowedCreate paths; userSees says unions a contract allowedModify+allowedCreate — none mention allowedTest. The implementation unions all three. Behavior is conservative (aligns with never-under-flag philosophy) and the verificationEvidence note acknowledges it, but the declared spec surface and implementation are inconsistent. If Story 2 callers rely on the plan-stated contract (allowedModify+allowedCreate only), the underdeclaration may cause confusion or test-file paths being unexpectedly included in overlap verdicts.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T13:02:46.504Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-002",
+      "_hash": "6f2366adb7951af66fb404240affa37ee8f93c08b99d33b56a5abb307bef972b",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts",
+        ".lattice/story/actives/B-4033/plan.md",
+        ".lattice/story/actives/B-4033/checklist.json"
+      ],
+      "signatureTag": "edge|ts|computewriteset-includes-allowedtest",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: computeWriteSet now unions only allowedModify + allowedCreate (allowedTest excluded — it is an allowed-to-touch permission, not a declared write target), matching plan.md and avoiding over-flagging test globs.",
+      "resolvedAt": "2026-06-19T13:12:01.095Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-002",
+      "desc": "smoke-gap: parallel-decomposition-overlap-smoke.ts has no assertions for children-vs-subtree, overlapping subtree-vs-subtree, or children-vs-children interactions — the three non-literal wildcard combinations that use the tier-2 heuristic branch; if entriesOverlap is modified later these regressions have no coverage",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:03:05.738Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "f28b74d8a0c3657737f84bf6af4666f07516d9a143ef5c0bf2a230a29930d019",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-parallel-decomposition",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke extended from 20 to 32 assertions — added children-vs-children (same + sibling), children-vs-subtree nested, subtree-vs-subtree (nested + sibling), shared-prefix children cases, empty-dir rejection, and allowedTest-exclusion.",
+      "resolvedAt": "2026-06-19T13:12:02.755Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-003",
+      "desc": "[Codex host P1] entriesOverlap under-flagged shared-prefix collisions for children globs: src/* vs src/csv/* and src/csv/* vs a deep literal (src/csv/impl/parser.ts) were not flagged, but spec 4.2 tier-2 requires conservative shared-directory-prefix flagging. Two stories could pass PLAN->DEV with intersecting scopes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:11:41.139Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "a8825fcb1b97cba5133477b566a51f6db90973bba5b2052cb870d5326a6c9d7a",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-entriesoverlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (Codex P1): entriesOverlap rewritten to conservative scope-directory nesting for any wildcard-involved pair — src/* vs src/csv/* and src/csv/* vs src/csv/impl/parser.ts now flag overlap; literal-vs-literal stays tier-1 exact. Verified by new smoke assertions.",
+      "resolvedAt": "2026-06-19T13:12:04.372Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-004",
+      "desc": "[Codex host P1] validateWriteSetGrammar accepted empty-directory wildcards (/* and /**) because dir is empty after slice; classifyBroadness(/*) reported narrow, so an effectively repo-wide scope could slip through both the grammar and broadness checks.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:11:42.407Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "0343884c44ae75ab1d01fa2324401740c5ead69c4bb5b339e414d66facabc541",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-validatewritesetgrammar",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (Codex P1): validateWriteSetGrammar now rejects empty-directory wildcards (/*, /**); classifyBroadness treats an empty/root wildcard dir as BROAD. Verified by new smoke assertions.",
+      "resolvedAt": "2026-06-19T13:12:05.787Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-005",
+      "desc": "concept-cleanup: smoke section-1 comment (line 25) says computeWriteSet unions allowedModify + allowedCreate + allowedTest — describing the pre-F-001 three-field union. Post-fix the engine unions only allowedModify + allowedCreate (allowedTest excluded). The assertion still passes because the fixture places parser.test.ts in allowedCreate, not allowedTest, so the behavior is correct. But the comment is stale/misleading: it contradicts the corrected contract (plan.md, F-001 resolution, section-10 comment). Future readers of section 1 will believe allowedTest is included. File: packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts line 25.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T13:14:26.779Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-005",
+      "_hash": "72b4776efff8b30c119bb450f120119f0fb5ed01b43bdf87a5e62f9a56824810",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|concept-cleanup-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke line-1 comment corrected to \"allowedModify + allowedCreate, deduped (allowedTest excluded)\" matching the F-001 fix.",
+      "resolvedAt": "2026-06-19T13:28:51.435Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-006",
+      "desc": "[Codex host P2] entriesOverlap under-flagged single-segment root literals: globsOverlap([docs],[docs/*]) returned false because the literal was reduced to its parent dir. Fixed by comparing the literal full path (e.dir) against the wildcard dir.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:28:50.682Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-004",
+      "_hash": "1e0b133b9762d7b99743bb0e5a7d863149fce703906c87c4d7006c4597bd675a",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-entriesoverlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: entriesOverlap simplified to nest e.dir (literal full path vs wildcard dir) both ways; docs vs docs/* and docs vs docs/** now overlap, README.md vs README/* stays disjoint, and the F-003 deep-literal case (src/csv/* vs src/csv/impl/parser.ts) still flags. Removed now-dead dirname(). smoke 35 assertions.",
+      "resolvedAt": "2026-06-19T13:28:52.078Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-007",
+      "desc": "[Codex host P1] the public contract parallel-decomposition.ts still exports computeWriteSet/globsOverlap as NotImplemented stubs; the real logic is in the sidecar parallel-decomposition-overlap.ts. By design for the contract-first file-split: Story 1 cannot edit the frozen contract (out of scope); the re-export reconciliation is Story 5 (serial integration).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:40:16.501Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-007",
+      "_hash": "7716cd32a1cec016736e9445db5f8e9f6d76688bef1351a52bc594e860ae6034",
+      "files": [
+        "packages/main/src/core/parallel-decomposition.ts"
+      ],
+      "signatureTag": "missing|ts|codex-host-public",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Deferred to Story 5 by design: the operator chose a file-split decomposition so Story 1 implements the engine in the sidecar parallel-decomposition-overlap.ts; editing the frozen contract parallel-decomposition.ts is outside Story 1 scope and is Story 5 (serial integration), which reconciles the contract to re-export the real impls. Within the program no caller imports the contract stubs before S5; Story 2 imports globsOverlap from the sidecar.",
+      "resolvedAt": "2026-06-19T13:40:18.770Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-008",
+      "desc": "[Codex host P2] normalizeEntry did not canonicalize redundant path segments (src/./a.ts, src//a.ts), so equivalent paths compared distinct and a real write-set collision could be missed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:40:17.715Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-007",
+      "_hash": "36e79071e89fdbf3df4b749334a0cfe9424bb206dfd8262692a63e3d249e6758",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-normalizeentry",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: normalizeEntry now collapses repeated / and mid-path /./ segments (and strips leading ./ and trailing /), so src/./a.ts and src//a.ts canonicalize to src/a.ts. computeWriteSet dedupes them and globsOverlap detects the collision. Verified by 3 new smoke assertions (38 total).",
+      "resolvedAt": "2026-06-19T13:40:20.055Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-009",
+      "desc": "[Codex host P1] normalizeEntry only stripped the FIRST leading ./, so repeated-prefix inputs validatePaths accepts (./* , ././src/**) stayed distinct — a disguised top-level wildcard could pass grammar validation and equal paths could miss in overlap/broadness.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:51:48.639Z",
+      "reviewRound": "2026-06-19T13:40:45.503Z",
+      "reviewRunId": "B-4033:RR-010",
+      "_hash": "12ace40315d3aabdb526f6f9c97725931a1f82e8904935e601564d0df7a8e9c6",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-normalizeentry",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed robustly: normalizeEntry rewritten to split on / and drop every empty and same-dir (.) segment, then rejoin. This canonicalizes //, /./, leading ./, repeated ./ uniformly: ./*  and ././* collapse to bare * (grammar-rejected), ././src/** -> src/**, src/./a.ts and src//a.ts -> src/a.ts. Verified by 41 smoke assertions incl. repeated-leading-./ cases.",
+      "resolvedAt": "2026-06-19T13:51:49.481Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-010",
+      "desc": "[Codex host P1] terminal parent-directory segments (src/.., foo/..) were not handled: scope-contract.ts:48 rejects ../ and leading/exact .. but NOT a terminal src/.., so such a path could reach globsOverlap and misclassify the directory.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T14:07:24.697Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-013",
+      "_hash": "2408d11eb0c4ad416785c3ee9b07a6c060d92b31804e61ea8f5d3eda1efe2a50",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-terminal",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (defense-in-depth): validateWriteSetGrammar now rejects any entry containing a \"..\" segment (src/.., foo/../bar) — cleaner than resolving traversal. Complements the upstream scope-contract.ts check which misses the terminal case. Verified by 3 new smoke assertions (44 total).",
+      "resolvedAt": "2026-06-19T14:07:25.516Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

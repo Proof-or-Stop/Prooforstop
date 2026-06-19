@@ -4,7 +4,7 @@
   "title": "Add a material-source clean-tree preflight to review_run_start",
   "description": "Refuse review_run_start when the working tree has uncommitted BLOCKING changes (material-source or fixture), reusing the DONE gate's shared dirty evaluation (classifyGitStatusRows + DIRTY_GATE_POLICY via evaluateDirtyGate). A fail-fast UX gate that prevents reviewers from snapshotting a tree about to drift and lose the round; lattice metadata / runtime artifacts / declared artifacts stay non-blocking. Not a soundness gate (evidence-freshness at write time remains that); cannot catch a commit made after the snapshot. Requires exporting/extracting the currently-private readGitStatusLines without changing DONE-gate behavior.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "review",
@@ -26,7 +26,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-19T13:59:30.113Z",
   "startedAt": "2026-06-19T13:59:30.113Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T15:21:04.819Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:05:14.547Z",
+      "branch": "story/B-7691",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:15:24.590Z",
+      "branch": "story/B-7691",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:51:48.175Z",
+      "branch": "story/B-7691",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T15:09:05.248Z",
+      "branch": "story/B-7691",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T15:21:04.819Z",
+      "branch": "story/B-7691",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7691",
-    "branch": "story/B-7691",
-    "createdAt": "2026-06-19T14:04:34.591Z"
-  }
+  "currentReviewRound": "2026-06-19T14:51:48.175Z"
 }

@@ -4,17 +4,135 @@
       "id": "CHK-001",
       "title": "Implement computeWriteSet + globsOverlap in new core/parallel-decomposition-overlap.ts",
       "context": "Pure functions per spec 4.2: computeWriteSet(contract: ScopeContractData) returns created+modified paths; globsOverlap(a,b) does literal-path intersection + shared-dir-prefix heuristic + broadness (NARROW/BROAD over literal|dir/*|dir/**), returning GlobOverlapResult {overlap,pairs,broadSide}. Import types from parallel-decomposition.js. No I/O.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T12:58:02.035Z",
+      "userSees": "globsOverlap returns overlap=true with colliding pairs for literal-path overlap; computeWriteSet unions a contract allowedModify+allowedCreate; smoke prints PASS.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "globsOverlap detects literal-path overlap (returns overlap=true + pairs) and computeWriteSet derives the union write-set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tier-2 shared-dir-prefix flags a possible overlap conservatively (dir/* vs dir/literal) without under-flagging",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "disjoint write-sets return overlap=false; a BROAD glob is flagged with correct broadSide attribution",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add grammar validator + unit tests (parallel-decomposition-overlap.test.ts)",
       "context": "Validator rejects mid-path ** and bare top-level * at the write-set grammar boundary. Tests via a smoke script packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts (repo convention: node dist/tasks/<name>-smoke.js; no .test.ts framework). Smoke covers: literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection. tsc + smoke green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T12:58:02.724Z",
+      "userSees": "The grammar validator rejects mid-path ** and bare top-level *; node dist/tasks/parallel-decomposition-overlap-smoke.js prints PASS for all 5 behaviors.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grammar validator rejects mid-path ** and bare top-level *; smoke exits 0 (PASS) covering all 5 behaviors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NARROW vs BROAD classification is correct for literal / dir/* / dir/** below vs at package root",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke fails loudly (non-zero exit) if any assertion breaks — not a silent pass",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "9d414600d520a35d67eeb647fb5222e3c7a1d0c2",
+          "materialHash": "72447362bf251ad1e540fac9b48dca286abef8bdb4d3eabfbd8f5af766e05159",
+          "timestamp": "2026-06-19T14:21:11.791Z"
+        }
+      ]
     }
   ]
 }

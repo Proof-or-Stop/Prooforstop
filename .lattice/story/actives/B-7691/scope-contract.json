@@ -1,0 +1,29 @@
+{
+  "storyId": "B-7691",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/dirty-worktree-gate.ts",
+    "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/*-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/dirty-gate-policy.ts",
+    "packages/main/src/core/dirty-worktree.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/dirty-gate-policy.ts"
+  ],
+  "scopeChangeReason": "review_run_start clean-tree preflight: new shared dirty-worktree-gate module + done-oracle import swap (verdict byte-identical) + handler preflight + smoke. dirty-gate-policy/dirty-worktree/evidence-freshness are read-only reuse.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T14:09:44.711Z",
+  "updatedAt": "2026-06-19T14:09:44.711Z"
+}

@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Conservative: tier-1 exact never under-flags; tier-2 prefix may over-flag, never under-flag",
+    "Pure functions, zero I/O",
+    "File-disjoint new module to preserve parallelism with sibling stories"
+  ],
+  "drivers": [
+    "Output must feed Story 2 evaluateDecompositionGate",
+    "No minimatch available — must hand-roll",
+    "Stay file-disjoint from S2/S3/S4"
+  ],
+  "options": [
+    {
+      "name": "hand-rolled two-tier (literal intersection + shared-dir-prefix)",
+      "pros": [
+        "Matches spec 4.2 exactly",
+        "No new dependency",
+        "Conservative + predictable"
+      ],
+      "cons": [
+        "Cannot do full pattern-vs-pattern subsumption (acknowledged in spec)"
+      ]
+    },
+    {
+      "name": "add minimatch dependency",
+      "pros": [
+        "Full glob semantics"
+      ],
+      "cons": [
+        "New dep the project deliberately avoids",
+        "Overkill; spec mandates the conservative hand-rolled approach"
+      ]
+    }
+  ],
+  "chosen": "hand-rolled two-tier (literal intersection + shared-dir-prefix)",
+  "rationale": "Spec 4.2 mandates a conservative hand-rolled two-tier check and the project has no glob lib; this matches the contract and keeps zero false positives at tier-1.",
+  "preMortem": [
+    {
+      "scenario": "tier-2 prefix heuristic over-flags too aggressively",
+      "trigger": "two unrelated files share a high-level dir prefix",
+      "consequence": "false overlap advisories annoy operators",
+      "mitigation": "tier-2 only flags when at least one side uses a trailing wildcard and shares a below-root prefix; classify as advisory, document over-flag is intentional-safe"
+    },
+    {
+      "scenario": "computeWriteSet misses a write path",
+      "trigger": "ScopeContractData has created paths in allowedCreate not in allowedModify",
+      "consequence": "overlap engine under-detects",
+      "mitigation": "union allowedModify + allowedCreate and dedupe; smoke asserts both contribute"
+    },
+    {
+      "scenario": "grammar validator misses a malformed pattern",
+      "trigger": "mid-path ** or bare * slips through",
+      "consequence": "pathMatchesPattern mishandles it downstream",
+      "mitigation": "validator allowlists exactly literal | dir/* | dir/**; smoke asserts mid-path ** and bare * are rejected"
+    }
+  ],
+  "timestamp": "2026-06-19T12:48:56.132Z"
+}
