@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Diagnose + fix the hang in review-pass-discard-smoke and init-window-data-loss-smoke",
       "context": "Trace each step (instrument or run sub-sections) to find where each smoke blocks past 300s with no output; fix so both complete deterministically. story_create via dist/cli.js in an isolated temp repo is already verified fast, so look at later spawns / git operations / lock waits.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T17:11:30.925Z",
       "userSees": "lattice.config.json gives review-pass-discard-smoke and init-window-data-loss-smoke a per-command timeoutMs; under load they fail loud (exit 124, named) instead of silently hanging the whole validate.",
       "verificationIntent": {
         "happy": [
