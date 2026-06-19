@@ -49,10 +49,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
           "result": "pass",
-          "note": "Smoke PASS: tier-2 children-glob (dir/*) vs a direct-child literal flags overlap; unrelated literal does not — conservative over-flag, no under-flag.",
-          "headHash": "8bccae6d8e8407124180ef72f4a36881802c07a7",
-          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
-          "timestamp": "2026-06-19T12:57:57.176Z"
+          "note": "Smoke PASS: tier-2 shared-prefix children/subtree overlaps flagged conservatively; siblings not flagged.",
+          "headHash": "0563601a01fe698b9593e3522536e38f1f574c68",
+          "materialHash": "76782d1908134329f892fb4b4f8d41abe5be78d911b6f196efcab1378ea21f90",
+          "timestamp": "2026-06-19T13:12:30.550Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
