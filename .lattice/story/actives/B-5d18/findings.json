@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|ts|resource-leak-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d18:F-002",
+      "desc": "api-inconsistency: validation-executor.ts:309 executeValidationPlan calls runValidationCommand(command, projectRoot) without forwarding a defaultTimeoutMs parameter; since executeValidationPlan has no such parameter itself, the injectable-default seam added to runValidationCommand is unreachable from the plan-level entry point — callers needing plan-level timeout injection must call runValidationCommand directly",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T17:46:37.792Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-005",
+      "_hash": "79598c89c07400d190b990dfd9f40a0f53871a92e1ccd12a66165d6dcc3fd1b8",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|inconsistency-validation-executor",
+      "signatureTagSource": "auto"
     }
   ]
 }
