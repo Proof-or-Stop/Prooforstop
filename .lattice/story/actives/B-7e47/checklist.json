@@ -197,12 +197,13 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Checklist evidence records exact targeted build/test commands and either a passing Authority live smoke against https://staging.hostneutral.net or a concrete external blocker such as missing staging credentials.",
+      "userSees": "Evidence output records \"npm --prefix packages/main run build: PASS\", targeted Authority regression commands as \"PASS\", and either \"Authority live smoke https://staging.hostneutral.net: PASS\" or \"BLOCKED: missing staging credential\".",
       "files": {
         "modify": [],
         "create": [],
         "test": [
           "packages/main/package.json",
+          "packages/main/package-lock.json",
           "packages/main/src/tasks/authority-client-smoke.ts",
           "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
           "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
