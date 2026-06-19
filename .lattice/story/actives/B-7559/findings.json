@@ -514,7 +514,7 @@
       "desc": "doc-code-drift: story_create templates in sections 3.1/3.2/3.3/5.1 list lane, parallelSafe, blockingFor, and sharedHotspots as story_create fields. The story_create CLI schema (cli-engine.ts:302) and handler (story-create.ts:250) do NOT accept these fields; they are silently dropped. lane is inferred from priority by resolveStoryLane (high→mainline, medium→supporting); parallelSafe is computed by resolveParallelSafety from depends/blockingFor at read time; blockingFor is never persisted. An implementer copy-pasting the templates with those flags gets silent discard with no error.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T02:36:39.185Z",
@@ -527,7 +527,11 @@
         "packages/main/src/handlers/story-create.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: corrected the story_create field list to the real Zod schema (name,title,description,type,priority,depends,keywords,checklist,background) and documented lane (derived from priority via resolveStoryLane), parallelSafe (computed by resolveParallelSafety), blockingFor (no CLI setter), sharedHotspots (default []) as DERIVED not settable.",
+      "resolvedAt": "2026-06-19T02:40:45.833Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
