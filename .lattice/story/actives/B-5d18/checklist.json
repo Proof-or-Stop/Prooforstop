@@ -38,7 +38,31 @@
       "context": "In the validate runner, give each configured command a bounded timeout; on timeout mark THAT command failed with its label (so DONE reports a clear validate FAIL) instead of the current 300s no-output watchdog that force-exits the whole suite and leaves test-evidence.materialHash unstamped.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "validation-executor applies a default per-command timeout; a hung command is killed (exit 124, named) and validate completes/reports rather than the global 300s watchdog force-exiting the whole process.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validation-executor.ts applies a DEFAULT per-command timeout when command.timeoutMs is unset; a command exceeding it is SIGTERM then SIGKILL killed and finishes with code 124, attributed to that command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "explicit per-command timeoutMs override still honored; the default is strictly below the cli-engine 300s global idle watchdog so the per-command kill fires first",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a normal fast command is unaffected (no spurious timeout) — the new smoke proves both the hung-kill and the fast-pass paths",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
