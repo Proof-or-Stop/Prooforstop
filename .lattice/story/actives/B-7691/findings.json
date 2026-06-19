@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-7691:F-001",
+      "desc": "CHK-002:adversarial:1 evidence is audit_only and claims unicode/quoted-path coverage exists in the upstream classifier own tests, but no such test appears to exist. unquoteGitPath in dirty-worktree.ts is exercised by parseGitPorcelainRow in flow-stability-smoke via rename rows, but no smoke exercises an actual octal-escaped, git-quoted unicode path through classifyGitStatusRows. The delegation claim is not demonstrably grounded. A single row like `?? \\\"packages/main/src/caf\\\\303\\\\251.ts\\\"` through classifyGitStatusRows asserting the path is correctly unquoted and classified would close this gap cheaply.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T15:04:53.265Z",
+      "reviewRound": "2026-06-19T14:51:48.175Z",
+      "reviewRunId": "B-7691:RR-003",
+      "_hash": "bd6993ca66d5e1d7344089687165d38b446e0085c709e09b3023562787e548ed",
+      "files": [
+        "packages/main/src/core/dirty-worktree.ts",
+        "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-audit",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
