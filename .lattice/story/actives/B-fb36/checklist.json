@@ -59,22 +59,14 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees step rows \"mergeMain: PASS\", \"staleEvidenceRefresh: PASS\", \"validate: PASS\", and \"doneClosure: PASS\" on success; blocked runs show \"blockedAt: evidenceFreshness\" or \"blockedAt: validate\" plus a literal next command such as \"lattice verification_evidence_refresh_stale --storyId=B-xxxx\".",
+      "userSees": "\"mergeMain: PASS\", \"staleEvidenceRefresh: PASS\", \"validate: PASS\", and \"doneClosure: PASS\" appear in order, or \"DONE prepare: BLOCKED\" shows the failed step.",
       "files": {
         "modify": [
-          "packages/main/src/handlers/done-prepare.ts",
-          "packages/main/src/handlers/done-closure.ts",
-          "packages/main/src/handlers/recover-evidence.ts",
-          "packages/main/src/handlers/validate-shared.ts",
-          "packages/main/src/handlers/checklist.ts",
-          "packages/main/src/handlers/verifier.ts",
-          "packages/main/src/core/evidence-freshness.ts",
-          "packages/main/src/core/done-oracle.ts"
+          "packages/main/src/handlers/done-prepare.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/done-prepare-smoke.ts",
-          "packages/main/src/tasks/validate.ts"
+          "packages/main/src/tasks/done-prepare-smoke.ts"
         ]
       },
       "verificationIntent": {
