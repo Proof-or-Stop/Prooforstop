@@ -159,7 +159,7 @@ export type AuthorityFetch = (
 ) => Promise<AuthorityFetchResponse>;
 
 export interface AuthorityClientAuth {
-  /** Customer API key used only for mutating Authority requests. Never logged. */
+  /** Customer API key used for mutating Authority requests and protected reads. Never logged. */
   customerApiKey?: string;
 }
 
