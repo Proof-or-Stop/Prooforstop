@@ -4,8 +4,8 @@
   "title": "Migrate the gemini provider to the Antigravity CLI (agy); usage recorded as unavailable",
   "description": "Google's Gemini CLI semantics are deprecated in favor of the Antigravity CLI (command `agy`). Hard-rename the in-tree `gemini` provider to `antigravity` (binary gemini->agy, print-mode interface), and DELETE the now-dead Gemini-API usage adapter. agy's CLI surface does NOT expose per-call token usage (verified by probe), so antigravity dispatch records usage as source=unavailable — no token inference, no raw transcript surfaced.",
   "type": "refactor",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "keywords": [
     "antigravity",
     "agy",
@@ -21,7 +21,6 @@
       "matched": "token"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-19T17:07:10.251Z",
   "startedAt": "2026-06-19T17:07:10.251Z",
   "endedAt": null,
@@ -33,6 +32,26 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:09:52.132Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive (mention, not modify): \"token\" refers to LLM token-USAGE metering in the usage ledger, not authentication tokens/credentials/secrets. This story renames the gemini provider to antigravity (binary agy) and records usage as source=unavailable; it touches no auth, secrets, keys, or headers, and the record schema forbidden-field denylist is untouched.",
+      "at": "2026-06-19T17:07:27.020Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fbb6",
+    "branch": "story/B-fbb6",
+    "createdAt": "2026-06-19T17:09:49.306Z"
+  }
 }
