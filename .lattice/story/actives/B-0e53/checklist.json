@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Add a post-lock, pre-merge mainSha re-check that aborts DONE before persist on external main advance",
       "context": "In handlers/transition-orchestrator.ts, inside the main-write-lock, after autoSyncMain and BEFORE the merge that precedes the phase=DONE persist (~line 431), re-read mains current sha and compare to the sha the DONE pre-check synced against. If it changed (external git advance), abort with a clear re-run story_advance DONE to resync message, leaving the story at TEST (no phase mutation, no partial merge). Do NOT add after-DONE auto-retry; do NOT change the existing main-write-lock.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T21:10:12.124Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
