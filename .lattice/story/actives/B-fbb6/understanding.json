@@ -1,0 +1,36 @@
+{
+  "task": "Hard-rename the in-tree `gemini` provider to `antigravity` (binary gemini->`agy`, Antigravity CLI print mode), delete the now-dead Gemini-API usage adapter, and record antigravity dispatch usage as source=unavailable (agy surfaces no per-call token usage), preserving the usage-ledger invariants.",
+  "outcome": "An operator runs a dispatch routed to the new host and the system spawns `agy`, not the old `gemini` binary. `node bin/lattice.js host runtime list` lists `antigravity` (no `gemini`). After an antigravity call, the usage-ledger report shows the call honestly recorded with NO fabricated tokens:\n  unavailable          count=1 known=0 unknown=1 primary[in=0 out=0] tokens[in=0 out=0 cacheCreate=0 cacheRead=0]\n  Groups: - story=... role=lattice-dispatch:antigravity model=<gemini-model-label-or-unknown> provider=antigravity records=1 unknown=1\n      unavailable          known=0 unknown=1 (reason: antigravity (agy) print mode does not surface per-call token usage)\nAnd `grep -rinE '\\bgemini\\b' packages/main/src` returns no PROVIDER-semantic reference (the provider, its binary, dispatch routing, and the usage adapter are all gone/renamed). The full smoke suite (with renamed smokes) is green.",
+  "facts": [
+    "providers/gemini-cli.ts: GEMINI_CLI_BINARY='gemini', geminiCliAvailable, runBoundedGeminiProvider (provider:'gemini'), extractGeminiUsage (parses usageMetadata), extractGeminiModel.",
+    "lattice-dispatch.ts wires runGeminiRealLeafDispatch and a 'gemini' HostRuntimeId/BoundedProviderName; planned-steps-executor.ts imports geminiCliAvailable/runBoundedGeminiProvider/GEMINI_CLI_BINARY.",
+    "adapters/gemini.ts (adaptGeminiUsage) maps Gemini-API usageMetadata (promptTokenCount/candidatesTokenCount/cachedContentTokenCount); assemble.ts ProviderName='anthropic'|'openai'|'gemini' with `case 'gemini'` in adaptUsageFor; usage-ledger-adapter-smoke.ts tests adaptGeminiUsage.",
+    "Verified by probe: `agy --print` returns only the response text on stdout; the --log-file (INFO) carries no per-call token usage; the underlying call is Google streamGenerateContent but agy does not surface usageMetadata.",
+    "agy's per-conversation SQLite trajectory store (~/.gemini/antigravity-cli/conversations/*.db) holds undocumented protobuf blobs = model CONFIG (context 200000, max-output 8192) + raw transcript/system-prompt, with NO cleanly identifiable per-call usageMetadata.",
+    "recordDispatchFinalForProvider already writes a source=unavailable final (no adapter needed) when reportedUsage is absent/not-an-object (covered by usage-ledger-codex-gemini-smoke).",
+    "record.ts requires inputTokens/outputTokens non-null for source=provider-reported, so a no-usage call MUST be source=unavailable (the schema's designated bucket).",
+    "B-b1f4 added primaryReportedTotal/primaryKnown (input+output) for codex/gemini; antigravity goes through unavailable so it does not enter those aggregates — no change needed there beyond the rename."
+  ],
+  "constraints": [
+    "Preserve the three usage-ledger invariants: zero-cross-module-import, raw-never-surfaced, never-infer-an-unreported-value.",
+    "No antigravity token capture (deferred); usage is source=unavailable with a clear unavailableReason.",
+    "Hard rename: no gemini backward-compat alias.",
+    "Do not touch anthropic / codex(openai) provider or adapter paths.",
+    "Build clean (tsc, no any); full smoke suite green after smokes are renamed.",
+    "Commit authored by the lattice-implementer subagent (normal channel), no Claude co-author trailer."
+  ],
+  "unknowns": [
+    "RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).",
+    "RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).",
+    "RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).",
+    "Open (DEV-time): whether the agy non-interactive print needs --dangerously-skip-permissions to avoid blocking on tool-permission prompts; confirm with a bounded real run."
+  ],
+  "touchpoints": [
+    "packages/main/src/providers/gemini-cli.ts -> antigravity-cli.ts (+ provider-gemini-smoke.ts -> provider-antigravity-smoke.ts)",
+    "packages/main/src/core/lattice-dispatch.ts (RealLeafDispatch rename, agy argv, BoundedProviderName/PROVIDER_BINARY/defaultProviderAvailable, --host=antigravity)",
+    "packages/main/src/core/planned-steps-executor.ts (provider import/routing)",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts (recordDispatchFinalForProvider provider param) + DELETE adapters/gemini.ts + assemble.ts (ProviderName + adaptUsageFor)",
+    "core literals/probe-ids: capabilities.ts, command-policy.ts, dispatch-policy.ts, planner.ts, verdicts.ts, config.ts, types.ts, process-fact-levels.ts; smokes: usage-ledger-codex-gemini-smoke.ts, usage-ledger-adapter-smoke.ts; package.json + run-all-smokes"
+  ],
+  "timestamp": "2026-06-19T17:11:35.095Z"
+}

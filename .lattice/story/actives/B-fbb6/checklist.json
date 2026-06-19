@@ -6,7 +6,70 @@
       "context": "Rename packages/main/src/providers/gemini-cli.ts to antigravity-cli.ts: GEMINI_CLI_BINARY='gemini' -> ANTIGRAVITY_CLI_BINARY='agy'; geminiCliAvailable -> antigravityCliAvailable; runBoundedGeminiProvider -> runBoundedAntigravityProvider (ProviderExecResult.provider='antigravity'). REMOVE extractGeminiUsage/isGeminiUsageObject (agy does not emit usageMetadata) so reportedUsage is never set. Keep stdout/stderr as digest+byte-count only (raw-never-surfaced). Model: best-effort parse the agy --log-file `label=\"...\"` line, else fall back to the requested --model or 'unknown'. Update the dedicated smoke (provider-gemini-smoke.ts -> provider-antigravity-smoke.ts) to probe `agy` availability + bounded spawn capture.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "antigravity-cli.ts exists at packages/main/src/providers/antigravity-cli.ts and exports runBoundedAntigravityProvider + antigravityCliAvailable; gemini-cli.ts no longer exists -> confirms file rename completed correctly; WHY: core rename deliverable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "ANTIGRAVITY_CLI_BINARY constant equals agy; running antigravityCliAvailable with agy in PATH returns true -> confirms binary name change; WHY: binary identity is the atomic rename target",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "runBoundedAntigravityProvider returns ProviderExecResult with provider=antigravity and reportedUsage is undefined/absent (never set) -> confirms usage extraction was removed and provider name is correct; WHY: agy does not emit usageMetadata so extraction must not exist",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "stdout/stderr in ProviderExecResult contain only digest (sha256) + byteCount fields, never raw content -> confirms raw-never-surfaced invariant; WHY: security invariant that raw LLM output is never persisted in result struct",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "model field is parsed from agy --log-file label= line when present, falls back to requested --model or unknown -> confirms best-effort model extraction; WHY: model attribution for ledger records",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "agy binary not in PATH: antigravityCliAvailable returns false; runBoundedAntigravityProvider is never invoked -> confirms graceful unavailability; WHY: CI environments may lack agy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "agy process exits with non-zero code: ProviderExecResult still has provider=antigravity, reportedUsage absent, exitCode reflects actual code -> confirms error path still records correct provider identity without fabricating usage; WHY: crash resilience",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "agy stdout contains no usageMetadata JSON (empty or non-JSON output): reportedUsage remains absent, no parse error thrown -> confirms removal of extractGeminiUsage is complete; WHY: ensures no residual extraction code that would throw on missing data",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -rn extractGeminiUsage packages/main/src/ returns zero matches AND grep -rn isGeminiUsageObject packages/main/src/ returns zero matches -> confirms dead code fully removed; WHY: residual usage extraction functions would violate the no-inference invariant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn gemini-cli packages/main/src/providers/ returns zero matches (no lingering file or import reference to old filename) -> confirms clean rename with no ghost references; WHY: stale imports cause build failures",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "provider-antigravity-smoke.ts exists and probes agy availability + bounded spawn capture; provider-gemini-smoke.ts does not exist -> confirms smoke test was renamed; WHY: test coverage must track the rename",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

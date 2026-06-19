@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Name reality: the system must dispatch and label the tool actually used (Antigravity/agy), not deprecated Gemini-CLI semantics.",
+    "Honest ledger over coverage: record that a call happened (provider + model) without fabricating token counts the tool does not expose.",
+    "Never infer / never surface raw: no guessed token values, no raw agy transcript/trajectory blobs into the ledger.",
+    "Delete dead code: a provider with no provider-reported usage needs no usage adapter — remove it rather than keep a no-op.",
+    "Hard cut, no alias: a clean rename beats a half-migrated gemini/antigravity dual world."
+  ],
+  "drivers": [
+    "Operator directive: Gemini CLI deprecated -> Antigravity CLI (agy).",
+    "agy exposes no per-call token usage at its CLI surface (verified) — token capture is impossible without inference or reading raw.",
+    "usage-ledger invariants (zero-cross-module-import, raw-never-surfaced, never-infer) are non-negotiable."
+  ],
+  "options": [
+    {
+      "name": "hard-rename-unavailable-delete-adapter",
+      "pros": [
+        "Matches the operator directive exactly (gemini semantics gone, agy is the tool).",
+        "Honors all three ledger invariants — usage=unavailable is the schema's designated honest bucket.",
+        "Deletes genuinely-dead code (the gemini usage adapter) instead of leaving a no-op.",
+        "Minimal usage-ledger change — recordDispatchFinalForProvider already writes unavailable when no reportedUsage."
+      ],
+      "cons": [
+        "Wide literal rename (~20 files) — risk of leaving a stray 'gemini' provider-semantic reference (mitigated by a grep-clean acceptance gate + the concept reviewer's residual scan).",
+        "antigravity calls show no token spend in the ledger (accurate, but operators lose per-call token visibility for this provider until agy exposes it)."
+      ]
+    },
+    {
+      "name": "rename-but-dig-trajectory-store-for-usage",
+      "pros": [
+        "Would surface real token counts for antigravity if extractable."
+      ],
+      "cons": [
+        "PROVEN INFEASIBLE: the store has no cleanly identifiable usageMetadata; pulling a number requires guessing undocumented protobuf varints = inference (forbidden).",
+        "The blobs embed raw transcript/system-prompt — reading them violates raw-never-surfaced.",
+        "Couples to agy internals that change across versions; brittle and high-maintenance."
+      ]
+    },
+    {
+      "name": "rename-keep-gemini-alias",
+      "pros": [
+        "Lower blast radius; old gemini config/calls still resolve."
+      ],
+      "cons": [
+        "Operator explicitly wants the Gemini CLI semantics deprecated, not aliased.",
+        "Leaves a half-migrated dual world (gemini + antigravity) that invites drift and confusion."
+      ]
+    }
+  ],
+  "chosen": "hard-rename-unavailable-delete-adapter",
+  "rationale": "It is the only option that satisfies the operator directive (drop Gemini-CLI semantics, dispatch agy) AND keeps the ledger honest under the no-inference + raw-never-surfaced invariants. Digging the trajectory store was empirically falsified (inference + raw-surface violations); a gemini alias contradicts the directive. usage=unavailable is the schema-correct honest bucket, and deleting the now-dead gemini usage adapter avoids leaving misleading dead code.",
+  "preMortem": [
+    {
+      "scenario": "A stray 'gemini' provider-semantic reference is left behind, so dispatch/policy/config still half-recognizes the old name.",
+      "trigger": "The literal rename misses a file among the ~20 touchpoints (e.g. a runtime-probe id or a policy allowlist).",
+      "consequence": "Dispatch routing or a gate behaves inconsistently; the migration looks done but isn't.",
+      "mitigation": "Acceptance gate: `grep -rinE '\\bgemini\\b' packages/main/src` must show no provider-semantic hit (any model-name string justified); rely on the lattice-review-concept residual scan; full suite green."
+    },
+    {
+      "scenario": "agy print mode blocks or hangs in non-interactive dispatch (waiting on a tool-permission prompt or auth), so antigravity dispatch never returns.",
+      "trigger": "agy requires --dangerously-skip-permissions or keyring access that the dispatch environment lacks; stdin-closed bounded spawn stalls.",
+      "consequence": "Dispatch times out instead of cleanly recording an unavailable final.",
+      "mitigation": "Mirror the existing bounded-spawn contract (stdin closed, timeout, retry-on-timeout-only); add the necessary non-interactive flags; on spawn failure/timeout still write a source=unavailable final (fail-open, never crash dispatch)."
+    },
+    {
+      "scenario": "Deleting adapters/gemini.ts breaks a build/test that still imports it.",
+      "trigger": "assemble.ts ProviderName/adaptUsageFor or usage-ledger-adapter-smoke.ts still references adaptGeminiUsage after deletion.",
+      "consequence": "tsc fails or the adapter smoke fails.",
+      "mitigation": "Remove the 'gemini' ProviderName branch + adaptUsageFor case and the adapter-smoke gemini cases in the same change; grep adaptGeminiUsage/adapters/gemini to confirm zero remaining importers; build + run-all-smokes green."
+    }
+  ],
+  "timestamp": "2026-06-19T17:11:35.848Z"
+}
