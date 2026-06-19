@@ -56,6 +56,7 @@ import {
   cleanupAuxiliaryWorktreeResidues,
   renderAuxiliaryClassification,
 } from '../core/auxiliary-worktree-cleanup.js';
+import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -875,10 +876,28 @@ export async function applyDoneMergeEffects(
         mergeLines.push(`⚠ Auxiliary worktree cleanup skipped: ${e?.message || e}`);
       }
 
+      // B-aa8a: auto patch-bump the 3 version sync points (root package.json +
+      // packages/main/package.json + lattice-brand.ts LATTICE_CLI_VERSION) when the DONE
+      // merge changed material code — gated on the SAME predicate as the dist rebuild so
+      // metadata-only merges never churn the version. Commits the bump on main under this
+      // merge-lock, BEFORE the rebuild below, so the rebuilt dist reports the new version
+      // with no extra build. changedPaths is computed once and reused by the build.
+      const doneMergeChangedPaths = listChangedPathsBetweenMainShas(
+        mainMergeRoot,
+        mainShaBeforeDoneMerge,
+        mainShaAfterDoneMerge,
+      );
+      mergeLines.push(bumpVersionOnDoneMerge({
+        mainMergeRoot,
+        shouldBump: shouldBuildDoneMainPackageForChangedPaths(doneMergeChangedPaths),
+        runGit: runGitArgs,
+      }));
+
       mergeLines.push(runDoneMainPackageBuildAfterMerge(
         mainMergeRoot,
         mainShaBeforeDoneMerge,
         mainShaAfterDoneMerge,
+        { changedPaths: doneMergeChangedPaths },
       ));
     }
 

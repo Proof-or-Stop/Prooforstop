@@ -1,0 +1,130 @@
+{
+  "passes": [
+    {
+      "id": "B-aa8a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed for B-aa8a version-bump feature. Verified: (1) version-bump.ts is the sole definition of all new symbols (applyPatchBump, bumpVersionOnDoneMerge, nextPatch, readSyncedVersion, parseSemver, formatSemver, VERSION_SYNC_FILES, VERSION_SYNC_PATHS, VERSION_BUMP_SKIPPED_LINE, PatchBumpResult, BumpOnDoneMergeOptions, GitRunner). (2) done-effects.ts is the only production call site of bumpVersionOnDoneMerge (grep confirmed single import + single call at line 890). (3) No circular import: version-bump.ts imports only node:fs and node:path; done-effects.ts imports bumpVersionOnDoneMerge from version-bump.ts; version-bump-smoke.ts imports from both but is a task not a core module, so no circular cycle. (4) No competing/duplicate version-bump logic found in any other file. (5) listChangedPathsBetweenMainShas is computed once (line 885) and passed into both bumpVersionOnDoneMerge and runDoneMainPackageBuildAfterMerge, no double-computation residue. (6) The version-bump.ts GitRunner type is independently declared with a different signature than worktree-policy.ts GitRunner; no file imports both, so no collision at the import level — no residue. (7) lattice.config.json correctly registers version-bump-smoke.js as the only new smoke entry. No concept deletion/replacement in scope; no leftover symbols from a prior approach. No blocker found.",
+      "createdAt": "2026-06-19T19:53:48.064Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-001",
+      "_hash": "18e61857b20dfb8e80d28e2f10632ed50aeb808756f571fc1be943e4881589a6"
+    },
+    {
+      "id": "B-aa8a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed version-bump.ts, done-effects.ts, version-bump-smoke.ts, lattice.config.json. No circular import (version-bump.ts has no done-effects import). Rollback path in applyPatchBump is sound: originals snapshot is taken before writes, best-effort inner catch on rollback writes is appropriate (a file that failed to write will also fail to rollback, leaving it at original content). No silent error swallow in the bump-commit path: bumpVersionOnDoneMerge throws loudly on both write failure and git commit failure with actionable recovery messages. Drift detection: doneMergeChangedPaths computed once and passed to both bumpVersionOnDoneMerge and runDoneMainPackageBuildAfterMerge opts.changedPaths, avoiding double-computation and correctly using pre-bump-commit SHAs. done-effects integration: bumpVersionOnDoneMerge is not wrapped in try/catch (intentional, matches runDoneMainPackageBuildAfterMerge contract). replaceOnce is correct for normal package.json and standard brand.ts content. Two findings raised: medium misleading test 12 coverage gap (F-002) and low dead export formatSemver (F-003). No blockers.",
+      "createdAt": "2026-06-19T19:54:51.009Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "17ee53357658200719a1a66e7e0bfd4aed119e012c2770f3522f0b64c69fa70a"
+    },
+    {
+      "id": "B-aa8a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept/residue review complete. Checks performed: (1) Old substring-based version logic: none found in version-bump.ts — all reads use JSON.parse (structural) and anchored BRAND_EXPORT_RE regex, all writes use bumpJsonVersionContent (JSON.parse/stringify) and bumpBrandContent (slice-and-replace on single anchored match). (2) GitRunner rename: BumpGitRunner correctly exported from version-bump.ts; the pre-existing GitRunner in worktree-policy.ts/planned-steps-executor.ts/smoke files is a separate unrelated type — no residue. (3) formatSemver: confirmed private (unexported function); no external references anywhere. (4) Single call site: bumpVersionOnDoneMerge called only once, in done-effects.ts line 890; no orphaned second call site. (5) Circular import: version-bump.ts imports only node:fs and node:path — no done-effects import, no cycle. (6) doneMergeChangedPaths computed once and passed to both bumpVersionOnDoneMerge (via shouldBump predicate) and runDoneMainPackageBuildAfterMerge (via changedPaths opts) — no double git-log call. (7) BRAND_EXPORT_RE with /g flag: matchAll() resets lastIndex each invocation; verified safe across multiple calls on the same regex object. (8) Whitespace-padded brand export: regex captures correctly, bumpBrandContent slice-and-replace preserves trailing whitespace and as-const suffix — verified with Node.js execution. (9) listChangedPathsBetweenMainShas and mainShaBeforeDoneMerge/mainShaAfterDoneMerge are in-scope at insertion point in done-effects.ts (lines 747-754 vs 884-900). (10) isDoneMainRuntimeBuildInput is properly exported from done-effects.ts and imported by the smoke. (11) No doc-promise-undelivered items in CLAUDE.md or docs. (12) The 51-assertion figure appears only in the user prompt description, not hardcoded in the file; the runtime log is dynamic. No concept deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-06-19T20:08:11.308Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-004",
+      "_hash": "9714257ccec4318aa37b310944cc56efea5e43838085606acc1201cf99e88bd7"
+    },
+    {
+      "id": "B-aa8a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): 28 intents reviewed against the 51-assertion version-bump-smoke. 27/28 intents fully covered; 1 medium finding filed (B-aa8a:F-004) — CHK-001:happy:4 smoke checks version numbers in the return line but does not assert the literal word \"auto-bumped\" that the intent specifies. All staleness is hash-drift only (materialHash moved after the round-2 commit); no functional coverage gap beyond F-004. Round-1 high finding F-001 (CHK-001:adversarial:1 read-only) is resolved: the smoke now tests read-only atomicity for BOTH the root (first write, lines 179-181) and the brand (last write, lines 185-187). No blocker.",
+      "createdAt": "2026-06-19T20:08:32.716Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-006",
+      "_hash": "154da27bbc13d7138d23ff372f26ef8472fbca28c756e6f476094321078b7150"
+    },
+    {
+      "id": "B-aa8a:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality pass. F-001 (GitRunner rename): confirmed as BumpGitRunner throughout. F-002 (read/write whitespace symmetry): RESOLVED -- bumpJsonVersionContent uses JSON.parse/set/stringify(null,2)+newline; structural, not regex. F-003 (formatSemver module-private): RESOLVED -- no export keyword. Rollback correctness: originals captured before any write, rollback restores the from-version content correctly for both write-fail and post-verify-wrong-value paths. bumpBrandContent slice math (index/slice): correct -- m.index is always defined for matchAll results, replaced is derived from m[0].replace which is unambiguous since the version string appears exactly once inside m[0]. JSON round-trip fidelity: always writes 2-space JSON; both real package.json files use 2-space so no reformatting churn. No silent error swallowing (one documented best-effort rollback catch). No dead code or unused imports in any of the 3 changed files. Shell isolation N/A (no bridge.ts). One medium finding raised: F-005 (post-verify throw gap -- readSyncedVersion throwing post-write does not trigger rollback, leaving files bumped but uncommitted).",
+      "createdAt": "2026-06-19T20:09:14.112Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-005",
+      "_hash": "89d96804db19e798a11a2b7967bc191ec9575b1c57df128e0f66aa549e3d1497"
+    },
+    {
+      "id": "B-aa8a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or mass replacement detected. New concepts introduced: version-bump module (BRAND_EXPORT_RE, applyPatchBump, bumpVersionOnDoneMerge, VERSION_SYNC_FILES/PATHS/BUMP_SKIPPED_LINE, parseSemver, nextPatch, readSyncedVersion, PatchBumpResult, BumpGitRunner, BumpOnDoneMergeOptions). All live only in two new files (version-bump.ts, version-bump-smoke.ts) plus a single import+call in done-effects.ts. No prior form of BRAND_EXPORT_RE exists outside those files. bumpVersionOnDoneMerge has exactly one call site (done-effects.ts:890). No orphan definitions, no stale concept residuals, no doc-promise-undelivered. changedPaths option added to runDoneMainPackageBuildAfterMerge signature and consumed by both new and existing call sites correctly. Closing self-check complete: zero unregistered findings.",
+      "createdAt": "2026-06-19T20:17:44.005Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-008",
+      "_hash": "954accc86b4c051eae86351954de0e704b048ee37a96cfb09be7143966fda933"
+    },
+    {
+      "id": "B-aa8a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3): all 28 verificationEvidence entries use the correct, specific command (node packages/main/dist/tasks/version-bump-smoke.js or lattice validate). Evidence is stale due to materialHash drift from post-bind commits — not a command-to-intent mismatch; main agent will refresh before TEST. 56-assertion smoke genuinely covers all 28 intents. One low-severity advisory finding (B-aa8a:F-006) filed for CHK-001:edge:3: smoke only asserts throws() without verifying error message names each drift value — the source does produce that message but the assertion does not check it. No blockers.",
+      "createdAt": "2026-06-19T20:19:00.589Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-009",
+      "_hash": "8165073a1c4a6f2d429554e62e22d89580044f76f03c85535029957e7ac267c2"
+    },
+    {
+      "id": "B-aa8a:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality review: no dead code (all imports/exports/private fns exercised), no silent swallows (three empty catches are documented best-effort rollback/cleanup/test-helper), no improper as-any (catch variables typed any intentionally for .message access). F-005 genuinely resolved: applyPatchBump wraps readSyncedVersion in try/catch at lines 179-184 and calls rollback() on both throw (line 182) and wrong-value (line 186). Codex MAJOR genuinely resolved: BRAND_EXPORT_RE=/^\\s*export\\s+const\\s+LATTICE_CLI_VERSION\\s*=\\s*(\\d+\\.\\d+\\.\\d+)/gm is line-anchored; // comments verified non-matching. F-004 genuinely resolved: smoke line 107 asserts line6.includes(\"auto-bumped\") and the return string (line 242 version-bump.ts) contains \"auto-bumped\". bumpBrandContent slice math verified correct (at=m.index, replaces m[0] span precisely). Rollback originals captured before first write; both partial-write and post-write-verification failure paths restore correctly. No I/O shell isolation issue (no bridge.ts). Duplicate test number 14 in smoke is cosmetic only.",
+      "createdAt": "2026-06-19T20:19:23.683Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-007",
+      "_hash": "da15e1206ad0fa5d1de6b3f356db7c360fc19fc222b1a3b7deb818e5155ecec6"
+    },
+    {
+      "id": "B-aa8a:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept/residue check complete. Checked: (1) stripComments and findBrandExport are defined solely in version-bump.ts — no duplicate or competing definition anywhere in the repo. (2) BRAND_EXPORT_RE is module-private (const, not exported) and only referenced in findBrandExport within version-bump.ts. (3) The old regex path (direct matchAll on raw content without comment-stripping) was fully replaced — the only matchAll calls in version-bump.ts are inside findBrandExport, where codeMatches runs on the stripped source and rawMatches enforces the count guard. No orphan old-path residue found. (4) ApplyPatchBumpTestHooks and afterWriteForTest are exported from version-bump.ts and consumed only in version-bump-smoke.ts — done-effects.ts imports only bumpVersionOnDoneMerge and calls applyPatchBump (inside bumpVersionOnDoneMerge) with no opts arg, so the test seam is unreachable from production. (5) No doc-promise-undelivered items: no README/CLAUDE.md promises any of the new internal symbols. (6) No concept deletion/replacement scenario applies this round — the changes are net-new additions (stripComments, findBrandExport guard, test seam) on top of a new module, not a renamed/removed concept spanning the repo.",
+      "createdAt": "2026-06-19T20:32:30.410Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-011",
+      "_hash": "40565847f79ee3daa2925c78e5abf8e64de3908fcd2ab5db6afa13cbd209d00a"
+    },
+    {
+      "id": "B-aa8a:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 28 intents (CHK-001: 6 happy, 6 edge, 4 adversarial; CHK-002: 5 happy, 5 edge, 2 adversarial) are concretely satisfied by version-bump-smoke (64 assertions, hermetic). The universal status=stale across all 28 entries is materialHash drift from the round-3 commit, not a command-to-intent mismatch — every evidence command is node packages/main/dist/tasks/version-bump-smoke.js (or lattice validate for CHK-002:happy:0 and CHK-002:adversarial:1) and the smoke demonstrates each claim. CHK-001:adversarial:2 recovery message assertion checks git commit + 0.9.10 presence; actual error message includes the explicit manual git commands to recover. CHK-001:edge:0 parseSemver(0.0.0) struct coverage is implicit via nextPatch(0.0.0)===0.0.1. No finding warranted.",
+      "createdAt": "2026-06-19T20:32:40.328Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-012",
+      "_hash": "8c55c2839287b24986114d0d8fce719f39737294b0afee4293f9a86cdf9126c1"
+    },
+    {
+      "id": "B-aa8a:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Dead code: all private functions and imports in version-bump.ts and version-bump-smoke.ts are used. Type safety: all catch blocks use the bound variable or are intentionally empty best-effort cleanups with comments. Shell isolation: no bridge.ts pattern in this project; version-bump-smoke.ts imports from core/ and handlers/ which is appropriate for a task runner. stripComments correctness verified: block-comment regex is non-greedy and multi-line safe; line-comment regex stops at newline without consuming it; no false-positive export can be synthesized by stripping (verified the pathological /* */\\nexport case: raw=0, code=1, count guard fires). Raw-vs-stripped count guard: all 4 branches (code=0, code>1, raw=0, raw>1) throw correctly; F-006 block-comment proof confirmed via tests 16 and 17. afterWriteForTest seam: production call in done-effects passes no second arg so opts is undefined and seam is a dead no-op; the seam only runs when a caller explicitly passes afterWriteForTest. bumpBrandContent slice math: raw.index is always a number from matchAll (including 0, which ?? handles correctly); the replace targets the one occurrence of the version quote inside the matched substring; trailing content after the regex match is preserved correctly. One low finding registered (F-007): duplicate comment number 14 at version-bump-smoke.ts:215.",
+      "createdAt": "2026-06-19T20:35:41.798Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-010",
+      "_hash": "553fad81b346c024bd805941b2da84c05b757ae7d78f27aeabb36920cbabb6b3"
+    },
+    {
+      "id": "B-aa8a:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 (comment-only relabel). The single change is the test-group comment on the git-commit-failure case in version-bump-smoke.ts: a duplicate // 14. was corrected to // 15b. No code or behavior changed. The full diff from main is purely additive (new files, story metadata). No concept words were deleted or replaced, so no residue grep was needed. Zero findings.",
+      "createdAt": "2026-06-19T20:42:59.957Z",
+      "reviewRound": "2026-06-19T20:42:20.882Z",
+      "reviewRunId": "B-aa8a:RR-014",
+      "_hash": "bb63174806ad6b22848b84ed06e02b61a563375bd443ba7bbc9ea44f8650601b"
+    },
+    {
+      "id": "B-aa8a:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 (RR-013): only change is the F-007 fix — duplicate comment label \"// 14.\" at line 215 of version-bump-smoke.ts relabelled to \"// 15b.\". Sequence now: 14, 15, 15b, 16 with no duplicates. Zero code changes. No dead imports, no as-any introductions, no empty catch, no shell isolation violations. F-007 confirmed resolved. No new findings.",
+      "createdAt": "2026-06-19T20:43:16.482Z",
+      "reviewRound": "2026-06-19T20:42:20.882Z",
+      "reviewRunId": "B-aa8a:RR-013",
+      "_hash": "02f2626e59de893a3d8b043c62041d5be50e1b83a1812ed369ec25a2be7ae2e2"
+    },
+    {
+      "id": "B-aa8a:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 28 intents (CHK-001: 16 intents, CHK-002: 12 intents). All bind to node packages/main/dist/tasks/version-bump-smoke.js (26) or lattice validate (2). The 64-assertion smoke concretely exercises each intent — parseSemver, nextPatch, readSyncedVersion, applyPatchBump, bumpVersionOnDoneMerge, gate predicate, drift detection, read-only rollback, commit-failure recovery, idempotency, whitespace/comment/block-comment adversarial cases, and validate wiring. No command-to-intent mismatch found. Evidence staleness (materialHash drift from comment-only relabel) is expected and not a coverage gap — main agent re-stamps before TEST. No blocker.",
+      "createdAt": "2026-06-19T20:44:52.704Z",
+      "reviewRound": "2026-06-19T20:42:20.882Z",
+      "reviewRunId": "B-aa8a:RR-015",
+      "_hash": "029f806b9bb8c81674132fe17d47a1bed34d4e9c1060826af1c324dfe15ed126"
+    }
+  ]
+}

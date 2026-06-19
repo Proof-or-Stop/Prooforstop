@@ -1,0 +1,157 @@
+{
+  "findings": [
+    {
+      "id": "B-aa8a:F-001",
+      "desc": "CHK-001:adversarial:1 evidence-to-intent mismatch: the intent states the scenario is \"root package.json is read-only (chmod 0444) throws with a clear error and does not partially update the other 2 files\", but the smoke (version-bump-smoke.ts section 13, line 144) makes the BRAND file (lattice-brand.ts) read-only, not root package.json. The write order in applyPatchBump is rootPackageJson -> mainPackageJson -> brand; making the brand read-only exercises a harder rollback (2 files already written when 3rd fails), while making root read-only is an earlier-fail scenario (0 files written when 1st fails). The two scenarios have different atomicity properties. The evidence note in the verificationEvidence record repeats the intent description verbatim, so the note claims root package.json was tested when the smoke actually used the brand file. The evidence command (node packages/main/dist/tasks/version-bump-smoke.js) does not match the specific scenario described in CHK-001:adversarial:1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T19:53:05.119Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-003",
+      "_hash": "44fd1634e4d5e5841def192b9726aff8aee7b8f063bfa894e7d1615560035417",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts",
+        "packages/main/src/core/version-bump.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-intent",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the smoke now tests a read-only ROOT package.json (the intent's literal first-file scenario) AND a read-only brand, both asserting applyPatchBump throws and rolls back all 3 to 'from' (smoke case 15). Round-2..4 reviews confirm.",
+      "resolvedAt": "2026-06-19T20:45:42.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-002",
+      "desc": "misleading-test: version-bump-smoke.ts:139-141 test 12 name claims whitespace around brand literal still parses but only exercises readSyncedVersion (read path); applyPatchBump replaceOnce uses a fixed-format needle LATTICE_CLI_VERSION = (single space, no padding) which would fail to match the whitespace-padded form tested, leaving a latent write-path failure undiscovered by the test",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T19:54:33.648Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "eb846e51d838394727a50f0322d5675a8ffb938b6c33d89d3b1c0d57a7b79cad",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts",
+        "packages/main/src/core/version-bump.ts"
+      ],
+      "signatureTag": "edge|ts|misleading-test-version",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: applyPatchBump's brand write now uses the same anchored regex as the read (later comment-stripped), so read/write are symmetric; smoke case 13 proves the WRITE round-trip on a whitespace-padded export, not just the read.",
+      "resolvedAt": "2026-06-19T20:45:42.966Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-003",
+      "desc": "dead-export: version-bump.ts:51 formatSemver is exported but never imported by any external caller; it is only used internally by nextPatch on line 58. Exporting an internal helper unnecessarily widens the module API surface.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T19:54:38.638Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "d4800662ac1d5edb76fbfabde1cc1ee9f324eb51badfd4038d62e5274f5cf4cb",
+      "files": [
+        "packages/main/src/core/version-bump.ts"
+      ],
+      "signatureTag": "missing|ts|dead-export-version",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: formatSemver is now module-private (no export); nextPatch is its only caller.",
+      "resolvedAt": "2026-06-19T20:45:43.382Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-004",
+      "desc": "CHK-001:happy:4 intent states the success line returned by bumpVersionOnDoneMerge must contain the literal word \"auto-bumped\", but the smoke only asserts line6.includes(\"0.9.9\") && line6.includes(\"0.9.10\"). If the return string were changed to omit \"auto-bumped\" (e.g. \"✓ version bumped 0.9.9 → 0.9.10\") the smoke would still pass. The word \"auto-bumped\" is the operator-visible signal that the automation (not a manual bump) fired; the smoke should add a check(\"bump line contains auto-bumped\", line6.includes(\"auto-bumped\")) assertion to fully bind the intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T20:08:21.361Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-006",
+      "_hash": "6df7e9821a10c3117ebe48c30b928346055d9eee92bdf3537c9f0ec4fc889cfe",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-states",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke case 6 now asserts the success line contains the 'auto-bumped' keyword per the intent.",
+      "resolvedAt": "2026-06-19T20:45:43.792Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-005",
+      "desc": "rollback-gap: version-bump.ts:174 readSyncedVersion can throw after all 3 files are written to `to`; that exception propagates without calling rollback(), leaving the 3 version files bumped but uncommitted -- the opposite of the stated contract (\"rolled back to from\"). The if(after !== to) guard on line 175 only handles the wrong-value case, not the thrown-exception case. bumpVersionOnDoneMerge then catches it as \"failed before any commit\" and the git add+commit never runs, creating the bump-written-but-uncommitted state the code explicitly tries to prevent.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T20:09:01.467Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-005",
+      "_hash": "3682da8a0132198df1d17eb80aa4fceaf6cc06ecbccab4087f7bc3f246a94dcd",
+      "signatureTag": "edge|unknown|rollback-version-bump",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: applyPatchBump wraps the post-write verification readSyncedVersion in try/catch and rolls back to 'from' on a THROW as well as a wrong value; smoke cases 18/19 exercise both via the afterWriteForTest seam. Codex round-3 reproduced+confirmed the fix.",
+      "resolvedAt": "2026-06-19T20:45:44.216Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-006",
+      "desc": "CHK-001:edge:3 intent claims the drift error names each value (root=X, packages/main=Y, lattice-brand=Z) but the smoke only asserts throws() without validating error message content. The source code does produce the named-value message, but the smoke assertion does not verify it. The intent-specified claim is partially unverified. Advisory: add a try/catch that asserts the error message contains each value name.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T20:18:48.281Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-009",
+      "_hash": "deca769b94234f9482b68e88704afb56d14ea6f43428cbdba5a2c7c5ae112049",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-claims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke case 3 now asserts the drift error names each value (root=.., packages/main=.., lattice-brand=..).",
+      "resolvedAt": "2026-06-19T20:45:44.641Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-aa8a:F-007",
+      "desc": "quality-cleanup: version-bump-smoke.ts:215 test-group comment says \"// 14.\" but this is the second test labelled 14 (the first is at line 184); the actual sequential number should be 16 (after 15 at line 196); misleads navigation when reading/debugging the test list",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T20:35:29.210Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-010",
+      "_hash": "f68ff05f5aa3abd6badce77ac52bae749ad929ac7b4fbdf78572d1605b671dad",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-version",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the duplicate '// 14.' test-group comment was relabelled '// 15b.'; numbering is now unique (807008bfc).",
+      "resolvedAt": "2026-06-19T20:45:45.065Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

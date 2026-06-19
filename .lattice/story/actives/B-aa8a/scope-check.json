@@ -1,0 +1,80 @@
+{
+  "storyId": "B-aa8a",
+  "checkedAt": "2026-06-19T19:38:11.891Z",
+  "features": [
+    {
+      "feature": "Auto-bump patch version on DONE merge when material code changes are present",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Sync all 3 version points: root package.json, packages/main/package.json, lattice-brand.ts LATTICE_CLI_VERSION",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse existing DONE post-merge effect (runs under main write-lock, already rebuilds dist)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Gate the version bump on material code changes (reuse shouldBuildDoneMainPackageForChangedPaths predicate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Prevent 3 version points from drifting (drift-detection in pure core logic)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New pure core module version-bump.ts implementing semver parse, nextPatch, readSyncedVersion, applyPatchBump, bumpVersionOnDoneMerge",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire version-bump into done-effects.ts DONE post-merge applyDoneMergeEffects, ordered before dist rebuild",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic smoke test file version-bump-smoke.ts under packages/main/src/tasks/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register smoke in lattice.config.json validate.commands so it runs under lattice validate",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "06bfe902e64f751e017bb9ad1fc2b526e213a5da2ec60781cd25ce8fd4e32553",
+  "openQuestions": []
+}

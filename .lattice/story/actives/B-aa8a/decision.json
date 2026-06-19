@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reuse the existing DONE post-merge effect and its material-change gate; do not add a parallel bump mechanism",
+    "Keep version logic in a pure, testable module (core/version-bump.ts); keep done-effects orchestration thin",
+    "Update all 3 version sync points atomically or fail loud — never leave versions drifted",
+    "Patch-only, deterministic, idempotent (exactly one increment per qualifying merge)"
+  ],
+  "drivers": [
+    "rollout-check enforces 3-point version consistency, so all three must update atomically",
+    "Must run under the DONE merge-lock and BEFORE the dist rebuild so the rebuilt dist reports the new version",
+    "Must not break the DONE merge or leave main dirty / version files corrupted on failure"
+  ],
+  "options": [
+    {
+      "name": "bump-in-done-effects-pure-module",
+      "pros": [
+        "Reuses the exact material-change gate (shouldBuildDoneMainPackageForChangedPaths) and the DONE merge-lock",
+        "Pure core/version-bump.ts is unit-testable hermetically",
+        "Separate chore:bump commit matches the existing 0.3.x history",
+        "Existing post-merge rebuild makes dist report the new version with zero extra build"
+      ],
+      "cons": [
+        "Adds one commit per qualifying DONE merge",
+        "Touches the critical DONE merge code path"
+      ]
+    },
+    {
+      "name": "git-post-merge-hook",
+      "pros": [
+        "Decoupled from lattice handler code"
+      ],
+      "cons": [
+        "Git hooks are not committed/shared reliably (project has no husky)",
+        "Fires on ALL merges, not just DONE; cannot reuse the material-change gate or merge-lock",
+        "Harder to test"
+      ]
+    },
+    {
+      "name": "separate-manual-bump-command",
+      "pros": [
+        "Simple, isolated"
+      ],
+      "cons": [
+        "Not automatic — defeats the operator intent of a turnkey bump-on-merge"
+      ]
+    }
+  ],
+  "chosen": "bump-in-done-effects-pure-module",
+  "rationale": "It reuses the exact gate (material-change) and lock (DONE merge-lock) the operator intent maps to, keeps version logic pure/testable, lands a clean chore:bump commit matching history, and the existing post-merge rebuild makes dist report the new version with zero extra build. Hook/manual options over-fire, cannot be shared, or are not turnkey.",
+  "preMortem": [
+    {
+      "scenario": "Version files drift out of sync after a partial bump",
+      "trigger": "applyPatchBump writes root package.json then crashes before writing lattice-brand.ts",
+      "consequence": "rollout-check fails on every subsequent run; CLI reports a version mismatch",
+      "mitigation": "applyPatchBump reads all 3 sync points, asserts identical BEFORE writing, computes one nextPatch, writes all 3, re-reads to verify identical; any mismatch throws a clear 3-point-sync recovery message and the DONE merge surfaces it as a loud failure like the build effect"
+    },
+    {
+      "scenario": "Version churn or double-bump",
+      "trigger": "bump fires on a metadata-only DONE merge, or fires twice for one merge",
+      "consequence": "version increments with no code change, or jumps by 2, diluting meaning",
+      "mitigation": "gate strictly on shouldBuildDoneMainPackageForChangedPaths(changedPaths between before/after SHA), identical to the build gate; single call in the single post-merge code path; nextPatch computed from the actual current root version (no accumulation)"
+    },
+    {
+      "scenario": "The chore:bump commit breaks the DONE merge or leaves main dirty",
+      "trigger": "git add/commit of the version files fails, or the bump writes files but the commit does not run",
+      "consequence": "main worktree left dirty so the next DONE merge clean-tree precheck blocks every story",
+      "mitigation": "bump+commit are a single guarded step in mainMergeRoot under the merge-lock; on commit failure throw a loud error with exact recovery commands (matching runDoneMainPackageBuildAfterMerge failure style); never leave the write uncommitted silently"
+    },
+    {
+      "scenario": "Circular import breaks the build",
+      "trigger": "version-bump.ts imports done-effects.ts for the gate while done-effects imports version-bump",
+      "consequence": "tsc/runtime module cycle; validate fails",
+      "mitigation": "version-bump.ts exposes pure functions with NO done-effects import; done-effects computes shouldBuild and passes the boolean in; the smoke imports the gate function from done-effects directly since it is not part of the cycle"
+    }
+  ],
+  "timestamp": "2026-06-19T19:29:18.132Z"
+}
