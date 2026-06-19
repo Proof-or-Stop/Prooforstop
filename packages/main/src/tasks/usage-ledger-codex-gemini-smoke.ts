@@ -38,7 +38,7 @@ import {
   type DispatchUsageContext,
 } from '../core/usage-ledger/dispatch-usage.js';
 import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/writer.js';
-import { summarizeRecords } from '../core/usage-ledger/summary.js';
+import { deriveRecordTotal, summarizeRecords, summarizeLedgerFile } from '../core/usage-ledger/summary.js';
 import { aggregateByGroup, buildUsageReport } from '../core/usage-ledger/diagnostics.js';
 import type { UsageLedgerRecord } from '../core/usage-ledger/record.js';
 
@@ -646,6 +646,169 @@ async function main(): Promise<void> {
       1,
       'one estimate record contributes to its own bucket primaryKnown',
     );
+  });
+
+  // ----------------------------------------------------------------------
+  // CHK-PRIMARY empty/absent: empty + non-existent-ledger summaries zero-init
+  // the primary aggregate (CHK-001:happy:3 emptyRecords, happy:4 absent file).
+  // ----------------------------------------------------------------------
+  await check('CHK-PRIMARY empty/absent: summarizeRecords([]) and absent-file summary zero-init primary aggregate', () => {
+    const emptySummary = summarizeRecords([]);
+    assert.equal(emptySummary.primaryReportedTotal, 0, 'empty records -> primaryReportedTotal 0');
+    assert.equal(emptySummary.primaryReportedCount, 0, 'empty records -> primaryReportedCount 0');
+    // A non-existent ledger file is "no usage recorded", not an error.
+    const absentRoot = freshRoot();
+    const absentPath = resolveLedgerPath(absentRoot);
+    assert.equal(existsSync(absentPath), false, 'precondition: ledger file does not exist');
+    const absentSummary = summarizeLedgerFile(absentPath);
+    assert.equal(absentSummary.primaryReportedTotal, 0, 'absent ledger -> primaryReportedTotal 0');
+    assert.equal(absentSummary.primaryReportedCount, 0, 'absent ledger -> primaryReportedCount 0');
+  });
+
+  // ----------------------------------------------------------------------
+  // CHK-PRIMARY per-record primaryTotal guards via deriveRecordTotal:
+  //   - null input -> primaryTotal null (never inferred)  (CHK-001:edge:3)
+  //   - all-four-zero -> primaryTotal 0, NOT null         (CHK-001:edge:4)
+  //   - unavailable source -> primaryTotal null           (CHK-001:edge:2)
+  // A provider-reported record with a null primary dim is normally rejected by
+  // the record validator; we unit-test deriveRecordTotal DIRECTLY (same inline
+  // synthetic style as synthEstimate) to prove the "never infer" guard.
+  // ----------------------------------------------------------------------
+
+  /** Inline synthetic provider-reported record with controllable dims. */
+  function synthProviderRecord(
+    suffix: string,
+    dims: {
+      input: number | null;
+      output: number | null;
+      cacheCreation: number | null;
+      cacheRead: number | null;
+    },
+  ): UsageLedgerRecord {
+    return {
+      schemaVersion: 1,
+      recordId: `llmuse_synth-${suffix}`,
+      ledgerCallId: `llmcall_synth-${suffix}`,
+      attemptId: `llmatt_synth-${suffix}`,
+      sequence: 1,
+      supersedesRecordIds: [],
+      recordedAt: '2026-06-19T00:00:00.000Z',
+      projectRootHash: 'sha256:x',
+      storyId: 'S-test',
+      phase: 'dispatch',
+      agentType: 'lattice-dispatch:codex',
+      decision: { kind: 'allowed' },
+      provider: { name: 'openai', model: 'gpt-5-codex' },
+      usage: {
+        source: 'provider-reported',
+        inputTokens: dims.input,
+        outputTokens: dims.output,
+        cacheCreationInputTokens: dims.cacheCreation,
+        cacheReadInputTokens: dims.cacheRead,
+        canonical: {
+          input: dims.input,
+          output: dims.output,
+          cacheCreation: dims.cacheCreation,
+          cacheRead: dims.cacheRead,
+        },
+        raw: { providerUnits: 'u', payloadDigest: 'sha256:d' },
+      },
+      privacy: { promptStored: false, transcriptStored: false, redactionProfile: 'no-raw-content-v1' },
+      authority: { mode: 'local', receiptId: null, receiptVerified: false },
+      integrity: { previousRecordHash: null, recordHash: `sha256:synth-${suffix}` },
+    };
+  }
+
+  await check('CHK-PRIMARY deriveRecordTotal: null input -> primaryTotal null (never inferred)', () => {
+    const rec = synthProviderRecord('null-input', {
+      input: null,
+      output: 200,
+      cacheCreation: null,
+      cacheRead: null,
+    });
+    const derived = deriveRecordTotal(rec);
+    assert.equal(derived.primaryTotal, null, 'null input must NOT be inferred -> primaryTotal null');
+    const summary = summarizeRecords([rec]);
+    assert.equal(summary.primaryReportedCount, 0, 'a null-input record contributes 0 to the primary count');
+    assert.equal(summary.primaryReportedTotal, 0, 'a null-input record adds nothing to primaryReportedTotal');
+  });
+
+  await check('CHK-PRIMARY deriveRecordTotal: all-four-zero -> primaryTotal 0 (genuine zero, NOT null)', () => {
+    const rec = synthProviderRecord('all-zero', {
+      input: 0,
+      output: 0,
+      cacheCreation: 0,
+      cacheRead: 0,
+    });
+    const derived = deriveRecordTotal(rec);
+    assert.equal(derived.primaryTotal, 0, 'a genuine 0+0 primary must be 0, not null');
+    assert.equal(derived.unknown, false, 'all four dims known (all 0) -> four-field KNOWN');
+    const summary = summarizeRecords([rec]);
+    // Primary aggregate: the zero record DOES contribute (count 1, total 0).
+    assert.equal(summary.primaryReportedCount, 1, 'a genuine-zero record contributes to the primary count');
+    assert.equal(summary.primaryReportedTotal, 0, 'its primary contribution is 0');
+    // Four-field: it is fully known, so it also feeds providerReportedTotal as 0.
+    assert.equal(summary.providerReportedCount, 1, 'all-zero record is four-field-known (count 1)');
+    assert.equal(summary.providerReportedTotal, 0, 'all-zero four-field total is a genuine 0');
+    assert.equal(summary.unknownCount, 0, 'all-zero record is NOT unknown');
+  });
+
+  await check('CHK-PRIMARY deriveRecordTotal: source=unavailable -> primaryTotal null', () => {
+    const rec: UsageLedgerRecord = {
+      schemaVersion: 1,
+      recordId: 'llmuse_synth-unavail',
+      ledgerCallId: 'llmcall_synth-unavail',
+      attemptId: 'llmatt_synth-unavail',
+      sequence: 1,
+      supersedesRecordIds: [],
+      recordedAt: '2026-06-19T00:00:00.000Z',
+      projectRootHash: 'sha256:x',
+      storyId: 'S-test',
+      phase: 'dispatch',
+      agentType: 'lattice-dispatch:codex',
+      decision: { kind: 'allowed' },
+      usage: {
+        source: 'unavailable',
+        inputTokens: null,
+        outputTokens: null,
+        cacheCreationInputTokens: null,
+        cacheReadInputTokens: null,
+        unavailableReason: 'provider returned no usage object',
+      },
+      privacy: { promptStored: false, transcriptStored: false, redactionProfile: 'no-raw-content-v1' },
+      authority: { mode: 'local', receiptId: null, receiptVerified: false },
+      integrity: { previousRecordHash: null, recordHash: 'sha256:synth-unavail' },
+    };
+    const derived = deriveRecordTotal(rec);
+    assert.equal(derived.primaryTotal, null, 'unavailable source -> primaryTotal null by design');
+  });
+
+  // ----------------------------------------------------------------------
+  // CHK-PRIMARY diagnostics null-input / empty (CHK-002:edge:1 emptySourceTotals
+  // init via buildUsageReport([]); CHK-002:edge:2 null-input excluded from
+  // primaryKnown by aggregateByGroup — never inferred).
+  // ----------------------------------------------------------------------
+  await check('CHK-PRIMARY diagnostics: buildUsageReport([]) zero-inits provider-reported primaryKnown', () => {
+    const report = buildUsageReport([]);
+    const pr = report.overall.bySource['provider-reported'];
+    assert.deepEqual(pr.primaryKnown, { input: 0, output: 0 }, 'empty report primaryKnown is zero-init');
+    assert.equal(pr.primaryKnownCount, 0, 'empty report primaryKnownCount is 0');
+  });
+
+  await check('CHK-PRIMARY diagnostics: aggregateByGroup excludes a null-input provider record from primaryKnown', () => {
+    const rec = synthProviderRecord('agg-null-input', {
+      input: null,
+      output: 200,
+      cacheCreation: null,
+      cacheRead: null,
+    });
+    const groups = aggregateByGroup([rec]);
+    assert.equal(groups.length, 1, 'one synthetic record -> one group');
+    const pr = groups[0].bySource['provider-reported'];
+    assert.equal(pr.primaryKnownCount, 0, 'a null input keeps the record OUT of primaryKnown (never inferred)');
+    assert.deepEqual(pr.primaryKnown, { input: 0, output: 0 }, 'primaryKnown stays zero for a null-input record');
+    // It is still counted as four-field unknown (sanity: existing branch intact).
+    assert.equal(pr.unknownCount, 1, 'the null-input record is four-field unknown');
   });
 
   // ======================================================================
