@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Decision-doc: design the secondary storyFilesHash + whole-tree-drift downgrade semantics",
       "context": "Via the decision-doc flow: (a) storyFilesHash = sha over the storys own changed files vs merge-base main (reuse changedFilesBetween / scope-contract diff); (b) new validity rule -- bindings stay valid while storyFilesHash unchanged; (c) whole-tree drift downgraded from instant-reject to a re-attestation-REQUIRED warning (NOT silent rebind, NOT story-diff-only); (d) soundness rationale (why story-diff-only misses transitive deps) + which bindings adopt the secondary signal (review-run, escalation verdicts/fallback, verification evidence).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T21:44:41.374Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
