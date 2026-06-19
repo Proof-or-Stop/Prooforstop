@@ -4,7 +4,7 @@
   "title": "Fix review_run_start clean-tree preflight running AFTER captureReviewRunSnapshot",
   "description": "A genuine cross-provider (Codex host-2) review of merged story B-7691 found that the material-source clean-tree preflight in review_run_start runs AFTER captureReviewRunSnapshot, not before it as CHK-001 intended. The dirty-tree refusal still works (the throw aborts before the run is persisted), but the fail-open-on-unreadable-git invariant is defeated (captureReviewRunSnapshot reads git first and can throw on an unreadable repo before the fail-open preflight is reached), the design intent is violated, and the in-code comment 'proceed to the snapshot' is now false. This story moves the preflight block to immediately after the REVIEW phase check, before captureReviewRunSnapshot, and strengthens the smoke to assert the ordering end-to-end (the masking gap: the original fail-open test was isolation-only and never exercised the handler ordering).",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "review",
@@ -54,11 +54,20 @@
       "branch": "story/B-fc82",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:22:05.705Z",
+      "branch": "story/B-fc82",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-fc82",
     "branch": "story/B-fc82",
     "createdAt": "2026-06-19T16:06:53.538Z"
-  }
+  },
+  "currentReviewRound": "2026-06-19T16:22:05.705Z"
 }
