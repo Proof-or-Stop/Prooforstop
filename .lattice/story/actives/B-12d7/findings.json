@@ -17,6 +17,24 @@
       ],
       "signatureTag": "edge|ts|concept-naming-dispatch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-12d7:F-002",
+      "desc": "CHK-003:adversarial:3 intent requires concurrent dispatch test (two codex runs in rapid succession, distinct correlations, no file corruption) but the bound evidence file (usage-ledger-codex-gemini-smoke.ts) contains no concurrent test -- the note itself acknowledges sequential dispatches only. The dispatch-smoke CHK-001 concurrent-preflights test is preflight-only and a different smoke, not bound to this intent. The concurrent ledger-append correctness at the runBoundedRealLeafDispatch level is untested. A real concurrent test with Promise.allSettled or two synchronous appends to the same ledger file is needed to satisfy this must-priority adversarial intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T02:59:28.532Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-003",
+      "_hash": "8936aed7c1aa73bc799c47d8b2e53862e1d948a7ef680d3f581e65db7e146f68",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-requires",
+      "signatureTagSource": "auto"
     }
   ]
 }
