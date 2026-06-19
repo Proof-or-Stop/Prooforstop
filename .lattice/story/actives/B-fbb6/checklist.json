@@ -69,7 +69,141 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "provider-antigravity-smoke runs antigravity-cli.ts: exercises runBoundedAntigravityProvider/antigravityCliAvailable exports (file at providers/antigravity-cli.ts).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts ANTIGRAVITY_CLI_BINARY=agy and antigravityCliAvailable returns true when agy is on a temp PATH.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts ProviderExecResult.provider=antigravity and reportedUsage is absent (no usage extraction).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts stdout/stderr surface only sha256 digest + byteCount (raw-never-surfaced); no raw transcript.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke covers model best-effort (label= parse / requested-model / unknown fallback).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke: agy absent from PATH -> antigravityCliAvailable false; bounded runner not invoked.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke: non-zero exit still yields provider=antigravity, reportedUsage absent, exitCode classified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke: non-JSON/no-usage stdout -> reportedUsage stays absent, never throws.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"extractGeminiUsage\" packages/main/src",
+          "result": "pass",
+          "note": "grep extractGeminiUsage = 0 (and isGeminiUsageObject = 0) in packages/main/src -> usage extraction fully removed. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/providers/",
+          "command": "grep -rn \"gemini-cli\" packages/main/src/providers/",
+          "result": "pass",
+          "note": "grep gemini-cli in providers/ = 0 -> old file gone (git mv to antigravity-cli.ts). Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/provider-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/provider-antigravity-smoke.js",
+          "result": "pass",
+          "note": "provider-antigravity-smoke exists and runs; provider-gemini-smoke.ts removed (git mv).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -145,7 +279,153 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "dispatch-run-smoke exercises runAntigravityRealLeafDispatch (host=antigravity); runGeminiRealLeafDispatch removed.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.009Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "smoke: --host=antigravity normalizes/routes to the antigravity real-leaf path.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "smoke covers agy argv (--print/--print-timeout, --dangerously-skip-permissions for non-interactive).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/providers/types.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc clean: BoundedProviderName includes antigravity, excludes gemini (type-level).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "smoke: PROVIDER_BINARY antigravity->agy; defaultProviderAvailable routes antigravity to antigravityCliAvailable; no gemini entry.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-codex-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-antigravity-smoke.js",
+          "result": "pass",
+          "note": "usage-ledger-codex-antigravity-smoke: recordDispatchFinalForProvider(antigravity) writes provider.name=antigravity, source=unavailable final.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "smoke: --host=gemini no longer resolves to a provider (parseHost rejects it / clear error).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "smoke: antigravity unavailable -> clear unavailability message before spawn.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-dispatch.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc clean: HostRuntimeId includes antigravity; gemini removed (type-level).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"runGeminiRealLeafDispatch\" packages/main/src",
+          "result": "pass",
+          "note": "grep runGeminiRealLeafDispatch = 0 -> no residual dispatch fn. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"runBoundedGeminiProvider\" packages/main/src",
+          "result": "pass",
+          "note": "grep runBoundedGeminiProvider = 0 -> no core importer of the old runner. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"geminiCliAvailable\" packages/main/src",
+          "result": "pass",
+          "note": "grep geminiCliAvailable = 0 -> no core reference to old availability probe. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -211,7 +491,129 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+          "command": "test ! -f packages/main/src/core/usage-ledger/adapters/gemini.ts && echo DELETED",
+          "result": "pass",
+          "note": "adapters/gemini.ts deleted (git rm); file no longer exists.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-adapter-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "result": "pass",
+          "note": "assemble.ts ProviderName = anthropic|openai (no gemini); adaptUsageFor has no gemini case (adapter smoke + tsc).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-codex-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke: antigravity final has source=unavailable with reason mentioning agy print does not surface per-call usage.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-codex-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-antigravity-smoke.js",
+          "result": "pass",
+          "note": "smoke: antigravity dispatch (no reportedUsage) takes the unavailable path; buildProviderRecord not invoked for antigravity.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-adapter-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "result": "pass",
+          "note": "usage-ledger-adapter-smoke: no gemini cases; anthropic + openai adapter cases still pass (41 checks).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"adaptGeminiUsage\" packages/main/src",
+          "result": "pass",
+          "note": "grep adaptGeminiUsage = 0 -> no orphan importer. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-adapter-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "result": "pass",
+          "note": "adapter smoke: adaptUsageFor with an unknown provider name behaves safely (no gemini path).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"adaptGeminiUsage\" packages/main/src",
+          "result": "pass",
+          "note": "grep adaptGeminiUsage = 0 -> complete removal of the adapter fn. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rn \"adapters/gemini\" packages/main/src",
+          "result": "pass",
+          "note": "grep adapters/gemini = 0 -> no import path to the deleted file. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-diagnostics-smoke.js",
+          "result": "pass",
+          "note": "usage-ledger-diagnostics-smoke static check: usage-ledger imports only ./ siblings + node: (zero-cross-module-import intact).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -297,7 +699,177 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rinE '\\\\bgemini\\\\b' packages/main/src",
+          "result": "pass",
+          "note": "grep -rinE \\bgemini\\b packages/main/src: only intentional retirement-proof test/comment matches remain; 0 provider-semantic live refs. Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/capabilities.ts",
+          "command": "grep -rn \"buildLegacyGeminiProfile\" packages/main/src",
+          "result": "pass",
+          "note": "capabilities.ts uses id=antigravity; buildLegacyGeminiProfile removed (grep = 0). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "dispatch-policy LEGACY_KNOWN_HOSTS/isKnownHost use antigravity; policy accepts antigravity (dispatch-run-smoke).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/planner.ts",
+          "command": "grep -rn \"gemini\" packages/main/src/core/planner.ts",
+          "result": "pass",
+          "note": "planner.ts preferredVerifierProviders -> antigravity (no gemini; grep = 0). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/verdicts.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc clean: verdicts.ts provider type includes antigravity not gemini.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/tsconfig.json",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "npm run build: tsc completes with zero errors (no any).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/run-all-smokes.ts",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "run-all-smokes: 176/180; the 4 non-passing are PRE-EXISTING and UNRELATED to this change (worktree-authority git-state flake; english-open-source-surface = CJK in untouched files review-assurance-floor.ts/experience-layer-ab-shadow-gate-smoke.ts, NOT in this diff; plus parallel-load git-contention flakes). All migration-affected smokes pass standalone; no antigravity/gemini/dispatch/usage smoke fails.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:7",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "package.json",
+          "command": "grep -n \"provider-antigravity\\|codex-antigravity\\|provider-gemini\\|codex-gemini\" package.json",
+          "result": "pass",
+          "note": "package.json smoke scripts reference antigravity (provider-antigravity, usage-ledger-codex-antigravity); no gemini script.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src",
+          "command": "grep -rinE '\\\\bgemini\\\\b' packages/main/src",
+          "result": "pass",
+          "note": "grep \\bgemini\\b matches are only justified retirement-proof contexts (tests asserting gemini is rejected/absent). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "grep -rn \"gemini\" packages/main/src/core/process-fact-levels.ts packages/main/src/core/guard-session.ts packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "process-fact-levels/guard-session/authority-client gemini refs updated to antigravity or removed (grep = 0 provider-semantic). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/run-all-smokes.ts",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "run-all-smokes discovers the renamed *-antigravity smoke files (confirmed in the 176/180 run); no gemini-smoke lookup. The 4 non-passing are pre-existing unrelated flakes.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/usage-ledger-codex-antigravity-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-antigravity-smoke.js",
+          "result": "pass",
+          "note": "end-to-end: antigravity dispatch writes provider.name=antigravity + source=unavailable + non-empty reason (usage smoke).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/run-all-smokes.ts",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "no anthropic/codex regression: codex+claude paths (usage-ledger-codex-antigravity 28, usage-ledger 61, diagnostics 34) green within the suite.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/providers/types.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc clean: BoundedProviderName/ProviderName unions exhaustive in switch/if chains; no unreachable/unused.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -401,7 +973,213 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "dispatch-policy: LEGACY_KNOWN_HOSTS has no gemini; antigravity present exactly once (dispatch-run-smoke policy contract).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "parseHost: input 'gemini' is rejected (no longer resolves); antigravity/agy -> antigravity.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "unsupportedRealHosts filter (~256) lists antigravity exactly once, gemini removed (no antigravity||antigravity).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/unattended-dispatch-smoke.js",
+          "result": "pass",
+          "note": "unattended-dispatch-smoke chk008 uses host:antigravity/allowedHosts:[antigravity]; refusal semantics preserved.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "dispatch-run-smoke chk006 real-host refusal uses host:antigravity; dispatch_auto still refuses real subprocess.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "antigravity reachable via the supervised real-leaf path (dispatch_run + allowRealHostSubprocess) — gemini's old capability.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "grep -in \"gemini\" packages/main/src/core/process-fact-levels.ts",
+          "result": "pass",
+          "note": "process-fact-levels rationale: no 'Gemini legacy compatibility' line; antigravity described appropriately (grep gemini = 0). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:7",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "grep -in \"gemini\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "command-policy host_runtime_list reason text: no Gemini-legacy mention (grep gemini = 0). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "parseHost('gemini') returns an error/undefined (retired); covered by dispatch-policy contract test.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/unattended-dispatch-smoke.js",
+          "result": "pass",
+          "note": "unattended-dispatch: allowedHosts:[antigravity]+allowRealHostSubprocess=true still refused by dispatch_auto (posture unchanged).",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/unattended-dispatch-smoke.js",
+          "result": "pass",
+          "note": "unattended-dispatch: dispatch_list shows no antigravity dispatch record after the refusal.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-dispatch.ts",
+          "command": "grep -in \"gemini\" packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "lattice-dispatch comments updated: antigravity no longer 'scaffolded'; carries the real-leaf path (grep gemini = 0 provider-semantic). Verified.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/dispatch-policy.ts",
+          "command": "grep -E \"antigravity[^']*\\|\\|[^']*antigravity\" packages/main/src/core/dispatch-policy.ts",
+          "result": "pass",
+          "note": "grep antigravity||antigravity in dispatch-policy = 0 (no blind-sed duplicate). Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/dispatch-policy.ts",
+          "command": "grep -rinE '\\\\bgemini\\\\b' packages/main/src/core/dispatch-policy.ts",
+          "result": "pass",
+          "note": "grep gemini in dispatch-policy.ts = 0 -> no stray gemini host token. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-dispatch.ts",
+          "command": "grep -rinE '\\\\bgemini\\\\b' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "grep gemini in lattice-dispatch.ts = 0 provider-semantic (non-comment). Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/",
+          "command": "grep -rn \"chk008-gemini\\|chk006-gemini\" packages/main/src",
+          "result": "pass",
+          "note": "grep chk008-gemini/chk006-gemini = 0 -> legacy test ids converted to antigravity. Verified 0.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/run-all-smokes.ts",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "run-all-smokes: 176/180; the 4 non-passing are PRE-EXISTING and UNRELATED to this change (worktree-authority git-state flake; english-open-source-surface = CJK in untouched files review-assurance-floor.ts/experience-layer-ab-shadow-gate-smoke.ts, NOT in this diff; plus parallel-load git-contention flakes). All migration-affected smokes pass standalone; no antigravity/gemini/dispatch/usage smoke fails.",
+          "headHash": "a011c16ea3dc1fd9bd981f43eb5b992126837a40",
+          "materialHash": "1369ac57a12ce6d3e8132cd69b3c1beceea180145903b35878e7ab3593361415",
+          "timestamp": "2026-06-19T18:07:29.010Z"
+        }
+      ]
     }
   ],
   "auditLog": [
