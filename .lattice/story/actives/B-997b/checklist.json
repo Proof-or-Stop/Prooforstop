@@ -89,6 +89,44 @@
           "packages/main/src/tasks/scope-contract-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registered current-story lifecycle artifacts and registered runtime artifacts are classified as provenance/runtime paths and do not create product scope violations.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Scope contract checks, guard session checks, phase gates, and scope-contract handler output expose stable row fields for classifier decisions: id, status, detail/source, hint, and blocking flag.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy story-tree paths are treated only through the supported legacy metadata path rules, while obsolete story-dir prefixes such as .koala/story are not accepted as lifecycle artifacts.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Nearby but unregistered files such as story evidence notes, arbitrary nested evidence files, unknown metadata JSON, and arbitrary .koala JSON fall through to normal scope enforcement and block when undeclared.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The classifier does not introduce blanket exemptions for .lattice, .koala, docs, docs/story, or evidence directories; arbitrary sibling files remain blocking.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Lifecycle artifact classification cannot satisfy delivery, summary, review, validation, or DONE gate receipts; those gates still require their own signed or structured evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
