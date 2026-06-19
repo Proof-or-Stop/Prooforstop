@@ -11,7 +11,9 @@
     "README.md",
     "docs/guide.md",
     "docs/requirements/decisions/host-overflow.md",
-    "docs/requirements/decisions/lattice-parallel-wave.md"
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -20,8 +22,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Add command-policy and process-fact runtime command facts so host_runtime_list/probe diagnostics describe the current codex/claude-code/antigravity host set while keeping Gemini legacy-only.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T15:07:48.487Z",
-  "updatedAt": "2026-06-19T15:07:48.487Z"
+  "updatedAt": "2026-06-19T15:21:20.457Z"
 }
