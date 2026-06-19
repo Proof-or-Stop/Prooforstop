@@ -109,6 +109,17 @@
           "headHash": "75ced964feccafe9ad4dd3056fa4677e1c33b6bd",
           "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
           "timestamp": "2026-06-19T04:05:28.911Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "git diff -- packages/main/src/core/audit-config.ts",
+          "result": "pass",
+          "note": "resolveAuditConfig body and HARD_DEFAULTS unchanged; parallelGate is optional so existing object literals compile unaffected (resolution deferred to Story 3).",
+          "headHash": "5dda5dc7942985266fc4619d1b760d0ba9a05442",
+          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
+          "timestamp": "2026-06-19T04:05:29.379Z"
         }
       ]
     }
