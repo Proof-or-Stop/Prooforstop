@@ -225,6 +225,80 @@
         }
       ],
       "_hash": "db629f9a862895a923020d0eb3e74d0b790a1b17e605833e8327f0f6c1f3c499"
+    },
+    {
+      "timestamp": "2026-06-19T18:53:21.274Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add material-overlap audit to Authority gate request contracts + Include material-overlap audit in signed DONE gate envelopes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-7e47\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact existing test file location for Authority contract/envelope regression coverage must be confirmed during DEV.; Whether staging credentials available in this worktree are sufficient for a full live smoke must be determined during TEST without exposing secrets."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: package.json and package-lock.json only if version/build discipline requires it is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "9ae1d808065369ea351e75518219eff0f373ad10d87a279c19ec65f03c5e2982"
+    },
+    {
+      "timestamp": "2026-06-19T18:53:54.188Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add material-overlap audit to Authority gate request contracts + Include material-overlap audit in signed DONE gate envelopes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-7e47\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact existing test file location for Authority contract/envelope regression coverage must be confirmed during DEV.; Whether staging credentials available in this worktree are sufficient for a full live smoke must be determined during TEST without exposing secrets."
+        }
+      ],
+      "_hash": "6679a07d28d9f5c81f3c14beb4ba5ae1f05476fad255446e53312bed58edb05c"
+    },
+    {
+      "timestamp": "2026-06-19T18:54:35.311Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add material-overlap audit to Authority gate request contracts + Include material-overlap audit in signed DONE gate envelopes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-7e47\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact existing test file location for Authority contract/envelope regression coverage must be confirmed during DEV.; Whether staging credentials available in this worktree are sufficient for a full live smoke must be determined during TEST without exposing secrets."
+        }
+      ],
+      "_hash": "bb0eb00bcecd1081dd00c611b0f6a0f44d2269524d7d513898587f7ea7a0310b"
     }
   ]
 }
