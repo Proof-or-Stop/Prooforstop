@@ -11,8 +11,8 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
       "userSees": "User sees a new execution plan under docs/requirements/decisions/ that names the mandatory review floor and escalation policy.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T00:22:33.113Z",
       "endTime": null,
       "files": {
         "modify": [],
@@ -80,6 +80,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T00:22:33.113Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start writing the review assurance floor execution plan."
     }
   ]
 }
