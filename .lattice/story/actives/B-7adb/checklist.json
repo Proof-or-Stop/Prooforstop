@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Summarize all local review verdict runs in autopilot_review_status",
-      "context": "Add an explicit all-runs/latest-runs view or equivalent summary so operators are not misled by the default-run view after submitting custom round ids. Preserve current runId-specific behavior and local non-Authority semantics.",
+      "context": "Add an explicit all-runs/latest-runs view or equivalent summary so operators are not misled by the default-run view after submitting custom round ids. Preserve current runId-specific behavior and local non-authoritative semantics.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
@@ -15,7 +15,7 @@
     {
       "id": "CHK-002",
       "title": "Show voluntary local 3x2 rounds in review_escalation_status",
-      "context": "When review escalation is not required, the command should still expose submitted local host verdict rounds for operator visibility without changing ok/required semantics or claiming Authority completion.",
+      "context": "When review escalation is not required, the command should still expose submitted local host verdict rounds for operator visibility without changing ok/required semantics or claiming server-backed closure.",
       "relatedDocs": [
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
@@ -38,15 +38,16 @@
     },
     {
       "id": "CHK-004",
-      "title": "Add focused regression coverage and docs for the diagnostic UX",
-      "context": "Add smoke coverage for all-runs/latest-runs status, voluntary 3x2 display, and stale-material runbook wording. Update docs to distinguish local review assurance diagnostics from Authority/production receipt claims.",
+      "title": "Make the diagnostic UX observable and documented",
+      "context": "Add focused regression coverage only as support for the user-visible result: operators can see all/local latest review rounds, voluntary 3x2 status, and stale-material recovery guidance, and docs clearly distinguish local review assurance diagnostics from server-backed or remote-proof claims.",
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Operators see review assurance status grouped by local runs, voluntary 3x2 evidence is visible even when escalation is not required, and stale-material DONE output includes a concise recovery runbook."
     }
   ]
 }

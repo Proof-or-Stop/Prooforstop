@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7adb",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice finding_add",
+    "lattice plan_set",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node bin/lattice.js *",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "mcp__node_repl.js",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    "docs/guide-scope-guard.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "packages/main/tsconfig.json",
+    "README.md"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "npm publish",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Do: improve local non-authoritative review diagnostic summaries, voluntary local 3x2 visibility, and stale-material recovery runbook. Do not: implement future roadmap waves, future key-linkage behavior, server-backed proof workflow, remote-proof lifecycle work, external host execution, unattended orchestration, or new completion semantics. Stop if the fix requires changing review assurance pass/fail predicates instead of diagnostics, or if story metadata trips a scope gate again.",
+  "createdAt": "2026-06-19T13:16:31.644Z",
+  "updatedAt": "2026-06-19T13:16:31.644Z",
+  "_hash": "0378c457b3faf8d8a7ec725c6299dfc1299bd58d0c44e935a5792565f0d30bb5"
+}

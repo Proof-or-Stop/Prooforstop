@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7adb",
+  "mode": "feature",
+  "allowed": [
+    "autopilot_review_status all-runs/latest-runs diagnostic summary for local verdicts",
+    "DONE pre-check stale-material runbook for validation evidence and host verdict refresh",
+    "focused smoke tests and docs for local non-authoritative diagnostic UX",
+    "review_escalation_status visibility for voluntary local 3x2 rounds when required=false"
+  ],
+  "excluded": [
+    "changes to review assurance gate predicate beyond diagnostics",
+    "external host execution or unattended host orchestration",
+    "future key-linkage behavior",
+    "future roadmap wave implementation",
+    "new product/business features",
+    "remote-proof lifecycle work",
+    "server-backed proof workflow"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User requested immediate story to fix CLI diagnostic/closure UX; future roadmap waves are boundary context, not current implementation.",
+  "createdAt": "2026-06-19T13:16:19.255Z",
+  "updatedAt": "2026-06-19T13:16:19.255Z",
+  "_hash": "479929b7ea1eb1768fa02a0f442322ca001e2f99580293b19ea960e771936909"
+}
