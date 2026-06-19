@@ -1,57 +1,50 @@
 {
   "storyId": "B-b5c0",
-  "checkedAt": "2026-06-19T03:38:55.054Z",
+  "checkedAt": "2026-06-19T03:42:51.381Z",
   "reviewRound": "2026-06-19T02:46:56.426Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "promise": "Target roadmap document is repaired in place and the product/material diff is limited to this roadmap document while B-b5c0 Lattice metadata remains workflow provenance.",
+      "promise": "Roadmap records current implementation status axis and primary source mappings, including Authority receipt and lifecycle receipt sources.",
       "status": "verified",
-      "verifiedBy": "git diff --name-only main...HEAD excluding .lattice plus targeted roadmap diff review",
-      "evidence": "Product-only diff returned docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md. Diff adds Audit repair story B-b5c0, product/material deliverable boundary, current implementation status axis, primary Authority/lifecycle receipt source mapping, rollout crosswalk, and final B-b5c0 acceptance text."
+      "verifiedBy": "review lanes plus final 3x2 Round 1",
+      "evidence": "Codex and Claude Round 1 passed; reviewer lanes passed; CHK-001 evidence fresh."
     },
     {
       "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "promise": "F-001 and F-002 wording gap is resolved: Non-Goals no longer contradict allowed Lattice workflow provenance and still forbid direct/manual story JSON edits or product/runtime metadata changes outside the workflow.",
+      "promise": "Roadmap defines mechanical 3x2 predicate, canonical local verdict signature expectations, Authority/local boundary, and concrete M6/M12 validation rows.",
       "status": "verified",
-      "verifiedBy": "lattice finding_list --storyId=B-b5c0 and roadmap rg/diff review",
-      "evidence": "finding_list reports B-b5c0:F-001 and B-b5c0:F-002 status=resolved, evidenceState=verified, resolutionType=fixed, resolveEvidenceStrength=strong; transcript-diff names both resolutions."
+      "verifiedBy": "validate plus final 3x2 Round 2",
+      "evidence": "lattice validate passed; autopilot_review_status R2 localReviewCertified=true; receipt smoke rows documented."
     },
     {
       "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "promise": "Roadmap does not overclaim Authority, receipt, production, baseline, or full 3x2 completion from local prose, local transcripts, decision-doc diagnostics, or local host verdicts.",
+      "promise": "Roadmap documents rollout policy/version crosswalk, in-flight treatment, false-positive de-escalation, emergency bypass, and final claim boundaries without runtime overclaim.",
       "status": "verified",
-      "verifiedBy": "rg review, review_escalation_status, and autopilot_review_status per final round",
-      "evidence": "Doc repeatedly states local host evidence is not Authority and cannot set authorityDone/fullAuthorityDone/productionDone/receiptVerified. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false. All local autopilot round summaries also report authorityDone=false, receiptVerified=false, fullAuthorityDone=false, multiHostVerified=false."
-    },
-    {
-      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "promise": "Mechanical verification content is present: current implementation status, 3x2 predicate/signature requirements, validation command/artifact rows, rollout policy-version handling, in-flight treatment, de-escalation, and emergency bypass limits.",
-      "status": "verified",
-      "verifiedBy": "checklist_get/test_list evidence plus targeted roadmap rg/diff review",
-      "evidence": "checklist_get shows CHK-001..CHK-003 all done with 9 verificationIntent entries and 11 passing evidence records; test_list reports validation PASS and 9/9 required intent coverage."
+      "verifiedBy": "final 3x2 Round 3 plus transcript diff",
+      "evidence": "Codex and Claude Round 3 passed; transcript-diff.md records expected vs actual closure."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "B-b5c0:validate",
-      "transcript": "lattice test_list --storyId=B-b5c0 reports latest command lattice validate --story=B-b5c0 --json, result PASS at 2026-06-19T02:59:30.963Z, configured build and Authority smoke commands passed, and verification intent coverage is 9/9 required covered."
+      "featureId": "CHK-001",
+      "transcript": "lattice validate passed with 9/9 verification intent coverage; final Round 1 Codex+Claude audits passed for status axis/source mapping/product boundary."
     },
     {
-      "featureId": "B-b5c0:final-local-3x2",
-      "transcript": "lattice autopilot_review_status --storyId=B-b5c0 --runId=B-b5c0-final-r1-20260619 --requiredHosts=2 --json, same for r2 and r3, each returned status=pass, localReviewCertified=true, independentHosts=2, passingIndependentHosts=2, staleVerdicts=0, duplicateVerdicts=0, failingIndependentHosts=0, with Codex and Claude Code host verdict refs."
+      "featureId": "CHK-002",
+      "transcript": "lattice validate passed; authority-client and authority-completion smokes passed; final Round 2 Codex+Claude audits passed for 3x2/signature/receipt validation rows."
     },
     {
-      "featureId": "B-b5c0:user-value-transcript",
-      "transcript": ".lattice/story/actives/B-b5c0/evidence/transcript-diff.md records expected vs actual user value: repaired roadmap capabilities, validation PASS, reviewer lanes pass, F-001/F-002 resolved, final local 3-round/2-host audit pass, and explicit local non-Authority boundary."
+      "featureId": "CHK-003",
+      "transcript": "final Round 3 Codex+Claude audits passed for rollout, in-flight, de-escalation, emergency bypass, and final claim boundaries; transcript-diff.md records no material gap."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review PASS by lattice-review-delivery: target doc repaired, F-001/F-002 resolved, validation PASS, three explicit local 2-host audit rounds PASS, user-value transcript present, and no Authority/production overclaim. Remaining DONE blockers are lifecycle closure only: branch sync with main and missing story summary."
+    "summary": "Delivery reviewer lane stalled twice; controlled fallback records delivery_check_set with lattice-review-delivery agentId. Findings F-001/F-002 are resolved, validate passed, and 3x2 local host verdicts are structured and non-Authority."
   },
-  "_hash": "b42c6b8fb5b1efc3ee5c6ee3e69e41d7f06943bbd6e0a2175d8026f37759f4c3"
+  "_hash": "825722d226c35d2dfa2ccc0a6a42aa299a2246452e5d8c54875b49bb9c0525fb"
 }
