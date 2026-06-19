@@ -61,7 +61,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Command help, nested lattice aliases, dry-run guidance, and owner lease meta help stay visible and unchanged from a user perspective.",
+      "userSees": "`lattice story_advance --help` still prints `Dry-run: optional via --dryRun` and `Owner lease meta options`; `lattice host runtime list --json` still returns schemaVersion `lattice.host_runtime_list.v1`.",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts"
