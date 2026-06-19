@@ -584,7 +584,7 @@
       "desc": "doc-code-drift: §5.1 NOTE (line 468) states lane is derived via resolveStoryLane with mapping high→mainline, medium→supporting, low/else→exploratory — but the code (parallel-policy.ts:23-31) also maps critical→mainline (case critical: / case high: return mainline). The NOTE omits the critical priority case, so a decomposer reading the note would not know that priority:critical also yields lane:mainline. This is a factual inaccuracy in the derived-lane description.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T02:49:13.619Z",
@@ -596,7 +596,11 @@
         "packages/main/src/core/parallel-policy.ts"
       ],
       "signatureTag": "missing|md|code-drift-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: §5.1 resolveStoryLane note corrected to critical/high→mainline (the critical case was omitted).",
+      "resolvedAt": "2026-06-19T02:52:10.473Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
