@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Implement computeWriteSet + globsOverlap in new core/parallel-decomposition-overlap.ts",
       "context": "Pure functions per spec 4.2: computeWriteSet(contract: ScopeContractData) returns created+modified paths; globsOverlap(a,b) does literal-path intersection + shared-dir-prefix heuristic + broadness (NARROW/BROAD over literal|dir/*|dir/**), returning GlobOverlapResult {overlap,pairs,broadSide}. Import types from parallel-decomposition.js. No I/O.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T12:58:02.035Z",
       "userSees": "globsOverlap returns overlap=true with colliding pairs for literal-path overlap; computeWriteSet unions a contract allowedModify+allowedCreate; smoke prints PASS.",
       "verificationIntent": {
         "happy": [
