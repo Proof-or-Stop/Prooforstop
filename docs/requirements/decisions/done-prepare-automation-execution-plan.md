@@ -1,6 +1,6 @@
 # DONE Prepare Automation Execution Plan
 
-Status: proposed
+Status: implemented in B-fb36 for the conservative pre-DONE readiness assistant
 Created: 2026-06-19
 
 ## Purpose
@@ -78,6 +78,9 @@ Out of scope:
 - handling unrelated dirty files by stashing, reverting, or deleting them;
 - replacing reviewer, coverage, or delivery gates.
 - mutating CLI runtime version files before DONE.
+- automatically rebinding, rewriting, refreshing, or re-endorsing review
+  escalation / host verdict material. Stale or missing review verdicts must
+  block and point to the real review, re-escalation, or fresh host verdict path.
 
 ## Command Contract
 
@@ -111,6 +114,12 @@ implementation. It may report:
 The post-DONE finalization surface can be a later `lattice version_bump --patch`
 or `lattice done_finalize` command. It is intentionally not part of
 `done_prepare`.
+
+`done_prepare` also must not accept a review-verdict rebind mode. Review
+assurance and escalation material is only valid when the relevant host actually
+reviewed the current material. If `done_closure` reports stale or missing
+review-assurance / escalation verdicts, `done_prepare` blocks and prints the
+real diagnostic and re-review commands instead of rewriting verdict records.
 
 Supported `dryRun` behavior:
 

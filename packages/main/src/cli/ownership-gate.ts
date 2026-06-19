@@ -98,6 +98,10 @@ export function resolveEffectiveOwnershipClass(
     cls = hasStory ? 'storyScopedMutating' : 'readOnly';
   }
 
+  if (cmd === 'done_prepare' && args.dryRun === true) {
+    cls = 'readOnly';
+  }
+
   if (cmd === 'delivery_check_set') {
     cls = isDeliveryReviewerActor(args) ? 'reviewerWrite' : 'storyScopedMutating';
   }

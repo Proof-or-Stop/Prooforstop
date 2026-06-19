@@ -648,6 +648,17 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
+  { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
+    storyId: z.string().describe('Story ID'),
+    mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
+    refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
+    validate: z.boolean().optional().describe('Run lattice validate --story=<storyId> --json before DONE closure projection (default true).'),
+    build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
+    dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
+    versionBump: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
+    bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
+    postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),
+  }},
   { name: 'decision_doc_quorum_check', description: 'Read-only decision-doc local quorum diagnostic; decision-doc edits are classification-only unless review_escalation_status requires quorum. Alias: lattice decision doc quorum check', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
