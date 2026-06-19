@@ -4,7 +4,7 @@
   "title": "Harden validate: default per-command timeout so a hung validate command fails loud instead of silently aborting the suite",
   "description": "The validate command runner only applies a per-command kill timer when lattice.config.json sets command.timeoutMs; the configured commands are bare strings with no timeoutMs, so a hung command produces no output until the GLOBAL 300s idle watchdog force-exits the whole validate process — which never re-stamps test-evidence.materialHash, silently blocking the DONE Evidence-freshness gate. Add a default per-command timeout (below the global idle watchdog) so a hung command is killed with a clear per-command timeout failure (exit 124, naming the command) rather than nuking the suite.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "DISCARDED",
   "priority": "high",
   "keywords": [
     "validate",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-19T16:41:28.721Z",
   "startedAt": "2026-06-19T16:41:28.721Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T16:42:33.693Z",
   "events": [
     {
       "phase": "INIT",
@@ -24,6 +24,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-19T16:42:33.693Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Duplicate of pre-existing B-5d18 (same validate-suite-hang fix, broader scope: fixes the smokes + per-command timeout). Both edit validation-executor.ts (file overlap, not parallel-safe). Deferring to B-5d18 to avoid duplicate/conflicting work."
     }
   ]
 }
