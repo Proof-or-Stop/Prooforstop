@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T19:33:11.552Z",
       "reviewRunId": "B-30c3:RR-008",
       "_hash": "37b7bb62398e5c33f6fcdf988ac2cb9ef86cbec7ece24e1baed3ceb741971949"
+    },
+    {
+      "id": "B-30c3:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review of 024bb0e30 (codex-cli.ts, gemini-cli.ts, usage-ledger-codex-gemini-smoke.ts). Dead code: no leftover `const u = value as ...` vars; CODEX_NESTED_DETAIL_KEYS is declared and consumed in sanitizeNestedDetails loop; sanitizeNestedDetails.src is consumed on both hasOwnProperty and index reads. Type safety: both isCodexUsageObject/isGeminiUsageObject preserve `value is Record<string,unknown>` predicate signatures; no `as any`; catch blocks handle errors properly. I/O isolation: no fn.ts imports in shell files. Smoke prototype cleanup: all three new defineProperty calls (prompt_tokens, promptTokenCount, cached_tokens) each wrapped in try/finally with configurable:true+delete, no global leakage between checks. sanitizeNestedDetails returns unknown (non-object verbatim, object->null-proto record). 0 findings.",
+      "createdAt": "2026-06-19T19:45:28.650Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-007",
+      "_hash": "b23ba53263c6579a46e31dfc1f9d3dd256bd51b9540912388eddd8bf033205f3"
     }
   ]
 }
