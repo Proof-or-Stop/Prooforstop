@@ -151,6 +151,15 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ],
+        "test": []
       }
     }
   ]
