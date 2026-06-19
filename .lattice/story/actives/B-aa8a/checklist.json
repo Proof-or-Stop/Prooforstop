@@ -78,6 +78,15 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [
+          "packages/main/src/core/version-bump.ts"
+        ],
+        "test": []
       }
     },
     {
