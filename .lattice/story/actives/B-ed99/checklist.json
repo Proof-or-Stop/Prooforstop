@@ -55,9 +55,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: one fresh local review round passes clean material code without requiring 3x2.",
-          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:29.248Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: docs-only markdown is not overblocked.",
-          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:29.341Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: zero-review material code is blocked with formatted DONE diagnostic.",
-          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:29.435Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         }
       ]
     },
@@ -134,9 +134,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: bug and verified-reviewer-finding failure signals require three local rounds.",
-          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:35.672Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: fixed bug evidence remains a sticky failure signal until 3x1 local rounds exist.",
-          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:35.820Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,9 +154,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: stale materialDigest host verdicts do not count.",
-          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:35.941Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         }
       ]
     },
@@ -216,9 +216,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: one-round and 3x1 reports keep authorityDone/fullAuthorityDone/productionDone false.",
-          "headHash": "da184ace889adc403d9ffc9f0540961121be8bb1",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:43.146Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,9 +226,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: failure-triggered 3x1 success is labeled degraded-single-host, not full 3x2.",
-          "headHash": "da184ace889adc403d9ffc9f0540961121be8bb1",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:43.239Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,9 +236,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed: forged local authorityDone/fullAuthorityDone/productionDone fields remain false in the evaluator report.",
-          "headHash": "da184ace889adc403d9ffc9f0540961121be8bb1",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:43.390Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -308,9 +308,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke passed 7 checks: zero-review block, one-round pass, failure-triggered 3x1, stale rejection, docs-only non-overblock, and Authority flags false.",
-          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:51.245Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -318,9 +318,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "review-assurance-floor smoke asserted formatted DONE failure text names the material code review assurance floor and autopilot_review_submit next action.",
-          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:51.351Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -328,9 +328,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "process-fact contract verified runtime:review_assurance_floor_done_gate is L4 gate evidence, is consumed by storyMachine.canFinish, and is present in done-oracle/machine/smoke sources.",
-          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
-          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
-          "timestamp": "2026-06-19T01:48:51.443Z"
+          "headHash": "efe0202b667e42c97d166ae7ed1dfc6b2534e9c0",
+          "materialHash": "41e26997c22e4fe148fa5866000b8a5f2ba5bb2ebcc052aee475e2861bbff6fb",
+          "timestamp": "2026-06-19T02:27:38.816Z"
         }
       ]
     }
