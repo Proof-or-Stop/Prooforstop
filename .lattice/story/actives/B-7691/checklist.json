@@ -68,9 +68,9 @@
       "id": "CHK-002",
       "title": "Smoke + verifier wiring for the review_run_start clean-tree preflight",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered by run-all-smokes) + npm script asserting: (a) review_run_start REFUSES on an uncommitted material-source change; (b) REFUSES on an uncommitted fixture change (fixtures are BLOCKING, matching the DONE gate); (c) PASSES when the tree is clean; (d) PASSES when only .lattice metadata (a non-blocking category) is dirty; (e) the refusal names the offending files; (f) the preflight yields the SAME blocking verdict as the DONE gate for an identical git status (shared evaluation).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T14:18:59.820Z",
-      "endTime": null,
+      "endTime": "2026-06-19T14:44:18.488Z",
       "verificationIntent": {
         "happy": [
           {
