@@ -144,17 +144,20 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Targeted regression coverage fails if schema acceptance, signed envelope inclusion, live smoke request shape, or non-empty overlap preservation regresses, and npm --prefix packages/main run build regenerates the CLI output.",
+      "userSees": "Targeted validation output includes \"schema acceptance PASS\", \"signed envelope audit PASS\", \"live smoke request shape PASS\", \"non-empty overlap preservation PASS\", and \"npm --prefix packages/main run build\" exits 0.",
       "files": {
         "modify": [
           "packages/main/src/tasks/authority-client-smoke.ts",
           "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
-          "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+          "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
+          "packages/main/package.json",
+          "packages/main/package-lock.json"
         ],
         "create": [
           "packages/main/dist"
         ],
         "test": [
+          "packages/main/tests",
           "packages/main/src/tasks/authority-client-smoke.ts",
           "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
           "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
