@@ -18,6 +18,7 @@ import {
   runDoneMainPackageBuildAfterMerge,
   shouldBuildDoneMainPackageForChangedPaths,
 } from '../handlers/done-effects.js';
+import { commitInitCheckMetadataAndMergeMain } from '../cli/init-check-metadata-sync.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -1613,10 +1614,99 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
       'merge', `story/${storyId}`, '--no-ff', '-m', `merge: ${storyId} init-check f008 regression`,
     ]);
     assert.equal(mergeOk, true, 'DONE-equivalent merge of the story branch must not self-block on a stale main mirror');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', `story/${storyId}`, 'main']),
+      true,
+      'the story branch must be contained in main without a partial-DONE',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-init-check-staged-main-'));
+  const storyId = 'B-init-staged';
+  const storyRel = `.lattice/story/actives/${storyId}`;
+  const worktreePath = join(root, '.worktrees', storyId);
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      storyPrefix: 'B',
+    }, null, 2));
+    write(root, 'README.md', 'INIT_CHECK staged-main preflight smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, 'unrelated-staged.txt', 'tracked baseline\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    resetConfigCache();
+
+    const store = new StoryStore(root);
+    writeStory(store, storyId, 'INIT', {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: '2026-05-08T10:00:00.000Z',
+    });
+    git(root, ['add', '-f', '--', storyRel]);
+    git(root, ['commit', '-m', 'story metadata init']);
+    git(root, ['worktree', 'add', '-b', `story/${storyId}`, worktreePath, 'HEAD']);
+
+    writeStory(store, storyId, 'INIT_CHECK', {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: '2026-05-08T10:00:00.000Z',
+    });
+    write(root, 'unrelated-staged.txt', 'staged user edit that must remain staged\n');
+    git(root, ['add', '--', 'unrelated-staged.txt']);
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']),
+      'M\tunrelated-staged.txt',
+      'precondition: unrelated user path is staged before INIT_CHECK reconcile',
+    );
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-only', '--', storyRel]),
+      '',
+      'precondition: story metadata is dirty but not staged yet',
+    );
+    const headBefore = git(root, ['rev-parse', 'HEAD']);
+
+    assert.throws(
+      () => commitInitCheckMetadataAndMergeMain(root, store, storyId),
+      /INIT_CHECK metadata commit refused out-of-bounds staged paths:\nunrelated-staged\.txt/,
+    );
+
+    assert.equal(
+      git(root, ['rev-parse', 'HEAD']),
+      headBefore,
+      'refused INIT_CHECK reconcile must not create a metadata commit',
+    );
+    assert.equal(
+      git(root, ['show', 'HEAD:unrelated-staged.txt']),
+      'tracked baseline',
+      'unrelated staged content must not be swept into HEAD by the metadata helper',
+    );
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']),
+      'M\tunrelated-staged.txt',
+      'unrelated staged path should remain staged for the user',
+    );
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-only', '--', storyRel]),
+      '',
+      'INIT_CHECK refusal must happen before staging story metadata',
+    );
     assert.match(
-      git(root, ['log', '--oneline', 'main']),
-      new RegExp(`merge: ${storyId}`),
-      'the story branch must be merged into main without a partial-DONE',
+      git(root, ['diff', '--name-only', '--', storyRel]),
+      new RegExp(`${storyRel}/index\\.json`),
+      'story metadata should remain an unstaged working-tree change after refusal',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1742,6 +1832,7 @@ assertDoneMainMergeStaleLockIsReclaimed();
 // B-f60c CHK-002 — F-008 regression: INIT_CHECK must not leave an uncommitted
 // main-side story metadata mirror that self-blocks the DONE merge.
 assertInitCheckLeavesNoUncommittedMainMirrorForDone();
+assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata();
 
 // B-f60c CHK-005 — multi-session regression: two concurrent story_advance DONE
 // processes serialize through the unified main write lock with no partial-DONE.

@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Behavior preservation beats line-count reduction for lifecycle commands.",
+    "Move only lifecycle shell code; do not move business handlers, gates, or policy registries.",
+    "Keep cli-engine.ts compatibility exports until all consumers migrate.",
+    "Every moved process fact must remain mechanically covered by tests or contract checks."
+  ],
+  "drivers": [
+    "story_advance INIT_CHECK and DONE paths can corrupt worktree/main state if ordering changes.",
+    "recover_evidence has special stdout-before-error semantics that generic dispatch does not cover.",
+    "This story builds on B-a776, so newly extracted parser/help/alias/root/ownership modules should remain stable inputs rather than active refactor targets."
+  ],
+  "options": [
+    {
+      "name": "A: Thin lifecycle helper modules with cli-engine retaining top-level runCli orchestration",
+      "pros": [
+        "Minimizes behavior drift by keeping parse/validate/run wrapper ordering in one place.",
+        "Allows focused extraction of metadata reconcile and special dispatch branches.",
+        "Compatibility exports stay simple and existing smokes can compare behavior."
+      ],
+      "cons": [
+        "cli-engine.ts remains a sizeable orchestrator after this round.",
+        "Lifecycle-dispatch helpers need dependency injection parameters, which is a little verbose."
+      ]
+    },
+    {
+      "name": "B: Move the entire runCli body into cli/run-cli.ts",
+      "pros": [
+        "Largest immediate line-count reduction in cli-engine.ts.",
+        "Creates a clean dedicated CLI runtime module."
+      ],
+      "cons": [
+        "High blast radius: hook ordering, logging fallback, phase gate, owner lease, and JSON decoration all move at once.",
+        "Harder to tell whether regressions came from lifecycle extraction or generic command dispatch movement."
+      ]
+    },
+    {
+      "name": "C: Only extract commitInitCheckMetadataAndMergeMain and leave dispatch branches in cli-engine.ts",
+      "pros": [
+        "Safest first step for metadata reconcile behavior.",
+        "Easy compatibility re-export."
+      ],
+      "cons": [
+        "Does not satisfy the story goal of extracting lifecycle dispatch and runCli orchestration helpers.",
+        "Leaves story_create, INIT_CHECK, and recover_evidence special cases tangled in cli-engine.ts."
+      ]
+    }
+  ],
+  "chosen": "A: Thin lifecycle helper modules with cli-engine retaining top-level runCli orchestration",
+  "rationale": "Option A gives meaningful lifecycle modularization while preserving the sensitive generic runCli order in cli-engine.ts, which is the safest path for a high-risk lifecycle refactor.",
+  "preMortem": [
+    {
+      "scenario": "INIT_CHECK phase metadata is written without a matching worktree bootstrap.",
+      "trigger": "The extracted INIT_CHECK helper accidentally calls story_advance before dev_start or skips the full guard pre-check.",
+      "consequence": "A story can get stuck in partial INIT_CHECK or later fail DONE merge because main/worktree metadata diverges.",
+      "mitigation": "Keep the existing bootstrap-first order in one helper and run worktree-authority, init-check-required-agents, nested-worktree bootstrap, and init-check reconcile smokes."
+    },
+    {
+      "scenario": "Metadata reconcile silently commits or resolves files outside the story metadata path.",
+      "trigger": "Moving commitInitCheckMetadataAndMergeMain loses bounded staging or out-of-bounds conflict checks.",
+      "consequence": "Main or story worktree state can be overwritten during INIT_CHECK recovery.",
+      "mitigation": "Keep stageBoundedMetadataPath/isPathUnderAny checks intact and run init-check-reconcile-conflict plus main-write-lock coverage."
+    },
+    {
+      "scenario": "recover_evidence returns a generic handler error instead of structured stdout then non-zero stderr.",
+      "trigger": "Special recover_evidence dispatch is folded into generic handler dispatch too early.",
+      "consequence": "Operators lose the diagnostic JSON needed to repair stale evidence and scripts observe the wrong exit contract.",
+      "mitigation": "Extract a dedicated recover evidence dispatch helper and run verification-freshness smoke plus a focused lifecycle-dispatch smoke."
+    },
+    {
+      "scenario": "Owner/reviewer/hook ordering regresses after dispatch extraction.",
+      "trigger": "Lifecycle helper bypasses the shared run wrapper or runs hooks before reviewer read-only and owner lease gates.",
+      "consequence": "Blocked commands could mutate leases, write hooks, or escape reviewer read-only policy.",
+      "mitigation": "Keep all lifecycle special branches invoked through the existing run wrapper and run command-ownership-contract, process-fact contract, and command-catalog smoke."
+    }
+  ],
+  "timestamp": "2026-06-19T18:41:52.873Z"
+}
