@@ -168,12 +168,12 @@
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/lattice-evidence-smoke.js",
           "result": "pass",
-          "note": "checklist evidence normalization now stamps storyFilesHash from the same resolved git cwd/metadata root as materialHash without dropping materialHash.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
+          "note": "checklist evidence normalization stamps storyFilesHash alongside materialHash, and lattice-evidence smoke proves portable evidence manifests preserve storyFilesHash through manifest/inspect so consumers do not fall back to materialHash-only freshness.",
+          "headHash": "4870fdbbc70a37dc2e97a09d98f6267a5cb9ef89",
           "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "timestamp": "2026-06-19T22:12:35.444Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
