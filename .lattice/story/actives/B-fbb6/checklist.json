@@ -433,7 +433,7 @@
       "context": "DELETE packages/main/src/core/usage-ledger/adapters/gemini.ts and remove its use in assemble.ts: drop 'gemini' from the ProviderName union and the `case 'gemini'` in adaptUsageFor (keep anthropic/openai). buildProviderRecord is never called for antigravity (no reportedUsage), so no antigravity adapter is needed; antigravity finals go through the source=unavailable path with a clear unavailableReason (e.g. 'antigravity (agy) print mode does not surface per-call token usage'). Remove the adaptGeminiUsage cases from usage-ledger-adapter-smoke.ts. Confirm no other importer of adaptGeminiUsage / adapters/gemini remains.",
       "status": "done",
       "startTime": "2026-06-19T17:31:56.535Z",
-      "endTime": "2026-06-19T17:57:24.905Z",
+      "endTime": "2026-06-19T18:07:39.426Z",
       "verificationIntent": {
         "happy": [
           {
