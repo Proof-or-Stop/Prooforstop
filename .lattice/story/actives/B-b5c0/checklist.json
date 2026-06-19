@@ -36,13 +36,15 @@
           }
         ]
       },
-      "userSees": "用户看到 roadmap 文档新增 current implementation status，并且 Authority receipt / lifecycle receipt / lifecycle artifact sources 被明确列入 source mapping；已有 scope/owner/parallel/baseline 能力不再被误写成纯未来工作。",
+      "userSees": "用户看到：\"CHK-001 done: roadmap now lists current implementation status and Authority/lifecycle receipt source mapping; existing scope/owner/parallel/baseline surfaces are not described as net-new future work.\"",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
         ],
         "create": [],
-        "test": []
+        "test": [
+          "docs/requirements/NAV.md"
+        ]
       }
     },
     {
