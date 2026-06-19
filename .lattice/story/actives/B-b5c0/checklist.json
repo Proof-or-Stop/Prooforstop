@@ -167,6 +167,17 @@
           "headHash": "b9b90d94cab60ce6e750adf0d6026e16fde44c53",
           "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
           "timestamp": "2026-06-19T02:29:37.558Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:receipt-smokes",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-gate-receipts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-gate-receipts-smoke.js && node packages/main/dist/tasks/authority-gate-consumption-smoke.js && node packages/main/dist/tasks/authority-completion-smoke.js",
+          "result": "pass",
+          "note": "Concrete M6/M12 receipt validation rows are backed by existing Authority smoke tasks; observed passes cover fake, wrong-story, wrong-material, stale, future, tamper, local-transcript and eligible-consumption boundaries without granting Authority completion to B-b5c0.",
+          "headHash": "945da8665a2a2d5f09a86c62b7e61803a9fe08d7",
+          "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+          "timestamp": "2026-06-19T02:31:31.262Z"
         }
       ]
     },
