@@ -1,0 +1,80 @@
+/**
+ * Smoke: parallel-decomposition-overlap (Story 1 / B-4033).
+ *
+ * Exercises the static overlap engine (§4.2): literal overlap, tier-2 dir-prefix
+ * over-flag, BROAD classification + broadSide attribution, disjoint sets, and write-set
+ * grammar rejection. Exits non-zero (throws) on any failed assertion — never a silent pass.
+ *
+ * Run: node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js
+ */
+
+import {
+  computeWriteSet,
+  globsOverlap,
+  validateWriteSetGrammar,
+  classifyBroadness,
+} from '../core/parallel-decomposition-overlap.js';
+import type { ScopeContractData } from '../core/types.js';
+
+let passed = 0;
+function check(name: string, cond: boolean): void {
+  if (!cond) throw new Error(`FAIL: ${name}`);
+  passed += 1;
+}
+
+// 1. computeWriteSet unions allowedModify + allowedCreate + allowedTest, deduped.
+const contract = {
+  storyId: 'B-test',
+  allowedModify: ['src/csv/impl/parser.ts', 'src/csv/impl/parser.ts'],
+  allowedCreate: ['src/csv/impl/parser.test.ts'],
+  allowedTest: ['src/csv/impl/parser.test.ts'],
+} as unknown as ScopeContractData;
+const ws = computeWriteSet(contract);
+check('computeWriteSet unions + dedupes', ws.length === 2 && ws.includes('src/csv/impl/parser.ts') && ws.includes('src/csv/impl/parser.test.ts'));
+
+// 2. tier-1 literal overlap → overlap=true with the colliding pair.
+const litA = ['src/csv/impl/parser.ts', 'src/csv/contract.ts'];
+const litB = ['src/csv/impl/parser.ts'];
+const r1 = globsOverlap(litA, litB);
+check('literal overlap detected', r1.overlap === true);
+check('literal overlap pair correct', r1.pairs.some(([x, y]) => x === 'src/csv/impl/parser.ts' && y === 'src/csv/impl/parser.ts'));
+check('literal overlap not broad', r1.broadSide === null);
+
+// 3. disjoint write-sets → no overlap.
+const r2 = globsOverlap(['src/csv/impl/parser.ts'], ['src/csv/impl/writer.ts']);
+check('disjoint literals: no overlap', r2.overlap === false && r2.pairs.length === 0);
+
+// 4. tier-2 shared-dir-prefix over-flag: dir/* vs a literal child of dir.
+const r3 = globsOverlap(['src/csv/impl/*'], ['src/csv/impl/parser.ts']);
+check('children-glob vs child literal overlaps', r3.overlap === true);
+// dir/* vs a literal NOT a direct child must not over-claim.
+const r3b = globsOverlap(['src/csv/impl/*'], ['src/csv/other/deep/x.ts']);
+check('children-glob vs unrelated literal: no overlap', r3b.overlap === false);
+
+// 5. subtree vs literal under it overlaps; sibling subtree does not.
+const r4 = globsOverlap(['src/csv/**'], ['src/csv/impl/parser.ts']);
+check('subtree vs nested literal overlaps', r4.overlap === true);
+const r4b = globsOverlap(['src/csv/**'], ['src/json/parser.ts']);
+check('subtree vs sibling tree: no overlap', r4b.overlap === false);
+
+// 6. BROAD classification + broadSide attribution.
+check('dir/** at root is BROAD', classifyBroadness('src/**') === 'broad');
+check('dir/* at root is NARROW (bounded)', classifyBroadness('src/*') === 'narrow');
+check('deep dir/** is NARROW', classifyBroadness('src/csv/impl/**') === 'narrow');
+check('literal is NARROW', classifyBroadness('src/csv/parser.ts') === 'narrow');
+const r5 = globsOverlap(['src/**'], ['src/csv/parser.ts']);
+check('broadSide=a when only A is broad', r5.broadSide === 'a');
+const r6 = globsOverlap(['src/csv/parser.ts'], ['lib/**']);
+check('broadSide=b when only B is broad', r6.broadSide === 'b');
+const r7 = globsOverlap(['src/**'], ['lib/**']);
+check('broadSide=both when both broad', r7.broadSide === 'both');
+
+// 7. grammar validator: literal / dir/* / dir/** valid; mid-path ** and bare * rejected.
+const good = validateWriteSetGrammar(['src/a.ts', 'src/dir/*', 'src/dir/**']);
+check('valid grammar accepted', good.ok === true && good.invalid.length === 0);
+const bad = validateWriteSetGrammar(['src/**/*.ts', '*', 'src/x.ts']);
+check('mid-path ** rejected', bad.invalid.some((i) => i.entry === 'src/**/*.ts'));
+check('bare * rejected', bad.invalid.some((i) => i.entry === '*'));
+check('grammar rejects exactly the 2 bad entries', !bad.ok && bad.invalid.length === 2);
+
+console.log(`parallel-decomposition-overlap smoke passed: ${passed} assertions`);
