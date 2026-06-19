@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-19T23:11:19.016Z",
       "reviewRunId": "B-5a9a:RR-011",
       "_hash": "e9e35bb3a80cd5e3f7d111c22792d502b41ee403be01b64ace064c716c699ed5"
+    },
+    {
+      "id": "B-5a9a:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: review_run_start persists top-level ReviewRun.storyFilesHash, folds it into the review run signature with workspaceBinding.bindingHash, preserves materialHash as whole-tree freshness, uses workspaceBinding for signed workspace/root resolution, and downgrades matching storyFilesHash plus materialHash drift to explicit advisory while rejecting story-owned storyFilesHash drift or legacy records without storyFilesHash.",
+      "createdAt": "2026-06-19T23:16:18.266Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-009",
+      "_hash": "1b8a8eb16224b2eaf94cf188891f9ccf5a3f11f0a62dfbd2e47e1a2f187ee325"
     }
   ]
 }
