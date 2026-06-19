@@ -70,6 +70,7 @@ import { buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signRevie
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { findStaleEvidence } from '../core/evidence-stale-hint.js';
 import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
 import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -1441,6 +1442,7 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
     git(root, ['checkout', 'story/B-smoke']);
     git(root, ['merge', 'main', '--no-edit']);
 
+    const storyId = 'B-smoke';
     const checklist: ChecklistData = {
       items: [{
         id: 'CHK-001',
@@ -1473,6 +1475,9 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
       { deferredGateEvidence: 'missing' },
     );
     assert.equal(coverage.entries[0]?.status, 'covered', 'matching storyFilesHash must prevent unrelated material drift from marking evidence stale');
+    const store = new StoryStore(root);
+    store.writeChecklist(storyId, checklist);
+    assert.deepEqual(findStaleEvidence(root, storyId), [], 'session stale hint must also honor matching storyFilesHash');
     const freshness = checkEvidenceFreshnessForGit(root, recordedHead, recordedMaterial, root, recordedStoryFiles);
     assert.equal(freshness.fresh, true);
     assert.equal(freshness.warnings?.some(line => line.includes('re-attestation')), true, 'downgraded material drift must expose a re-attestation warning');
