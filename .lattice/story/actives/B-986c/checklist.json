@@ -15,6 +15,82 @@
           "packages/main/src/core/parallel-decomposition-gate.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateDecompositionGate with two disjoint parallel peers (no overlapping paths, no broad globs, all contracts present) -> block=null AND advisories is empty array; WHY: proves the clean-path baseline",
+            "type": "cli"
+          },
+          {
+            "desc": "Two parallel stories with literal exact-path intersection in allowedCreate -> block=overlap_declared_parallel citing the colliding path and peer storyId; WHY: proves tier-1 hard block fires on provable file collision",
+            "type": "cli"
+          },
+          {
+            "desc": "TERMINAL_PHASES is exported from parallel-policy.ts as a ReadonlySet containing DONE and DISCARDED; WHY: proves the single-source refactor landed and the gate can import it",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer with missing contract AND parallelSafe=yes -> block=peer_contract_unreadable_parallel citing that peer; WHY: proves unreadable peer contract triggers fail-closed block",
+            "type": "cli"
+          },
+          {
+            "desc": "Story with broad glob in writeSet AND broadGlobBlocks=true -> block=broad_glob_unprovable_parallel; WHY: proves config-gated broad-glob blocking",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Peer in phase DONE is excluded from activePeers even if it has overlapping path -> block=null; WHY: proves TERMINAL_PHASES filtering for DONE",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer in phase DISCARDED is excluded from activePeers even if it has overlapping path -> block=null; WHY: proves TERMINAL_PHASES filtering for DISCARDED",
+            "type": "cli"
+          },
+          {
+            "desc": "Non-parallel story (parallelSafe=no) overlapping a parallel peer -> block=null (no parallel-specific block); WHY: proves gate does not hard-block non-parallel story even on overlap",
+            "type": "cli"
+          },
+          {
+            "desc": "Broad glob with broadGlobBlocks=false -> block=null AND advisory mentions broad glob; WHY: proves config-gating degrades broad-glob to advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "Tier-2 shared-prefix overlap (dir/* vs dir/other.ts, no literal collision) -> block=null AND advisory mentioning shared-prefix; WHY: proves tier-2 never hard-blocks",
+            "type": "cli"
+          },
+          {
+            "desc": "depends edge citing storyId NOT among peers -> advisory (fake_dependency_chain), never a block; WHY: proves fake_dependency_chain is advise-only per spec 4.5",
+            "type": "cli"
+          },
+          {
+            "desc": "Gate never reads cfg.mode -> function returns block reasons regardless of mode value; WHY: proves separation of concerns (mode enforcement is Story 5 caller)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simultaneous overlap AND broad glob: literal path collision AND broad glob present -> block=overlap_declared_parallel (higher precedence); WHY: proves precedence ordering per plan step 9",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer with parallelSafe=no has overlapping path -> no overlap_declared_parallel block (peer must also assert parallel); WHY: proves block requires BOTH sides to assert parallel",
+            "type": "cli"
+          },
+          {
+            "desc": "Story own contract missing from Map -> fail-open (block=null, NOT peer_contract_unreadable); WHY: proves self-contract-missing does not self-block per spec 4.8",
+            "type": "cli"
+          },
+          {
+            "desc": "Multiple peers: one DONE (ignored), one active with overlap, one active with missing contract -> block=overlap_declared_parallel (highest precedence); WHY: proves multi-peer precedence with mixed terminal/active",
+            "type": "cli"
+          },
+          {
+            "desc": "Zero active peers (all DONE/DISCARDED) with broad glob -> block=null empty advisories; WHY: proves lone-story trivially passes even with broad scope per spec 4.8 no-op",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
