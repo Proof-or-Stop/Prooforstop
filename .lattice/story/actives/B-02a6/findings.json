@@ -57,6 +57,26 @@
       "signatureTag": "missing|ts|edge-verificationevidence-note",
       "signatureTagSource": "auto",
       "resolvedBy": "B-02a6:F-003@a7dd9e9"
+    },
+    {
+      "id": "B-02a6:F-004",
+      "desc": "All 9 must-intent verificationEvidence entries are stale (status: stale in validate --story=B-02a6): the headHashes recorded during the prior REVIEW round predate commit a7dd9e96b (which modified review-pass-discard-smoke.ts, init-window-data-loss-smoke.ts, and story-metadata-protection.ts). The validate gate reports 0/9 covered, 9 required missing. Evidence must be re-recorded after the current HEAD (34ac411) so headHashes are fresh. The underlying test coverage is genuine and all smokes ran green, but the DONE gate will block until evidence is refreshed via verification_evidence_add for all 9 intent refs (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T05:10:45.798Z",
+      "reviewRound": "2026-06-19T05:07:35.197Z",
+      "reviewRunId": "B-02a6:RR-008",
+      "_hash": "3be49da3b1c953922796f9499ea0d7745506dde52b5b6d8f2b6d24ab9561f2a1",
+      "files": [
+        "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|intent-verificationevidence-entries",
+      "signatureTagSource": "auto"
     }
   ]
 }
