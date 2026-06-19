@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T19:50:05.641Z",
       "reviewRunId": "B-aa8a:RR-001",
       "_hash": "18e61857b20dfb8e80d28e2f10632ed50aeb808756f571fc1be943e4881589a6"
+    },
+    {
+      "id": "B-aa8a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed version-bump.ts, done-effects.ts, version-bump-smoke.ts, lattice.config.json. No circular import (version-bump.ts has no done-effects import). Rollback path in applyPatchBump is sound: originals snapshot is taken before writes, best-effort inner catch on rollback writes is appropriate (a file that failed to write will also fail to rollback, leaving it at original content). No silent error swallow in the bump-commit path: bumpVersionOnDoneMerge throws loudly on both write failure and git commit failure with actionable recovery messages. Drift detection: doneMergeChangedPaths computed once and passed to both bumpVersionOnDoneMerge and runDoneMainPackageBuildAfterMerge opts.changedPaths, avoiding double-computation and correctly using pre-bump-commit SHAs. done-effects integration: bumpVersionOnDoneMerge is not wrapped in try/catch (intentional, matches runDoneMainPackageBuildAfterMerge contract). replaceOnce is correct for normal package.json and standard brand.ts content. Two findings raised: medium misleading test 12 coverage gap (F-002) and low dead export formatSemver (F-003). No blockers.",
+      "createdAt": "2026-06-19T19:54:51.009Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "17ee53357658200719a1a66e7e0bfd4aed119e012c2770f3522f0b64c69fa70a"
     }
   ]
 }
