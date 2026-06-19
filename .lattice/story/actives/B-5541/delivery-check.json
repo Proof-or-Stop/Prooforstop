@@ -1,0 +1,75 @@
+{
+  "storyId": "B-5541",
+  "checkedAt": "2026-06-19T03:52:43.652Z",
+  "reviewRound": "2026-06-19T03:45:44.466Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cc-learnings.md#H1",
+      "promise": "H1 rebranded from koala to Lattice (Lattice's Refactor Plan for Learning from Claude Code)",
+      "verifiedBy": "grep head -1",
+      "evidence": "head -1 cc-learnings.md returns \"# Lattice's Refactor Plan for Learning from Claude Code\"; confirmed in diff and direct file read"
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-separation.md#H1",
+      "promise": "H1 rebranded from koala Multi-Role to Lattice Multi-Role Separation Refactor Plan",
+      "verifiedBy": "grep head -1",
+      "evidence": "head -1 role-separation.md returns \"# Lattice Multi-Role Separation Refactor Plan\"; confirmed in diff and direct file read"
+    },
+    {
+      "docPath": "docs/requirements/decisions/stack-layering.md#H1",
+      "promise": "H1 rebranded from Koala Layering to Lattice Layering Notes (draft)",
+      "verifiedBy": "grep head -1",
+      "evidence": "head -1 stack-layering.md returns \"# Claude Code / Codex x Superpowers x Lattice Layering Notes (draft)\"; confirmed in diff"
+    },
+    {
+      "docPath": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md#H1",
+      "promise": "koala-to-lattice-role-naming-execution-plan.md H1 is UNCHANGED (kept Koala-to-Lattice as contextual subject of the rename plan per user decision)",
+      "verifiedBy": "grep head -1",
+      "evidence": "head -1 returns \"# Koala-to-Lattice Role Naming Execution Plan\"; file not in diff confirming it was not modified"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md#header",
+      "promise": "NAV.md has English header: Source of Truth Navigation with 65 files count",
+      "verifiedBy": "head -5 NAV.md",
+      "evidence": "head -5 returns \"# Source of Truth Navigation\" then \"> 65 files\"; was Chinese header with 52 files"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md#chinese-clean",
+      "promise": "NAV.md contains zero Chinese characters",
+      "verifiedBy": "grep -cP Chinese regex NAV.md returns 0",
+      "evidence": "grep -cP [\\x{4e00}-\\x{9fff}] NAV.md = 0; was 14 before this story"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md#koala-count",
+      "promise": "NAV.md contains exactly 1 koala reference (the kept contextual Koala-to-Lattice rename-plan title)",
+      "verifiedBy": "grep -ci koala NAV.md returns 1",
+      "evidence": "grep -ci koala returns 1; match is \"[Koala-to-Lattice Role Naming Execution Plan](decisions/koala-to-lattice-role-naming-execution-plan.md)\"; was 4"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md#links",
+      "promise": "All 65 NAV.md file links resolve to existing files",
+      "verifiedBy": "shell loop checking file existence for all 65 decisions/ links",
+      "evidence": "Shell loop over all 65 decisions/ links in NAV.md found zero missing files"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md records: head -1 of cc-learnings/role-separation/stack-layering all return Lattice H1; koala-to-lattice-role-naming-execution-plan.md H1 unchanged. Independently re-verified via grep in this review session.",
+      "waiverReason": "Doc-only H1 rename with no executable code. Machine verification by grep of H1 lines and diff inspection is the appropriate evidence form for this change type."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "transcript-diff.md records: English header, 65 files, Chinese=0, koala=1, links resolve. Independently re-verified: head -5 NAV.md, grep Chinese=0, grep koala=1, 65-link existence loop all pass.",
+      "waiverReason": "Doc-only regenerated artifact with no executable code. Machine verification via grep counts and file-existence loop constitutes the real-machine evidence for this change type."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified by direct grep and file-read in this review session. The only TODO in changed files (role-separation.md:316) is pre-existing on main and not introduced by this story. Doc-only change with zero production code delta; grep counts and link resolution are the appropriate machine evidence."
+  },
+  "_hash": "aca4ee7adc0370f2cbd87632a402b52dc41edd900d8aafb9dc284b2d7e0b8ac1"
+}

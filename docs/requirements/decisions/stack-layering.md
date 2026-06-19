@@ -1,4 +1,4 @@
-# Claude Code / Codex × Superpowers × Koala Layering Notes (draft)
+# Claude Code / Codex × Superpowers × Lattice Layering Notes (draft)
 
 > 2026.04 · Explains the responsibility boundaries of the current system with a three-layer model, to stop "who is responsible for workflow, who for project state, who for runtime" from staying tangled together
 
