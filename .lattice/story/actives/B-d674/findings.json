@@ -168,7 +168,7 @@
       "desc": "README.md:460-463 and docs/guide.md:191-193 advertise `npm run test:authority-enforce-matrix` as the authority enforce matrix smoke command, but neither package.json:9-80 nor packages/main/package.json:21-55 defines that script. Running the exact documented command fails with npm `Missing script: \"test:authority-enforce-matrix\"`. The backing task exists at packages/main/src/tasks/authority-enforce-matrix-smoke.ts, so the docs should either add the script or name the existing runnable entrypoint instead of promising a missing npm command.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T15:53:45.824Z",
@@ -183,7 +183,11 @@
         "packages/main/src/tasks/authority-enforce-matrix-smoke.ts"
       ],
       "signatureTag": "doc-promise-undelivered|md|readme-docs-guide",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 733e079d0: root package.json now defines test:authority-enforce-matrix and delegates to packages/main, and packages/main/package.json defines the backing script as node dist/tasks/authority-enforce-matrix-smoke.js. This preserves the README.md and docs/guide.md documented command. Verified npm --prefix packages/main run build and exact documented command npm run test:authority-enforce-matrix both passed.",
+      "resolvedAt": "2026-06-19T16:04:34.531Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d674:F-009",
