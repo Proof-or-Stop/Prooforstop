@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "修复审计发现的真实文档缺口，不扩大成 runtime 实现。",
+    "优先精确化现有事实和机械谓词，避免未来 story 重复实现或靠 prose 判断。",
+    "保留 Authority / local evidence / production claim 边界，不把审计文本当 gate evidence。",
+    "让后续实施者能按 milestone 和 rollout stage 拆 story，而不是读完仍要猜边界。"
+  ],
+  "drivers": [
+    "上一轮本地 3 round 2 host 审计三轮都 blocked。",
+    "文档是未来 Lattice core strengthening 的入口，错误会放大到多个后续 story。",
+    "用户明确要求使用 Lattice CLI 和老规矩 3 round 2 host。"
+  ],
+  "options": [
+    {
+      "name": "A: Patch the existing roadmap document only",
+      "pros": [
+        "最小范围，直接解决审计 finding。",
+        "不会引入 runtime 代码风险。",
+        "能保留 B-8b07 文档结构和 NAV 注册。"
+      ],
+      "cons": [
+        "文档会更密，需要控制可读性。",
+        "某些未来实现细节只能定义为 predicate/policy，不会在本 story 被代码验证。"
+      ]
+    },
+    {
+      "name": "B: Rewrite the roadmap from scratch",
+      "pros": [
+        "可以重新组织所有章节。"
+      ],
+      "cons": [
+        "更容易丢失 B-8b07 已验证结构。",
+        "diff 大，review 成本高。",
+        "不符合修复具体审计 gap 的最小范围。"
+      ]
+    },
+    {
+      "name": "C: Fix document and implement first runtime gates now",
+      "pros": [
+        "能马上减少部分实际流程风险。"
+      ],
+      "cons": [
+        "违反本 story scope boundary。",
+        "会把文档修复和 runtime 行为混在一起，正是审计要避免的问题。",
+        "需要更大测试矩阵和新的 implementation story。"
+      ]
+    }
+  ],
+  "chosen": "A: Patch the existing roadmap document only",
+  "rationale": "选择 A，因为当前失败是文档可执行性和事实映射问题，不是 runtime bug；最小补丁能让后续实现故事拿到正确边界，同时避免在这个文档修复 story 中制造新行为。",
+  "preMortem": [
+    {
+      "scenario": "修复后仍被 reviewer 判定为未来态过重",
+      "trigger": "current implementation status 没有逐 milestone 标清 shipped/partial/greenfield",
+      "consequence": "后续 story 仍可能重复实现已有能力",
+      "mitigation": "新增 current implementation status 表，并在 M1-M3/M9-M10 明确 consume/harden existing surfaces。"
+    },
+    {
+      "scenario": "修复后 3x2 仍被认为可伪造",
+      "trigger": "host verdict 签名/可验证性语言保留 otherwise verifiable 的模糊口子",
+      "consequence": "未来实现者可能把 transcript/prose 当 counted verdict",
+      "mitigation": "明确本地 counted verdict 必须有签名或 registry-backed identity binding；Authority-backed path 也不得设置 completion 字段。"
+    },
+    {
+      "scenario": "修复后 rollout 仍可能自锁",
+      "trigger": "fail-closed gate 没有 emergency bypass、rollback/de-escalation 或 in-flight policy",
+      "consequence": "错误 gate 阻断用来修 gate 的 story",
+      "mitigation": "新增 rollout version binding、in-flight treatment、false-positive rollback 和 audited emergency disable policy。"
+    }
+  ],
+  "timestamp": "2026-06-19T01:09:35.137Z"
+}

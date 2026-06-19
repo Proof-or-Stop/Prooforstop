@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-12d7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive change (622 insertions, 0 deletions). No concept was deleted or renamed; no orphaned residue found. New symbols are consistently named: extractCodexUsage/extractGeminiUsage mirror extractCodexModel/extractGeminiModel (module-private, same JSONL iteration pattern); reportedUsage on ProviderExecResult is provider-neutral; recordDispatchFinalForProvider/finalContextForProvider are correctly named provider-parametric siblings of recordDispatchFinal/finalContext. Import boundary holds (providers/ has zero imports from core/usage-ledger/). One medium finding filed (B-12d7:F-001): DISPATCH_LEDGER_ESTIMATE_MODEL=claude-code reused as ledgerCtx.model for codex/gemini preflight estimates — semantically wrong model label in preflight records. No critical or high findings.",
+      "createdAt": "2026-06-19T02:57:42.136Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-002",
+      "_hash": "f988608a76192efcd9d1855a5944bdcbc1fa7ff41f099a13fed17af7476518da"
+    },
+    {
+      "id": "B-12d7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 5 key invariants verified: (1) RAW-OUTPUT-NEVER-SURFACED holds — extractCodexUsage/extractGeminiUsage return only the token-count sub-object; buildProviderReportedUsage stores only payloadDigest(rawUsage) in the raw field, never the object itself; stdoutDigest/stderrDigest/stdoutBytes/stderrBytes are unchanged. (2) CLAUDE PATH BYTE-IDENTICAL — diff only touches runBoundedRealLeafDispatch and the import list; runClaudeCodeRealLeafDispatch, parseClaudeCliOutput, recordDispatchFinal, and finalContext are untouched. (3) FAIL-OPEN — both preflight and final calls in runBoundedRealLeafDispatch are wrapped in try/catch; recordDispatchFinalForProvider itself never throws (outer try/catch). (4) OFF BYTE-IDENTICAL — all ledger work is inside if(ledgerOn) blocks; runner call is unconditional between them. (5) ZERO CROSS-MODULE IMPORT — providers/codex-cli.ts and gemini-cli.ts have zero imports from core/usage-ledger (static grep verified). No dead code, no as-any casts, no empty catches without documented intent. The new smoke auto-discovers via run-all-smokes and is also registered as test:usage-ledger-codex-gemini npm script. No doc-promise-undelivered findings.",
+      "createdAt": "2026-06-19T02:58:47.018Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-001",
+      "_hash": "e1e2593fc1c54befe0db5f2deb010b53a1fda138527f0ca6ea9aff23bf103f5d"
+    },
+    {
+      "id": "B-12d7:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check clean. F-001 fix confirmed correct in b2b6830: runBoundedRealLeafDispatch ledgerCtx no longer sets model field, so codex/gemini preflight estimate falls back to DEFAULT_ESTIMATE_MODEL=unknown (not claude-code). DISPATCH_LEDGER_ESTIMATE_MODEL=claude-code is used only in runClaudeCodeRealLeafDispatch (line 2140) -- correct scope. New symbols are consistently named: recordDispatchFinalForProvider / finalContextForProvider are provider-parametric siblings of recordDispatchFinal / finalContext; extractCodexUsage / extractGeminiUsage mirror extractCodexModel / extractGeminiModel. The claude-code reference in usage-ledger-codex-gemini-smoke.ts line 418 is in a clearly-marked CLAUDE PATH REGRESSION block, not a codex/gemini path. No concept deletion, no orphaned residue, no doc-promise-undelivered issues. Zero findings this round.",
+      "createdAt": "2026-06-19T03:17:56.996Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-004",
+      "_hash": "d9954ba11ceb39429356d00136a75502b81fd9833f7f578611b1560511882f87"
+    },
+    {
+      "id": "B-12d7:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-audit clean. Fix commit b2b6830 correctly removes the `model` field from the codex/gemini ledgerCtx, adds concurrency test (2 sequential calls to same ledger root verify distinct correlations and chain integrity), model=null assertion (provider.model falls back to unknown), and correlation=null assertion (fresh correlation minted). All 5 invariants still hold: (1) raw-output-never-surfaced — codex/gemini runners never surface stdout, only digest+bytecount; (2) claude path byte-identical — runClaudeCodeRealLeafDispatch unchanged; (3) fail-open — every ledger call wrapped in try/catch; (4) OFF byte-identical — all ledger work guarded by ledgerOn; (5) zero cross-module import — providers/codex-cli.ts and gemini-cli.ts import only crypto, child_process, and ./types.js. No dead code, no unsafe any, no empty catch swallowing errors, no shell isolation violation. 0 findings.",
+      "createdAt": "2026-06-19T03:18:08.454Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-005",
+      "_hash": "e9212e638dce19daf74af331d8b35ee5806744a40c67a1b9634ea5ab326a163f"
+    },
+    {
+      "id": "B-12d7:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. All 45 intents (CHK-001: 17, CHK-002: 14, CHK-003: 14) have evidence entries with result=pass. The three round-1 fixes are verified: CHK-003:adversarial:3 has a real concurrency test (two preflight+final cycles, 4 records, distinct ledgerCallId, verifyLedgerChain passes); CHK-002:edge:2 has a real model=null assertion (provider.model===unknown fallback); CHK-002:edge:3 has a real correlation=null assertion (fresh correlation minted, non-empty ledgerCallId/attemptId). All three rebound evidence entries carry headHash b2b6830 and their notes match the literal smoke check names. CHK-003:edge:3 audit_only verdict is confirmed as a legitimate known out-of-scope limitation (four-field cache model buckets openai/gemini records as unknownCount; double-count guard estimateCount===0 passes; F-004 dismissed). Smoke passes 17/17. No must-priority intent is uncovered. No new findings.",
+      "createdAt": "2026-06-19T03:24:58.391Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-006",
+      "_hash": "0a4cd9b7c48c53941c30bac244f266a8d05d759c2babd6149d262799c1da5852"
+    }
+  ]
+}

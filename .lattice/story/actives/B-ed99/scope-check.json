@@ -1,0 +1,45 @@
+{
+  "storyId": "B-ed99",
+  "checkedAt": "2026-06-19T01:33:22.097Z",
+  "features": [
+    {
+      "feature": "Review assurance floor runtime DONE gate",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Existing 3x2 first-round review escalation",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "Authority Server receipt-backed production completion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary: local Non-authority review evidence only; Authority Server changes are out of scope",
+      "source": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "Global template distribution for external projects",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary: do not dump full Lattice templates into external projects",
+      "source": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 2,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "23f09f48e49c3c2c54722806de5be6b350b9e7cc5c51f2d5a9e9f6f401982707",
+  "openQuestions": []
+}

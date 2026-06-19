@@ -1,0 +1,25 @@
+{
+  "storyId": "B-e28c",
+  "checkedAt": "2026-06-19T03:52:51.239Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T03:42:06.849Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist smoke covers Authorization on protected verdict GET and keyless policy discovery, but it does not explicitly require the user-observable fail-closed job-status outcome: after the protected GET succeeds, authority_job_status must still report no authorityDone/fullAuthorityDone when the native gate receipt or multi-host quorum is missing. Background states this, but a checklist item or verification target should make it mechanically reviewable."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T03:52:51.239Z",
+      "issues": []
+    }
+  ],
+  "_hash": "ec30311208dba2ab0ed3585bdb02dd0f1d29951fc5266ddde2e888502daf08af"
+}

@@ -1,0 +1,62 @@
+{
+  "storyId": "B-ed99",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/parallel-decomposition-spec.md",
+    ".worktrees/B-491e",
+    ".worktrees/B-b5c0",
+    ".worktrees/B-cb13"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures",
+    "authority-server",
+    "packages/authority",
+    "docs/parallel-decomposition-spec.md"
+  ],
+  "scopeChangeReason": "Replanned after two-agent audit: separate review-assurance-floor evaluator plus DONE row, reusing existing review escalation primitives.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required for verified finding B-ed99:F-001: story_advance actor.can must receive the same resolved DONE gitCwd as the DONE oracle in wrapper-root layouts.",
+      "timestamp": "2026-06-19T02:25:48.941Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "anchors": [
+        "B_ed99_F_001.wrapper_root_actor_gitcwd"
+      ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "Needed to update the evidence-producing command policy reasons guarded by verify-process-fact-contract so local host verdict and fallback evidence name both DONE consumers without Authority overclaim.",
+      "timestamp": "2026-06-19T02:44:49.475Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "anchors": [
+        "autopilot_review_submit",
+        "review_escalation_fallback_set",
+        "review_assurance_floor_done_gate"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-19T01:33:45.500Z",
+  "updatedAt": "2026-06-19T02:44:49.475Z"
+}

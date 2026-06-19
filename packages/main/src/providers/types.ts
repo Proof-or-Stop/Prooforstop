@@ -60,6 +60,8 @@ export interface ProviderExecResult {
   provider: BoundedProviderName;
   /** Provider/model metadata when the CLI reports it. */
   model?: string;
+  /** Provider-reported token-count usage object (numbers only — NEVER raw transcript). OpenAI 'usage' shape for codex, Gemini 'usageMetadata' shape for gemini. Absent when the CLI reports no usage. */
+  reportedUsage?: Record<string, unknown>;
   /** Digest of the argv array (never the raw argv, which may carry context). */
   argvDigest: string;
   /** Process exit code; null when killed (timeout) or never spawned. */

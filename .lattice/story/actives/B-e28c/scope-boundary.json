@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e28c",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts"
+  ],
+  "excluded": [
+    "generated env/key files",
+    "multi-host quorum threshold changes",
+    "receipt verification semantics",
+    "server bundle generation"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Custom boundary avoids correctness-fix keyword false positive while preserving the same narrow CLI auth-header correctness scope.",
+  "createdAt": "2026-06-19T03:50:33.156Z",
+  "updatedAt": "2026-06-19T03:50:33.156Z",
+  "_hash": "b7cb1d429b3c2dff93f2337347027a43a2e5afa6c7a5054e5b06e956e7610510"
+}

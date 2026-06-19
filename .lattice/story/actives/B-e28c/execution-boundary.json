@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e28c",
+  "allowedCommands": [
+    "git status --short",
+    "node packages/main/dist/tasks/authority-client-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "lattice_senior_actor_ed25519.key",
+    "lattice_senior_authority_trust.env",
+    "lattice_senior_staging-client.env"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Do not read or modify generated senior key/env files in the public CLI repo.",
+  "createdAt": "2026-06-19T03:32:44.233Z",
+  "updatedAt": "2026-06-19T03:32:44.233Z",
+  "_hash": "2840a2e9bbcbcea6ef1d11096b009174f294b6042a311dd1b37eb2905263f042"
+}

@@ -1,0 +1,67 @@
+{
+  "storyId": "B-7559",
+  "checkedAt": "2026-06-19T03:31:17.659Z",
+  "reviewRound": "2026-06-19T01:50:01.500Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#2-decomposition-algorithm--independence-test",
+      "promise": "Spec provides a complete decomposition algorithm (Steps 1-5 + pseudo-algorithm) and a two-part independence test (file-overlap + logical-dependency)",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 2 contains Step 1 (enumerate units), Step 2 (two independence tests with formal set-intersection notation fileOverlap/logicalDep), Step 3 (critical path), Step 4 (parallelism hard rule), Step 5 (review bandwidth bound), and a complete pseudo-algorithm block. Independence test formally defined with fileOverlap(A,B) and logicalDep(B,A) at lines 58-75."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#3-contract-first-story-templates",
+      "promise": "Spec provides contract-first story templates for Story 0, Stories 1..N (parallel impl), and Story N+1 (integration), including story_create fields, scope_boundary_set, and scope_contract_set commands",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 3 contains §3.0 barrel ordering, §3.1 Story 0 template, §3.2 impl template, §3.3 integration template, §3.4 non-overlap matrix. All scope_boundary_set examples include --userConfirmed=true; all scope_contract_set examples include --mode=enforce; all array flags use JSON-array syntax. lane/parallelSafe/blockingFor annotated as DERIVED (not story_create flags) in both §3 and §5.1."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4-enforcement-how-it-becomes-mandatory-in-lattice",
+      "promise": "Spec provides an enforcement gate design attaching to canStartDevGuard (PLAN->DEV) with two coordinated edits, three BLOCK conditions, config schema, and failure-mode guardrails",
+      "verifiedBy": "diff/read + grep-verification",
+      "evidence": "Section 4: §4.1 ADVISE vs BLOCK, §4.2 static two-tier overlap detection with grammar constraints, §4.3 three BLOCK conditions, §4.4 two coordinated edits sharing evaluateDecompositionGate predicate, §4.5 schema placement, §4.6 advisory review-bandwidth, §4.7 VALID_PARALLEL_MODES config with three profiles, §4.8 fail-open/fail-closed guardrails. Symbols confirmed: canStartDevGuard in machine.ts, transition-orchestrator.ts line 156 warning exact-text confirmed, VALID_MODES: ReadonlySet<AuditMode> in audit-config.ts, pathMatchesPattern in core/scope-contract.ts (0 minimatch imports)."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#5-reusable-prompt-templates",
+      "promise": "Spec provides 4 reusable copy-paste prompt templates (decomposer, contract-author, parallel-impl, integration), each with a Persist-to-Lattice epilogue",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 5 contains §5.1 decomposer meta-prompt (hard rules, placeholders, output sections A-G, Persist-to-Lattice), §5.2 contract-author prompt, §5.3 parallel-impl prompt with scope self-check, §5.4 integration prompt. All four in fenced code blocks. §5.4 carries JSON-array placeholder comment. Preamble correctly states pipeline-connected nature."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#6-worked-example--csv-export-feature",
+      "promise": "Spec provides a complete worked example (CSV export) demonstrating the algorithm with independence matrix, dependency graph, disjoint scope table, and validity proof",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 6 covers: unit enumeration, 3x3 pairwise independence matrix (file-overlap + logical-dep), actual TypeScript contract.ts content for Story 0, ASCII dependency graph, parallel impl disjoint scope table, integration story, and a validity proof citing literal-path disjointness and critical-path wall-clock calculation."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#7-failure-modes--guardrails-incl-review-bandwidth-matching",
+      "promise": "Spec provides a failure modes table (F1-F8) with symptom/root cause/mitigation/Lattice hook columns, plus §7.1 acknowledged blind spots",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 7 has an 8-row table covering: missing contract symbol (F1), dependency cycle (F2), review bandwidth overflow (F3), wide glob collision (F4), barrel race at merge (F5), shared test fixtures (F6), cross-cutting config files (F7), runtime coupling invisible to static gate (F8). §7.1 covers 6 blind spots including single-indivisible feature, Story-0-discard rollback, and mid-flight re-decomposition."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#8-rollout--build-this-as-a-lattice-multi-story-program-dogfooding",
+      "promise": "Spec provides a rollout plan decomposing gate implementation into a 6-story contract-first program (S0-S5) with story descriptions and scope commands",
+      "verifiedBy": "diff/read",
+      "evidence": "Section 8 describes the 6-story breakdown: S0 (parallel-decomposition.ts contract + audit-config.ts interface touch), S1 (static overlap engine), S2 (gate verdict + advisories), S3 (config resolution), S4 (wave/REVIEW advisory wiring), S5 (integration: both coordinated edits). S0 scope_contract_set includes audit-config.ts in --allowedModify (F-022 fix confirmed at line 711). Dogfooding and english-artifacts gate constraints stated."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate PASS (tsc build + authority-client-smoke + authority-completion-smoke) at 2026-06-19T03:23:43.499Z on headSha 861260e7. 16+ cited code symbols independently verified: canStartDevGuard/getGuardFailureReason (machine.ts), transition-orchestrator.ts:156 warning text confirmed, pathMatchesPattern in core/scope-contract.ts (0 minimatch imports), VALID_MODES: ReadonlySet<AuditMode> in audit-config.ts, resolveParallelSafety in parallel-policy.ts, actualFileOverlapsByStory+resolveWaveSafety in core/lattice-parallel-wave.ts, ScopeContractData in types.ts. 27 findings across 3 rounds all resolved to status=resolved with strong evidence."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Internal consistency verified via 3 review rounds with 9 review-pass records from 4 lanes (docs/quality/concept/test-coverage). Specific checks: all scope_boundary_set examples have --userConfirmed=true, all scope_contract_set examples have --mode=enforce, all array flags use JSON-array syntax, story_create derived fields annotated in §3/§5.1, §4.3 cond.1 restricted to tier-1 literal-path only, §4.4/§4.8 mode-check authority unified (gate pure, caller enforces), broadGlobBlocks enforcement path defined for all three config profiles, §5.1 resolveStoryLane corrected to include critical/high->mainline."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises verified substantively in the delivered document. Machine test: lattice validate PASS (tsc + smokes). Edge coverage: 27 findings resolved across 3 rounds addressing fail-open/fail-closed asymmetry, mode-check authority contradiction, array-flag silent-drop, broadGlobBlocks dead-field, and tier-2 block confidence undefined term. Assurance is honestly recorded as degraded-single-host (3x1); spec does not claim full 3x2 or authorityDone. No TODO/FIXME in delivered doc."
+  },
+  "_hash": "5e284a207f997bcb18c9fb7926f1d9179e6c90a946944f032b79111800e4ca6f"
+}

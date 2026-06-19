@@ -23,6 +23,11 @@ import {
   formatReviewEscalationFailure,
 } from './review-escalation.js';
 import {
+  evaluateReviewAssuranceFloor,
+  formatReviewAssuranceFloorFailure,
+} from './review-assurance-floor.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import {
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
   storedScopeFreezeDiscardMitigations,
@@ -76,6 +81,7 @@ export interface StoryMachineContext {
   storyId: string;
   store: StoryStore;
   projectRoot: string;
+  gitCwd?: string;
 }
 
 export interface ScopeAntiExpansionGateResult {
@@ -424,6 +430,19 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   });
   if (!reviewEscalation.ok) return false;
 
+  const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
+    projectRoot: context.projectRoot,
+    gitCwd: context.gitCwd ?? resolveGitCwd({
+      store: context.store,
+      storyId: context.storyId,
+      metadataRoot: context.projectRoot,
+      projectRoot: context.projectRoot,
+    }),
+    storyId: context.storyId,
+    store: context.store,
+  });
+  if (!reviewAssuranceFloor.ok) return false;
+
   return true;
 }
 
@@ -433,8 +452,9 @@ export function canSendStoryEventWithoutSnapshotCan(
   currentState: string,
   eventType: string,
   projectRoot: string,
+  gitCwd?: string,
 ): boolean {
-  const context: StoryMachineContext = { storyId, store, projectRoot };
+  const context: StoryMachineContext = { storyId, store, projectRoot, ...(gitCwd ? { gitCwd } : {}) };
   switch (currentState) {
     case 'IDEA':
       return eventType === 'INIT' || eventType === 'PLAN';
@@ -557,8 +577,14 @@ export function createStoryActor(
   store: StoryStore,
   restoredState?: string,
   projectRoot?: string,
+  gitCwd?: string,
 ) {
-  const context: StoryMachineContext = { storyId, store, projectRoot: projectRoot ?? process.cwd() };
+  const context: StoryMachineContext = {
+    storyId,
+    store,
+    projectRoot: projectRoot ?? process.cwd(),
+    ...(gitCwd ? { gitCwd } : {}),
+  };
   const normalizedState = restoredState ? normalizeLegacyPhase(restoredState) : undefined;
 
   if (normalizedState) {
@@ -582,6 +608,7 @@ export function getGuardFailureReason(
   store: StoryStore,
   targetPhase: string,
   projectRoot?: string,
+  gitCwd?: string,
 ): string | null {
   // B-e71f CHK-005: INIT→INIT_CHECK hard gate.
   // Only enabled when story.phase === 'INIT'; other sources such as IDEA→INIT_CHECK are not gated.
@@ -854,6 +881,21 @@ export function getGuardFailureReason(
     });
     if (!reviewEscalation.ok) {
       return formatReviewEscalationFailure(reviewEscalation);
+    }
+
+    const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
+      projectRoot: projectRoot ?? process.cwd(),
+      gitCwd: gitCwd ?? resolveGitCwd({
+        store,
+        storyId,
+        metadataRoot: projectRoot ?? process.cwd(),
+        projectRoot: projectRoot ?? process.cwd(),
+      }),
+      storyId,
+      store,
+    });
+    if (!reviewAssuranceFloor.ok) {
+      return formatReviewAssuranceFloorFailure(reviewAssuranceFloor);
     }
   }
 
