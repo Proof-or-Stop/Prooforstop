@@ -4,11 +4,11 @@
   "title": "Extract CLI runtime root activity and ownership gates",
   "description": "Refactor cli-engine.ts by extracting root resolution, activity recording policy, story owner lease enforcement, reviewer run gates, and related read-only helpers into focused runtime modules.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-19T14:36:56.502Z",
   "startedAt": "2026-06-19T14:36:56.502Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T17:53:42.105Z",
   "events": [
     {
       "phase": "INIT",
@@ -57,12 +57,15 @@
       "branch": "story/B-6e69",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:53:42.105Z",
+      "branch": "story/B-6e69",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6e69",
-    "branch": "story/B-6e69",
-    "createdAt": "2026-06-19T16:33:01.055Z"
-  },
   "currentReviewRound": "2026-06-19T17:41:56.043Z"
 }
