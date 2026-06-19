@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-8b07 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The resulting roadmap document includes a visible Source And Context Mapping section that inventories all CHK-001 related governance documents and current baseline context, and maps each source to concrete roadmap decisions or sections.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The inventory distinguishes overlapping or potentially conflicting governance concepts such as unattended completion, mid-flight repair, 3-round 2-host escalation, baseline PASS suites, and negative-control BLOCKED suites instead of flattening them into vague citations.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — A skeptical reader can trace every major source-derived claim in the new document back to the mapping, with no invented runtime behavior, no direct story or fixture file edits, and no missing required source document from the checklist.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The new decision document exists at docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md, is registered in docs/requirements/NAV.md, and decomposes hard scope boundaries, mechanical evidence chain, and collaboration/preflight controls into executable milestones.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — Each milestone states deliverables, gates, tests, sequencing, dependencies, expected evidence, blockers, and DONE criteria, including 3-round 2-host validation and baseline or negative-control expectations where the milestone depends on them.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The plan does not collapse the three tracks into vague prose, omit cross-track dependencies, or present future gates, baseline suites, or NAV registration as already implemented runtime behavior.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The completed document has explicit status and non-goals language, milestone DONE criteria, a verification plan, source/context traceability, 3-round 2-host decision-doc validation policy, baseline expectations, and NAV registration verification.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — Ambiguous wording such as enforces, blocks, guarantees, passes, or complete is checked so proposed future behavior remains clearly labeled as roadmap work; baseline PASS suites and negative-control BLOCKED suites are described as expectations for future validation rather than proof from this story.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — A hostile audit cannot find an overclaim that runtime behavior changed, a missing NAV entry for the new decision doc, a missing 3-round 2-host or baseline expectation, or a milestone without auditable acceptance criteria.\"],\"warnings\":[],\"timestamp\":\"2026-06-19T00:20:21.782Z\",\"headSha\":\"35091554ade75cc3debe5f5a17920961c87c1cb8\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":8702},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":341},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":277}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The resulting roadmap document includes a visible Source And Context Mapping section that inventories all CHK-001 related governance documents and current baseline context, and maps each source to concrete roadmap decisions or sections.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document includes a visible Source And Context Mapping section that lists the related governance documents and maps each source to roadmap decisions.\",\"headHash\":\"7fbef167dacf947537d85c09341282a52967d6eb\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:11.846Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The inventory distinguishes overlapping or potentially conflicting governance concepts such as unattended completion, mid-flight repair, 3-round 2-host escalation, baseline PASS suites, and negative-control BLOCKED suites instead of flattening them into vague citations.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The mapping keeps unattended completion, mid-flight repair, 3-round 2-host review, baseline PASS suites, and negative-control BLOCKED suites separate instead of flattening them into vague citations.\",\"headHash\":\"7fbef167dacf947537d85c09341282a52967d6eb\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:11.951Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A skeptical reader can trace every major source-derived claim in the new document back to the mapping, with no invented runtime behavior, no direct story or fixture file edits, and no missing required source document from the checklist.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Overclaim scan found boundary language such as not implemented runtime behavior, not proof, and future expectations; no direct story/fixture edits were included.\",\"headHash\":\"7fbef167dacf947537d85c09341282a52967d6eb\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:12.076Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The new decision document exists at docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md, is registered in docs/requirements/NAV.md, and decomposes hard scope boundaries, mechanical evidence chain, and collaboration/preflight controls into executable milestones.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"^## Roadmap Tracks|^## Milestone Table|^## Milestone Details|^## Sequencing|^## Parallelization Rules\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \\\"Lattice Strengthening Roadmap Execution Plan\\\" docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The new decision document exists, NAV links to it, and it decomposes the three strengthening tracks into roadmap tracks, milestone table, milestone details, sequencing, and parallelization rules.\",\"headHash\":\"66589dba2e7a3ba9d95cd48eb29171afada43651\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:28.923Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Each milestone states deliverables, gates, tests, sequencing, dependencies, expected evidence, blockers, and DONE criteria, including 3-round 2-host validation and baseline or negative-control expectations where the milestone depends on them.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"Deliverables:|Gate placement:|Required tests|Expected evidence:|Blockers:|DONE criteria:|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Every milestone section includes deliverables, gate placement, required tests, expected evidence, blockers, and DONE criteria; the document also includes explicit 3-round 2-host and baseline/negative-control expectations.\",\"headHash\":\"66589dba2e7a3ba9d95cd48eb29171afada43651\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:29.021Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The plan does not collapse the three tracks into vague prose, omit cross-track dependencies, or present future gates, baseline suites, or NAV registration as already implemented runtime behavior.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"sed -n '1,140p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && sed -n '1047,1238p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document labels itself as an execution plan, not implemented runtime behavior, and describes future baseline/negative-control expectations as acceptance targets for later stories rather than proof from this story.\",\"headHash\":\"66589dba2e7a3ba9d95cd48eb29171afada43651\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:29.122Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The completed document has explicit status and non-goals language, milestone DONE criteria, a verification plan, source/context traceability, 3-round 2-host decision-doc validation policy, baseline expectations, and NAV registration verification.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"^## Non-Goals|^## Final Acceptance Template|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations|^## Rollout Strategy|^## Risks And Mitigations\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \\\"Lattice Strengthening Roadmap Execution Plan\\\" docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The document has explicit non-goals, final acceptance template, 3-round 2-host validation policy, baseline/negative-control expectations, rollout strategy, risks, and NAV registration.\",\"headHash\":\"26a1466476da5035f88d79ca8798c4b523341bbf\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:45.253Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Ambiguous wording such as enforces, blocks, guarantees, passes, or complete is checked so proposed future behavior remains clearly labeled as roadmap work; baseline PASS suites and negative-control BLOCKED suites are described as expectations for future validation rather than proof from this story.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Ambiguous high-risk terms are used in future/negative-control contexts or explicit non-goal/status language; the document does not claim runtime gates, Authority receipts, production completion, or capability unlock from this story.\",\"headHash\":\"26a1466476da5035f88d79ca8798c4b523341bbf\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:45.363Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A hostile audit cannot find an overclaim that runtime behavior changed, a missing NAV entry for the new decision doc, a missing 3-round 2-host or baseline expectation, or a milestone without auditable acceptance criteria.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"git diff --check && lattice scope_contract_check '{\\\"storyId\\\":\\\"B-8b07\\\"}' && npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"Whitespace check, scope contract check, and package build passed; scope contract allowed only the new decision document, NAV, and Lattice lifecycle metadata with 0 unacknowledged violations.\",\"headHash\":\"26a1466476da5035f88d79ca8798c4b523341bbf\",\"materialHash\":\"b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1\",\"timestamp\":\"2026-06-19T00:14:45.468Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T00:20:22.530Z",
+  "headHash": "35091554ade75cc3debe5f5a17920961c87c1cb8",
+  "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The resulting roadmap document includes a visible Source And Context Mapping section that inventories all CHK-001 related governance documents and current baseline context, and maps each source to concrete roadmap decisions or sections.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes a visible Source And Context Mapping section that lists the related governance documents and maps each source to roadmap decisions.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:11.846Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The inventory distinguishes overlapping or potentially conflicting governance concepts such as unattended completion, mid-flight repair, 3-round 2-host escalation, baseline PASS suites, and negative-control BLOCKED suites instead of flattening them into vague citations.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The mapping keeps unattended completion, mid-flight repair, 3-round 2-host review, baseline PASS suites, and negative-control BLOCKED suites separate instead of flattening them into vague citations.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:11.951Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A skeptical reader can trace every major source-derived claim in the new document back to the mapping, with no invented runtime behavior, no direct story or fixture file edits, and no missing required source document from the checklist.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Overclaim scan found boundary language such as not implemented runtime behavior, not proof, and future expectations; no direct story/fixture edits were included.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:12.076Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The new decision document exists at docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md, is registered in docs/requirements/NAV.md, and decomposes hard scope boundaries, mechanical evidence chain, and collaboration/preflight controls into executable milestones.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"^## Roadmap Tracks|^## Milestone Table|^## Milestone Details|^## Sequencing|^## Parallelization Rules\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \"Lattice Strengthening Roadmap Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The new decision document exists, NAV links to it, and it decomposes the three strengthening tracks into roadmap tracks, milestone table, milestone details, sequencing, and parallelization rules.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:28.923Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Each milestone states deliverables, gates, tests, sequencing, dependencies, expected evidence, blockers, and DONE criteria, including 3-round 2-host validation and baseline or negative-control expectations where the milestone depends on them.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Deliverables:|Gate placement:|Required tests|Expected evidence:|Blockers:|DONE criteria:|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Every milestone section includes deliverables, gate placement, required tests, expected evidence, blockers, and DONE criteria; the document also includes explicit 3-round 2-host and baseline/negative-control expectations.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:29.021Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The plan does not collapse the three tracks into vague prose, omit cross-track dependencies, or present future gates, baseline suites, or NAV registration as already implemented runtime behavior.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,140p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && sed -n '1047,1238p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The document labels itself as an execution plan, not implemented runtime behavior, and describes future baseline/negative-control expectations as acceptance targets for later stories rather than proof from this story.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:29.122Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The completed document has explicit status and non-goals language, milestone DONE criteria, a verification plan, source/context traceability, 3-round 2-host decision-doc validation policy, baseline expectations, and NAV registration verification.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"^## Non-Goals|^## Final Acceptance Template|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations|^## Rollout Strategy|^## Risks And Mitigations\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \"Lattice Strengthening Roadmap Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The document has explicit non-goals, final acceptance template, 3-round 2-host validation policy, baseline/negative-control expectations, rollout strategy, risks, and NAV registration.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.253Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Ambiguous wording such as enforces, blocks, guarantees, passes, or complete is checked so proposed future behavior remains clearly labeled as roadmap work; baseline PASS suites and negative-control BLOCKED suites are described as expectations for future validation rather than proof from this story.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Ambiguous high-risk terms are used in future/negative-control contexts or explicit non-goal/status language; the document does not claim runtime gates, Authority receipts, production completion, or capability unlock from this story.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.363Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A hostile audit cannot find an overclaim that runtime behavior changed, a missing NAV entry for the new decision doc, a missing 3-round 2-host or baseline expectation, or a milestone without auditable acceptance criteria.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "git diff --check && lattice scope_contract_check '{\"storyId\":\"B-8b07\"}' && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Whitespace check, scope contract check, and package build passed; scope contract allowed only the new decision document, NAV, and Lattice lifecycle metadata with 0 unacknowledged violations.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.468Z"
+        }
+      }
+    ]
+  }
+}

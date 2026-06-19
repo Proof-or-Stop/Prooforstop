@@ -1,0 +1,24 @@
+{
+  "task": "Write an executable requirements decision document for strengthening Lattice across scope boundaries, verification evidence, and collaboration/preflight controls.",
+  "outcome": "The user sees a new decision document titled \"Lattice Strengthening Roadmap Execution Plan\" with a detailed milestone table, source/context mapping, non-goals, gates, verification plan, 3-round 2-host policy, and clear statement that it is an execution plan rather than completed runtime behavior.",
+  "facts": [
+    "User asked for a detailed executable document based on three strengthening themes: hard scope boundaries, mechanical evidence chain, and collaboration/preflight failure controls.",
+    "Story B-8b07 is documentation-only and must not implement runtime CLI gates or Authority changes.",
+    "INIT reviewers passed the story; product-reviewer recorded one medium advisory requiring CHK-001 inventory to be visible in the resulting document.",
+    "Existing related docs define patterns for unattended completion, mid-flight story repair, three-round two-host escalation, baseline execution, testing completeness, and verification context packs.",
+    "Current baseline navigation showed development, engineering, and loop-engineering PASS suites plus negative-control BLOCKED suites that should inform future milestone gates."
+  ],
+  "constraints": [
+    "Do not directly read or write docs/story or tests/fixtures files; use Lattice CLI for story metadata.",
+    "Do not use omx or .omx.",
+    "Do not claim any new runtime behavior is implemented by this document.",
+    "Keep future implementation items as milestones or future stories rather than expanding this story scope.",
+    "Update docs/requirements/NAV.md if adding a new decision document."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-18T23:59:32.564Z"
+}
