@@ -5,7 +5,7 @@
       "desc": "codex host-2: sanitizeNestedDetails (codex-cli.ts:122-129) copies EVERY own key of prompt_tokens_details, not only the adapter-read cached_tokens. A real payload prompt_tokens_details:{cached_tokens:1, transcript:\"secret\"} surfaces the nested non-token key transcript in reportedUsage, violating the story's token-only projection contract. This is an own-key leak (NOT prototype pollution) so it triggers on a plain provider response. The OpenAI adapter reads ONLY prompt_tokens_details.cached_tokens (adapters/openai.ts:84), so the nested projection must whitelist exactly cached_tokens.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-19T19:27:59.706Z",
@@ -15,7 +15,11 @@
         "packages/main/src/providers/codex-cli.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-sanitizenesteddetails",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "sanitizeNestedDetails now whitelists only the adapter-read cached_tokens (CODEX_NESTED_DETAIL_KEYS) into a null-proto object; nested non-token keys (e.g. transcript) are dropped. Fixed in 024bb0e30; smoke asserts only own cached_tokens===5, length 1, null-proto, transcript absent, cacheRead still resolves.",
+      "resolvedAt": "2026-06-19T19:33:30.081Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-30c3:F-002",
