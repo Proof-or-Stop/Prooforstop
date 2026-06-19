@@ -42,8 +42,21 @@
       "anchors": [
         "B_ed99_F_001.wrapper_root_actor_gitcwd"
       ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "Needed to update the evidence-producing command policy reasons guarded by verify-process-fact-contract so local host verdict and fallback evidence name both DONE consumers without Authority overclaim.",
+      "timestamp": "2026-06-19T02:44:49.475Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "anchors": [
+        "autopilot_review_submit",
+        "review_escalation_fallback_set",
+        "review_assurance_floor_done_gate"
+      ]
     }
   ],
   "createdAt": "2026-06-19T01:33:45.500Z",
-  "updatedAt": "2026-06-19T02:25:48.941Z"
+  "updatedAt": "2026-06-19T02:44:49.475Z"
 }
