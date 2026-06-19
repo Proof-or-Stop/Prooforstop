@@ -30,7 +30,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc compiles parallel-decomposition.ts; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/PARALLEL_MODE_FALLBACK/computeWriteSet/globsOverlap/evaluateDecompositionGate all exported.",
+          "headHash": "c23bc65f905c141f59b2f44abfb3a3e7d7fb9898",
+          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
+          "timestamp": "2026-06-19T04:05:27.324Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
