@@ -15,7 +15,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The roadmap states the current implementation baseline for scope, owner, parallel work, and baseline surfaces, marking what is already implemented versus future work.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each baseline surface is mapped to its source of truth, including Authority receipt, lifecycle receipt consumption, lifecycle artifact scope, story lifecycle, session ownership, and parallel wave documents where applicable.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The repaired docs must not describe existing scope, owner, parallel, baseline, Authority receipt, or lifecycle receipt behavior as merely planned future work.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

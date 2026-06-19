@@ -1,0 +1,22 @@
+{
+  "task": "修复 Lattice strengthening roadmap 文档在 3 round 2 host 审计中暴露的可执行性和边界问题。",
+  "outcome": "用户看到的完成态：我会报告“roadmap 文档已修复，覆盖 current implementation status、Authority receipt sources、mechanical 3x2 predicate/signature wording、rollout policy/version、emergency bypass、validation commands 和 milestone-stage crosswalk；3 round 2 host 复审已通过或明确列出剩余阻断项。”",
+  "facts": [
+    "B-8b07 的 roadmap 文档已经合入 main，但额外 3 round 2 host 本地审计三轮均因 Codex fail / Claude pass 而 blocked。",
+    "目标文件是 docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md。",
+    "本 story 的范围是文档修复，不实现 runtime CLI gate、Authority、baseline runner 或 hook 行为。",
+    "相关真相源包括 story-lifecycle、session ownership、parallel wave、Authority receipt contract、lifecycle receipt consumption、3x2 review escalation、baseline two-host execution 等文档。"
+  ],
+  "constraints": [
+    "必须走 Lattice lifecycle；直接编辑 story metadata 或 fixture 禁止。",
+    "只能修改目标 roadmap 文档；NAV 仅在标题或注册需要变化时修改。",
+    "必须保留 local host evidence is not Authority、no prose-as-proof、no productionDone claim 的边界。",
+    "最终需要重新跑 3 round 2 host 审计；不能把单 host 或 mixed verdict 包装成 full 3x2 pass。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-19T01:09:10.788Z"
+}
