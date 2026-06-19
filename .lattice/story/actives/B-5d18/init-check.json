@@ -1,0 +1,37 @@
+{
+  "storyId": "B-5d18",
+  "checkedAt": "2026-06-19T17:00:52.701Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "Conversational Texture mentions \"S2-S5\" (sub-stories in the parallel-decomposition gate program) without an inline expansion. A new reader can infer these are program sub-stories from context, but the acronym is not defined in background.md itself."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T17:00:20.042Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 text says fix so both smokes complete deterministically but scope-boundary excludes changing smoke logic (hang attributed to transient machine saturation). The actual fix is a config timeoutMs bound. Checklist wording is slightly misleading about what fix means; advisory only, does not block user value."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T17:00:52.701Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "Conversational Texture mentions \"S2-S5\" (sub-stories in the parallel-decomposition gate program) without an inline expansion. A new reader can infer these are program sub-stories from context, but the acronym is not defined in background.md itself."
+        }
+      ]
+    }
+  ],
+  "_hash": "8d71953faf9d477f39eabc752bd7bcae49e1588c5028526434e8db11bee217ae"
+}
