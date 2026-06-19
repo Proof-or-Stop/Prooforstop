@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "id": "B-ed99:F-001",
+      "desc": "Wrapper-root DONE can false-block before the wrapper-aware DONE oracle. transition-orchestrator resolves doneGitCwd for DONE and passes it to runDonePreMergeGate/buildDoneChecklist, where the new review-assurance-floor row calls evaluateReviewAssuranceFloor with gitCwd. But actor.can() runs first in transition-orchestrator, and machine.canFinishGuard/getGuardFailureReason call evaluateReviewAssuranceFloor with only projectRoot. In wrapper-root layouts where metadataRoot != gitRoot, evaluateReviewAssuranceFloor falls back to gitCwd=projectRoot, so git diff main...HEAD/currentMaterialHash run from the non-git metadata root and return floor.ok=false. Result: the machine can reject TEST→DONE before the DONE oracle row that has the resolved gitCwd can pass, breaking DONE oracle vs machine.canFinish consistency and wrapper-root behavior. Existing new smoke only exercises the evaluator directly and does not cover the actor guard path. Source refs: packages/main/src/handlers/transition-orchestrator.ts:343, packages/main/src/handlers/transition-orchestrator.ts:391, packages/main/src/core/machine.ts:431, packages/main/src/core/machine.ts:870, packages/main/src/core/review-assurance-floor.ts:258, packages/main/src/core/done-oracle.ts:745.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T02:10:44.415Z",
+      "reviewRound": "2026-06-19T01:50:12.416Z",
+      "reviewRunId": "B-ed99:RR-002",
+      "_hash": "66e5c8368fd0d2ba9cf4336e19b50c8e1a8e27acc1d9e464d9c52e7f0ac15378",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|wrapper-root-false",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
