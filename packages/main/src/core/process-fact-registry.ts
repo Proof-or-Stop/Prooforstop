@@ -31,6 +31,7 @@ export type ProcessFactSemantic =
   | 'execution-evidence'
   | 'finding-state'
   | 'flow-policy'
+  | 'freshness-policy'
   | 'gate-evidence'
   | 'host-verdict'
   | 'no-blocker-evidence'
@@ -123,6 +124,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
+  'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {

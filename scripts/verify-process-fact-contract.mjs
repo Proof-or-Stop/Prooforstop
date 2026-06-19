@@ -260,6 +260,16 @@ const requiredRuntimeEntries = [
     line: '- runtime:review_run_workspace_binding_gate [L4] owner=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate',
   },
   {
+    // B-5a9a: storyFilesHash is a gate-consumed secondary freshness signal.
+    // It may downgrade unrelated whole-tree materialHash drift to an explicit
+    // re-attestation advisory, but story-owned file changes and legacy records
+    // without storyFilesHash stay on strict materialHash behavior.
+    name: 'runtime:story_files_hash_freshness_gate',
+    level: 'L4',
+    owner: 'core/evidence-freshness',
+    line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, and review escalation records',
+  },
+  {
     name: 'runtime:review_escalation_done_gate',
     level: 'L4',
     owner: 'core/review-escalation',
