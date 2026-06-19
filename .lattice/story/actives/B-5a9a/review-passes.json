@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T23:11:19.016Z",
       "reviewRunId": "B-5a9a:RR-012",
       "_hash": "aac60109a34db65855a841220c6a6b810a54f713cef69124c6212cf4af2605dc"
+    },
+    {
+      "id": "B-5a9a:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: storyFilesHash is captured from snapshot into workspaceBinding, top-level ReviewRun, signReviewRun, and durable persistence check; process-fact registry and contract include runtime storyFilesHash freshness facts; legacy no-storyFilesHash signatures remain compatible; dirty preflight runs before snapshot and no concurrency blocker found. Checks passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js.",
+      "createdAt": "2026-06-19T23:15:08.736Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-010",
+      "_hash": "7d63a39ba2243923542ab4de4a77b294c5070e38902313faa6643164d306f5c4"
     }
   ]
 }
