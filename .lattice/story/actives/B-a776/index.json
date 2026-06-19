@@ -4,7 +4,7 @@
   "title": "Extract CLI flags help aliases and dry-run parsing",
   "description": "Refactor cli-engine.ts by extracting help rendering, flag parsing, alias normalization, and dry-run command handling into focused modules after the command catalog extraction establishes stable imports.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "depends": [
     "B-74a0"
@@ -26,6 +26,14 @@
       "action": "advance",
       "timestamp": "2026-06-19T16:33:00.342Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:33:54.662Z",
+      "branch": "story/B-a776",
       "user": "Harmonygo",
       "agent": "main"
     }
