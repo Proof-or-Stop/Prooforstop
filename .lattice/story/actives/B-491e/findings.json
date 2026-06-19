@@ -19,6 +19,25 @@
       ],
       "signatureTag": "adversarial|ts|codex-audit-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-491e:F-002",
+      "desc": "codex-cli-audit-r2 verified high security/path-safety blocker: a server-provided trust env with LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./lattice_staging-client.env is resolved against the consumer cwd, so the CLI can read an unrelated same-named sidecar from cwd instead of the bundle sidecar. Source: authority-client.ts lines 1541-1551 keep only parsed trust env/path, and lines 1619-1623 call resolvePath(cwd, trustPath). Repro command imported dist/core/authority-client.js, wrote bundleRoot/lattice_authority_trust.env plus bundleRoot/lattice_staging-client.env and a different consumerRoot/lattice_staging-client.env, then called resolveAuthorityCustomerApiKey with cwd=consumerRoot; output was source=authority_trust_env, valueMatchesBundle=false, valueMatchesCwd=true, resolvedPathSuffix=authority-consumer-cwd-*/lattice_staging-client.env. This is a verified wrong-secret binding risk even though stdout remains clean and public generation helpers were removed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T01:14:32.973Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-003",
+      "_hash": "20ddf3209def7e13e2b53a013728383ec2e4c293da1b96a363fc61673e342b93",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-audit-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
