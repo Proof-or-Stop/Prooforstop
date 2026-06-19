@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke asserts protected /v1/jobs/{jobId}/verdicts GET sends Authorization with a configured customer API key.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:15.139Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Existing policy discovery smoke still asserts GET /v1/authority/policy has no Authorization header.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:15.226Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Job status smoke asserts a successful protected read with no receipt/quorum keeps authorityDone=false and fullAuthorityDone=false.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:15.310Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "TypeScript build and authority-client smoke passed after the protected-read auth change and comment fix.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:15.940Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,9 +141,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke differentiates protected verdict/status GET auth from keyless policy discovery.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:16.056Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke proves transport success alone does not mint authorityDone/fullAuthorityDone without receipt and quorum.",
-          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
-          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
-          "timestamp": "2026-06-19T04:14:16.149Z"
+          "headHash": "8ebbcaa65b632217042107a22db7ebc9689fcc61",
+          "materialHash": "415119c06820cf22e0588d585f2ac60cb579a68c78392ec70b691a3486e0cbd1",
+          "timestamp": "2026-06-19T04:22:38.543Z"
         }
       ]
     }
