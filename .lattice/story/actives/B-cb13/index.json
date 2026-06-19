@@ -4,7 +4,7 @@
   "title": "Land the Experience Layer effectiveness-proof development record (decision-doc)",
   "description": "Record IN the Orchestrate repo (docs/requirements/decisions/) what the Experience Layer effectiveness-proof track built and the evidence it obtained. The execution PLAN was landed earlier (lattice-experience-layer-execution-plan.md, B-1480), but there is no in-repo record of the OUTCOME: the referential re-validation instrument, the forward A/B apparatus (learning_scan, signatureTag capture, A/B shadow-gate, learning_effectiveness), the signature_backfill command, and the learnability evidence. This story materializes a manual-source decision-doc via decision_doc_proposal + decision_doc_save into docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md. It is documentation only: no source code, CLI, handler, core module, registry, or gate change. The detailed raw evidence (figures/CSVs/scripts) stays in the out-of-repo Work/lattice-Paper/ workspace and is referenced, not duplicated.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "low",
   "keywords": [
     "experience-layer",
@@ -52,6 +52,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-19T01:35:09.591Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:39:32.572Z",
       "branch": "story/B-cb13",
       "user": "Harmonygo",
       "agent": "main"
