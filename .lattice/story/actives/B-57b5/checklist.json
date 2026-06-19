@@ -182,9 +182,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T18:55:15.037Z",
       "userSees": "Verification transcript should include `lifecycle dispatch smoke passed`, `lifecycle-registry consistency: PASS`, `command-ownership contract passed`, and `main-write-lock-coverage:` with no scope-contract violations.",
       "excludes": [
         "Do not use a local 3x2 host verdict as Authority Server completion.",
@@ -232,7 +232,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:lifecycle-dispatch-smoke",
+          "result": "pass",
+          "note": "Final build and focused lifecycle-dispatch smoke passed, covering compile-time integration and extracted helper contracts.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:15.128Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:lifecycle-registry-contract; npm --prefix packages/main run test:command-catalog-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:main-write-lock-coverage",
+          "result": "pass",
+          "note": "Process fact, lifecycle registry, command catalog, ownership, and main-write-lock contract checks all passed on the final build.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:15.210Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/verification-freshness-smoke.js; node bin/lattice.js scope_contract_check json true",
+          "result": "pass",
+          "note": "INIT_CHECK conflict, worktree authority, verification freshness, and B-57b5 scope contract checks all passed, including the DONE-equivalent merge topology regression.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:15.293Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -253,6 +285,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented INIT_CHECK metadata sync and recover_evidence dispatch extraction in commit 2839def41."
+    },
+    {
+      "timestamp": "2026-06-19T18:55:15.037Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Recorded final required validation suite for lifecycle dispatch extraction."
     }
   ]
 }
