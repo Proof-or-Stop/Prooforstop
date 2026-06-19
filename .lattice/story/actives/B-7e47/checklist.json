@@ -83,9 +83,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T19:06:14.689Z",
       "userSees": "Targeted envelope regression output includes \"signed DONE gate envelope contains decision.materialOverlapAudit before signature\" and \"actualFileOverlaps preserved count=1\" for the fail-closed overlap case.",
       "files": {
         "modify": [
@@ -120,7 +120,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: smoke printed signed DONE gate envelope contains decision.materialOverlapAudit before signature and verified the envelope signature over the audited decision.",
+          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:14.803Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: smoke printed actualFileOverlaps preserved count=1 and asserted the signed decision kept packages/main/src/shared.ts in actualFileOverlaps.",
+          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:14.894Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: signature verification uses stripSignature(envelope) after parsing the captured /v1/gates/evaluate body, so adding materialOverlapAudit after signing would fail this regression.",
+          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:14.980Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
