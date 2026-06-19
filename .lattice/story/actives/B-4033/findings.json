@@ -29,7 +29,7 @@
       "desc": "smoke-gap: parallel-decomposition-overlap-smoke.ts has no assertions for children-vs-subtree, overlapping subtree-vs-subtree, or children-vs-children interactions — the three non-literal wildcard combinations that use the tier-2 heuristic branch; if entriesOverlap is modified later these regressions have no coverage",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:03:05.738Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
       ],
       "signatureTag": "missing|ts|smoke-parallel-decomposition",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke extended from 20 to 32 assertions — added children-vs-children (same + sibling), children-vs-subtree nested, subtree-vs-subtree (nested + sibling), shared-prefix children cases, empty-dir rejection, and allowedTest-exclusion.",
+      "resolvedAt": "2026-06-19T13:12:02.755Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4033:F-003",
