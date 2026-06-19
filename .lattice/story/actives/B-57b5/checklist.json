@@ -120,7 +120,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "build, process-fact contract, lifecycle dispatch smoke, INIT_CHECK reconcile smoke, worktree authority smoke, command ownership, main-write-lock, and recover_evidence freshness checks pass.",
+      "excludes": [
+        "Do not use a local 3x2 host verdict as Authority Server completion.",
+        "Do not defer behavior verification to docs-only review; lifecycle smoke evidence is required.",
+        "Do not mark DONE if validation evidence goes stale after implementation changes."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lifecycle-dispatch-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-dispatch-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript build and focused lifecycle-dispatch smoke pass after extraction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "INIT_CHECK metadata commit/merge, conflict reconciliation, command ownership, main-write-lock coverage, lifecycle registry, and process-fact contracts remain green.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No lifecycle, Authority, reviewer, owner-lease, process-fact, or JSON stdout semantic regression is introduced by the extraction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
