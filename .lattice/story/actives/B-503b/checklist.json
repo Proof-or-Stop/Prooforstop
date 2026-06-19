@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the review assurance floor execution plan",
+      "context": "Create a durable decision document explaining mandatory review floors: docs-only typo/annotation stays one round, ordinary code changes require at least one review round, failures or bugs escalate to 3x1, and high-risk gate/Authority/process-fact work requires 3x2 or explicit degraded-single-host evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ],
+      "userSees": "User sees a new execution plan under docs/requirements/decisions/ that names the mandatory review floor and escalation policy.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Audit the document with three single-host rounds",
+      "context": "Because this is a process-fact/gate policy document, run three local single-host audit rounds against the written plan and record whether each round found real correctness issues or passed without Authority overclaim.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "User sees three local single-host audit results recorded as Non-authority evidence before closure.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

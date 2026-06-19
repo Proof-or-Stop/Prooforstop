@@ -1,0 +1,71 @@
+{
+  "storyId": "B-8b07",
+  "checkedAt": "2026-06-19T00:23:21.397Z",
+  "reviewRound": "2026-06-19T00:15:08.134Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV links to the Lattice Strengthening Roadmap Execution Plan document.",
+      "status": "verified",
+      "verifiedBy": "git diff and rg",
+      "evidence": "git diff main...HEAD shows the NAV file count updated from 50 to 51 and adds [Lattice Strengthening Roadmap Execution Plan](decisions/lattice-strengthening-roadmap-execution-plan.md); rg confirmed the link at docs/requirements/NAV.md:31."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "The document includes source/context mapping for the required governance inputs and keeps overlapping governance concepts distinct.",
+      "status": "verified",
+      "verifiedBy": "sed, rg, checklist transcript",
+      "evidence": "The document has ## Source And Context Mapping at line 39 and maps unattended completion, mid-flight repair, 3-round 2-host escalation, two-host baseline execution, lifecycle, testing completeness, verification context packs, lifecycle artifact scope, ownership leases, scope guidance, guard guidance, parallel wave, and unlock baseline docs to roadmap decisions. CHK-001 evidence records happy, edge, and adversarial docs_check passes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "The document decomposes the roadmap into auditable milestone sections.",
+      "status": "verified",
+      "verifiedBy": "rg section scan",
+      "evidence": "rg confirmed ## Milestone Table and ## Milestone Details plus M0 through M12 sections. A second rg confirmed each milestone includes Deliverables, Gate placement, Required tests or checks, Expected evidence, Blockers, and DONE criteria."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "The document states the 3-round 2-host validation policy.",
+      "status": "verified",
+      "verifiedBy": "rg and document inspection",
+      "evidence": "rg confirmed ## 3-Round 2-Host Validation Policy at line 974. The section defines the default shape as 3 bounded rounds x 2 independent PASS hosts per round over fresh anchors, host independence minimums, degraded single-host fallback, and documentation-only handling."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "The document states baseline PASS and negative-control expected-block expectations without treating them as proof from this story.",
+      "status": "verified",
+      "verifiedBy": "rg and document inspection",
+      "evidence": "rg confirmed ## Baseline And Negative-Control Expectations at line 1047, ### Baseline PASS Expectations at line 1053, and ### Negative-Control Expected Blocks at line 1062. The section explicitly says these expectations are not proof from B-8b07 and are acceptance targets for later stories."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "The document keeps a plan-only and non-goal boundary, with no claim that runtime gates or Authority behavior were implemented.",
+      "status": "verified",
+      "verifiedBy": "sed, rg overclaim scan, TODO scan",
+      "evidence": "The document status line says Execution plan, not implemented runtime behavior; the near-term deliverable is only this document plus NAV registration; ## Non-Goals states runtime CLI gates, Authority behavior, executor loops, review escalation code, baseline runners, and prewrite hooks are not implemented. rg found no TODO/TBD/FIXME/XXX/unresolved markers."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Checklist transcript records three docs_check passes for CHK-001: sed range inspection confirmed the Source And Context Mapping; the edge note confirms unattended completion, mid-flight repair, 3-round 2-host review, baseline PASS suites, and negative-control BLOCKED suites remain distinct; the adversarial rg overclaim scan passed. session_brief reports lattice validate PASS at 2026-06-19T00:20:22.530Z with verification intent coverage 9/9 and fresh material hash."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Checklist transcript records three docs_check passes for CHK-002: rg confirmed roadmap track, milestone table, milestone details, sequencing, parallelization, and NAV registration; rg confirmed milestone deliverables, gate placement, required tests, expected evidence, blockers, DONE criteria, 3-round 2-host policy, and baseline/negative-control expectations; boundary sed checks confirmed future behavior is not claimed as implemented. session_brief reports lattice validate PASS at 2026-06-19T00:20:22.530Z."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Checklist transcript records three docs_check passes for CHK-003: rg confirmed Non-Goals, Final Acceptance Template, 3-Round 2-Host Validation Policy, Baseline And Negative-Control Expectations, Rollout Strategy, Risks And Mitigations, and NAV registration; the ambiguous-term overclaim scan passed; git diff --check, lattice scope_contract_check, and npm --prefix packages/main run build passed. session_brief reports TEST validation PASS and 9/9 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passed: the NAV link and roadmap document promises are present, the plan-only boundary is explicit, checklist evidence covers happy, edge, and adversarial intents for CHK-001 through CHK-003, and TEST validation evidence is present with no unresolved TODO markers found."
+  },
+  "_hash": "809be34768c59759cec2ae3a2a913744c40ec6e6012c33decfbe88384af91033"
+}

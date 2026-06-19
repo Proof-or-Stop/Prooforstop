@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-503b",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice checklist_update *",
+    "lattice decision_doc_proposal *",
+    "lattice decision_doc_save *",
+    "lattice decision_set *",
+    "lattice delivery_check_set *",
+    "lattice review_escalation_status *",
+    "lattice scope_check_save *",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice story_review *",
+    "lattice summary_set *",
+    "lattice understanding_set *",
+    "lattice validate *",
+    "lattice verification_evidence_add *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Codex CLI local host",
+    "git",
+    "Lattice CLI",
+    "npm"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-503b",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "lattice authority enforce *",
+    "lattice release_approve_push *"
+  ],
+  "excludedTools": [
+    "Authority Server live enforcement",
+    "remote push/publish"
+  ],
+  "excludedPaths": [
+    "authority_trust.env",
+    "packages/main/dist",
+    "packages/main/src"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Documentation/planning story only. Use local Non-authority evidence. Do not implement runtime gate code or claim Authority Server completion in this story.",
+  "createdAt": "2026-06-19T00:19:25.009Z",
+  "updatedAt": "2026-06-19T00:19:25.009Z",
+  "_hash": "45e9881cd0e22e2debc333d75aa6d6c7ad465d0c70f3a040dfc832528d6e3045"
+}

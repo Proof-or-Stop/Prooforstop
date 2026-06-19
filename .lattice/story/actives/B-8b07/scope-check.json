@@ -1,0 +1,80 @@
+{
+  "storyId": "B-8b07",
+  "checkedAt": "2026-06-19T00:05:18.429Z",
+  "features": [
+    {
+      "feature": "Create docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "covered_by": "understanding.touchpoints; CHK-001/002/003 files.create; plan.md CHK-002 scope",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Modify docs/requirements/NAV.md to register the new decision document",
+      "covered_by": "understanding.touchpoints; CHK-002/003 files.modify; plan.md CHK-002 step 6",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Visible source/context mapping and auditable milestone plan",
+      "covered_by": "CHK-001/002/003 verificationIntent; plan.md CHK-001/002/003 verify sections",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Runtime CLI implementation or new runtime gates",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding facts: documentation-only; plan.md opening boundary; plan.md CHK-003 direct implementation exclusions",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Authority Server, customerKeyRef, or Layer4 implementation work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision preMortem Layer4/Authority scenario; plan.md CHK-003 direct implementation exclusions",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Repair UX code",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md CHK-003 direct implementation exclusions",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Direct story JSON edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints; CHK-001 adversarial verificationIntent; plan.md CHK-003 direct implementation exclusions",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Fixture edits or fixture-based implementation work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints; CHK-001 adversarial verificationIntent; plan.md CHK-003 direct implementation exclusions",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "omx or .omx usage/artifacts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "user instruction; understanding constraints; local AGENTS Local OMX Ban",
+      "source": "PLAN artifacts plus governing instructions"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 3,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5e5486617c000220b045a14d84e37be2c93efb1cad1fbcecc4063d0b5e90ec3c",
+  "openQuestions": []
+}

@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 50 个文件
+> 51 个文件
 
 ## decisions
 
@@ -28,6 +28,7 @@
 - [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [DONE Closure Runbook Assistant Execution Plan](decisions/done-closure-runbook-assistant-execution-plan.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
+- [Lattice Strengthening Roadmap Execution Plan](decisions/lattice-strengthening-roadmap-execution-plan.md)
 - [Unlock Layer 2 Engineering Baseline Suite](decisions/unlock-layer2-ENG-suite.md)
 - [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)
 - [Unlock Layer 4 Production Safety Baseline Suite](decisions/unlock-layer4-production-safety-suite.md)
