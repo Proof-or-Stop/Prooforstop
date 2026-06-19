@@ -127,10 +127,10 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: smoke printed signed DONE gate envelope contains decision.materialOverlapAudit before signature and verified the envelope signature over the audited decision.",
-          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:14.803Z"
+          "note": "Follow-up commit 21ecab6d7: authority-client-smoke printed authority completion loop no-overlap audit default PASS, proving a real completion caller without explicit materialOverlapAudit now signs decision.materialOverlapAudit before /v1/gates/evaluate.",
+          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:15:59.914Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -288,20 +288,20 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: TypeScript build exited 0 and authority-client-smoke printed schema acceptance, signed envelope audit, live smoke request shape, non-empty overlap preservation, and authority client smoke passed.",
-          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:35.125Z"
+          "note": "Follow-up commit 21ecab6d7: build PASS and authority-client-smoke PASS with queued/completion DONE gate default audit regression coverage.",
+          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:15:59.914Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "command": "node packages/main/dist/tasks/natural-language-to-done-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: regression covered empty materialOverlapAudit arrays and non-empty actualFileOverlaps=[packages/main/src/shared.ts] without clearing overlap data.",
-          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:35.235Z"
+          "note": "Follow-up commit 21ecab6d7: natural-language-to-done smoke PASS; its fake Authority server asserts every signed DONE gate decision includes the no-overlap materialOverlapAudit default while preserving supplied audit plumbing.",
+          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:15:59.914Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -364,12 +364,12 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/natural-language-to-done-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: build PASS, authority-client-smoke PASS, live Python E2E entrypoint exited 0 with documented SKIPPED state for missing live env credentials.",
-          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:46.162Z"
+          "note": "Follow-up commit 21ecab6d7: required build and authority-client smoke passed; additional planner smoke passed for the named real caller path.",
+          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:15:59.914Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
