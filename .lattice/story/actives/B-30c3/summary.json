@@ -1,0 +1,56 @@
+{
+  "storyId": "B-30c3",
+  "changes": "Hardened codex/gemini usage capture in the LLM usage ledger: extractCodexUsage/extractGeminiUsage read candidate usage via own-property guards (ownProp) and project into a null-prototype object carrying ONLY adapter-read token keys; codex whitelists the nested prompt_tokens_details to exactly cached_tokens (CODEX_NESTED_DETAIL_KEYS). recordDispatchFinalForProvider wraps buildProviderRecord+append in an inner try so a malformed-but-object usage falls through to one unavailable-final that supersedes the preflight estimate (outer never-throws preserved). The anthropic/claude path stays byte-identical. Commits c47ec8359 + 024bb0e30.",
+  "usage": "No new command; the hardening is transparent. Verify via: node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js (53 checks).",
+  "expectedOutcome": "Smoke prints \"usage-ledger codex/gemini smoke passed (53 checks)\" exit 0; full npm test ALL PASS exit 0. A usage with an extra/inherited/nested non-token key yields a null-proto reportedUsage with only token fields; a malformed-but-object usage records an unavailable-final superseding the estimate.",
+  "actualTranscript": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js -> \"usage-ledger codex/gemini smoke passed (53 checks)\", exit 0. npm test -> ALL PASS, exit 0 (after merging main to 0.3.10, rebuilt clean). recover_evidence validate: 10/10 intents covered, 0 missing.",
+  "outcomeDiff": "none — expected and actual match (53/53 smoke checks, full suite green, 10/10 intents covered).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The broader systematic prototype-pollution class in OUT-OF-SCOPE core (usage-ledger/assemble.ts default-options reads, the usage-ledger adapters’ own `in` reads, claude-cli.ts) is DEFERRED to a dedicated story. The gemini provider will be removed entirely in its own dedicated story; the gemini-specific hardening here is harmless until then.",
+  "pitfalls": "Genuine Codex host-2 review caught 3 real bugs the prior B-fe1f review + 3 claude lanes missed (F-001 nested transcript leak = real own-key contract fix, does NOT change token counts; F-002 predicate `in` under prototype pollution = defense-in-depth, JSON.parse does not pollute; F-003 smoke coverage). The nested whitelist is exactly cached_tokens because the OpenAI adapter reads only prompt_tokens_details.cached_tokens — if OpenAI adds another nested token sub-count, update both the adapter and CODEX_NESTED_DETAIL_KEYS together. Required a main merge (99 commits) + verdict re-bind + recover_evidence right before DONE due to whole-tree materialHash drift.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 344522
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7758
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 671511
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 519062
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1725801
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 510569
+    }
+  },
+  "totalDurationMs": 3779232,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T19:58:54.135Z",
+  "updatedAt": "2026-06-19T19:58:54.135Z"
+}
