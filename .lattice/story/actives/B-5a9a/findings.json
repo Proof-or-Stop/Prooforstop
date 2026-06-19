@@ -65,6 +65,26 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a9a:F-004",
+      "desc": "quality-correctness: packages/main/src/core/review-run.ts:823-833 collects storyFilesHash whole-tree drift advisories for reviewer evidence, but packages/main/src/core/machine.ts:353-354 and :782-785 decide REVIEW->TEST using only invalid bindings and never render evidenceState.advisories. WHY: if a review run becomes materialHash-stale after an unrelated main merge but storyFilesHash still matches, collectReviewerEvidenceState treats the evidence as valid and the gate can pass without showing the mandatory re-attestation warning; that is a silent drift downgrade. severity=high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T22:18:36.409Z",
+      "reviewRound": "2026-06-19T22:12:48.433Z",
+      "reviewRunId": "B-5a9a:RR-001",
+      "_hash": "4aeb4f1b3a16b2d468c3b8f8fd8691615c661074457074a43d3bfa5751c9da07",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/reviewer-status.ts"
+      ],
+      "signatureTag": "missing|ts|quality-correctness-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
