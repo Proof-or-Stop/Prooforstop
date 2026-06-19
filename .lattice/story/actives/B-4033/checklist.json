@@ -120,6 +120,17 @@
           "headHash": "0db7d7ad14ac1c7f69b2eb36cebf26481aeba96d",
           "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
           "timestamp": "2026-06-19T12:58:00.257Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke throws on any failed assertion (non-zero exit) — not a silent pass; 20 assertions verified.",
+          "headHash": "19f2faf6ea0a6c8cfc8e56a895d6dffd55ac38a5",
+          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
+          "timestamp": "2026-06-19T12:58:01.298Z"
         }
       ]
     }
