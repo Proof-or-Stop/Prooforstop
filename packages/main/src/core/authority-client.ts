@@ -74,7 +74,6 @@ import {
 } from './authority-runner-contracts.js';
 import {
   authorityModeEnabled,
-  authorityTrustProfileFileNames,
   loadAuthoritySettings,
   normalizeAuthorityTrustEnv,
   normalizeAuthorityMode,
@@ -84,12 +83,9 @@ import {
   readAuthorityEnv,
   DEFAULT_AUTHORITY_KEY_FILE,
   DEFAULT_AUTHORITY_TRUST_ENV_FILE,
-  renderAuthorityTrustProfileClientSidecar,
-  renderAuthorityTrustProfileEnv,
   type AuthorityConfig,
   type AuthorityMdConfig,
   type AuthorityMode,
-  type AuthorityTrustProfileTier,
   type AuthoritySettings,
   type AuthoritySettingsOverride,
   DEFAULT_AUTHORITY_TIMEOUT_MS,
@@ -1646,79 +1642,6 @@ export function resolveAuthorityClientAuth(
 ): AuthorityClientAuth {
   const customer = resolveAuthorityCustomerApiKey(env, options);
   return customer.value ? { customerApiKey: customer.value } : {};
-}
-
-export interface AuthorityTrustProfileBundle {
-  trustFileName: string;
-  trustFileText: string;
-  clientFileName: string;
-  clientFileText: string;
-}
-
-export interface AuthorityTrustProfileBundleOptions extends AuthorityConfigLoadOptions {
-  env?: Record<string, string | undefined>;
-  outputDir?: string;
-  tier?: AuthorityTrustProfileTier;
-}
-
-/**
- * Build the default internal authority trust profile bundle.
- *
- * The config/material read is forced through enforce-mode resolution so the
- * helper can load trust/env and authority.md material even when the caller's
- * shell mode is off. This is bundle-generation only; it does not promote
- * runtime authority policy or production completion.
- */
-export function buildAuthorityTrustProfileBundle(
-  options: AuthorityTrustProfileBundleOptions = {},
-): AuthorityTrustProfileBundle {
-  const env = options.env ?? process.env;
-  const settings = loadAuthorityConfig(env, { authorityMode: 'enforce' }, options);
-  const customer = resolveAuthorityCustomerApiKey(env, options);
-  const fileNames = authorityTrustProfileFileNames(options.tier ?? 'basic');
-  const outputBaseDir = options.cwd ?? process.cwd();
-  const outputDir = resolvePath(outputBaseDir, options.outputDir ?? '');
-  const trustFilePath = resolvePath(outputDir, fileNames.trustFileName);
-  const clientFilePath = resolvePath(outputDir, fileNames.clientFileName);
-  const baseURL = settings.baseURL?.trim();
-  if (!baseURL) {
-    throw new Error('authority trust profile bundle requires a resolved authority URL');
-  }
-  const serverPublicKey = settings.keyMaterial.serverPublicKey?.trim();
-  if (!serverPublicKey) {
-    throw new Error('authority trust profile bundle requires a server public key');
-  }
-  const serverKeyId = settings.keyMaterial.serverKeyId?.trim();
-  if (!serverKeyId) {
-    throw new Error('authority trust profile bundle requires a server key id');
-  }
-  const projectId = settings.projectId?.trim();
-  if (!projectId) {
-    throw new Error('authority trust profile bundle requires a project id');
-  }
-  if (!customer.value) {
-    throw new Error(
-      'authority trust profile bundle requires LATTICE_AUTHORITY_CUSTOMER_API_KEY or LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH',
-    );
-  }
-  return {
-    trustFileName: fileNames.trustFileName,
-    trustFileText: renderAuthorityTrustProfileEnv(
-      {
-        trustEnvFilePath: trustFilePath,
-        authorityURL: baseURL,
-        serverPublicKey,
-        ...(settings.keyMaterial.serverPublicKeyEncoding?.trim()
-          ? { serverPublicKeyEncoding: settings.keyMaterial.serverPublicKeyEncoding.trim() }
-          : {}),
-        serverKeyId,
-        projectId,
-        customerApiKeyPath: clientFilePath,
-      },
-    ),
-    clientFileName: fileNames.clientFileName,
-    clientFileText: renderAuthorityTrustProfileClientSidecar(customer.value),
-  };
 }
 
 /**

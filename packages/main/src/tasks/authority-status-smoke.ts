@@ -48,16 +48,14 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   buildAuthorityStatus,
   buildConduitStatus,
-  writeAuthorityTrustProfileBundle,
 } from '../handlers/lattice-cli.js';
-import { buildAuthorityTrustProfileBundle } from '../core/authority-client.js';
 import { DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES } from '../core/authority-mode.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { upsertAuthorityGateReceiptRef, type AuthorityGateDecisionReceiptRef } from '../core/authority-gate-receipts.js';
@@ -602,44 +600,32 @@ function refFor(
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-trust-env');
 }
 
-// Basic bundle round-trip: generated Lattice-prefixed trust/client files remain consumable.
+// Ordinary handoff fixture: Lattice-prefixed trust/client files remain consumable.
 {
-  const sourceRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-source-'));
-  const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-target-'));
+  const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-target-'));
   try {
-    mkdirSync(join(sourceRoot, '.lattice', 'secrets'), { recursive: true });
+    const trustFileName = DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trustFileName;
+    const clientFileName = DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.clientFileName;
+    const trustFilePath = join(bundleRoot, trustFileName);
+    const clientFilePath = join(bundleRoot, clientFileName);
     writeFileSync(
-      join(sourceRoot, '.lattice', 'authority.md'),
+      trustFilePath,
       [
-        'serverUrl: https://authority.example/',
-        'serverKeyId: source-server-key',
-        'serverPublicKey: source-server-public-key',
-        'projectId: source-project',
-        'customerApiKeyPath: .lattice/secrets/customer-api-key',
+        'LATTICE_AUTHORITY_MODE=enforce',
+        'LATTICE_AUTHORITY_URL=https://authority.example/',
+        'LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=source-server-public-key',
+        'LATTICE_AUTHORITY_SERVER_KEY_ID=source-server-key',
+        'LATTICE_AUTHORITY_PROJECT_ID=source-project',
+        `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${clientFileName}`,
+        '',
       ].join('\n'),
     );
-    writeFileSync(join(sourceRoot, '.lattice', 'secrets', 'customer-api-key'), 'source-customer-key\n');
-
-    const bundle = buildAuthorityTrustProfileBundle({
-      env: { LATTICE_AUTHORITY_MODE: 'off' },
-      cwd: sourceRoot,
-      outputDir: bundleRoot,
-    });
-    assert.equal(bundle.trustFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trustFileName);
-    assert.equal(bundle.clientFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.clientFileName);
-
-    const trustFilePath = join(bundleRoot, bundle.trustFileName);
-    const clientFilePath = join(bundleRoot, bundle.clientFileName);
-    const written = writeAuthorityTrustProfileBundle(bundleRoot, bundle);
-    assert.equal(written.trustFilePath, trustFilePath);
-    assert.equal(written.clientFilePath, clientFilePath);
-    assert.equal(readFileSync(trustFilePath, 'utf8'), bundle.trustFileText);
-    assert.equal(readFileSync(clientFilePath, 'utf8'), bundle.clientFileText);
+    writeFileSync(clientFilePath, 'source-customer-key\n');
 
     const status = buildAuthorityStatus({}, {
       ...EMPTY_AUTHORITY_ENV,
       LATTICE_AUTHORITY_MODE: 'enforce',
-      LATTICE_AUTHORITY_TRUST_ENV_FILE: bundle.trustFileName,
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: trustFileName,
     }, { cwd: bundleRoot });
     assert.deepEqual(
       {
@@ -651,6 +637,7 @@ function refFor(
         resolvedBaseURL: status.resolvedBaseURL,
         actorKeyConfigured: status.actorKeyConfigured,
         runnerConfigured: status.runnerConfigured,
+        serverPublicKeyPinned: status.serverPublicKeyPinned,
       },
       {
         authorityTrustEnvLoaded: true,
@@ -661,13 +648,13 @@ function refFor(
         resolvedBaseURL: 'https://authority.example/',
         actorKeyConfigured: false,
         runnerConfigured: false,
+        serverPublicKeyPinned: true,
       },
     );
     assert.ok(!status.readinessWarnings.some(line => line.includes('CUSTOMER_API_KEY')));
     assert.ok(status.readinessWarnings.some(line => line.includes('ACTOR_KEY')));
     assert.ok(status.readinessWarnings.some(line => line.includes('RUNNER_ID')));
   } finally {
-    rmSync(sourceRoot, { recursive: true, force: true });
     rmSync(bundleRoot, { recursive: true, force: true });
   }
 }

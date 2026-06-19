@@ -15,13 +15,12 @@
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   AuthorityClient,
   evaluateAuthorityGate,
-  buildAuthorityTrustProfileBundle,
   loadAuthorityConfig,
   readAuthorityMdConfig,
   resolveAuthorityClientAuth,
@@ -38,7 +37,6 @@ import {
   type AuthorityGateVerifyConfig,
   joinURL,
 } from '../core/authority-client.js';
-import { writeAuthorityTrustProfileBundle } from '../handlers/lattice-cli.js';
 import { submitVerdict, summarizeVerdicts } from '../core/verdicts.js';
 import {
   AUTHORITY_MODES,
@@ -53,7 +51,6 @@ import {
   normalizeAuthorityURL,
   parseAuthorityMd,
   parseAuthorityTrustEnv,
-  quoteAuthorityShellValue,
   resolveAuthorityConfig,
 } from '../core/authority-mode.js';
 import {
@@ -124,100 +121,35 @@ function fetchThrowing(error: unknown): AuthorityFetch {
   };
 }
 
-function generateAuthorityBundle(
-  sourceRoot: string,
-  bundleRoot: string,
-  tier: 'basic' | 'senior' = 'basic',
-): {
-  sourceConfig: ReturnType<typeof loadAuthorityConfig>;
-  sourceCustomer: ReturnType<typeof resolveAuthorityCustomerApiKey>;
-  bundle: ReturnType<typeof buildAuthorityTrustProfileBundle>;
-  written: ReturnType<typeof writeAuthorityTrustProfileBundle>;
+function writeAuthorityHandoffFixture(bundleRoot: string): {
+  trustFilePath: string;
+  clientFilePath: string;
 } {
-  const sourceTrustPath = join(sourceRoot, 'authority_trust.env');
-  const sourceEnv: Record<string, string | undefined> = {
-    LATTICE_AUTHORITY_MODE: 'off',
-    LATTICE_AUTHORITY_TRUST_ENV_FILE: sourceTrustPath,
-  };
-  const sourceConfig = loadAuthorityConfig(
-    sourceEnv,
-    { authorityMode: 'enforce' },
-    { cwd: sourceRoot },
+  const fileNames = authorityTrustProfileFileNames();
+  const trustFilePath = join(bundleRoot, fileNames.trustFileName);
+  const clientFilePath = join(bundleRoot, fileNames.clientFileName);
+  writeFileSync(
+    trustFilePath,
+    [
+      `LATTICE_AUTHORITY_TRUST_ENV_FILE=${trustFilePath}`,
+      'LATTICE_AUTHORITY_MODE=enforce',
+      'LATTICE_AUTHORITY_URL=https://authority.example/',
+      'LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=source-server-public-key',
+      'LATTICE_AUTHORITY_SERVER_KEY_ID=source-server-key-id',
+      'LATTICE_AUTHORITY_PROJECT_ID=source-project-id',
+      `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${clientFilePath}`,
+      '',
+    ].join('\n'),
   );
-  const sourceCustomer = resolveAuthorityCustomerApiKey(sourceEnv, {
-    cwd: sourceRoot,
-  });
-  const bundle = buildAuthorityTrustProfileBundle({
-    env: sourceEnv,
-    cwd: sourceRoot,
-    outputDir: bundleRoot,
-    tier,
-  });
-  const written = writeAuthorityTrustProfileBundle(bundleRoot, bundle);
-  return { sourceConfig, sourceCustomer, bundle, written };
+  writeFileSync(clientFilePath, 'source-customer-key\n');
+  return { trustFilePath, clientFilePath };
 }
 
-function assertAuthorityBundleRoundTrip(tier: 'basic' | 'senior'): void {
-  const sourceRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-source-'));
-  const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-target-'));
-  const consumerRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-consumer-'));
+function assertAuthorityHandoffFixtureConsumption(): void {
+  const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-target-'));
+  const consumerRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-consumer-'));
   try {
-    mkdirSync(join(sourceRoot, '.lattice'), { recursive: true });
-    writeFileSync(
-      join(sourceRoot, 'authority_trust.env'),
-      [
-        'LATTICE_AUTHORITY_LIVE_URL=https://authority.example/',
-        'LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=source-server-public-key',
-        'LATTICE_AUTHORITY_SERVER_KEY_ID=source-server-key-id',
-        'LATTICE_AUTHORITY_PROJECT_ID=source-project-id',
-      ].join('\n'),
-    );
-    writeFileSync(join(sourceRoot, '.lattice', 'authority.md'), 'customerApiKey: source-customer-key\n');
-
-    const generated = generateAuthorityBundle(sourceRoot, bundleRoot, tier);
-    const expectedNames = authorityTrustProfileFileNames(tier);
-    assert.deepEqual(
-      {
-        urlSource: generated.sourceConfig.urlSource,
-        trustLoaded: generated.sourceConfig.authorityTrustEnvLoaded,
-        mdLoaded: generated.sourceConfig.authorityMdLoaded,
-        projectId: generated.sourceConfig.projectId,
-        serverPublicKey: generated.sourceConfig.keyMaterial.serverPublicKey,
-        serverKeyId: generated.sourceConfig.keyMaterial.serverKeyId,
-        customerSource: generated.sourceCustomer.source,
-        customerValue: generated.sourceCustomer.value,
-      },
-      {
-        urlSource: 'authority_trust_env',
-        trustLoaded: true,
-        mdLoaded: true,
-        projectId: 'source-project-id',
-        serverPublicKey: 'source-server-public-key',
-        serverKeyId: 'source-server-key-id',
-        customerSource: 'authority_md',
-        customerValue: 'source-customer-key',
-      },
-    );
-
-    const trustFilePath = join(bundleRoot, expectedNames.trustFileName);
-    const clientFilePath = join(bundleRoot, expectedNames.clientFileName);
-    assert.equal(generated.bundle.trustFileName, expectedNames.trustFileName);
-    assert.equal(generated.bundle.clientFileName, expectedNames.clientFileName);
-    assert.equal(generated.written.trustFilePath, trustFilePath);
-    assert.equal(generated.written.clientFilePath, clientFilePath);
-    assert.equal(
-      readFileSync(trustFilePath, 'utf8').trim(),
-      [
-        `export LATTICE_AUTHORITY_TRUST_ENV_FILE=${quoteAuthorityShellValue(trustFilePath)}`,
-        `export LATTICE_AUTHORITY_MODE=${quoteAuthorityShellValue('enforce')}`,
-        `export LATTICE_AUTHORITY_URL=${quoteAuthorityShellValue('https://authority.example/')}`,
-        `export LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=${quoteAuthorityShellValue('source-server-public-key')}`,
-        `export LATTICE_AUTHORITY_SERVER_KEY_ID=${quoteAuthorityShellValue('source-server-key-id')}`,
-        `export LATTICE_AUTHORITY_PROJECT_ID=${quoteAuthorityShellValue('source-project-id')}`,
-        `export LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${quoteAuthorityShellValue(clientFilePath)}`,
-      ].join('\n'),
-    );
-    assert.equal(readFileSync(clientFilePath, 'utf8').trim(), 'source-customer-key');
+    const { trustFilePath, clientFilePath } = writeAuthorityHandoffFixture(bundleRoot);
 
     const loaded = loadAuthorityConfig(
       {
@@ -246,7 +178,6 @@ function assertAuthorityBundleRoundTrip(tier: 'basic' | 'senior'): void {
     assert.equal(resolved.value, 'source-customer-key');
     assert.equal(resolved.path, clientFilePath);
   } finally {
-    rmSync(sourceRoot, { recursive: true, force: true });
     rmSync(bundleRoot, { recursive: true, force: true });
     rmSync(consumerRoot, { recursive: true, force: true });
   }
@@ -2019,9 +1950,8 @@ const sampleVerdictEnvelope = {
   assert.equal(auth.customerApiKey, 'client-key');
 }
 
-// --- authority trust profile bundle: basic and senior tier round-trip --------
-assertAuthorityBundleRoundTrip('basic');
-assertAuthorityBundleRoundTrip('senior');
+// --- authority trust profile handoff: consumer fixture -----------------------
+assertAuthorityHandoffFixtureConsumption();
 
 // --- legacy staging-client.env path stays consumable through authority_trust.env
 {
