@@ -176,6 +176,25 @@
       ],
       "signatureTag": "doc-promise-undelivered|md|readme-docs-guide",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d674:F-009",
+      "desc": "Quality blocker: the host guard matrix smoke still encodes Gemini as a current wrapped-preapply/capability profile and does not assert current Antigravity/agy guard semantics. Verified after a clean build by running `node packages/main/dist/tasks/host-guard-matrix-smoke.js`, which fails at dist/tasks/host-guard-matrix-smoke.js:139 with TypeError because `buildCapabilityList()` no longer returns a `gemini` host profile. Source references: packages/main/src/tasks/host-guard-matrix-smoke.ts:11,117-153,228-267 still test Gemini as current; packages/main/src/core/types.ts:1654 still documents wrapped-preapply as Codex or Gemini. Update the smoke to assert antigravity/agy wrapped-preapply via dispatch, keep Gemini only as explicit legacy probe compatibility if needed, and align the GuardSessionMode comment before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T15:54:38.901Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-010",
+      "_hash": "a073526d866521e9ea8a5a7e72b4c28c20c026cab609776c64d761c370e0a41d",
+      "files": [
+        "packages/main/src/tasks/host-guard-matrix-smoke.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "stale-host-guard-matrix|ts|gemini-current-profile",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
