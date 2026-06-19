@@ -27,7 +27,7 @@
       "desc": "packages/main/src/tasks/cli-surface-smoke.ts:160-182: the new test:cli-surface-smoke verification is not phase-stable. In REVIEW, npm --prefix packages/main run test:cli-surface-smoke fails because the invalid checklist_update probe is phase-gated before argument validation, printing Command checklist_update is not available in REVIEW phase instead of Argument validation failed. This means the parser/help/alias extraction evidence cannot be rerun from REVIEW/TEST and the adversarial validation check is coupled to lifecycle dispatch state; use a phase-neutral command/root or isolate the validation-path assertion from the active story phase gate.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T18:17:00.751Z",
@@ -39,7 +39,11 @@
         "packages/main/package.json"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by moving cli-surface-smoke invalid checklist_update validation to an isolated temp root/cwd. The smoke now asserts Argument validation failed and verificationIntent.happy.0.type while remaining stable from REVIEW/TEST. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:32.044Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a776:F-003",
