@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-19T14:07:40.976Z",
       "reviewRunId": "B-4033:RR-018",
       "_hash": "67e41f5fb744dad075b522ebd568568f666fb5cc491b381b1ad57197c1aafc37"
+    },
+    {
+      "id": "B-4033:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 final convergence re-review. Smoke: 44 assertions pass. Dead code: none — all 4 exports and all internal helpers (normalizeEntry, parseEntry, isUnderOrEqual, entriesOverlap, hasBroad) are reachable. Type safety: no as-any casts, no try/catch, type imports resolve correctly (GlobOverlapResult, ScopeContractData). .. rejection: normalizeEntry deliberately strips only empty and . segments so .. survives into the e.split(/).includes(..) guard — correctness confirmed by smoke group 13 (3 assertions). I/O shell isolation: no shells/ or bridge.ts present; tasks/ smoke runner importing core directly is the intended pattern. No findings.",
+      "createdAt": "2026-06-19T14:09:24.869Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-016",
+      "_hash": "5a75cc87e35fde1a1b26eca867e7cc56a3103bc2fab54dced3c3cc31bc17acec"
     }
   ]
 }
