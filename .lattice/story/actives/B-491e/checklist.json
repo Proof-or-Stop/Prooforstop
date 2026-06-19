@@ -52,6 +52,18 @@
           "headHash": "2a83bedc046efadad7147af4a36e1c408ccd4234",
           "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
           "timestamp": "2026-06-19T00:58:20.923Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Focused authority client and status smokes passed after generator removal; they directly write operator/server handoff fixtures and prove existing env/trust consumption still reads server-provided config values.",
+          "headHash": "7c66343d62eb0597d2520d4f2d540a938e425908",
+          "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
+          "timestamp": "2026-06-19T01:09:27.536Z"
         }
       ]
     },
