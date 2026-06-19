@@ -116,7 +116,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "done_prepare reports whether post-DONE runtime patch finalization is required, names the follow-up path and version sources, and leaves all version files unchanged before DONE.",
+      "userSees": "User sees literal fields \"postDoneRuntimeVersionBumpRequired: true\" and \"postDoneNext: After story_advance DONE succeeds on local main, run the runtime version bump/finalize path.\" for runtime diffs, \"postDoneRuntimeVersionBumpRequired: false\" for docs-only diffs, and \"postDoneVersionState: inconsistent\" when version sources mismatch; no version file appears in git status.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",

@@ -7,7 +7,8 @@
     "Existing done_closure handler already projects DONE oracle rows and Authority boundary status.",
     "Existing verification_evidence_refresh_stale supports dryRun and non-dryRun stale evidence metadata refresh; it does not expose a separate rerun-required schema.",
     "Existing validate handler can be called in-process and writes test evidence.",
-    "Runtime version files must not be mutated by done_prepare before DONE."
+    "Runtime version files must not be mutated by done_prepare before DONE.",
+    "Command schema entries live in packages/main/src/cli/command-catalog.ts and handler registration lives in packages/main/src/registry.ts."
   ],
   "constraints": [
     "Use Lattice story/worktree lifecycle and do not modify unrelated active stories.",
@@ -19,14 +20,13 @@
   ],
   "unknowns": [],
   "touchpoints": [
-    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/config.ts",
-    "packages/main/src/handlers/done-closure.ts",
-    "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/command-policy.ts",
     "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/registry.ts",
     "packages/main/src/tasks/done-prepare-smoke.ts",
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
   ],
-  "timestamp": "2026-06-19T22:39:14.754Z"
+  "timestamp": "2026-06-19T22:45:18.930Z"
 }
