@@ -2,14 +2,22 @@
 
 The **prewrite scope guard** is a story-scoped projection that tracks whether an
 agent dispatched to implement a checklist item stays within its declared scope
-contract.  Starting a guard session tells Lattice which runtime host is running
-the agent so it can choose the right protection strategy:
+contract. Starting a guard session tells Lattice which runtime host is running
+the agent so it can choose the right protection strategy.
 
-- **`active` (pre-tool blocking)** — Claude Code exposes a `PreToolUse` hook
-  that fires *before* a tool write is committed.  When this hook is installed,
-  a forbidden write can be intercepted and rejected before the file is modified.
-- **`watcher-fallback` (post-write detection)** — Every other host (Codex,
-  Gemini, headless runners, …) can only be observed after the fact.  Lattice
+B-997b wave 1 status: M1-M3 wave complete; M4-M12 remain follow-up milestones.
+The shipped behavior is limited to canonical scope rows, lifecycle/runtime
+artifact classification, truthful guard capability labels, and acknowledgement
+visibility. Authority, Layer 4, production receipts, baseline unlocks,
+customer-key behavior, renderer/scheduler work, and unrelated runtime features
+remain follow-up work.
+
+- **`native-pretool` (pre-tool blocking)** — a host with a verified pre-tool
+  hook can reject a forbidden write before the file is modified.
+- **`wrapped-preapply` (dispatch pre-apply blocking)** — Codex/Gemini can use
+  this only when running through Lattice dispatch/pre-apply flow.
+- **`watcher-fallback` (post-write detection)** — any host without a verified
+  pre-tool or wrapped-preapply context is observed after the fact. Lattice
   detects the violation when `guard_session_check` runs and blocks lifecycle
   progression, but the forbidden file has already been written.
 
@@ -21,19 +29,20 @@ difference is *when* the intervention happens.
 
 | Host / provider string | Guard mode | Mechanism |
 |---|---|---|
-| `claude`, `claude-code`, `claude_code`, `claudecode` | `active` | Claude Code `PreToolUse` hook fires before the write |
-| `codex` | `watcher-fallback` | Diff detected after write; no pre-tool interception |
-| `gemini`, `gemini-cli` | `watcher-fallback` | Same as Codex |
+| `claude`, `claude-code`, `claude_code`, `claudecode` with verified hook | `native-pretool` | Host hook fires before the write |
+| `codex` with verified Codex hook | `native-pretool` | Codex native hook fires before the write |
+| `codex` or `gemini` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply |
+| `codex`, `gemini`, `gemini-cli` without a verified context | `watcher-fallback` | Diff detected after write; no pre-tool interception |
 | Any other string | `watcher-fallback` | Default; no pre-tool hook assumption |
 
 `guard_session_start` derives the mode automatically from the `provider` you
 pass.  You never configure the mode directly.
 
-> **Important:** Lattice never overclaims `active` mode.  Even if you pass
-> `provider=claude-code`, the guard session will still only block lifecycle
-> progression — it cannot intercept writes in real time unless the Claude Code
-> `PreToolUse` hook is installed in `.claude/settings.json`.  See the
-> [hook installation](#claude-code-pretooluse-hook-installation) section below.
+> **Important:** Lattice never overclaims `native-pretool` mode. Even if you
+> pass `provider=claude-code` or `provider=codex`, the guard session can only
+> intercept writes when a verified host hook is installed. Without that proof,
+> it reports `wrapped-preapply` only for dispatch/pre-apply flow or
+> `watcher-fallback` otherwise.
 
 ## Lifecycle of a guard session
 
@@ -58,8 +67,8 @@ lattice guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
 lattice guard_session_start '{"storyId":"B-xxxx","provider":"codex"}'
 ```
 
-Output includes `guardMode: active` or `guardMode: watcher-fallback` so you can
-confirm which strategy is in effect.
+Output includes `guardMode: native-pretool`, `guardMode: wrapped-preapply`, or
+`guardMode: watcher-fallback` so you can confirm which strategy is in effect.
 
 ### Check for violations
 
@@ -97,7 +106,7 @@ The "Guard session scan" section reports:
 
 - Whether the Claude Code `PreToolUse` hook is installed
 - Each story with an active guard session and its mode / violation count
-- A `⚠` warning when `guardMode=active` but the hook is not installed (the
+- A warning when a native-pretool-capable session lacks a verified hook (the
   session behaves like `watcher-fallback` in practice)
 
 ### JSON output
@@ -115,7 +124,7 @@ Fields:
 | `sessions` | All stories with a guard-session.json (including stopped) |
 | `active` | Sessions whose status is not `stopped` |
 | `withViolations` | Sessions with at least one violation |
-| `activeMissingHook` | `active`-mode sessions without the PreToolUse hook installed |
+| `activeMissingHook` | Native-pretool-capable sessions without the PreToolUse hook installed; field name retained for JSON compatibility |
 | `hasMisconfigured` | `true` when `activeMissingHook` is non-empty |
 | `hasViolations` | `true` when any session has violations |
 
@@ -128,6 +137,10 @@ When `guard_session_check` detects forbidden writes:
 2. **Or acknowledge a necessary expansion** — if the scope genuinely needs to
    widen, run `scope_contract_acknowledge` and then re-run `guard_session_check`.
 3. Re-run `story_advance` once the session shows 0 violations.
+
+Acknowledgement is not a silent pass. The acknowledged expansion remains warn
+and reviewer-visible as a `scope.out_of_scope:<path>` row with `blocking=false`;
+review, validation, and DONE gates still need their own evidence.
 
 ## Claude Code PreToolUse hook installation
 
@@ -192,7 +205,7 @@ A `watcher-fallback` guard session still provides meaningful protection:
 - The lifecycle gate blocks if violations are present, regardless of mode.
 
 The only thing `watcher-fallback` cannot do is prevent the forbidden file from
-being written in the first place.  For CI runners, Codex agents, and Gemini
+being written in the first place. For CI runners, Codex agents, and Gemini
 agents, this is the expected and correct behavior — the gate still catches the
 violation before the story moves to REVIEW.
 

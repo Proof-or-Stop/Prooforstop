@@ -8,7 +8,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ScopeContractData, ScopeContractAcknowledgement } from '../core/types.js';
+import type { ScopeContractData, ScopeContractAcknowledgement, StoryPhase } from '../core/types.js';
 import {
   validateMode,
   validatePaths,
@@ -22,6 +22,38 @@ import {
 } from '../core/scope-contract.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+
+type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
+  assuranceLabel?: 'acknowledged-expansion';
+  phase?: StoryPhase;
+  headHash?: string;
+  materialHash?: string;
+  affectedPaths?: string[];
+  affectedPathCount?: number;
+};
+
+function uniquePaths(paths: readonly string[]): string[] {
+  return [...new Set(paths)];
+}
+
+function shortHash(hash: string | undefined): string {
+  return hash ? hash.slice(0, 12) : '(unavailable)';
+}
+
+function renderAcknowledgementRow(ack: ScopeContractAcknowledgement, index: number): string {
+  const structured = ack as StructuredScopeAcknowledgement;
+  const assurance = structured.assuranceLabel ?? 'legacy-acknowledgement';
+  const affectedPaths = structured.affectedPaths ?? ack.paths;
+  const phase = structured.phase ?? '(unknown)';
+  const anchors = ack.anchors && ack.anchors.length > 0 ? ` anchors=[${ack.anchors.join(', ')}]` : '';
+  const digests = [
+    ...(ack.hunkDigest ? [ack.hunkDigest] : []),
+    ...(ack.hunkDigests ?? []),
+  ];
+  const digestPart = digests.length > 0 ? ` hunkDigests=[${digests.join(', ')}]` : '';
+  return `  [scope-ack:${index + 1}] status=warn blocking=false assurance=${assurance} phase=${phase} paths=[${affectedPaths.join(', ')}] actor=${ack.actor} timestamp=${ack.timestamp} headHash=${shortHash(structured.headHash)} materialHash=${shortHash(structured.materialHash)}${anchors}${digestPart} reason=${ack.reason}`;
+}
 
 export function createScopeContractHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -93,9 +125,12 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         return `Scope contract: not configured\nStory ${args.storyId} has no scope contract. Use scope_contract_set to create one.`;
       }
       const acks = contract.acknowledgements;
-      const ackSummary = acks.length === 0
-        ? 'none'
-        : acks.map(a => `${a.paths.join(',')} (${a.actor} @ ${a.timestamp})`).join('; ');
+      const ackRows = acks.length === 0
+        ? ['acknowledgements: none']
+        : [
+          `acknowledgements (${acks.length}):`,
+          ...acks.map((ack, index) => renderAcknowledgementRow(ack, index)),
+        ];
       return [
         `Scope contract: configured`,
         `Story: ${contract.storyId}`,
@@ -108,7 +143,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
         `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
         `scopeChangeReason: ${contract.scopeChangeReason ?? '(none)'}`,
-        `acknowledgements: ${ackSummary}`,
+        ...ackRows,
         `createdAt: ${contract.createdAt}`,
         `updatedAt: ${contract.updatedAt}`,
       ].join('\n');
@@ -231,11 +266,30 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         throw new Error(`Story ${args.storyId} has no scope contract. Run scope_contract_set first.`);
       }
 
-      const ack: ScopeContractAcknowledgement = {
+      let phase: StoryPhase | undefined;
+      try {
+        phase = store.readStory(args.storyId).phase;
+      } catch {
+        phase = undefined;
+      }
+      const headHash = currentGitHead(root);
+      const materialHash = currentMaterialHash(root, 'HEAD', root);
+      const affectedPaths = uniquePaths(paths);
+
+      // Structural extension until ScopeContractAcknowledgement grows these
+      // first-class fields: assuranceLabel, phase, headHash, materialHash,
+      // affectedPaths, and affectedPathCount.
+      const ack: StructuredScopeAcknowledgement = {
         actor,
         reason,
         timestamp: new Date().toISOString(),
         paths,
+        assuranceLabel: 'acknowledged-expansion',
+        affectedPaths,
+        affectedPathCount: affectedPaths.length,
+        ...(phase ? { phase } : {}),
+        ...(headHash ? { headHash } : {}),
+        ...(materialHash ? { materialHash } : {}),
         ...(anchors && anchors.length > 0 ? { anchors } : {}),
         // B-6bfd F-003: persist singular vs plural unambiguously. Exactly one
         // digest stores only `hunkDigest`; multiple digests store only
@@ -255,12 +309,18 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       return [
         `Scope change acknowledged`,
         `Story: ${args.storyId}`,
+        `assurance: acknowledged-expansion (lower assurance; reviewer-visible scope expansion)`,
+        `phase: ${phase ?? '(unknown)'}`,
         `actor: ${actor}`,
         `reason: ${reason}`,
+        `affectedPaths: [${affectedPaths.join(', ')}]`,
         `addedPaths: [${paths.join(', ')}]`,
+        `headHash: ${headHash ?? '(unavailable)'}`,
+        `materialHash: ${materialHash ?? '(unavailable)'}`,
         ...(anchors && anchors.length > 0 ? [`anchors: [${anchors.join(', ')}]`] : []),
         ...(hunkDigests.length > 0 ? [`hunkDigests: [${hunkDigests.join(', ')}]`] : []),
         `timestamp: ${ack.timestamp}`,
+        renderAcknowledgementRow(ack, updated.acknowledgements.length - 1),
         `Total acknowledgements: ${updated.acknowledgements.length}`,
       ].join('\n');
     },

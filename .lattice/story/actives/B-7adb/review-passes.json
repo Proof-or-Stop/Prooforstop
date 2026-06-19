@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-7adb:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: status diagnostics are additive, lifecycle/DONE gates still consume existing ok/required semantics, and local diagnostics/runbooks do not claim remote proof, Authority receipts, or completion.",
+      "createdAt": "2026-06-19T13:42:00.979Z",
+      "reviewRound": "2026-06-19T13:37:52.726Z",
+      "reviewRunId": "B-7adb:RR-001",
+      "_hash": "695fee84b150ccab8980464776fe4a14846acff0d936c113001c652b427e7911"
+    },
+    {
+      "id": "B-7adb:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: CHK-001 all/latest run diagnostics covered by planner unattended smoke plus build; CHK-002 required=false voluntaryLocalRounds covered by review-escalation smoke plus build; CHK-003 stale-material runbook, truncation, and no-bypass wording covered by review-assurance-floor smoke plus build; CHK-004 docs boundary covered by docs grep and smoke evidence. Reviewer reran npm --prefix packages/main run build and all three focused smoke binaries successfully.",
+      "createdAt": "2026-06-19T13:42:33.419Z",
+      "reviewRound": "2026-06-19T13:37:52.726Z",
+      "reviewRunId": "B-7adb:RR-005",
+      "_hash": "170673a0e12b352d0fb1f1a34b164ae97b579a03a847ee10e712e10c04616f64"
+    },
+    {
+      "id": "B-7adb:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: checked TypeScript types, local run sorting, additive autopilot_review_status output shape, stale verdict summaries, unchanged authority/local predicates, and non-bypass stale-material wording. npm build and targeted smokes passed.",
+      "createdAt": "2026-06-19T13:42:34.224Z",
+      "reviewRound": "2026-06-19T13:37:52.726Z",
+      "reviewRunId": "B-7adb:RR-003",
+      "_hash": "19d5910a993ce04b2ef2754fb47ceac067019b2dd66a0159885dcce9d58af5f7"
+    },
+    {
+      "id": "B-7adb:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs review checked local diagnostic UX updates against changed source and command help. The docs describe stale-material recovery, voluntaryLocalRounds, allRuns/latestRuns, and non-authority boundaries accurately, and do not claim remote proof, Authority receipt evidence, or new completion capability.",
+      "createdAt": "2026-06-19T13:45:41.132Z",
+      "reviewRound": "2026-06-19T13:37:52.726Z",
+      "reviewRunId": "B-7adb:RR-006",
+      "_hash": "f610562032e5ea6a1a693ecbf540484613b6b2070942dfac3a3d9ddfd9e766e0"
+    }
+  ]
+}

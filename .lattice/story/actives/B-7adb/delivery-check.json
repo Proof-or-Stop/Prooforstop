@@ -1,0 +1,58 @@
+{
+  "storyId": "B-7adb",
+  "checkedAt": "2026-06-19T13:55:26.243Z",
+  "reviewRound": "2026-06-19T13:37:52.726Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Local Diagnostic UX documents autopilot_review_status all/local run diagnostics, review_escalation_status voluntaryLocalRounds, and Stale material recovery as local operator guidance only, not remote proof, Authority receipt evidence, or a completion capability.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD, rg Local diagnostic UX/Stale material recovery/remote proof/Authority receipt/completion capability, review-assurance-floor smoke",
+      "evidence": "Diff adds Local Diagnostic UX with all-runs/latest-runs, voluntaryLocalRounds, stale recovery commands, non-counting stale verdicts, and no bypass language; smoke asserts stale recovery output and no Authority/remote/prod overclaim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Review escalation docs expose voluntary local 3x2 visibility and stale-material recovery without changing required=false, ok, assuranceLevel, or Authority/completion boundaries.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD, rg, review-escalation smoke, review_escalation_status transcript",
+      "evidence": "Diff adds Local diagnostic UX; review_escalation_status output for B-7adb shows required:false, ok:true, assuranceLevel:ordinary-review, Authority flags false, voluntaryLocalRounds:3/3."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "Roadmap promises M8/M11 evidence rows for local all-runs/latest-runs, voluntaryLocalRounds, stale-material recovery transcript, and explicit no remote-proof/Authority/completion overclaim boundaries.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD, rg, lattice validate, focused smokes",
+      "evidence": "Diff updates M8 minimum commands/expected evidence/DONE criteria and M11 runbook evidence; grep found diagnostic-only and no remote proof/completion wording; validate passed with 12/12 intent coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran node packages/main/dist/cli.js autopilot_review_status {storyId:B-7adb}: output kept default-run top-level blocked view, exposed runCount:4, runs default-run/round-1/round-2/round-3, latestRuns entries for all rounds, diagnosticOnly:true, authorityServerContact:false, authorityDone/fullAuthorityDone/multiHostVerified:false. Ran planner-unattended-smoke: passed, including all-runs/latest-runs edge cases for stale, duplicate, and failing custom runs."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran node packages/main/dist/cli.js review_escalation_status {storyId:B-7adb}: output required:false, ok:true, assuranceLevel:ordinary-review, authorityDone/fullAuthorityDone/productionDone:false, voluntaryLocalRounds:3/3 rounds x 2 hosts submitted=3 complete=true. Ran review-escalation-smoke: passed 7 checks including required=false empty summary and voluntary 3x2 visibility without semantic change."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran review-assurance-floor-smoke: passed 10 checks including stale local review evidence non-counting, Stale material recovery commands, truncation of ignored verdict details, and adversarial no skip/force/override stale wording. transcript-diff shows the actual stale recovery output with validate, verification_evidence_refresh_stale --dryRun, autopilot_review_submit over current materialHash, and do-not-bypass language."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran rg over the three docs for Local diagnostic UX, Stale material recovery, voluntaryLocalRounds, all-runs/latest-runs, remote proof, completion capability, and Authority receipt. Ran npm --prefix packages/main run build, planner-unattended-smoke, review-escalation-smoke, review-assurance-floor-smoke, git diff --check, and lattice validate --story=B-7adb; all passed, validate reported 12/12 verification intent coverage."
+    },
+    {
+      "featureId": "transcript-diff",
+      "transcript": "Read .lattice/story/actives/B-7adb/evidence/transcript-diff.md. It contains expected vs actual real-machine transcripts for autopilot_review_status, review_escalation_status, and stale-material recovery. Actual output matches expected diagnostic UX, names no user-value gap, and notes the dist CLI was used after build because the global lattice binary still pointed at the prior build."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed: reverse-scanned git diff and structured story evidence; three docs promises are delivered; real-machine transcript evidence exists for CHK-001 through CHK-004 plus transcript-diff; build, focused smokes, git diff --check, and lattice validate passed; local 3x2 verdict evidence is visible; overclaim scan found only boundary language and a negative forged-field test, with Authority/remote/completion flags remaining false."
+  },
+  "_hash": "83cfabee6305fefd5132a7d28f613a2cc959041a9053c29e58b1cf423fd65ccb"
+}

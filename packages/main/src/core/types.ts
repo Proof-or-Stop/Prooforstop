@@ -1531,6 +1531,65 @@ export interface ScopeContractData {
 
 export type ScopeGateStatus = 'pass' | 'warn' | 'fail' | 'skip';
 
+export type ScopePathCategory =
+  | 'allowed_modify'
+  | 'allowed_create'
+  | 'allowed_test'
+  | 'protected'
+  | 'excluded'
+  | 'lifecycle_artifact'
+  | 'runtime_artifact'
+  | 'unknown';
+
+export type ScopePathSource =
+  | 'scope-contract.allowedModify'
+  | 'scope-contract.allowedCreate'
+  | 'scope-contract.allowedTest'
+  | 'scope-contract.protectedFiles'
+  | 'scope-contract.explicitExcludes'
+  | 'lifecycle-registry'
+  | 'runtime-artifact-registry'
+  | 'changed-files';
+
+export type ScopePathRule =
+  | ScopeViolation['rule']
+  | 'allowed_modify'
+  | 'allowed_create'
+  | 'allowed_test'
+  | 'lifecycle_artifact'
+  | 'runtime_artifact'
+  | 'unknown';
+
+export interface ScopePathClassification {
+  path: string;
+  normalizedPath: string;
+  category: ScopePathCategory;
+  source: ScopePathSource;
+  rule: ScopePathRule;
+  allowed: boolean;
+  detail: string;
+  matchedPattern?: string;
+  registryId?: string;
+  hint?: string;
+}
+
+export interface ScopeCheckRow {
+  /** Deterministic row id derived from category/rule/path, stable across reruns. */
+  id: string;
+  status: ScopeGateStatus;
+  blocking: boolean;
+  detail: string;
+  path?: string;
+  /** User-facing source path that produced this row. */
+  source?: string;
+  /** Classifier table or contract field that classified the source path. */
+  classifierSource?: ScopePathSource;
+  category?: ScopePathCategory;
+  rule?: ScopePathRule;
+  nextAction?: string;
+  hint?: string;
+}
+
 export interface ScopeViolation {
   path: string;
   rule: 'protected' | 'excluded' | 'out_of_scope' | 'denied_anchor' | 'protected_anchor' | 'unmatched_anchor' | 'change_kind';
@@ -1546,6 +1605,7 @@ export interface ScopeCheckResult {
   violations: ScopeViolation[];
   warnings: ScopeViolation[];
   acknowledgedPaths: string[];
+  rows?: ScopeCheckRow[];
   semantic?: SemanticScopeGateResult;
   summary: string;
 }

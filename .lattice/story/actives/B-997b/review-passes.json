@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-997b:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed all 24 verificationIntent refs across 4 checklist items; evidence covers path classification rows, acknowledgement visibility/transcript fields, fail-closed unknown source and metadata paths, docs/process registry checks, and focused smoke commands pass with no blocking coverage gap.",
+      "createdAt": "2026-06-19T04:37:22.184Z",
+      "reviewRound": "2026-06-19T04:31:47.361Z",
+      "reviewRunId": "B-997b:RR-004",
+      "_hash": "79c1e96a74df5de435960e1519e09e7a76fd0169212c92a337095e39549fa711"
+    },
+    {
+      "id": "B-997b:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review covered M1-M3 scope boundary only, classifier/contract rows, phase gate projection, guard-session labels, acknowledgement visibility, and non-goals for Authority/receipt/customerKeyRef/Layer4/production semantics; no conceptual blocker found.",
+      "createdAt": "2026-06-19T04:37:35.854Z",
+      "reviewRound": "2026-06-19T04:31:47.361Z",
+      "reviewRunId": "B-997b:RR-005",
+      "_hash": "e6003472b1cde0ab2c36ee6a3ce6a9ea1740a8948fc1a0632d89922b736a5064"
+    },
+    {
+      "id": "B-997b:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed docs/guide-scope-guard.md, lifecycle-artifact-scope.md, and lattice-strengthening-roadmap-execution-plan.md against scope classifier, guard/session handlers, command help, and process fact verifier. M4-M12/Authority/receipt/Layer 4/customerKeyRef remain documented as follow-up or non-authority; no blocking documentation inconsistency found.",
+      "createdAt": "2026-06-19T04:38:54.864Z",
+      "reviewRound": "2026-06-19T04:31:47.361Z",
+      "reviewRunId": "B-997b:RR-006",
+      "_hash": "c2fc8a291bb9b1453b28288a0ac965a250a4bbd4d40cbb6112e6b76360ac407c"
+    },
+    {
+      "id": "B-997b:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept review after F-001 fix: implementation remains scoped to M1-M3 boundary controls, does not claim Authority receipt Layer4 customerKeyRef production or later roadmap behavior, and shared classifier concept is consistent across scope and prewrite guard.",
+      "createdAt": "2026-06-19T12:38:53.736Z",
+      "reviewRound": "2026-06-19T04:44:49.579Z",
+      "reviewRunId": "B-997b:RR-008",
+      "_hash": "083a2972939abd35ca5cfa480f1aebfa16f9f4bff278cbf867aba2aa98d8f6da"
+    },
+    {
+      "id": "B-997b:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality review after F-001 fix: prewrite-guard.ts now consumes classifyScopePath and pathMatchesScopePattern, F-001 lifecycle and runtime repro paths pass, protected excluded and unknown paths remain enforced, and prewrite/scope smoke tests pass.",
+      "createdAt": "2026-06-19T12:39:07.129Z",
+      "reviewRound": "2026-06-19T04:44:49.579Z",
+      "reviewRunId": "B-997b:RR-009",
+      "_hash": "7b13d842176f60a86faf09e3b9c7809f793880364a0b1ec957d05b4d46a303e5"
+    },
+    {
+      "id": "B-997b:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh test coverage review after F-001 fix: lattice validate reports 24 of 24 verification intents covered, prewrite-guard smoke covers lifecycle and runtime repros, scope-contract smoke and process fact verifier pass at current material.",
+      "createdAt": "2026-06-19T12:39:13.115Z",
+      "reviewRound": "2026-06-19T04:44:49.579Z",
+      "reviewRunId": "B-997b:RR-010",
+      "_hash": "68e7eb86c4b4a997a8bb8eea10c42c68e299ea03a527c83c5c64e68d050f9509"
+    },
+    {
+      "id": "B-997b:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs review after F-001 fix: guide and decision docs state M1-M3 wave complete, M4-M12 remain follow-up, and Authority receipts Layer 4 customerKeyRef production claims remain explicit non-goals.",
+      "createdAt": "2026-06-19T12:39:19.186Z",
+      "reviewRound": "2026-06-19T04:44:49.579Z",
+      "reviewRunId": "B-997b:RR-011",
+      "_hash": "eb9cadef20b87023a66331b4987e3c9be719a7863f19ccafeea2d1f831f5fd0f"
+    }
+  ]
+}

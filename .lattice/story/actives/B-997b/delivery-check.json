@@ -1,0 +1,54 @@
+{
+  "storyId": "B-997b",
+  "checkedAt": "2026-06-19T12:52:24.032Z",
+  "reviewRound": "2026-06-19T04:44:49.579Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/guide-scope-guard.md",
+      "promise": "Guide states B-997b wave 1 is M1-M3 complete and limits delivery to canonical scope rows, lifecycle/runtime classification, truthful guard capability labels, and acknowledgement visibility; M4-M12, Authority, Layer 4, production receipts, baseline unlocks, customer-key behavior, renderer/scheduler work, and unrelated runtime features remain follow-up/non-goals.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus rg -n M1-M3/M4-M12/Authority/receipt/Layer 4/customerKeyRef/production across target docs",
+      "evidence": "docs/guide-scope-guard.md lines 8-13 contain M1-M3 wave complete, M4-M12 follow-up, and explicit Authority/Layer 4/production receipt/customer-key non-goals; diff also updates guard modes to native-pretool/wrapped-preapply/watcher-fallback and acknowledgement visibility."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "Roadmap states B-997b implements only M1-M3 hard-scope behavior and leaves M4-M12 plus Authority/receipt/Layer 4/customerKeyRef/production work as future or separate stories.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD and rg -n on roadmap status, wave shipped behavior, and non-goal terms",
+      "evidence": "Roadmap status says M1-M3 wave complete; M4-M12 remain follow-up milestones. Wave 1 shipped behavior section lists canonical rows, lifecycle/runtime rows, acknowledgement warn visibility, and guard capability labels; lines 327-330 keep Authority/Layer 4/customer key, production receipts, baseline unlock suites, renderer/scheduler changes, customerKeyRef behavior, and unrelated runtime work out of B-997b."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Lifecycle artifact scope policy describes B-997b wave 1 row/classifier behavior while preserving the boundary that lifecycle/runtime classification is provenance only, not delivery, summary, review, validation, receipt, Authority, Layer 4, customer key, or production proof.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD and rg -n on lifecycle policy wave/non-goal/receipt lines",
+      "evidence": "Lifecycle policy states M1-M3 wave complete, M4-M12 follow-up, no Authority receipts, Layer 4 production proof, customer key behavior, baseline unlocks, renderer/scheduler work, or unrelated runtime features. Stable rows section says rows are not receipts for summary, delivery, review, validation, or DONE; later receipt/production authority remains separate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-997b:validate-final",
+      "transcript": "lattice test_list --storyId=B-997b confirms latest command lattice validate --story=B-997b --json status=pass allPass=true. Five configured commands passed: npm --prefix packages/main run build, authority-client-smoke, authority-completion-smoke, review-pass-discard-smoke, and init-window-data-loss-smoke. Verification intent coverage is 24/24 covered with 0 required missing. session_brief and done_closure report final test evidence PASS at 2026-06-19T12:47:09.312Z."
+    },
+    {
+      "featureId": "B-997b:focused-smokes",
+      "transcript": "Checklist evidence for materialHash 731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65 records passing focused checks: prewrite-guard-smoke, scope-contract-smoke, semantic-scope-guard-smoke where applicable, and node scripts/verify-process-fact-contract.mjs. CHK-004 evidence specifically records build, scope contract smoke, process fact verifier, and lattice validate freshness after the final material diff."
+    },
+    {
+      "featureId": "B-997b:F-001",
+      "transcript": "lattice finding_list shows B-997b:F-001 status=resolved, evidenceState=verified, resolutionType=fixed, resolveEvidenceStrength=strong. The resolved reason states prewrite-guard.ts now uses shared classifyScopePath/pathMatchesScopePattern; lifecycle artifact .lattice/story/actives/B-scope/summary.json and runtime artifact .lattice/activity.jsonl no longer resolve as out_of_scope; protected, excluded, and unknown behavior remains enforced. Commands passed: build, prewrite-guard-smoke, scope-contract-smoke, and process fact verifier."
+    },
+    {
+      "featureId": "B-997b:local-3x2-assurance",
+      "transcript": "lattice done_closure --storyId=B-997b --format=json reports review-assurance-floor pass: full-3x2, material code paths 10, local rounds 3/3, local non-Authority only. process-events host_verdict lines 44-49 show final rounds 1-3 each have codex and local-runner pass verdicts bound to materialDigest 731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65; Authority/fullAuthority/production completion flags remain false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse scan complete. Docs promises match B-997b wave 1 boundaries; final lattice validate passed with 5 configured commands and 24/24 coverage; F-001 is resolved with shared classifier coverage and protected/excluded/unknown enforcement; final local non-Authority 3x2 assurance floor is satisfied for materialHash 731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65. rg TODO/FIXME/XXX over touched material files returned no matches."
+  },
+  "_hash": "17e700a775c73c3c75729c13bcf05f0c9d42611b08346e474347a763f9d77a4b"
+}

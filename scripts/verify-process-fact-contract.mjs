@@ -2916,33 +2916,76 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  */
 async function assertLifecycleArtifactScopePolicy() {
   const policyDocPath = 'docs/requirements/decisions/lifecycle-artifact-scope.md';
+  const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
+  const guardDocPath = 'docs/guide-scope-guard.md';
   if (!existsSync(join(root, policyDocPath))) {
     fail(`lifecycle artifact scope policy doc missing: ${policyDocPath}`);
     return;
   }
+  for (const docPath of [roadmapDocPath, guardDocPath]) {
+    if (!existsSync(join(root, docPath))) {
+      fail(`B-997b wave 1 doc missing: ${docPath}`);
+      return;
+    }
+  }
   const policyDocText = read(policyDocPath);
+  const roadmapDocText = read(roadmapDocPath);
+  const guardDocText = read(guardDocPath);
   const requiredPolicyMarkers = [
     'isRuntimeArtifactPath',
     'classifyLifecycleArtifact',
     'evidence/transcript-diff.md',
     'does not weaken product source scope enforcement',
     'arbitrary',
+    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'scope.lifecycle_artifact:B-scope:summary.json',
+    'scope.runtime_artifact:',
+    'scope.out_of_scope:',
+    'acknowledged expansion remains warn',
   ];
   for (const marker of requiredPolicyMarkers) {
     if (!policyDocText.includes(marker)) {
       fail(`${policyDocPath}: missing required marker "${marker}"`);
     }
   }
+  const requiredRoadmapMarkers = [
+    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'Wave 1 shipped behavior',
+    'scope.out_of_scope:src/other.ts',
+    'scope.lifecycle_artifact:B-scope:summary.json',
+    'Authority/Layer 4/customer key work remains out of scope for B-997b',
+  ];
+  for (const marker of requiredRoadmapMarkers) {
+    if (!roadmapDocText.includes(marker)) {
+      fail(`${roadmapDocPath}: missing B-997b marker "${marker}"`);
+    }
+  }
+  const requiredGuardMarkers = [
+    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'acknowledged expansion remains warn',
+    'native-pretool',
+    'wrapped-preapply',
+    'watcher-fallback',
+  ];
+  for (const marker of requiredGuardMarkers) {
+    if (!guardDocText.includes(marker)) {
+      fail(`${guardDocPath}: missing B-997b marker "${marker}"`);
+    }
+  }
 
   const scopeContractText = read('packages/main/src/core/scope-contract.ts');
+  const scopePathClassifierText = read('packages/main/src/core/scope-path-classifier.ts');
   if (scopeContractText.includes(`if (file.startsWith('.koala/')) continue;`)) {
     fail('packages/main/src/core/scope-contract.ts: blanket `.koala/` exemption regressed — must use isRuntimeArtifactPath instead');
   }
-  if (!scopeContractText.includes('isRuntimeArtifactPath')) {
-    fail('packages/main/src/core/scope-contract.ts: must import isRuntimeArtifactPath from runtime-artifact-registry');
+  if (!scopeContractText.includes('classifyScopePath')) {
+    fail('packages/main/src/core/scope-contract.ts: must consume the canonical scope path classifier');
   }
-  if (!scopeContractText.includes('classifyLifecycleArtifact')) {
-    fail('packages/main/src/core/scope-contract.ts: must keep classifyLifecycleArtifact for story metadata');
+  if (!scopePathClassifierText.includes('runtime-artifact-registry') || !scopePathClassifierText.includes('findRuntimeArtifactEntry')) {
+    fail('packages/main/src/core/scope-path-classifier.ts: must consume the runtime-artifact-registry');
+  }
+  if (!scopePathClassifierText.includes('classifyLifecycleArtifact')) {
+    fail('packages/main/src/core/scope-path-classifier.ts: must keep classifyLifecycleArtifact for story metadata');
   }
 
   const scopeMod = await import(pathToFileURL(join(root, 'packages/main/dist/core/scope-contract.js')).href);
@@ -2981,6 +3024,29 @@ async function assertLifecycleArtifactScopePolicy() {
     Array.isArray(result.violations)
       && result.violations.some((v) => v.path === path && v.rule === 'out_of_scope');
   const isClean = (result) => result.violations.length === 0;
+  const rowsOf = (result, label) => {
+    if (!Array.isArray(result.rows)) {
+      fail(`${label}: scope check result must expose stable rows`);
+      return [];
+    }
+    for (const row of result.rows) {
+      assert(typeof row.id === 'string' && row.id.length > 0, `${label}: row must include stable id`);
+      assert(typeof row.status === 'string' && row.status.length > 0, `${label}: row ${row.id} must include status`);
+      assert(typeof row.source === 'string' && row.source.length > 0, `${label}: row ${row.id} must include source`);
+      assert(typeof row.blocking === 'boolean', `${label}: row ${row.id} must include blocking boolean`);
+      assert(
+        typeof row.nextAction === 'string' || typeof row.hint === 'string',
+        `${label}: row ${row.id} must include nextAction or hint`,
+      );
+    }
+    return result.rows;
+  };
+  const expectRow = (result, label, predicate) => {
+    const rows = rowsOf(result, label);
+    const row = rows.find(predicate);
+    if (!row) fail(`${label}: missing expected row in ${JSON.stringify(rows)}`);
+    return row;
+  };
   const transcriptOnlyFile = '.lattice/story/actives/B-scope/evidence/transcript-diff.md';
 
   const lifecycleAccept = [
@@ -3003,6 +3069,14 @@ async function assertLifecycleArtifactScopePolicy() {
       fail(`lifecycle artifact unexpectedly rejected: ${file} → ${JSON.stringify(result.violations)}`);
     }
   }
+  expectRow(
+    probe(['.lattice/story/actives/B-scope/summary.json']),
+    'B-997b lifecycle artifact row',
+    row => row.id === 'scope.lifecycle_artifact:B-scope:summary.json'
+      && row.source === '.lattice/story/actives/B-scope/summary.json'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
   const transcriptOnlyScope = probe([transcriptOnlyFile]);
   if (transcriptOnlyScope.status !== 'pass' || !transcriptOnlyScope.summary.includes('Scope gate: pass')) {
     fail(`transcript-only scope check should pass without acknowledgement: ${JSON.stringify(transcriptOnlyScope)}`);
@@ -3022,6 +3096,15 @@ async function assertLifecycleArtifactScopePolicy() {
       fail(`runtime artifact unexpectedly rejected: ${file} → ${JSON.stringify(result.violations)}`);
     }
   }
+  expectRow(
+    probe(['.lattice/activity.jsonl']),
+    'B-997b runtime artifact row',
+    row => typeof row.id === 'string'
+      && row.id.startsWith('scope.runtime_artifact:')
+      && row.source === '.lattice/activity.jsonl'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
 
   const adversarialReject = [
     '.koala/foo.json',
@@ -3041,6 +3124,14 @@ async function assertLifecycleArtifactScopePolicy() {
     if (!isOop(result, file)) {
       fail(`unauthorized file unexpectedly accepted (no out_of_scope violation): ${file} → ${JSON.stringify(result.violations)}`);
     }
+    expectRow(
+      result,
+      `B-997b fail-closed scope row ${file}`,
+      row => row.id === `scope.out_of_scope:${file}`
+        && row.source === file
+        && row.status === 'fail'
+        && row.blocking === true,
+    );
   }
 
   // unknown filenames under a story dir must still fall through scope —
@@ -3051,6 +3142,14 @@ async function assertLifecycleArtifactScopePolicy() {
   if (!isOop(unknownResult, unknownFilenameUnderStory)) {
     fail(`unknown filename under story dir unexpectedly accepted: ${unknownFilenameUnderStory} → ${JSON.stringify(unknownResult.violations)}`);
   }
+  expectRow(
+    unknownResult,
+    'B-997b unknown story metadata row',
+    row => row.id === `scope.out_of_scope:${unknownFilenameUnderStory}`
+      && row.source === unknownFilenameUnderStory
+      && row.status === 'fail'
+      && row.blocking === true,
+  );
 
   const emptyDiffPack = {
     diffPackHash: 'unused-empty',

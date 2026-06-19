@@ -41,7 +41,7 @@ function makeContract(
   overrides: Partial<ScopeContractData> & { mode?: ScopeContractData['mode'] } = {},
 ): ScopeContractData {
   return {
-    storyId: STORY_ID,
+    storyId: overrides.storyId ?? STORY_ID,
     mode: overrides.mode ?? 'enforce',
     allowedModify: overrides.allowedModify ?? ['src/allowed.ts', 'src/feature.ts'],
     allowedCreate: overrides.allowedCreate ?? ['src/new.ts'],
@@ -242,6 +242,28 @@ function multiEditInput(filePaths: string[]): PrewriteToolInput {
     writeInput('tests/my.test.ts'),
   );
   assert.equal(r.deny, false, 'Write → allowedTest path → deny: false');
+}
+
+{
+  // Lifecycle artifacts share scope_contract_check's classifier and must not be
+  // treated as out-of-scope by prewrite_guard_check.
+  const r = prewriteGuardCheck(
+    makeContract({ storyId: 'B-scope' }),
+    makeActiveSession({ storyId: 'B-scope' }),
+    writeInput('.lattice/story/actives/B-scope/summary.json'),
+  );
+  assert.equal(r.deny, false, 'Write → lifecycle artifact summary → deny: false');
+}
+
+{
+  // Runtime artifacts share scope_contract_check's classifier and must not be
+  // treated as out-of-scope by prewrite_guard_check.
+  const r = prewriteGuardCheck(
+    makeContract(),
+    makeActiveSession(),
+    writeInput('.lattice/activity.jsonl'),
+  );
+  assert.equal(r.deny, false, 'Write → runtime activity log → deny: false');
 }
 
 // ── Part 7: prewriteGuardCheck — MultiEdit with protected and allowed files ───

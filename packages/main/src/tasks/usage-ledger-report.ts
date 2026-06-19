@@ -97,6 +97,7 @@ export function renderHuman(report: UsageReport): string {
     const count = report.overall.counts[source];
     lines.push(
       `  ${source.padEnd(20)} count=${count} known=${s.knownCount} unknown=${s.unknownCount} ` +
+        `primary[in=${s.primaryKnown.input} out=${s.primaryKnown.output}] ` +
         `tokens[in=${s.known.input} out=${s.known.output} ` +
         `cacheCreate=${s.known.cacheCreation} cacheRead=${s.known.cacheRead}]`,
     );
@@ -122,6 +123,7 @@ export function renderHuman(report: UsageReport): string {
       }
       lines.push(
         `      ${source.padEnd(20)} known=${s.knownCount} unknown=${s.unknownCount} ` +
+          `primary[in=${s.primaryKnown.input} out=${s.primaryKnown.output}] ` +
           `tokens[in=${s.known.input} out=${s.known.output} ` +
           `cacheCreate=${s.known.cacheCreation} cacheRead=${s.known.cacheRead}]${costStr}`,
       );

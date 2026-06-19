@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
 import { assertJobPolicyConsistency, buildJobPlan, buildPlannerDraft, PlannedStepsSchema } from '../core/planner.js';
+import { summarizeVerdictRuns } from '../core/verdicts.js';
 import type { BoundedProviderExecutor, ProviderExecResult } from '../providers/types.js';
 
 type JsonObject = Record<string, any>;
@@ -453,6 +454,40 @@ try {
   // review must never set authorityDone / fullAuthorityDone / multiHostVerified.
   assert.equal(localSummary.multiHostVerified, false, 'local review must never set multiHostVerified, even on a passing wave');
   assert.equal(localSummary.passingIndependentHosts, 2);
+
+  const defaultRunStatus = run(['lattice', 'autopilot', 'review', 'status', '--storyId=B-plan', '--json']);
+  assert.equal(defaultRunStatus.runId, 'default-run', 'status without runId keeps the default-run top-level view');
+  assert.equal(defaultRunStatus.status, 'blocked', 'an empty default-run still reports the selected default run status');
+  assert(defaultRunStatus.allRunIds.includes('default-run'), 'allRunIds includes the default-run compatibility view');
+  assert(defaultRunStatus.allRunIds.includes('run-1'), 'allRunIds exposes custom run ids that would otherwise be hidden');
+  assert(defaultRunStatus.allRuns.some((row: JsonObject) => row.runId === 'run-1' && row.status === 'pass'), 'allRuns preserves per-run status for custom run ids');
+  assert(defaultRunStatus.latestRuns.some((row: JsonObject) => row.runId === 'run-1' && row.localReviewCertified === true), 'latestRuns includes the latest local review certification without moving it to the default-run top level');
+  assert.equal(defaultRunStatus.authorityDone, false, 'default-run compatibility summary must not claim server-backed authorityDone');
+  assert.equal(defaultRunStatus.fullAuthorityDone, false, 'default-run compatibility summary must not claim fullAuthorityDone');
+  assert.equal(defaultRunStatus.multiHostVerified, false, 'local diagnostic summaries must not set multiHostVerified');
+  assert.equal(defaultRunStatus.runDiagnostics.diagnosticOnly, true);
+  assert.equal(defaultRunStatus.runDiagnostics.authorityServerContact, false);
+
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-pass', '--hostId=codex-pass', '--provider=codex', '--sessionId=s-pass-1', '--keyId=k-pass-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-pass', '--hostId=gemini-pass', '--provider=gemini', '--sessionId=s-pass-2', '--keyId=k-pass-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-stale', '--hostId=codex-stale', '--provider=codex', '--sessionId=s-stale-1', '--keyId=k-stale-1', '--decision=pass', '--materialDigest=stale-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-stale', '--hostId=gemini-stale', '--provider=gemini', '--sessionId=s-stale-2', '--keyId=k-stale-2', '--decision=pass', '--materialDigest=stale-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-dup', '--hostId=codex-dup', '--provider=codex', '--sessionId=shared-dup-session', '--keyId=k-dup-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-dup', '--hostId=gemini-dup', '--provider=gemini', '--sessionId=shared-dup-session', '--keyId=k-dup-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-fail', '--hostId=codex-fail', '--provider=codex', '--sessionId=s-fail-1', '--keyId=k-fail-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-fail', '--hostId=gemini-fail', '--provider=gemini', '--sessionId=s-fail-2', '--keyId=k-fail-2', '--decision=fail', '--materialDigest=fresh-material', '--json']);
+  const runDiagnostics = summarizeVerdictRuns(root, 'local', 'B-run-diag', 'default-run', 2, { currentAnchor: { materialDigest: 'fresh-material' } });
+  const runById = new Map(runDiagnostics.allRuns.map(row => [row.runId, row]));
+  assert.equal(runById.get('round-pass')?.status, 'pass', 'a fresh independent custom run passes');
+  assert.equal(runById.get('round-stale')?.status, 'blocked', 'stale custom runs must not count as passing');
+  assert.equal(runById.get('round-stale')?.staleVerdicts, 2, 'all stale verdicts remain visible in the per-run diagnostic');
+  assert.equal(runById.get('round-dup')?.status, 'blocked', 'duplicate-identity custom runs must not count as passing independence');
+  assert.equal(runById.get('round-dup')?.duplicateVerdicts, 1);
+  assert.equal(runById.get('round-fail')?.status, 'blocked', 'failing custom runs must not count as passing independence');
+  assert.equal(runById.get('round-fail')?.failingIndependentHosts, 1);
+  assert(runDiagnostics.latestRuns.some(row => row.runId === 'round-fail'), 'latestRuns exposes custom run ids from the newest submissions');
+  assert.equal(runDiagnostics.authorityServerContact, false);
+  assert.equal(runDiagnostics.diagnosticOnly, true);
 
   // Authority host verdicts are host opinions, not verified native gate_decision receipts.
   // Per docs/requirements/decisions/lattice-authority-live-integration.md, native receipt

@@ -3,7 +3,8 @@
 Date: 2026-06-19
 Origin story: B-8b07
 Audit repair story: B-b5c0
-Status: Execution plan, not implemented runtime behavior
+Wave 1 implementation story: B-997b
+Status: M1-M3 wave complete; M4-M12 remain follow-up milestones
 
 ## Status And Purpose
 
@@ -21,9 +22,12 @@ Lattice along three coordinated tracks:
    and pre-DONE coordination fail closed before it can produce false DONE,
    stale review, duplicated work, or overclaimed authority.
 
-This roadmap does **not** implement those controls. It exists so future
-implementation stories can be scheduled, scoped, reviewed, validated, and
-accepted without rediscovering the same policy choices in every branch.
+B-997b implements the first hard-scope wave for M1-M3: canonical scope rows,
+registry-backed lifecycle/runtime artifact classification, guard projection, and
+explicit acknowledgement visibility. M4-M12 remain follow-up milestones; this
+document still schedules those later controls so future implementation stories
+can be scoped, reviewed, validated, and accepted without rediscovering the same
+policy choices in every branch.
 
 The desired product outcome is:
 
@@ -34,10 +38,12 @@ scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
 ```
 
-The product/material deliverable of B-b5c0 is only this document repair. It
-does not change NAV/runtime code/fixtures/hooks/generated assets. Any
-`.lattice/story/actives/B-b5c0/*` lifecycle metadata is story-scoped provenance
-produced by the Lattice workflow, not roadmap/runtime behavior.
+The product/material deliverable of B-b5c0 was only this document repair. The
+B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
+scope boundary behavior and keeps Authority/Layer 4/customer key work out of
+scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
+story-scoped provenance produced by the Lattice workflow, not proof of later
+roadmap milestones.
 
 ## Source And Context Mapping
 
@@ -92,7 +98,7 @@ behavior as if it were net-new.
 | `planned` | Adopted design or acceptance target exists, but this roadmap does not implement the runtime behavior. |
 | `greenfield` | No current product capability exists; a future story would create the first implementation. |
 
-Current baseline classification as of the B-b5c0 document repair:
+Current baseline classification after the B-997b M1-M3 wave:
 
 | Surface | Current status | Source of truth | Roadmap treatment |
 |---|---|---|---|
@@ -290,9 +296,46 @@ DONE criteria:
 - Required sections are present.
 - The story's final response clearly states this is an execution plan only.
 
+### Wave 1 shipped behavior
+
+M1-M3 wave complete; M4-M12 remain follow-up milestones.
+
+B-997b ships the hard-scope slice only:
+
+- Scope checks now expose canonical row-shaped decisions for product source,
+  docs, lifecycle metadata, runtime artifacts, fixtures, and unknown metadata.
+  A normal undeclared product edit has a stable row like
+  `scope.out_of_scope:src/other.ts` with `status=fail`, `blocking=true`, the
+  source path, and a next action that points back to PLAN scope declaration or
+  `scope_contract_acknowledge`.
+- Registered lifecycle artifacts are provenance, not product scope drift. A
+  current-story summary artifact is represented by
+  `scope.lifecycle_artifact:B-scope:summary.json` with `status=pass` and
+  `blocking=false`; it still cannot satisfy summary, delivery, review,
+  validation, or DONE gates by itself.
+- Registered runtime artifacts are accepted only through the runtime artifact
+  registry row family `scope.runtime_artifact:*`. Unknown `.lattice`, `.koala`,
+  story metadata, source, or fixture paths continue to fall through normal scope
+  enforcement and fail closed when undeclared.
+- A valid DEV/REVIEW acknowledgement does not convert a scope expansion into a
+  silent pass. The acknowledged `scope.out_of_scope:*` row remains `status=warn`,
+  `blocking=false`, and reviewer-visible so later gates can require acceptance.
+- Guard behavior reports the real host protection level: `native-pretool` only
+  when a verified pre-tool hook exists, `wrapped-preapply` only in a dispatch
+  pre-apply context, and `watcher-fallback` otherwise.
+
+Authority/Layer 4/customer key work remains out of scope for B-997b. Production
+receipts, server authority, baseline unlock suites, renderer/scheduler changes,
+customerKeyRef behavior, and unrelated app/runtime work remain in M4-M12 or
+separate follow-up stories.
+
 ### M1. Canonical Scope Boundary Model
 
 Track: hard scope boundaries
+
+Wave 1 status: shipped by B-997b for canonical row-shaped changed-file scope
+decisions and fail-closed unknown categories. Later stories may harden policy
+versioning and cross-surface rendering, but must consume this row contract.
 
 Purpose: make the story's allowed and excluded material changes explicit before
 implementation starts.
@@ -353,6 +396,10 @@ DONE criteria:
 
 Track: hard scope boundaries
 
+Wave 1 status: shipped by B-997b for lifecycle/runtime artifact classification,
+guard capability labels, and scope gate rows. Later stories may add broader
+oracle rendering, but must not reintroduce blanket directory exemptions.
+
 Purpose: make scope violations visible and blocking across hosts while
 truthfully reporting each host's protection level.
 
@@ -412,6 +459,11 @@ DONE criteria:
 
 Track: hard scope boundaries
 
+Wave 1 status: shipped by B-997b for DEV/REVIEW acknowledgement visibility and
+lower-assurance fallback labeling. Later stories may add reviewer automation or
+quorum integration, but acknowledgement remains repair evidence, not a PLAN
+scope replacement.
+
 Purpose: allow necessary mid-flight changes without converting exceptional
 repair into invisible normal behavior.
 
@@ -467,6 +519,8 @@ DONE criteria:
 ### M4. Process Fact Registry Coverage
 
 Track: mechanical verification and evidence chain
+
+Follow-up status: M4 starts the post-wave-1 roadmap and is not part of B-997b.
 
 Purpose: ensure every gate-consumed fact has a typed registry entry and a
 contract verifier, so prompt wording cannot drift away from runtime behavior.
@@ -793,8 +847,8 @@ Minimum validation commands and expected rows:
 | `git diff --check` | Clean diff before host-verdict artifacts are accepted. |
 | `npm --prefix packages/main run build` | Required for M8 implementation stories that touch CLI runtime inputs; referenced by `M8.build.runtime-fresh`. |
 | `lattice validate --story=<storyId>` | Current validation digest for counted verdicts; rows `M8.validation.current` and `M8.validation.stale-verdict-ignored`. |
-| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, and `M8.quorum.blocked`. |
-| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`. |
+| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, `M8.quorum.blocked`, and local diagnostic `voluntaryLocalRounds` when verdicts exist but escalation is not required. |
+| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`; local all-runs/latest-runs summaries are diagnostic visibility only. |
 | `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic-only row `M8.decision-doc.diagnostic-only`; direct decision-doc edits do not set `requires3x2` unless the threshold or explicit policy predicate is true. |
 
 Expected evidence:
@@ -803,6 +857,9 @@ Expected evidence:
 - Quorum status showing full, degraded, or blocked result.
 - Ignored-verdict reasons for stale, duplicate, failed, blocked, missing, or
   non-independent verdicts.
+- Stale-material DONE runbook text that names stale local host verdicts and
+  shows the local commands to rerun validation, refresh stale verification
+  evidence, and resubmit local host verdicts over the current material hash.
 - Policy-version binding for any explicit high-risk 3x2 requirement.
 
 Blockers:
@@ -817,6 +874,9 @@ DONE criteria:
 - Full 3x2 means three fresh rounds with two independent PASS hosts per round.
 - Degraded 3x1 is labeled lower assurance and accepted only where policy allows.
 - Review escalation remains threshold-triggered, not documentation-triggered.
+- Local all-runs/latest-runs, voluntary round summaries, and stale-material
+  runbooks are diagnostic UX only; they do not create remote proof, Authority
+  receipt evidence, or production/DONE completion claims.
 
 ### M9. Preflight Command Center
 
@@ -946,9 +1006,9 @@ Deliverables:
 - False-positive rollback/de-escalation policy for advisory rows, local review
   escalation, and new blockers.
 - Operator runbooks for common blocked states: out-of-scope path, stale
-  evidence, missing verification intent, missing scope check, foreign lease,
-  main lock contention, missing second host, baseline expected block, and fake
-  receipt.
+  evidence, stale-material local host verdicts, missing verification intent,
+  missing scope check, foreign lease, main lock contention, missing second host,
+  baseline expected block, and fake receipt.
 - Staged runbook and repair dry-run prerequisites before any new blocker moves
   from advisory to fail-closed.
 - Audited emergency bypass for self-hosting over-block, limited to local
@@ -982,6 +1042,11 @@ Expected evidence:
 
 - Migration report, dry-run output, or compatibility matrix.
 - User-facing command transcript for each runbook path.
+- Stale-material recovery transcript showing
+  `lattice validate --story=<storyId> --json`,
+  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`,
+  and fresh `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  without suggesting a stale-material bypass.
 - Reviewer pass confirming no overclaim or authority boundary drift.
 - Policy-version binding report showing the active rollout stage and treatment
   for in-flight stories.
@@ -1333,6 +1398,12 @@ M11 staged runbook and repair prerequisite:
 - Before Stage 3/4 fail-closed enforcement, every new blocker class must have a
   runbook entry with the command to inspect it, the command to repair it if a
   repair exists, the expected dry-run output, and the expected audit event.
+- The stale-material local diagnostics runbook must inspect local verdict
+  inventory with `autopilot_review_status`, refresh validation/evidence with
+  `lattice validate --story=<storyId> --json` and
+  `verification_evidence_refresh_stale`, and resubmit local host verdicts over
+  the current material hash. It must not describe remote proof or completion
+  capability.
 - Repair commands must support dry-run where practical. The dry-run must print
   proposed file/artifact changes and row ids without writing story JSON,
   fixtures, runtime code, or lifecycle evidence.

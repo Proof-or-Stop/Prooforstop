@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7adb",
+  "changes": "Improved local review assurance diagnostics: autopilot_review_status now exposes allRuns/latestRuns alongside the default-run view; review_escalation_status shows voluntaryLocalRounds even when required=false; stale-material review assurance failures now render an explicit recovery runbook; related docs and smoke coverage were updated.",
+  "usage": "Run node packages/main/dist/cli.js autopilot_review_status {\"storyId\":\"B-xxxx\"} to inspect all local run ids/latest runs; run node packages/main/dist/cli.js review_escalation_status {\"storyId\":\"B-xxxx\"} to inspect required/ok plus voluntaryLocalRounds; stale DONE blocks now print Stale material recovery commands.",
+  "expectedOutcome": "User sees runs: default-run, round-1, round-2, round-3; user sees voluntaryLocalRounds: 3/3 while required: false and ok: true; stale DONE output shows Stale material recovery with validate, verification_evidence_refresh_stale, and autopilot_review_submit commands.",
+  "actualTranscript": "Validated transcript in .lattice/story/actives/B-7adb/evidence/transcript-diff.md: autopilot_review_status showed runCount: 4 and runs: default-run, round-1, round-2, round-3; review_escalation_status showed required: false, ok: true, voluntaryLocalRounds: 3/3 rounds x 2 hosts; stale formatter output showed Stale material recovery and Do not bypass stale material checks.",
+  "outcomeDiff": "No user-value gap found; actual output matches expected diagnostic UX. Environment note: worktree global lattice binary used old global dist, so transcript used node packages/main/dist/cli.js after build; after merge to main, main must be built for the global entrypoint.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No new server-backed proof, external host execution, unattended orchestration, or lifecycle gate semantic changes were implemented; this is intentionally local diagnostic UX only.",
+  "pitfalls": "INIT scope anti-expansion blocked exact future-scope phrases in negative-scope text; reviewer passes require fully qualified reviewRunId; worktree global lattice can point at an older global build, so use local dist for pre-merge transcript and build main after merge.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 689163
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20246
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 341815
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 764619
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 575695
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 233549
+    }
+  },
+  "totalDurationMs": 2625088,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T13:51:21.970Z",
+  "updatedAt": "2026-06-19T13:51:21.970Z"
+}

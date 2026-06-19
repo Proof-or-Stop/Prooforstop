@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7691",
+  "mode": "feature",
+  "allowed": [
+    "export/extract the private readGitStatusLines from done-oracle.ts (export-only, no verdict-logic change) or a new shared git-status helper",
+    "reuse classifyGitStatusRows + DIRTY_GATE_POLICY + evaluateDirtyGate (read-only)",
+    "review_run_start clean-tree preflight in handlers/review-run.ts (+ core/review-run.ts)",
+    "smoke + npm script wiring"
+  ],
+  "excluded": [
+    "DONE-merge path / story_advance DONE changes",
+    "escalation verdict rebind or auto-rebind",
+    "storyFilesHash root-cause work (separate story)"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Operator approved promoting the reviewed draft and driving it to DONE; scope is the review_run_start preflight only. In-file invariants (DONE-gate verdict, materialHash, freshness guard) are guarded inside CHK-001 context rather than excludedScope to avoid the verbatim-collision freeze gate.",
+  "createdAt": "2026-06-19T14:04:26.785Z",
+  "updatedAt": "2026-06-19T14:04:26.785Z",
+  "_hash": "db1830ebd4cacaf639dfea9de63ba2b1c45c159e3fe278e82c46fd1a5421f0ed"
+}
