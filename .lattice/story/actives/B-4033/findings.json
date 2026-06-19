@@ -133,6 +133,24 @@
       "resolvedAt": "2026-06-19T13:28:52.078Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-007",
+      "desc": "[Codex host P1] the public contract parallel-decomposition.ts still exports computeWriteSet/globsOverlap as NotImplemented stubs; the real logic is in the sidecar parallel-decomposition-overlap.ts. By design for the contract-first file-split: Story 1 cannot edit the frozen contract (out of scope); the re-export reconciliation is Story 5 (serial integration).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:40:16.501Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-007",
+      "_hash": "7716cd32a1cec016736e9445db5f8e9f6d76688bef1351a52bc594e860ae6034",
+      "files": [
+        "packages/main/src/core/parallel-decomposition.ts"
+      ],
+      "signatureTag": "missing|ts|codex-host-public",
+      "signatureTagSource": "auto"
     }
   ]
 }
