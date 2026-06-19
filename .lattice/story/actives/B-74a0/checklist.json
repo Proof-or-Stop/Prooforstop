@@ -51,12 +51,46 @@
       "title": "Extract MAIN_TOOLS command catalog assembly",
       "context": "Move the large command list and tool map construction into a dedicated module that cli-engine.ts imports, keeping existing command ids, aliases, owners, and policies unchanged.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-        "docs/parallel-decomposition-spec.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/main-tools.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "MAIN_TOOLS assembly lives outside cli-engine.ts and exposes the same command-name set and ordering as before the extraction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Third-party extraTools still append to the runtime TOOLS list and main built-ins still win command lookup ordering.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command disappears, duplicates unexpectedly, or changes from current host semantics; Gemini is not reintroduced as a current host by catalog text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
