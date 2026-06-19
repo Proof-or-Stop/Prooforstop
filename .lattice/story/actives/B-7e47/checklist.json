@@ -322,9 +322,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T19:06:46.043Z",
       "userSees": "Evidence output records \"npm --prefix packages/main run build: PASS\", targeted Authority regression commands as \"PASS\", and either \"Authority live smoke https://staging.hostneutral.net: PASS\" or \"BLOCKED: missing staging credential\".",
       "files": {
         "modify": [],
@@ -359,7 +359,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: build PASS, authority-client-smoke PASS, live Python E2E entrypoint exited 0 with documented SKIPPED state for missing live env credentials.",
+          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:46.162Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
+          "result": "pass",
+          "note": "External blocker recorded: staging live smoke could not run because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were absent; no local senior credential files were inspected.",
+          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:46.250Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: concrete regression evidence exists for schema/envelope/live-shape/build vectors, so validation is not text-only.",
+          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:46.339Z"
+        }
+      ]
     }
   ]
 }
