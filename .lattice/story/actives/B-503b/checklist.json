@@ -11,9 +11,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
       "userSees": "User sees a new execution plan under docs/requirements/decisions/ that names the mandatory review floor and escalation policy.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T00:22:33.113Z",
-      "endTime": null,
+      "endTime": "2026-06-19T00:23:49.630Z",
       "files": {
         "modify": [],
         "create": [
@@ -40,7 +40,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"zero-review|three rounds x one|3x1|3x2\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document defines zero-review code DONE as invalid, one review round for clean ordinary code, failure-triggered 3x1 local single-host audit, and high-risk 3x2/degraded fallback boundaries.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:49.943Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves the docs-only low-risk path and explicitly rejects forcing every code-changing story into three rounds by default.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:50.531Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"two-host independent|authorityDone|fullAuthorityDone|productionDone|Authority Server\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly forbids treating local 3x1 as two-host independent review and forbids local evidence from claiming Authority Server completion or authorityDone/fullAuthorityDone/productionDone.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:50.758Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -91,6 +123,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start writing the review assurance floor execution plan."
+    },
+    {
+      "timestamp": "2026-06-19T00:23:49.630Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Document committed and docs checks passed."
     }
   ]
 }
