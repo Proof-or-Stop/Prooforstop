@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-59c7:F-001",
+      "desc": "CHK-001:happy:0 evidence predates the deliverable: headHash c23bc65f was recorded before parallel-decomposition.ts existed (file first appeared in bbb1a8c01). The npm build cited as evidence could not have compiled the contract file. A fresh build+export evidence after bbb1a8c01 (or later) is required.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T04:08:11.067Z",
+      "reviewRound": "2026-06-19T04:05:42.294Z",
+      "reviewRunId": "B-59c7:RR-003",
+      "_hash": "544d438be924111fe7418856790ecb63b2fb87dfbd5ca6510c862d5498b92115",
+      "files": [
+        "packages/main/src/core/parallel-decomposition.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-predates",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-59c7:F-002",
+      "desc": "quality-cleanup: packages/main/src/core/parallel-decomposition.ts:39 exports PARALLEL_MODE_FALLBACK which is not listed in the CHK-001 plan, has no current consumer in any file, and was not verified in the checklist evidence — it is unplanned scope expansion; Story 3 (config resolution) should export or use this constant from there rather than pre-declaring it here",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T04:08:11.220Z",
+      "reviewRound": "2026-06-19T04:05:42.294Z",
+      "reviewRunId": "B-59c7:RR-001",
+      "_hash": "7269e3f7907e5e50352926ee6c8745273f807f814e534f8add7dd43ac83e9ef9",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
