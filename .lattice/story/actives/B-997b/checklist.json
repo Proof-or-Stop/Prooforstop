@@ -76,7 +76,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Running lattice scope_contract_check on lifecycle metadata skips only registered story artifacts, while a nearby unregistered metadata file appears as a blocking scope row instead of being silently exempted.",
+      "userSees": "Expected terminal output includes \"scope.lifecycle_artifact:<storyId>:summary.json\" as non-blocking, while \"scope.out_of_scope:.lattice/story/actives/<storyId>/evidence/notes.md\" is blocking=true.",
       "files": {
         "modify": [
           "packages/main/src/core/scope-contract.ts",
