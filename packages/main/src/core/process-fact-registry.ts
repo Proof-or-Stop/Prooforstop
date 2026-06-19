@@ -121,6 +121,10 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
+export const PROCESS_FACT_RUNTIME_SEMANTICS = {
+  'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
+} as const satisfies Record<string, readonly ProcessFactSemantic[]>;
+
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
   story_advance: {
     name: 'index.json',
@@ -415,14 +419,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'process-events.jsonl',
     signed: false,
     producerCommand: 'autopilot_review_submit',
-    consumerGate: 'storyMachine.canFinish DONE review escalation gate',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate',
   },
   review_escalation_fallback_set: {
     name: 'process-events.jsonl',
     path: 'process-events.jsonl',
     signed: false,
     producerCommand: 'review_escalation_fallback_set',
-    consumerGate: 'storyMachine.canFinish DONE review escalation gate',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate',
   },
   authority_receipt_verify: {
     name: 'authority-receipt-refs.json',
@@ -554,7 +558,9 @@ function commandFactKind(name: string, level: ProcessFactLevel): ProcessFactKind
 }
 
 function commandFactSemantics(name: string, level: ProcessFactLevel): ProcessFactSemantic[] {
-  if (name.startsWith('runtime:')) return ['runtime-behavior'];
+  if (name.startsWith('runtime:')) {
+    return uniqueSemantics(PROCESS_FACT_RUNTIME_SEMANTICS[name as keyof typeof PROCESS_FACT_RUNTIME_SEMANTICS] ?? ['runtime-behavior'], level === 'L4' ? ['gate-evidence'] : []);
+  }
   const required: readonly ProcessFactSemantic[] =
     PROCESS_FACT_REQUIRED_SEMANTICS[name as keyof typeof PROCESS_FACT_REQUIRED_SEMANTICS] ?? [];
   const defaults: ProcessFactSemantic[] = [];

@@ -4,7 +4,7 @@
   "title": "Enforce review assurance floor before DONE",
   "description": "Implement the Review Assurance Floor as a runtime Lattice CLI DONE gate for code-changing stories. This touches lifecycle gate, review evidence, process-fact semantics, and Non-authority versus Authority boundary, so it is high risk and must require 3 rounds x 2 hosts before DONE.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-19T01:28:54.291Z",
   "startedAt": "2026-06-19T01:28:54.291Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T03:53:02.705Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,95 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:30:59.926Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:34:25.163Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:35:45.670Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:37:03.254Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:50:12.416Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:12:37.802Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:26:07.524Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:39:47.198Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:45:00.736Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:27:04.847Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:53:02.705Z",
+      "branch": "story/B-ed99",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ed99",
-    "branch": "story/B-ed99",
-    "createdAt": "2026-06-19T01:30:40.960Z"
-  }
+  "currentReviewRound": "2026-06-19T02:45:00.736Z"
 }

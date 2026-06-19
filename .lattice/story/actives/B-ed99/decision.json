@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Use one gate-consumed predicate per distinct lifecycle claim.",
+    "Fail closed on missing, stale, or self-claimed review evidence.",
+    "Keep local Non-authority evidence visibly separate from Authority Server receipts.",
+    "Scope the change to real correctness gaps and avoid arbitrary workflow expansion."
+  ],
+  "drivers": [
+    "DONE must block material code diffs with zero current-material review assurance.",
+    "Failure signals must make 3x1 local review sticky without confusing it with 3x2 independence.",
+    "Machine.canFinish, done-oracle output, and guard failure messages must remain logically consistent."
+  ],
+  "options": [
+    {
+      "name": "A: Extend existing review escalation evaluator into a review assurance evaluator",
+      "pros": [
+        "Reuses the DONE checklist and canFinish consumer already wired to evaluateReviewEscalation",
+        "Minimizes new command and artifact surface",
+        "Keeps existing host verdict material/session/key binding semantics"
+      ],
+      "cons": [
+        "Mixes two distinct claims: minimum review floor versus first-round problem escalation",
+        "Makes diagnostics harder because required=false currently means escalation not required, not floor satisfied"
+      ]
+    },
+    {
+      "name": "B: Add a separate review_assurance_floor evaluator and DONE row while reusing existing primitives",
+      "pros": [
+        "Keeps the floor and escalation predicates mechanically separate",
+        "Preserves existing review_escalation_status behavior for first-round escalation",
+        "Lets done-oracle and machine.canFinish consume a clear floor report without duplicating host-verdict logic"
+      ],
+      "cons": [
+        "Adds one small new core module and one new DONE row"
+      ]
+    },
+    {
+      "name": "C: Force all code-changing stories through existing 3x2 escalation",
+      "pros": [
+        "Simple and strong assurance rule",
+        "Can reuse current full quorum behavior directly"
+      ],
+      "cons": [
+        "Contradicts the accepted policy non-goal and overblocks ordinary clean code changes",
+        "Consumes more tokens without a failure signal"
+      ]
+    }
+  ],
+  "chosen": "B: Add a separate review_assurance_floor evaluator and DONE row while reusing existing primitives",
+  "rationale": "Option B fixes a real correctness risk found during PLAN audit: floor and escalation are different lifecycle claims. A separate evaluator keeps diagnostics and gate semantics consistent while reusing existing review-run, host-verdict, and fallback primitives.",
+  "preMortem": [
+    {
+      "scenario": "Docs-only tasks are overblocked as code diffs",
+      "trigger": "Diff classification treats any docs/requirements change as material code",
+      "consequence": "Low-risk typo or annotation stories pay unnecessary review cost and contradict the policy",
+      "mitigation": "Classify material code by source/runtime/test/script/package paths and explicitly exclude markdown-only docs changes unless stronger high-risk policy already applies"
+    },
+    {
+      "scenario": "Local 3x1 is reported as Authority completion",
+      "trigger": "Status output or summary reuses authority/multiHost wording for local host verdicts",
+      "consequence": "The CLI overclaims production readiness and violates host-neutral Authority semantics",
+      "mitigation": "Keep authorityDone/fullAuthorityDone/productionDone false in reports and tests, and label 3x1 as degraded-single-host"
+    },
+    {
+      "scenario": "DONE checklist and machine guard diverge",
+      "trigger": "Only done-oracle rows are updated while canFinish or guard failure reason still read old semantics",
+      "consequence": "session_brief or story_advance can disagree about whether DONE is allowed",
+      "mitigation": "Keep done-oracle, machine.canFinish, and guard failure reason on the same floor evaluator and add smoke coverage"
+    },
+    {
+      "scenario": "Failure-triggered escalation is not sticky",
+      "trigger": "Evaluator only checks current open bugs/findings and forgets earlier validation failure or review finding events",
+      "consequence": "A story can fail, repair, and close with only one review despite the approved policy",
+      "mitigation": "Derive sticky signals from durable story artifacts/process events where available and add synthetic smoke cases for validation fail, bug, and verified finding"
+    }
+  ],
+  "timestamp": "2026-06-19T01:36:01.787Z"
+}

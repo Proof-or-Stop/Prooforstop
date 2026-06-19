@@ -1,0 +1,89 @@
+{
+  "storyId": "B-ed99",
+  "checkedAt": "2026-06-19T03:48:36.005Z",
+  "reviewRound": "2026-06-19T02:45:00.736Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Related source-of-truth for review assurance floor semantics was consulted; implementation now matches existing accepted plan without requiring prose changes.",
+      "status": "waived",
+      "verifiedBy": "delivery reviewer manual check plus tests",
+      "evidence": "Checklist CHK-001..CHK-004, review-assurance-floor smoke 9 checks, process-fact contract, review_escalation_status full-3x2.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because the story implements the existing accepted requirement rather than changing the documented contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Related lifecycle DONE gate guidance remains compatible with the added Review assurance floor DONE predicate.",
+      "status": "waived",
+      "verifiedBy": "delivery reviewer manual check plus done_closure",
+      "evidence": "done_closure reports review-escalation pass and delivery-check as the only missing reviewer artifact before this command, with summary/main sync still separate.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because the lifecycle model is not changed beyond implementing a gate predicate already represented in code and evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Related 3x2 review escalation plan remains honored for high-risk or failure-triggered material code work.",
+      "status": "waived",
+      "verifiedBy": "review_escalation_status --json and delivery reviewer manual check",
+      "evidence": "review_escalation_status reports assuranceLevel full-3x2 with three valid rounds and two passing hosts per round.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because the delivered code enforces the existing 3x2/degraded-single-host policy without changing its wording."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "Authority receipt completion remains separate from local review assurance evidence.",
+      "status": "waived",
+      "verifiedBy": "review_escalation_status --json and smoke tests",
+      "evidence": "review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false; smoke covers forged local authority fields remain non-authority.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because no Authority receipt semantics changed; local evidence remains explicitly non-authority."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "promise": "Authority Server completion is not claimed by local review assurance floor evidence.",
+      "status": "waived",
+      "verifiedBy": "delivery reviewer manual check plus smoke tests",
+      "evidence": "Local 3x2 verdict evidence is present, but authorityDone/fullAuthorityDone/productionDone remain false and no Authority Server receipt completion is claimed.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because this story preserves the existing Authority boundary rather than modifying Authority integration behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "promise": "DONE diagnostics remain actionable for missing review assurance floor evidence.",
+      "status": "waived",
+      "verifiedBy": "review-assurance-floor smoke and done_closure",
+      "evidence": "Smoke asserts formatted DONE failure text names the material code review assurance floor and autopilot_review_submit next action.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because diagnostics were implemented and tested in the CLI without changing the runbook contract."
+    },
+    {
+      "docPath": "docs/dev/test-coverage.md",
+      "promise": "Test coverage expectations are met for the new DONE gate behavior.",
+      "status": "waived",
+      "verifiedBy": "lattice validate --story=B-ed99 --json and review pass artifacts",
+      "evidence": "Validation passed with 12/12 verification intent coverage; lattice-review-test-coverage recorded PASS after smoke and process-fact contract checks.",
+      "waiverReason": "Advisory related doc was intentionally left untouched because coverage was added as executable smoke and validation evidence, not as a change to coverage policy."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed diff and ran node packages/main/dist/tasks/review-assurance-floor-smoke.js: docs-only markdown not overblocked, zero-review material code blocked, one fresh local review round passes, stale local evidence rejected, git diff classification detects material code."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed finding and escalation evidence: F-001..F-004 resolved; review_escalation_status --storyId=B-ed99 --json reports required=true, assuranceLevel=full-3x2, three valid rounds, two passing local hosts per round."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Verified host-neutral boundary: review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false; smoke covers forged local Authority fields remain false; no Authority Server completion is claimed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran lattice validate --story=B-ed99 --json: allPass=true, build plus authority smoke commands passed, verification intent coverage 12/12; ran node scripts/verify-process-fact-contract.mjs and it verified runtime:review_assurance_floor_done_gate plus host-verdict consumers."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery acceptable: implementation scope matches checklist and plan, validation is fresh and passing, review lanes passed after resolving F-001 through F-004, local 3x2 evidence is present, stale material and wrapper-root cases are covered, process-fact consumers are registered, and Authority completion is not claimed."
+  },
+  "_hash": "874222baf3ca06ea2cce92fdcfd5703430d65dc4e932f688586af93e4e1d112d"
+}
