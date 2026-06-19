@@ -454,7 +454,7 @@
       "desc": "design-flaw: docs/parallel-decomposition-spec.md:367 — broadGlobBlocks config field has no specified enforcement path; §4.3 block condition 2 unconditionally hard-blocks broad_glob_unprovable_parallel yet broadGlobBlocks defaults to false for light/balanced profiles, and the caller (§4.4) only checks cfg.mode not cfg.broadGlobBlocks, leaving the field semantically dead or the enforcement rule internally contradicted; the gate/caller split for broadGlobBlocks must be explicitly specified",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:25:07.711Z",
@@ -462,7 +462,11 @@
       "reviewRunId": "B-7559:RR-014",
       "_hash": "e13a283be99aa1189b849caf5f4597128a95187bfd458d0ea4ab5eb5a4a61f78",
       "signatureTag": "missing|unknown|design-flaw-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: broadGlobBlocks now has a defined enforcement path — §4.3 cond.2 returns broad_glob_unprovable_parallel as a hard block only when cfg.broadGlobBlocks (strict); otherwise advisory. §4.2 and the §4.7 field comment reconciled to match.",
+      "resolvedAt": "2026-06-19T02:40:41.017Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-022",
