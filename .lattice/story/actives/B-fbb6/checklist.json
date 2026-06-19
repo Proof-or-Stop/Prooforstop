@@ -6,7 +6,7 @@
       "context": "Rename packages/main/src/providers/gemini-cli.ts to antigravity-cli.ts: GEMINI_CLI_BINARY='gemini' -> ANTIGRAVITY_CLI_BINARY='agy'; geminiCliAvailable -> antigravityCliAvailable; runBoundedGeminiProvider -> runBoundedAntigravityProvider (ProviderExecResult.provider='antigravity'). REMOVE extractGeminiUsage/isGeminiUsageObject (agy does not emit usageMetadata) so reportedUsage is never set. Keep stdout/stderr as digest+byte-count only (raw-never-surfaced). Model: best-effort parse the agy --log-file `label=\"...\"` line, else fall back to the requested --model or 'unknown'. Update the dedicated smoke (provider-gemini-smoke.ts -> provider-antigravity-smoke.ts) to probe `agy` availability + bounded spawn capture.",
       "status": "done",
       "startTime": "2026-06-19T17:24:38.700Z",
-      "endTime": "2026-06-19T17:57:23.726Z",
+      "endTime": "2026-06-19T18:07:38.238Z",
       "verificationIntent": {
         "happy": [
           {
