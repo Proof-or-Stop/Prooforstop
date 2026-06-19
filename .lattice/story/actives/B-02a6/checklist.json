@@ -94,7 +94,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "predicate: tracked leaf (either ignore state) -> unsafe=false (safe); committed-leaf bootstrap+doctor cases assert no false positive. Covers the happy path that a correctly committed metadata leaf is never flagged.",
+          "headHash": "eeff4bd6e081e6ec17a76ebb6599abaa12a3f77c",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:08.532Z"
+        }
+      ]
     }
   ]
 }
