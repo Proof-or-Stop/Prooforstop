@@ -115,7 +115,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke coverage proves node bin/lattice.js host_runtime_probe --host=antigravity --format=json and --host=agy --format=json both resolve to host antigravity with cliCommand agy and an agy invocation template while preserving authorityChanged=false, receiptVerified=false, and productionDone=false.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Logic coverage proves probeHostRuntime and listHostRuntimes expose Antigravity as a current runtime and keep Codex and Claude Code present as the other current real hosts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The agy detection test covers both installed and missing binary conditions through a deterministic stub or equivalent command-path control, proving the missing-binary path reports unavailable or missing-cli without login prompts, help hangs, or subprocess execution.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy Gemini behavior is explicit and tested: --host=gemini is either rejected or reported as legacy/deprecated compatibility, but it is not emitted by the default current runtime list, fallback selection, or policy examples.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A policy or dispatch request that names gemini cannot schedule Gemini as a current unattended host and cannot become the fallback when Antigravity is unavailable; the error or degradation must point users to codex, claude-code, antigravity, or fake as appropriate.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression search or assertions cover stale Gemini-first strings across runtime enum, host order, error messages, CLI help, README, docs/guide.md, and related decision docs, with any remaining Gemini mentions labeled legacy rather than current.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
