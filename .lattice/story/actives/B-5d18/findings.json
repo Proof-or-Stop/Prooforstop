@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-5d18:F-001",
+      "desc": "resource-leak: validation-executor.ts:267 spawn(\"taskkill\", ...) return value has no error listener and is not .unref()d; if taskkill is not found or fails to launch, Node.js emits an unhandled error event on the returned ChildProcess, which crashes the process with an unhandled exception on Windows",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T17:46:31.593Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-005",
+      "_hash": "f71a66ac1549decb8ce5d108271280875f4eaf8d5a2982a1cedafc4316c7ef7e",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|resource-leak-validation",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
