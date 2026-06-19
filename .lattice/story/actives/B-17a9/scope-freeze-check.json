@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-17a9",
+  "checkedAt": "2026-06-19T00:11:08.450Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "ab28c7e95a40a6a80123efeb9c8f49d128161c5e052bfc112de02b043351762d",
+  "executionBoundaryHash": "76120cf09865ee6fa2fe6b6a88ca28ebf84e41abe86863392f8fcf28a1ba8fbd",
+  "freshnessHash": "8277672dd421df7ebb90205f0b5d8deed71b72b73ac1f42cb0a684aa34fed539",
+  "effectiveExcludedKeywords": [
+    "Aggregating learning across more than one repository",
+    "Any change to the finding _hash, signFinding, or any gate",
+    "Calling any LLM at command runtime",
+    "Overwriting confirmed reviewer-supplied signatureTags",
+    "The actual mass-apply against live findings (a post-DONE operation using the built command)",
+    "Weighting backfill vs confirmed vs auto in finding-signals derivation"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Aggregating learning across more than one repository",
+      "source": "scopeBoundary.excluded",
+      "text": "Aggregating learning across more than one repository",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to the finding _hash, signFinding, or any gate",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the finding _hash, signFinding, or any gate",
+      "excluded": true
+    },
+    {
+      "keyword": "Calling any LLM at command runtime",
+      "source": "scopeBoundary.excluded",
+      "text": "Calling any LLM at command runtime",
+      "excluded": true
+    },
+    {
+      "keyword": "Overwriting confirmed reviewer-supplied signatureTags",
+      "source": "scopeBoundary.excluded",
+      "text": "Overwriting confirmed reviewer-supplied signatureTags",
+      "excluded": true
+    },
+    {
+      "keyword": "The actual mass-apply against live findings (a post-DONE operation using the built command)",
+      "source": "scopeBoundary.excluded",
+      "text": "The actual mass-apply against live findings (a post-DONE operation using the built command)",
+      "excluded": true
+    },
+    {
+      "keyword": "Weighting backfill vs confirmed vs auto in finding-signals derivation",
+      "source": "scopeBoundary.excluded",
+      "text": "Weighting backfill vs confirmed vs auto in finding-signals derivation",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9a7c140586af483092eed041fed30ea0f85868a07edb1c884c9c417582f8c573"
+}

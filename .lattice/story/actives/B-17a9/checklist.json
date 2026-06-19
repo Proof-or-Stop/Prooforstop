@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add 'backfill' provenance + pure backfill-decision leaf",
+      "context": "Extend SignatureTagSource in core/experience-layer-types.ts to 'auto' | 'confirmed' | 'backfill'. New pure leaf core/signature-backfill.ts (imports only types): decideBackfill(finding, mappedSig, opts) -> { action: 'fill'|'skip-confirmed'|'skip-has-auto'|'skip-no-mapping'|'skip-empty-sig', signatureTag?, signatureTagSource:'backfill' } — fills only when current signatureTag is empty (or 'auto' when opts.overwriteAuto); never when 'confirmed'; skip when no mapping. Pure, deterministic, no I/O.",
+      "userSees": "A deterministic decision function + a 'backfill' provenance value distinguishing LLM-backfilled tags from auto/confirmed.",
+      "excludes": [
+        "No I/O in the leaf",
+        "No overwrite of confirmed tags"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "signature_backfill handler + CLI + register (writing, dry-run default)",
+      "context": "New handlers/signature-backfill.ts: read a committed map file (arg --map, default a documented path) of { findingId -> 'area|failureMode' }; for each story (ctx.store.listStoryIds -> readFindings), apply decideBackfill per finding; with --apply, attach signatureTag+signatureTagSource AFTER the existing _hash (reuse the exact attach pattern from finding.ts; recompute NOTHING in the hashed domain) and writeFindings; default is --dry-run (report counts, write nothing). Flags: dryRun(default true)/apply/overwriteAuto/map/json. Output: scanned/filled/skipped-by-reason + per-source breakdown. Register in cli-engine/registry/config/command-policy(writing, NOT readOnly)/process-fact-levels(L2 experience-layer); NOT in READ_ONLY_COMMANDS.",
+      "userSees": "`lattice signature_backfill --map <file>` dry-runs by default (reports what would change); `--apply` fills empty signatureTags with source=backfill; finding _hash unchanged.",
+      "excludes": [
+        "No LLM call at runtime",
+        "No change to finding _hash/signFinding",
+        "Not read-only / not in READ_ONLY_COMMANDS"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + verifier (incl. _hash invariance + idempotency)",
+      "context": "Hermetic smoke on a temp store with findings (empty / confirmed / auto) + a synthetic map: empty=>filled source=backfill; confirmed=>untouched; auto=>untouched unless overwriteAuto; CRITICAL the finding _hash is byte-identical before/after for every touched finding (real signFinding); dry-run writes nothing; second --apply run is a no-op (idempotent); finding absent from map => skipped. npm script + committed verifier (build + smoke + no-regression + full npm test incl. process-fact-contract; static: leaf pure; handler attaches fields after _hash and never feeds signFinding; registered across the surfaces incl. process-fact-levels; NOT in READ_ONLY_COMMANDS). Maps every intent; TOTAL/PASS/FAIL.",
+      "userSees": "npm smoke passes and the verifier prints PASS incl. the _hash-invariance + idempotency checks.",
+      "excludes": [
+        "No network",
+        "No reliance on the real repo in the hermetic test"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
