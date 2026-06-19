@@ -107,6 +107,24 @@
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-007",
+      "desc": "quality-cleanup: docs/parallel-decomposition-spec.md §4.7 — parallelGate nested object in AuditConfig is not type-safe under the existing readUserConfig pattern. The current code does `return parsed as Partial<AuditConfig>` and then validates each scalar field individually (e.g., VALID_MODES.has(userOverrides.mode as AuditMode)). Adding a nested `parallelGate: { mode, maxConcurrentReview, broadGlobBlocks }` object is NOT handled by this pattern: an implementer following the existing scalar approach would likely write `merged.parallelGate = userOverrides.parallelGate ?? profileDefaults.parallelGate` — which bypasses all per-field validation and allows invalid mode strings through without the promised console.warn+fallback. The spec says validation is \"copied from deprecatedGcThreshold\" but those are top-level scalars; no code sketch is given for validating the nested struct. This is a doc-promise-undelivered gap: the spec promises per-field validation semantics for the nested object but gives no implementation path that achieves it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T01:53:36.099Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-005",
+      "_hash": "dc7e2fc06b0451f71bf2f13e94eef4a4587addf3674e7803a84fb32556694189",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|quality-cleanup-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
