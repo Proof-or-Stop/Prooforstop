@@ -239,10 +239,10 @@
           "file": "packages/main/src/tasks/command-catalog-smoke.ts",
           "command": "npm --prefix packages/main run test:command-catalog-smoke",
           "result": "pass",
-          "note": "Smoke asserts Lattice branding and required help markers so it fails if representative help output loses command names, schema markers, or host/runtime text.",
-          "headHash": "3c2c8a242c76c3a98e1e6d537b1dfc8b4b5a0596",
+          "note": "Focused smoke now asserts story_advance --help retains --dryRun, the rendered dry-run guidance line, Owner lease meta options, --takeover, and --forceTakeover, so representative help loses dry-run or owner-lease guidance only with a smoke failure.",
+          "headHash": "3f47f8d2cd728386eb9a9ed88d6374fd0b94a2b1",
           "materialHash": "4d8ad0d854ba58fd70112b9a6a452357236b19b2f7d109ac44b19d7360494b54",
-          "timestamp": "2026-06-19T16:46:26.965Z"
+          "timestamp": "2026-06-19T16:56:49.423Z"
         }
       ]
     }
