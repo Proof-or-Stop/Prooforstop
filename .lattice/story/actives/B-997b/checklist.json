@@ -216,6 +216,44 @@
         "test": [
           "packages/main/src/tasks/scope-contract-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused regression coverage passes for M1-M3 behavior, including the scope-contract smoke and any required process-fact verifier updates for changed gate/classifier semantics.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synchronized docs describe the new scope row, classifier, guard, and acknowledgement behavior in the roadmap, lifecycle artifact policy, and scope guard guide.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation and final evidence explicitly preserve the wave 1 boundary by naming later roadmap milestones, Authority/Layer 4/customer key work, production receipt claims, and unrelated renderer/scheduler work as non-goals.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression evidence covers both accepted registered lifecycle/runtime artifacts and rejected unknown metadata, undeclared source, direct story JSON, and fixture paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No test, verifier, or documentation update proves scope by relying on blanket directory exemptions, docs-only assertions, or lifecycle classification as a substitute for validation/review/DONE gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Build, focused smokes, process-fact verifier, and lattice validate remain fresh after the final material diff, so stale or partial evidence cannot satisfy wave 1 completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
