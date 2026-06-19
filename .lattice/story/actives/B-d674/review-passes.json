@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-19T16:04:17.173Z",
       "reviewRunId": "B-d674:RR-014",
       "_hash": "f48a19768464e690050627cfe992b7d5c65ba03d9b4a37b775bd16f7ccaabd0f"
+    },
+    {
+      "id": "B-d674:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "PASS: final independent quality review found no blocking findings after F-006..F-009 fixes. Verified scripts and smokes: npm --prefix packages/main run build; git diff --check main...HEAD; node bin/lattice.js scope_contract_check {storyId:B-d674}; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; npm run test:authority-enforce-matrix; npm --prefix packages/main run test:unattended-dispatch-smoke; node bin/lattice.js validate --story=B-d674 --json. Confirmed package scripts exist/run, host-guard-matrix asserts Antigravity/agy current semantics with Gemini legacy only, GuardSessionMode types wording is aligned, and scope gate passed.",
+      "createdAt": "2026-06-19T16:08:58.517Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-017",
+      "_hash": "40a4f57df3ed98b82e1a9eb6b77d3e1077a3ec068ead276d1c192a18e7f90701"
     }
   ]
 }
