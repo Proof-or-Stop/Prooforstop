@@ -50,6 +50,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
