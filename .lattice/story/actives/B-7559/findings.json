@@ -550,6 +550,26 @@
       ],
       "signatureTag": "missing|md|design-flaw-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-026",
+      "desc": "doc-code-drift: §3.1/3.2/3.3 template cards still show lane, parallelSafe, blockingFor, sharedHotspots under **story_create** headings without any inline caveat that these are NOT story_create CLI fields. The F-024 fix added a NOTE only at §5.1 (line 467-470), but §3.x cards appear ~300 lines earlier with no warning. An implementer reading §3 and copy-pasting the template block will silently discard lane/parallelSafe/blockingFor/sharedHotspots (Zod strips unknown keys: non-strict schema, 0 occurrences in cli-engine.ts schema). The resolvedReason for F-024 overstated the fix: only the §5.1 field list was corrected; the §3.x card presentation was not. Bar stated: zero silent-discard surprises for an implementer — §3.x cards violate this.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T02:49:02.097Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-017",
+      "_hash": "b0452105738c4dd56f79f9ebd9a9b58b4857e688ef426d40fc8c086561dea3dc",
+      "files": [
+        "docs/parallel-decomposition-spec.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-template",
+      "signatureTagSource": "auto"
     }
   ]
 }
