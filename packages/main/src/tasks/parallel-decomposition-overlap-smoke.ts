@@ -77,4 +77,25 @@ check('mid-path ** rejected', bad.invalid.some((i) => i.entry === 'src/**/*.ts')
 check('bare * rejected', bad.invalid.some((i) => i.entry === '*'));
 check('grammar rejects exactly the 2 bad entries', !bad.ok && bad.invalid.length === 2);
 
+// 8. empty-directory wildcards are rejected (a root-wide scope must not slip through).
+const empties = validateWriteSetGrammar(['/*', '/**']);
+check('empty-dir /* rejected', empties.invalid.some((i) => i.entry === '/*'));
+check('empty-dir /** rejected', empties.invalid.some((i) => i.entry === '/**'));
+check('classifyBroadness(/*) is broad', classifyBroadness('/*') === 'broad');
+check('classifyBroadness(/**) is broad', classifyBroadness('/**') === 'broad');
+
+// 9. tier-2 shared-prefix collisions for children globs (must NOT under-flag).
+check('children vs nested children (src/* vs src/csv/*) overlaps', globsOverlap(['src/*'], ['src/csv/*']).overlap === true);
+check('children vs deep literal under it overlaps', globsOverlap(['src/csv/*'], ['src/csv/impl/parser.ts']).overlap === true);
+check('children vs children same dir overlaps', globsOverlap(['src/csv/*'], ['src/csv/*']).overlap === true);
+check('children vs children sibling dirs: no overlap', globsOverlap(['src/a/*'], ['src/b/*']).overlap === false);
+check('children vs subtree nested overlaps', globsOverlap(['src/csv/*'], ['src/**']).overlap === true);
+check('subtree vs subtree nested overlaps', globsOverlap(['src/csv/**'], ['src/**']).overlap === true);
+check('subtree vs subtree sibling: no overlap', globsOverlap(['src/csv/**'], ['lib/**']).overlap === false);
+
+// 10. computeWriteSet excludes allowedTest (only modify + create are write targets).
+const c2 = { storyId: 'B-t', allowedModify: ['src/a.ts'], allowedCreate: ['src/a.create.ts'], allowedTest: ['src/a.test.ts'] } as unknown as ScopeContractData;
+const ws2 = computeWriteSet(c2);
+check('computeWriteSet excludes allowedTest', ws2.length === 2 && !ws2.includes('src/a.test.ts'));
+
 console.log(`parallel-decomposition-overlap smoke passed: ${passed} assertions`);

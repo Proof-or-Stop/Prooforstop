@@ -57,15 +57,15 @@ export function validateWriteSetGrammar(entries: string[]): {
     if (starCount === 0) continue; // literal — always valid
     if (e.endsWith('/**')) {
       const dir = e.slice(0, -3);
-      if (dir.includes('*')) {
-        invalid.push({ entry: raw, reason: 'wildcard in the directory part of a `/**` entry' });
+      if (dir === '' || dir.includes('*')) {
+        invalid.push({ entry: raw, reason: 'a `/**` entry needs a real directory prefix (e.g. `dir/**`)' });
       }
       continue;
     }
     if (e.endsWith('/*')) {
       const dir = e.slice(0, -2);
-      if (dir.includes('*')) {
-        invalid.push({ entry: raw, reason: 'wildcard in the directory part of a `/*` entry' });
+      if (dir === '' || dir.includes('*')) {
+        invalid.push({ entry: raw, reason: 'a `/*` entry needs a real directory prefix (e.g. `dir/*`)' });
       }
       continue;
     }
@@ -95,30 +95,26 @@ function dirname(path: string): string {
   return i < 0 ? '' : path.slice(0, i);
 }
 
+/** The directory an entry ranges over: a literal's parent dir, or the wildcard's dir. */
+function scopeDir(e: ParsedEntry): string {
+  return e.kind === 'literal' ? dirname(e.dir) : e.dir;
+}
+
 /**
- * Whether two parsed entries can both write the same path. Conservative: a wildcard
- * vs anything sharing its directory prefix counts as a (possible) overlap.
+ * Whether two parsed entries can both write the same path.
+ * - literal vs literal → tier-1 exact equality (zero false positives).
+ * - any wildcard involved → tier-2 shared-directory-prefix (§4.2): flag when the two
+ *   entries' scope directories nest either way (one under-or-equal the other). This is
+ *   deliberately conservative — it MAY over-flag (e.g. `src/*` vs a deep literal) but
+ *   NEVER under-flags a real prefix collision such as `src/*` vs `src/csv/*` or
+ *   `src/csv/*` vs `src/csv/impl/parser.ts`. The gate (§4.3) hard-blocks only on tier-1
+ *   literal pairs; tier-2 flags are advisory, so over-flagging here is safe.
  */
 function entriesOverlap(x: ParsedEntry, y: ParsedEntry): boolean {
-  // literal vs literal: tier-1 exact (zero false positives).
   if (x.kind === 'literal' && y.kind === 'literal') return x.dir === y.dir;
-
-  // subtree on either side: overlap if the directories nest either way (tier-2).
-  if (x.kind === 'subtree' || y.kind === 'subtree') {
-    const a = x.dir;
-    const b = y.dir;
-    if (x.kind === 'literal') return isUnderOrEqual(a, b); // literal under y-subtree
-    if (y.kind === 'literal') return isUnderOrEqual(b, a);
-    return isUnderOrEqual(a, b) || isUnderOrEqual(b, a); // children/subtree vs subtree
-  }
-
-  // remaining cases involve `children` (dir/*) on at least one side, no subtree.
-  // children matches only direct children of its dir.
-  if (x.kind === 'children' && y.kind === 'children') return x.dir === y.dir;
-  // children vs literal: literal must be a direct child of the children dir.
-  const child = x.kind === 'children' ? y : x;
-  const childrenDir = x.kind === 'children' ? x.dir : y.dir;
-  return dirname(child.dir) === childrenDir;
+  const dx = scopeDir(x);
+  const dy = scopeDir(y);
+  return isUnderOrEqual(dx, dy) || isUnderOrEqual(dy, dx);
 }
 
 /**
@@ -130,6 +126,8 @@ export function classifyBroadness(entry: string): 'narrow' | 'broad' {
   const parsed = parseEntry(entry);
   if (parsed.kind === 'literal') return 'narrow';
   const segments = parsed.dir.split('/').filter(Boolean);
+  // An empty / root-level wildcard directory is effectively repo-wide → always broad.
+  if (segments.length === 0) return 'broad';
   // A subtree (`dir/**`) at/near the root is broad; `dir/*` (direct children only) is
   // bounded, so it stays narrow even near the root.
   if (parsed.kind === 'subtree' && segments.length < 2) return 'broad';
@@ -141,8 +139,10 @@ function hasBroad(entries: string[]): boolean {
 }
 
 /**
- * Compute the write-set of a scope contract: the union of paths the story may create,
- * modify, or own as tests. Deduped, order-stable.
+ * Compute the write-set of a scope contract: the union of paths the story may create or
+ * modify (`allowedModify` ∪ `allowedCreate`). `allowedTest` is a broader "allowed to
+ * touch" permission, not a declared write target, so it is intentionally excluded.
+ * Deduped, order-stable.
  */
 export function computeWriteSet(contract: ScopeContractData): string[] {
   const seen = new Set<string>();
@@ -150,7 +150,6 @@ export function computeWriteSet(contract: ScopeContractData): string[] {
   for (const e of [
     ...(contract.allowedModify ?? []),
     ...(contract.allowedCreate ?? []),
-    ...(contract.allowedTest ?? []),
   ]) {
     const n = normalizeEntry(e);
     if (n && !seen.has(n)) {
