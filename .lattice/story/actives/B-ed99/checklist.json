@@ -152,7 +152,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "The smoke task covers zero-review block, one-round pass, failure-triggered 3x1 pass, and Authority flags false",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "DONE preflight diagnostics name the missing assurance reason and next action",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "Process-fact contract fails if the new DONE gate semantics are documented only in prose and not registered as gate-consumed facts",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
