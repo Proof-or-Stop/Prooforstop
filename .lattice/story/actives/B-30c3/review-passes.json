@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T19:16:59.705Z",
       "reviewRunId": "B-30c3:RR-003",
       "_hash": "2071df54d5a9306258e50f710ac1c43c84f6e1442c2c575c5e22c38307a42c8f"
+    },
+    {
+      "id": "B-30c3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept/completeness check passed. Verified: (1) sanitizeNestedDetails now iterates CODEX_NESTED_DETAIL_KEYS ([cached_tokens]) not Object.keys, so only the single adapter-read nested key can ever reach reportedUsage — no nested non-token leakage path remains; (2) isCodexUsageObject and isGeminiUsageObject both switched from prototype-chain `in` to ownProp own-property guards, consistent with extractCodexUsage/extractGeminiUsage ownProp guards on the envelope reads; (3) CODEX_NESTED_DETAIL_KEYS constant is introduced and immediately consumed by sanitizeNestedDetails — not dead; (4) no half-removed concept found; old any-key-copy loop in sanitizeNestedDetails fully replaced; (5) providers/ (codex-cli.ts, gemini-cli.ts) import nothing from usage-ledger; (6) three new smoke checks cover F-001 nested-key drop, F-002 codex polluted-prototype suppression, and F-002 gemini polluted-prototype suppression, all with precondition asserts and finally cleanup. No new issues found.",
+      "createdAt": "2026-06-19T19:45:03.557Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-008",
+      "_hash": "37b7bb62398e5c33f6fcdf988ac2cb9ef86cbec7ece24e1baed3ceb741971949"
     }
   ]
 }
