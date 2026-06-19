@@ -145,8 +145,8 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T13:25:31.731Z",
       "endTime": null,
       "userSees": "User sees docs that name \"autopilot_review_status all-runs/latest-runs\", \"review_escalation_status voluntaryLocalRounds\", and \"Stale material recovery\" as local diagnostics.",
       "files": {
@@ -205,6 +205,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV start: improve stale-material recovery runbook.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:31.731Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: document and verify observable diagnostic UX.",
       "agent": "codex-main"
     }
   ]
