@@ -60,9 +60,9 @@
           "command": "git show --stat --oneline 2839def41b6a6bf589508ba9fb28038fe0553660",
           "result": "pass",
           "note": "Commit 2839def41 extracts story_create/story_advance INIT_CHECK dispatch from cli-engine.ts into cli/lifecycle-dispatch.ts while preserving the shared run wrapper call sites.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:54:58.058Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after extraction, proving cli-engine orchestration imports and helper dependency wiring compile.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:54:58.143Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,9 +80,9 @@
           "command": "node bin/lattice.js scope_contract_check json true",
           "result": "pass",
           "note": "Scope contract passed with lifecycle-dispatch.ts and recover/init-check helper creates classified as allowed.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:54:58.223Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         }
       ]
     },
@@ -148,9 +148,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-dispatch-smoke",
           "result": "pass",
           "note": "Focused smoke passed and verified INIT_CHECK dry-run text, recover_evidence refused/fail structured stdout before throw, success passthrough, and cli-engine compatibility export.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:05.805Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -158,9 +158,9 @@
           "command": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js",
           "result": "pass",
           "note": "INIT_CHECK metadata sync still resolves metadata merge conflicts without markers after moving helper code to cli/init-check-metadata-sync.ts.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:05.886Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,9 +168,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "Worktree authority smoke passed after metadata reconcile forced no-ff base merges to preserve DONE-equivalent merge topology.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:05.968Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         }
       ]
     },
@@ -240,9 +240,9 @@
           "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:lifecycle-dispatch-smoke",
           "result": "pass",
           "note": "Final build and focused lifecycle-dispatch smoke passed, covering compile-time integration and extracted helper contracts.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:15.128Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -250,9 +250,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:lifecycle-registry-contract; npm --prefix packages/main run test:command-catalog-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:main-write-lock-coverage",
           "result": "pass",
           "note": "Process fact, lifecycle registry, command catalog, ownership, and main-write-lock contract checks all passed on the final build.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:15.210Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -260,9 +260,9 @@
           "command": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/verification-freshness-smoke.js; node bin/lattice.js scope_contract_check json true",
           "result": "pass",
           "note": "INIT_CHECK conflict, worktree authority, verification freshness, and B-57b5 scope contract checks all passed, including the DONE-equivalent merge topology regression.",
-          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
-          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
-          "timestamp": "2026-06-19T18:55:15.293Z"
+          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
+          "timestamp": "2026-06-19T19:01:10.175Z"
         }
       ]
     }
