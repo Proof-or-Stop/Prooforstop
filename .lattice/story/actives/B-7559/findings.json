@@ -115,7 +115,7 @@
       "desc": "quality-cleanup: docs/parallel-decomposition-spec.md §4.2 / §4.3 — globsOverlap(a, b) return field `broad` is ambiguous. The function receives two write-sets; either or both could be broad. The spec says `broad: boolean` with no indication of whether it means (a is broad), (b is broad), or (a OR b is broad). Callers in evaluateDecompositionGate need to know which story has the broad glob to produce an actionable block message naming the colliding storyId. A single boolean loses this attribution. The parameter types for a and b are also not specified (presumably string[] from computeWriteSet but the spec omits them).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T01:53:23.233Z",
@@ -126,7 +126,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: globsOverlap typed (a: string[], b: string[]) and broad:boolean replaced with broadSide: 'a'|'b'|'both'|null so §4.8 block messages can attribute the broad glob.",
+      "resolvedAt": "2026-06-19T02:05:04.555Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-007",
