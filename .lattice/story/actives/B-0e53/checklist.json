@@ -6,7 +6,40 @@
       "context": "In handlers/transition-orchestrator.ts, inside the main-write-lock, after autoSyncMain and BEFORE the merge that precedes the phase=DONE persist (~line 431), re-read mains current sha and compare to the sha the DONE pre-check synced against. If it changed (external git advance), abort with a clear re-run story_advance DONE to resync message, leaving the story at TEST (no phase mutation, no partial merge). Do NOT add after-DONE auto-retry; do NOT change the existing main-write-lock.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With main unchanged inside the lock, story_advance DONE proceeds and reaches DONE with the normal merge (no abort; happy path byte-identical).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An external main advance between autoSyncMain and the persist makes story_advance DONE abort with the resync message BEFORE store.writeStory; the persisted phase stays TEST.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "On abort, NO phase=DONE is written and NO merge commit lands on main (no partial DONE).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The baseline sha is captured AFTER autoSyncMain, so Lattice own pre-check sync does not false-positive the abort.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The abort throw releases the main-write-lock via the existing try/finally, so subsequent DONEs are not deadlocked.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

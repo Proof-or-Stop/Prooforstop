@@ -4,7 +4,7 @@
   "title": "Abort DONE before persist when main advanced after the lock (pre-merge mainSha re-check)",
   "description": "Close the one residual DONE race left by the existing main-write-lock: an EXTERNAL git advance to main between the pre-check sync and the in-lock merge. After acquiring the lock and before merging, re-read main's sha; if it changed, abort BEFORE phase=DONE persists, leaving the story at TEST with a resync hint. No after-DONE auto-retry; the merge stays atomic.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "dispatch",
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-19T21:02:10.643Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T21:02:19.873Z",
+      "branch": "story/B-0e53",
       "user": "Harmonygo",
       "agent": "main"
     }
