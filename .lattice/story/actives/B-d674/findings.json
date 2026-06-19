@@ -135,6 +135,25 @@
       ],
       "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d674:F-007",
+      "desc": "packages/main/src/tasks/host-guard-matrix-smoke.ts:11-12,117-153,228-267 still encodes Gemini as the wrapped-preapply guard/capability profile and never asserts the current Antigravity/agy guard semantics. This is a real failing verification path after B-d674 removed Gemini from the current capability host list: `node packages/main/dist/tasks/host-guard-matrix-smoke.js` exits with TypeError at dist/tasks/host-guard-matrix-smoke.js:139 because `buildCapabilityList()` no longer returns a gemini profile. That contradicts the concept contract for this story: current third-host semantics are Antigravity/agy, while Gemini is legacy compatibility only. Update the smoke to assert antigravity and agy wrapped-preapply behavior, keep Gemini only as explicit legacy compatibility if needed, and align the stale GuardSessionMode comment in packages/main/src/core/types.ts:1654 so guard semantics have one current model.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T15:53:42.772Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-009",
+      "_hash": "6c46a083eef2ac7b19bb336d9673e50c0144164116674955090a9802c8d84c64",
+      "files": [
+        "packages/main/src/tasks/host-guard-matrix-smoke.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "stale-host-guard-matrix|ts|gemini-current-profile",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
