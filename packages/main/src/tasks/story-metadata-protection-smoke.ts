@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * B-854c CHK-004 smoke: regression coverage for the story-metadata data-loss
- * invariant (ClawCreek incident — 19 stories lost when a broad `.lattice/`
- * ignore left the persistent metadata neither tracked nor protected).
+ * B-854c CHK-004 smoke (broadened by B-02a6 CHK-003): regression coverage for
+ * the story-metadata data-loss invariant (ClawCreek incident — 19 stories lost
+ * when a broad `.lattice/` ignore left the persistent metadata neither tracked
+ * nor protected; B-02a6 added the INIT-window case where an allowlisted but
+ * UNCOMMITTED leaf is wiped by a plain `git clean -fd`).
  *
  * Three consumers of ONE shared pure predicate
  * (core/story-metadata-protection.ts) are covered against REAL temp git repos
  * with hand-written `.gitignore` fixtures (NOT the global `lattice` binary):
  *
  *   1. Predicate units — constructed bypassing any happy path (raw stubbed
- *      probes) so the predicate is asserted correct at every consumer:
- *        tracked → safe; negation-allowlist (leaf re-included) → safe;
- *        broad-ignore-untracked leaf → unsafe (flagged).
+ *      probes) so the broadened predicate (unsafe = !tracked) is asserted
+ *      correct at every consumer:
+ *        tracked (either ignore state) → safe;
+ *        allowlisted-but-uncommitted (NOT ignored, untracked) → UNSAFE (B-02a6
+ *          INIT window — removed by a plain `git clean -fd`);
+ *        broad-ignore-untracked leaf → UNSAFE (ClawCreek — removed by -fdx);
+ *        blank/whitespace leaf → throws.
  *   2. Bootstrap (real dev_start) — under non-ignoring .gitignore → metadata
  *      tracked after bootstrap, no warning; under broad `.lattice/` ignore →
  *      bootstrap SUCCEEDS (no "paths are ignored" error) AND warning present;
@@ -179,13 +185,18 @@ try {
     assert.equal(result.wouldBeCleaned, false);
   });
 
-  check('predicate: negation-allowlist (leaf NOT ignored, untracked) → safe', () => {
+  // B-02a6 CHK-003: the INIT-window case. An allowlisted/not-ignored but
+  // UNCOMMITTED leaf is removed by a plain `git clean -fd` (untracked + not
+  // ignored = exactly its target). The broadened predicate now flags it unsafe.
+  check('predicate: allowlisted-but-uncommitted (NOT ignored, untracked) → unsafe (INIT window)', () => {
     const result = evaluateStoryMetadataProtection({
       metadataLeafPath: LEAF_REL,
       runner: stubRunner({ tracked: false, ignored: false }),
     });
-    assert.equal(result.unsafe, false, 'a re-included (not-ignored) leaf is trackable = no false positive');
-    assert.equal(result.wouldBeCleaned, false);
+    assert.equal(result.unsafe, true, 'allowlisted-but-uncommitted leaf is wiped by a plain `git clean -fd`');
+    assert.equal(result.wouldBeCleaned, false, 'wouldBeCleaned (ignored && !tracked) is false here — diagnostic only, no longer gates unsafe');
+    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /lattice doctor --repair/);
+    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /DATA-LOSS/);
   });
 
   check('predicate: broad-ignore + untracked leaf → unsafe (flagged)', () => {
@@ -208,21 +219,29 @@ try {
   });
 
   // ── 2 + 4. Bootstrap (real dev_start) across the three .gitignore cases ─────
-  // (a) non-ignoring .gitignore → metadata tracked after bootstrap, no warning.
-  check('bootstrap: non-ignoring .gitignore → tracked leaf, no warning', () => {
+  // (a) non-ignoring .gitignore → metadata tracked (committed to HEAD by the
+  //     B-02a6 CHK-002 safe-init commit, simulated here) → no warning.
+  //     B-02a6 CHK-003: the broadened predicate (unsafe = !tracked) flags ANY
+  //     untracked leaf, so "no warning" now requires the leaf to be genuinely
+  //     committed onto HEAD — exactly the production invariant story_create
+  //     establishes before dev_start runs.
+  check('bootstrap: non-ignoring .gitignore + committed leaf → tracked, no warning', () => {
     const root = join(base, 'boot-noignore');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), 'node_modules/\n');
     writeConfig(root);
     writeStoryIndex(root);
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    // Simulate the CHK-002 safe-init commit: the INIT metadata leaf is committed
+    // onto HEAD before dev_start (the production path), so it is a tracked,
+    // clean-proof object — not an untracked leaf the broadened predicate flags.
+    git(root, ['add', '.gitignore', 'lattice.config.json', LEAF_REL]);
     git(root, ['commit', '-m', 'base']);
     const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
     const out = String(handlers.dev_start({ storyId: STORY_ID }));
     // The story branch now tracks the leaf (committed into the scoped tree).
     const branchLs = git(root, ['ls-tree', '-r', '--name-only', `story/${STORY_ID}`]);
     assert.ok(branchLs.split('\n').includes(LEAF_REL), 'leaf must be tracked on the story branch after bootstrap');
-    assert.doesNotMatch(out, /DATA-LOSS/, 'non-ignoring repo must not warn');
+    assert.doesNotMatch(out, /DATA-LOSS/, 'a committed (tracked) leaf must not warn');
   });
 
   // (b) broad `.lattice/` ignore → bootstrap SUCCEEDS + warning present.
@@ -246,20 +265,51 @@ try {
     assert.match(out, /lattice doctor --repair/, 'warning must point at the repair command');
   });
 
-  // (c) negation allowlist → succeeds, no warning (no false positive).
-  check('bootstrap: negation allowlist → succeeds, no false-positive warning', () => {
+  // (c) negation allowlist + committed leaf → succeeds, no warning (no false
+  //     positive). B-02a6 CHK-003: with the broadened predicate, "no false
+  //     positive" now means a TRACKED leaf is not flagged — the allowlist alone
+  //     (trackable but uncommitted) is itself the INIT-window unsafe state. The
+  //     committed leaf here is the production invariant (CHK-002 safe-init).
+  check('bootstrap: negation allowlist + committed leaf → succeeds, no false-positive warning', () => {
     const root = join(base, 'boot-allowlist');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
     writeConfig(root);
     writeStoryIndex(root);
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    // Commit the leaf onto HEAD (the CHK-002 safe-init invariant) so it is a
+    // tracked object; an allowlisted-but-uncommitted leaf is now itself unsafe.
+    git(root, ['add', '.gitignore', 'lattice.config.json', LEAF_REL]);
     git(root, ['commit', '-m', 'base']);
     const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
     const out = String(handlers.dev_start({ storyId: STORY_ID }));
     const branchLs = git(root, ['ls-tree', '-r', '--name-only', `story/${STORY_ID}`]);
     assert.ok(branchLs.split('\n').includes(LEAF_REL), 'allowlist leaf is tracked after bootstrap');
-    assert.doesNotMatch(out, /DATA-LOSS/, 'a correctly-configured allowlist must NOT warn (no false positive)');
+    assert.doesNotMatch(out, /DATA-LOSS/, 'a committed (tracked) leaf under an allowlist must NOT warn (no false positive)');
+  });
+
+  // (d) B-02a6 CHK-003 INIT-window true positive: an allowlisted/not-ignored but
+  //     UNCOMMITTED leaf (the leaf is NOT committed onto HEAD before dev_start,
+  //     i.e. the safe-init commit is missing) is removable by a plain
+  //     `git clean -fd`. The broadened predicate must surface the loud warning at
+  //     the bootstrap layer — this is the exact incident the broadening defends.
+  check('bootstrap: allowlist + UNcommitted leaf (INIT window) → DATA-LOSS warning', () => {
+    const root = join(base, 'boot-allowlist-uncommitted');
+    initGitRepo(root);
+    writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
+    writeConfig(root);
+    writeStoryIndex(root);
+    // NOTE: the leaf is deliberately NOT committed to HEAD (no safe-init commit),
+    // so in the main checkout index it is allowlisted-not-ignored AND untracked —
+    // exactly what a plain `git clean -fd` wipes (the B-02a6 INIT window).
+    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['commit', '-m', 'base']);
+    // Fixture invariant (by construction of NEGATION_ALLOWLIST, shared with the
+    // case (c) allowlist test): the leaf is re-included = NOT ignored. The
+    // difference from (c) is purely that the leaf is left UNCOMMITTED here.
+    const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
+    const out = String(handlers.dev_start({ storyId: STORY_ID }));
+    assert.match(out, /DATA-LOSS/, 'an allowlisted-but-uncommitted leaf (INIT window) must surface the warning');
+    assert.match(out, /git clean -fd/, 'the warning must name the plain `git clean -fd` removal path');
   });
 
   // ── 3. Doctor (real handler) — flag, repair, idempotency, no false positive ─
@@ -279,11 +329,52 @@ try {
     assert.equal(block.unsafe, true, 'doctor JSON must flag the unsafe leaf');
     assert.equal(block.needsRepair, true);
     const text = String(handlers.doctor({ format: 'text' }));
-    assert.match(text, /✗ story metadata is neither git-tracked nor protected/);
+    assert.match(text, /✗ story metadata is NOT git-tracked \(uncommitted\) and is clean-prone/);
+    assert.match(text, /ignored\+untracked → removed by `git clean -fdx`/);
     assert.match(text, /lattice doctor --repair/);
   });
 
-  check('doctor: --repair writes allowlist → re-scan safe; second --repair no-op', () => {
+  // B-02a6 CHK-003: doctor must surface the INIT-window case (allowlisted/NOT
+  // ignored + UNCOMMITTED), not only the ignored case, and must NOT false-positive
+  // a correctly committed (tracked) leaf.
+  check('doctor: allowlisted-but-uncommitted leaf (INIT window) → unsafe + INIT-window risk line; committed → safe', () => {
+    const root = join(base, 'doctor-init-window');
+    initGitRepo(root);
+    writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
+    writeConfig(root);
+    writeStoryIndex(root);
+    // Commit only the config/.gitignore — the leaf is allowlisted (NOT ignored)
+    // but left UNCOMMITTED = the B-02a6 INIT window a plain `git clean -fd` wipes.
+    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['commit', '-m', 'base']);
+    const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
+
+    const json = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const block = json.storyMetadataProtection;
+    assert.equal(block.evaluated, true);
+    assert.equal(block.unsafe, true, 'doctor must flag the allowlisted-but-uncommitted INIT-window leaf');
+    // The per-leaf scan records ignored=false (re-included) + tracked=false.
+    const leaf = block.unsafeLeaves.find((l: any) => l.storyId === STORY_ID);
+    assert.ok(leaf, 'the INIT-window leaf must appear in unsafeLeaves');
+    assert.equal(leaf.ignored, false, 'INIT-window leaf is allowlisted = NOT ignored');
+    assert.equal(leaf.tracked, false, 'INIT-window leaf is uncommitted = untracked');
+    const text = String(handlers.doctor({ format: 'text' }));
+    assert.match(text, /✗ story metadata is NOT git-tracked \(uncommitted\) and is clean-prone/);
+    assert.match(
+      text,
+      /allowlisted-but-uncommitted \(INIT window\) → removed by a plain `git clean -fd`/,
+      'the INIT-window risk line must name the plain `git clean -fd` removal path',
+    );
+
+    // Committing the now-trackable leaf clears the flag (no false positive on a
+    // correctly committed leaf).
+    git(root, ['add', LEAF_REL]);
+    git(root, ['commit', '-m', 'track story metadata']);
+    const after = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    assert.equal(after.storyMetadataProtection.unsafe, false, 'a committed (tracked) leaf must NOT be flagged');
+  });
+
+  check('doctor: --repair writes allowlist; leaf safe only AFTER commit; second --repair no-op', () => {
     const root = join(base, 'doctor-repair');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), '.lattice/\n');
@@ -299,8 +390,27 @@ try {
     const gitignoreAfter = readFileSync(join(root, '.gitignore'), 'utf-8');
     assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present');
     assert.ok(gitignoreAfter.includes('!.lattice/story/actives/**'), 'negation allowlist installed');
-    // After repair the leaf is no longer ignored → no longer unsafe.
-    assert.equal(repair1.storyMetadataProtection.unsafe, false, 're-scan after repair must be safe');
+    // B-02a6 CHK-003: after repair the leaf is no longer IGNORED, but it is still
+    // UNCOMMITTED (untracked) → it is now precisely the INIT-window unsafe state
+    // (allowlisted-not-ignored + untracked, removable by a plain `git clean -fd`).
+    // The broadened predicate correctly keeps it unsafe: installing the allowlist
+    // alone does NOT make an uncommitted leaf clean-proof.
+    assert.equal(
+      repair1.storyMetadataProtection.unsafe,
+      true,
+      'after --repair the (now allowlisted) leaf is still UNCOMMITTED = INIT-window unsafe',
+    );
+
+    // The operator follows the repair guidance ("→ git add + commit story
+    // metadata"): committing the now-trackable leaf makes it clean-proof.
+    git(root, ['add', LEAF_REL]);
+    git(root, ['commit', '-m', 'track story metadata']);
+    const afterCommit = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    assert.equal(
+      afterCommit.storyMetadataProtection.unsafe,
+      false,
+      're-scan after committing the leaf must be safe (tracked = clean-proof)',
+    );
 
     // Second --repair: no-op (merge finds nothing missing).
     const repair2 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
@@ -352,7 +462,14 @@ try {
     const gitignoreAfter = readFileSync(join(repo, '.gitignore'), 'utf-8');
     assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present in gitRoot/.gitignore');
     assert.ok(gitignoreAfter.includes('!.lattice/story/actives/**'), 'negation allowlist installed in gitRoot/.gitignore');
-    assert.equal(block1.unsafe, false, 'wrapper-root: re-scan after repair must be safe');
+    // B-02a6 CHK-003: same as the non-wrapper case — after repair the leaf is no
+    // longer ignored but is still UNCOMMITTED (untracked) = INIT-window unsafe.
+    assert.equal(block1.unsafe, true, 'wrapper-root: after --repair the uncommitted leaf is still unsafe (INIT window)');
+    // Commit the now-trackable leaf in the gitRoot → clean-proof → safe.
+    git(repo, ['add', LEAF_REL]);
+    git(repo, ['commit', '-m', 'track story metadata']);
+    const afterCommit = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    assert.equal(afterCommit.storyMetadataProtection.unsafe, false, 'wrapper-root: re-scan after committing the leaf must be safe');
   });
 
   check('doctor: WRAPPER-ROOT second --repair is a no-op (wrote:false, .gitignore byte-identical)', () => {
@@ -386,7 +503,7 @@ try {
     assert.equal(json.storyMetadataProtection.unsafe, false, 'a tracked + allowlisted project must not be flagged');
     const text = String(handlers.doctor({ format: 'text' }));
     assert.match(text, /✓ story metadata is tracked or protected/);
-    assert.doesNotMatch(text, /✗ story metadata is neither/);
+    assert.doesNotMatch(text, /✗ story metadata is NOT git-tracked/);
   });
 
   console.log(`\n✓ story-metadata-protection smoke passed (${passed} checks)`);

@@ -1023,12 +1023,18 @@ function renderStoryMetadataProtectionScan(
     return lines;
   }
   if (scan.unsafe) {
-    lines.push('  ✗ story metadata is neither git-tracked nor protected by the managed ignore allowlist');
+    lines.push('  ✗ story metadata is NOT git-tracked (uncommitted) and is clean-prone');
     for (const leaf of scan.unsafeLeaves) {
-      lines.push(`      ${leaf.storyId}: ${leaf.leaf} (ignored=${leaf.ignored}, tracked=${leaf.tracked})`);
+      // Surface BOTH untracked classes: the ignored case (ClawCreek, removed by
+      // `git clean -fdx`) AND the allowlisted-but-uncommitted INIT window (B-02a6,
+      // removed by a plain `git clean -fd`). The per-leaf risk line names which.
+      const risk = leaf.ignored
+        ? 'ignored+untracked → removed by `git clean -fdx`'
+        : 'allowlisted-but-uncommitted (INIT window) → removed by a plain `git clean -fd`';
+      lines.push(`      ${leaf.storyId}: ${leaf.leaf} (ignored=${leaf.ignored}, tracked=${leaf.tracked}) — ${risk}`);
     }
-    lines.push('      A later `git clean -fdx` or wrong-branch checkout can PERMANENTLY delete this metadata');
-    lines.push('      (this is exactly how ClawCreek lost 19 stories).');
+    lines.push('      A later `git clean -fd`/`-fdx` or wrong-branch checkout can PERMANENTLY delete this metadata');
+    lines.push('      (ClawCreek lost 19 stories this way; B-02a6 added the INIT-window case).');
   } else {
     lines.push(`  ✓ story metadata is tracked or protected (${scan.leaves.length} active leaf/leaves checked)`);
   }
