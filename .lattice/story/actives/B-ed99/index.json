@@ -4,7 +4,7 @@
   "title": "Enforce review assurance floor before DONE",
   "description": "Implement the Review Assurance Floor as a runtime Lattice CLI DONE gate for code-changing stories. This touches lifecycle gate, review evidence, process-fact semantics, and Non-authority versus Authority boundary, so it is high risk and must require 3 rounds x 2 hosts before DONE.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -20,6 +20,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-19T01:28:54.291Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:30:45.627Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
