@@ -24,6 +24,44 @@
         "test": [
           "packages/main/src/tasks/scope-contract-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical scope contract data represents allowed modifies, allowed creates, allowed tests, protected files, explicit excludes, related docs, and execution-boundary categories as first-class fields consumed by scope checks.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A declared source/docs change is classified through the canonical boundary model and produces stable scope check rows with id, status, source path, blocking flag, and next-action hint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown or malformed path classes fail closed with a structured reason instead of being implicitly allowed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Runtime, lifecycle, generated artifact, external authority, direct story JSON, and fixture exclusions remain represented as data and are not collapsed into prose-only plan text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An undeclared runtime source edit and an arbitrary metadata JSON file under a runtime-like directory both block unless the canonical model explicitly permits them.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Scope checks, guard sessions, and operator-facing scope messages consume the same classifier/table rather than maintaining duplicate ad hoc rule sets.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {

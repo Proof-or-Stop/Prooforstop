@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Reuse the existing Lattice scope machinery instead of inventing a parallel gate.",
+    "Make scope facts structured and machine-consumed before improving prose.",
+    "Fail closed for unknown product, metadata, and fixture paths unless a registered classifier or explicit acknowledgement applies.",
+    "Keep exceptional repair visible as lower assurance, never as a silent pass."
+  ],
+  "drivers": [
+    "Roadmap dependency order requires M1-M3 before later evidence/quorum/baseline milestones.",
+    "The story is high-risk because scope gates affect Lattice lifecycle correctness.",
+    "Parallel implementation needs disjoint file ownership and small reviewable surfaces."
+  ],
+  "options": [
+    {
+      "name": "A: Harden existing scope_contract and lifecycle classifiers in place",
+      "pros": [
+        "Smallest behavioral surface",
+        "Preserves current CLI commands and story lifecycle",
+        "Allows focused smokes to prove pass/fail/warn behavior"
+      ],
+      "cons": [
+        "Does not deliver the full M1-M12 roadmap in one story",
+        "Requires careful compatibility for existing ScopeCheckResult consumers"
+      ]
+    },
+    {
+      "name": "B: Build a new separate scope oracle subsystem",
+      "pros": [
+        "Could model future roadmap concepts more comprehensively",
+        "Can start with a cleaner greenfield row schema"
+      ],
+      "cons": [
+        "Duplicates existing gate logic",
+        "Higher chance of renderer/gate divergence",
+        "Too broad for the dependency-safe wave-one story"
+      ]
+    },
+    {
+      "name": "C: Documentation-only wave with no runtime changes",
+      "pros": [
+        "Lowest immediate regression risk",
+        "Easy to review"
+      ],
+      "cons": [
+        "Does not satisfy the user request to begin development",
+        "Leaves known runtime gaps in row structure and acknowledgement audit context"
+      ]
+    }
+  ],
+  "chosen": "A: Harden existing scope_contract and lifecycle classifiers in place",
+  "rationale": "Option A implements the first dependency layer with the least duplication: it keeps existing commands as the product surface while adding structured rows, classifier reuse, audit context, and focused negative controls.",
+  "preMortem": [
+    {
+      "scenario": "Scope classifier becomes a broad directory exemption.",
+      "trigger": "Implementation treats .lattice, docs, or metadata directories as globally allowed instead of checking registered filenames and story ids.",
+      "consequence": "Unknown metadata or source drift can bypass scope gates and make later DONE evidence untrustworthy.",
+      "mitigation": "Centralize path classification and add negative smokes for unknown story metadata and ordinary undeclared source edits."
+    },
+    {
+      "scenario": "Acknowledgement turns violations into silent pass.",
+      "trigger": "scope_contract_acknowledge hides out-of-scope paths from reviewers or changes enforce failures directly to pass.",
+      "consequence": "Exceptional scope movement becomes invisible normal behavior, weakening REVIEW and DONE gates.",
+      "mitigation": "Keep acknowledged paths as warn rows and add tests asserting acknowledged paths remain visible with repair/audit context."
+    },
+    {
+      "scenario": "Stable row schema breaks existing consumers.",
+      "trigger": "ScopeCheckResult fields are renamed or renderers assume rows exist without preserving violations/warnings compatibility.",
+      "consequence": "Existing guard sessions, phase gates, and smokes fail or lose useful output.",
+      "mitigation": "Add rows as an additive field, keep existing violations/warnings/summary shape, and update tests around render output."
+    },
+    {
+      "scenario": "Story expands into later roadmap milestones.",
+      "trigger": "Implementation starts changing host quorum, production authority, baselines, command center, or final certification because they are nearby in the roadmap.",
+      "consequence": "The branch becomes too broad for review and violates the scope anti-expansion goal.",
+      "mitigation": "Keep the scope contract and PLAN file declarations limited to M1-M3 and document later milestones as non-goals."
+    }
+  ],
+  "timestamp": "2026-06-19T04:02:55.534Z"
+}
