@@ -1,0 +1,29 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T21:15:10.240Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Bind the explicit high-risk 3x2 predicate to runtime process facts + Add contract and convergence evidence for the high-risk policy binding are performed simultaneously?)"
+        }
+      ],
+      "_hash": "8ed9686038cffb7b6c883427d64c38684b6555b6961cb2324978bfeb9894ea8d"
+    }
+  ]
+}
