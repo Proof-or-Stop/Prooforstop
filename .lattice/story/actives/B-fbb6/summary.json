@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fbb6",
+  "changes": "Migrated the in-tree `gemini` provider to `antigravity` (Antigravity CLI, binary `agy`, print mode) and RETIRED the legacy gemini host. This was a PROMOTE+RETIRE (antigravity already existed as a scaffolded host): providers/gemini-cli.ts -> antigravity-cli.ts (binary agy, usage extraction removed); lattice-dispatch.ts runAntigravityRealLeafDispatch + agy --print argv; dispatch-policy host model (gemini removed from LEGACY_KNOWN_HOSTS/parseHost; unsupportedRealHosts lists antigravity once). DELETED the Gemini-API usage adapter (adapters/gemini.ts) + assemble.ts wiring + dead extractGeminiStreamUsage. antigravity dispatch records usage as source=unavailable because agy exposes no per-call token usage (verified) — no fabricated tokens, no raw transcript surfaced. ~37 files; followed B-b1f4.",
+  "usage": "Dispatch with --host=antigravity routes to the `agy` binary (print mode). `node bin/lattice.js host runtime list` shows antigravity (binary agy); gemini is gone. An antigravity call is recorded in the usage ledger with provider.name=antigravity and source=unavailable (model captured, no token counts). antigravity stays refused for unattended dispatch_auto; it gains the supervised real-leaf agy path via dispatch_run.",
+  "expectedOutcome": "host runtime list shows `antigravity` (runs agy), no gemini; an antigravity ledger call shows provider=antigravity, source=unavailable, model captured, zero fabricated tokens; grep -rinE '\\bgemini\\b' packages/main/src shows no provider-semantic residue.",
+  "actualTranscript": "host runtime list -> 'antigravity: scaffolded — ... run agy manually ...' (no gemini). usage-ledger-report on an antigravity call -> 'unavailable count=1 known=0 unknown=1 ... Groups: provider=antigravity model=Gemini 3.5 Flash (Medium) records=1 unknown=1 / unavailable known=0 unknown=1 primary[in=0 out=0] tokens[in=0 ...]'. Full transcript at .lattice/story/actives/B-fbb6/evidence/transcript-diff.md.",
+  "outcomeDiff": "No meaningful diff. antigravity is the dispatchable host (agy), gemini absent; antigravity call recorded source=unavailable with model + no invented tokens; grep gemini = 0 provider-semantic (only retirement-proof test assertions). Affected smokes green; full suite 176/180 (4 pre-existing unrelated flakes).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Token capture for antigravity is intentionally OUT OF SCOPE (deferred): agy's CLI surface (stdout + --log-file) does not expose per-call token usage, and its trajectory store holds only undocumented protobuf config + raw transcript — extracting usage would require inference or reading raw content, both forbidden by the usage-ledger invariants. So antigravity calls are source=unavailable (honest) until agy exposes usage on a stable surface. Production Authority 3x2 strong-proof was unavailable (live runner unprovisioned); review assurance used the sanctioned degraded single-host 3x1 fallback.",
+  "pitfalls": "This is a PROMOTE+RETIRE, not a blind sed: antigravity pre-existed as a scaffolded host, so a naive gemini->antigravity replace would create antigravity||antigravity duplicates in dispatch-policy filters — it does not (verified). antigravity stays refused for unattended dispatch_auto (no policy-posture change). Remaining `gemini` strings in packages/main/src are intentional retirement-proof test assertions (asserting gemini is rejected/absent), not live references.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 161862
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27038
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 753738
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2712023
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1435694
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 428235
+    }
+  },
+  "totalDurationMs": 5518609,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T18:39:08.860Z",
+  "updatedAt": "2026-06-19T18:39:08.860Z"
+}
