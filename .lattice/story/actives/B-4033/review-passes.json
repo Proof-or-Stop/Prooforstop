@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T12:58:13.357Z",
       "reviewRunId": "B-4033:RR-001",
       "_hash": "45c8413c902ea2b09b78f77758411dcd31b05181a5a7322bcedd05d5b852e55b"
+    },
+    {
+      "id": "B-4033:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All four prior findings verified fixed. F-001: computeWriteSet iterates only allowedModify+allowedCreate (lines 150-153), smoke check 10 confirms exclusion of allowedTest. F-002: smoke exits with 32 assertions confirmed by live run. F-003: entriesOverlap literal-vs-literal uses exact equality (line 114); wildcard branch uses isUnderOrEqual on scopeDirs both ways (lines 115-117) — src/* vs src/csv/* flags, src/a/* vs src/b/* does not flag, confirmed by smoke checks 9. F-004: validateWriteSetGrammar rejects empty-dir for both /* (line 66-67) and /** (line 59-60); classifyBroadness returns broad for empty segments.length===0 (line 130) covering both /* and /**; confirmed by smoke checks 8. No dead code, no unnecessary any casts, no unhandled catch blocks, no I/O shell isolation violations found. Zero new issues.",
+      "createdAt": "2026-06-19T13:13:34.779Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-004",
+      "_hash": "cb4001400269c1909866bda20fafbb0aef513b4bbeee14f53f6c2d5c1ea5d6ef"
     }
   ]
 }
