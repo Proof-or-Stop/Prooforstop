@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-19T20:30:16.366Z",
       "reviewRunId": "B-aa8a:RR-011",
       "_hash": "40565847f79ee3daa2925c78e5abf8e64de3908fcd2ab5db6afa13cbd209d00a"
+    },
+    {
+      "id": "B-aa8a:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 28 intents (CHK-001: 6 happy, 6 edge, 4 adversarial; CHK-002: 5 happy, 5 edge, 2 adversarial) are concretely satisfied by version-bump-smoke (64 assertions, hermetic). The universal status=stale across all 28 entries is materialHash drift from the round-3 commit, not a command-to-intent mismatch — every evidence command is node packages/main/dist/tasks/version-bump-smoke.js (or lattice validate for CHK-002:happy:0 and CHK-002:adversarial:1) and the smoke demonstrates each claim. CHK-001:adversarial:2 recovery message assertion checks git commit + 0.9.10 presence; actual error message includes the explicit manual git commands to recover. CHK-001:edge:0 parseSemver(0.0.0) struct coverage is implicit via nextPatch(0.0.0)===0.0.1. No finding warranted.",
+      "createdAt": "2026-06-19T20:32:40.328Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-012",
+      "_hash": "8c55c2839287b24986114d0d8fce719f39737294b0afee4293f9a86cdf9126c1"
     }
   ]
 }
