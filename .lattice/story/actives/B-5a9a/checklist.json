@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Decision-doc: design the secondary storyFilesHash + whole-tree-drift downgrade semantics",
       "context": "Via the decision-doc flow: (a) storyFilesHash = sha over the storys own changed files vs merge-base main (reuse changedFilesBetween / scope-contract diff); (b) new validity rule -- bindings stay valid while storyFilesHash unchanged; (c) whole-tree drift downgraded from instant-reject to a re-attestation-REQUIRED warning (NOT silent rebind, NOT story-diff-only); (d) soundness rationale (why story-diff-only misses transitive deps) + which bindings adopt the secondary signal (review-run, escalation verdicts/fallback, verification evidence).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T21:44:41.374Z",
-      "endTime": null,
+      "endTime": "2026-06-19T21:48:36.993Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
@@ -51,7 +51,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc defines storyFilesHash as a secondary signal, keeps materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.",
+          "headHash": "62f452d4c52dbed078faad2a42346c5fb200cd7e",
+          "materialHash": "449e49fd4bcc242aae449f7721dd56613e3a7da77fcb4b145e97175cd18809a7",
+          "timestamp": "2026-06-19T21:48:37.126Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry and verifier include runtime:story_files_hash_freshness_gate as an L4 gate-consumed freshness semantic.",
+          "headHash": "62f452d4c52dbed078faad2a42346c5fb200cd7e",
+          "materialHash": "449e49fd4bcc242aae449f7721dd56613e3a7da77fcb4b145e97175cd18809a7",
+          "timestamp": "2026-06-19T21:48:37.212Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc explains story-diff-only is insufficient for transitive dependency, runtime policy, validation runner, and process-fact drift.",
+          "headHash": "62f452d4c52dbed078faad2a42346c5fb200cd7e",
+          "materialHash": "449e49fd4bcc242aae449f7721dd56613e3a7da77fcb4b145e97175cd18809a7",
+          "timestamp": "2026-06-19T21:48:37.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.",
+          "headHash": "62f452d4c52dbed078faad2a42346c5fb200cd7e",
+          "materialHash": "449e49fd4bcc242aae449f7721dd56613e3a7da77fcb4b145e97175cd18809a7",
+          "timestamp": "2026-06-19T21:48:37.382Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
