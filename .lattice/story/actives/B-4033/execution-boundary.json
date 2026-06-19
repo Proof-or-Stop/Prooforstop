@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4033",
+  "allowedCommands": [
+    "cat",
+    "git",
+    "grep",
+    "lattice",
+    "ls",
+    "node",
+    "npm",
+    "rg",
+    "tsc"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 1: new overlap engine + smoke. tsc + node smoke must pass.",
+  "createdAt": "2026-06-19T12:45:36.489Z",
+  "updatedAt": "2026-06-19T12:45:36.489Z",
+  "_hash": "8b0411db99a3aa3880f8d4fe0562997b482ce0ad8a0cc3887ccb2d9f94a7f1af"
+}

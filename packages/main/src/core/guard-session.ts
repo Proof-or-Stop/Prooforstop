@@ -283,6 +283,14 @@ export function renderGuardSessionLine(
   return `guard session: ${guardSessionStateLabel(session)}`;
 }
 
+function renderGuardViolationRow(v: GuardSessionViolation): string {
+  const anchor = v.anchor ? ` anchor=${v.anchor}` : '';
+  const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
+  const sim = v.simulated ? ' simulated=true' : '';
+  const id = `guard:${v.rule}:${v.path}`.replace(/\s+/g, '_');
+  return `  [${id}] status=fail blocking=true source=guard-session path=${v.path} rule=${v.rule} detectedAt=${v.detectedAt}${anchor}${digest}${sim}`;
+}
+
 /** Multi-line render of a guard session for status / start / check command output. */
 export function renderGuardSession(session: GuardSessionData | null | undefined): string {
   if (!session) {
@@ -308,6 +316,7 @@ export function renderGuardSession(session: GuardSessionData | null | undefined)
     const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
     const sim = v.simulated ? ' [simulated]' : '';
     lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${digest}${sim}`);
+    lines.push(renderGuardViolationRow(v));
   }
   if (session.guardMode === 'watcher-fallback') {
     lines.push(
