@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Summarize all local review verdict runs in autopilot_review_status",
+      "context": "Add an explicit all-runs/latest-runs view or equivalent summary so operators are not misled by the default-run view after submitting custom round ids. Preserve current runId-specific behavior and local non-Authority semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Show voluntary local 3x2 rounds in review_escalation_status",
+      "context": "When review escalation is not required, the command should still expose submitted local host verdict rounds for operator visibility without changing ok/required semantics or claiming Authority completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Render a concise stale-material DONE runbook",
+      "context": "When DONE pre-check detects stale verification evidence or stale host verdicts after a main merge/materialHash change, surface which evidence/verdicts are stale and the next commands to recover, including validate, refresh stale evidence, and re-submit host verdicts over the current material hash.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add focused regression coverage and docs for the diagnostic UX",
+      "context": "Add smoke coverage for all-runs/latest-runs status, voluntary 3x2 display, and stale-material runbook wording. Update docs to distinguish local review assurance diagnostics from Authority/production receipt claims.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
