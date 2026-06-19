@@ -1,0 +1,143 @@
+{
+  "storyId": "B-cb13",
+  "checkedAt": "2026-06-19T01:30:30.729Z",
+  "features": [
+    {
+      "feature": "Create decision_doc_proposal with sourceDecision=manual and slug=lattice-experience-layer-effectiveness-record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run decision_doc_preview to render the Markdown before saving",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run decision_doc_save with mode=create and confirm=true to land the doc into docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Document includes all required structured fields: decision/context/scope/nonGoals/chosenApproach/alternatives(>=2)/operationalRules/verificationRequirements/risks",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Document records the six merged story IDs (B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9), what each is, and their key invariants",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Document captures the evidence arc: Baseline A degraded lower-bound rho=-0.55 -> phase 3.5 real-signature held-out 62% -> live apply 656 signatures recall=0.659 valid-rate=0.971",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Document captures honesty guards: saturation not claimed, observational != causal, forward RCT pending",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No source/CLI/handler/core/registry/gate code changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No source/CLI/handler/gate change (CHK-001 excludes)",
+      "source": "description"
+    },
+    {
+      "feature": "No duplication of lattice-Paper raw CSV/figure/script files (reference only, not copy)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No duplication of the lattice-Paper raw CSV/figure files (CHK-001 excludes)",
+      "source": "description"
+    },
+    {
+      "feature": "Verify recorded story IDs and main commit (2750aadef) exist in repo",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify live metrics are reproducible on main: learning_scan ~320 signals, learning_effectiveness recall ~0.659, learning_validate valid-rate ~0.971",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify doc is ASCII/English-only (english-artifacts gate compliance)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify Work/lattice-Paper/ references name real files",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No re-running the heavy analysis (reference committed lattice-Paper artifacts only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No re-running the heavy analysis (reference the committed lattice-Paper artifacts) (CHK-002 excludes)",
+      "source": "description"
+    },
+    {
+      "feature": "decision_doc_proposal must use sourceDecision=manual (no decision.json required/present per the doc-promotion plan allowance)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "decision_doc_save must have mode=create (target file does not yet exist) and confirm=true, and must NOT supply expectedSourceDecisionDigest (manual source)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Saved doc must be governance/diagnostic material only; this story does not trigger DONE 3x2 escalation unless first REVIEW round has >=2 countable reviewer problems",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Outcome doc must complement (not duplicate) the existing lattice-experience-layer-execution-plan.md (PLAN record) by recording the OUTCOME instead",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 14,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c640e692098890e5991f262abf38899fc607147c0a7ae858a8ffb65fbb6d3018",
+  "openQuestions": []
+}

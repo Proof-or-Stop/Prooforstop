@@ -1,0 +1,55 @@
+{
+  "storyId": "B-cb13",
+  "changes": "Added the in-repo development record docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md (manual-source decision-doc via decision_doc_proposal+decision_doc_save). It records the Experience Layer effectiveness-proof OUTCOME: the six merged stories (B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9), the evidence arc (Baseline A -0.55 degraded lower bound -> phase 3.5 real-signature held-out 62% -> live apply 656 signatures, recall 0.659, valid-rate 0.971), and the honesty guards (observational != causal; saturation not claimed; forward RCT deferred). References Work/lattice-Paper/ raw evidence rather than duplicating it. Documentation-only: no source/CLI/handler/gate change.",
+  "usage": "Read docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md for the auditable in-repo record of what the effectiveness-proof track built and proved (and did not prove). It complements lattice-experience-layer-execution-plan.md (the PLAN) with the OUTCOME.",
+  "expectedOutcome": "The decision-doc exists at the canonical path, enumerates the six stories + evidence + honesty guards, ASCII/English-only, references lattice-Paper.",
+  "actualTranscript": "Doc verifier TOTAL 24 | PASS 24 | FAIL 0 (exists/asciiOnly/allStories/hasNumbers/hasHonesty/refsPaper/noEmbeddedCsv/hasAlternatives/noCausalOverclaim all true). docs reviewer independently confirmed all 6 story IDs are real DONE stories, the 4 commands exist on main, commit 2750aadef is real, and there is no causal overclaim. All 4 REVIEW reviewers passed first round (0 findings).",
+  "outcomeDiff": "Matches expected: accurate, honest, ASCII-only in-repo record.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Documentation-only; references (does not embed) the lattice-Paper raw CSV/figure/script evidence. The record itself reiterates the honest non-claim: the causal hints-improve-outcomes result is NOT proven (deferred to the forward ON/OFF RCT).",
+  "pitfalls": "Keep the doc ASCII/English-only (english-artifacts gate) and the recorded facts (story IDs, commit 2750aadef, live numbers) accurate + reproducible on main. Do not duplicate the raw lattice-Paper evidence into the repo. Do not overclaim the observational results as causal.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 154279
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21492
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 183835
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 241764
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 262981
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1957
+    }
+  },
+  "totalDurationMs": 866318,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T01:39:34.529Z",
+  "updatedAt": "2026-06-19T01:39:34.529Z"
+}

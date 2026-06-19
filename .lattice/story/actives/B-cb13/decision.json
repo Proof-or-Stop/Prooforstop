@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Documentation-only, no code change",
+    "Honest record: state what is proven and what is not",
+    "Reference raw evidence, do not duplicate",
+    "Accurate + reproducible facts"
+  ],
+  "drivers": [
+    "The repo needs an auditable in-repo record of the effectiveness-proof OUTCOME, not just the external paper folder",
+    "Match the project's decision-doc convention (B-1480)"
+  ],
+  "options": [
+    {
+      "name": "Manual-source decision-doc via decision_doc flow (chosen)",
+      "pros": [
+        "Matches B-1480 convention",
+        "lands in docs/requirements/decisions/ with provenance + review",
+        "lightweight (classification-only)"
+      ],
+      "cons": [
+        "Structured decision-doc fields fit a decision-record framing, not free-form prose (acceptable)"
+      ]
+    },
+    {
+      "name": "Copy all lattice-Paper docs into the repo",
+      "pros": [
+        "Self-contained"
+      ],
+      "cons": [
+        "Duplicates raw CSV/figure/script files; bloats the repo; drifts from the paper workspace"
+      ]
+    },
+    {
+      "name": "Leave the record only in lattice-Paper + git history",
+      "pros": [
+        "No work"
+      ],
+      "cons": [
+        "No in-repo auditable record of the OUTCOME; the operator explicitly asked for one"
+      ]
+    }
+  ],
+  "chosen": "Manual-source decision-doc via decision_doc flow (chosen)",
+  "rationale": "A manual-source decision-doc landed via the established decision_doc flow gives an auditable in-repo record matching the B-1480 convention, while referencing (not duplicating) the lattice-Paper raw evidence; copying everything would bloat the repo and leaving it external fails the operator's explicit request.",
+  "preMortem": [
+    {
+      "scenario": "Recorded facts are inaccurate/stale.",
+      "trigger": "Story IDs / commit / live numbers are typed wrong or drift.",
+      "consequence": "The record misleads future readers.",
+      "mitigation": "CHK-002 re-verifies each story ID, the commit, and the live numbers on main before DONE."
+    },
+    {
+      "scenario": "CJK slips into the doc.",
+      "trigger": "Pasting Chinese phrasing.",
+      "consequence": "english-artifacts gate blocks DONE.",
+      "mitigation": "Author English/ASCII-only; CHK-002 greps for non-ASCII."
+    },
+    {
+      "scenario": "The record overclaims.",
+      "trigger": "Stating the causal hints-improve-outcomes result as proven.",
+      "consequence": "Dishonest record contradicting the work's own caveats.",
+      "mitigation": "The honesty guards section explicitly marks the causal claim as deferred to the forward RCT; observational != causal."
+    }
+  ],
+  "timestamp": "2026-06-19T01:28:44.425Z"
+}
