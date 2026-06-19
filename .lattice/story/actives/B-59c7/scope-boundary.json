@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-59c7",
+  "mode": "feature",
+  "allowed": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/parallel-decomposition.ts"
+  ],
+  "excluded": [
+    "machine.ts and all other files",
+    "resolveAuditConfig resolution logic (deferred to Story 3)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 0 contract: new parallel-decomposition.ts + type-only parallelGate field in audit-config.ts AuditConfig interface; no resolution logic.",
+  "createdAt": "2026-06-19T03:56:54.303Z",
+  "updatedAt": "2026-06-19T03:56:54.303Z",
+  "_hash": "059ba378c9f7e0f32d0c0a58d2750d93a97b7abe086fb4a13bb7db05e29bd276"
+}

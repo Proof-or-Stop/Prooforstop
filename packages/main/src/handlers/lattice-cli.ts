@@ -1205,7 +1205,7 @@ function buildConduitExplain(
     ...buildConduitStatus(env, options),
     schemaVersion: 'lattice.conduit_explain.v1' as const,
     explanation: [
-      'Lattice CLI 0.3.5 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
+      'Lattice CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
       'It is intentionally not a model runner or receipt authority. Production completion remains false until an explicit receipt-backed authority path verifies a signed receipt.',
       'Authority modes: off = default local-only workflow (no network); shadow = observational POST when LATTICE_AUTHORITY_URL is reachable; enforce = Authority job path (requires Lattice Authority server + customer API key + actor key + runner identity + project id + pinned server key; jobs execute typed plannedSteps, upload evidence, request gate_decision, and verify native receipts).',

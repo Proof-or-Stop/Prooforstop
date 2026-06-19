@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-02a6",
+  "allowedCommands": [
+    "git *",
+    "lattice validate*",
+    "node packages/main/dist/*",
+    "npm --prefix packages/main run build",
+    "npx tsc*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/story-metadata-protection.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/",
+    "scripts/"
+  ],
+  "excludedCommands": [
+    "git clean -fdx",
+    "git push*",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".gitignore"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Data-loss-class fix touching story_create + safe-init-commit + git refs. Must keep main-write-lock discipline; no remote push; do not weaken .gitignore allowlist.",
+  "createdAt": "2026-06-19T04:07:01.287Z",
+  "updatedAt": "2026-06-19T04:07:01.287Z",
+  "_hash": "ad449827a08c1cbf745e6933eb3119d812641d42e63f7b5324174ea3e78c3247"
+}

@@ -1,4 +1,4 @@
-# koala Multi-Role Separation Refactor Plan
+# Lattice Multi-Role Separation Refactor Plan
 
 > 2026.04 · Split the 4 responsibilities of plan / adversarial / implementation / test-verification from "one main agent holding all of them" into roles that can evolve independently
 

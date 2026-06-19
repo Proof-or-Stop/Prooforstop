@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-997b",
+  "mode": "feature",
+  "allowed": [
+    "Focused regression tests and docs synchronized to the wave-one behavior",
+    "M1 canonical scope boundary model for story execution",
+    "M2 lifecycle artifact and path classification hardening for scope checks",
+    "M3 structured scope drift repair and fallback behavior"
+  ],
+  "excluded": [
+    "post-wave evidence context packs",
+    "post-wave host quorum and identity hardening",
+    "post-wave oracle matrix and baseline suite",
+    "post-wave preflight command center and collaboration scheduler",
+    "post-wave rollout migration and final certification"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested a clean Lattice CLI parallel development run; roadmap dependency order requires completing M1-M3 before later milestones. Boundary is confirmed for wave one only.",
+  "createdAt": "2026-06-19T03:58:19.306Z",
+  "updatedAt": "2026-06-19T03:58:19.306Z",
+  "_hash": "079cef73729d6475ea2605424d2aaea2f1f81dfc2349e73ee53c8af33a929f5b"
+}

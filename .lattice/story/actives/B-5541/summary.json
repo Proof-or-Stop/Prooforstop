@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5541",
+  "changes": "docs/requirements/NAV.md regenerated via lattice truth_nav (was a stale Chinese-header / 52-file old generator snapshot; now English header, 65 files, current English titles that correspond to the actual files, 0 Chinese, koala only in the 1 kept rename-plan title). Rebranded the H1 of cc-learnings.md / role-separation.md / stack-layering.md from koala to Lattice.",
+  "usage": "Read docs/requirements/NAV.md as the source-of-truth index; titles now match each file H1. Regenerate after adding decision docs with: lattice truth_nav",
+  "expectedOutcome": "User opens NAV.md and sees English header, current corresponding titles, no Chinese, koala only in the kept Koala-to-Lattice rename-plan title.",
+  "actualTranscript": "head -3 NAV.md -> # Source of Truth Navigation / > 65 files; grep -cP Chinese -> 0; grep -ci koala -> 1; all 65 links resolve (delivery reviewer verified).",
+  "outcomeDiff": "No difference — all 3 user complaints (Chinese / titles do not correspond / koala) resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. The 2 Chinese-body translation-manifest docs and body koala in historical decision docs were intentionally left untouched per user scope.",
+  "pitfalls": "NAV.md is GENERATED — never hand-edit (it re-drifts on next lattice truth_nav). The command is truth_nav, not truth (truth is a command group). After a DONE merge that adds decision docs, re-run truth_nav so NAV reflects merged state, else the freshness materialHash gate fails.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 290989
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 287686
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 264271
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 213634
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 426395
+    }
+  },
+  "totalDurationMs": 1483016,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T03:56:24.495Z",
+  "updatedAt": "2026-06-19T03:56:24.495Z"
+}

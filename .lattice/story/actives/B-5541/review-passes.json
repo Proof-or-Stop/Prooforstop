@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-5541:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Doc-only change: 3 decision doc H1s renamed koala->Lattice (cc-learnings.md, role-separation.md, stack-layering.md), NAV.md regenerated as index. No code symbol deleted or replaced. 421+ koala references remain in packages/ (retained legacy), confirming no concept deletion. The single remaining koala in NAV.md (Koala-to-Lattice Role Naming Execution Plan) is contextually correct as it names the migration doc itself. Concept residue check: no blocker.",
+      "createdAt": "2026-06-19T03:47:11.604Z",
+      "reviewRound": "2026-06-19T03:45:44.466Z",
+      "reviewRunId": "B-5541:RR-001",
+      "_hash": "2db942489f1831c3c9aae5da1d71ee14622d3383c3d0ea9ff6d35a25e79dbd95"
+    },
+    {
+      "id": "B-5541:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Checked 0 code symbols (pure docs diff). Compared all 3 rebranded H1 titles (cc-learnings.md, role-separation.md, stack-layering.md) — NAV display titles are byte-identical to current H1. Verified all 65 links resolve to existing files. NAV.md header is English (Source of Truth Navigation / 65 files). grep confirmed 0 Chinese characters in NAV.md. The 1 koala occurrence (koala-to-lattice-role-naming-execution-plan.md) is contextually correct — the doc title documents the renaming plan itself. No inconsistencies found.",
+      "createdAt": "2026-06-19T03:48:01.723Z",
+      "reviewRound": "2026-06-19T03:45:44.466Z",
+      "reviewRunId": "B-5541:RR-003",
+      "_hash": "c467da3b64e8ce5eb7e1228065945fbf7007772c2144a2456419e68a06680b90"
+    },
+    {
+      "id": "B-5541:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Doc-only change confirmed: 3 decision-doc H1 titles rebranded koala→Lattice (cc-learnings, role-separation, stack-layering), body untouched. NAV.md: English header, >65 files count matches actual 65 files and 65 NAV entries, all 65 links resolve, 3 rebranded titles match respective H1 headings exactly, zero Chinese characters, exactly 1 koala occurrence (contextual filename reference, gate-exempt). No dead code, no type safety issues, no shell isolation issues (doc-only diff). No blockers.",
+      "createdAt": "2026-06-19T03:48:08.771Z",
+      "reviewRound": "2026-06-19T03:45:44.466Z",
+      "reviewRunId": "B-5541:RR-002",
+      "_hash": "301798e902bf6b97acb4ee05052abf4ec1ea736630799ad96d79b78830201a40"
+    },
+    {
+      "id": "B-5541:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 checklist items, no riskSignals); verificationIntent intentionally skipped at PLAN per express policy (flow-policy:express-verification-policy); validate confirms express-exempt with intentCount=0, missingRequired=0; NAV.md spot-checked: English header, 65 files, 0 Chinese chars, koala count=1 (kept contextual title only); both CHK-001 and CHK-002 status=done; no must-intent gap exists for an express doc-only change.",
+      "createdAt": "2026-06-19T03:48:18.768Z",
+      "reviewRound": "2026-06-19T03:45:44.466Z",
+      "reviewRunId": "B-5541:RR-004",
+      "_hash": "66e7c4cbf21ea6b1941a18c2b541cf5570c79432ecf5841e30a53b2a16b21f7b"
+    }
+  ]
+}
