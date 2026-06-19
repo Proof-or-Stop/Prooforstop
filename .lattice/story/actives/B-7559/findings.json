@@ -284,6 +284,24 @@
       ],
       "signatureTag": "edge|md|evaluatedecompositiongate-mode-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-014",
+      "desc": "broadSide cross-reference points to wrong section: §4.4 line 340 says broadSide is for so §4.8 block messages can cite the offending story. §4.8 is the failure-mode guardrails section (fail-open/fail-closed, peer contract unreadable) — it contains no block-message formatting or broad-glob block messages. The broad_glob_unprovable_parallel block condition is defined in §4.3. The cross-reference should read §4.3, not §4.8. As written, an implementer reading the spec to understand how broadSide feeds block messages would be pointed at the wrong section.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T02:07:54.683Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-007",
+      "_hash": "d0b5730c0c5b5627657266ede2b99b96759c25e2483f7f90ad3d58b7b62c2057",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "edge|md|broadside-cross-reference",
+      "signatureTagSource": "auto"
     }
   ]
 }
