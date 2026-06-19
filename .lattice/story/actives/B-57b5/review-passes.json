@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T19:28:39.871Z",
       "reviewRunId": "B-57b5:RR-006",
       "_hash": "09886c7aecfc6cc9dca670fb8e0a7172188ffec86a4e26c0b76a28c84b6398da"
+    },
+    {
+      "id": "B-57b5:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass after BUG-001 fix: commitInitCheckMetadataAndMergeMain now performs pre-existing staged path inspection, bounded staging, cached diff checks, and git commit --only -- <storyRel> inside withReentrantMainWriteLock; worktree-authority-smoke has a direct pre-staged unrelated path regression that asserts refusal before staging story metadata, no commit, unrelated staged path preserved, and story metadata left unstaged. Worker command set covers build, lifecycle dispatch smoke, init-check conflict smoke, worktree authority BUG regression, main-write-lock coverage, and scope contract. evidence_inspect/refresh dry-run still report stale refs at HEAD cc22d00, so refresh/validate remains required before TEST/DONE, but I see no test-coverage blocker.",
+      "createdAt": "2026-06-19T19:32:53.979Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-005",
+      "_hash": "52092add513f90a0a8ad8032551fe8151ba34b33e2e52b2cc3295bea2afa0203"
     }
   ]
 }
