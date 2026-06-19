@@ -11,7 +11,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Broader field regression smoke must be updated because B-fc82 intentionally changes review_run_start diagnostic ordering: blocking dirty-tree preflight now wins before snapshot missing_head/missing_material_hash diagnostics.",
+      "timestamp": "2026-06-19T16:21:47.638Z",
+      "paths": [
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cdb1bb03d6826102326980698c417fee7886f1fe",
+      "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+      "anchors": [
+        "assertReviewRunStartWorkspaceDiagnostics",
+        "review_run_start_preflight_ordering"
+      ]
+    }
+  ],
   "createdAt": "2026-06-19T16:21:14.522Z",
-  "updatedAt": "2026-06-19T16:21:14.522Z"
+  "updatedAt": "2026-06-19T16:21:47.638Z"
 }
