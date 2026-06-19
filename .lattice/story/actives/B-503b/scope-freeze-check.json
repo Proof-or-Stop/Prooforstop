@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-503b",
+  "checkedAt": "2026-06-19T00:19:36.006Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "643d790df94399b170080f206e46e496ece82c78f9e129e6016acc957feb8537",
+  "executionBoundaryHash": "45e9881cd0e22e2debc333d75aa6d6c7ad465d0c70f3a040dfc832528d6e3045",
+  "freshnessHash": "4784dc312fbef0c799900deee1d9b248f273af3a95f4a7ca08e1a296e98c6afa",
+  "effectiveExcludedKeywords": [
+    "Do not change Authority Server behavior or claim Authority completion",
+    "Do not copy Lattice templates into external projects",
+    "Do not modify runtime gate code in packages/main/src",
+    "Do not weaken existing review_escalation_status, decision_doc_quorum_check, or DONE gates"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change Authority Server behavior or claim Authority completion",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority Server behavior or claim Authority completion",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not copy Lattice templates into external projects",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not copy Lattice templates into external projects",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify runtime gate code in packages/main/src",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify runtime gate code in packages/main/src",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken existing review_escalation_status, decision_doc_quorum_check, or DONE gates",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken existing review_escalation_status, decision_doc_quorum_check, or DONE gates",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "522a3c40a8990012f3d39d00bfac1443ff3d7ec79c78a816447ce8e639714cf1"
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-503b",
+  "mode": "maintenance",
+  "allowed": [
+    "Create docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "Update docs/requirements/NAV.md only if the decision-doc navigation convention requires it",
+    "Write story-local Lattice lifecycle metadata and review/audit evidence for B-503b"
+  ],
+  "excluded": [
+    "Do not change Authority Server behavior or claim Authority completion",
+    "Do not copy Lattice templates into external projects",
+    "Do not modify runtime gate code in packages/main/src",
+    "Do not weaken existing review_escalation_status, decision_doc_quorum_check, or DONE gates"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved writing an execution plan document for mandatory review assurance floor and requested 3 round / 1 host local audit. This story is documentation/planning only; implementation of mechanical CLI enforcement is intentionally excluded.",
+  "createdAt": "2026-06-19T00:19:11.966Z",
+  "updatedAt": "2026-06-19T00:19:11.966Z",
+  "_hash": "643d790df94399b170080f206e46e496ece82c78f9e129e6016acc957feb8537"
+}
