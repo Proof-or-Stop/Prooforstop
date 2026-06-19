@@ -5,11 +5,49 @@
       "title": "Extract flag parsing and compatibility exports",
       "context": "Move parseFlags, parseFlagsTest, addValue, coerce, and related helpers into a focused module while preserving existing imports/tests.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/testing-completeness.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Existing flag forms such as --key=value, key=value, repeated arrays, boolean flags, and JSON body payloads continue to parse the same after extraction.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/flag-parser.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parseFlags and normalizeFlagKey move into packages/main/src/cli/flag-parser.ts while cli-engine.ts keeps compatibility exports and current task imports keep compiling.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repeated array flags, JSON-array flag values, key=value shorthand, booleans, numbers, and unknown-key preservation behave exactly as before extraction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid structured CLI input still fails with the same validation path and does not get masked by phase-gate or help decoration noise.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
