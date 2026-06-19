@@ -276,7 +276,7 @@
       "desc": "evaluateDecompositionGate mode-check responsibility is contradicted between §4.4 and §4.8: §4.4 (line 333) implies the gate always populates block regardless of mode, and the CALLER gates on cfg.mode=block. But §4.8 (line 389) says the gate itself checks mode internally for peer-unreadable: under mode=block the gate emits block, otherwise advisory. These are contradictory contracts: if the gate is mode-aware internally it should not emit block=null under advise mode, but the caller would still skip the block check. The spec must pick one authority (gate-decides-mode or caller-decides-mode) and apply it consistently to ALL block conditions including peer_contract_unreadable_parallel. As written an implementer cannot reconcile the two sections.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:07:47.139Z",
@@ -287,7 +287,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "edge|md|evaluatedecompositiongate-mode-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: resolved the §4.4-vs-§4.8 mode-check contradiction — the gate stays pure and only returns a block reason from scope facts; the cfg.mode check lives solely in the §4.4 caller. §4.8 peer-unreadable reworded to return the block reason, enforced by the caller under mode:block.",
+      "resolvedAt": "2026-06-19T02:20:21.389Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-014",
