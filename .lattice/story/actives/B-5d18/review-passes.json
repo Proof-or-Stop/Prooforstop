@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T17:11:42.485Z",
       "reviewRunId": "B-5d18:RR-002",
       "_hash": "87d888afde4f43c1e2ca9b27a7b78e239e0345ee9fcbbfc4f4ef7d11655baf21"
+    },
+    {
+      "id": "B-5d18:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement issues found. Checked all symbols introduced or removed by round 2: (1) OLD timer-conditional pattern `command.timeoutMs && command.timeoutMs > 0 ? setTimeout(...) : undefined` is fully removed; zero residue in the worktree. (2) OLD `child.kill(SIGTERM/SIGKILL)` direct calls removed from timer callback; `killTree()` replaces them. The only remaining `child.kill(signal)` is the degraded fallback inside `killTree`s catch block — intentional and correct. (3) OLD `finish(1)` error handler replaced by `finish(null)` — no residue. (4) OLD inline `process.platform === win32` at the shell option replaced by `isWindows` local — all 4 uses consistent, no stale inline form. (5) OLD `unavailable` string in timeout diagnostic output replaced by `(default)` suffix — zero residue; `validation-protocol-smoke.ts` assertion `/configured timeoutMs=100ms/` still matches the explicit case. (6) NEW symbols `DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS`, `resolveCommandTimeoutMs`, `defaultTimeoutMs` seam, `killTree`, `detached: true` all present only in scope (validation-executor.ts + smoke), no orphaned references. (7) `detached` occurrences in other files (browser-executor, verifier, safe-init-commit, etc.) are unrelated git/spawn concepts — not residue. (8) `timedOut ? 124 : 1` in `lattice-dispatch.ts:1589` is the independent `spawnExitCode` helper for `spawnSync` — not a residue of the old in-close-handler pattern. (9) No CLAUDE.md/README/schema promises made without implementation. (10) `lattice.config.json` smoke entry `validate-command-timeout-smoke.js` matches the source file name. Concept residue check: no blocker.",
+      "createdAt": "2026-06-19T17:48:02.012Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-004",
+      "_hash": "e83e76f508d8a9958cc5336a3870d16dfa18ce87bfcfd80ed42b839a980c2deb"
     }
   ]
 }
