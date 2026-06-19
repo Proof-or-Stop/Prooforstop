@@ -27,7 +27,7 @@
       "desc": "quality-cleanup: docs/parallel-decomposition-spec.md §4.4 — evaluateDecompositionGate(story, peers, contracts, cfg) has no TypeScript types for `peers` or `contracts` parameters; an implementer reading the spec cannot write a type-safe call from canStartDevGuard. `peers` must be StoryInfo[] filtered from store; `contracts` must be Map<string,ScopeContractData|null> or similar — neither is stated. This gap forces guesswork or `as any` at the call site.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T01:53:07.579Z",
@@ -38,7 +38,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: evaluateDecompositionGate signature now typed — story: StoryInfo, peers: StoryInfo[], contracts: Map<string, ScopeContractData>, cfg: ParallelGateConfig; added a note that canStartDevGuard must load peers+contracts before the (pure) call.",
+      "resolvedAt": "2026-06-19T02:05:02.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-003",
