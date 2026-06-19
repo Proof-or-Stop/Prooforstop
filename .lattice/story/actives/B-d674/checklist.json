@@ -57,9 +57,9 @@
           "command": "node bin/lattice.js guard_session_start --storyId=B-d674 --provider=antigravity --viaDispatch --json; node bin/lattice.js guard_session_start --storyId=B-d674 --provider=agy --viaDispatch --json; node bin/lattice.js host_runtime_probe --host=antigravity --json; node bin/lattice.js host_runtime_probe --host=agy --json",
           "result": "pass",
           "note": "Post-fix CLI checks passed: provider=antigravity and provider=agy with viaDispatch=true both returned guardMode=wrapped-preapply, while host_runtime_probe maps antigravity and agy to host=antigravity with cliCommand=agy.",
-          "headHash": "3cfbdeba3cc031705dd5526a61c85075a9e896ae",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:37:11.680Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,9 +67,9 @@
           "command": "PATH=/usr/bin:/bin /Users/jek/.nvm/versions/node/v22.13.0/bin/node bin/lattice.js host_runtime_probe --host=antigravity --json",
           "result": "pass",
           "note": "Restricted PATH hides agy and the probe reports status=unavailable, runtimeKind=missing-cli, cliCommand=agy, and nextAction=Install or expose agy in PATH without falling back to another current host.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
           "result": "pass",
           "note": "Gemini probe remains accepted only as legacy compatibility with explicit deprecated/legacy warning and limitation text; host_runtime_list advertises fake,codex,claude-code,antigravity and omits gemini from the current runtime list.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         }
       ]
     },
@@ -142,9 +142,9 @@
           "command": "node bin/lattice.js host_runtime_list --json; node bin/lattice.js host_runtime_probe --host=gemini --json; docs/guide.md review",
           "result": "pass",
           "note": "Post-fix runtime and doc surfaces align: current runtime list is fake,codex,claude-code,antigravity; agy is the Antigravity CLI; docs/guide.md now names Codex CLI, Claude Code CLI, Antigravity CLI (agy), and keeps Gemini as deprecated legacy compatibility only.",
-          "headHash": "cda13129d8a1b823b09a3d61bd90355b4697f665",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:37:18.647Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,9 +152,9 @@
           "command": "node --input-type=module -e \"import { checkDispatchPolicy } from ./packages/main/dist/core/dispatch-policy.js; /* antigravity and agy smoke */\"",
           "result": "pass",
           "note": "No-write policy smoke passed: allowedHosts=[antigravity] authorizes with normalizedPolicy.allowedHosts=[antigravity], and allowedHosts=[agy] also authorizes while normalizing to antigravity.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,9 +162,9 @@
           "command": "node bin/lattice.js host_runtime_probe --host=unknown-host --json",
           "result": "pass",
           "note": "Expected refusal names current hosts as fake|codex|claude-code|antigravity and says agy aliases to antigravity; gemini is accepted only for legacy compatibility, so errors do not advertise Gemini as current.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         }
       ]
     },
@@ -224,9 +224,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; node bin/lattice.js scope_contract_check {storyId:B-d674}",
           "result": "pass",
           "note": "Post-fix build, focused capability-list smoke, focused dispatch-run smoke, and scope_contract_check all passed. Smokes now assert current Antigravity/agy behavior and keep Gemini compatibility separate and legacy.",
-          "headHash": "4fd90a8a40d241e738eff5da75a9394a8fd39fb5",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:37:24.078Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -234,9 +234,9 @@
           "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
           "result": "pass",
           "note": "Legacy Gemini probe remains bounded and explicit: warnings/limitations say deprecated legacy compatibility and current third-host flows use antigravity/agy. host_runtime_list omits gemini from the default current runtime set.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -244,9 +244,9 @@
           "command": "node bin/lattice.js host_runtime_probe --host=gemini --json",
           "result": "pass",
           "note": "Gemini verification did not require invoking the Gemini CLI for version/help or execution; the probe only performs safe command-path detection and states version/help probing is intentionally skipped. Antigravity/agy smoke paths do not depend on Gemini.",
-          "headHash": "0fbd11ee8e06816f43155fb1e033edaf66c06974",
-          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
-          "timestamp": "2026-06-19T15:38:04.154Z"
+          "headHash": "5b73afdd62e418f7d368f835e2c54a3c2f209f15",
+          "materialHash": "177d4eaccd91fa09b47b708a8b38e95a2b535db65c629490275e0e3622244ad2",
+          "timestamp": "2026-06-19T15:50:49.460Z"
         }
       ]
     }
