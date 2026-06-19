@@ -54,8 +54,8 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T13:25:32.193Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -215,6 +215,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV start: document and verify observable diagnostic UX.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:32.193Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: expose voluntary local 3x2 rounds in review_escalation_status.",
       "agent": "codex-main"
     }
   ]
