@@ -100,7 +100,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "authority-live-python-e2e-smoke posts the DONE preflight to /v1/gates/evaluate with decision.materialOverlapAudit.changedFiles=[] and actualFileOverlaps=[], so staging no longer fails with materialOverlapAudit.present=false.",
+      "userSees": "Live smoke request-shape output includes \"materialOverlapAudit.present=true overlapCount=0\" before the DONE preflight POST, replacing the previous staging failure \"materialOverlapAudit.present=false\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/authority-live-python-e2e-smoke.ts"
