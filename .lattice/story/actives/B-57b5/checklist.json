@@ -184,7 +184,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-19T18:55:15.037Z",
+      "endTime": "2026-06-19T19:02:14.590Z",
       "userSees": "Verification transcript should include `lifecycle dispatch smoke passed`, `lifecycle-registry consistency: PASS`, `command-ownership contract passed`, and `main-write-lock-coverage:` with no scope-contract violations.",
       "excludes": [
         "Do not use a local 3x2 host verdict as Authority Server completion.",
@@ -240,9 +240,9 @@
           "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:lifecycle-dispatch-smoke",
           "result": "pass",
           "note": "Final build and focused lifecycle-dispatch smoke passed, covering compile-time integration and extracted helper contracts.",
-          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "headHash": "752691c03398ded23c0d2fb8bada0f6a3606fc16",
           "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
-          "timestamp": "2026-06-19T19:01:10.175Z"
+          "timestamp": "2026-06-19T19:02:14.701Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -250,19 +250,19 @@
           "command": "node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:lifecycle-registry-contract; npm --prefix packages/main run test:command-catalog-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:main-write-lock-coverage",
           "result": "pass",
           "note": "Process fact, lifecycle registry, command catalog, ownership, and main-write-lock contract checks all passed on the final build.",
-          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "headHash": "752691c03398ded23c0d2fb8bada0f6a3606fc16",
           "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
-          "timestamp": "2026-06-19T19:01:10.175Z"
+          "timestamp": "2026-06-19T19:02:14.787Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/verification-freshness-smoke.js; node bin/lattice.js scope_contract_check json true",
           "result": "pass",
-          "note": "INIT_CHECK conflict, worktree authority, verification freshness, and B-57b5 scope contract checks all passed, including the DONE-equivalent merge topology regression.",
-          "headHash": "8550d323ec8600116f10ce89f037fa48ca7b971c",
+          "note": "INIT_CHECK conflict, worktree authority, verification freshness, and B-57b5 scope contract checks passed; worktree-authority now proves the DONE-equivalent merge succeeds and story branch is contained in main without enforcing merge-commit topology.",
+          "headHash": "752691c03398ded23c0d2fb8bada0f6a3606fc16",
           "materialHash": "63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286",
-          "timestamp": "2026-06-19T19:01:10.175Z"
+          "timestamp": "2026-06-19T19:02:14.872Z"
         }
       ]
     }
