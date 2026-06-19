@@ -50,9 +50,9 @@
           "command": "rg -n \"zero-review|three rounds x one|3x1|3x2\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
           "result": "pass",
           "note": "The document defines zero-review code DONE as invalid, one review round for clean ordinary code, failure-triggered 3x1 local single-host audit, and high-risk 3x2/degraded fallback boundaries.",
-          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
-          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
-          "timestamp": "2026-06-19T00:37:23.827Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "rg -n \"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\" docs/requirements/decisions/review-assurance-floor-execution-plan.md && rg -n \"Review Assurance Floor Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "The document preserves the docs-only low-risk path, rejects forcing every code-changing story into three rounds by default, and is discoverable from docs/requirements/NAV.md.",
-          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
-          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
-          "timestamp": "2026-06-19T00:37:23.975Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "rg -n \"two-host independent|authorityDone|fullAuthorityDone|productionDone|Authority Server\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
           "result": "pass",
           "note": "The document explicitly forbids treating local 3x1 as two-host independent review and forbids local evidence from claiming Authority Server completion or authorityDone/fullAuthorityDone/productionDone.",
-          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
-          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
-          "timestamp": "2026-06-19T00:37:24.136Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         }
       ]
     },
@@ -121,9 +121,9 @@
           "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r2 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r3 --format=json",
           "result": "pass",
           "note": "Each run-specific status shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, and a localReviewEvidenceRefs entry: r1 host-verdict:verdict-df35089fa5024a48, r2 host-verdict:verdict-12f2d912e2e9824e, r3 host-verdict:verdict-076efa73e2173746. Each is intentionally single-host local evidence, so status remains blocked for 2-host certification.",
-          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:29:51.064Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -131,9 +131,9 @@
           "command": "run-specific status plus round notes in process-events.jsonl",
           "result": "pass",
           "note": "Round 1 checked real zero-review code DONE gap, Round 2 checked consistency with threshold-triggered review escalation, Round 3 checked Authority boundary. The earlier incorrect default-run/x3 evidence claim was replaced with exact runId-specific status commands.",
-          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:29:51.183Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -141,9 +141,9 @@
           "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json and review_escalation_status",
           "result": "pass",
           "note": "Run-specific status reports authorityDone=false, fullAuthorityDone=false, receiptVerified=false, multiHostVerified=false. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false. The evidence is local Non-authority audit evidence only.",
-          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:29:51.305Z"
+          "headHash": "bb3c46510a1e7ede11a4d93828631fa89068e50a",
+          "materialHash": "93b1fd1dde52b8fcbd991a209348ce5a0bf4c997af5da79acf7a3f3fb7d08e84",
+          "timestamp": "2026-06-19T00:41:13.896Z"
         }
       ]
     }
