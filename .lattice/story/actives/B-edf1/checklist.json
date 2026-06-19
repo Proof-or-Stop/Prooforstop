@@ -7,7 +7,35 @@
       "userSees": "On a DONE where host verdicts were downgrade-accepted (materialHash drift + storyFilesHash match), the DONE checklist Review-escalation row PASSES but its detail now includes e.g. \"host verdict ...: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\" so the operator sees the drift. With no drift, no advisory text appears.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A downgrade-accepted DONE (materialHash drift + storyFilesHash match) renders the Review-escalation row as PASS with the re-attestation advisory text in its detail.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A no-drift DONE renders the Review-escalation row PASS with NO advisory text (no false alarm).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The advisory is in the always-printed detail (not the hint), so renderDoneChecklist actually shows it on a PASS row.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The change does not flip the row to fail or block DONE; status and blocking are unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
