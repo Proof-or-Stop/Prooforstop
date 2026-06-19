@@ -1,0 +1,32 @@
+{
+  "task": "Fix Lattice CLI so Authority DONE/enforce gate requests submit decision.materialOverlapAudit in the signed /v1/gates/evaluate envelope.",
+  "outcome": "After the fix, running the Authority live Python E2E smoke against staging reaches DONE preflight without the error \"DONE enforce gate requires materialOverlapAudit before Authority completion\"; the terminal evidence shows materialOverlapAudit.present=true, overlapCount=0, and the verified receipt proof contains inputPayload.materialOverlapAudit.",
+  "facts": [
+    "Staging DONE/enforce gate currently fails with diagnostics.materialOverlapAudit.present=false.",
+    "The Authority Server reads materialOverlapAudit only from the signed gate decision input, not from /v1/checks or /v1/commands.",
+    "The minimal no-overlap smoke payload is changedFiles: [] and actualFileOverlaps: [].",
+    "Non-empty actualFileOverlaps must remain visible and fail closed; the CLI must not clear it to force pass.",
+    "The handoff source of truth is docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md."
+  ],
+  "constraints": [
+    "Do not add server endpoints or new /v1/checks or /v1/commands contracts.",
+    "Do not change receipt verification or gate consumption semantics beyond the materialOverlapAudit precondition.",
+    "Preserve host-neutral design: CLI hosts produce evidence; Authority Server mints gate_decision receipts.",
+    "Implement only the real correctness gap; no arbitrary optimization or broader lifecycle rewrite.",
+    "Do not read local senior credential files unless explicitly required."
+  ],
+  "unknowns": [
+    "Exact existing test file location for Authority contract/envelope regression coverage must be confirmed during DEV.",
+    "Whether staging credentials available in this worktree are sufficient for a full live smoke must be determined during TEST without exposing secrets."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/planned-steps-executor.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/tests or existing targeted test files",
+    "packages/main/dist generated build output",
+    "package.json and package-lock.json only if version/build discipline requires it"
+  ],
+  "timestamp": "2026-06-19T18:46:55.501Z"
+}
