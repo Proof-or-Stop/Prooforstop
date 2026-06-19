@@ -95,7 +95,7 @@
       "desc": "concept-cleanup: smoke section-1 comment (line 25) says computeWriteSet unions allowedModify + allowedCreate + allowedTest — describing the pre-F-001 three-field union. Post-fix the engine unions only allowedModify + allowedCreate (allowedTest excluded). The assertion still passes because the fixture places parser.test.ts in allowedCreate, not allowedTest, so the behavior is correct. But the comment is stale/misleading: it contradicts the corrected contract (plan.md, F-001 resolution, section-10 comment). Future readers of section 1 will believe allowedTest is included. File: packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts line 25.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T13:14:26.779Z",
@@ -106,7 +106,11 @@
         "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
       ],
       "signatureTag": "edge|ts|concept-cleanup-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke line-1 comment corrected to \"allowedModify + allowedCreate, deduped (allowedTest excluded)\" matching the F-001 fix.",
+      "resolvedAt": "2026-06-19T13:28:51.435Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4033:F-006",
