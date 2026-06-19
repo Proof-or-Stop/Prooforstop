@@ -46,6 +46,24 @@
         }
       ],
       "_hash": "8fa79e80d4cb09eee1f368aa272827e1f6783bfa9dffb1133e623ade7bba2a0b"
+    },
+    {
+      "timestamp": "2026-06-19T13:24:10.710Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Summarize all local review verdict runs in autopilot_review_status + Show voluntary local 3x2 rounds in review_escalation_status are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        }
+      ],
+      "_hash": "ab409b0426dd8489dfefd2ac5d0e274032c9ad485f71aeadb3bfa4f2023c2b37"
     }
   ]
 }
