@@ -95,7 +95,7 @@
       "desc": "rollback-gap: version-bump.ts:174 readSyncedVersion can throw after all 3 files are written to `to`; that exception propagates without calling rollback(), leaving the 3 version files bumped but uncommitted -- the opposite of the stated contract (\"rolled back to from\"). The if(after !== to) guard on line 175 only handles the wrong-value case, not the thrown-exception case. bumpVersionOnDoneMerge then catches it as \"failed before any commit\" and the git add+commit never runs, creating the bump-written-but-uncommitted state the code explicitly tries to prevent.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T20:09:01.467Z",
@@ -103,7 +103,11 @@
       "reviewRunId": "B-aa8a:RR-005",
       "_hash": "3682da8a0132198df1d17eb80aa4fceaf6cc06ecbccab4087f7bc3f246a94dcd",
       "signatureTag": "edge|unknown|rollback-version-bump",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: applyPatchBump wraps the post-write verification readSyncedVersion in try/catch and rolls back to 'from' on a THROW as well as a wrong value; smoke cases 18/19 exercise both via the afterWriteForTest seam. Codex round-3 reproduced+confirmed the fix.",
+      "resolvedAt": "2026-06-19T20:45:44.216Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-aa8a:F-006",
