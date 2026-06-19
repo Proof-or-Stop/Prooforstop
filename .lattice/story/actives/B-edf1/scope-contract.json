@@ -1,0 +1,21 @@
+{
+  "storyId": "B-edf1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Only done-oracle.ts render (and machine.ts if an operator-visible pass-path surface needs it) plus one smoke; the downgrade-accept and freshness logic in review-escalation.ts and evidence-freshness.ts must not change (consume-only).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T23:50:29.881Z",
+  "updatedAt": "2026-06-19T23:50:29.881Z"
+}
