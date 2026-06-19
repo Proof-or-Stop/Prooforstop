@@ -1,80 +1,73 @@
 {
   "storyId": "B-997b",
-  "checkedAt": "2026-06-19T04:09:26.669Z",
+  "checkedAt": "2026-06-19T04:11:35.784Z",
   "features": [
     {
       "feature": "M1 canonical scope boundary schema and classifier for allowed modifies, creates, tests, protected files, explicit excludes, related docs, lifecycle/runtime/generated/fixture/unknown path classes",
-      "covered_by": "CHK-001 title/context/files/verificationIntent; B-997b plan Execution Boundary; roadmap M1 deliverables",
+      "covered_by": "CHK-001 title/context/files/verificationIntent; B-997b execution boundary; regenerated scope contract allowedModify/allowedCreate/allowedTest/explicitExcludes",
       "status": "covered",
       "excluded_by": "",
-      "source": ".lattice/story/actives/B-997b/plan.md#CHK-001; lattice scope_contract_show"
+      "source": "lattice checklist_get CHK-001; lattice scope_contract_show"
     },
     {
       "feature": "M1 stable scope check row contract with id, status/source/detail, path, blocking flag, and next-action hint consumed by scope checks/guard/operator messages",
       "covered_by": "CHK-001 userSees and verificationIntent; CHK-002 handler/guard/phase-gate row expectations",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-001/CHK-002; roadmap M1 DONE criteria"
+      "source": "lattice checklist_get CHK-001/CHK-002"
     },
     {
       "feature": "M2 lifecycle and runtime artifact hardening without blanket exemptions for .lattice, .koala, docs, docs/story, or evidence directories",
-      "covered_by": "CHK-002 context/files/verificationIntent; lifecycle-artifact-scope policy; scope_contract_check current lifecycle metadata pass",
+      "covered_by": "CHK-002 context/files/verificationIntent; lifecycle-artifact policy relatedDoc; scope contract explicit excludes and allowed path list stay narrow",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/lifecycle-artifact-scope.md; lattice scope_contract_check"
+      "source": "lattice checklist_get CHK-002; lattice scope_contract_show"
     },
     {
       "feature": "M2 host-aware scope guard behavior and lifecycle gate rendering that truthfully distinguishes active prewrite hooks from watcher fallback",
-      "covered_by": "CHK-002 files include guard-session and phase-gates; scope guard guide multi-host semantics; roadmap M2 deliverables",
+      "covered_by": "CHK-002 files include guard-session and phase-gates; docs/guide-scope-guard.md is now declared consistently in relatedDocs/files/touchpoints and allowedModify",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/guide-scope-guard.md; checklist_get CHK-002"
+      "source": "lattice checklist_get CHK-002/CHK-004; lattice understanding_get; lattice scope_contract_show"
     },
     {
       "feature": "M3 structured scope drift acknowledgement, repair/fallback audit context, and no self-signing of reviewer-only evidence",
-      "covered_by": "CHK-003 context/files/verificationIntent; roadmap M3 deliverables and blockers; scope-check guidance distinction between scope_check_save and scope_contract_acknowledge",
+      "covered_by": "CHK-003 context/files/verificationIntent; scope-check guidance relatedDoc; scope contract has no acknowledgements and preserves PLAN scope_check_save as separate reviewer evidence",
       "status": "covered",
       "excluded_by": "",
-      "source": ".lattice/story/actives/B-997b/plan.md#CHK-003; docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      "source": "lattice checklist_get CHK-003; lattice scope_contract_show"
     },
     {
       "feature": "Wave 1 verification and docs synchronize M1-M3 behavior with focused smoke/process-fact checks while preserving claim boundaries",
-      "covered_by": "CHK-004 context/files/verificationIntent; roadmap M1-M3 required tests and sequencing",
+      "covered_by": "CHK-004 context/files/verificationIntent; allowed docs/tests include roadmap, lifecycle policy, guide-scope-guard, process verifier, and focused scope smoke only",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-004; roadmap sequencing M1-M3 before broad implementation"
+      "source": "lattice checklist_get CHK-004; lattice scope_contract_show"
     },
     {
       "feature": "Later evidence context packs, oracle matrices, baseline suites, and new gate fact registry expansion beyond required verifier compatibility",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "B-997b Execution Boundary excludes evidence context packs and broad evidence/gate work; roadmap sequencing puts M4-M7 after M1-M3",
-      "source": ".lattice/story/actives/B-997b/plan.md Execution Boundary; roadmap M4-M7"
+      "excluded_by": "B-997b execution boundary and understanding constraints keep M4-M7 as follow-up waves; current allowed files exclude verification-context-pack and baseline-risk sources",
+      "source": "lattice understanding_get; lattice scope_contract_show explicitExcludes"
     },
     {
       "feature": "Authority, receipt contracts, customer-key behavior, production/Layer 4 claims, full host quorum, preflight command center, collaboration scheduler, rollout migrations, and final certification",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "B-997b Execution Boundary explicitly excludes later roadmap milestones and Authority/Layer 4/customer-key/production receipt work; CHK-004 edge intent requires docs to preserve later-roadmap non-goals",
-      "source": ".lattice/story/actives/B-997b/plan.md Execution Boundary; roadmap M8-M12"
-    },
-    {
-      "feature": "Scope guard guide documentation update path is declared as docs/requirements/guide-scope-guard.md, but the repository and roadmap source use docs/guide-scope-guard.md",
-      "covered_by": "",
-      "status": "drift",
-      "excluded_by": "",
-      "source": "rg --files found docs/guide-scope-guard.md only; ls docs/requirements/guide-scope-guard.md failed; scope_contract_show allowedModify includes docs/requirements/guide-scope-guard.md"
+      "excluded_by": "B-997b execution boundary and understanding constraints explicitly exclude later roadmap milestones, Authority/Layer 4/customer-key/production receipt work, and unrelated scheduler/preflight work",
+      "source": "lattice understanding_get; lattice scope_contract_show explicitExcludes"
     }
   ],
   "summary": {
-    "total": 9,
+    "total": 8,
     "covered": 6,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "2b61b3822ee9180a864826b7284e90923dd1ccca26b8e01d1515a4865e165739",
+  "_hash": "83ffaf4e7b16dd540c764f0336c9df2bc027715b6e589ffc10773ac5cbe56a0e",
   "openQuestions": []
 }

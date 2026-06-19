@@ -6,7 +6,8 @@
     "The roadmap orders M1-M3 before evidence packs, baseline suites, host quorum, command center, collaboration scheduler, rollout, and final certification work.",
     "Existing code already has scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_contract_set/show/check/acknowledge, lifecycle artifact classification, runtime artifact registry, guard session logic, and scope transition gates.",
     "Current scope_contract_check returns status, summary, violations, warnings, and acknowledgedPaths, but not stable row ids/details/hints/source/blocking rows as specified by M2.",
-    "Current scope_contract_acknowledge records actor, reason, timestamp, paths, optional anchors and hunk digests, but does not bind the acknowledgement to current head/material hashes or render that audit context."
+    "Current scope_contract_acknowledge records actor, reason, timestamp, paths, optional anchors and hunk digests, but does not bind the acknowledgement to current head/material hashes or render that audit context.",
+    "The scope guard guide source path is docs/guide-scope-guard.md, not docs/requirements/guide-scope-guard.md."
   ],
   "constraints": [
     "Do not implement later roadmap milestones in this story; keep M4-M12 as follow-up waves.",
@@ -27,7 +28,7 @@
     "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
     "docs/requirements/decisions/lifecycle-artifact-scope.md",
-    "docs/requirements/guide-scope-guard.md"
+    "docs/guide-scope-guard.md"
   ],
-  "timestamp": "2026-06-19T04:02:55.300Z"
+  "timestamp": "2026-06-19T04:10:42.844Z"
 }
