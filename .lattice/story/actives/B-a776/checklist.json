@@ -174,9 +174,9 @@
         "docs/parallel-decomposition-spec.md",
         "docs/dev/test-coverage.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T18:12:13.144Z",
-      "endTime": null,
+      "endTime": "2026-06-19T18:12:56.261Z",
       "userSees": "`cli surface smoke passed`, `command catalog smoke passed: 239 commands`, and `Process fact contract verified` all appear after the extraction.",
       "files": {
         "modify": [
@@ -216,7 +216,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-catalog-smoke && npm --prefix packages/main run test:cli-surface-smoke && node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js && node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
+          "result": "pass",
+          "note": "All required verification commands passed after extraction: build, process-fact contract, command-catalog smoke, new cli-surface smoke, cli-argument ergonomics smoke, and lattice-cli migration smoke.",
+          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:56.352Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke asserts dry-run help classes for optional/default-on/always-on commands, Lattice branding in global/tool help, current antigravity/agy host wording, JSON body compatibility, and nested alias dispatch.",
+          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:56.438Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
+          "result": "pass",
+          "note": "Scope contract check returned status pass with zero violations; source changes are limited to cli-engine.ts, packages/main/package.json, cli/flag-parser.ts, cli/help-renderer.ts, cli/alias-normalizer.ts, and tasks/cli-surface-smoke.ts, with only command-generated B-a776 lifecycle metadata outside source scope.",
+          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:56.521Z"
+        }
+      ]
     }
   ]
 }
