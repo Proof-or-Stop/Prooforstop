@@ -151,6 +151,24 @@
       ],
       "signatureTag": "missing|ts|codex-host-public",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4033:F-008",
+      "desc": "[Codex host P2] normalizeEntry did not canonicalize redundant path segments (src/./a.ts, src//a.ts), so equivalent paths compared distinct and a real write-set collision could be missed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:40:17.715Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-007",
+      "_hash": "36e79071e89fdbf3df4b749334a0cfe9424bb206dfd8262692a63e3d249e6758",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-normalizeentry",
+      "signatureTagSource": "auto"
     }
   ]
 }
