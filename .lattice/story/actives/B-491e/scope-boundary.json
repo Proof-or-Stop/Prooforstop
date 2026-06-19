@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-491e",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/guide.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md only if wording must remain consistent",
+    "docs/story/actives/B-491e/** story metadata",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "excluded": [
+    "Authority receipt/gate verification semantics unrelated to bundle generation cleanup",
+    "Lattice Authority Server repository changes",
+    "multi-tenant credential management",
+    "new public CLI command for bundle generation",
+    "server-side Python generator implementation"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User requested parallel Lattice development: CLI cleanup happens in Orchestrate and must leave public CLI as consumer-only for server-generated bundles. Incorporate INIT low issue by explicitly covering lattice_staging-client.env.",
+  "createdAt": "2026-06-19T00:43:59.921Z",
+  "updatedAt": "2026-06-19T00:43:59.921Z",
+  "_hash": "29c9cfe2833bb5155b830fc5e88e96ec66b6f3fde7fcc016acda1736dadf6ba9"
+}

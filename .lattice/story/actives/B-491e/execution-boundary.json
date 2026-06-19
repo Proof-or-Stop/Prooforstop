@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-491e",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "lattice validate --story=B-491e --json",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:authority-client",
+    "npm --prefix packages/main run test:authority-evidence-flow",
+    "npm --prefix packages/main run test:authority-status-smoke",
+    "npm test -- --runInBand",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/guide.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/story/actives/B-491e",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Remove generation, preserve consumption. Do not expose private server generation internals in public docs. Do not edit Lattice_Authority in this story.",
+  "createdAt": "2026-06-19T00:43:59.931Z",
+  "updatedAt": "2026-06-19T00:43:59.931Z",
+  "_hash": "8ee5f21c8f2ab576037bc610a3ebdc01b19ca84105d12db1d3b8986538c629ca"
+}
