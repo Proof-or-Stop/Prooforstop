@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/verdicts.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/planner-unattended-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "autopilot_review_status without runId still returns the default-run summary and additionally exposes all/local latest run summaries when custom runs exist.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A story with multiple custom run ids shows per-run counts/status without counting stale, duplicate, or failing verdicts as passing independence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The added summary must not set server-backed completion flags for local verdicts and must preserve existing runId-specific output fields.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
