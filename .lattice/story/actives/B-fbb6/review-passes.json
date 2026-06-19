@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T18:08:04.063Z",
       "reviewRunId": "B-fbb6:RR-001",
       "_hash": "49f316f95fbcfae050b007cab8f590d2acd4ae238616733fcdb1a5db8e6e3298"
+    },
+    {
+      "id": "B-fbb6:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All story-specific invariants verified clean: (1) gemini-cli.ts renamed to antigravity-cli.ts with binary=agy, usage extraction removed, reportedUsage never set, stdout/stderr kept as digest+byte-count only, raw never surfaced. (2) usage=unavailable for antigravity throughout: no fabricated tokens, antigravity always takes unavailable branch in recordDispatchFinalForProvider. Gemini usage adapter (adapters/gemini.ts) deleted, assemble.ts ProviderName is anthropic|openai only. (3) usage-ledger zero-cross-module-import invariant intact: dispatch-usage.ts imports only ./ siblings and node builtins; providers/antigravity-cli.ts has no core/usage-ledger import. (4) dispatch-policy host model: LEGACY_KNOWN_HOSTS=[] (empty), gemini removed from normalizeDispatchHostId; unsupportedRealHosts filters antigravity exactly once at each call site (no duplicate); antigravity stays unattended-refused in dispatchAuto and bindDispatchAutoArgsToPolicy; antigravity gains the supervised real-leaf agy path in runDispatch. (5) No anthropic/codex path changes; summary.ts/diagnostics.ts B-b1f4 aggregate logic unchanged (only a doc-comment edit removing gemini mention). (6) No dead code: extractGeminiUsage, isGeminiUsageObject, extractGeminiModel, probeGeminiCapabilities, buildLegacyGeminiProfile, extractGeminiStreamUsage all deleted. (7) No new any types introduced by this diff. Two low-severity advisory findings filed (F-002 suspected, F-003 informational) — neither is a blocker.",
+      "createdAt": "2026-06-19T18:12:58.817Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-002",
+      "_hash": "7e0f8bc57b9fc8523698e6fd989f64a0455a5ecbd4a6163589b2b09bfa849685"
     }
   ]
 }
