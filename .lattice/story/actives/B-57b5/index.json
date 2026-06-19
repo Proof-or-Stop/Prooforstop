@@ -4,7 +4,7 @@
   "title": "Extract CLI lifecycle dispatch and INIT_CHECK metadata handling",
   "description": "Refactor cli-engine.ts by extracting lifecycle-specific command dispatch, INIT_CHECK metadata sync, merge-main recovery, and runCli orchestration wrappers after earlier CLI modules stabilize.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "depends": [
     "B-74a0",
@@ -51,6 +51,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-19T19:03:54.687Z",
+      "branch": "story/B-57b5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T19:09:23.437Z",
       "branch": "story/B-57b5",
       "user": "Harmonygo",
       "agent": "main"
