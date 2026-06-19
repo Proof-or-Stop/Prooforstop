@@ -237,9 +237,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T19:06:35.016Z",
       "userSees": "Targeted validation output includes \"schema acceptance PASS\", \"signed envelope audit PASS\", \"live smoke request shape PASS\", \"non-empty overlap preservation PASS\", and \"npm --prefix packages/main run build\" exits 0.",
       "files": {
         "modify": [
@@ -281,7 +281,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: TypeScript build exited 0 and authority-client-smoke printed schema acceptance, signed envelope audit, live smoke request shape, non-empty overlap preservation, and authority client smoke passed.",
+          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:35.125Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: regression covered empty materialOverlapAudit arrays and non-empty actualFileOverlaps=[packages/main/src/shared.ts] without clearing overlap data.",
+          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:35.235Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: captured signed gate envelope signature is verified over the materialOverlapAudit-bearing decision; omitted or post-sign audit changes would break the test.",
+          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:35.344Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
