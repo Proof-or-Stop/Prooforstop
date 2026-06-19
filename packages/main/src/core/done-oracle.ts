@@ -700,13 +700,24 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       storyId,
       store,
     });
+    const escalationBaseDetail = escalation.required
+      ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
+      : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`;
+    // Surface re-attestation advisories on the PASS path: when a host verdict is
+    // downgrade-accepted (whole-tree materialHash drifted but the story's
+    // storyFilesHash still matches), evaluateReviewEscalation keeps escalation.ok
+    // true but records a mandatory re-attestation advisory. renderDoneChecklist
+    // only expands `hint` for warn rows and the user-value summary, so a passing
+    // row prints ONLY its detail — append the advisories to the detail (and only
+    // when present) so whole-tree drift is operator-visible instead of silent.
+    const escalationDetail = escalation.ok && escalation.advisories?.length
+      ? `${escalationBaseDetail} — ${escalation.advisories.join('; ')}`
+      : escalationBaseDetail;
     rows.push(doneCheckRow({
       id: 'review-escalation',
       status: escalation.ok ? 'pass' : 'fail',
       label: 'Review escalation',
-      detail: escalation.required
-        ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
-        : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`,
+      detail: escalationDetail,
       hint: escalation.ok ? 'review escalation satisfied or not required' : formatReviewEscalationFailure(escalation),
       source: 'findings.json + process-events.jsonl:host_verdict',
       blocking: escalation.required && !escalation.ok,
