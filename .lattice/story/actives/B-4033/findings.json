@@ -117,7 +117,7 @@
       "desc": "[Codex host P2] entriesOverlap under-flagged single-segment root literals: globsOverlap([docs],[docs/*]) returned false because the literal was reduced to its parent dir. Fixed by comparing the literal full path (e.dir) against the wildcard dir.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:28:50.682Z",
@@ -128,7 +128,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-entriesoverlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: entriesOverlap simplified to nest e.dir (literal full path vs wildcard dir) both ways; docs vs docs/* and docs vs docs/** now overlap, README.md vs README/* stays disjoint, and the F-003 deep-literal case (src/csv/* vs src/csv/impl/parser.ts) still flags. Removed now-dead dirname(). smoke 35 assertions.",
+      "resolvedAt": "2026-06-19T13:28:52.078Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
