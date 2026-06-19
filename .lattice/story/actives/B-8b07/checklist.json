@@ -163,9 +163,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T00:14:45.097Z",
       "verificationIntent": {
         "happy": [
           {
@@ -195,7 +195,42 @@
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"^## Non-Goals|^## Final Acceptance Template|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations|^## Rollout Strategy|^## Risks And Mitigations\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \"Lattice Strengthening Roadmap Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The document has explicit non-goals, final acceptance template, 3-round 2-host validation policy, baseline/negative-control expectations, rollout strategy, risks, and NAV registration.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.253Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Ambiguous high-risk terms are used in future/negative-control contexts or explicit non-goal/status language; the document does not claim runtime gates, Authority receipts, production completion, or capability unlock from this story.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.363Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "git diff --check && lattice scope_contract_check '{\"storyId\":\"B-8b07\"}' && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Whitespace check, scope contract check, and package build passed; scope contract allowed only the new decision document, NAV, and Lattice lifecycle metadata with 0 unacknowledged violations.",
+          "headHash": "26a1466476da5035f88d79ca8798c4b523341bbf",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:45.468Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -216,6 +251,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Milestone execution plan and NAV registration verified."
+    },
+    {
+      "timestamp": "2026-06-19T00:14:45.097Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Auditability, no-overclaiming, scope, and build checks verified."
     }
   ]
 }
