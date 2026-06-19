@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-19T02:09:50.803Z",
       "reviewRunId": "B-b5c0:RR-006",
       "_hash": "e6407aead485add50ae9f6239e98e409c0b6b9d7f5f964d659cbb129be67858b"
+    },
+    {
+      "id": "B-b5c0:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. Material/product diff is limited to docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md; .lattice/story/actives/B-b5c0/* is explicitly treated as story-scoped provenance, not roadmap/runtime behavior. Roadmap remains docs-only and states it is an execution plan, not implemented runtime behavior; it preserves Authority/baseline/production claim boundaries and does not claim authorityDone/fullAuthorityDone/productionDone/receiptVerified. Checks: git diff --name-only main...HEAD, git diff --check, rg spot checks for material boundary/status axis/Authority receipt/3x2/rollout rows.",
+      "createdAt": "2026-06-19T02:35:48.116Z",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "reviewRunId": "B-b5c0:RR-009",
+      "_hash": "9cbe386c1071eaa165ca4a61281e259a597fb3113e4e1ef73686818c7ad022cc"
     }
   ]
 }
