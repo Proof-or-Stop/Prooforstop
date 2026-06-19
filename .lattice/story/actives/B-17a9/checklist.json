@@ -123,6 +123,110 @@
           "packages/main/src/handlers/signature-backfill.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "signature_backfill --map <valid-map> without --apply => dry-run output shows scanned/filled/skipped counts, store files byte-identical before/after (nothing written); WHY: dry-run-default is the safety contract",
+            "type": "cli"
+          },
+          {
+            "desc": "signature_backfill --map <valid-map> --apply => findings with empty signatureTag receive signatureTag from map + signatureTagSource=backfill via store.writeFindings; WHY: primary write path",
+            "type": "cli"
+          },
+          {
+            "desc": "After --apply, finding _hash is byte-identical to _hash before backfill for every touched finding; WHY: THE critical invariant -- fields attached AFTER _hash domain",
+            "type": "cli"
+          },
+          {
+            "desc": "Dry-run output includes per-source breakdown (empty/confirmed/auto counts) and per-action tally (fill/skip-confirmed/skip-has-auto/skip-no-mapping); WHY: operator needs actionable report",
+            "type": "cli"
+          },
+          {
+            "desc": "--json flag produces structured JSON output with all counts, actions, and per-finding decisions; WHY: machine-readable integration",
+            "type": "cli"
+          },
+          {
+            "desc": "--overwriteAuto combined with --apply overwrites auto-sourced tags with backfill; WHY: intentional override path",
+            "type": "cli"
+          },
+          {
+            "desc": "signature_backfill registered in all 5 surfaces: registry.ts (registerBatch), cli-engine.ts (command schema), config.ts (DEFAULT_PHASE_TOOLS), command-policy.ts (writing ownershipClass), process-fact-levels.ts (L2 experience-layer); WHY: incomplete registration breaks discoverability or policy enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "signature_backfill is NOT in READ_ONLY_COMMANDS list; WHY: it is a writing command and read-only classification would prevent writes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "--map points to file with zero entries (empty JSON {}) => scanned>0, filled=0, all skip-no-mapping; WHY: empty map is a valid but degenerate case",
+            "type": "cli"
+          },
+          {
+            "desc": "Map contains findingIds that exist in no story => those entries silently ignored, no crash, filled=0 for those entries; WHY: map may be stale or over-inclusive",
+            "type": "cli"
+          },
+          {
+            "desc": "Store has a story with zero findings => processed without error, contributes scanned=0 for that story; WHY: empty stories should not crash iteration",
+            "type": "cli"
+          },
+          {
+            "desc": "All findings already have signatureTag+source=backfill => --apply results in filled=0 (all skip-nonempty), writeFindings NOT called; WHY: no-op when already filled",
+            "type": "cli"
+          },
+          {
+            "desc": "Running without --map arg => clear required-argument error, no writes, no silent default; WHY: no implicit map path",
+            "type": "cli"
+          },
+          {
+            "desc": "process-fact-levels entry at L2 experience-layer with owner handlers/signature-backfill; WHY: missing entry fails process-fact-contract test",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After --apply, recompute _hash via real signFinding on every touched finding => byte-identical to stored _hash; WHY: THE critical regression -- if fields leak into hash domain, all finding integrity breaks",
+            "type": "cli"
+          },
+          {
+            "desc": "Dry-run mode (default) => zero calls to store.writeFindings verified by checking file content/mtime before vs after; WHY: accidental write in dry-run is a data-corruption bug",
+            "type": "cli"
+          },
+          {
+            "desc": "Static analysis: handler source never imports or calls signFinding => no _hash recomputation possible; WHY: calling signFinding would recompute and change the hash",
+            "type": "cli"
+          },
+          {
+            "desc": "Static analysis: handler source has no fetch/http/llm/network imports => no LLM or network calls at runtime; WHY: backfill must be offline/deterministic",
+            "type": "cli"
+          },
+          {
+            "desc": "Map file is malformed JSON => handler throws clear parse error, writes nothing, store uncorrupted; WHY: corrupted map must not corrupt findings",
+            "type": "cli"
+          },
+          {
+            "desc": "Map file path does not exist on disk => handler throws clear file-not-found error, writes nothing; WHY: missing file must not silently succeed",
+            "type": "cli"
+          },
+          {
+            "desc": "command-policy entry has writing ownershipClass (like signature_registry_set), NOT readOnly; WHY: misclassification blocks the write path or hides it from audit",
+            "type": "cli"
+          },
+          {
+            "desc": "Handler does not import or modify finding-verify.ts; WHY: touching verification logic risks breaking finding integrity across the system",
+            "type": "cli"
+          },
+          {
+            "desc": "Concurrent invocation: two --apply runs on same store => second run is idempotent no-op, no data corruption; WHY: operator may accidentally double-run",
+            "type": "cli"
+          },
+          {
+            "desc": "READ_ONLY_COMMANDS contamination: signature_backfill must NOT appear in READ_ONLY_COMMANDS => static grep confirms absence; WHY: presence would silently prevent writes",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
