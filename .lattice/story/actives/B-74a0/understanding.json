@@ -1,0 +1,28 @@
+{
+  "task": "Extract the command catalog and Zod schema definitions out of cli-engine.ts without changing CLI behavior.",
+  "outcome": "After this story, running `lattice help`, `lattice story_create --help`, and the command catalog smoke still shows the same command names and argument schemas, while `cli-engine.ts` imports `MAIN_TOOLS` from a smaller CLI catalog module instead of owning the full catalog inline.",
+  "facts": [
+    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md defines Round 1 as command catalog and schema extraction only.",
+    "packages/main/src/cli-engine.ts owns ToolDef, schema helper definitions, and MAIN_TOOLS starting near line 300.",
+    "Existing tasks import MAIN_TOOLS from ../cli-engine.js, so cli-engine.ts must preserve a compatibility export.",
+    "B-d674 is DONE: current real host runtimes are codex, claude-code, antigravity with agy command; Gemini is legacy-only.",
+    "Main worktree contains unrelated uncommitted review-run/storyFilesHash changes that are intentionally isolated from this worktree baseline."
+  ],
+  "constraints": [
+    "Do not change command names, aliases, handler registration, flag parsing, help rendering, lifecycle dispatch, owner gates, or Authority semantics.",
+    "Keep MAIN_TOOLS and ToolDef reachable from packages/main/src/cli-engine.ts for existing tests and consumers.",
+    "Use project-native build and focused smokes; do not use .omx or Gemini as a current host.",
+    "Any new module must stay under the B-74a0 scope boundary and avoid touching sibling story areas.",
+    "No Authority production completion claim; local validation only unless a real Authority receipt is separately verified."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/main-tools.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-19T16:35:16.024Z"
+}

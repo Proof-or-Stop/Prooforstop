@@ -5,11 +5,46 @@
       "title": "Extract command schema and ToolDef definitions",
       "context": "Move reusable schema/type definitions out of cli-engine.ts into a CLI module without changing validation semantics or exported compatibility names.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/main-tools.ts",
+          "packages/main/src/cli/command-schemas.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ToolDef and schema-only command definitions are moved into CLI catalog/schema modules while cli-engine.ts still exports MAIN_TOOLS and ToolDef for existing consumers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Zod schema descriptions, enums, required/optional flags, defaults, and nested object/array help metadata remain behaviorally identical for representative commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No flag parsing, alias resolution, owner lease gate, lifecycle dispatch, handler registration, or Authority receipt behavior is moved or changed by this story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
