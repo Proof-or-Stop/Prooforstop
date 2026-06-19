@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d674",
+  "changes": "Added Antigravity CLI as the current third Lattice host runtime via agy; kept Gemini as deprecated legacy compatibility; updated runtime probes, dispatch policy, guard/session semantics, capability profiles, docs, and smoke scripts.",
+  "usage": "Run node bin/lattice.js host_runtime_probe --host=antigravity --json or --host=agy --json; run node bin/lattice.js host_runtime_list --json to see fake,codex,claude-code,antigravity current runtimes.",
+  "expectedOutcome": "host_runtime_probe --host=antigravity shows host=antigravity and cliCommand=agy; --host=agy aliases to antigravity; host_runtime_list shows codex, claude-code, and antigravity as current real hosts; Gemini appears only as deprecated legacy compatibility.",
+  "actualTranscript": "Observed: host_runtime_probe --host=antigravity returned host=\"antigravity\", requestedHost=\"antigravity\", status=\"scaffolded\", cliCommand=\"agy\", commandPath=\"/Users/jek/.local/bin/agy\". host_runtime_probe --host=agy returned host=\"antigravity\", requestedHost=\"agy\", matchedFallback=true, cliCommand=\"agy\". host_runtime_list returned fake, codex, claude-code, antigravity. npm --prefix packages/main run test:unattended-dispatch-smoke and npm run test:authority-enforce-matrix both passed.",
+  "outcomeDiff": "No user-visible mismatch: expected Antigravity/agy current-host behavior and smoke commands matched actual output. Authority state remains local/non-authority as designed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No production Authority receipt is claimed. Antigravity remains supervised/scaffolded and unattendedSafe=false until a bounded runner/policy proves stronger execution semantics.",
+  "pitfalls": "Initial review exposed stale Gemini-current assumptions in guard-session, docs, and smoke tasks; final fix required adding missing npm scripts and host-guard-matrix coverage before DONE gates could pass.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 891839
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 351233
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 918202
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 2345371
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1435580
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 211000
+    }
+  },
+  "totalDurationMs": 6153231,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T16:14:03.897Z",
+  "updatedAt": "2026-06-19T16:14:03.897Z"
+}

@@ -31,7 +31,7 @@ import type { StoryInfo } from '../core/types.js';
 
 const PASS_LINE =
   'PASS authority live Python E2E smoke: queued job created, claimed, evidence uploaded, gate receipt verified, authorityDone=true, lease released pending multi-host';
-export const LIVE_E2E_CLIENT_VERSION = '0.3.6';
+export const LIVE_E2E_CLIENT_VERSION = '0.3.7';
 
 export type Env = Record<string, string | undefined>;
 

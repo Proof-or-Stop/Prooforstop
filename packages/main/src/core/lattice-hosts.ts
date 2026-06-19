@@ -94,56 +94,56 @@ type LatticeDesktopCapabilityDemotion = {
 const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeDesktopCapabilityDemotion>> = {
   'file-edit': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; the desktop app is optional dashboard/archive only.',
+    note: 'Unavailable in Lattice CLI 0.3.7; the desktop app is optional dashboard/archive only.',
     authorityImpact: 'none',
-    reason: 'Lattice CLI 0.3.6 does not treat the desktop app as a repository editing host.',
-    fallback: 'Delegate file edits to Codex, Claude Code, or another explicit editing host.',
+    reason: 'Lattice CLI 0.3.7 does not treat the desktop app as a repository editing host.',
+    fallback: 'Delegate file edits to Codex, Claude Code, Antigravity, or another explicit editing host.',
   },
   'patch-apply': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; patches must be applied by a CLI/editor host.',
+    note: 'Unavailable in Lattice CLI 0.3.7; patches must be applied by a CLI/editor host.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is dashboard/archive only and cannot apply patches.',
     fallback: 'Use a patch-capable CLI/editor host.',
   },
   'shell/pty': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; shell access stays with CLI/editor/runner hosts.',
+    note: 'Unavailable in Lattice CLI 0.3.7; shell access stays with CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a local command or PTY surface.',
-    fallback: 'Run commands through Codex, Claude Code, or local-runner.',
+    fallback: 'Run commands through Codex, Claude Code, Antigravity, or local-runner.',
   },
   'test-execution': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; tests must run through CLI/editor/runner hosts.',
+    note: 'Unavailable in Lattice CLI 0.3.7; tests must run through CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a test execution surface.',
     fallback: 'Delegate build and test commands to local-runner or an editing host with shell access.',
   },
   'browser-automation': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; browser checks require a browser-capable host.',
+    note: 'Unavailable in Lattice CLI 0.3.7; browser checks require a browser-capable host.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection does not expose browser automation as a Lattice host capability.',
     fallback: 'Use a browser host or record that browser automation is unavailable.',
   },
   'evidence-submit': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; the desktop app is not an authority evidence submission surface.',
+    note: 'Unavailable in Lattice CLI 0.3.7; the desktop app is not an authority evidence submission surface.',
     authorityImpact: 'evidence-local-only',
     reason: 'The desktop app projection cannot submit authority evidence.',
     fallback: 'Keep evidence local until submitted through an explicit authority-capable client.',
   },
   'receipt-verify': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; the desktop app cannot verify authority receipts.',
+    note: 'Unavailable in Lattice CLI 0.3.7; the desktop app cannot verify authority receipts.',
     authorityImpact: 'blocks-production-done',
     reason: 'The desktop app projection cannot verify authority receipts or unlock productionDone.',
     fallback: 'Require a verified receipt from an authority-capable verifier before productionDone.',
   },
   'multimodal-research': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.6; research and verification are delegated to explicit capable hosts.',
+    note: 'Unavailable in Lattice CLI 0.3.7; research and verification are delegated to explicit capable hosts.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is limited to dashboard/archive display rather than research execution.',
     fallback: 'Delegate research to a multimodal-capable host.',
@@ -376,6 +376,21 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Use handoff_create / handoff_accept / handoff_resume for cross-host recovery without changing authority.',
       ],
       commands: ['node bin/lattice.js host_probe --host=claude-code --format=json'],
+      warnings: commonWarnings,
+    };
+  }
+  if (normalized === 'antigravity' || normalized === 'agy') {
+    return {
+      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Lattice handoff/runtime surfaces.',
+      steps: [
+        'Confirm agy is available in the user environment through its vendor documentation.',
+        'Use lattice host probe --host=antigravity to inspect visible capability degradations.',
+        'Use lattice host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
+      ],
+      commands: [
+        'node bin/lattice.js host_probe --host=antigravity --format=json',
+        'node bin/lattice.js host_runtime_probe --host=antigravity --json',
+      ],
       warnings: commonWarnings,
     };
   }

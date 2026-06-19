@@ -947,7 +947,7 @@ Behavior:
     story: z.string().optional().describe('Story ID alias'),
     runId: z.string().optional().describe('Run ID'),
     checklistId: z.string().optional().describe('Related checklist item.'),
-    provider: z.string().optional().describe('CLI/provider, such as codex/claude-code/gemini.'),
+    provider: z.string().optional().describe('CLI/provider, such as codex/claude-code/antigravity.'),
     model: z.string().optional().describe('Model.'),
     vendor: z.string().optional().describe('Vendor.'),
     role: z.enum(['implementer', 'reviewer', 'tester', 'verifier', 'main', 'other']).optional().describe('Run role.'),
@@ -1028,13 +1028,13 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'host_runtime_list', description: 'List dispatch runtime availability for fake, claude-code, gemini, and codex without changing authority (text/json). Alias: lattice host runtime list', schema: {
+  { name: 'host_runtime_list', description: 'List dispatch runtime availability for fake, codex, claude-code, and antigravity without changing authority (text/json). Alias: lattice host runtime list', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for runtime list JSON; refuses to overwrite'),
   }},
-  { name: 'host_runtime_probe', description: 'Probe one dispatch runtime (fake, claude-code, gemini, codex) without starting a host (text/json). Alias: lattice host runtime probe', schema: {
-    host: z.string().describe('Dispatch runtime id: fake, claude-code, gemini, or codex'),
+  { name: 'host_runtime_probe', description: 'Probe one dispatch runtime (fake, codex, claude-code, antigravity; alias agy) without starting a host (text/json). Alias: lattice host runtime probe', schema: {
+    host: z.string().describe('Dispatch runtime id: fake, codex, claude-code, antigravity, or agy alias'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for runtime probe JSON; refuses to overwrite'),
@@ -1043,7 +1043,7 @@ Behavior:
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.6 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: lattice config doctor', schema: {
+  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.7 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: lattice config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
@@ -1352,7 +1352,7 @@ Behavior:
   }},
   { name: 'dispatch_policy_create', description: 'Create and persist a named dispatch policy for user-authorized unattended scheduling. Alias: lattice dispatch policy create', schema: {
     policy: z.string().describe('Policy name (alphanumeric, hyphen, underscore; 1-64 chars)'),
-    allowedHosts: z.union([z.string(), z.array(z.string())]).describe('Allowed host IDs (fake, claude-code, gemini, codex)'),
+    allowedHosts: z.union([z.string(), z.array(z.string())]).describe('Allowed host IDs (fake, codex, claude-code, antigravity; agy aliases to antigravity; gemini is legacy-only)'),
     allowedPaths: z.union([z.string(), z.array(z.string())]).describe('Allowed relative paths (no absolute or traversal)'),
     deniedPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Explicitly denied relative paths'),
     maxParallel: z.number().int().positive().describe('Maximum concurrent workers (1-10)'),
@@ -1384,7 +1384,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy check JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers; real subprocess v1.0.1 is claude-code only with explicit policy opt-in. Alias: lattice dispatch auto', schema: {
+  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers; current host policies can name codex, claude-code, or antigravity, but real subprocess launch remains explicit and bounded. Alias: lattice dispatch auto', schema: {
     storyId: z.string().describe('Story ID to schedule dispatch for'),
     policy: z.string().describe('Policy name that authorizes unattended scheduling'),
     host: z.string().optional().describe('Override host (must be in policy allowedHosts; defaults to first policy-allowed host)'),
@@ -2013,7 +2013,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
     nativeHookVerified: z.boolean().optional().describe('Set true when the host-native PreToolUse hook is confirmed installed (Claude Code .claude/settings.json or Codex .codex/hooks.json), enabling native-pretool mode.'),
-    viaDispatch: z.boolean().optional().describe('(Codex/Gemini only) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
+    viaDispatch: z.boolean().optional().describe('(Codex/Antigravity only; Gemini legacy) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {

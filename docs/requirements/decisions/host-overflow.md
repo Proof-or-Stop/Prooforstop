@@ -7,7 +7,7 @@ for bounded work that leaves Lattice in charge of story, scope, receipt, and
 merge authority.
 
 - Lattice is the authority surface.
-- Claude Code, Codex, and similar tools are execution hosts.
+- Claude Code, Codex, Antigravity, and similar tools are execution hosts.
 - Manual handoff comes before supervised dispatch.
 - Supervised dispatch is a conservative projection, not an auto-runner.
 - Unattended dispatch is a separate, policy-authorized extension of supervised
@@ -25,8 +25,9 @@ B-106b landed the manual-first Host Overflow base. B-a5c2 extends that base with
 `chosen: policy-authorized-unattended-scheduler`, `preMortem: 6`.
 The v1.0.1 real-subprocess contract is Claude Code first: a policy must set
 `allowRealHostSubprocess=true` before Lattice may attempt a Claude Code real
-subprocess. Gemini and Codex remain scaffolded/refused real-subprocess targets
-in this version.
+subprocess. Codex and Antigravity remain scaffolded/refused real-subprocess
+targets in this version. Gemini is retained only for deprecated legacy
+compatibility.
 
 The product finish line is concrete and user-visible:
 
@@ -114,8 +115,8 @@ autopilot policy before any worker is started.
 Host-native delegation is a shape contract, not an authority transfer. The
 delegation artifact must identify the selected host, command preview, prompt or
 pack path, allowed/denied paths, expected receipts, transcript location, and the
-`execution-only` authority boundary. Claude Code, Gemini, Codex, and fake hosts
-can execute the bounded objective, but their local diagnostic receipts do not
+`execution-only` authority boundary. Claude Code, Antigravity, Codex, and fake
+hosts can execute the bounded objective, but their local diagnostic receipts do not
 imply `receiptVerified=true` or `productionDone=true`.
 
 Autopilot review/merge output is guidance only. It may report changed files,
@@ -186,8 +187,8 @@ The supervised dispatch layer is now landed as explicit Lattice surfaces:
   `overflow_auto`, it may start unattended workers, but only after explicit user
   policy authorization and host unattended-safety checks pass. Real-host
   subprocess launch in v1.0.1 is Claude Code only and requires
-  `allowRealHostSubprocess=true`; Gemini/Codex are not supported real-subprocess
-  targets.
+  `allowRealHostSubprocess=true`; Codex/Antigravity are not supported
+  real-subprocess targets. Gemini remains legacy compatibility only.
 
 ## Workflow
 
@@ -215,7 +216,7 @@ Lattice Host Overflow does **not**:
 - Turn host availability into production authority
 - Require the Mac App
 - Introduce a new model-runner runtime inside Lattice
-- Claim Gemini or Codex real-subprocess support in v1.0.1
+- Claim Codex or Antigravity real-subprocess support in v1.0.1
 
 ## Claude Code note
 
@@ -240,5 +241,13 @@ fake policy (deterministic parallel workers), `dispatch_watch` lifecycle,
 `dispatch_cancel` evidence preservation, `dispatch_review` transcript/runner
 evidence, `dispatch_merge_plan` `manualOnly=true`, explicit refusals for missing
 policy / unavailable host / missing real-host subprocess opt-in /
-`unattendedSafe=false` host, all authority flags fixed at `false`, and
-`overflow_auto` `nextAction` pointing to `dispatch_auto`.
+`unattendedSafe=false` host, the legacy Gemini real-host refusal path where
+applicable, all authority flags fixed at `false`, and `overflow_auto`
+`nextAction` pointing to `dispatch_auto`.
+
+Antigravity/agy coverage lives in `packages/main/src/tasks/dispatch-run-smoke.ts`
+and targeted host runtime / guard checks. Those checks assert that
+`host_runtime_list` exposes `antigravity`, `host_runtime_probe` accepts both
+`antigravity` and `agy`, the runtime reports `cliCommand: agy` without claiming
+`unattendedSafe=true`, and dispatch/pre-apply guard sessions can use
+`wrapped-preapply` for current Antigravity/agy flows.

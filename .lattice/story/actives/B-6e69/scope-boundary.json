@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6e69",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/cli-engine.ts runtime-root/activity/ownership command wiring",
+    "packages/main/src/core/runtime-artifact-registry.ts references if needed",
+    "packages/main/src/core/runtime-fact-registry.ts references if needed",
+    "packages/main/src/core/session-ownership or ownership/lease helpers if extracted",
+    "packages/main/src/tasks/*runtime*smoke.ts and ownership/activity focused smoke coverage"
+  ],
+  "excluded": [
+    "Authority Server receipt semantics",
+    "command catalog/schema extraction owned by B-74a0",
+    "flag/help/alias/dry-run parser extraction owned by B-a776",
+    "host runtime semantics beyond preserving B-d674 behavior",
+    "lifecycle dispatch and INIT_CHECK metadata behavior owned by B-57b5",
+    "package version bump"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested cli-engine architecture split; B-6e69 owns runtime root/activity/ownership gate extraction only.",
+  "createdAt": "2026-06-19T16:25:27.157Z",
+  "updatedAt": "2026-06-19T16:25:27.157Z",
+  "_hash": "1d6c356f95e83356d576bedb6476c3cdcd02d06bf7e3e3379f098284f93f8bbf"
+}

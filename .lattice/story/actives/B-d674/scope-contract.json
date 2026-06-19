@@ -1,0 +1,37 @@
+{
+  "storyId": "B-d674",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/src/tasks/host-guard-matrix-smoke.ts",
+    "README.md",
+    "docs/guide.md",
+    "docs/guide-scope-guard.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests",
+    "scripts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "REVIEW findings B-d674:F-006/F-008 verified documented npm scripts are missing, requiring package.json/packages/main package script fixes; F-007/F-009 verified host-guard-matrix-smoke.ts and core/types.ts still encode Gemini-current guard semantics.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T15:07:48.487Z",
+  "updatedAt": "2026-06-19T15:56:02.158Z"
+}

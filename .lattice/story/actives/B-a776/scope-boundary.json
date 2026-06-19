@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a776",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/cli-engine.ts flag/help/alias/dry-run parsing surface",
+    "packages/main/src/core/cli-args.ts or adjacent new argument/help parser module",
+    "packages/main/src/core/command-aliases.ts or adjacent alias metadata module if needed",
+    "packages/main/src/tasks/*cli*smoke.ts focused help/alias/dry-run smoke coverage",
+    "scripts/verify-entrypoints.mjs only if CLI help/version entrypoint assertions need updating"
+  ],
+  "excluded": [
+    "Authority Server receipt semantics",
+    "command catalog/schema extraction owned by B-74a0",
+    "host runtime semantics",
+    "lifecycle dispatch and INIT_CHECK metadata behavior",
+    "package version bump",
+    "runtime root/activity/ownership gates"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested cli-engine architecture split; B-a776 owns flags/help/aliases/dry-run parsing only.",
+  "createdAt": "2026-06-19T16:25:26.782Z",
+  "updatedAt": "2026-06-19T16:25:26.782Z",
+  "_hash": "8bc35b2c8490d56fc58f41710c38d7671acb7568e831ee1fcf6c1702bb849979"
+}

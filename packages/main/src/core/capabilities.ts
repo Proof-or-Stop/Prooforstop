@@ -251,9 +251,9 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
     ],
   },
   {
-    id: 'gemini',
-    label: 'Gemini',
-    summary: 'Agentic coding and research host with CLI-driven project work and optional browser or authority integrations.',
+    id: 'antigravity',
+    label: 'Antigravity',
+    summary: 'Agentic coding host exposed through the agy CLI, with CLI-driven project work and optional browser or authority integrations.',
     capabilities: [
       capability('file-edit', 'available', 'Can edit files in the shared workspace.'),
       capability('patch-apply', 'conditional', 'May apply patches through host editing tools or shell commands.'),
@@ -274,7 +274,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission is not intrinsic to the host.', 'Keep local evidence and require a submit-capable authority client.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification is not intrinsic to the host.', 'Require a verified receipt before productionDone can be claimed.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Gemini has no native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Antigravity has no registered native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
     ],
   },
   {
@@ -445,6 +445,28 @@ function materializeProfile(input: HostProfileInput): HostProfile {
   return { ...input, capabilities, degradations };
 }
 
+function buildLegacyGeminiProfile(): HostProfile {
+  const antigravity = HOST_PROFILE_INPUTS.find(input => input.id === 'antigravity');
+  if (!antigravity) {
+    throw new Error('antigravity host profile is missing from capability registry');
+  }
+  return materializeProfile({
+    ...antigravity,
+    id: 'gemini',
+    label: 'Gemini (deprecated legacy)',
+    summary: 'Deprecated legacy compatibility profile. Current third-host diagnostics use antigravity through the agy CLI.',
+    capabilities: antigravity.capabilities.map(capability => ({
+      ...capability,
+      note: `Legacy Gemini compatibility only. ${capability.note}`,
+    })),
+    degradations: antigravity.degradations.map(degradation => ({
+      ...degradation,
+      reason: `Legacy Gemini compatibility only. ${degradation.reason}`,
+      fallback: `Use antigravity/agy for current third-host flows. ${degradation.fallback}`,
+    })),
+  });
+}
+
 export function buildCapabilityList(): CapabilityList {
   return {
     schemaVersion: CAPABILITY_SCHEMA_VERSION,
@@ -459,7 +481,9 @@ export function buildCapabilityList(): CapabilityList {
 }
 
 function normalizeHostId(host: string): string {
-  return host.trim().toLowerCase();
+  const value = host.trim().toLowerCase();
+  if (value === 'agy') return 'antigravity';
+  return value;
 }
 
 export function buildCapabilityProbe(host: string): CapabilityProbe {
@@ -470,6 +494,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
   const list = buildCapabilityList();
   const normalized = normalizeHostId(requestedHost);
   const profile = list.hosts.find(candidate => normalizeHostId(candidate.id) === normalized)
+    ?? (normalized === 'gemini' ? buildLegacyGeminiProfile() : undefined)
     ?? list.hosts.find(candidate => candidate.id === 'unknown/fallback');
   if (!profile) {
     throw new Error('unknown/fallback host profile is missing from capability registry');

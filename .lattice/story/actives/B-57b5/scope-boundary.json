@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-57b5",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/cli-engine.ts lifecycle dispatch and phase-routing surface",
+    "packages/main/src/core/init-check metadata helpers if introduced",
+    "packages/main/src/core/story-machine.ts only for wiring-preserving extraction if needed",
+    "packages/main/src/handlers/story-advance.ts or lifecycle handler helpers if extracted",
+    "packages/main/src/tasks/*init*smoke.ts and lifecycle dispatch focused smoke coverage"
+  ],
+  "excluded": [
+    "Authority Server receipt semantics",
+    "command catalog/schema extraction owned by B-74a0",
+    "flag/help/alias/dry-run parser extraction owned by B-a776",
+    "host runtime semantics beyond preserving B-d674 behavior",
+    "package version bump",
+    "runtime root/activity/ownership gates owned by B-6e69"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested cli-engine architecture split; B-57b5 owns lifecycle dispatch and INIT_CHECK metadata extraction only.",
+  "createdAt": "2026-06-19T16:25:27.513Z",
+  "updatedAt": "2026-06-19T16:25:27.513Z",
+  "_hash": "e71cacac7bc6f5f9a42099ce06461ca2bbcdc6c9b418b1718402a250dfcf3fb7"
+}

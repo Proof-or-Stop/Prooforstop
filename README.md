@@ -112,8 +112,9 @@ conservatively `false`; actual launch authorization is computed by
 `dispatch_auto` from policy authorization plus Claude availability,
 `claude --print` support, `commandAllowlist`, timeout/env, and scope checks. In
 v1.0.1, real-host subprocess launch is Claude Code only and additionally
-requires `allowRealHostSubprocess=true`; Gemini and Codex remain
-scaffolded/refused real-subprocess targets.
+requires `allowRealHostSubprocess=true`; Codex and Antigravity remain
+scaffolded/refused real-subprocess targets. Gemini is retained only for
+deprecated legacy compatibility.
 
 **Opt-in command sequence:**
 
@@ -134,6 +135,7 @@ lattice dispatch_policy_check --policy=nightly-safe --format=json
 
 # 2. Probe host capability (works whether or not the CLI is installed)
 lattice host_runtime_probe --host=claude-code --json
+lattice host_runtime_probe --host=antigravity --json
 
 # 3. Start policy-authorized unattended workers
 lattice dispatch_auto --storyId=B-xxxx --policy=nightly-safe --format=json
@@ -158,7 +160,7 @@ lattice dispatch_merge_plan --dispatchId=D-B-xxxx-1234 --format=json
 | Mode | Supervised/manual-first | Policy-authorized unattended |
 | Starts workers automatically | Only with `approve=true --start=true` | Yes for fake; Claude Code real subprocess only with `allowRealHostSubprocess=true` |
 | Policy required | No | Yes — refuses if missing or unauthorized |
-| Host safety check | No | Yes — Gemini/Codex real subprocess support is not claimed |
+| Host safety check | No | Yes — Codex/Antigravity real subprocess support is not claimed |
 | Unattended mode | No (suggest-only by default) | Yes (policy-gated) |
 | Migration | Current default | Use this for unattended mode |
 
@@ -235,8 +237,8 @@ not an override. The run derives mode, retry count, runtime, budget, receipt
 requirement, and dispatch policy from `.koala/autopilot-policies/<policy>.json`
 before any worker is started.
 
-Host-native delegation is execution-only. A delegated Claude Code, Gemini, Codex,
-or fake host receives a bounded pack/prompt shape and returns transcript,
+Host-native delegation is execution-only. A delegated Claude Code, Antigravity,
+Codex, or fake host receives a bounded pack/prompt shape and returns transcript,
 changed-file, command, and local diagnostic receipt data for review. Those local
 diagnostic receipts do not imply `receiptVerified=true` or `productionDone=true`.
 Authority-Verified mode may report `authorityReceiptGate.verified=true` only

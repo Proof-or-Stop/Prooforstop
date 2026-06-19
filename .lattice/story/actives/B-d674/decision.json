@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Current host terminology must match the user-visible product: Codex CLI, Claude Code CLI, Antigravity CLI.",
+    "Legacy compatibility must be explicit and bounded, never advertised as the preferred current path.",
+    "Host runtime changes must preserve conservative unattended-safety semantics and dispatch gates.",
+    "Verification should prove both the new agy path and non-regression for legacy records."
+  ],
+  "drivers": [
+    "Antigravity/agy is installed locally but rejected by Lattice host_runtime_probe.",
+    "Existing code and docs still present Gemini as a current host.",
+    "Multi-host development needs Lattice to recognize all current host宿主 before relying on them."
+  ],
+  "options": [
+    {
+      "name": "A: Add antigravity as first-class host and keep gemini as deprecated legacy alias/id",
+      "pros": [
+        "Unblocks agy immediately without breaking older records or tests that mention gemini.",
+        "Lets docs and current lists move to Antigravity while legacy behavior remains inspectable.",
+        "Smallest safe runtime change for a first development slice."
+      ],
+      "cons": [
+        "Some legacy gemini code remains and needs clear deprecated labeling.",
+        "A later cleanup story may still be needed if the user wants hard deletion of every gemini surface."
+      ]
+    },
+    {
+      "name": "B: Replace gemini entirely with antigravity and remove all gemini host handling now",
+      "pros": [
+        "Strongest semantic cleanup and no lingering old third-host name.",
+        "Simpler current host list after removal."
+      ],
+      "cons": [
+        "Higher compatibility risk for existing dispatch records, policies, docs, and tests.",
+        "Broader blast radius inside dispatch and usage-ledger provider code.",
+        "Could derail the requested cli-engine split by turning this into a breaking migration."
+      ]
+    },
+    {
+      "name": "C: Only update docs and leave runtime host ids unchanged",
+      "pros": [
+        "Very small change and low code risk."
+      ],
+      "cons": [
+        "Does not solve the real failure: host_runtime_probe rejects antigravity.",
+        "Would mislead multi-host development because agy still cannot be selected through Lattice."
+      ]
+    }
+  ],
+  "chosen": "A: Add antigravity as first-class host and keep gemini as deprecated legacy alias/id",
+  "rationale": "Choose A because it makes Antigravity/agy usable now, aligns current user-facing host semantics, and avoids a breaking removal of legacy Gemini records during the first enabling story.",
+  "preMortem": [
+    {
+      "scenario": "Antigravity is added to probe but dispatch policy still rejects it",
+      "trigger": "KNOWN_HOSTS or allowed host validation remains hard-coded to fake/claude-code/gemini/codex",
+      "consequence": "User sees probe pass but cannot use Antigravity in policy or dispatch flows",
+      "mitigation": "Update dispatch-policy known hosts and run policy/probe smoke checks."
+    },
+    {
+      "scenario": "Docs still teach Gemini as the current third host",
+      "trigger": "README/guide/host-overflow examples retain gemini-first wording",
+      "consequence": "Users pick the deprecated command and the new agy support feels inconsistent",
+      "mitigation": "Update current-host prose and examples to Codex, Claude Code, Antigravity; label Gemini only as legacy where retained."
+    },
+    {
+      "scenario": "Legacy Gemini compatibility is accidentally broken",
+      "trigger": "Removing or renaming gemini host id in persisted records or fallbacks",
+      "consequence": "Older dispatch records, policies, or tests fail unexpectedly",
+      "mitigation": "Keep gemini accepted as deprecated legacy in runtime normalization and add verification for legacy probe/list behavior."
+    },
+    {
+      "scenario": "Unattended safety becomes overstated for Antigravity",
+      "trigger": "Copying Codex/Gemini live dispatch support without checking agy semantics",
+      "consequence": "Lattice claims a stronger host capability than verified",
+      "mitigation": "Keep noninteractive/live-dispatch claims conservative unless code already proves bounded agy invocation; probe should report availability without claiming production authority."
+    }
+  ],
+  "timestamp": "2026-06-19T14:53:32.556Z"
+}
