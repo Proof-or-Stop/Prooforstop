@@ -5,9 +5,15 @@
     "packages/main/src/core/authority-contracts.ts",
     "packages/main/src/core/authority-client.ts",
     "packages/main/src/core/planned-steps-executor.ts",
+    "packages/main/src/core/authority-completion.ts",
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/handlers/planner.ts",
     "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
     "packages/main/src/tasks/authority-client-smoke.ts",
     "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
+    "packages/main/src/tasks/natural-language-to-done-smoke.ts",
     "packages/main/package.json",
     "packages/main/package-lock.json"
   ],
@@ -18,14 +24,21 @@
     "packages/main/src/tasks/authority-client-smoke.ts",
     "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
     "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/src/tasks/natural-language-to-done-smoke.ts",
     "packages/main/tests",
     "packages/main/package.json",
     "packages/main/package-lock.json"
   ],
   "protectedFiles": [],
-  "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "explicitExcludes": [
+    "Lattice Authority Server endpoint changes",
+    "New /v1/checks or /v1/commands material-overlap contracts",
+    "Multi-tenant API key or identity administration",
+    "Broad lifecycle state machine rewrite",
+    "Unrelated receipt verification or local gate consumption semantics"
+  ],
+  "scopeChangeReason": "Main review found the initial patch only fixed direct live preflight while real queued/completion DONE gate callers still omitted materialOverlapAudit. These added caller files are necessary to thread the same signed audit through actual Authority DONE execution paths.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T18:55:25.490Z",
-  "updatedAt": "2026-06-19T18:55:25.490Z"
+  "updatedAt": "2026-06-19T19:16:48.529Z"
 }
