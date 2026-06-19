@@ -5,7 +5,7 @@
       "desc": "concept-naming: DISPATCH_LEDGER_ESTIMATE_MODEL (value claude-code) reused as preflight estimate model for codex/gemini dispatches in runBoundedRealLeafDispatch (lattice-dispatch.ts:2008); preflight estimate records for hostKind=codex/gemini will carry model=claude-code, which is semantically wrong — a codex preflight should carry a codex/unknown model, not claude-code. A provider-specific constant or unknown is needed for the codex/gemini ledgerCtx.model.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T02:56:25.796Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "edge|ts|concept-naming-dispatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b2b6830: runBoundedRealLeafDispatch ledgerCtx no longer sets model to the claude-code constant; the codex/gemini preflight estimate falls back to DEFAULT_ESTIMATE_MODEL=unknown (honest pre-run model), and the final record binds the real result.model via finalContextForProvider. DISPATCH_LEDGER_ESTIMATE_MODEL stays used only by the claude path.",
+      "resolvedAt": "2026-06-19T03:11:21.732Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-12d7:F-002",
