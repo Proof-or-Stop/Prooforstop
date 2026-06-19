@@ -182,7 +182,7 @@
       "desc": "doc-code-drift: all scope_boundary_set examples throughout the spec (§3.1, §3.2, §3.3, §5.1–5.4, §6, §8) omit the required userConfirmed parameter. The CLI schema (cli-engine.ts) declares userConfirmed: z.boolean() without .optional(), and the handler throws 'userConfirmed must be true before the INIT scope boundary can be saved' when absent. Any agent copying these templates verbatim will get a validation failure (safeParse exit code 1).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T01:57:21.509Z",
@@ -195,7 +195,11 @@
         "packages/main/src/handlers/scope-anti-expansion.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: added required --userConfirmed=true to all four scope_boundary_set examples (§3.1, §3.2, §3.3, §5.1). Requirement verified against cli-engine.ts Zod schema (non-optional boolean).",
+      "resolvedAt": "2026-06-19T02:05:06.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-010",
