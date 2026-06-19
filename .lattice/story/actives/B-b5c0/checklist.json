@@ -13,9 +13,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T01:25:38.706Z",
-      "endTime": null,
+      "endTime": "2026-06-19T01:25:51.503Z",
       "verificationIntent": {
         "happy": [
           {
@@ -45,7 +45,42 @@
         "test": [
           "docs/requirements/NAV.md"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Current Implementation Status Axis|shipped|harden-existing\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The repaired roadmap contains a current implementation status axis and classifies shipped/harden-existing/current surfaces.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:25:51.682Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|lifecycle-artifact-scope|session-ownership|lattice-parallel-wave\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Source mapping now includes direct Authority receipt and lifecycle receipt sources plus the existing lifecycle/session/parallel sources.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:25:51.813Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "git show --name-only --format= HEAD && rg -n \"not describe owner lease|rather than inventing scope freeze|not let local evidence set Authority completion\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Commit changed only the roadmap document and the new wording prevents existing scope/owner/parallel/receipt surfaces from being treated as net-new future work.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:25:51.934Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -140,6 +175,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin auditor verification for current implementation baseline and source mapping after implementer commit 90199776f."
+    },
+    {
+      "timestamp": "2026-06-19T01:25:51.503Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 verified against implementer commit and docs-only diff."
     }
   ]
 }
