@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T18:08:04.063Z",
       "reviewRunId": "B-fbb6:RR-002",
       "_hash": "7e0f8bc57b9fc8523698e6fd989f64a0455a5ecbd4a6163589b2b09bfa849685"
+    },
+    {
+      "id": "B-fbb6:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Functional correctness verified across all 5 checklist items. (1) antigravity-cli.ts: ANTIGRAVITY_CLI_BINARY=agy, runBoundedAntigravityProvider spawns agy with stdin closed (input:empty string via spawnSync), timeout bounded, reportedUsage never set, stdout/stderr as digest+bytes only. (2) dispatch_auto refusal: dispatch_auto throws for host=antigravity via both the unattended-safe check (line 3196) and the allowRealHostSubprocess=false binding (line 3111-3118). Smoke tests (unattended-dispatch-smoke chk008, dispatch-run-smoke chk006) pass and assert /not available|not unattended-safe|unattendedSafe=false/. (3) dispatch_run supervised path: runAntigravityRealLeafDispatch routes to runBoundedAntigravityProvider with argv=[--print, promptText, --print-timeout, Xs, --dangerously-skip-permissions]; this is reachable only from dispatch_run with allowRealHostSubprocess=true (never from dispatch_auto). (4) Usage ledger: recordDispatchFinalForProvider with provider=antigravity takes the early-return unavailable branch unconditionally, writing provider.name=antigravity + source=unavailable + unavailableReason=antigravity (agy) print mode does not surface per-call token usage. No fabricated token counts. (5) Gemini retired: parseHost rejects gemini (normalizeHostRuntimeId removed gemini case), host_runtime_probe throws for gemini, all smokes pass. Greps confirm zero provider-semantic gemini references in core/providers/handlers. Two findings registered: F-004 (spec doc host-overflow.md not updated to reflect antigravity real-leaf promotion, medium) and F-005 (stale error message in dispatch-policy.ts, low). F-006 for missing userSees on all 5 items.",
+      "createdAt": "2026-06-19T18:14:10.306Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-003",
+      "_hash": "c37611331b5038cd646d66558ededa3931146b10d48606f6589242738d128723"
     }
   ]
 }
