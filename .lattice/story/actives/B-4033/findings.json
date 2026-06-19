@@ -73,7 +73,7 @@
       "desc": "[Codex host P1] validateWriteSetGrammar accepted empty-directory wildcards (/* and /**) because dir is empty after slice; classifyBroadness(/*) reported narrow, so an effectively repo-wide scope could slip through both the grammar and broadness checks.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:11:42.407Z",
@@ -84,7 +84,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-validatewritesetgrammar",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (Codex P1): validateWriteSetGrammar now rejects empty-directory wildcards (/*, /**); classifyBroadness treats an empty/root wildcard dir as BROAD. Verified by new smoke assertions.",
+      "resolvedAt": "2026-06-19T13:12:05.787Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
