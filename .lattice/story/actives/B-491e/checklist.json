@@ -1,0 +1,103 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove public CLI Authority bundle generator entrypoints",
+      "context": "Delete or de-scope buildAuthorityTrustProfileBundle/generate bundle write paths so public CLI no longer creates basic or senior server-owned bundle material.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "userSees": "Lattice CLI no longer offers or documents local generation of Authority bundle files.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "source search shows no public CLI command or task generates lattice_authority_trust.env or lattice_senior_* bundles",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "existing authority consumption and receipt verification paths still read env/config values",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "senior bundle generation cannot be triggered through CLI code paths",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update public CLI docs to consumer-only wording",
+      "context": "Replace local generation wording with server/operator-provided file handoff and keep public docs free of server-side generator internals.",
+      "relatedDocs": [
+        "docs/guide.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "userSees": "CLI docs say operators provide the files; CLI users source/read them and do not generate them.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs describe authority_trust/client env files as server-provided",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "normal developer path still does not require PROJECT_ID or GATE_ACTOR variables",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "public docs do not expose private server generation steps",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify CLI tests after cleanup",
+      "context": "Adjust tests that previously covered generation so they cover consumer-only behavior, or remove generation-specific smoke coverage when it no longer matches product boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "userSees": "CLI authority tests still pass for receipt verify/write/consume and no longer depend on local bundle generation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority client/status smoke tests pass after cleanup",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "build passes with generation imports removed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "search/test coverage prevents accidental reintroduction of local senior bundle generation",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
