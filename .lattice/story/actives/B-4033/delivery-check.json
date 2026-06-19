@@ -1,0 +1,79 @@
+{
+  "storyId": "B-4033",
+  "checkedAt": "2026-06-19T14:20:14.632Z",
+  "reviewRound": "2026-06-19T14:07:40.976Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "computeWriteSet(contract: ScopeContractData): string[] returns dedupe(allowedModify ++ allowedCreate), no allowedTest, no I/O",
+      "verifiedBy": "diff/source-read",
+      "evidence": "packages/main/src/core/parallel-decomposition-overlap.ts exports computeWriteSet; iterates only allowedModify+allowedCreate; smoke check 10 confirms allowedTest excluded; 44/44 smoke assertions pass independently"
+    },
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "globsOverlap(a, b): GlobOverlapResult with tier-1 literal-path intersection (zero false positives) + tier-2 shared-dir-prefix heuristic (conservative), broadSide in a|b|both|null",
+      "verifiedBy": "diff/source-read",
+      "evidence": "entriesOverlap(): literal-vs-literal uses exact dir equality (zero-FP); wildcard paths use isUnderOrEqual nesting for tier-2 conservative over-flagging. globsOverlap returns GlobOverlapResult with overlap, pairs, broadSide. smoke groups 2-6, 9, 11 cover all cases. 44/44 pass."
+    },
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "Import GlobOverlapResult from parallel-decomposition.js and ScopeContractData from types.js; no I/O in core file",
+      "verifiedBy": "diff/source-read",
+      "evidence": "Lines 14-15 of new file: import type from ./parallel-decomposition.js and ./types.js. No fs/process/shell imports. Contract file parallel-decomposition.ts NOT modified (git diff shows zero changes on that file)."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "validateWriteSetGrammar rejects mid-path ** (e.g. src/**/*.ts) and bare top-level *; allows literal|dir/*|dir/**",
+      "verifiedBy": "diff/source-read",
+      "evidence": "validateWriteSetGrammar exported; rejects bare */**, empty-dir forms, mid-path **, .., and suffix patterns; allowed forms pass cleanly. Smoke groups 7-8, 13 exercise all rejection paths. 44/44 pass."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "classifyBroadness: dir/** at/near root (segments<2) is BROAD; literal and dir/* are always NARROW; deep dir/** is NARROW",
+      "verifiedBy": "diff/source-read",
+      "evidence": "classifyBroadness exported; returns narrow for literal, broad when segments.length===0, broad when subtree and segments.length<2, narrow otherwise. Smoke group 6 verifies all four cases. 44/44 pass."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "Smoke exits 0 on pass, throws/exits non-zero on any assertion failure (fail-loud); run: node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+      "verifiedBy": "source-read+live-run",
+      "evidence": "check() function throws new Error on failure causing non-zero exit. Independently ran from worktree: output was parallel-decomposition-overlap smoke passed: 44 assertions, exit 0."
+    },
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "Robust path canonicalization: normalizeEntry strips leading ./, repeated ./, empty segments from //, and . path segments",
+      "verifiedBy": "diff/source-read",
+      "evidence": "normalizeEntry uses split on slash then filter s!==empty and s!==dot then join — collapses all empty and dot segments. Smoke groups 8, 12 exercise canonicalization paths. 44/44 pass."
+    },
+    {
+      "docPath": "transcript-diff.md#Assurance",
+      "promise": "Full-3x2 dual-host review: genuine Claude + Codex cross-provider, 6 rounds x 3 lanes each = 18 review runs; no authorityDone or productionDone claimed",
+      "verifiedBy": "review-runs.json",
+      "evidence": "review-runs.json contains 18 runs RR-001 to RR-018 across 6 round timestamps, each with quality/concept/test-coverage lanes. review-passes.json has 17 passes. summary.json limitations field explicitly states no authorityDone/productionDone."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "Contract-stub wiring deferred to Story 5: parallel-decomposition.ts still exports NotImplemented stubs; Story 1 does not edit the frozen contract",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD on packages/main/src/core/parallel-decomposition.ts produces zero output; computeWriteSet and globsOverlap in that file still throw NotImplemented. Correctly disclosed as deferred, not overclaimed as done."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently ran node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js from worktree; output: parallel-decomposition-overlap smoke passed: 44 assertions, exit 0. Covers: computeWriteSet union+dedupe, tier-1 literal overlap with pair identity, disjoint literals no overlap, tier-2 dir-glob vs literal child, subtree vs nested/sibling, broadness classification all 4 cases, broadSide a/b/both, grammar valid/reject, disguised root wildcards, tier-2 prefix collisions (11 sub-cases), root literal vs wildcard, canonicalization equivalences, ..-rejection."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke script exercises validateWriteSetGrammar and classifyBroadness directly in groups 6-8, 12d, 13. Grammar validator: valid entries accepted (good.ok===true), mid-path ** and bare * rejected with bad.invalid.length===2, empty-dir /*, /**, ./* and ././* all rejected, ././src/** valid+broad. classifyBroadness: src/** broad, src/* narrow, src/csv/impl/** narrow, literal narrow. All 44 assertions pass exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises verified by independent source read plus live worktree smoke run (44 assertions, exit 0). Engine core is a new sidecar file; frozen contract untouched. Edge cases covered: tier-2 prefix collisions, disguised root wildcards, .. rejection, repeated-leading-dot canonicalization, root literals vs dir globs. Contract-stub-wiring deferred to Story 5 is correctly disclosed not overclaimed. No authorityDone or productionDone claimed. Full-3x2 review (18 runs across 6 rounds) recorded in Lattice metadata."
+  },
+  "_hash": "68afa4c2daae98b459d72156e8bb2c7c74c9262ef11889ebe9358329455d1f7c"
+}

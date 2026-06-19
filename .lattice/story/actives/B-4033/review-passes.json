@@ -1,0 +1,157 @@
+{
+  "passes": [
+    {
+      "id": "B-4033:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001:happy:0 covered by 4 concrete assertions (computeWriteSet dedup, literal overlap detected, pair identity, broadSide null); CHK-002:happy:0 covered by 4 concrete assertions (valid grammar accepted, mid-path ** rejected, bare * rejected, exactly 2 bad entries). Smoke exits non-zero on any failed check (fail-loud). 20 assertions total, 0 must-gaps.",
+      "createdAt": "2026-06-19T13:00:21.591Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-003",
+      "_hash": "c2018c59a4ab72f78010edc7c80844841985ec377780b7a0e8de1c74e5a7c326"
+    },
+    {
+      "id": "B-4033:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "§4.2 concept check complete. All five core concepts correctly implemented: (1) two-tier check — tier-1 literal-path intersection is zero-FP exact match, tier-2 shared-directory-prefix heuristic is conservative may-over-flag; (2) NARROW/BROAD classifier over literal|dir/*|dir/** grammar — dir/** at/near root (segments<2) is BROAD, everything else is NARROW, matches spec; (3) broadSide attribution covers all four cases (a|b|both|null) bound to GlobOverlapResult contract; (4) frozen contract types imported from parallel-decomposition.js and types.js with no redefinition or divergence; (5) grammar validator rejects mid-path ** and bare * as specified. One low/edge finding filed (B-4033:F-001): computeWriteSet includes allowedTest beyond what plan.md/userSees declares — conservative and safe but underdeclared. No concept deletion or replacement in existing files. No BLOCK-level concept divergence found.",
+      "createdAt": "2026-06-19T13:02:57.946Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-002",
+      "_hash": "f13399a72f8bf329e2aaa6913c5ba25d412de3f75920f2966565da5aa01b57cb"
+    },
+    {
+      "id": "B-4033:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Core overlap logic correct for all combinatorial cases (literal-vs-literal exact, children-vs-literal dirname check, subtree-vs-literal isUnderOrEqual, children-vs-subtree via subtree branch, subtree-vs-subtree both directions, children-vs-children same-dir). classifyBroadness: subtree-at-root segments<2 broad, children always narrow per spec. validateWriteSetGrammar: allowlist correct, rejects mid-path **, bare *, bare **. computeWriteSet: deduplication and normalization clean. No dead code, no dead imports, no I/O in core file, no unnecessary as-any, tsc --noEmit clean, smoke passes 20 assertions. One medium finding filed (B-4033:F-002) for missing smoke assertions on wildcard-vs-wildcard branches (not a blocker — logic is verified correct by manual analysis).",
+      "createdAt": "2026-06-19T13:03:17.436Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "45c8413c902ea2b09b78f77758411dcd31b05181a5a7322bcedd05d5b852e55b"
+    },
+    {
+      "id": "B-4033:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All four prior findings verified fixed. F-001: computeWriteSet iterates only allowedModify+allowedCreate (lines 150-153), smoke check 10 confirms exclusion of allowedTest. F-002: smoke exits with 32 assertions confirmed by live run. F-003: entriesOverlap literal-vs-literal uses exact equality (line 114); wildcard branch uses isUnderOrEqual on scopeDirs both ways (lines 115-117) — src/* vs src/csv/* flags, src/a/* vs src/b/* does not flag, confirmed by smoke checks 9. F-004: validateWriteSetGrammar rejects empty-dir for both /* (line 66-67) and /** (line 59-60); classifyBroadness returns broad for empty segments.length===0 (line 130) covering both /* and /**; confirmed by smoke checks 8. No dead code, no unnecessary any casts, no unhandled catch blocks, no I/O shell isolation violations found. Zero new issues.",
+      "createdAt": "2026-06-19T13:13:34.779Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-004",
+      "_hash": "cb4001400269c1909866bda20fafbb0aef513b4bbeee14f53f6c2d5c1ea5d6ef"
+    },
+    {
+      "id": "B-4033:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001:happy:0 (must) covered by manual_transcript smoke exit-0 with literal-overlap pair assertion. CHK-002:happy:0 (must) covered by manual_transcript smoke exit-0 with grammar-rejection assertions. All 6 intents covered (0 must-gaps). Smoke runs 32 assertions; throws on any failure — not a silent pass.",
+      "createdAt": "2026-06-19T13:14:32.217Z",
+      "reviewRound": "2026-06-19T13:12:28.388Z",
+      "reviewRunId": "B-4033:RR-006",
+      "_hash": "aaab2bd37d30b5733419ba65a627afad8da886aef619dc1f4aaad71d421cddbb"
+    },
+    {
+      "id": "B-4033:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All 3 checks clean on both changed files. No dead code: all imports, types, and internal functions are used; the prior dead dirname() is absent. No type-safety issues: no as-any (test fixtures use as-unknown-as idiom appropriately), no empty catch. No I/O shell isolation concern: pure functions, no bridge involved. entriesOverlap logic verified correct for all 11 test groups. Smoke passed 35/35. No doc-promise-undelivered items found.",
+      "createdAt": "2026-06-19T13:30:48.111Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-007",
+      "_hash": "2e123c4e498d83999c647a6976f420b26fc8520d79aa9d5be93429dd1be43845"
+    },
+    {
+      "id": "B-4033:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Smoke exits 35 assertions PASS; CHK-001:happy:0 (must) and CHK-002:happy:0 (must) each covered by manual_transcript command=node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js verdict=success. All 6 intents covered; 0 must-gaps; smoke throws on first broken assertion (fail-loud confirmed via source line 21).",
+      "createdAt": "2026-06-19T13:31:14.372Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-009",
+      "_hash": "7a736697da29ac6db4cca491d0ccf359d3c0d845c8d979742f1d53681b70de2a"
+    },
+    {
+      "id": "B-4033:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept/consistency sweep complete. No concept deletions or replacements identified beyond the confirmed-fixed F-005 (stale scopeDir/dirname functions and old comment). Verified: (1) computeWriteSet comment says modify∪create and implementation exclusively spreads allowedModify+allowedCreate — matches. (2) entriesOverlap comment correctly describes literal.dir as the FULL path (not parent dir), which is what parseEntry sets for literals. The README.md vs README/* disjoint claim in the comment matches the isUnderOrEqual logic. (3) tier-1/tier-2 labels in comments match implementation logic (literal+literal→exact equality; wildcard→isUnderOrEqual nesting). (4) No residue of deleted scopeDir or dirname functions anywhere in the tree. (5) pathMatchesPattern reference in comment is a real function in scope-contract.ts/prewrite-guard.ts/semantic-scope-gate.ts — not a phantom symbol. (6) GlobOverlapResult broadSide field shape (a|b|both|null) matches the engine return. (7) No stale TODO/FIXME/stub/NotImplemented comments in either new file. (8) No doc-promise-undelivered: no new CLI commands or schema fields promised in comments without implementation. All concepts consistent with spec §4.2.",
+      "createdAt": "2026-06-19T13:31:52.687Z",
+      "reviewRound": "2026-06-19T13:29:31.983Z",
+      "reviewRunId": "B-4033:RR-008",
+      "_hash": "07f60fc509338e9ddb37b41950ffe98032369afa75e3627dd5a95f70215a8f7b"
+    },
+    {
+      "id": "B-4033:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 quality pass: 38 smoke assertions pass. normalizeEntry correctly collapses // (via /\\/+/g) and /./ (via /\\/\\.(?=\\/|$)/g) with correct ordering; leading ./ and trailing / stripped with edge-case guard. No dead code, no unused imports, no as-any, no empty catch. entriesOverlap, classifyBroadness, and globsOverlap logic unchanged and regression-free. Smoke group 12 explicitly exercises the new canonicalization paths. Contract-stub wiring correctly deferred to Story 5 by design — not flagged.",
+      "createdAt": "2026-06-19T13:41:56.691Z",
+      "reviewRound": "2026-06-19T13:40:45.503Z",
+      "reviewRunId": "B-4033:RR-010",
+      "_hash": "bf0425f708640d88b70d211dfe5a6ce00aa788947ba14fa41dbbfaf38ccc0ec9"
+    },
+    {
+      "id": "B-4033:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Both must intents (CHK-001:happy:0 and CHK-002:happy:0) are covered by manual_transcript evidence bound to the literal command node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js. Smoke exited 0 with 38 assertions including new redundant-path-canonicalization cases (section 12, assertions 88-91). Evidence is specific and non-generic. All 6/6 intents covered (2 must, 4 should). No gaps found.",
+      "createdAt": "2026-06-19T13:42:38.123Z",
+      "reviewRound": "2026-06-19T13:40:45.503Z",
+      "reviewRunId": "B-4033:RR-012",
+      "_hash": "09ab157202b24062189234779428becd2f06ca8ba6efaa86b73806d672d078a2"
+    },
+    {
+      "id": "B-4033:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept/consistency sweep complete. No stale terms, no deleted/replaced concept residue. normalizeEntry canonicalization: comment and implementation match exactly (trim, strip ./, collapse /+, strip /./). entriesOverlap nesting: comment says regions nest either way; implementation does isUnderOrEqual(x.dir,y.dir)||isUnderOrEqual(y.dir,x.dir) — consistent. computeWriteSet=modify∪create: comment and implementation both union allowedModify+allowedCreate and exclude allowedTest. GlobOverlapResult shape from frozen contract matches exactly what globsOverlap returns. All §4.2/§4.3 spec cross-references consistent between new file and frozen contract. No stale synonyms found (dir_prefix, allowedTouch, tier1Hit, writeTargets, etc.). pathMatchesPattern reference in comment line 45 is a legitimate forward-reference explaining the grammar validator contract, not stale residue. No concept deletion or mass replacement detected this round.",
+      "createdAt": "2026-06-19T13:43:03.367Z",
+      "reviewRound": "2026-06-19T13:40:45.503Z",
+      "reviewRunId": "B-4033:RR-011",
+      "_hash": "23f81c5906691c53b6c8da7858b34a0fb09d7471135e0ff4cc0316d35ea0b468"
+    },
+    {
+      "id": "B-4033:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed changed files: parallel-decomposition-overlap.ts and parallel-decomposition-overlap-smoke.ts. (1) No dead code: all private helpers (normalizeEntry, parseEntry, isUnderOrEqual, hasBroad, entriesOverlap) are reachable; all exports used in smoke. No commented-out blocks. (2) Type-safe: no `as any`; `as unknown as ScopeContractData` in smoke is legitimate fixture coercion; null-safe `?.match ?? []`; broadSide type derived from GlobOverlapResult interface. (3) I/O isolation: core file is pure, no I/O imports; smoke is a task-runner script (tasks/ dir) with direct core import, not a shell/ui file. Smoke: 41/41 assertions passed. Segment-filter normalizeEntry logic verified correct for //, /./, leading ./, repeated ./.",
+      "createdAt": "2026-06-19T13:53:25.034Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-013",
+      "_hash": "ca5f901cf01fe93771417fd98f91059eb8ecaf851f0ed3b47c149c4243aadf45"
+    },
+    {
+      "id": "B-4033:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept/consistency sweep complete. normalizeEntry comment precisely matches the segment-filter implementation: describes split-on-slash + drop empty and same-dir-dot + rejoin, which is exactly what .filter((s) => s !== '' && s !== '.') does. No stale terms found: scopeDir, dirname, allowedTouch, testIntent, tier1Hit, writeTargets, dir_prefix absent from both new files. allowedTest reference in computeWriteSet comment (line 141) is a deliberate exclusion rationale, not residue. Section-1 smoke comment correctly says allowedTest excluded (F-005 fixed in prior round). GlobOverlapResult contract shape, tier-1/tier-2 labels, spec 4.2 cross-references all consistent. No concept deletion or mass replacement detected. No doc-promise-undelivered items. Zero findings filed.",
+      "createdAt": "2026-06-19T13:53:27.586Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-014",
+      "_hash": "3f4914374b6073094f5559c28956358e24b2e43a401f99c8aa987277c9dd7d78"
+    },
+    {
+      "id": "B-4033:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 6/6 intents covered (2 must, 4 should), 0 must-gaps. CHK-001:happy:0 and CHK-002:happy:0 both carry manual_transcript verdict=success against node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js. Smoke ran live with exit 0, 41 assertions all green including new repeated-leading-./ and disguised-root-wildcard cases. Evidence commands match the literal intent command. No waivers. No blockers.",
+      "createdAt": "2026-06-19T13:54:03.438Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-015",
+      "_hash": "62c383c45d04fa454a77398992e779a13867fa51e68bb5e412c450372891d79c"
+    },
+    {
+      "id": "B-4033:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Smoke ran live (44/44 assertions, exit 0). Must intents CHK-001:happy:0 (manual_transcript, pass) and CHK-002:happy:0 (manual_transcript, pass) each carry the exact command node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js and verdict=success. All 6 intents covered (2 must, 4 should). Loud-fail confirmed: check() throws on any assertion failure (non-zero exit). No gaps.",
+      "createdAt": "2026-06-19T14:09:16.189Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-018",
+      "_hash": "67e41f5fb744dad075b522ebd568568f666fb5cc491b381b1ad57197c1aafc37"
+    },
+    {
+      "id": "B-4033:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 final convergence re-review. Smoke: 44 assertions pass. Dead code: none — all 4 exports and all internal helpers (normalizeEntry, parseEntry, isUnderOrEqual, entriesOverlap, hasBroad) are reachable. Type safety: no as-any casts, no try/catch, type imports resolve correctly (GlobOverlapResult, ScopeContractData). .. rejection: normalizeEntry deliberately strips only empty and . segments so .. survives into the e.split(/).includes(..) guard — correctness confirmed by smoke group 13 (3 assertions). I/O shell isolation: no shells/ or bridge.ts present; tasks/ smoke runner importing core directly is the intended pattern. No findings.",
+      "createdAt": "2026-06-19T14:09:24.869Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-016",
+      "_hash": "5a75cc87e35fde1a1b26eca867e7cc56a3103bc2fab54dced3c3cc31bc17acec"
+    },
+    {
+      "id": "B-4033:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 final concept sweep complete. No concept deletions or replacements identified. All comments in new files accurate: pathMatchesPattern is real (core/scope-contract.ts, prewrite-guard.ts, semantic-scope-gate.ts); GlobOverlapResult shape matches frozen contract; computeWriteSet=modify+create matches impl; tier-1/tier-2 labels match logic; normalizeEntry strips . not .. so src/.. surfaces and is rejected correctly; all 4 exports imported in smoke test (no doc-promise-undelivered); no stale synonyms, no TODOs/stubs; minimatch mention asserts absence per spec 4.2. No blockers.",
+      "createdAt": "2026-06-19T14:09:56.059Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-017",
+      "_hash": "3f5f4132eb532f975fbc4d8fecc53d5db150398bea6b6f7705971657539c676d"
+    }
+  ]
+}
