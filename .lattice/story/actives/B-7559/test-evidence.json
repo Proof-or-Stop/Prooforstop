@@ -1,0 +1,15 @@
+{
+  "command": "lattice validate --story=B-7559 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)\"],\"warnings\":[],\"timestamp\":\"2026-06-19T03:35:45.120Z\",\"headSha\":\"bddca225b0e2ee13b5619bf22b5b494acd8b1800\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":83859},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":1700},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":694}],\"verificationPolicy\":{\"policy\":\"express-exempt\",\"channel\":\"express\",\"intentCount\":0,\"message\":\"Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)\",\"reason\":\"express channel has no riskSignals and at most two checklist items\"},\"verificationCoverage\":{\"total\":0,\"required\":0,\"covered\":0,\"missingRequired\":0,\"entries\":[]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T03:35:45.799Z",
+  "headHash": "bddca225b0e2ee13b5619bf22b5b494acd8b1800",
+  "materialHash": "67f65f07e1093bfb050d296c4e3ce0e96aa224e1e48d89069aee3d3da94a1404",
+  "verificationCoverage": {
+    "total": 0,
+    "required": 0,
+    "covered": 0,
+    "missingRequired": 0,
+    "entries": []
+  }
+}

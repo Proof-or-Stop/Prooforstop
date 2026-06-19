@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-12d7",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "tsc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/providers/types.ts",
+    "packages/main/src/tasks/"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/finding.ts",
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Usage-capture vertical for codex/gemini: provider runners (token-count-only extraction), ProviderExecResult.reportedUsage, dispatch-usage canonical per-provider final, runBoundedRealLeafDispatch seam, smoke+verifier wiring. Claude path and anthropic adapter byte-identical; finding signing untouched.",
+  "createdAt": "2026-06-19T02:19:27.654Z",
+  "updatedAt": "2026-06-19T02:19:27.654Z",
+  "_hash": "f9d391e80cc1ea7bdb53765e7ac37553989b09b949156dd3d0573ec59c682a30"
+}
