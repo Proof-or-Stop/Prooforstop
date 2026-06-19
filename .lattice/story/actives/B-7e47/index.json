@@ -4,7 +4,7 @@
   "title": "Fix Authority DONE material overlap audit submission",
   "description": "Lattice Authority Server DONE/enforce gate requires decision.materialOverlapAudit in the signed /v1/gates/evaluate envelope. Current Lattice CLI live smoke and Authority gate envelope omit the field, causing staging DONE preflight to fail with materialOverlapAudit.present=false. Fix only this correctness gap: carry the audit through CLI gate request contracts, include it before signing, preserve non-empty overlaps fail-closed, rebuild, and verify the targeted path.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -23,6 +23,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T18:46:16.528Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7e47",
+    "branch": "story/B-7e47",
+    "createdAt": "2026-06-19T18:46:15.754Z"
+  }
 }
