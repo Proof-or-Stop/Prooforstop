@@ -42,6 +42,17 @@
           "headHash": "576f131afe145466f0b94036a074dd5de28a46ac",
           "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
           "timestamp": "2026-06-19T12:57:54.250Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: tier-2 children-glob (dir/*) vs a direct-child literal flags overlap; unrelated literal does not — conservative over-flag, no under-flag.",
+          "headHash": "8bccae6d8e8407124180ef72f4a36881802c07a7",
+          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
+          "timestamp": "2026-06-19T12:57:57.176Z"
         }
       ]
     },
