@@ -135,8 +135,8 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T04:29:09.396Z",
       "endTime": null,
       "userSees": "Expected terminal output includes \"scope.lifecycle_artifact:<storyId>:summary.json\" as non-blocking, while \"scope.out_of_scope:.lattice/story/actives/<storyId>/evidence/notes.md\" is blocking=true.",
       "files": {
@@ -425,6 +425,17 @@
           "timestamp": "2026-06-19T04:26:17.805Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T04:29:09.396Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin integration evidence recording for lifecycle artifact/path classification hardening."
     }
   ]
 }
