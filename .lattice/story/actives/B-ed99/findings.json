@@ -82,7 +82,7 @@
       "desc": "Process-fact registration is incomplete for the new review assurance floor DONE consumer. The new evaluator consumes host_verdict evidence from autopilot_review_submit and degraded fallback evidence from review_escalation_fallback_set, but those command facts still declare only the review escalation DONE gate as their consumer: process-fact-levels.ts records autopilot_review_submit and review_escalation_fallback_set as consumed by storyMachine.canFinish DONE review escalation gate, and process-fact-registry.ts sets the same single consumerGate for both artifacts. The contract verifier also only asserts /review escalation/ for autopilot_review_submit and does not require either evidence-producing command to name the review assurance floor consumer, so node scripts/verify-process-fact-contract.mjs can pass while the registry remains stale. This violates the repo process-fact contract for gate-consumed evidence and can mislead audit/doctor consumers about which gates consume local host verdict and fallback evidence. Source refs: packages/main/src/core/process-fact-levels.ts:138, packages/main/src/core/process-fact-levels.ts:162, packages/main/src/core/process-fact-registry.ts:417, packages/main/src/core/process-fact-registry.ts:424, scripts/verify-process-fact-contract.mjs:2023, scripts/verify-process-fact-contract.mjs:2051.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:38:53.405Z",
@@ -96,7 +96,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "missing|ts|process-fact-registration",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the incomplete process-fact registration by making autopilot_review_submit and review_escalation_fallback_set mechanically name both DONE consumers: the existing local review escalation DONE gate and the new review assurance floor DONE gate. The contract verifier now requires both consumers for policy reasons, PROCESS_FACT_LEVELS gateConsumer entries, and PROCESS_FACT_REGISTRY consumerGate entries, while retaining local Non-authority wording and checks that these commands do not claim Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone. Verified: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/review-assurance-floor-smoke.js; lattice validate --story=B-ed99 --json after verification evidence refresh.",
+      "resolvedAt": "2026-06-19T02:46:07.023Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
