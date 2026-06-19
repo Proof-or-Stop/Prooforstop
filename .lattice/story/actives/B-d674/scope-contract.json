@@ -15,6 +15,7 @@
     "packages/main/src/tasks/dispatch-run-smoke.ts",
     "README.md",
     "docs/guide.md",
+    "docs/guide-scope-guard.md",
     "docs/requirements/decisions/host-overflow.md",
     "docs/requirements/decisions/lattice-parallel-wave.md"
   ],
@@ -25,8 +26,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "REVIEW findings B-d674:F-001 and B-d674:F-003 verified that Antigravity wrapped-preapply semantics require guard-session.ts and current-host smoke expectations require capability-list-smoke.ts and dispatch-run-smoke.ts.",
+  "scopeChangeReason": "REVIEW finding B-d674:F-004 verified docs/guide-scope-guard.md still teaches Gemini as current guard provider; add the doc to scope for current Antigravity/agy host wording. F-005 is fixed in already-scoped host-overflow.md by correcting smoke attribution.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T15:07:48.487Z",
-  "updatedAt": "2026-06-19T15:31:00.610Z"
+  "updatedAt": "2026-06-19T15:45:03.093Z"
 }
