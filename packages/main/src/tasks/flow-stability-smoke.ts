@@ -28,7 +28,7 @@ import {
 } from '../core/dirty-gate-policy.js';
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
@@ -66,7 +66,7 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { collectReviewerEvidenceState, signReviewRun } from '../core/review-run.js';
+import { buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -1331,6 +1331,76 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
       'resolved stale findings should be superseded by a newer valid pass for the same lane',
     );
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertReviewRunStoryFilesHashBindingIsSigned(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-story-files-hash-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story change']);
+
+    const storyId = 'B-smoke';
+    const reviewRunId = `${storyId}:RR-001`;
+    const agent = 'lattice-review-quality';
+    const reviewRound = '2026-06-19T12:00:00.000Z';
+    const startedAt = '2026-06-19T12:01:00.000Z';
+    const headHash = currentGitHead(root)!;
+    const materialHash = currentMaterialHash(root)!;
+    const storyFilesHash = currentStoryFilesHash(root)!;
+    const workspaceBinding = buildReviewRunWorkspaceBinding({
+      metadataRoot: root,
+      invocationCwd: root,
+      repoRoot: root,
+      signedWorkspaceRoot: root,
+      workspaceMode: 'metadata-git-root',
+      headHash,
+      materialHash,
+    });
+    assert.equal(workspaceBinding.storyFilesHash, storyFilesHash, 'workspace binding must capture storyFilesHash when computable');
+
+    const run: ReviewRun = {
+      reviewRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt,
+      headHash,
+      materialHash,
+      promptHash: '',
+      workspaceBinding,
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, workspaceBinding.bindingHash),
+    };
+    assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
+
+    const tampered: ReviewRun = {
+      ...run,
+      workspaceBinding: {
+        ...workspaceBinding,
+        storyFilesHash: '0'.repeat(64),
+      },
+    };
+    assert.equal(verifyReviewRun(tampered), false, 'tampering storyFilesHash must invalidate the signed workspace binding');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -3804,6 +3874,7 @@ assertManagedAssetExpandedDocsAndTrueDrift();
 assertDispatchPromptsPinImplementerCommitAuthor();
 assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
+assertReviewRunStoryFilesHashBindingIsSigned();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();

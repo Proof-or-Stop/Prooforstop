@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
@@ -194,15 +194,17 @@ function assertChecklistScopeChangeAllowed(
  * repo (metadataRoot == gitRoot) resolveGitCwd returns root and metadataRoot
  * defaults to gitCwd, so the hashes are byte-identical to before.
  */
-function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHash?: string; materialHash?: string } {
+function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHash?: string; materialHash?: string; storyFilesHash?: string } {
   let headHash = '';
   try {
     headHash = execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch { /* PROBE: non-git or unavailable, omit freshness hash */ }
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
   return {
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
   };
 }
 
@@ -226,6 +228,7 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     note: input.note.trim(),
     headHash: input.headHash || hashes.headHash,
     materialHash: input.materialHash || hashes.materialHash,
+    storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
   });
 }

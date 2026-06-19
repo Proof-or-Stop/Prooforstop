@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } from './evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
@@ -127,6 +127,7 @@ export interface ReviewRunWorkspaceBindingInput {
   workspaceMode: string;
   headHash: string;
   materialHash: string;
+  storyFilesHash?: string;
 }
 
 function requireBindingText(field: string, value: string): string {
@@ -152,6 +153,7 @@ function workspaceBindingPayload(binding: Omit<ReviewRunWorkspaceBinding, 'bindi
     workspaceMode: binding.workspaceMode,
     headHash: binding.headHash,
     materialHash: binding.materialHash,
+    ...(binding.storyFilesHash ? { storyFilesHash: binding.storyFilesHash } : {}),
     salt: REVIEW_RUN_WORKSPACE_BINDING_SALT,
   };
 }
@@ -163,6 +165,8 @@ export function signReviewRunWorkspaceBinding(binding: Omit<ReviewRunWorkspaceBi
 }
 
 export function buildReviewRunWorkspaceBinding(input: ReviewRunWorkspaceBindingInput): ReviewRunWorkspaceBinding {
+  const storyFilesHash = normalizeOptionalBindingText(input.storyFilesHash)
+    ?? currentStoryFilesHash(input.signedWorkspaceRoot, 'HEAD', input.metadataRoot);
   const unsigned = {
     schemaVersion: REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION,
     metadataRoot: requireBindingText('metadataRoot', input.metadataRoot),
@@ -172,6 +176,7 @@ export function buildReviewRunWorkspaceBinding(input: ReviewRunWorkspaceBindingI
     workspaceMode: requireBindingText('workspaceMode', input.workspaceMode),
     headHash: requireBindingText('headHash', input.headHash),
     materialHash: requireBindingText('materialHash', input.materialHash),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
   } satisfies Omit<ReviewRunWorkspaceBinding, 'bindingHash'>;
   return {
     ...unsigned,
@@ -181,7 +186,7 @@ export function buildReviewRunWorkspaceBinding(input: ReviewRunWorkspaceBindingI
 
 export function verifyReviewRunWorkspaceBinding(
   binding: ReviewRunWorkspaceBinding | null | undefined,
-  run?: Pick<ReviewRun, 'headHash' | 'materialHash'>,
+  run?: Pick<ReviewRun, 'headHash' | 'materialHash' | 'storyFilesHash'>,
 ): boolean {
   if (!binding || !binding.bindingHash) return false;
   if (binding.schemaVersion !== REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION) return false;
@@ -191,7 +196,13 @@ export function verifyReviewRunWorkspaceBinding(
   ) {
     return false;
   }
-  if (run && (run.headHash !== binding.headHash || run.materialHash !== binding.materialHash)) {
+  if (
+    run && (
+      run.headHash !== binding.headHash
+      || run.materialHash !== binding.materialHash
+      || (run.storyFilesHash !== undefined && run.storyFilesHash !== binding.storyFilesHash)
+    )
+  ) {
     return false;
   }
   const expected = signReviewRunWorkspaceBinding({
@@ -203,6 +214,7 @@ export function verifyReviewRunWorkspaceBinding(
     workspaceMode: binding.workspaceMode,
     headHash: binding.headHash,
     materialHash: binding.materialHash,
+    ...(binding.storyFilesHash ? { storyFilesHash: binding.storyFilesHash } : {}),
   });
   return binding.bindingHash === expected;
 }
@@ -286,14 +298,16 @@ function formatSnapshotFailure(failure: ReviewRunSnapshotFailure, context?: Revi
   ].join('\n');
 }
 
-export function captureReviewRunSnapshot(projectRoot: string, context?: ReviewRunSnapshotContext): { headHash: string; materialHash: string } {
+export function captureReviewRunSnapshot(projectRoot: string, context?: ReviewRunSnapshotContext): { headHash: string; materialHash: string; storyFilesHash?: string } {
   const failure = diagnoseReviewRunSnapshot(projectRoot);
   if (failure) {
     throw new Error(formatSnapshotFailure(failure, context));
   }
+  const storyFilesHash = currentStoryFilesHash(projectRoot);
   return {
     headHash: currentGitHead(projectRoot)!,
     materialHash: currentMaterialHash(projectRoot)!,
+    ...(storyFilesHash ? { storyFilesHash } : {}),
   };
 }
 
@@ -316,6 +330,9 @@ export function signReviewRun(
   // without workspaceBinding remain verifiable while new split-root-aware runs
   // bind HEAD/materialHash to the exact signed workspace interpretation.
   workspaceBindingHash?: string,
+  // B-5a9a: storyFilesHash is appended only when present so legacy review runs
+  // without the secondary binding keep the exact previous signature domain.
+  storyFilesHash?: string,
 ): string {
   const parts = [
     storyId,
@@ -328,6 +345,7 @@ export function signReviewRun(
     materialHash,
     promptHash,
   ];
+  if (storyFilesHash) parts.push(storyFilesHash);
   if (scopeBindingHash) parts.push(scopeBindingHash);
   if (workspaceBindingHash) parts.push(workspaceBindingHash);
   parts.push(REVIEW_RUN_SALT);
@@ -391,6 +409,7 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.promptHash || '',
     run.scopeBinding?.bindingHash,
     run.workspaceBinding?.bindingHash,
+    run.storyFilesHash,
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run));
@@ -651,7 +670,13 @@ export function assertCurrentReviewRunForEvidence(
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is not the current latest reviewer run (current: ${currentRun.reviewRunId}). ${latestRunHint(story.storyId, agent, currentRun.reviewRunId)}`);
   }
   const signedProjectRoot = workspaceValidation.projectRoot;
-  const freshness = checkEvidenceFreshnessForGit(signedProjectRoot, run.headHash, run.materialHash);
+  const freshness = checkEvidenceFreshnessForGit(
+    signedProjectRoot,
+    run.headHash,
+    run.materialHash,
+    signedProjectRoot,
+    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+  );
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
@@ -773,7 +798,13 @@ function validateEvidenceRunBinding(
     };
   }
   const signedProjectRoot = workspaceValidation.projectRoot;
-  const freshness = checkEvidenceFreshnessForGit(signedProjectRoot, run.headHash, run.materialHash);
+  const freshness = checkEvidenceFreshnessForGit(
+    signedProjectRoot,
+    run.headHash,
+    run.materialHash,
+    signedProjectRoot,
+    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+  );
   if (!freshness.fresh) {
     return {
       code: 'stale_run_hash',

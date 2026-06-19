@@ -7,7 +7,10 @@ import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
 export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
+  warnings?: string[];
   currentHead?: string;
+  currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
   changedFiles: string[];
   materialFiles: string[];
 };
@@ -120,6 +123,84 @@ export function changedFilesBetweenRenameAware(gitCwd: string, fromHead: string,
   return [...paths].sort();
 }
 
+function mergeBaseWithMain(gitCwd: string, ref = 'HEAD'): string | undefined {
+  const mainCandidates = ['main', 'origin/main'];
+  for (const candidate of mainCandidates) {
+    try {
+      const base = execFileSync('git', ['merge-base', candidate, ref], {
+        cwd: gitCwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      if (base) return base;
+    } catch {
+      // Try the next conventional main ref.
+    }
+  }
+  return undefined;
+}
+
+function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HEAD'): Array<{ path: string; deleted: boolean }> {
+  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const files = new Map<string, { path: string; deleted: boolean }>();
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const cols = trimmed.split('\t').map(c => c.trim()).filter(Boolean);
+    if (cols.length < 2) continue;
+    const status = cols[0];
+    const add = (path: string, deleted: boolean) => {
+      const existing = files.get(path);
+      files.set(path, { path, deleted: existing ? existing.deleted && deleted : deleted });
+    };
+    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
+      add(cols[1], true);
+      add(cols[2], status.startsWith('D'));
+    } else {
+      add(cols[cols.length - 1], status.startsWith('D'));
+    }
+  }
+  return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function objectIdAtRef(gitCwd: string, ref: string, filePath: string): string | undefined {
+  try {
+    const raw = execFileSync('git', ['ls-tree', '-z', ref, '--', filePath], {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const first = raw.split('\0').find(Boolean);
+    if (!first) return undefined;
+    const tab = first.indexOf('\t');
+    const meta = tab >= 0 ? first.slice(0, tab) : first;
+    return meta.trim().split(/\s+/)[2] || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
+  try {
+    const base = mergeBaseWithMain(gitCwd, ref);
+    if (!base) return undefined;
+    const entries = changedStoryFilesBetween(gitCwd, base, ref)
+      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
+      .map((entry) => {
+        const objectId = entry.deleted ? undefined : objectIdAtRef(gitCwd, ref, entry.path);
+        return `${entry.path}\0${objectId || '<deleted>'}`;
+      })
+      .sort();
+    return createHash('sha256').update(entries.join('\0')).digest('hex');
+  } catch {
+    return undefined;
+  }
+}
+
 // B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root
 // aware). Callers thread resolveGitCwd(...); plain repos pass
 // projectRoot==gitCwd so behavior is byte-identical.
@@ -175,6 +256,7 @@ export function checkEvidenceFreshnessForGit(
   evidenceHash: string | undefined,
   evidenceMaterialHash?: string,
   metadataRoot: string = gitCwd,
+  evidenceStoryFilesHash?: string,
 ): EvidenceFreshness {
   if (!evidenceHash) {
     return {
@@ -203,14 +285,42 @@ export function checkEvidenceFreshnessForGit(
           fresh: true,
           reason: 'evidence materialHash matches current entity file state',
           currentHead,
+          currentMaterialHash: materialHash,
           changedFiles: [],
           materialFiles: [],
         };
+      }
+      if (evidenceStoryFilesHash) {
+        const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+        if (storyFilesHash && storyFilesHash === evidenceStoryFilesHash) {
+          return {
+            fresh: true,
+            reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
+            warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
+            currentHead,
+            currentMaterialHash: materialHash,
+            currentStoryFilesHash: storyFilesHash,
+            changedFiles: ['<material-tree-changed>'],
+            materialFiles: [],
+          };
+        }
+        if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
+          return {
+            fresh: false,
+            reason: 'evidence storyFilesHash does not match current story-owned file state',
+            currentHead,
+            currentMaterialHash: materialHash,
+            currentStoryFilesHash: storyFilesHash,
+            changedFiles: [],
+            materialFiles: ['<story-files-changed>'],
+          };
+        }
       }
       return {
         fresh: false,
         reason: `evidence materialHash does not match current entity file state`,
         currentHead,
+        currentMaterialHash: materialHash,
         changedFiles: [],
         materialFiles: ['<material-tree-changed>'],
       };

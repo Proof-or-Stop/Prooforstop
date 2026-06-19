@@ -1,4 +1,4 @@
-import { currentMaterialHash } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
   type HostVerdictRound,
@@ -41,6 +41,7 @@ export interface ReviewEscalationFallbackRecord {
   evidenceRefs: string[];
   approvalRef?: string;
   materialHash?: string;
+  storyFilesHash?: string;
   assuranceLevel?: string;
   valid: boolean;
   reasons: string[];
@@ -70,6 +71,7 @@ export interface ReviewEscalationReport {
     ignoredCount: number;
   };
   materialHash: string | null;
+  storyFilesHash: string | null;
   fullQuorum: {
     requiredRounds: number;
     requiredPassingHostsPerRound: number;
@@ -104,6 +106,7 @@ export interface EvaluateReviewEscalationArgs {
   findings?: Finding[];
   processEvents?: ProcessEvent[];
   materialHash?: string;
+  storyFilesHash?: string;
 }
 
 function normalizeString(value: unknown): string {
@@ -184,6 +187,7 @@ function fallbackRecordFromEvent(
     : [];
   const approvalRef = normalizeString(event.approvalRef);
   const materialHash = normalizeString(event.materialHash);
+  const storyFilesHash = normalizeString(event.storyFilesHash);
   const assuranceLevel = normalizeString(event.assuranceLevel);
   const reasons: string[] = [];
 
@@ -206,6 +210,7 @@ function fallbackRecordFromEvent(
     evidenceRefs,
     ...(approvalRef ? { approvalRef } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(assuranceLevel ? { assuranceLevel } : {}),
     valid: reasons.length === 0,
     reasons,
@@ -280,6 +285,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
   const required = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
   const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
+  const storyFilesHash = args.storyFilesHash ?? currentStoryFilesHash(args.projectRoot) ?? null;
   const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(events, materialHash);
   const reasons: string[] = [];
 
@@ -295,6 +301,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
         ignoredCount: findings.length - countableProblems.length,
       },
       materialHash,
+      storyFilesHash,
       fullQuorum: { ...emptyRoundReport(), ok: true },
       degradedFallback: {
         ok: false,
@@ -328,6 +335,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
         ignoredCount: findings.length - countableProblems.length,
       },
       materialHash: null,
+      storyFilesHash,
       fullQuorum: emptyRoundReport(),
       degradedFallback: {
         ok: false,
@@ -375,6 +383,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       ignoredCount: findings.length - countableProblems.length,
     },
     materialHash,
+    storyFilesHash,
     fullQuorum: {
       requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
       requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
@@ -405,6 +414,7 @@ export function formatReviewEscalationFailure(report: ReviewEscalationReport): s
     `  - first review round: ${report.trigger.firstReviewRound ?? '<missing>'}`,
     `  - countable first-round problems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `  - materialHash: ${report.materialHash ?? '<missing>'}`,
+    `  - storyFilesHash: ${report.storyFilesHash ?? '<missing>'}`,
     `  - full quorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds with ${report.fullQuorum.requiredPassingHostsPerRound} independent PASS hosts`,
     `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
   ];
@@ -437,6 +447,7 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
     `firstReviewRound: ${report.trigger.firstReviewRound ?? '<missing>'}`,
     `countableProblems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `materialHash: ${report.materialHash ?? '<missing>'}`,
+    `storyFilesHash: ${report.storyFilesHash ?? '<missing>'}`,
     `fullQuorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds x ${report.fullQuorum.requiredPassingHostsPerRound} hosts`,
     `voluntaryLocalRounds: ${report.voluntaryLocalRounds.validRoundCount}/${report.voluntaryLocalRounds.requiredRounds} rounds x ${report.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (submitted=${report.voluntaryLocalRounds.submittedRoundCount}, complete=${report.voluntaryLocalRounds.complete})`,
     `degradedFallback: ${report.degradedFallback.ok ? 'pass' : 'not-satisfied'} (${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds x ${report.degradedFallback.requiredPassingHostsPerRound} host)`,
