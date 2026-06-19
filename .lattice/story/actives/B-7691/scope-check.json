@@ -1,0 +1,164 @@
+{
+  "storyId": "B-7691",
+  "checkedAt": "2026-06-19T14:12:14.082Z",
+  "features": [
+    {
+      "feature": "Add fail-fast clean-tree preflight to review_run_start that blocks when material_source or fixture changes are uncommitted",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse DONE gate DIRTY_GATE_POLICY (classifyGitStatusRows + evaluateDirtyGate) for the review_run_start preflight — no policy duplication",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Extract readGitStatusLines and classifier options into a new shared helper (core/dirty-worktree-gate.ts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "done-oracle import-swap must keep DONE gate verdict byte-identical (no behavioral change to DONE gate logic)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preflight placed AFTER REVIEW phase check and BEFORE capturing review-run snapshot",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refusal message is actionable (commit/revert code/config, then rerun review_run_start) and names offending files",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Non-blocking categories (lattice_metadata / runtime_artifact / declared_artifact) pass through preflight",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: review_run_start REFUSES on uncommitted material-source change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: review_run_start REFUSES on uncommitted fixture change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: review_run_start PASSES when tree is clean",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: review_run_start PASSES when only .lattice metadata (non-blocking category) is dirty",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: preflight yields SAME blocking verdict as DONE gate for identical git status (shared evaluation)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke registered as packages/main/src/tasks/*-smoke.ts auto-discovered by run-all-smokes",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE gate verdict logic must NOT change (materialHash computation, checkEvidenceFreshnessForGit write-time guard, storyFilesHash root-cause work excluded)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Description explicitly marks DONE gate verdict logic, materialHash computation, the checkEvidenceFreshnessForGit write-time guard, the storyFilesHash root-cause work as OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "DONE merge changes and escalation rebind excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Description explicitly marks DONE-merge changes and escalation rebind as OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "review_run_start clean-tree preflight: fail-fast before signed reviewer run is created (review-run-start-workspace-diagnostics-execution-plan M1-M5 regression tests)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "That execution plan (M1-M5) addresses snapshot failure classification, signed workspace resolution, and full regression coverage for git/no-commit/wrong-cwd cases — work distinct from B-7691; B-7691 only adds the dirty-tree preflight using the existing DIRTY_GATE_POLICY, not the snapshot classification improvements",
+      "source": "decisions:decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+    },
+    {
+      "feature": "Shared signed workspace resolver (StorySignedWorkspaceResolution / workspaceBinding) from review-run-start-signed-workspace-resolution-execution-plan.md",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The signed-workspace-resolution plan defines a separate follow-up story for metadataRoot/signedWorkspaceRoot separation; B-7691 does not implement that resolver",
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Merged-state combination review obligation (story-lifecycle.md) — triggered because B-7691 is a process-framework story touching dirty-state classifier and command entry-point gates",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Process fact registry update required when a new gate-consumed fact or command entry point is added (story-lifecycle.md process fact contract, lattice-strengthening-roadmap M4)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Review assurance floor: code-changing stories require at least one review round before DONE (review-assurance-floor-execution-plan.md) — applies to B-7691 as a code-changing story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This is a lifecycle policy governing B-7691 itself (at DONE), not a functional commitment that must appear in the checklist; the checklist need not enumerate that a REVIEW pass is needed",
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Test runner consolidation: new smoke must be auto-discovered by run-all-smokes (test-runner-consolidation-plan.md B1 architecture)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 14,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 2,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "24b52de75216851435392d9f90e9d122fd6d7d8c6cb39ba0c05bf6dbc598f83a",
+  "openQuestions": []
+}
