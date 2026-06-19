@@ -86,7 +86,63 @@
       "context": "new task smoke under packages/main/src/tasks/; assert the 3 points read identical bumped patch; assert .lattice-only change set does NOT bump; assert minor/major unchanged",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke file version-bump-smoke.ts exists at packages/main/src/tasks/ and is registered in lattice.config.json validate.commands; WHY: test infrastructure must be discoverable and auto-run",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: nextPatch(0.3.9)=0.3.10 and nextPatch(1.2.0)=1.2.1 pass; WHY: unit-level pure function coverage of the two plan-specified examples",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: applyPatchBump on temp fixture with 3 files all at 0.9.9 produces 0.9.10 in all 3 and minor/major unchanged; WHY: positive integration path with re-read verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: bumpVersionOnDoneMerge with shouldBump=true + injected runGit spy confirms git add of 3 files + chore:bump commit issued + bump line returned; WHY: orchestration path with DI",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: bumpVersionOnDoneMerge with shouldBump=false returns skip line and no FS changes; WHY: negative gate path must be completely inert",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke: malformed semver (empty string, 1.2, v1.2.3) all throw; WHY: boundary enforcement of parseSemver",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: readSyncedVersion / applyPatchBump with mismatched fixture versions (root=0.3.9, main=0.3.9, brand=0.3.10) throws drift error; WHY: drift detection coverage",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: gate predicate -- [.lattice/story/B-x/index.json] returns false (metadata-only merge must NOT bump); WHY: the critical negative-gate path preventing spurious bumps on every metadata commit",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: gate predicate -- [package.json] returns true; WHY: root package.json is a material path that should trigger bump",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: idempotency -- applyPatchBump twice on fresh fixture increments by exactly 1 each time (0.9.9 to 0.9.10 to 0.9.11); WHY: no accumulation or double-bump",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke: fixture with trailing whitespace in LATTICE_CLI_VERSION line still parses correctly or throws cleanly; WHY: real-world file content with whitespace variance",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: running the full smoke suite via npx lattice validate exits 0; WHY: confirms the smoke is wired into the validate pipeline and passes end-to-end",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
