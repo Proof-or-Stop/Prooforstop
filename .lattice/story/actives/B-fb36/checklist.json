@@ -110,7 +110,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare reports whether post-DONE runtime patch finalization is required, names the follow-up path and version sources, and leaves all version files unchanged before DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/version-bump.ts"
+        ],
+        "create": [
+          "packages/main/src/core/done-prepare-runtime-classifier.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With a runtime-affecting diff under packages/main/src/core, packages/main/src/handlers, packages/main/src/tasks, packages/main/src/cli.ts, packages/main/src/index.ts, bin, lifecycle gate, validation, review, Authority, process-fact, or command-dispatch code, done_prepare reports postDoneRuntimeVersionBumpRequired=true and postDoneNext without changing version sources. WHY: runtime changes need post-DONE finalization but must not invalidate pre-DONE evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With docs-only, story metadata-only, review evidence-only, or comment-only diffs, done_prepare reports postDoneRuntimeVersionBumpRequired=false and does not list a runtime patch bump as required. WHY: the classifier must avoid noisy finalization work for non-runtime changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When version source files are already inconsistent or an implementation tries to normalize them during done_prepare, the command reports postDoneVersionState: inconsistent with mismatched values but still refuses to mutate version files before DONE. WHY: pre-DONE automation must be diagnostic, not a hidden version bump path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
