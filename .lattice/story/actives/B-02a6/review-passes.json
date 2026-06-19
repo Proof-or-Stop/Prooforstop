@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T05:07:35.197Z",
       "reviewRunId": "B-02a6:RR-005",
       "_hash": "b18f9cfd31f2729f5ea997914e6e4acb8ce7986d8ce91a495627b17582e03631"
+    },
+    {
+      "id": "B-02a6:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review: F-002 resolved (smoke prints byte-exact match to CHK-001 userSees). F-003 resolved (assertPurgeTombstonesBuriedSafeInitCommit exercises the buried-init path end-to-end: asserts (a) tombstone fires not safe-reset, (b) metadata dir gone, (c) main checkout is clean via git status --porcelain empty, (d) buried init commit and burying commit both remain reachable from HEAD rev-list). INIT_CHECK idempotency path (refContainsStoryMetadata) is exercised by the pre-existing assertCleanInitCheckAdvanceSucceeds smoke because story_create now auto-commits the metadata, causing refContainsStoryMetadata(HEAD)=true by the time INIT_CHECK runs. safe-init commit inside main-write-lock: confirmed (commitSafeInitMetadata is called inside the withReentrantMainWriteLock body in story_create.ts:285). Failure atomicity: createSafeInitCommitOnHead is best-effort and never throws (catch returns committed:false), so a failed safe-init commit cannot abort a successful story_create. DONE-gate merge-base: idempotent INIT_CHECK path points story branch at current main HEAD, so merge-base --is-ancestor main story/B-xxx holds on the new branch. All smokes green (validate 5/5 pass).",
+      "createdAt": "2026-06-19T05:13:02.715Z",
+      "reviewRound": "2026-06-19T05:07:35.197Z",
+      "reviewRunId": "B-02a6:RR-007",
+      "_hash": "3e808fc4e861b327b652efd71c80104950482eacef9bb35cf8b6fb8d69c8535c"
     }
   ]
 }
