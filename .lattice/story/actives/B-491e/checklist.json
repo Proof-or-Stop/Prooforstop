@@ -201,10 +201,10 @@
           "kind": "logic_test",
           "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace|regenerated on the destination machine|buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle\" README.md docs packages/main/src",
           "result": "pass",
-          "note": "Residual search returned no matches, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.",
-          "headHash": "7d2a5031983c8614b13a26b9ed57937ce8ca55d8",
-          "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
-          "timestamp": "2026-06-19T01:22:23.915Z"
+          "note": "Residual search returned no matches at source commit 635b9f6d7, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.",
+          "headHash": "7c71726a1bdf9f6a8916850399555698ddb6fec8",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:07.083Z"
         }
       ]
     }
