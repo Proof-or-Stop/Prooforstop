@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-59c7",
+  "allowedCommands": [
+    "cat",
+    "git",
+    "grep",
+    "lattice",
+    "ls",
+    "node",
+    "npm",
+    "rg",
+    "tsc"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/parallel-decomposition.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 0 contract: create parallel-decomposition.ts; add one type-only field to AuditConfig in audit-config.ts. tsc must pass.",
+  "createdAt": "2026-06-19T03:56:54.653Z",
+  "updatedAt": "2026-06-19T03:56:54.653Z",
+  "_hash": "1a02aaac4732176af29fe19988c1b20fc75f3f24b5a2f3fd9bb981d63091d9ca"
+}
