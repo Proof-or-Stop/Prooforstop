@@ -120,6 +120,17 @@
           "headHash": "dd04c6fab545412aff42508899f800a1e9257ba9",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:55:52.645Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Concurrent git clean -fd / -fdx cannot wipe the now-tracked metadata (smoke); safe-init commit registered as cross-function main-write-locked in main-write-lock-coverage, serializing against concurrent DONE merge.",
+          "headHash": "a1dad8bbba237e19b385f614583acf3c40e40d56",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:53.121Z"
         }
       ]
     },
