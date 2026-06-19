@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T18:22:07.640Z",
       "reviewRunId": "B-fbb6:RR-005",
       "_hash": "ada02b66e3e4d9ea5fc3e1417425de263172f244396538f80883b85389115a92"
+    },
+    {
+      "id": "B-fbb6:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-verification on current material (head 092d54e, fix commit 9c79b87f). All four prior findings addressed: F-001 package.json script renamed to test:usage-ledger-codex-antigravity (no gemini reference remains in package.json); F-002 lattice-dispatch.ts agy argv comment now cites confirmed agy --help flag for --dangerously-skip-permissions; F-004 host-overflow.md reframed to supervised real-leaf vs unattended dispatch_auto distinction without legacy gemini framing; F-005 dispatch-policy.ts unsupportedRealHosts error messages at both call sites (validatePolicyArgs line 259, checkDispatchPolicy line 409) now correctly scope the refusal to unattended dispatch_auto while acknowledging the supervised dispatch_run path. Re-verified: no gemini references in packages/main/src/core/, providers/, or handlers/; usage-ledger zero-cross-module-import intact; antigravity usage=unavailable branch in recordDispatchFinalForProvider unchanged; assemble.ts ProviderName remains anthropic|openai only; adapters/gemini.ts still deleted; summary.ts/diagnostics.ts aggregate logic untouched; no new any types; raw-never-surfaced invariant intact; antigravity stays refused for dispatch_auto. No new findings. Material is clean.",
+      "createdAt": "2026-06-19T18:23:55.180Z",
+      "reviewRound": "2026-06-19T18:22:07.640Z",
+      "reviewRunId": "B-fbb6:RR-006",
+      "_hash": "20bcceaee594e43807fdd64a4875314039df344993f9d26c3838b9939f245e0b"
     }
   ]
 }
