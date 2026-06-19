@@ -85,9 +85,31 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T00:58:34.220Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "result": "pass",
+          "note": "Docs now describe operator/server-provided handoff files consumed by the CLI, with ordinary developer files separated from advanced/live runner senior files.",
+          "headHash": "8681dd268c6f0461903825b5cc789c1ed983ff64",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:34.396Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|lattice_senior_.*generated\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "result": "pass",
+          "note": "No public docs reference CLI generator internals or senior generated bundle wording.",
+          "headHash": "8681dd268c6f0461903825b5cc789c1ed983ff64",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:34.505Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
