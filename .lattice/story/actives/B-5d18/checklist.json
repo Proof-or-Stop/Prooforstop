@@ -120,6 +120,17 @@
           "headHash": "f7a75f90053d3390b24e89fc3c4310ca645c1895",
           "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
           "timestamp": "2026-06-19T17:11:29.068Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: a fast command in the same plan completes cleanly (code 0, not timedOut) — no spurious timeout; overall plan fails loud only due to the hung command.",
+          "headHash": "f0d13a86ad3d812e7647a7685797bed7d211eab9",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:30.157Z"
         }
       ]
     }
