@@ -5,7 +5,7 @@
       "desc": "The command catalog advertises Alias: lattice done prepare for done_prepare, but NESTED_SPACE_ALIASES only maps `done closure`; `normalizeNestedSpaceAlias([\"done\",\"prepare\",\"{}\"])` returns matched:false while `done closure` maps correctly. Users following the documented alias hit command `done` instead of done_prepare.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T23:19:45.699Z",
@@ -17,7 +17,11 @@
         "packages/main/src/cli/alias-normalizer.ts"
       ],
       "signatureTag": "missing|ts|command-catalog-advertises",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added done prepare -> done_prepare mapping in alias-normalizer; command-catalog-smoke passed after fix.",
+      "resolvedAt": "2026-06-19T23:33:34.872Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fb36:F-002",
