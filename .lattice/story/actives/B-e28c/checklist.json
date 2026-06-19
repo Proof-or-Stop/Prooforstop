@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Authorize protected job status GET",
       "context": "authority_job_status/listJobVerdicts should include the resolved customer API key for protected server reads while policy discovery remains unauthenticated.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T03:59:48.347Z",
       "userSees": "`authority_job_status` sends `Authorization: Bearer <customer-key>` on protected `/v1/jobs/<jobId>/verdicts` reads, while `/v1/authority/policy` remains keyless.",
       "files": {
         "modify": [
@@ -40,7 +40,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts protected /v1/jobs/{jobId}/verdicts GET sends Authorization with a configured customer API key.",
+          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
+          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
+          "timestamp": "2026-06-19T03:59:48.461Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Existing policy discovery smoke still asserts GET /v1/authority/policy has no Authorization header.",
+          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
+          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
+          "timestamp": "2026-06-19T03:59:48.561Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Job status smoke asserts a successful protected read with no receipt/quorum keeps authorityDone=false and fullAuthorityDone=false.",
+          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
+          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
+          "timestamp": "2026-06-19T03:59:48.649Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -82,6 +120,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T03:59:48.347Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code committed and focused smoke passed."
     }
   ]
 }
