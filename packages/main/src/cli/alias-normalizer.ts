@@ -65,6 +65,7 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'decision doc preview': 'decision_doc_preview',
   'decision doc save': 'decision_doc_save',
   'review escalation status': 'review_escalation_status',
+  'review escalation policy set': 'review_escalation_policy_set',
   'review escalation fallback set': 'review_escalation_fallback_set',
   'planner draft': 'planner_draft',
   'planner review': 'planner_review',

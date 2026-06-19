@@ -280,6 +280,7 @@ export type { ToolDef };
  * name: 'recover_evidence'
  * name: 'release_approve_push'
  * name: 'review_escalation_fallback_set'
+ * name: 'review_escalation_policy_set'
  * name: 'review_escalation_status'
  * name: 'review_incremental_context'
  * name: 'review_loop_close'

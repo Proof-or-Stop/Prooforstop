@@ -124,6 +124,7 @@ const requiredProcessFactSemantics = {
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
+  review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
 };
@@ -1629,6 +1630,7 @@ function processFactSemanticsForCommand(name, level, semanticsByCommand) {
   const semantics = new Set(semanticsByCommand.get(name) || []);
   if (name.startsWith('runtime:')) {
     semantics.add('runtime-behavior');
+    if (name === 'runtime:review_escalation_done_gate') semantics.add('host-verdict');
     if (name === 'runtime:review_assurance_floor_done_gate') semantics.add('host-verdict');
   }
   if (level === 'L4') semantics.add('gate-evidence');
@@ -2000,7 +2002,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(statusPolicy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${statusCommand} must be allowed in all phases`);
     assert(statusPolicy.destructiveRisk === 'none', `${commandPolicyPath}: ${statusCommand} destructiveRisk must stay none`);
     assert(policyBlockHasOwnershipClass(statusPolicy, 'readOnly'), `${commandPolicyPath}: ${statusCommand} must stay readOnly`);
-    assert(/first-round verified reviewer findings|3x2|degraded 3x1/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} must describe the trigger/quorum policy`);
+    assert(/first-round verified reviewer findings|explicitlyConfiguredHighRiskPolicyRequires3x2|3x2|degraded 3x1/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} must describe the trigger/quorum policy`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} policy must preserve no-overclaim boundary`);
   }
   const statusLevel = levelRegistry.get(statusCommand);
@@ -2018,6 +2020,37 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(statusRegistry.kind === 'command', `${processFactRegistryPath}: ${statusCommand} registry kind must stay command`);
     assert(statusRegistry.gateEvidence === false, `${processFactRegistryPath}: ${statusCommand} registry gateEvidence must stay false`);
     assert(!statusRegistry.artifact, `${processFactRegistryPath}: ${statusCommand} must not produce a process artifact`);
+  }
+
+  const policyCommand = 'review_escalation_policy_set';
+  assert(cliToolNameSet.has(policyCommand), `CLI schema: required review escalation policy command missing from MAIN_TOOLS: ${policyCommand}`);
+  const policyCommandPolicy = policyByName.get(policyCommand);
+  assert(policyCommandPolicy, `${commandPolicyPath}: required review escalation policy command missing lifecycle policy`);
+  if (policyCommandPolicy) {
+    assert(policyCommandPolicy.gateEvidence, `${commandPolicyPath}: ${policyCommand} must be gateEvidence`);
+    assert(policyCommandPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${policyCommand} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(policyCommandPolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${policyCommand} must stay storyScopedMutating`);
+    for (const token of ['explicitlyConfiguredHighRiskPolicyRequires3x2', 'policyVersion', 'sourcePolicyRef', 'rolloutStage', 'head/material', 'degraded fallback']) {
+      assert(new RegExp(token, 'i').test(policyCommandPolicy.reason), `${commandPolicyPath}: ${policyCommand} policy must name ${token}`);
+    }
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policyCommandPolicy.reason), `${commandPolicyPath}: ${policyCommand} must preserve no-overclaim boundary`);
+  }
+  const policyLevel = levelRegistry.get(policyCommand);
+  assert(policyLevel, `${processFactLevelRegistryPath}: ${policyCommand} missing level entry`);
+  if (policyLevel) {
+    assert(policyLevel.level === 'L4', `${processFactLevelRegistryPath}: ${policyCommand} must stay L4`);
+    assert(policyLevel.category === 'review-escalation-policy', `${processFactLevelRegistryPath}: ${policyCommand} category drifted`);
+    assert(policyLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${policyCommand} owner drifted`);
+    assert(/review escalation/i.test(policyLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${policyCommand} gateConsumer drifted`);
+    assert(/explicitlyConfiguredHighRiskPolicyRequires3x2/i.test(policyLevel.rationale), `${processFactLevelRegistryPath}: ${policyCommand} rationale must bind explicitlyConfiguredHighRiskPolicyRequires3x2`);
+  }
+  const policyRegistry = registry.get(policyCommand);
+  assert(policyRegistry, `${processFactRegistryPath}: ${policyCommand} missing registry entry`);
+  if (policyRegistry) {
+    assert(policyRegistry.level === 'L4', `${processFactRegistryPath}: ${policyCommand} registry level must stay L4`);
+    assert(policyRegistry.gateEvidence === true, `${processFactRegistryPath}: ${policyCommand} registry gateEvidence must stay true`);
+    assert(policyRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${policyCommand} must record process-events.jsonl evidence`);
+    assert(/review escalation/i.test(policyRegistry.consumerGate), `${processFactRegistryPath}: ${policyCommand} consumerGate drifted`);
   }
 
   const fallbackCommand = 'review_escalation_fallback_set';
@@ -2087,6 +2120,48 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     }
     assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
     assert(/review assurance floor/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate must name review assurance floor (${registryEntry.consumerGate})`);
+  }
+
+  const runtimeName = 'runtime:review_escalation_done_gate';
+  const runtimeLevel = levelRegistry.get(runtimeName);
+  assert(runtimeLevel, `${processFactLevelRegistryPath}: required review escalation runtime fact missing`);
+  if (runtimeLevel) {
+    assert(runtimeLevel.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(runtimeLevel.owner === 'core/review-escalation', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
+    assert(runtimeLevel.gateConsumer === 'storyMachine.canFinish DONE review escalation gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
+    for (const token of ['first REVIEW round', 'explicitlyConfiguredHighRiskPolicyRequires3x2', '3x2', 'degraded 3x1', 'current material hash']) {
+      assert(new RegExp(token, 'i').test(runtimeLevel.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
+    }
+  }
+  const runtimeRegistry = registry.get(runtimeName);
+  assert(runtimeRegistry, `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${runtimeName}`);
+  if (runtimeRegistry) {
+    assert(runtimeRegistry.kind === 'runtime-behavior', `${processFactRegistryPath}: ${runtimeName} kind must stay runtime-behavior`);
+    assert(runtimeRegistry.level === 'L4', `${processFactRegistryPath}: ${runtimeName} must stay L4`);
+    assert(runtimeRegistry.semantics.includes('runtime-behavior'), `${processFactRegistryPath}: ${runtimeName} missing runtime-behavior semantic`);
+    assert(runtimeRegistry.semantics.includes('host-verdict'), `${processFactRegistryPath}: ${runtimeName} missing host-verdict semantic`);
+    assert(runtimeRegistry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${runtimeName} missing gate-evidence semantic`);
+    assert(runtimeRegistry.consumerGate === 'storyMachine.canFinish DONE review escalation gate', `${processFactRegistryPath}: ${runtimeName} consumerGate drifted`);
+  }
+  const evaluatorText = read('packages/main/src/core/review-escalation.ts');
+  for (const token of [
+    'REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE',
+    'explicitlyConfiguredHighRiskPolicyRequires3x2',
+    'review_escalation_policy',
+    'degradedFallbackAllowed',
+    'authorityDone: false',
+    'fullAuthorityDone: false',
+    'productionDone: false',
+  ]) {
+    assert(evaluatorText.includes(token), `packages/main/src/core/review-escalation.ts: required explicit high-risk policy token missing: ${token}`);
+  }
+  const smokeText = read('packages/main/src/tasks/review-escalation-smoke.ts');
+  for (const token of [
+    'valid explicit high-risk policy fact requires 3x2 without first-round problems',
+    'high-risk prose or paths do not trigger without explicit policy fact',
+    'explicit high-risk policy can disallow degraded single-host fallback',
+  ]) {
+    assert(smokeText.includes(token), `packages/main/src/tasks/review-escalation-smoke.ts: required explicit high-risk policy smoke missing: ${token}`);
   }
 }
 
