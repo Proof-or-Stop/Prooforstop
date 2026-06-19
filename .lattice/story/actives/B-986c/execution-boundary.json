@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-986c",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "lattice validate --story=B-986c",
+    "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/dist",
+    "packages/main/src/core/parallel-decomposition-gate.ts",
+    "packages/main/src/core/parallel-policy.ts",
+    "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/parallel-decomposition.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "S2 = pure gate-verdict function + single-source terminalPhases export + smoke. Contract reconcile (parallel-decomposition.ts) and machine wiring are Story 5.",
+  "createdAt": "2026-06-19T23:18:48.725Z",
+  "updatedAt": "2026-06-19T23:18:48.725Z",
+  "_hash": "870c5d96fde5f65bc6e58ab3a475b9dd17cdfd33d6b41c145b6769821e3a3a83"
+}

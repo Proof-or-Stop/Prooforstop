@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-986c",
+  "checkedAt": "2026-06-19T23:18:48.999Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "4bfb11820f0fda6f5627c8295b5d9fb2f484c6085842eb0230fc34c71024daf5",
+  "executionBoundaryHash": "870c5d96fde5f65bc6e58ab3a475b9dd17cdfd33d6b41c145b6769821e3a3a83",
+  "freshnessHash": "16d72a8251edf6064fa00d57a0c645f082f3157982a8fe7eba1fdf7395cb34d5",
+  "effectiveExcludedKeywords": [
+    "packages/main/src/core/audit-config.ts (Story 3)",
+    "packages/main/src/core/lattice-parallel-wave.ts + handlers/story-review.ts (Story 4)",
+    "packages/main/src/core/machine.ts (Story 5 integration)",
+    "packages/main/src/core/parallel-decomposition.ts (frozen contract; reconciled by Story 5, not S2)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/src/core/audit-config.ts (Story 3)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/audit-config.ts (Story 3)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/lattice-parallel-wave.ts + handlers/story-review.ts (Story 4)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/lattice-parallel-wave.ts + handlers/story-review.ts (Story 4)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/machine.ts (Story 5 integration)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/machine.ts (Story 5 integration)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/parallel-decomposition.ts (frozen contract; reconciled by Story 5, not S2)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/parallel-decomposition.ts (frozen contract; reconciled by Story 5, not S2)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "51dd5c48e474772756008b9d49ced9510b4bae4daac2ef78a39b59bbdd99dc0a"
+}

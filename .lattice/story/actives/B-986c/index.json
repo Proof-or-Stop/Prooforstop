@@ -1,0 +1,35 @@
+{
+  "storyId": "B-986c",
+  "name": "parallel-decomp-gate-verdict",
+  "title": "Parallel-decomposition gate verdict: evaluateDecompositionGate (program Story 2)",
+  "description": "Implement the pure decomposition-gate verdict function evaluateDecompositionGate in a NEW file core/parallel-decomposition-gate.ts, consuming the Story-1 overlap engine (computeWriteSet/globsOverlap/classifyBroadness from core/parallel-decomposition-overlap.ts). It computes advisories[] plus an optional hard block reason from scope facts only (it does NOT consult cfg.mode for enforcement; the caller canStartDevGuard does that in Story 5). Per spec docs/parallel-decomposition-spec.md sections 4.3/4.4. Kept in a separate file from the frozen contract (parallel-decomposition.ts) so it stays disjoint from Stories 3/4 and is reconciled by Story 5.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-06-19T23:16:14.961Z",
+  "startedAt": "2026-06-19T23:16:14.961Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T23:16:14.961Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:19:05.065Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-986c",
+    "branch": "story/B-986c",
+    "createdAt": "2026-06-19T23:19:03.724Z"
+  }
+}
