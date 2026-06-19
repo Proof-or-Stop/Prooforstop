@@ -210,7 +210,68 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The done_prepare smoke suite demonstrates ready, blocked, dry-run, stale-evidence, merge-conflict, runtime-guidance, degraded-assurance, and commit-required behavior with assertions on the exact terminal output and protected files.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validate.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/done-prepare-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/cli-validate.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke a clean TEST story where mergeMain, stale evidence classification, validate, done_closure, runtime reporting, and final clean-tree checks all pass, and assert the DONE next command is printed once. WHY: proves the intended operator path works end to end without weakening DONE gates.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke runtime source diff and docs-only diff classifications in separate cases, proving runtime changes require post-DONE patch guidance while docs-only changes do not, and neither case mutates version files before DONE. WHY: locks the version-discipline boundary into automated coverage.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke dirty-tree preflight and refreshStale=false stale evidence cases: dirty worktree blocks before mutation, and stale evidence with --refreshStale=false blocks at evidenceFreshness with refresh guidance. WHY: both conditions are common operator boundaries that must stop early and visibly.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke validate failure and degraded-single-host wording: validate failure stops at validate with the validate next command, while degraded local assurance renders local-only readiness without Authority, fullAuthority, production, receipt, or two-host overclaim. WHY: blocked validation and degraded assurance must not look like production completion.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke prepare-generated metadata changes by arranging stale evidence refresh or validate to write .lattice story metadata, then assert the final cleanTree gate blocks with exact files and commit-required guidance. WHY: prepare must not report PASS while its own metadata writes would make DONE fail.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke merge-main conflict by creating a conflicting local main change and story change, then running done_prepare --mergeMain=true; it stops at mergeMain, lists conflicted files, prints manual resolution guidance, and does not validate, refresh evidence, run runtime detection, or attempt DONE. WHY: automated pre-DONE merge must not auto-resolve conflicts or continue with conflicted state.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke stale evidence that requires command rerun rather than safe refresh; done_prepare prints the rerun commands and refuses to rewrite hashes or mark the evidence fresh. WHY: stale evidence requiring regeneration must remain a real blocker.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke dryRun=true against a scenario that would otherwise merge main, refresh stale evidence, or write metadata; it reports planned steps and blockers but leaves git state, evidence files, version files, and build outputs unchanged. WHY: dry-run must be trustworthy for operators inspecting risky closure work.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
