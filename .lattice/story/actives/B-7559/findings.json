@@ -538,7 +538,7 @@
       "desc": "design-flaw: docs/parallel-decomposition-spec.md:321 — §4.3 cond.1 cites tier-2 prefix flag \"at `block` confidence\" but §4.2 defines only two tiers with no confidence-level system. §4.2 describes tier 2 as a conservative \"possible overlap\" flag with no distinction between advisory vs block confidence. Implementers cannot determine from §4.2 when a tier-2 result crosses from advisory into block territory; the term is a dangling undefined condition.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:42:46.451Z",
@@ -549,7 +549,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|design-flaw-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: §4.3 cond.1 no longer cites an undefined 'tier-2 block confidence' — the hard block is restricted to tier-1 literal-path intersection (zero false positives per §4.2); a tier-2 shared-prefix match is advisory only. §4.2/§4.3 now consistent.",
+      "resolvedAt": "2026-06-19T02:52:02.106Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-026",
