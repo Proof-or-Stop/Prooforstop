@@ -302,6 +302,25 @@
       ],
       "signatureTag": "edge|md|broadside-cross-reference",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-015",
+      "desc": "doc-code-drift: spec §3 intro bullet (line 147) shows `scope_boundary_set --storyId <id> --allowedScope <semantic dirs>` without the required `--userConfirmed=true` flag. The CLI schema (cli-engine.ts line 585) declares `userConfirmed: z.boolean()` without `.optional()`, so this command will fail validation if copied verbatim. The round-1 F-009 fix only patched the template-block examples (§3.1 line 181, §3.2 line 223, §3.3 line 256, §5.1 line 468) but left the first-exposure shorthand bullet in §3 incomplete. An implementer reading §3 before the templates sees the wrong signature.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T02:11:57.721Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-006",
+      "_hash": "29b17db5d759e894a4db34a703949f77c177bd6a929d048342a04fddc43a9748",
+      "files": [
+        "docs/parallel-decomposition-spec.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-spec",
+      "signatureTagSource": "auto"
     }
   ]
 }
