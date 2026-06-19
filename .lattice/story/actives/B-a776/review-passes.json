@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T18:21:19.786Z",
       "reviewRunId": "B-a776:RR-004",
       "_hash": "f5d6a5122aec809a1758ba462c419060f4721a5a9c76870594fc1d7ba0055752"
+    },
+    {
+      "id": "B-a776:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality rerun clean: inspected extracted CLI flag parser, alias normalizer, help renderer, cli-engine handoff, and cli-surface-smoke. No hard-coded B-a776 remains in reviewed source/dist; invalid-root probe avoids active REVIEW phase coupling. npm --prefix packages/main run build and npm --prefix packages/main run test:cli-surface-smoke both pass.",
+      "createdAt": "2026-06-19T18:26:03.362Z",
+      "reviewRound": "2026-06-19T18:21:19.786Z",
+      "reviewRunId": "B-a776:RR-005",
+      "_hash": "e2623008d9ea7dd559b5bec8c92b71393579ac2a494038a41107636d4dd5c2c6"
     }
   ]
 }
