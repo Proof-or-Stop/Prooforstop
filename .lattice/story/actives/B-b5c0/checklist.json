@@ -79,6 +79,17 @@
           "headHash": "b9b90d94cab60ce6e750adf0d6026e16fde44c53",
           "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
           "timestamp": "2026-06-19T02:29:37.558Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:provenance-boundary",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"product/material deliverable|story-scoped provenance|not roadmap/runtime behavior\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && git show --name-only --format= 76c9d9cdb",
+          "result": "pass",
+          "note": "The corrected boundary says the product/material deliverable is the roadmap doc and Lattice lifecycle metadata is story-scoped provenance; commit 76c9d9cdb changed only the roadmap document.",
+          "headHash": "f649b41c69e94ef4302ac2c2e35d45df03b3458b",
+          "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+          "timestamp": "2026-06-19T02:31:22.544Z"
         }
       ]
     },
