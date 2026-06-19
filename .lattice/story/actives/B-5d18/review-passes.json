@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5d18:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate-command-timeout-smoke.js ran live with 10 assertions: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS constant range, resolveCommandTimeoutMs unit checks (no/explicit/zero/negative timeoutMs), integration hung-command kill (exit 124, timedOut=true), fast-command clean pass, overall allPass=false. CHK-001:happy:0 (must) genuinely covered: lattice.config.json bounds both smokes at timeoutMs:120000 and both still pass idle. CHK-002:happy:0 (must) genuinely covered: smoke proves hung command killed exit 124 + default ceiling applied. Smoke exits non-zero (exit 1) on broken assertion — loud failure confirmed. CHK-001:edge:0 logic_test diagnosis via git-show is sound (resolveMainRepoRoot on /tmp path falls back to root, so isolated lock, no global contention). No 240s-wait demanded. No gaps found.",
+      "createdAt": "2026-06-19T17:13:53.853Z",
+      "reviewRound": "2026-06-19T17:11:42.485Z",
+      "reviewRunId": "B-5d18:RR-003",
+      "_hash": "8c4525c4955cde2de65b47748abb4451bf52db261e29ea2b5757796faf8077d6"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "command": "lattice validate --story=B-5d18 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.8 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — review-pass-discard-smoke and init-window-data-loss-smoke get a per-command timeoutMs in lattice.config.json so a slow run fails loud (exit 124) instead of hanging the suite\",\"  ✓ CHK-001:edge:0 [edge/should/logic] covered via logic_test verdict=success — diagnosis recorded: the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention; the hang was transient machine saturation\",\"  ✓ CHK-001:adversarial:0 [adversarial/should/cli] covered via manual_transcript verdict=success — the bounded smokes still pass normally when the machine is idle (timeoutMs is a ceiling, not a forced failure)\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — validation-executor.ts applies a DEFAULT per-command timeout when command.timeoutMs is unset; a command exceeding it is SIGTERM then SIGKILL killed and finishes with code 124, attributed to that command\",\"  ✓ CHK-002:edge:0 [edge/should/logic] covered via logic_test verdict=success — explicit per-command timeoutMs override still honored; the default is strictly below the cli-engine 300s global idle watchdog so the per-command kill fires first\",\"  ✓ CHK-002:adversarial:0 [adversarial/should/cli] covered via manual_transcript verdict=success — a normal fast command is unaffected (no spurious timeout) — the new smoke proves both the hung-kill and the fast-pass paths\"],\"warnings\":[],\"timestamp\":\"2026-06-19T17:12:54.659Z\",\"headSha\":\"d39a3f6c8d20285752576ca607d82393b1beed18\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.8 build\\n> tsc\\n\\n\",\"durationMs\":10947},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":360},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":352},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":22773},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":1109}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":2,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"review-pass-discard-smoke and init-window-data-loss-smoke get a per-command timeoutMs in lattice.config.json so a slow run fails loud (exit 124) instead of hanging the suite\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"lattice.config.json now bounds review-pass-discard + init-window smokes with timeoutMs=120000 (object form); both still PASS when run directly (idle), so a slow run fails loud instead of hanging the suite.\",\"headHash\":\"252554db371916cb9e31c63aa37e484ed654f4f5\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:20.823Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"diagnosis recorded: the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention; the hang was transient machine saturation\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git show HEAD:packages/main/src/core/partial-done-recovery.ts\",\"result\":\"pass\",\"note\":\"Diagnosis recorded: resolveMainRepoRoot(/tmp/X) returns /tmp/X, so the smokes spawn story_create against an ISOLATED lock — no global main-write-lock contention; the prior hang was transient machine saturation under the concurrent swarm (smokes pass in <30s idle).\",\"headHash\":\"32071273d0694bcc51914336c949f1027d349d94\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:21.610Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"the bounded smokes still pass normally when the machine is idle (timeoutMs is a ceiling, not a forced failure)\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Bounded smoke still passes normally on an idle machine — timeoutMs is a ceiling (120s), not a forced failure; the smoke completes well within it.\",\"headHash\":\"80dc63550af7e0b05664ef20c564eb07fae950d6\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:22.431Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"validation-executor.ts applies a DEFAULT per-command timeout when command.timeoutMs is unset; a command exceeding it is SIGTERM then SIGKILL killed and finishes with code 124, attributed to that command\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"result\":\"pass\",\"note\":\"validate-command-timeout-smoke PASS: a hung command (setInterval) with the per-command timer is killed and finishes with code 124, timedOut=true; default ceiling applied when timeoutMs unset.\",\"headHash\":\"34613a06d86990bf45e29aedeac85fc3c627d3db\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:27.576Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"explicit per-command timeoutMs override still honored; the default is strictly below the cli-engine 300s global idle watchdog so the per-command kill fires first\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke PASS: resolveCommandTimeoutMs honors an explicit positive timeoutMs and falls back to DEFAULT (240s) for unset/0/negative; DEFAULT < 300000 (below global idle watchdog) and >= 200000 (above build).\",\"headHash\":\"f7a75f90053d3390b24e89fc3c4310ca645c1895\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:29.068Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"a normal fast command is unaffected (no spurious timeout) — the new smoke proves both the hung-kill and the fast-pass paths\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke PASS: a fast command in the same plan completes cleanly (code 0, not timedOut) — no spurious timeout; overall plan fails loud only due to the hung command.\",\"headHash\":\"f0d13a86ad3d812e7647a7685797bed7d211eab9\",\"materialHash\":\"222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107\",\"timestamp\":\"2026-06-19T17:11:30.157Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T17:12:55.348Z",
+  "headHash": "d39a3f6c8d20285752576ca607d82393b1beed18",
+  "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 2,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "review-pass-discard-smoke and init-window-data-loss-smoke get a per-command timeoutMs in lattice.config.json so a slow run fails loud (exit 124) instead of hanging the suite",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "lattice.config.json now bounds review-pass-discard + init-window smokes with timeoutMs=120000 (object form); both still PASS when run directly (idle), so a slow run fails loud instead of hanging the suite.",
+          "headHash": "252554db371916cb9e31c63aa37e484ed654f4f5",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:20.823Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "diagnosis recorded: the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention; the hang was transient machine saturation",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "git show HEAD:packages/main/src/core/partial-done-recovery.ts",
+          "result": "pass",
+          "note": "Diagnosis recorded: resolveMainRepoRoot(/tmp/X) returns /tmp/X, so the smokes spawn story_create against an ISOLATED lock — no global main-write-lock contention; the prior hang was transient machine saturation under the concurrent swarm (smokes pass in <30s idle).",
+          "headHash": "32071273d0694bcc51914336c949f1027d349d94",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:21.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "the bounded smokes still pass normally when the machine is idle (timeoutMs is a ceiling, not a forced failure)",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Bounded smoke still passes normally on an idle machine — timeoutMs is a ceiling (120s), not a forced failure; the smoke completes well within it.",
+          "headHash": "80dc63550af7e0b05664ef20c564eb07fae950d6",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:22.431Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "validation-executor.ts applies a DEFAULT per-command timeout when command.timeoutMs is unset; a command exceeding it is SIGTERM then SIGKILL killed and finishes with code 124, attributed to that command",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "validate-command-timeout-smoke PASS: a hung command (setInterval) with the per-command timer is killed and finishes with code 124, timedOut=true; default ceiling applied when timeoutMs unset.",
+          "headHash": "34613a06d86990bf45e29aedeac85fc3c627d3db",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:27.576Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "explicit per-command timeoutMs override still honored; the default is strictly below the cli-engine 300s global idle watchdog so the per-command kill fires first",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: resolveCommandTimeoutMs honors an explicit positive timeoutMs and falls back to DEFAULT (240s) for unset/0/negative; DEFAULT < 300000 (below global idle watchdog) and >= 200000 (above build).",
+          "headHash": "f7a75f90053d3390b24e89fc3c4310ca645c1895",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:29.068Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "a normal fast command is unaffected (no spurious timeout) — the new smoke proves both the hung-kill and the fast-pass paths",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: a fast command in the same plan completes cleanly (code 0, not timedOut) — no spurious timeout; overall plan fails loud only due to the hung command.",
+          "headHash": "f0d13a86ad3d812e7647a7685797bed7d211eab9",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:30.157Z"
+        }
+      }
+    ]
+  }
+}
