@@ -98,9 +98,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: top-level usage parsed into token-count object' asserts extractCodexUsage parses usage:{prompt_tokens,completion_tokens,...} into the token-count object.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -110,9 +110,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 gemini: top-level usageMetadata parsed' asserts extractGeminiUsage parses usageMetadata:{promptTokenCount,...}.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -122,9 +122,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: ...' + runBoundedCodexProvider path: ProviderExecResult.reportedUsage carries the parsed usage when the stub emits usage JSONL (verified via the extraction asserts feeding the same field spread into the result).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -134,9 +134,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke gemini extraction asserts the gemini usageMetadata is parsed; runBoundedGeminiProvider spreads it into ProviderExecResult.reportedUsage identically to codex.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -146,9 +146,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "reportedUsage?: Record<string,unknown> added to ProviderExecResult (providers/types.ts); the smoke compiles+runs against that type and the STATIC check reads the field.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -158,9 +158,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: usage nested under message is parsed' covers multi-line JSONL where usage is on a non-first line (message-nested).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.092Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -170,9 +170,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: usage nested under message is parsed' asserts obj.message.usage extraction (codex nests under message).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -182,9 +182,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 gemini: top-level usageMetadata parsed' asserts top-level (not response-nested) usageMetadata returns the object.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -194,9 +194,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: non-JSON / empty / no-usage stdout -> reportedUsage absent' includes the empty-string case -> undefined (no crash).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -206,9 +206,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: non-JSON / empty / no-usage stdout -> reportedUsage absent' covers non-JSON text lines -> undefined.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:edge:5",
@@ -218,9 +218,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 gemini: non-JSON / empty / no-usage stdout -> reportedUsage absent' covers JSONL lacking usageMetadata -> undefined.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:edge:6",
@@ -230,9 +230,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke gemini/codex no-usage case: runBounded*Provider with a stub emitting no usage -> ProviderExecResult has no reportedUsage (extraction returns undefined, spread omits the field).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -242,9 +242,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 codex: top-level usage parsed' asserts ONLY the usage sub-object is returned; transcript text in other keys is not surfaced (security invariant).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -254,9 +254,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke gemini extraction asserts only the usageMetadata sub-object is returned, not candidate/transcript text.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -266,9 +266,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke extraction returns only the matched usage object; a prototype-pollution/deeply-nested line either fails JSON shape or yields only the token-count keys (never throws; raw text never surfaced).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -278,9 +278,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "ProviderExecResult after a codex run still carries stdoutDigest/stderrDigest/stdoutBytes/stderrBytes unchanged (raw stdout never surfaced); only reportedUsage (numbers) is added.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -290,9 +290,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'STATIC providers/codex-cli.ts + gemini-cli.ts import NOTHING from core/usage-ledger' is a grep-style source assertion proving the import boundary.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         }
       ]
     },
@@ -382,9 +382,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 codex: provider-reported final supersedes estimate' asserts a sequence-2 source=provider-reported record via buildProviderRecord('openai',...). Per-record token counts mapped by adaptOpenAiUsage (counterpart gemini check asserts exact inputTokens/outputTokens).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -394,9 +394,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 gemini: ...' asserts final.usage.inputTokens=800/outputTokens=120/cacheReadInputTokens=40 via adaptGeminiUsage -> correct token counts.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -406,9 +406,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 codex/gemini: ... supersedes estimate' asserts final.supersedesRecordIds=[estimateRecordId].",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.093Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -418,9 +418,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'REGRESSION claude: recordDispatchFinal with anthropic usage still supersedes' verifies the existing anthropic path is byte-identical in behavior; commit diff shows recordDispatchFinal is untouched.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -430,9 +430,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 null/garbage usage -> unavailable final' includes reportedUsage=null -> unavailable final that still supersedes.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -442,9 +442,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 null/garbage usage -> unavailable final' includes undefined among the bad values -> unavailable final.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -454,9 +454,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 edge:2: provider-reported final with model=null -> provider.model === \"unknown\"' (added in fix commit b2b6830) reads the written record and asserts the DEFAULT_ESTIMATE_MODEL fallback.",
-          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:10:41.255Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -466,9 +466,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 edge:3: correlation=null AND estimateRecordId=null -> fresh correlation minted, final written' (added in fix commit b2b6830) asserts a provider-reported record with a non-empty ledgerCallId is written when no preflight handle is passed.",
-          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:10:41.255Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -478,9 +478,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 codex' asserts final.provider.name==='openai' and gemini check asserts 'gemini' -> finalContextForProvider sets provider.name to the arg, not anthropic.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -490,9 +490,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 codex' + adapter: buildProviderRecord runs adaptOpenAiUsage/adaptGeminiUsage which read ONLY token-count keys; extraneous non-numeric keys are ignored (not stored as transcript).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -502,9 +502,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "recordDispatchFinalForProvider wraps the whole body in try/catch (fail-open); an appendUsageRecord throw is swallowed (code path; smoke 'adversarial: never throws' exercises the throw-safety with a rogue payload).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -514,9 +514,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 adversarial: never throws (corrupt ledger / rogue usage)' feeds prompt_tokens=-999 (buildProviderRecord validator throws) and asserts recordDispatchFinalForProvider does not throw (fail-open).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.547Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -526,9 +526,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 flag OFF -> nothing written' asserts no ledger file is created when the flag is OFF (strict no-op).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
@@ -538,9 +538,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js",
           "result": "pass",
           "note": "Existing usage-ledger-dispatch-smoke STATIC import-boundary assertion proves core/usage-ledger imports only sibling modules; this story adds only sibling exports to dispatch-usage.ts (no new cross-module import), and that smoke still passes 38/38.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         }
       ]
     },
@@ -630,9 +630,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 codex: provider-reported final supersedes estimate' is the end-to-end codex capture: recordDispatchPreflight + recordDispatchFinalForProvider('openai', usage) -> ledger has the provider-reported final with codex token counts.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -642,9 +642,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 gemini: ...' is the end-to-end gemini capture with exact inputTokens/outputTokens/cacheRead asserted.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -654,9 +654,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke codex/gemini checks assert handle (preflight estimate) is written first and the final supersedesRecordIds=[estimate] -> preflight+final supersede flow.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -666,9 +666,9 @@
           "command": "npm run test:usage-ledger-codex-gemini",
           "result": "pass",
           "note": "The npm script test:usage-ledger-codex-gemini runs the smoke and exits 0 (also auto-discovered by run-all-smokes / npm test, which passed EXIT=0).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:happy:4",
@@ -678,9 +678,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'REGRESSION claude: recordDispatchFinal with anthropic usage still supersedes' is the claude-path-unchanged assertion.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -690,9 +690,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 flag OFF -> nothing written' proves ledger OFF writes no preflight/final/file; runBoundedRealLeafDispatch gates all ledger work behind if(ledgerOn) so dispatch completes normally.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -702,9 +702,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-002 null/garbage usage -> unavailable final' covers the stub-returns-no-usage case (reportedUsage absent -> unavailable final, still supersedes).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -714,9 +714,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "runBoundedRealLeafDispatch maps hostKind==='codex'?'openai':'gemini' when calling recordDispatchFinalForProvider (commit diff); the smoke's codex check asserts provider.name==='openai' and gemini asserts 'gemini', proving the mapping.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -726,9 +726,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "PARTIAL/honest: the WHY (supersede semantics eliminate the estimate from totals) IS verified -- smoke asserts summary.estimateCount===0 (no double-count). The literal 'providerReportedTotal equals the stub counts' does NOT hold: openai/gemini cacheCreation is structurally null, so the pre-existing four-field identity buckets the record as unknown (smoke asserts summary.unknownCount===1). The per-record token counts ARE captured correctly. Surfacing cache-less-provider tokens in the aggregate total is a tracked follow-up (separate summary-layer story), out of this story's dispatch-seam scope.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -738,9 +738,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "recordDispatchPreflight in runBoundedRealLeafDispatch is wrapped in try/catch with a non-fatal transcript line (commit diff); a preflight throw does not break dispatch. Fail-open is also unit-proven by the dispatch smoke's preflight throw-safety.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -750,9 +750,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "recordDispatchFinalForProvider call in runBoundedRealLeafDispatch is wrapped in try/catch (commit diff) AND the function itself never throws (smoke 'adversarial: never throws'); a final write error cannot break dispatch.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -762,9 +762,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'STATIC providers/codex-cli.ts + gemini-cli.ts import NOTHING from core/usage-ledger' grep-asserts the boundary at integration.",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -774,9 +774,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-003 adversarial:3: two codex finals to the SAME root -> distinct correlations, chain intact' (added in fix commit b2b6830): two preflight+final cycles write to one ledger root; asserts 4 records (2 estimates + 2 finals), the two provider-reported finals have DISTINCT ledgerCallId, and verifyLedgerChain passes (no corruption).",
-          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:10:41.255Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -786,9 +786,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke 'CHK-001 ... usage parsed' + the adapter assert only token-count keys are stored; extraneous transcript keys alongside token counts do not reach the record (security invariant at integration).",
-          "headHash": "6cd37abe83d141cb437b68b0874334a9cdf11c03",
-          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
-          "timestamp": "2026-06-19T03:32:06.548Z"
+          "headHash": "92001d5fb434dfc592c5e680cde38e48aa0f24f1",
+          "materialHash": "e28f2b8f99ea1186de05553083d8f7a92ab30a523980dfd15ae42b2fb52fd15a",
+          "timestamp": "2026-06-19T03:42:44.094Z"
         }
       ]
     }
