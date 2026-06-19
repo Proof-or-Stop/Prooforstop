@@ -1,0 +1,25 @@
+{
+  "storyId": "B-12d7",
+  "checkedAt": "2026-06-19T02:17:36.574Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T02:17:14.038Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 and CHK-002 userSees fields describe internal data structures (ProviderExecResult, buildProviderRecord) rather than user-observable output. Consider rewriting to describe what the operator would see in the ledger file or CLI output after a codex/gemini dispatch."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T02:17:36.574Z",
+      "issues": []
+    }
+  ],
+  "_hash": "046aa00159d1258e363a51b72fe001cf94c299f51f42f29fd68d493958fc9970"
+}
