@@ -174,9 +174,9 @@
         "README.md",
         "docs/guide.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T15:25:40.650Z",
-      "endTime": null,
+      "endTime": "2026-06-19T15:25:55.802Z",
       "verificationIntent": {
         "happy": [
           {
@@ -213,7 +213,39 @@
           "packages/main/tests",
           "scripts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node bin/lattice.js host_runtime_probe --host=antigravity --json && node bin/lattice.js host_runtime_probe --host=agy --json",
+          "result": "pass",
+          "note": "Build passed. Focused probes show antigravity and agy both resolve to host=antigravity with cliCommand=agy; agy sets matchedFallback=true.",
+          "headHash": "6143af3ee0ac255f42cb11f4f04212b8a5f3f19e",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:55.939Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
+          "result": "pass",
+          "note": "Legacy Gemini probe remains bounded and explicit: warnings/limitations say deprecated legacy compatibility and current third-host flows use antigravity/agy. host_runtime_list omits gemini from the default current runtime set.",
+          "headHash": "6143af3ee0ac255f42cb11f4f04212b8a5f3f19e",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:56.026Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json",
+          "result": "pass",
+          "note": "Gemini verification did not require invoking the Gemini CLI for version/help or execution; the probe only performs safe command-path detection and states version/help probing is intentionally skipped. Antigravity/agy smoke paths do not depend on Gemini.",
+          "headHash": "6143af3ee0ac255f42cb11f4f04212b8a5f3f19e",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:56.107Z"
+        }
+      ]
     }
   ]
 }
