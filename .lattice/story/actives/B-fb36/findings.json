@@ -1,0 +1,44 @@
+{
+  "findings": [
+    {
+      "id": "B-fb36:F-001",
+      "desc": "The command catalog advertises Alias: lattice done prepare for done_prepare, but NESTED_SPACE_ALIASES only maps `done closure`; `normalizeNestedSpaceAlias([\"done\",\"prepare\",\"{}\"])` returns matched:false while `done closure` maps correctly. Users following the documented alias hit command `done` instead of done_prepare.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:19:45.699Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-001",
+      "_hash": "f1bca333bbcfdf1f4b99646c76b654612fe7076643b869673353359f7d10c4a4",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "signatureTag": "missing|ts|command-catalog-advertises",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb36:F-002",
+      "desc": "done_prepare is registered in command-catalog/COMMAND_POLICIES/DEFAULT_PHASE_TOOLS, but the CLI-engine compatibility MAIN_TOOLS marker was not updated. `node scripts/verify-process-fact-contract.mjs` fails with `lifecycle policy entry not present in MAIN_TOOLS: done_prepare` plus DEFAULT_PHASE_TOOLS drift for every phase, so the process-fact/command policy contract is broken.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:19:45.701Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-001",
+      "_hash": "946f68fc5f53110f4b14a5d2b8c52bf1ed991cc8d3c7e2ef219b01a096ec8485",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|ts|prepare-registered-command",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
