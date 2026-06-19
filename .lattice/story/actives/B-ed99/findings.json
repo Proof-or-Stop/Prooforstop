@@ -51,6 +51,27 @@
       "resolvedAt": "2026-06-19T02:26:24.753Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ed99:F-003",
+      "desc": "Review assurance floor now consumes host_verdict evidence from autopilot_review_submit and review_escalation_fallback records, but the existing process fact entries still state these facts are consumed only by the review escalation DONE gate. That conflicts with the story decision/process-fact contract: gate-consumed evidence for the new review_assurance_floor DONE predicate must be mechanically registered and must not leave stale \"only review escalation\" semantics in PROCESS_FACT_LEVELS / PROCESS_FACT_REGISTRY verification. Update the autopilot_review_submit and review_escalation_fallback_set process-fact rationale/gateConsumer/contract checks to include the review assurance floor consumer, while preserving the no-Authority-overclaim boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T02:37:27.579Z",
+      "reviewRound": "2026-06-19T02:26:07.524Z",
+      "reviewRunId": "B-ed99:RR-006",
+      "_hash": "8cb053159113c19119ee74bb84ddcda3436294596c35803c70e8499d1e247820",
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|review-assurance-floor",
+      "signatureTagSource": "auto"
     }
   ]
 }
