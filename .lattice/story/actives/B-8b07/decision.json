@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Treat this artifact as an execution plan, not proof of implemented runtime behavior.",
+    "Make milestone boundaries auditable enough that each future milestone can become its own Lattice story.",
+    "Expose source/context mapping in the document so research work becomes visible product value.",
+    "Preserve existing Lattice conventions for scope, evidence, review, baseline, and ownership semantics."
+  ],
+  "drivers": [
+    "The user needs a detailed plan for making Lattice stronger across three interdependent tracks.",
+    "Core workflow changes need careful sequencing and future 3-round 2-host validation.",
+    "The document should prevent overclaiming while still being executable."
+  ],
+  "options": [
+    {
+      "name": "A: Single roadmap decision document plus NAV registration",
+      "pros": [
+        "Keeps the three strengthening tracks connected through one milestone map.",
+        "Makes dependencies, gates, and rollout order easy to audit.",
+        "Matches existing requirements/decisions execution-plan style."
+      ],
+      "cons": [
+        "The document will be longer and must be carefully structured to stay readable.",
+        "Future implementation stories still need to split work again before coding."
+      ]
+    },
+    {
+      "name": "B: Three separate decision documents, one per strengthening track",
+      "pros": [
+        "Each track would be smaller and locally focused.",
+        "Different agents could later own separate tracks with less document-level conflict."
+      ],
+      "cons": [
+        "Cross-track dependencies would become easier to miss.",
+        "The user asked for one executable scheme with milestones, not three disconnected plans."
+      ]
+    },
+    {
+      "name": "C: Skip the plan and implement the first milestone immediately",
+      "pros": [
+        "Produces runtime behavior sooner for one slice.",
+        "Could validate one design assumption quickly."
+      ],
+      "cons": [
+        "Violates the current story scope because this story is documentation-only.",
+        "Risks implementing local fixes before agreeing on full sequencing and review gates."
+      ]
+    }
+  ],
+  "chosen": "A: Single roadmap decision document plus NAV registration",
+  "rationale": "Choose one roadmap decision document because the three tracks share scope, evidence, review, baseline, and preflight dependencies. A single source gives future implementation stories a stable milestone map while keeping this story safely documentation-only.",
+  "preMortem": [
+    {
+      "scenario": "The document reads like aspiration instead of an executable plan.",
+      "trigger": "Milestones lack deliverables, gates, tests, or DONE criteria.",
+      "consequence": "Future developers cannot turn the plan into bounded Lattice stories.",
+      "mitigation": "For every milestone include goal, deliverables, gates, tests, evidence, blockers, and DONE criteria."
+    },
+    {
+      "scenario": "The plan accidentally overclaims runtime behavior.",
+      "trigger": "Text says Lattice now blocks or enforces a rule that is only proposed.",
+      "consequence": "Readers may trust non-existent gates and skip necessary implementation work.",
+      "mitigation": "Add explicit status and non-goals sections stating the document is a roadmap only."
+    },
+    {
+      "scenario": "The inventory research remains invisible despite the reviewer advisory.",
+      "trigger": "The document cites prior work vaguely without mapping source documents to decisions.",
+      "consequence": "CHK-001 appears complete internally but not from the user-facing artifact.",
+      "mitigation": "Include a Source And Context Mapping table linking related docs to plan sections and decisions."
+    },
+    {
+      "scenario": "The plan expands into Layer4 or Authority implementation details prematurely.",
+      "trigger": "Milestones include customerKeyRef, Authority Server, or production-safety work as current scope.",
+      "consequence": "The story violates its scope boundary and mixes future capability into this documentation task.",
+      "mitigation": "Keep Layer4/Authority items as explicit future dependencies or non-goals unless required for a milestone gate definition."
+    }
+  ],
+  "timestamp": "2026-06-18T23:59:54.759Z"
+}
