@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
           "result": "pass",
           "note": "PASS: scenario (i) and material-source dirty scenarios prove review_run_start rejects blocking dirty material-source changes before any reviewer run is persisted.",
-          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:02.545Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
           "result": "pass",
           "note": "PASS: scenario (h) keeps unreadable git-status fail-open behavior covered without changing dirty classifier semantics.",
-          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:02.670Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "PASS: TypeScript build and field regression smoke verify the relocation/comment update does not alter dirty policy, material hash, or review-run persistence side effects.",
-          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:02.764Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         }
       ]
     },
@@ -124,9 +124,9 @@
           "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
           "result": "pass",
           "note": "PASS: new scenario (i) asserts the preflight dirty-tree error wins before snapshot-derived missing_material_hash diagnostics and records no review run.",
-          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:03.313Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,9 +134,9 @@
           "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
           "result": "pass",
           "note": "PASS: existing scenarios (a)-(h) continue to pass after adding the ordering regression assertion.",
-          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:03.406Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -144,9 +144,9 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "PASS: broader field regression smoke accepts the new pre-snapshot dirty refusal and would catch review-run diagnostic/persistence regressions.",
-          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
-          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
-          "timestamp": "2026-06-19T16:21:03.494Z"
+          "headHash": "b2f6bee288e7ee657482bf33106c8455011739ae",
+          "materialHash": "062d98dca70f912f9e98bfb769c039bb1c05d3b68a06791cb57170865522f2b8",
+          "timestamp": "2026-06-19T16:28:26.229Z"
         }
       ]
     }
