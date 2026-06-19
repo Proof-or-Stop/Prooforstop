@@ -1,0 +1,79 @@
+{
+  "storyId": "B-aa8a",
+  "checkedAt": "2026-06-19T20:52:30.633Z",
+  "reviewRound": "2026-06-19T20:42:20.882Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#module-jsdoc",
+      "promise": "Module is PURE: no import of done-effects.ts, no git calls — avoids circular dependency; done-effects passes in shouldBump and runGit",
+      "verifiedBy": "diff/grep: import lines in version-bump.ts",
+      "evidence": "Only imports are node:fs and node:path (lines 20-21). done-effects imports version-bump, not vice versa. No circular dependency."
+    },
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#parseSemver",
+      "promise": "parseSemver(v) strictly parses X.Y.Z; throws on malformed input (v-prefix, missing patch, pre-release, non-numeric, empty string)",
+      "verifiedBy": "diff/grep: SEMVER_RE anchored ^ and $ in version-bump.ts",
+      "evidence": "SEMVER_RE = /^(\\d+)\\.(\\d+)\\.(\\d+)$/ at line 34. Smoke tests throw for 1.2, 1.2.3-rc1, v1.2.3, abc, empty string."
+    },
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#nextPatch",
+      "promise": "nextPatch(v) is patch-only: 0.3.9->0.3.10; major and minor are never touched",
+      "verifiedBy": "diff/grep: returns {major:v.major, minor:v.minor, patch:v.patch+1}",
+      "evidence": "Smoke checks: nextPatch(0.3.9)=0.3.10, nextPatch(1.2.0)=1.2.1, nextPatch(0.0.0)=0.0.1, nextPatch(0.3.999)=0.3.1000."
+    },
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#readSyncedVersion",
+      "promise": "readSyncedVersion(root) reads version STRUCTURALLY: package.json via JSON.parse top-level .version; brand via line-anchored regex on comment-stripped view with raw-vs-stripped count guard; throws drift error naming each value",
+      "verifiedBy": "diff/grep: readJsonVersion uses JSON.parse; findBrandExport uses stripComments + matchAll(BRAND_EXPORT_RE) with dual count guards",
+      "evidence": "readJsonVersion at lines 72-79 uses JSON.parse(). findBrandExport at lines 104-117: strips comments, checks codeMatches.length (0 throws, >1 throws), checks rawMatches.length !== 1 throws. Drift error at lines 133-140 names root=, packages/main=, lattice-brand= values."
+    },
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#applyPatchBump",
+      "promise": "applyPatchBump(root) computes all 3 replacements in memory before any write, writes all 3, re-reads to verify, rolls back to from on ANY write failure OR post-verify failure/throw; ApplyPatchBumpTestHooks.afterWriteForTest seam has no production caller",
+      "verifiedBy": "diff/grep: plan array computed before writes; rollback called in write catch, verify catch, and wrong-value branch",
+      "evidence": "Lines 175-182: plan[] with bumpJsonVersionContent/bumpBrandContent computed before any write. Lines 189-192: originals saved. Lines 195-199: try/catch write -> rollback. Line 202: afterWriteForTest seam. Lines 206-214: readSyncedVersion try/catch -> rollback; after !== to -> rollback. ApplyPatchBumpTestHooks has no callers outside version-bump-smoke.ts."
+    },
+    {
+      "docPath": "packages/main/src/core/version-bump.ts#bumpVersionOnDoneMerge",
+      "promise": "bumpVersionOnDoneMerge: if !shouldBump returns VERSION_BUMP_SKIPPED_LINE with no FS change and no git calls; else applyPatchBump then runGit(add 3 files) + runGit(commit -c commit.gpgsign=false -m chore: bump lattice cli to <to>); throws loud actionable recovery error on any failure",
+      "verifiedBy": "diff/grep: early return on !shouldBump; commit uses gpgsign=false; recovery messages include manual cd + git add + git commit steps",
+      "evidence": "Line 241-242: early return VERSION_BUMP_SKIPPED_LINE. Lines 253-259: runGit add + commit with -c commit.gpgsign=false. Lines 261-267: commit failure error includes cd + git add + git commit recovery. VERSION_BUMP_SKIPPED_LINE constant text matches plan exactly."
+    },
+    {
+      "docPath": "packages/main/src/handlers/done-effects.ts#applyDoneMergeEffects-wiring",
+      "promise": "bumpVersionOnDoneMerge wired AFTER Step-3 merge and BEFORE runDoneMainPackageBuildAfterMerge; changedPaths computed once and reused by build; gated on shouldBuildDoneMainPackageForChangedPaths; under the merge-lock",
+      "verifiedBy": "diff/grep: mergeLines.push(bumpVersionOnDoneMerge) at line 890 precedes mergeLines.push(runDoneMainPackageBuildAfterMerge) at line 896; changedPaths passed to build at line 900",
+      "evidence": "done-effects.ts diff: doneMergeChangedPaths computed at line 885 via listChangedPathsBetweenMainShas; bumpVersionOnDoneMerge at 890 precedes build at 896; changedPaths passed into build opts (line 900). All inside the merge-lock try block."
+    },
+    {
+      "docPath": "packages/main/src/tasks/version-bump-smoke.ts#registration",
+      "promise": "Hermetic smoke registered in lattice.config.json validate.commands; runs against os.tmpdir fixtures; 64 assertions",
+      "verifiedBy": "diff/grep: lattice.config.json adds version-bump-smoke.js to validate.commands; smoke imports mkdtempSync+tmpdir; transcript confirms 64 assertions",
+      "evidence": "lattice.config.json line 17: node packages/main/dist/tasks/version-bump-smoke.js added. Smoke imports mkdtempSync, tmpdir. Conditional section 15 yields 64 assertions on non-root (matching transcript). Transcript: version-bump smoke passed: 64 assertions."
+    },
+    {
+      "docPath": "packages/main/src/tasks/version-bump-smoke.ts#adversarial-coverage",
+      "promise": "Smoke covers adversarial cases: duplicate exported LATTICE_CLI_VERSION throws; comment/block-comment/commented-out export not mistaken for real export; post-write verify throw and wrong-value both roll back; commit failure after FS write surfaces recovery message",
+      "verifiedBy": "diff/grep: smoke sections 11, 12, 12b, 12c, 15b, 16, 17, 18, 19",
+      "evidence": "Smoke file: fdup (duplicate export throws), fcomment (line comment ignored), fcommentExport (commented-out export ignored), fonlyComment (only comment throws), fblock (block-comment only throws), fblock2 (real+block-comment ambiguous throws), fverThrow (post-write throw rolls back), fverWrong (wrong value rolls back), fcommit (git commit failure surfaces recovery with git commit + 0.9.10 in error)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "version-bump-smoke.js run via node: 64 assertions pass including happy (parseSemver, nextPatch, readSyncedVersion, applyPatchBump, bumpVersionOnDoneMerge skip+commit), edge (zero boundary, large patch, strict rejection, drift error naming values, post-write re-read, gate predicate), adversarial (duplicate export, read-only rollback, commit failure recovery, idempotency). Transcript: MATERIAL MERGE => checkmark version auto-bumped 0.3.10->0.3.11 across 3 sync points; git calls include add 3 files + chore:bump commit; METADATA MERGE => version bump skipped."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate confirms configured validate.commands[6]: node packages/main/dist/tasks/version-bump-smoke.js, exits 0. Smoke covers: file exists and registered, nextPatch examples, 3-point applyPatchBump sync, bumpVersionOnDoneMerge runGit spy, skip path inert, malformed semver rejection, drift error, metadata-only gate false, root package.json gate true, idempotency, whitespace tolerance."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises verified directly from the diff and source. Both CHK-001 and CHK-002 have real machine tests with 64 assertions spanning happy, edge, and adversarial paths including duplicate exports, commented-out/block-comment exports, read-only rollback, post-write verify throw, commit failure recovery, and idempotency. No TODO/FIXME/HACK in production code. Module is pure (only node:fs + node:path), bump wiring precedes the build call, changedPaths is computed once, and the ApplyPatchBumpTestHooks seam has no production caller. Delivery is complete and evidence-backed."
+  },
+  "_hash": "3017aef91c1e3ed1a7fbdd64aae968dca3f97f5c242f7f6b6eba4544f800c677"
+}
