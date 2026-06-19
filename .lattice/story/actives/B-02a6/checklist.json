@@ -53,6 +53,17 @@
           "headHash": "38f7679aa262f3e777cd4d8105f3e87712bef711",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:55:51.173Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "All assertions read actual file bytes (existsSync + byte-identity readFileSync), never exit codes, so a no-op fix cannot fake a pass.",
+          "headHash": "079474c9dabad515dcd932bf390fef38709c872d",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:51.671Z"
         }
       ]
     },
