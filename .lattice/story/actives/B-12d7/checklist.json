@@ -12,7 +12,83 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "extractCodexUsage with valid OpenAI JSONL containing usage:{prompt_tokens:100,completion_tokens:50} -> returns {prompt_tokens:100,completion_tokens:50}; WHY: main path, proves numeric token counts are extracted from codex CLI stdout",
+            "type": "cli"
+          },
+          {
+            "desc": "extractGeminiUsage with valid Gemini JSONL containing usageMetadata:{promptTokenCount:200,candidatesTokenCount:80,cachedContentTokenCount:30} -> returns that object; WHY: main path for gemini provider shape",
+            "type": "cli"
+          },
+          {
+            "desc": "runBoundedCodexProvider with stub runner emitting usage JSONL -> ProviderExecResult includes reportedUsage with extracted token counts; WHY: end-to-end path from runner to result field",
+            "type": "cli"
+          },
+          {
+            "desc": "runBoundedGeminiProvider with stub runner emitting usageMetadata JSONL -> ProviderExecResult includes reportedUsage with extracted token counts; WHY: end-to-end path for gemini runner",
+            "type": "cli"
+          },
+          {
+            "desc": "reportedUsage field added to ProviderExecResult type in types.ts as optional Record<string,unknown>; WHY: verifies the type surface exists",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "extractCodexUsage with multi-line JSONL where usage appears in second line -> returns usage from the first line containing it; WHY: codex CLI may emit multiple JSON lines (progress then final)",
+            "type": "cli"
+          },
+          {
+            "desc": "extractCodexUsage with usage nested under message.usage (codex nests under message) -> returns the usage object; WHY: codex CLI sometimes nests usage under message key",
+            "type": "cli"
+          },
+          {
+            "desc": "extractGeminiUsage with usageMetadata at top level (not under response) -> returns the object; WHY: gemini output shape varies across versions",
+            "type": "cli"
+          },
+          {
+            "desc": "extractCodexUsage with empty string -> returns undefined; WHY: no crash on empty stdout",
+            "type": "cli"
+          },
+          {
+            "desc": "extractCodexUsage with non-JSON text lines -> returns undefined; WHY: graceful degradation on non-JSONL output",
+            "type": "cli"
+          },
+          {
+            "desc": "extractGeminiUsage with JSONL having no usageMetadata key -> returns undefined; WHY: not all gemini responses include usage",
+            "type": "cli"
+          },
+          {
+            "desc": "runBoundedCodexProvider with stub emitting no usage -> ProviderExecResult has no reportedUsage field; WHY: absent usage means absent field not null",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "extractCodexUsage with JSONL containing usage plus raw transcript text -> returns ONLY the usage sub-object with no transcript keys; WHY: SECURITY INVARIANT raw output never surfaced only numeric token fields leave the runner",
+            "type": "cli"
+          },
+          {
+            "desc": "extractGeminiUsage with JSONL containing usageMetadata plus candidates text -> returns ONLY usageMetadata no transcript; WHY: SECURITY INVARIANT for gemini path",
+            "type": "cli"
+          },
+          {
+            "desc": "extractCodexUsage with deeply nested malicious JSON (prototype pollution attempt via __proto__) -> returns undefined or safe object never throws; WHY: adversarial input must not crash or pollute",
+            "type": "cli"
+          },
+          {
+            "desc": "ProviderExecResult after codex run with usage: stdoutDigest stderrDigest stdoutBytes stderrBytes unchanged vs baseline without usage extraction -> security invariant digest and byte-count fields not altered; WHY: usage extraction must not change the existing evidence fields",
+            "type": "cli"
+          },
+          {
+            "desc": "providers/codex-cli.ts and providers/gemini-cli.ts contain zero imports from core/usage-ledger/ (grep static assertion) -> import boundary holds; WHY: providers must never import ledger code (architecture invariant)",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

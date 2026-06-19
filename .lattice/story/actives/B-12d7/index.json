@@ -4,7 +4,7 @@
   "title": "Capture real codex and gemini token usage in the LLM usage ledger",
   "description": "The LLM usage ledger records real provider token usage only for the claude-code host. The codex and gemini real-subprocess dispatch paths (runCodexRealLeafDispatch / runGeminiRealLeafDispatch -> the shared runBoundedRealLeafDispatch in core/lattice-dispatch.ts) carry NO usage-ledger seam, and the bounded provider runners surface stdout as digest + byte-count only, so when LATTICE_USAGE_LEDGER is ON and a codex/gemini subprocess runs, no token usage is recorded. This story wires real usage capture for codex and gemini end to end: the bounded provider runners extract token-count-only usage (respecting the raw-output-never-surfaced security invariant), dispatch-usage.ts gains a canonical per-provider final-usage entry point, and runBoundedRealLeafDispatch records a preflight estimate plus a superseding final -- while keeping the claude path byte-identical and the ledger-OFF path byte-identical.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "usage-ledger",
@@ -41,6 +41,14 @@
       "action": "advance",
       "timestamp": "2026-06-19T02:20:03.435Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T02:21:27.437Z",
+      "branch": "story/B-12d7",
       "user": "Harmonygo",
       "agent": "main"
     }

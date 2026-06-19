@@ -1,0 +1,34 @@
+{
+  "task": "Capture real codex and gemini provider token usage in the LLM usage ledger, which today records usage only for the claude-code host.",
+  "outcome": "After this work, with LATTICE_USAGE_LEDGER=1 a codex or gemini real-leaf dispatch writes a provider-reported final usage record to the ledger JSONL: the operator inspecting the ledger sees a sequence-2 record whose usage carries the real input/output token counts (and cacheRead when the provider reports it), provider name openai or gemini, the served model, and supersedesRecordIds pointing at the preflight estimate -- instead of todays silent no-record. With the flag OFF the ledger file is never created (byte-identical legacy behavior) and the claude-code host records are unchanged.",
+  "facts": [
+    "The usage ledger records real provider usage only for claude-code; runClaudeCodeRealLeafDispatch is the only path with the preflight+final ledger seam (core/lattice-dispatch.ts ~2056-2185).",
+    "The shared codex/gemini path runBoundedRealLeafDispatch (~1980-2036) has no ledger seam at all and never sees raw stdout.",
+    "runBoundedCodexProvider/runBoundedGeminiProvider capture stdout but ProviderExecResult surfaces only stdoutDigest+stdoutBytes; raw stdout is never surfaced (stated security invariant).",
+    "adaptOpenAiUsage (prompt_tokens/completion_tokens/prompt_tokens_details.cached_tokens) and adaptGeminiUsage (promptTokenCount/candidatesTokenCount/cachedContentTokenCount) already map to canonical LedgerUsage.",
+    "assemble.buildProviderRecord(provider, providerResponse, ...) already supports openai and gemini via adaptUsageFor; extractRawUsage pulls .usage/.usageMetadata or passes a bare usage object through.",
+    "recordDispatchFinal (dispatch-usage.ts:334) is hardcoded to anthropic (takes AnthropicUsage, calls buildProviderRecord anthropic).",
+    "extractCodexModel/extractGeminiModel already extract structured non-sensitive metadata from stdout inside the runner -- the precedent for token-count extraction."
+  ],
+  "constraints": [
+    "The raw-output-never-surfaced security invariant must hold: surface only token-count numbers, never raw transcript/stderr text.",
+    "The claude-code real-leaf path, recordDispatchFinal, parseClaudeCliOutput, and the anthropic adapter must stay byte-identical.",
+    "Every ledger call must be fail-open (try/catch, proceed on error) and a strict no-op when LATTICE_USAGE_LEDGER is OFF.",
+    "usage-ledger keeps zero cross-module imports; providers/ must not import usage-ledger.",
+    "Budget-guard parity and Authority receipt-backed signing are deferred (out of scope)."
+  ],
+  "unknowns": [
+    "Exact stdout shape of the real codex/gemini CLIs (JSONL lines vs single JSON); the extractor must tolerate both and degrade to unavailable when no usage object is present.",
+    "Whether to surface reportedUsage as a raw object (Record<string,unknown>) or a typed neutral shape on ProviderExecResult.",
+    "Where the new smoke registers (run-all-smokes registry + npm script names)."
+  ],
+  "touchpoints": [
+    "packages/main/src/providers/codex-cli.ts (extractCodexUsage)",
+    "packages/main/src/providers/gemini-cli.ts (extractGeminiUsage)",
+    "packages/main/src/providers/types.ts (ProviderExecResult.reportedUsage)",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts (recordDispatchFinalForProvider)",
+    "packages/main/src/core/lattice-dispatch.ts (runBoundedRealLeafDispatch seam)",
+    "packages/main/src/tasks/ new smoke + package.json + run-all-smokes registry"
+  ],
+  "timestamp": "2026-06-19T02:22:53.968Z"
+}
