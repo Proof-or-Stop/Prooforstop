@@ -13,7 +13,9 @@
       "_hash": "a7959c2f489fa92e57e7247e7aac3715c3b477f30a780d6fca0abb40f1aa7a4f",
       "files": [
         "packages/main/src/core/dirty-gate-policy.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4b22:F-002",
@@ -28,7 +30,9 @@
       "_hash": "c6f2768b088d320e707e05dea9173919ea9975a48c28885cf82f01141da8f4ac",
       "files": [
         "packages/main/src/handlers/story-advance.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4b22:F-003",
@@ -43,7 +47,9 @@
       "_hash": "27cdc50cd8c57c49291f84ddb05beea043126fd70adb58d519a7897e819c6f29",
       "files": [
         "packages/main/src/tasks/flow-stability-smoke.ts"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4b22:F-004",
@@ -61,7 +67,9 @@
         "packages/main/src/core/dirty-worktree.ts",
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
-      "resolvedBy": "F-004@9da9d1e"
+      "resolvedBy": "F-004@9da9d1e",
+      "signatureTag": "scope-gate|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

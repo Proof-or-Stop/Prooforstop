@@ -13,7 +13,9 @@
       "reviewRunId": "B-4980:RR-003",
       "_hash": "a9b00158f1c8f56c755bc3c265e11ef4c5d92f50d29f6375a321a2547d248336",
       "resolvedReason": "Fixed in commit 7dbfbf10: advisory_memory and host_transcript_memory are now explicitly boundary-only labels and cannot enter corpus truth, gold truth, HistoricalRetrievalScore, recall, or precision.",
-      "resolvedAt": "2026-06-08T15:02:54.791Z"
+      "resolvedAt": "2026-06-08T15:02:54.791Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4980:F-002",
@@ -31,7 +33,9 @@
         "Lattice-lifecycle-memory-Evolving.md"
       ],
       "resolvedReason": "Fixed in commit 0e708241: added fully expanded MemoryScore formula alongside QualityScore helper notation.",
-      "resolvedAt": "2026-06-08T15:07:32.358Z"
+      "resolvedAt": "2026-06-08T15:07:32.358Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4980:F-003",
@@ -49,7 +53,9 @@
         "Lattice-lifecycle-memory-Evolving.md"
       ],
       "resolvedReason": "Fixed in commit 0e708241: added staleTruthHit to Failure taxonomy for current-state stale truth hard fail.",
-      "resolvedAt": "2026-06-08T15:07:32.910Z"
+      "resolvedAt": "2026-06-08T15:07:32.910Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4980:F-004",
@@ -64,7 +70,9 @@
       "reviewRunId": "B-4980:RR-010",
       "_hash": "1b4a99e55c5feaabd25fc66d443da10f8b7429c37b39386d37b6a10b30a39668",
       "resolvedReason": "Added explicit CHK-001:edge:0 docs_check evidence for staleTruthHit taxonomy via verification_evidence_add.",
-      "resolvedAt": "2026-06-08T15:11:48.810Z"
+      "resolvedAt": "2026-06-08T15:11:48.810Z",
+      "signatureTag": "memory|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

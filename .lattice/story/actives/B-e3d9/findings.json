@@ -18,7 +18,9 @@
         "packages/main/src/core/phase-flow.ts"
       ],
       "resolvedReason": "Resolved after reproducing the failure mode and rerunning serially after build. The import/export is present in source and dist after npm --prefix packages/main run build; npm --prefix packages/main run test:planner-unattended-smoke passed when not raced against dist rebuild. Current validation also passes 15/15 coverage.",
-      "resolvedAt": "2026-06-10T23:45:34.012Z"
+      "resolvedAt": "2026-06-10T23:45:34.012Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/tasks/authority-client-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit de8113c7 and verified after commit ac102936. serverKey.algorithm is now trim/lowercase-normalized before comparing to ed25519; canonical ed25519 and ED25519 casing variant verify, while blank, rsa, and non-string algorithm material fail closed as unsupported. Commands passed: npm --prefix packages/main run build; npm run test:authority-client; node bin/lattice.js validate --story=B-e3d9.",
-      "resolvedAt": "2026-06-10T23:45:27.517Z"
+      "resolvedAt": "2026-06-10T23:45:27.517Z",
+      "signatureTag": "authority|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-003",
@@ -57,7 +61,9 @@
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
       "resolvedReason": "Fixed by commit 309a856c. resolveGateVerifyConfig and resolveServerVerifyMaterial now consult policy serverKey metadata even when env/authority.md pins the server public key, while keeping the pinned key as the trust anchor and never allowing policy publicKeyHex to override it. authority-client smoke covers pinned key plus policy algorithm=rsa fail-closed for gate evaluation and job status, and pinned key plus ED25519 accepted. Verified with build, authority-client smoke, gap_analyze 0 high/0 medium, planner/worktree/dry-run/gap hygiene smokes, and validate 15/15.",
-      "resolvedAt": "2026-06-11T00:18:40.524Z"
+      "resolvedAt": "2026-06-11T00:18:40.524Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-004",
@@ -76,7 +82,9 @@
         "packages/main/src/tasks/authority-client-smoke.ts"
       ],
       "resolvedReason": "Resolved by returning to PLAN and updating CHK-001 verificationIntent in commit f3dec96. CHK-001 edge now matches the shipped contract: benign Ed25519 casing/spacing variants normalize and succeed, while blank, malformed, unsupported, or non-string algorithm material fails closed. DEV validation after the PLAN correction reports 15/15 verification intent coverage and the authority-client smoke covers both discovery and pinned-key paths.",
-      "resolvedAt": "2026-06-11T00:27:54.785Z"
+      "resolvedAt": "2026-06-11T00:27:54.785Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-005",
@@ -94,7 +102,9 @@
         "packages/main/src"
       ],
       "resolvedReason": "Resolved after returning to DEV, rerunning focused verification for the six gap areas, refreshing 15/15 stale verificationEvidence with verification_evidence_refresh_stale in commit 9cd6cee, and rerunning node bin/lattice.js validate --story=B-e3d9 with 15/15 coverage in commit 5b9ff501. The stale materialHash condition reported by the coverage reviewer is no longer present.",
-      "resolvedAt": "2026-06-11T00:54:50.622Z"
+      "resolvedAt": "2026-06-11T00:54:50.622Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-006",
@@ -115,7 +125,9 @@
         "packages/main/src/handlers/guard-session.ts"
       ],
       "resolvedReason": "Fixed by implementer commit d484257f. The checked-in global-thin Lattice assets now use canonical .Lattice/Lattice.md and .Lattice/lattice.json, Codex native hook assets now use official lowercase .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs, and scripts/verify-entrypoints.mjs now mechanically rejects the old non-canonical casing. Verified with npm --prefix packages/main run build, npm run test:entrypoints, npm --prefix packages/main run test:pretool-scope-hook-smoke, node bin/lattice-codex.js verify_codex, focused smokes, and gap_analyze 0 high/0 medium.",
-      "resolvedAt": "2026-06-11T00:54:16.716Z"
+      "resolvedAt": "2026-06-11T00:54:16.716Z",
+      "signatureTag": "dispatch|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-007",
@@ -137,7 +149,9 @@
         "packages/main/src/core/worktree-policy.ts"
       ],
       "resolvedReason": "Resolved on current REVIEW head by rerunning node bin/lattice.js validate --story=B-e3d9 and both node bin/lattice.js gap_analyze plus node packages/main/dist/cli.js gap_analyze. validate reports 15/15 verification intent coverage with zero required missing, evidence_inspect reports no stale refs, and both gap_analyze entrypoints report Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. Validation evidence was committed in 6420f46d.",
-      "resolvedAt": "2026-06-11T01:01:17.805Z"
+      "resolvedAt": "2026-06-11T01:01:17.805Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-008",
@@ -161,7 +175,9 @@
         ".codex/hooks.json"
       ],
       "resolvedReason": "Resolved on current worktree-local Lattice evidence. The coverage finding was triggered from the global lattice entrypoint, which computed a different materialHash than the checked-out story worktree after the path-casing changes. After force-taking ownership back to the current worktree, node bin/lattice.js evidence_inspect showed checklist evidence fresh, node bin/lattice.js validate --story=B-e3d9 passed with 15/15 verification intent coverage, and both node bin/lattice.js gap_analyze and node packages/main/dist/cli.js gap_analyze reported Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. The restored local validation evidence was committed in d4da3897.",
-      "resolvedAt": "2026-06-11T01:05:43.660Z"
+      "resolvedAt": "2026-06-11T01:05:43.660Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-009",
@@ -180,7 +196,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Resolved by checklist_update commits 4f161d2/5ebf28b and later validation evidence: CHK-001 and CHK-005 verificationEvidence now use npm --prefix packages/main run test:authority-client from the story worktree; no root-level npm run test:authority-client command remains in verificationEvidence. Verified with npm --prefix packages/main run test:authority-client and node bin/lattice.js validate --story=B-e3d9 passing 15/15.",
-      "resolvedAt": "2026-06-11T01:53:55.650Z"
+      "resolvedAt": "2026-06-11T01:53:55.650Z",
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e3d9:F-010",
@@ -199,7 +217,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Resolved by checklist_update commit 0931007: CHK-002 edge verificationEvidence now uses local wrapper commands node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help, removing reliance on untracked packages/main/dist/cli.js. Verified those help commands execute from the story worktree and node bin/lattice.js validate --story=B-e3d9 passes 15/15.",
-      "resolvedAt": "2026-06-11T01:53:56.755Z"
+      "resolvedAt": "2026-06-11T01:53:56.755Z",
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

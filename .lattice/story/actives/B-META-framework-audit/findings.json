@@ -14,7 +14,9 @@
       "_hash": "0bc9f9d193f5f5411cd60b5c8b35fb9dce0cfde51a3c2c6c6842c97bdfef1a88",
       "files": [
         "packages/main/src/handlers/story-create.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-002",
@@ -31,7 +33,9 @@
       "files": [
         "packages/main/src/handlers/story-review.ts",
         "packages/main/src/handlers/story-create.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-003",
@@ -47,7 +51,9 @@
       "_hash": "8dcecce98cab47ab8d13e4e55b976ef2ecce3bc5432b4c7efc8102bf32c9a3bd",
       "files": [
         "packages/main/src/handlers/worktree.ts"
-      ]
+      ],
+      "signatureTag": "worktree|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-004",
@@ -66,7 +72,9 @@
         "B-9027 partial-DONE recovery 2026-05-17",
         "packages/main/src/handlers/done-effects.ts",
         "packages/main/src/handlers/doctor.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-005",
@@ -84,7 +92,9 @@
         "packages/main/src/handlers/done-effects.ts"
       ],
       "dismissReason": "Duplicate of B-META-framework-audit:F-004（同一 DONE-merge-serialization gap，F-004 早 7 秒由并发 session 记录且为 verified）。保留 F-004 为 canonical，本条作弱重复消解。",
-      "dismissedAt": "2026-05-17T11:39:21.256Z"
+      "dismissedAt": "2026-05-17T11:39:21.256Z",
+      "signatureTag": "story-lifecycle|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-006",
@@ -100,7 +110,9 @@
       "files": [
         "packages/main/src/handlers/gap-log.ts",
         "packages/main/src/core/audit-meta-store.ts"
-      ]
+      ],
+      "signatureTag": "finding-lifecycle|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-007",
@@ -116,7 +128,9 @@
       "files": [
         "packages/main/src/tasks/flow-stability-smoke.ts",
         "packages/main/src/core/done-oracle.ts"
-      ]
+      ],
+      "signatureTag": "test-infra|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-008",
@@ -131,7 +145,9 @@
       "_hash": "08ecd98cf2e7a08a7713559e736c46afad61c9d74884694a6571ce4db320cb34",
       "files": [
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-009",
@@ -155,7 +171,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:856"
       ],
       "resolvedReason": "Resolved as stale/superseded original Layer2 no-formal-path gap, not as a Layer2 capability unlock. Current source now has a formal proof path: packages/main/src/core/lattice-baseline.ts:1577 writeFormalBaselineReport requires claimTarget, suiteRunId, Engineering receiptRefs, capabilityProof=true, localOnly=false, formalProof=true, and rejects missing proof evidence; lines 2233-2264 reject localOnly diagnostic or capabilityProof=false final reports during suite aggregation; lines 2573-2682 rebuild and compare formal suite evidence; lines 2720-2788 allow only layer2EngineeringClaim and keep Loop, Production Safety, global claim, receiptVerified, productionDone, and fullAuthorityDone locked/false. Verification run in B-9833: npm --prefix packages/main run build PASS; npm --prefix packages/main run test:lattice-baseline-smoke PASS; lattice capability_claim_formal_evaluate --target=engineering --format=json returns EXPECTED_BLOCK/LOCKED because baseline-suite-report.json proof artifacts are missing, which is the correct fail-closed behavior and not the original no-producer/importer gap. Remaining customerKeyRef coverage is separate Layer4 future/blocked scope, not F-009.",
-      "resolvedAt": "2026-06-12T20:26:42.876Z"
+      "resolvedAt": "2026-06-12T20:26:42.876Z",
+      "signatureTag": "authority|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-010",
@@ -178,7 +196,9 @@
       "resolvedReason": "Audit doc summary bullet now cites packages/main/src/handlers/story-query.ts; appendix and later references already matched the source.",
       "resolvedAt": "2026-06-18T11:13:39.948Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-011",
@@ -200,7 +220,9 @@
       "resolvedReason": "Audit doc now states that the HandoffAuthorityBoundary table includes noHiddenContextSharing:true, matching core/lattice-handoff.ts.",
       "resolvedAt": "2026-06-18T11:13:40.075Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-012",
@@ -216,7 +238,9 @@
       "lastSeenAt": "2026-06-18T10:59:00.673Z",
       "firstSeenRound": 7,
       "resolvedReason": "drift cleared at round 9",
-      "resolvedAt": "2026-06-18T13:58:20.895Z"
+      "resolvedAt": "2026-06-18T13:58:20.895Z",
+      "signatureTag": "cli-engine|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-013",
@@ -232,7 +256,9 @@
       "lastSeenAt": "2026-06-18T10:59:00.674Z",
       "firstSeenRound": 7,
       "resolvedReason": "drift cleared at round 9",
-      "resolvedAt": "2026-06-18T13:58:20.895Z"
+      "resolvedAt": "2026-06-18T13:58:20.895Z",
+      "signatureTag": "cli-engine|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-014",
@@ -251,7 +277,9 @@
         "packages/main/src/core/authority-client.ts:1193",
         "packages/main/src/core/authority-client.ts:1851",
         "packages/main/src/handlers/lattice-cli.ts:870"
-      ]
+      ],
+      "signatureTag": "authority|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-015",
@@ -270,7 +298,9 @@
         "packages/main/src/handlers/lattice-cli.ts:858",
         "packages/main/src/handlers/lattice-cli.ts:1251",
         "packages/main/src/cli-engine.ts:2046"
-      ]
+      ],
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-META-framework-audit:F-016",
@@ -288,7 +318,9 @@
       "files": [
         "packages/main/src/tasks/authority-live-python-e2e-smoke.ts:650",
         "packages/main/src/tasks/authority-live-python-e2e-smoke.ts:900"
-      ]
+      ],
+      "signatureTag": "authority|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

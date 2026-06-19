@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "lattice.decision_doc_proposals.v1",
+  "storyId": "B-503b",
+  "updatedAt": "2026-06-19T00:22:58.818Z",
+  "proposals": [
+    {
+      "slug": "review-assurance-floor-execution-plan",
+      "targetPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "title": "Review Assurance Floor Execution Plan",
+      "sourceDecision": "decision.json",
+      "sourceDecisionDigest": "9a89d6fb8d646cf745695dd17ae8ee1e9d86a9144af56f44c664e7b9719fdb3f",
+      "decision": "Lattice should add a mandatory review assurance floor for code-changing stories: ordinary code diffs require at least one review round before DONE, failure or bug signals escalate to three local single-host rounds, and high-risk lifecycle/gate/Authority/process-fact work keeps the stronger three-round two-host or explicit degraded-single-host path.",
+      "context": "A small development task can look low risk during PLAN but still ship a bug when it reaches DONE with no review floor. Existing review escalation is threshold-triggered by first REVIEW round countable findings, which is useful but does not prevent zero-review code closure. This plan documents the missing floor and the escalation rule without implementing runtime code in this story.",
+      "scope": "Applies to future Lattice CLI lifecycle policy and DONE closure design for code-changing stories. This document is a planning and policy artifact only; runtime DONE oracle implementation, storage fields, and exact row ids are future work.",
+      "nonGoals": [
+        "Do not force every code-changing story into three rounds by default.",
+        "Do not weaken existing review_escalation_status, decision_doc_quorum_check, or DONE gates.",
+        "Do not claim local 3x1 review is two-host independent review.",
+        "Do not claim Authority completion without verified Authority Server gate_decision receipts.",
+        "Do not implement runtime gate code in this story."
+      ],
+      "chosenApproach": "Introduce a review assurance floor: zero-review code DONE is invalid; clean ordinary code requires at least one review round; real failure signals such as validation fail, bug, verified reviewer finding, post-DONE regression, or repeated rework make 3x1 local single-host audit sticky for closure; high-risk gate/Authority/lifecycle/process-fact work still requires 3x2 unless explicit degraded-single-host evidence is recorded.",
+      "alternatives": [
+        {
+          "name": "Force every code change through three local single-host rounds",
+          "pros": [
+            "Simple to explain",
+            "Stronger than one-round review for every code diff"
+          ],
+          "cons": [
+            "Over-applies heavy review to clean small changes",
+            "Raises token and time cost without requiring a real failure signal"
+          ]
+        },
+        {
+          "name": "Keep current threshold-triggered review escalation only",
+          "pros": [
+            "No new policy or implementation work",
+            "Preserves current lifecycle behavior"
+          ],
+          "cons": [
+            "Does not solve zero-review code DONE",
+            "Misses low-risk-looking tasks that only reveal bugs after implementation"
+          ]
+        },
+        {
+          "name": "Require full 3x2 for every code change",
+          "pros": [
+            "Maximal independent review assurance",
+            "Reduces reliance on single-host judgment"
+          ],
+          "cons": [
+            "Too expensive for ordinary small code changes",
+            "Can block local development when a second host is unavailable"
+          ]
+        }
+      ],
+      "operationalRules": [
+        "If a story has no material code diff, it may use the existing docs/typo/annotation policy for one-round low-risk review.",
+        "If a story has a material code diff, DONE must require at least one review round over the current material hash.",
+        "If a story records a validation fail, bug, verified reviewer finding, post-DONE regression, or repeated rework signal, DONE must require three rounds x one local host unless stronger policy requires 3x2.",
+        "Failure-triggered 3x1 escalation must be sticky for the story material until DONE or an explicit approved fallback supersedes it.",
+        "Lifecycle, gate, Authority, review, and process-fact work remains high-risk and should use three rounds x two hosts, or an explicit degraded-single-host fallback when policy allows.",
+        "Local host verdicts and degraded fallback evidence are Non-authority evidence and must not set authorityDone, fullAuthorityDone, or productionDone.",
+        "Future implementation must fail closed on stale material hash, missing host identity, missing prompt or validation binding, and duplicate/self-claimed assurance."
+      ],
+      "verificationRequirements": [
+        "A future smoke test proves an ordinary code-diff story cannot reach DONE with zero review rounds.",
+        "A future smoke test proves a clean ordinary code-diff story can close after one valid review round.",
+        "A future smoke test proves validation failure or bug evidence makes 3x1 required and sticky before DONE.",
+        "A future smoke test proves high-risk lifecycle/gate/Authority/process-fact stories still require 3x2 or explicit degraded-single-host evidence.",
+        "A future smoke test proves 3x1 evidence reports assuranceLevel=degraded-single-host and never claims Authority Server receipt-backed completion."
+      ],
+      "risks": [
+        "Over-escalation could waste tokens if every source diff is treated as failure-triggered.",
+        "Under-escalation could persist if failure signals are not captured in a gate-consumed artifact.",
+        "Confusing 3x1 with two-host independence would overclaim review assurance.",
+        "Confusing local host verdicts with Authority receipts would violate the Authority boundary."
+      ],
+      "id": "DDP-001",
+      "status": "saved",
+      "createdAt": "2026-06-19T00:22:53.189Z",
+      "updatedAt": "2026-06-19T00:22:58.818Z",
+      "proposalDigest": "7484f64b68dcef02ec715a97b17759ca67cd4d3ad279b87847611719c7273972",
+      "savedAt": "2026-06-19T00:22:58.818Z",
+      "savedCommit": "8406c92708c2bddb5328d1edc97e968c48d488a1",
+      "saves": [
+        {
+          "savedAt": "2026-06-19T00:22:58.818Z",
+          "savedCommit": "8406c92708c2bddb5328d1edc97e968c48d488a1",
+          "targetPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "sourceDecisionDigest": "9a89d6fb8d646cf745695dd17ae8ee1e9d86a9144af56f44c664e7b9719fdb3f",
+          "proposalDigest": "80d5b2611b5f05a59ee5764f382636be05f8091a7ced05e9e66a696decd4f9d1",
+          "renderedDocDigest": "abd673d92d0d1ec2b7cb0499d76d3321bba22a7affe94992618cdb1d4a3205ee",
+          "headHash": "8406c92708c2bddb5328d1edc97e968c48d488a1",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "mode": "create"
+        }
+      ]
+    }
+  ]
+}

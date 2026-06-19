@@ -13,7 +13,9 @@
       "_hash": "4be9149842799ff9f005cfa67d110dee40c18fba96791a7abc41341bc690ebee",
       "files": [
         "packages/main/src/core/declared-artifact-commit-check.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8db9:F-002",
@@ -29,7 +31,9 @@
       "files": [
         "packages/main/src/core/dirty-worktree.ts",
         "packages/main/src/handlers/artifact-declare.ts"
-      ]
+      ],
+      "signatureTag": "scope-gate|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8db9:F-003",
@@ -47,7 +51,9 @@
         "packages/main/src/core/declared-artifact-commit-check.ts",
         "packages/main/src/core/dirty-worktree.ts",
         "packages/main/src/handlers/artifact-declare.ts"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

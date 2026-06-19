@@ -16,7 +16,9 @@
         "CLAUDE.md",
         "koala-project-overview.md",
         ".githooks/pre-push"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-eab3:F-002",
@@ -32,7 +34,9 @@
       "_hash": "331256a56667796d2c1800755646f735e191fa8f9a3b2c6f6d58f6e650f7ee50",
       "files": [
         ".githooks/pre-push"
-      ]
+      ],
+      "signatureTag": "test-infra|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-eab3:F-003",
@@ -48,7 +52,9 @@
       "_hash": "73a25f94b1b0ac461d3dfe73f2944e2039125aa7d23ee3c703affb8214539bdf",
       "files": [
         ".githooks/pre-push"
-      ]
+      ],
+      "signatureTag": "test-infra|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-eab3:F-004",
@@ -64,7 +70,9 @@
       "_hash": "644c620addbea81cbb8c8d975cefacf42da4d19cfd39d2de73ea0eb1ca48cf28",
       "files": [
         ".githooks/pre-push"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-eab3:F-005",
@@ -87,7 +95,9 @@
         ".Codex/agents/koala-review-concept.md"
       ],
       "dismissReason": "agent 模板文件(packages/main/templates/agents/*.md 及生成的 .claude/.Codex/agents/*.md)各自内嵌一整份 CLAUDE.md 快照,pre-push 段只是其中一节。B-eab3 的 understanding.touchpoints 明确限定为 .githooks/pre-push + CLAUDE.md + koala-project-overview.md;这些内嵌副本相对 canonical CLAUDE.md 的漂移远不止 pre-push 一节,重新同步 30 份内嵌 CLAUDE.md 属于 agent-prompt 生成/镜像子系统,应作为独立 story 处理,不在本 story scope。Round 1 concept reviewer 已确认这些文件非本 diff 引入。",
-      "dismissedAt": "2026-05-17T03:23:04.185Z"
+      "dismissedAt": "2026-05-17T03:23:04.185Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     }
   ]
 }

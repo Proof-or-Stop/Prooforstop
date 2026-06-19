@@ -16,7 +16,9 @@
         "packages/main/src/core/usage-ledger/writer.ts"
       ],
       "resolvedReason": "Reworded writer.ts doc-comments to reflect default-ON/opt-out: line 12 'opt-out gate (CHK-006): default ON; strict no-op when set OFF (LATTICE_USAGE_LEDGER=0)', line 115 'false when the ledger flag was set OFF', plus lines 54/124 for consistency. No production logic changed; verifier still TOTAL 63 | PASS 63 | FAIL 0.",
-      "resolvedAt": "2026-06-16T22:33:29.927Z"
+      "resolvedAt": "2026-06-16T22:33:29.927Z",
+      "signatureTag": "usage-ledger|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

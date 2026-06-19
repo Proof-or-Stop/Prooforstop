@@ -1,0 +1,73 @@
+{
+  "storyId": "B-cb13",
+  "checkedAt": "2026-06-19T01:41:55.559Z",
+  "reviewRound": "2026-06-19T01:35:09.591Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md#Decision",
+      "promise": "Decision-doc exists at canonical path with all required sections (Decision/Context/Scope/Non-Goals/Options Considered/Chosen Approach/Operational Rules/Verification Requirements/Risks)",
+      "verifiedBy": "diff/grep",
+      "evidence": "File appears in git diff main...HEAD as sole non-lattice-metadata addition. All 10 top-level ## headings confirmed via grep. No source/CLI/handler/gate code files modified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md#Chosen-Approach",
+      "promise": "Doc enumerates all six component story IDs: B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9",
+      "verifiedBy": "grep",
+      "evidence": "grep -o for each ID returns all six from the file. All six IDs confirmed present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md#Decision",
+      "promise": "Doc states the evidence arc: Baseline A rho=-0.55, held-out 62%, 656 signatures applied, live recall 0.659, valid-rate 0.971",
+      "verifiedBy": "grep",
+      "evidence": "grep -o for each metric (-0.55, 62%, 656, 0.659, 0.971) returns all five values from the file."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md#Non-Goals",
+      "promise": "Doc contains honesty guards: observational != causal, saturation not claimed as real signal, forward RCT pending",
+      "verifiedBy": "grep",
+      "evidence": "Passages found: causal claim explicitly deferred to forward ON/OFF RCT; saturation-inflated curve listed as Non-Goal; Risks section states observational != causal."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md#Options-Considered",
+      "promise": "Doc lists at least two alternatives under Options Considered",
+      "verifiedBy": "grep",
+      "evidence": "Three ### subsections found: Degraded-mechanical-signatures only (Baseline A), Cross-project aggregation, Persist signatures without first proving learnability."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "promise": "Doc is ASCII-only English (english-artifacts gate: no CJK or non-ASCII characters)",
+      "verifiedBy": "grep -P",
+      "evidence": "grep -P [^\\x00-\\x7F] returns clean. File is 85 lines, no CSV blocks or raw data tables."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "promise": "Doc makes no causal overclaim (does not assert the Experience Layer causally improves outcomes)",
+      "verifiedBy": "grep",
+      "evidence": "Only occurrence of caused by (line 14) refers to degraded mechanical signatures causing the lower bound -- a methodology note. No phrases: causally proven, causal evidence, proves effectiveness. Causal claim explicitly deferred to RCT."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "promise": "No raw lattice-Paper CSV/figure files duplicated into docs/requirements/decisions/",
+      "verifiedBy": "find",
+      "evidence": "find docs/requirements/decisions/ for .csv/.png/.svg returns only .gitkeep and .md files. Raw evidence stays referenced in Work/lattice-Paper/ per Non-Goals."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Documentation-only story: deliverable is a decision-doc .md with no source/CLI/handler/gate changes. verify-b-cb13.mjs (TOTAL 24 PASS 24 FAIL 0) checks file existence at canonical path, all six story IDs, all five evidence arc metrics, honesty guard phrases, no CJK content, no causal overclaim, Work/lattice-Paper reference, and >=2 alternatives. All 24 assertions pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Cross-reference and accuracy check item. Same verify-b-cb13.mjs (TOTAL 24 PASS 24 FAIL 0) covers: all six story IDs present in doc, evidence numbers self-consistent, ASCII-only content, no causal overclaim, no raw data duplication. Live number reproducibility is outside scope of this documentation-only story."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified directly from source (grep + find + git diff). The decision-doc lands at the correct canonical path, is 85 lines of ASCII-only English, enumerates all six story IDs and the full evidence arc (-0.55 to 62% to 656/recall 0.659/valid-rate 0.971), includes three alternatives, correctly guards against causal overclaim by deferring to the forward RCT, and duplicates no raw lattice-Paper data. The sole file change in the diff is the .md itself plus lattice story metadata -- no source/CLI/handler/gate code touched."
+  },
+  "_hash": "d6ac3e825e5ccb3c55be1add25a1933c592c799e97981cc8e9e151b8096ca1e7"
+}

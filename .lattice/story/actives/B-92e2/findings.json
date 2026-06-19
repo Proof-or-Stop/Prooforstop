@@ -16,7 +16,9 @@
         "packages/main/src/tasks/lattice-baseline-smoke.ts"
       ],
       "resolvedReason": "Fixed in 6d1fcae6: lattice-baseline-smoke now seeds real stale final-report and stale lower-layer suite cases, plus invalid status/local-stub/fresh-authorized lower-layer claim coverage. Verified on current story branch with npm --prefix packages/main run test:lattice-baseline-smoke, npm test, and lattice validate allPass=true.",
-      "resolvedAt": "2026-06-10T02:38:34.656Z"
+      "resolvedAt": "2026-06-10T02:38:34.656Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-92e2:F-002",
@@ -37,7 +39,9 @@
         "Lattice-Parallel-Development-Capability.md"
       ],
       "resolvedReason": "Fixed in 6d1fcae6: baseline_suite_report now requires fresh non-local capabilityProof=true final reports and refuses localOnly/capabilityProof=false baseline_run artifacts, so local implementation diagnostics stay BLOCKED/not_authorized and cannot authorize Engineering suite PASS. Verified by lattice-baseline-smoke local-stub-suite scenario and lattice validate allPass=true.",
-      "resolvedAt": "2026-06-10T02:38:41.004Z"
+      "resolvedAt": "2026-06-10T02:38:41.004Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-92e2:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/core/lattice-baseline.ts"
       ],
       "resolvedReason": "Fixed in 6d1fcae6: capability_claim_evaluate now derives authorized/authorizedClaimLevel from a fresh sequential chain of suiteStatus=PASS, authorization=authorized, localOnly=false, capabilityProof=true lower-layer suite reports; production-safety still remains blocked without external receipt/multi-host/soak authority proof. Verified by fresh engineering claim and stale lower-layer claim smoke scenarios plus lattice validate allPass=true.",
-      "resolvedAt": "2026-06-10T02:38:47.146Z"
+      "resolvedAt": "2026-06-10T02:38:47.146Z",
+      "signatureTag": "authority|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-92e2:F-004",
@@ -73,7 +79,9 @@
         "packages/main/src/core/lattice-baseline.ts"
       ],
       "resolvedReason": "Fixed in 6d1fcae6: parseFinalReport now validates status against pass|blocked|failed|not_authorized and rejects outcome/status inconsistencies fail-closed. Verified by lattice-baseline-smoke invalid-status scenario and lattice validate allPass=true.",
-      "resolvedAt": "2026-06-10T02:38:52.027Z"
+      "resolvedAt": "2026-06-10T02:38:52.027Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-92e2:F-005",
@@ -91,7 +99,9 @@
         "packages/main/src/core/lattice-baseline.ts"
       ],
       "resolvedReason": "Fixed in 6d08cdca: readSuiteReport now validates suite report enum/coherence and rejects suiteStatus=PASS proofs unless outcome=PASS, authorization=authorized, capabilityProof=true, and localOnly=false. Added lattice-baseline-smoke regression for incoherent development suite outcome=EXPECTED_BLOCK otherwise authorized proof; verified build, lattice-baseline-smoke, command-ownership-contract, npm test, and lattice validate allPass=true.",
-      "resolvedAt": "2026-06-10T02:49:53.918Z"
+      "resolvedAt": "2026-06-10T02:49:53.918Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

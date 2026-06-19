@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b5c0",
+  "allowedCommands": [
+    "claude --print",
+    "git diff",
+    "git diff --check",
+    "git log",
+    "git rev-parse",
+    "git status",
+    "lattice autopilot_review_status",
+    "lattice autopilot_review_submit",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice finding_add",
+    "lattice review_escalation_status",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "npm --prefix packages/main run build",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "functions.apply_patch",
+    "functions.exec_command",
+    "functions.write_stdin",
+    "multi_agent_v1.close_agent",
+    "multi_agent_v1.spawn_agent",
+    "multi_agent_v1.wait_agent"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/guide-scope-guard.md",
+    "docs/requirements/decisions/",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/",
+    "scripts/"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "lattice release_approve_push",
+    "lattice test_auto",
+    "npm publish",
+    "omx"
+  ],
+  "excludedTools": [
+    "image_gen",
+    "mcp__codex_apps__adobe_photoshop",
+    "mcp__codex_apps__lovable"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/src/**",
+    "packages/main/tests/fixtures/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Manual edits are limited to the target roadmap document and, only if necessary, NAV. Code paths may be read for status verification but must not be modified.",
+  "createdAt": "2026-06-19T01:07:59.925Z",
+  "updatedAt": "2026-06-19T01:07:59.925Z",
+  "_hash": "74567374d238f70bc3734364a77135c2e93ec110fbaea6ba0f402071ea8f1fb9"
+}

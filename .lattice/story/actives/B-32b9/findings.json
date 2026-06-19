@@ -15,7 +15,9 @@
       "files": [
         "lattice-console-serve.js"
       ],
-      "resolvedAt": "2026-06-17T19:44:35.968Z"
+      "resolvedAt": "2026-06-17T19:44:35.968Z",
+      "signatureTag": "other|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-32b9:F-002",
@@ -32,7 +34,9 @@
       "files": [
         "lattice-console-serve.js"
       ],
-      "resolvedAt": "2026-06-17T19:44:41.120Z"
+      "resolvedAt": "2026-06-17T19:44:41.120Z",
+      "signatureTag": "other|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-32b9:F-003",
@@ -50,7 +54,9 @@
         "lattice-console-serve.js"
       ],
       "dismissReason": "Data unavailability: no INIT-phase story with only 2 nodes exists in the current project (all 430 stories are beyond INIT phase, minimum node count from serve.js is 4: root+input-req+evidence-gate+done). The evidence used B-2d6c (DEV phase, ~6 nodes) which is the sparsest available story with minimal events. The auto-fit mechanism is not phase-dependent; it depends only on SVG dimensions and container size. The core behavior (graph does not stick at 10% for sparse stories) was validated with B-2d6c. Re-testing the same code path with a hypothetical 2-node story would produce equivalent results since the fitView formula scales to any SVG dimensions.",
-      "dismissedAt": "2026-06-17T19:43:47.772Z"
+      "dismissedAt": "2026-06-17T19:43:47.772Z",
+      "signatureTag": "other|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-32b9:F-004",
@@ -63,7 +69,9 @@
       "createdAt": "2026-06-17T19:30:17.262Z",
       "reviewRound": "2026-06-17T19:27:55.084Z",
       "reviewRunId": "B-32b9:RR-003",
-      "_hash": "a79ac741ccfa087a099b9b55fb226c9ee52da29fd3c3f9e0f2c0c3e7b156889a"
+      "_hash": "a79ac741ccfa087a099b9b55fb226c9ee52da29fd3c3f9e0f2c0c3e7b156889a",
+      "signatureTag": "other|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-32b9:F-005",
@@ -76,7 +84,9 @@
       "createdAt": "2026-06-17T19:30:38.830Z",
       "reviewRound": "2026-06-17T19:27:55.084Z",
       "reviewRunId": "B-32b9:RR-003",
-      "_hash": "150ff70dec22d8908ab0c095ecdb81c75dc2ab523eedd79bdbf50b29f571d37e"
+      "_hash": "150ff70dec22d8908ab0c095ecdb81c75dc2ab523eedd79bdbf50b29f571d37e",
+      "signatureTag": "other|error-swallowing",
+      "signatureTagSource": "backfill"
     }
   ]
 }

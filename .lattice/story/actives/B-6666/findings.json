@@ -18,7 +18,9 @@
       "resolvedReason": "Fixed in 3e9c61db1: added optional metadataRoot param (default=gitCwd for plain-repo byte-identity) to currentMaterialHash + checkEvidenceFreshnessForGit; isMaterialExcludedPath config-load now uses metadataRoot while git invocation keeps gitCwd. Threaded explicit metadataRoot at the 3 wrapper-root-reachable callers. Regression in done-oracle-wrapper-root-smoke.ts proves red->green on a wrapper-root + custom-storyDir fixture.",
       "resolvedAt": "2026-06-17T17:30:31.604Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "signatureTag": "evidence-freshness|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

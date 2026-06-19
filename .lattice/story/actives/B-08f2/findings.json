@@ -19,7 +19,9 @@
         "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md"
       ],
       "dismissReason": "Deferred to the later active-docs sweep story (program phase 4). F-001 is 4 historical-lineage prose references in docs/requirements/decisions/*.md pointing at the now-removed docs/koala/legacy/ archive. Fixing them requires editing decision docs, which trips the always-on 3x2 decision-doc quorum gate — disproportionate overhead for this env-var rename story. The references are non-hyperlink historical prose (medium, non-blocking); they will be corrected in bulk when the active-docs sweep handles decision docs through the proper 3x2 process.",
-      "dismissedAt": "2026-06-16T00:37:47.486Z"
+      "dismissedAt": "2026-06-16T00:37:47.486Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-08f2:F-002",
@@ -36,7 +38,9 @@
       "files": [
         "packages/main/src/core/dev-memory.ts"
       ],
-      "resolvedAt": "2026-06-16T00:40:00.905Z"
+      "resolvedAt": "2026-06-16T00:40:00.905Z",
+      "signatureTag": "config|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-08f2:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/core/dev-memory.ts",
         "packages/main/src/cli-engine.ts"
       ],
-      "resolvedAt": "2026-06-16T00:40:05.947Z"
+      "resolvedAt": "2026-06-16T00:40:05.947Z",
+      "signatureTag": "gitroot-cwd|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-08f2:F-004",
@@ -75,7 +81,9 @@
         "packages/main/src/core/authority-job-loop-live.ts",
         "packages/main/src/handlers/lattice-cli.ts"
       ],
-      "resolvedAt": "2026-06-16T00:49:48.296Z"
+      "resolvedAt": "2026-06-16T00:49:48.296Z",
+      "signatureTag": "authority|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-08f2:F-005",
@@ -94,7 +102,9 @@
         ".claude/hooks/session-brief-reminder.cjs",
         "docs/guide-hooks.md"
       ],
-      "resolvedAt": "2026-06-16T00:48:38.201Z"
+      "resolvedAt": "2026-06-16T00:48:38.201Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-08f2:F-006",
@@ -111,7 +121,9 @@
       "files": [
         "packages/main/src/core/authority-mode.ts"
       ],
-      "resolvedAt": "2026-06-16T00:49:43.739Z"
+      "resolvedAt": "2026-06-16T00:49:43.739Z",
+      "signatureTag": "authority|dead-code",
+      "signatureTagSource": "backfill"
     }
   ]
 }

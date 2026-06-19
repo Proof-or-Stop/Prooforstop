@@ -16,7 +16,9 @@
         "packages/main/src/core/codex-adapter-checks.ts"
       ],
       "resolvedReason": "Fixed by commit d7796b6f: resolveCodexSessionBriefCommand now uses explicit session_brief candidates for bin/lattice-codex.js, bin/koala-codex.js, bin/lattice.js, and bin/koala.js instead of suffix slicing; scripts/verify-codex-assets.mjs adds direct tests for lattice wrapper, legacy wrapper, koala.js-only fallback, and global-thin fallback. Verified build, test:codex-assets, test:entrypoints, validate --json parse, and node bin/koala-codex.js verify_codex.",
-      "resolvedAt": "2026-06-04T00:16:00.754Z"
+      "resolvedAt": "2026-06-04T00:16:00.754Z",
+      "signatureTag": "dispatch|hardcoded-value",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cea:F-002",
@@ -35,7 +37,9 @@
         "packages/main/src/core/codex-adapter-checks.ts"
       ],
       "resolvedReason": "Fixed by commit d7796b6f: README wrapper priority paragraph now documents bin/koala.js as the fourth legacy generic bootstrap fallback, matching resolveLocalCodexVerifyCommand. Verified npm run test:codex-assets and npm run test:entrypoints.",
-      "resolvedAt": "2026-06-04T00:16:14.742Z"
+      "resolvedAt": "2026-06-04T00:16:14.742Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cea:F-003",
@@ -54,7 +58,9 @@
         "packages/main/src/core/codex-adapter-checks.ts"
       ],
       "resolvedReason": "Fixed by commit d07174d4: scripts/verify-codex-assets.mjs now includes a direct resolveCodexSessionBriefCommand test for bin/lattice.js-only fallback returning node bin/lattice.js session_brief. Verified npm run test:codex-assets plus full build, entrypoints, validate --json parse, and verify_codex.",
-      "resolvedAt": "2026-06-04T00:25:04.252Z"
+      "resolvedAt": "2026-06-04T00:25:04.252Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

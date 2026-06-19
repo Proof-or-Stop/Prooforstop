@@ -14,7 +14,9 @@
         "scripts/verify-process-fact-contract.mjs",
         ".Codex/agents/koala-review-story-init.md",
         "packages/main/templates/agents/koala-review-story-init.md"
-      ]
+      ],
+      "signatureTag": "process-fact|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5d29:F-002",
@@ -28,7 +30,9 @@
       "_hash": "aade83f6ee68342359c79a6a3f25154c1831a84e1d8db1e0507427403354c6a0",
       "files": [
         "scripts/verify-process-fact-contract.mjs"
-      ]
+      ],
+      "signatureTag": "process-fact|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5d29:F-003",
@@ -46,7 +50,9 @@
         "scripts/verify-process-fact-contract.mjs",
         "packages/main/templates/agents/koala-review-story-init.md",
         ".Codex/agents/koala-review-story-init.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

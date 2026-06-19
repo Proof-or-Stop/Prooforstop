@@ -16,7 +16,9 @@
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
       ],
       "resolvedReason": "Added inspectable Host Transcript Evidence section with Claude/Codex exact command trail and captured draft excerpts; CHK-002:happy evidence now points to rg checks over that section.",
-      "resolvedAt": "2026-06-12T15:34:33.012Z"
+      "resolvedAt": "2026-06-12T15:34:33.012Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e155:F-002",
@@ -36,7 +38,9 @@
         "docs/requirements/decisions/root-document-migration-guide.md"
       ],
       "resolvedReason": "Updated NAV to 42 files and added the missing formal-unlock-artifact-isolation-execution-plan link; counts now match decisions markdown files.",
-      "resolvedAt": "2026-06-12T15:34:33.033Z"
+      "resolvedAt": "2026-06-12T15:34:33.033Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

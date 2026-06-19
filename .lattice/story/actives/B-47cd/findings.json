@@ -17,7 +17,9 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by extending autopilot-run smoke with adversarial full-autopilot policy refusal assertions for missing required bounds and stop flags. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:09:33.161Z"
+      "resolvedAt": "2026-06-04T04:09:33.161Z",
+      "signatureTag": "authority|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by implementing bounded full-autopilot retry only for allowAutoFix=true validation failures within saved policy maxIterations/runtime/budget bounds, and adding smoke coverage that records exactly two validation_failed iterations. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:09:52.921Z"
+      "resolvedAt": "2026-06-04T04:09:52.921Z",
+      "signatureTag": "authority|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-003",
@@ -56,7 +60,9 @@
         "README.md"
       ],
       "resolvedReason": "Resolved by adding an executable conflict stop smoke: a prepared active dispatch hits dispatch policy maxParallel, autopilot_run classifies conflict, preserves one failed iteration/error evidence, and returns manual repair nextAction. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:10:15.862Z"
+      "resolvedAt": "2026-06-04T04:10:15.862Z",
+      "signatureTag": "authority|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-004",
@@ -78,7 +84,9 @@
         "packages/main/src/core/lattice-autopilot.ts"
       ],
       "resolvedReason": "Resolved by adding dispatchPolicy to persisted autopilot policies and making autopilot_run check the saved autopilot policy before dispatch. dispatchAuto now receives normalizedPolicy.dispatchPolicy, and dispatch-only policies fail before worker startup. Evidence: npm --prefix packages/main run test:autopilot-run-smoke and build.",
-      "resolvedAt": "2026-06-04T04:10:38.023Z"
+      "resolvedAt": "2026-06-04T04:10:38.023Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-005",
@@ -99,7 +107,9 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by narrowing authority receipt classification: {source:'server'} and local diagnostics no longer verify; only explicit verified fake-test-server or authority-server style receipts with ref/digest/signature pass the gate. Smoke asserts forged server object stops before dispatch. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:11:03.916Z"
+      "resolvedAt": "2026-06-04T04:11:03.916Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-006",
@@ -118,7 +128,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Resolved by deriving mode, receipt requirement, maxIterations, runtime, budget, allowAutoFix, and dispatchPolicy from checkAutopilotPolicy(). CLI --mode is now only an assertion and a conservative policy cannot be widened to full-autopilot. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:11:12.118Z"
+      "resolvedAt": "2026-06-04T04:11:12.118Z",
+      "signatureTag": "authority|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-007",
@@ -138,7 +150,9 @@
         "packages/main/src/core/lattice-autopilot.ts"
       ],
       "resolvedReason": "Resolved by narrowing autopilot_resume public CLI/help and command/process-fact rationale to current refusal-only v1 behavior; policy/runtime/budget/server-receipt resume inputs are no longer advertised. Evidence: npm --prefix packages/main run build and node bin/lattice.js autopilot_resume --help.",
-      "resolvedAt": "2026-06-04T04:11:40.928Z"
+      "resolvedAt": "2026-06-04T04:11:40.928Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-008",
@@ -157,7 +171,9 @@
         "packages/main/src/core/autopilot-policy.ts"
       ],
       "resolvedReason": "Resolved by removing unsupported host/path/command/review/validation fields from autopilot_policy_create CLI schema, adding persisted dispatchPolicy, and making core reject unsupported create fields instead of silently dropping them. Evidence: autopilot_run smoke unsupported-field assertion and autopilot_policy_create --help.",
-      "resolvedAt": "2026-06-04T04:12:07.798Z"
+      "resolvedAt": "2026-06-04T04:12:07.798Z",
+      "signatureTag": "authority|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-009",
@@ -176,7 +192,9 @@
         "docs/requirements/decisions/host-overflow.md"
       ],
       "resolvedReason": "Resolved by documenting explicit dispatchPolicy linkage in README and docs/requirements/decisions/host-overflow.md, including dispatch_policy_create --policy=fake-dispatch then autopilot policy create --policy=fake --dispatchPolicy=fake-dispatch examples and same-name fallback note. Evidence: docs diff plus autopilot-run smoke two-policy linkage assertions.",
-      "resolvedAt": "2026-06-04T04:12:15.242Z"
+      "resolvedAt": "2026-06-04T04:12:15.242Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-010",
@@ -196,7 +214,9 @@
         "packages/main/src/core/autopilot-policy.ts"
       ],
       "resolvedReason": "Resolved by strict CLI parsing for autopilot_policy_create/autopilot_run/autopilot_resume while preserving Lattice owner-lease meta flags. Smoke asserts deprecated flags are rejected and --forceTakeover remains accepted without entering policy output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T04:58:24.449Z"
+      "resolvedAt": "2026-06-04T04:58:24.449Z",
+      "signatureTag": "config|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-011",
@@ -215,7 +235,9 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by requiring measurable spend before budget-capped full-autopilot retries: fake-host retries count as measured 0 spend, and non-measurable provider retries fail closed with stopReason=budget_exhausted before another iteration. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; docs/requirements/decisions/host-overflow.md documents the fail-closed budget rule.",
-      "resolvedAt": "2026-06-04T04:58:45.617Z"
+      "resolvedAt": "2026-06-04T04:58:45.617Z",
+      "signatureTag": "authority|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-012",
@@ -233,7 +255,9 @@
         "packages/main/src/core/lattice-autopilot.ts,packages/main/src/cli-engine.ts,packages/main/src/core/command-policy.ts"
       ],
       "resolvedReason": "Resolved by making autopilotReview read persisted run state, compute dispatch_review/merge_plan in memory, and return a review projection without persist(), event append, or run.json mutation. Smoke captures run.json before/after autopilot_review and asserts byte-identical content. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T05:37:42.062Z"
+      "resolvedAt": "2026-06-04T05:37:42.062Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-013",
@@ -251,7 +275,9 @@
         "packages/main/src/cli-engine.ts,packages/main/src/handlers/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by applying strict Zod object validation to every autopilot_* command, preserving takeover/forceTakeover only for owner-gated autopilot commands, and replacing parsed args with validated v.data before gates/hooks/handlers. Smoke asserts autopilot_policy_check/autopilot_status/autopilot_review reject stray --policy/--allowedHosts flags. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:command-ownership-contract.",
-      "resolvedAt": "2026-06-04T05:38:09.001Z"
+      "resolvedAt": "2026-06-04T05:38:09.001Z",
+      "signatureTag": "config|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-014",
@@ -269,7 +295,9 @@
         "packages/main/src/core/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts,docs/requirements/decisions/host-overflow.md,docs/requirements/decisions/authority-client-role.md"
       ],
       "resolvedReason": "Resolved by removing shape/string heuristic acceptance for real server-looking receipts in classifyAuthorityReceiptCandidate. Until real verification exists, only deterministic fake-test-server receipts can satisfy the smoke gate; fully-shaped caller-supplied python-authority-server receipts fail closed as invalid/missing_authority_receipt in both authority-verified and full-autopilot modes. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T05:38:41.062Z"
+      "resolvedAt": "2026-06-04T05:38:41.062Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-015",
@@ -287,7 +315,9 @@
         "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by adding CLI smoke coverage for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume with --takeover/--forceTakeover accepted under strict validation and asserted not to leak into JSON output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T05:59:26.902Z"
+      "resolvedAt": "2026-06-04T05:59:26.902Z",
+      "signatureTag": "authority|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-016",
@@ -305,7 +335,9 @@
         "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by adding assertCliRejectsUnknownFlag coverage for autopilot_watch and autopilot_cancel stray --policy flags, completing explicit unknown/deprecated flag refusal coverage across the autopilot command surface. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
-      "resolvedAt": "2026-06-04T05:59:41.900Z"
+      "resolvedAt": "2026-06-04T05:59:41.900Z",
+      "signatureTag": "authority|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-017",
@@ -323,7 +355,9 @@
         "README.md,docs/requirements/decisions/authority-client-role.md"
       ],
       "resolvedReason": "Resolved by narrowing README.md and authority-client-role.md wording: authority_status reports canClaimProductionDone=false, while conduit_status is described only with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: rg -n 'canClaimProductionDone|conduit_status|conduit status' README.md docs/requirements/decisions/authority-client-role.md.",
-      "resolvedAt": "2026-06-04T06:00:28.161Z"
+      "resolvedAt": "2026-06-04T06:00:28.161Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-018",
@@ -341,7 +375,9 @@
         "README.md,docs/requirements/decisions/authority-client-role.md"
       ],
       "resolvedReason": "Resolved in latest docs run by narrowing README.md and authority-client-role.md wording: canClaimProductionDone=false is authority_status-only, while conduit_status is documented with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: docs final reviewer PASS and rg canClaimProductionDone/conduit_status wording check.",
-      "resolvedAt": "2026-06-04T06:07:05.603Z"
+      "resolvedAt": "2026-06-04T06:07:05.603Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-019",
@@ -362,7 +398,9 @@
         "docs/requirements/decisions/host-overflow.md"
       ],
       "resolvedReason": "Resolved by making fake-test-server acceptance internal-test-only via trustedTestAuthorityReceipt, keeping public serverAuthorityReceipt fake-test-server JSON invalid, and adding smoke coverage for caller-supplied fake-test-server refusal plus CLI rejection of trustedTestAuthorityReceipt. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:unattended-dispatch-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:flow-stability-smoke; node bin/lattice.js validate --story=B-47cd --json (33/33 PASS).",
-      "resolvedAt": "2026-06-04T06:37:00.816Z"
+      "resolvedAt": "2026-06-04T06:37:00.816Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-020",
@@ -382,7 +420,9 @@
         "packages/main/src/tasks/unattended-dispatch-smoke.ts"
       ],
       "resolvedReason": "Resolved by adding stronger executable verification evidence for CHK-002:adversarial:0, CHK-008:edge:0, and CHK-009:edge:0, all bound to npm --prefix packages/main run test:autopilot-run-smoke. The smoke now asserts full-autopilot policy refusal behavior, conflict stop evidence preservation, cancel evidence preservation, and cancelled review immutability. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; node bin/lattice.js validate --story=B-47cd --json shows 33/33 covered with these intents no longer build/docs-only.",
-      "resolvedAt": "2026-06-04T07:03:34.054Z"
+      "resolvedAt": "2026-06-04T07:03:34.054Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-021",
@@ -402,7 +442,9 @@
         "packages/main/src/handlers/lattice-autopilot.ts"
       ],
       "resolvedReason": "Resolved by deriving the owner-gated storyId for autopilot_cancel and autopilot_resume from .koala/autopilot-runs/<runId>/run.json before owner lease enforcement. autopilot_policy_create is now mainSharedMutating and strict CLI parsing rejects takeover/forceTakeover owner meta. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke covers runId owner-gate refusal/takeover and owner meta non-leakage; npm --prefix packages/main run test:command-ownership-contract covers autopilot_policy_create ownership classification/help boundary.",
-      "resolvedAt": "2026-06-04T07:03:45.613Z"
+      "resolvedAt": "2026-06-04T07:03:45.613Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-47cd:F-022",
@@ -420,7 +462,9 @@
         "packages/main/src/core/lattice-autopilot.ts"
       ],
       "resolvedReason": "Resolved by making autopilot_review preserve persisted terminal statuses instead of projecting cancelled/failed runs into manual_review_ready or needs_receipt. Review still returns dispatch review/merge evidence but keeps the cancelled nextAction and leaves run.json byte-identical. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke cancelled review immutability assertions.",
-      "resolvedAt": "2026-06-04T07:03:58.487Z"
+      "resolvedAt": "2026-06-04T07:03:58.487Z",
+      "signatureTag": "authority|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

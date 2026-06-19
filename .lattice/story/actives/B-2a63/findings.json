@@ -16,7 +16,9 @@
         "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
       ],
       "resolvedReason": "Resolved by returning to PLAN and updating CHK-002 verificationIntent to add CHK-002:adversarial:1 explicitly covering outputDir refusal for story-managed lifecycle state and fixture paths, then refreshed CHK-002 evidence with npm --prefix packages/main run test:memory-real-data-benchmark-smoke.",
-      "resolvedAt": "2026-06-09T02:31:05.133Z"
+      "resolvedAt": "2026-06-09T02:31:05.133Z",
+      "signatureTag": "memory|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2a63:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/core/store.ts"
       ],
       "resolvedReason": "Resolved in commit d286e2fe: real-data benchmark now includes configured storyDir plus .koala/docs defaults, buildReasons accepts any existing configured/default story root with scoreable lifecycle data, and smoke proves .koala/custom-actives and docs/story/actives configured roots pass.",
-      "resolvedAt": "2026-06-09T02:31:33.636Z"
+      "resolvedAt": "2026-06-09T02:31:33.636Z",
+      "signatureTag": "memory|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2a63:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "resolvedReason": "Resolved in commit d286e2fe: assertAllowedOutputDir rejects .koala/story, docs/story, configured storyDir, configured fixturesDir, packages/main/tests/fixtures, and existing output files; command policy reason updated to preserve readOnly lifecycle boundary.",
-      "resolvedAt": "2026-06-09T02:31:42.564Z"
+      "resolvedAt": "2026-06-09T02:31:42.564Z",
+      "signatureTag": "memory|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2a63:F-004",
@@ -74,7 +80,9 @@
         "packages/main/src/core/activity-log.ts"
       ],
       "resolvedReason": "Resolved in commit d286e2fe: collectActivity parses current runtime activity schema tool/detail/status first with legacy fallbacks; smoke asserts activity command is story_advance, status is ok, and text no longer contains command=unknown or outcome=n/a.",
-      "resolvedAt": "2026-06-09T02:31:05.134Z"
+      "resolvedAt": "2026-06-09T02:31:05.134Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2a63:F-005",
@@ -92,7 +100,9 @@
         "packages/main/src/core/memory-benchmark-real-data.ts"
       ],
       "resolvedReason": "Resolved in commit d286e2fe: STORY_EVIDENCE_JSON_FILES now includes current review-passes.json, review-runs.json, and findings.json while retaining legacy review-pass.json; smoke seeds review-passes.json and asserts it is exported as story_evidence_artifact.",
-      "resolvedAt": "2026-06-09T02:31:05.458Z"
+      "resolvedAt": "2026-06-09T02:31:05.458Z",
+      "signatureTag": "memory|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2a63:F-006",
@@ -111,7 +121,9 @@
         "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
       ],
       "resolvedReason": "Resolved in commit ecce1a6d: protected path comparison is case-insensitive, smoke asserts mixed-case Docs/story and Fixtures paths are refused, and live command node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text fails with refuses to write outputDir under docs/story.",
-      "resolvedAt": "2026-06-09T02:41:37.481Z"
+      "resolvedAt": "2026-06-09T02:41:37.481Z",
+      "signatureTag": "memory|gate-bypass",
+      "signatureTagSource": "backfill"
     }
   ]
 }

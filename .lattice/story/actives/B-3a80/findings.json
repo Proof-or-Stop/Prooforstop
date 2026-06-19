@@ -17,7 +17,9 @@
         "docs/requirements/NAV.md"
       ],
       "resolvedReason": "Refreshed CHK-002:edge and CHK-004:edge verificationEvidence to use an unfiltered git diff --name-status main...HEAD plus an allowlist negative path check. The check produced no output and exited 0, proving only B-3a80 Lattice metadata and the three scoped docs are present; path-filtered evidence is no longer relied on.",
-      "resolvedAt": "2026-06-12T18:06:39.369Z"
+      "resolvedAt": "2026-06-12T18:06:39.369Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3a80:F-002",
@@ -36,7 +38,9 @@
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
       "resolvedReason": "Refreshed CHK-001:adversarial and CHK-003:adversarial verificationEvidence to use executable rg commands. Reran both exact commands successfully: the F-009 claim boundary command exits 0, and the customerKeyRef current-support/receiptVerified/productionDone/Layer4 command exits 0 with matching lines.",
-      "resolvedAt": "2026-06-12T18:12:08.190Z"
+      "resolvedAt": "2026-06-12T18:12:08.190Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3a80:F-003",
@@ -56,7 +60,9 @@
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
       "resolvedReason": "Refreshed CHK-002:edge and CHK-004:edge verificationEvidence to store an executable node allowlist command, and replaced CHK-002:adversarial / CHK-004:adversarial manual host labels with executable rg commands. Reran the stored command shapes successfully: allowlist exits 0, optimization/Authority-proof rg exits 0, and forbidden-final-wording rg exits 0.",
-      "resolvedAt": "2026-06-12T18:18:23.070Z"
+      "resolvedAt": "2026-06-12T18:18:23.070Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

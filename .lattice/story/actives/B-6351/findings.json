@@ -19,7 +19,9 @@
         ".claude/agents/koala-review-test-coverage.md"
       ],
       "resolvedReason": "Active command guidance in CLAUDE.md, .claude/agents, .Codex/agents, lower-case .codex agent surfaces, and packages/main/templates/agents now uses lattice commands. Targeted rg scan found no koala session_brief, koala validate, koala story/checklist/finding/review/init/scope/config guidance.",
-      "resolvedAt": "2026-06-15T03:07:10.451Z"
+      "resolvedAt": "2026-06-15T03:07:10.451Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-6351:F-002",
@@ -38,7 +40,9 @@
         "packages/main/src/tasks/thin-init-assets-smoke.ts"
       ],
       "resolvedReason": "Recorded fresh CHK-002:edge:1 verificationEvidence with command node scripts/verify-entrypoints.mjs; node packages/main/dist/tasks/thin-init-assets-smoke.js. Both commands passed at current HEAD, and CHK-002 evidence was batch refreshed before REVIEW.",
-      "resolvedAt": "2026-06-15T03:07:16.554Z"
+      "resolvedAt": "2026-06-15T03:07:16.554Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-6351:F-003",
@@ -59,7 +63,9 @@
         "packages/main/templates/agents/koala-review-concept.md"
       ],
       "resolvedReason": "Updated CLAUDE.md, .claude/agents/koala-review-concept.md, .Codex/agents/koala-review-concept.md, packages/main/templates/agents/koala-review-concept.md, and the broader active agent prompt set so executable command guidance uses lattice while preserving koala-review-* and koala-implementer agent identities.",
-      "resolvedAt": "2026-06-15T03:07:23.367Z"
+      "resolvedAt": "2026-06-15T03:07:23.367Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-6351:F-004",
@@ -85,7 +91,9 @@
         "packages/main/src/core/runtime-fact-registry.ts"
       ],
       "resolvedReason": "Removed active Koala-era docs/prompts: story operations now say lattice, koala-dev examples were replaced with lattice serve, .claude/skills/koala was deleted, and koala.config.json fallback text was removed from README, docs/guide-hooks, doctor, runtime fact registry, hooks, dashboard, and generated prompt templates. Verification passed: build, session-brief command-center, runtime fact contract, entrypoints, codex assets, and lattice-only absence smoke.",
-      "resolvedAt": "2026-06-15T10:16:34.509Z"
+      "resolvedAt": "2026-06-15T10:16:34.509Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-6351:F-005",
@@ -108,7 +116,9 @@
         ".codex/hooks/lattice-scope-pretool.cjs"
       ],
       "resolvedReason": "Removed runtime config compatibility: loadConfig/project-root detection now uses lattice.config.json only; doctor and runtime fact registry no longer advertise koala.config.json or koala binary/package fallbacks; .codex/.claude pretool hooks and dashboard no longer accept koala.config.json as active root evidence. Verification passed: node bin/lattice.js doctor residue check, verify-runtime-fact-contract, verify-entrypoints, and lattice-only absence smoke.",
-      "resolvedAt": "2026-06-15T10:16:42.586Z"
+      "resolvedAt": "2026-06-15T10:16:42.586Z",
+      "signatureTag": "config|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-6351:F-006",
@@ -128,7 +138,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Restored complete CHK-001 verificationEvidence including CHK-001:edge:1, reran node scripts/verify-session-brief-command-center.mjs successfully, and confirmed evidence_inspect freshness has zero stale refs at current story material hash.",
-      "resolvedAt": "2026-06-15T10:16:47.780Z"
+      "resolvedAt": "2026-06-15T10:16:47.780Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

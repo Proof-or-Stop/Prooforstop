@@ -16,7 +16,9 @@
         "packages/main/src/core/cjk-detect.ts"
       ],
       "resolvedReason": "Fixed in 71010e4: removed dead buildCjkRegex/cp/re in cjk-detect.ts; detection unchanged via isCjkCodepoint; keep-in-sync smoke still green.",
-      "resolvedAt": "2026-06-16T23:18:47.195Z"
+      "resolvedAt": "2026-06-16T23:18:47.195Z",
+      "signatureTag": "cli-engine|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5f42:F-002",
@@ -36,7 +38,9 @@
         ".claude/hooks/english-only-guard.cjs"
       ],
       "resolvedReason": "Fixed in 71010e4: added ENGLISH_ONLY_GUARD_HOOK_FILE to HOOK_FILES in cli-init.ts; verified via lattice init into a temp dir with temp HOME that .claude/hooks/english-only-guard.cjs is now copied and settings.json references it.",
-      "resolvedAt": "2026-06-16T23:18:45.428Z"
+      "resolvedAt": "2026-06-16T23:18:45.428Z",
+      "signatureTag": "cli-engine|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5f42:F-003",
@@ -54,7 +58,9 @@
         "packages/main/src/tasks/english-only-guards-smoke.ts"
       ],
       "resolvedReason": "Refreshed all 9 verificationEvidence entries at current HEAD via verification_evidence_refresh_stale (commit 9e03071); the staleness was caused by the F-001/F-002 fix commit advancing HEAD, not by missing tests. lattice validate --story=B-5f42 --json now reports verificationCoverage 9/9 covered, 0 missing; the english-only-guards smoke is green.",
-      "resolvedAt": "2026-06-16T23:23:04.745Z"
+      "resolvedAt": "2026-06-16T23:23:04.745Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5f42:F-004",
@@ -72,7 +78,9 @@
         "packages/main/src/tasks/english-only-guards-smoke.ts"
       ],
       "resolvedReason": "Refreshed all 9 verificationEvidence entries at the post-fix HEAD via verification_evidence_refresh_stale; staleness was caused by the cb19e86e8 fix commit + ea8b568c9 test commit advancing HEAD. validate --story now reports 9/9 covered, 0 missing.",
-      "resolvedAt": "2026-06-17T00:32:10.950Z"
+      "resolvedAt": "2026-06-17T00:32:10.950Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5f42:F-005",
@@ -91,7 +99,9 @@
         "packages/main/src/tasks/english-only-guards-smoke.ts"
       ],
       "resolvedReason": "Added Test 7 to english-only-guards-smoke.ts (commit ea8b568c9): seeds a temp project with a scope-only PreToolUse settings.json, runs lattice init, and asserts BOTH the scope-pretool and english-only-guard hooks are present (scope not duplicated). This is durable regression coverage for the init-rerun merge path that the escalation review exposed; all 7 smoke tests green.",
-      "resolvedAt": "2026-06-17T00:32:11.373Z"
+      "resolvedAt": "2026-06-17T00:32:11.373Z",
+      "signatureTag": "cli-engine|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

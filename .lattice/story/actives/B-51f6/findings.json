@@ -16,7 +16,9 @@
         ".koala/story/actives/B-51f6/checklist.json"
       ],
       "resolvedReason": "Resolved by adding .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md with exact Codex commands/outputs, exact Claude prompts, anchor payload, corrected Claude BLOCKED verdict, and receipt-ref absence check; refreshed CHK-001/CHK-002/CHK-003 verificationEvidence to reference this file and exact replay commands.",
-      "resolvedAt": "2026-06-10T20:04:23.614Z"
+      "resolvedAt": "2026-06-10T20:04:23.614Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-51f6:F-002",
@@ -35,7 +37,9 @@
         ".koala/story/actives/B-51f6/decision.json"
       ],
       "resolvedReason": "Resolved by recording the original eight-file dirty baseline in .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md, plus the current unrelated main untracked file and the fact it was not copied into the story worktree.",
-      "resolvedAt": "2026-06-10T20:04:23.955Z"
+      "resolvedAt": "2026-06-10T20:04:23.955Z",
+      "signatureTag": "worktree|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-51f6:F-003",
@@ -64,7 +68,9 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "resolvedReason": "Resolved by merging current main into story/B-51f6. Verified git merge-base --is-ancestor main HEAD returns 0 and git diff --name-only main..HEAD contains only .koala/story/actives/B-51f6 metadata paths.",
-      "resolvedAt": "2026-06-10T20:04:24.317Z"
+      "resolvedAt": "2026-06-10T20:04:24.317Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-51f6:F-004",
@@ -83,7 +89,9 @@
         ".koala/story/actives/B-51f6/checklist.json"
       ],
       "resolvedReason": "Resolved by adding a Same-Anchor Payload JSON section to .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md. It explicitly records targetPhase=TEST, headHash, materialHash, receiptRefPath=authority-receipt-refs.json with unavailable_readiness_blocked status, consumedReceiptId=null/unavailable, and jobId/runId/signedEvidenceDigest/gateInputDigest/decisionDigest as null/unavailable_readiness_blocked. Refreshed CHK-003 verificationEvidence commands to read this payload.",
-      "resolvedAt": "2026-06-10T20:10:18.321Z"
+      "resolvedAt": "2026-06-10T20:10:18.321Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

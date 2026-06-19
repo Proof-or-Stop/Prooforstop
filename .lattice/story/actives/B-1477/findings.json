@@ -16,7 +16,9 @@
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
       "resolvedReason": "Resolved in commit 4d8be6496: document now requires locally generated ledgerCallId, attemptId, sequence, and supersedesRecordIds before provider dispatch; provider.requestIdHash is optional metadata only. Targeted rg check passed.",
-      "resolvedAt": "2026-06-15T14:57:55.014Z"
+      "resolvedAt": "2026-06-15T14:57:55.014Z",
+      "signatureTag": "usage-ledger|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-1477:F-002",
@@ -36,7 +38,9 @@
         "AGENTS.md"
       ],
       "resolvedReason": "Resolved in commit 4d8be6496: document now chooses .lattice/usage/llm-usage.jsonl and specifies runtime-artifact-registry semantics: gitignored .lattice/usage/, materialHash=exclude, volatile=true, repairableTrackedArtifact=true, and not process/story/gate evidence. Targeted rg check passed.",
-      "resolvedAt": "2026-06-15T14:58:01.546Z"
+      "resolvedAt": "2026-06-15T14:58:01.546Z",
+      "signatureTag": "usage-ledger|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-1477:F-003",
@@ -54,7 +58,9 @@
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
       "resolvedReason": "Resolved in commit 4d8be6496: same root cause as F-001; document now defines explicit call/attempt correlation and supersession semantics so summaries select latest non-superseded records and do not double count estimates after provider-reported final usage exists. Targeted rg check passed.",
-      "resolvedAt": "2026-06-15T14:58:07.419Z"
+      "resolvedAt": "2026-06-15T14:58:07.419Z",
+      "signatureTag": "usage-ledger|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-1477:F-004",
@@ -72,7 +78,9 @@
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
       "resolvedReason": "Resolved by recording direct CHK-001:edge:0 docs_check evidence in commit 82f7478: rg now checks provider-reported, prompt-size-estimate, unavailable, not billing truth/final usage, and local estimate not Authority proof semantics. No document content change was required.",
-      "resolvedAt": "2026-06-15T15:01:54.948Z"
+      "resolvedAt": "2026-06-15T15:01:54.948Z",
+      "signatureTag": "usage-ledger|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

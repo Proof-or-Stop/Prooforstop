@@ -19,7 +19,9 @@
       "resolvedReason": "Bound CHK-001:adversarial:1 to a genuine verifier check (wrongRootEliminated): the handler sources projectRoot from ctx.root and LearningScanArgs has no projectRoot/root field, so the wrong-root vector is eliminated by construction. Evidence note updated; verifier FAIL 0.",
       "resolvedAt": "2026-06-18T02:34:21.395Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "signatureTag": "experience-layer|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4eb6:F-002",
@@ -41,7 +43,9 @@
       "resolvedReason": "The mutation-style adversarial intents (CHK-002:adversarial:0/1/2) are guarded by the LIVE process-fact-contract suite the verifier runs via full npm test, which fails on any mis-registration (demonstrably caught B-a2e3 missing PROCESS_FACT_LEVELS); the verifier also statically asserts the correct end-state. Evidence notes updated to make this binding explicit.",
       "resolvedAt": "2026-06-18T02:34:22.015Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "medium"
+      "resolveEvidenceStrength": "medium",
+      "signatureTag": "process-fact|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

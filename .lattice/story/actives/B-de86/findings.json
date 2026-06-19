@@ -16,7 +16,9 @@
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
       ],
       "resolvedReason": "Resolved by adding structured higherLayerClaims.productionSafetyClaim=LOCKED and higherLayerClaims.globalCapabilityClaim=LOCKED fields to the real execution coordinator final report schema, requiring both in PASS rejection predicates, and adding fail-closed checks for missing or unlocked higher-layer claim fields.",
-      "resolvedAt": "2026-06-13T01:51:03.851Z"
+      "resolvedAt": "2026-06-13T01:51:03.851Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-de86:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/core/lattice-baseline.ts"
       ],
       "resolvedReason": "Resolved by updating unlock-layer3-loop-engineering-suite.md to state that capability_claim_formal_evaluate supports the loop-engineering target, and that Layer 3 execution must verify this path while keeping Production Safety and global capability claim locked.",
-      "resolvedAt": "2026-06-13T01:51:25.300Z"
+      "resolvedAt": "2026-06-13T01:51:25.300Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-de86:F-003",
@@ -56,7 +60,9 @@
         "AGENTS.md"
       ],
       "resolvedReason": "Resolved by changing UDM-REAL-REPAIR to the actual lifecycle sequence: DEV implementation -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, and by renaming the pass criteria to firstTestValidation/finalTestValidation.",
-      "resolvedAt": "2026-06-13T01:56:24.846Z"
+      "resolvedAt": "2026-06-13T01:56:24.846Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-de86:F-004",
@@ -75,7 +81,9 @@
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
       ],
       "resolvedReason": "Resolved by narrowing unlock-layer3-loop-engineering-suite.md allowed wording to formal Loop Engineering claim path validation for fresh UDM proof artifacts, and adding forbidden wording that real Lattice Story lifecycle execution is not proven without the real-execution UDM baseline.",
-      "resolvedAt": "2026-06-13T01:56:31.004Z"
+      "resolvedAt": "2026-06-13T01:56:31.004Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-de86:F-005",
@@ -94,7 +102,9 @@
         "AGENTS.md"
       ],
       "resolvedReason": "Resolved with the same lifecycle correction as F-003: TEST-stage lattice validate remains after REVIEW, failed validation returns to DEV repair, and final pass occurs in TEST before DONE.",
-      "resolvedAt": "2026-06-13T01:56:31.368Z"
+      "resolvedAt": "2026-06-13T01:56:31.368Z",
+      "signatureTag": "story-lifecycle|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

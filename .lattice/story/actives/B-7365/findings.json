@@ -15,7 +15,9 @@
       "files": [
         "packages/main/src/cli-engine.ts"
       ],
-      "resolvedBy": "B-7365:F-001@83445c2"
+      "resolvedBy": "B-7365:F-001@83445c2",
+      "signatureTag": "worktree|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-7365:F-002",
@@ -32,7 +34,9 @@
       "files": [
         "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts"
       ],
-      "resolvedBy": "B-7365:F-002@83445c2"
+      "resolvedBy": "B-7365:F-002@83445c2",
+      "signatureTag": "test-infra|false-positive-gate",
+      "signatureTagSource": "backfill"
     }
   ]
 }

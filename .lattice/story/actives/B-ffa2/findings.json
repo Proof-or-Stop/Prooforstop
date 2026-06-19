@@ -16,7 +16,9 @@
         ".lattice/story/actives/B-ffa2/checklist.json"
       ],
       "resolvedReason": "Resolved by refreshing evidence and rerunning node bin/lattice.js validate --story=B-ffa2 --json at REVIEW head dcf1c2d/3c83020; validation passed with allPass=true and verification coverage 15/15 covered, 0 required missing.",
-      "resolvedAt": "2026-06-15T16:58:28.313Z"
+      "resolvedAt": "2026-06-15T16:58:28.313Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/handlers/done-effects.ts"
       ],
       "resolvedReason": "Resolved in commit c967454 by replacing active metadata commit subjects with lattice: vocabulary. Verification scan rg -n \"koala:\" over cli-engine.ts, worktree.ts, and done-effects.ts returned no hits; lattice: from-draft/story/discard subjects are present.",
-      "resolvedAt": "2026-06-15T16:58:34.103Z"
+      "resolvedAt": "2026-06-15T16:58:34.103Z",
+      "signatureTag": "worktree|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-003",
@@ -58,7 +62,9 @@
         "packages/main/src/verifier/serve.ts"
       ],
       "resolvedReason": "Resolved in commits 758c57a/c967454: validate-docs-drift now extracts lattice commands, active validation providers use lattice-channel/lattice-concept/lattice-docs-drift/lattice-lint/lattice-serve-validator, and metadata summary uses lattice_metadata_changes. Verification scan for koala provider/vocab returned no hits.",
-      "resolvedAt": "2026-06-15T16:58:41.848Z"
+      "resolvedAt": "2026-06-15T16:58:41.848Z",
+      "signatureTag": "cli-engine|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-004",
@@ -77,7 +83,9 @@
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
       "resolvedReason": "Resolved in commits 758c57a/c967454: active docs now identify lattice.config.json as canonical, legacy koala.config.json as ignored by active loader, and test-fixture-spec examples use lattice.config.json. Verification scan for koala.config.json as usable/read/configure active docs returned no hits.",
-      "resolvedAt": "2026-06-15T16:58:47.691Z"
+      "resolvedAt": "2026-06-15T16:58:47.691Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-005",
@@ -95,7 +103,9 @@
         ".lattice/story/actives/B-ffa2/checklist.json"
       ],
       "resolvedReason": "Resolved by replacing CHK-003 verificationEvidence through checklist_update with only the current CHK-003 happy/edge/adversarial refs, then running verification_evidence_refresh_stale and node bin/lattice.js validate --story=B-ffa2 --json. evidence_inspect now reports freshness.status=fresh with staleRefs=[].",
-      "resolvedAt": "2026-06-15T17:10:36.009Z"
+      "resolvedAt": "2026-06-15T17:10:36.009Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-006",
@@ -114,7 +124,9 @@
         "docs/requirements/decisions/cc-learnings.md"
       ],
       "resolvedReason": "Resolved by renaming active role references in docs/requirements/decisions/role-separation.md from koala-test-analyst/koala-red-team to lattice-test-analyst/lattice-red-team, and active config instructions in docs/requirements/decisions/cc-learnings.md from koala.config.json to lattice.config.json. Verification: rg -n 'koala-test-analyst|koala-red-team|koala\\.config\\.json' over those files returns no matches.",
-      "resolvedAt": "2026-06-15T17:10:45.354Z"
+      "resolvedAt": "2026-06-15T17:10:45.354Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-007",
@@ -134,7 +146,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Resolved by making gap-coverage-smoke locate lattice.config.json and making test-flow-e2e document/create lattice.config.json in its sandbox. npm --prefix packages/main run build, npm --prefix packages/main run test:gap-coverage-smoke, and npm --prefix packages/main run test:flow-stability-smoke passed; the targeted rg scan for koala.config.json in these changed files returns no matches.",
-      "resolvedAt": "2026-06-15T17:10:54.482Z"
+      "resolvedAt": "2026-06-15T17:10:54.482Z",
+      "signatureTag": "test-infra|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-008",
@@ -153,7 +167,9 @@
         "packages/main/src/core/managed-assets.ts"
       ],
       "resolvedReason": "Resolved in implementer commit 0a180522e by adding generated legacy Koala prompt cleanup for .claude/agents during init sync and managed asset definitions. Cleanup is bounded to koala-*.md prompts recognized by managed Lattice markers or old generated name: koala-* frontmatter. Verified with npm --prefix packages/main run build, node bin/lattice.js verify_codex, and implementer temp-dir init/managed cleanup smokes.",
-      "resolvedAt": "2026-06-15T17:19:30.980Z"
+      "resolvedAt": "2026-06-15T17:19:30.980Z",
+      "signatureTag": "config|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ffa2:F-009",
@@ -173,7 +189,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Resolved in implementer commit 0a180522e by changing active Lattice-named smoke setup in packages/main/src/tasks/lattice-evidence-smoke.ts and packages/main/src/tasks/lattice-parallel-wave-smoke.ts from koala.config.json to lattice.config.json. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-evidence-smoke, npm --prefix packages/main run test:lattice-parallel-wave-smoke, and targeted rg over changed files returning no koala.config.json matches.",
-      "resolvedAt": "2026-06-15T17:19:45.115Z"
+      "resolvedAt": "2026-06-15T17:19:45.115Z",
+      "signatureTag": "test-infra|concept-residue",
+      "signatureTagSource": "backfill"
     }
   ]
 }

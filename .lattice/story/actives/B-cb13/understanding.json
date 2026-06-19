@@ -1,0 +1,24 @@
+{
+  "task": "Land an in-repo development record (decision-doc) of the Experience Layer effectiveness-proof track into docs/requirements/decisions/.",
+  "outcome": "A new file docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md exists on main, rendering the development record: the six merged stories (B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9) with what each built + key invariants; the evidence arc (Baseline A degraded lower-bound rho=-0.55 -> phase 3.5 real-signature held-out 62% -> live apply 656 signatures, learning_scan 320 signals, learning_effectiveness recall 0.659, learning_validate valid-rate 0.971); and the honesty guards (saturation not claimed, observational != causal, forward RCT pending). It references the raw evidence in Work/lattice-Paper/ rather than copying it.",
+  "facts": [
+    "Orchestrate lands decision records via decision_doc_proposal (story-local, structured fields) + decision_doc_save into docs/requirements/decisions/<slug>.md; B-1480 used this flow; decision-doc edits are classification-only unless review_escalation_status requires quorum.",
+    "All six stories are DONE + merged to main; main commit 2750aadef is the signature_backfill --apply.",
+    "The raw evidence (baseline_C_results.json, fig-experience-learnability.svg, backfill_signatures.json, baseline_C_realsig_analysis.py, the design/plan drafts) lives in Work/lattice-Paper/.",
+    "sourceDecision=manual is appropriate (a backward development record, not a forward decision derived from this story's decision.json)."
+  ],
+  "constraints": [
+    "Documentation-only: the sole repo change is the new decision-doc file; no source/CLI/handler/core/registry/gate change.",
+    "English/ASCII-only (english-artifacts gate).",
+    "Recorded facts must be accurate + reproducible on main (story IDs, commit, live numbers).",
+    "Reference (do not duplicate) the Work/lattice-Paper/ raw files."
+  ],
+  "unknowns": [
+    "Exact slug/path -- resolved: lattice-experience-layer-effectiveness-record (docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md).",
+    "Whether the live numbers may drift slightly -- resolved: record them as the measured values at commit 2750aadef and note they are reproducible via the named lattice commands."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
+  ],
+  "timestamp": "2026-06-19T01:28:43.566Z"
+}

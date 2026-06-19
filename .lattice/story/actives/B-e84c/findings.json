@@ -16,7 +16,9 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
       "resolvedReason": "Root cause: the prior checklist evidence proved allowed Codex adapter help and repository scan coverage, but did not execute forbidden Codex-prefixed workflow commands and record their fail-closed behavior. Evidence added: CHK-002 has manual transcripts for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help; both actual commands exited with code 1, rejected the unsupported lattice codex workflow command, limited the Codex namespace to verify/doctor, and printed ordinary replacements lattice session_brief and lattice aux_doc_list. CHK-004 also records the combined delivery evidence for those two rejection checks.",
-      "resolvedAt": "2026-06-13T13:43:16.430Z"
+      "resolvedAt": "2026-06-13T13:43:16.430Z",
+      "signatureTag": "dispatch|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e84c:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/core/codex-adapter-checks.ts"
       ],
       "resolvedReason": "Root cause: the residual future-work paragraph only named the local wrapper diagnostic doctor guidance and omitted workflow-wrapper residuals surfaced by the reviewer scan. Fix: docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md now names README.md session_brief/aux_doc_list/story_create wrapper examples and src/dist codex-adapter-checks session_brief display-command hits as future cleanup targets, while explicitly stating this story only makes the execution plan accurate and does not clean those non-document targets. Evidence: CHK-002 residual_workflow_wrapper_scan_f002 plus exact CHK-002 intent refs record the rg scan excluding docs/story per repo instruction; CHK-004 residual_future_work_boundary_f002 plus exact CHK-004 intent refs record the updated residual-boundary paragraph and no-overclaim boundary.",
-      "resolvedAt": "2026-06-13T13:52:05.527Z"
+      "resolvedAt": "2026-06-13T13:52:05.527Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-e84c:F-003",
@@ -54,7 +58,9 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
       "resolvedReason": "Resolved by appending actual fail-closed transcript evidence with verification_evidence_batch_add, preserving existing evidence arrays. CHK-002 and CHK-004 now include CHK-002:fail_closed:codex_session_brief_transcript, CHK-002:fail_closed:codex_aux_doc_list_transcript, CHK-004:fail_closed:codex_session_brief_transcript, and CHK-004:fail_closed:codex_aux_doc_list_transcript. Each note records exit code 1, Unsupported command text, Codex namespace limited to lattice codex verify/doctor, and ordinary replacements lattice session_brief / lattice aux_doc_list. Confirmed by checklist_get visibility and evidence_inspect freshness.",
-      "resolvedAt": "2026-06-13T13:58:33.121Z"
+      "resolvedAt": "2026-06-13T13:58:33.121Z",
+      "signatureTag": "finding-lifecycle|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

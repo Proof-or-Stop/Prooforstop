@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-cb13:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Doc-only additive change: docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md. No concept deletions or replacements detected in the diff. All 9 referenced story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9, B-2a8d, B-1480, B-cb13) confirmed to exist in .lattice/story/actives/. All 4 lattice commands named in Operational Rules (learning_scan, learning_validate, learning_effectiveness, signature_backfill) confirmed registered in cli-engine.ts and handled in source. Execution-plan doc referenced (lattice-experience-layer-execution-plan.md, B-1480) confirmed present in docs/requirements/decisions/. Commit 2750aadef (signature_backfill --apply) confirmed real in git log. lattice-Paper/ workspace directory confirmed to exist. B-2a8d confirmed as cross-project aggregation removal story, consistent with the doc statement. No doc-promise-undelivered items found (no ENV vars, CLI commands, schema fields, or behavior paragraphs added to CLAUDE.md or README). Zero residue findings. Concept residue check complete — no blocker.",
+      "createdAt": "2026-06-19T01:37:42.661Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-001",
+      "_hash": "f051699dcda7b281a7bed8c2cba15a81cbbc07e5762a30a3d4dae667fe599d24"
+    },
+    {
+      "id": "B-cb13:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Doc-only story. Reviewed lattice-experience-layer-effectiveness-record.md (the sole changed source file). Checks: (1) ASCII/English-only — no non-ASCII characters found. (2) Internal consistency — numeric claims consistent: held-out recall 62%/0.659 matches across Decision and Verification sections; valid-rate 0.971 + drift 0.029 = 1.000; six-story count (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9) matches throughout. (3) Cross-references — referenced lattice-experience-layer-execution-plan.md exists in docs/requirements/decisions/. (4) No self-contradiction — Non-Goals, Risks, and Chosen Approach are mutually consistent; observational vs causal distinction is upheld consistently. (5) Well-formed Markdown — all required sections present, no trailing whitespace, no double-spaces, no dead code/type concerns (doc-only). No blockers found.",
+      "createdAt": "2026-06-19T01:37:59.633Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-002",
+      "_hash": "2acd4fde6d7ada3207e0d23eea71ff2c0011f472312d3d0383750feed8ad90e3"
+    },
+    {
+      "id": "B-cb13:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: pure-doc diff (Fallback 1), symbol set empty. Step 2/3: reviewed docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md (primary deliverable). Paragraphs compared: entire doc (86 lines). Checks: (1) Six story IDs B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9 all confirmed DONE via story_get, each story name/title matches doc one-line description. (2) Four commands learning_scan/learning_validate/learning_effectiveness/signature_backfill all registered in packages/main/src with correct handler attributions matching doc claims. (3) Flags --json, --confirmedOnly, --map, --apply all confirmed present in handler source. (4) Commit 2750aadef confirmed in main with matching message (656 real signatures, audit-only, _hash unchanged). (5) Doc correctly frames all results as OBSERVATIONAL; causal claim explicitly deferred to forward ON/OFF RCT; no overclaim detected. Non-Goals section explicitly excludes saturation-inflated rho, causal proof, and cross-project aggregation. Honesty guards in Operational Rules section match code behavior. No doc-vs-code drift found. 0 findings registered.",
+      "createdAt": "2026-06-19T01:38:25.557Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-003",
+      "_hash": "ec14a18669490111c4a562f46848c80380231d06527d4fbe1ff29f3a94b06560"
+    },
+    {
+      "id": "B-cb13:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed (express channel, doc-only story). Verifier verify-b-cb13.mjs executed: TOTAL 24 PASS 24 FAIL 0. All 24 intents across CHK-001 and CHK-002 (5 happy + 3 edge + 4 adversarial each) are covered by docs_check kind evidence with result=pass and concrete materialHash. CHK-001 intents verified: file existence, all 6 story IDs, evidence arc numbers (-0.55/62/656/0.659/0.971), honesty guards (observational/RCT/saturation), alternatives>=2, ASCII-only, no embedded CSV, no causal overclaim. CHK-002 intents verified: 6 story IDs in doc, commit hash recorded, live metric reproducibility within stated tolerance, lattice-Paper cross-ref (not embedded), english-artifacts compliance, no causal/saturation overclaim, line count <500. Evidence command is literal (not a generic fallback): bound to .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs which individually asserts each property. validate confirms 24/24 coverage, 0 required missing, channel=express. No gaps found, no waivers needed.",
+      "createdAt": "2026-06-19T01:38:34.592Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-004",
+      "_hash": "b861a030bf70835e4c9604523f674351e55aebcc04ce08f43434bda65b6ed16f"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ed99",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git show *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/src/tasks/*.ts",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "claude-cli",
+    "codex-cli",
+    "Lattice CLI",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "docs/requirements/NAV.md",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push --force *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".worktrees/B-491e",
+    ".worktrees/B-b5c0",
+    ".worktrees/B-cb13",
+    "docs/parallel-decomposition-spec.md",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "High-risk lifecycle gate implementation. Use Lattice CLI for story metadata and review evidence. Do not directly edit story JSON or fixtures. Preserve host-neutral Authority boundary.",
+  "createdAt": "2026-06-19T01:30:32.066Z",
+  "updatedAt": "2026-06-19T01:30:32.066Z",
+  "_hash": "6e59c9470f7dea8eb26d0fbe8d8763d496c0a7f603b12d25a70b305be34286da"
+}

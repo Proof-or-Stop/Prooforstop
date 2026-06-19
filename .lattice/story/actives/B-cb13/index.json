@@ -1,0 +1,77 @@
+{
+  "storyId": "B-cb13",
+  "name": "experience-effectiveness-record-doc",
+  "title": "Land the Experience Layer effectiveness-proof development record (decision-doc)",
+  "description": "Record IN the Orchestrate repo (docs/requirements/decisions/) what the Experience Layer effectiveness-proof track built and the evidence it obtained. The execution PLAN was landed earlier (lattice-experience-layer-execution-plan.md, B-1480), but there is no in-repo record of the OUTCOME: the referential re-validation instrument, the forward A/B apparatus (learning_scan, signatureTag capture, A/B shadow-gate, learning_effectiveness), the signature_backfill command, and the learnability evidence. This story materializes a manual-source decision-doc via decision_doc_proposal + decision_doc_save into docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md. It is documentation only: no source code, CLI, handler, core module, registry, or gate change. The detailed raw evidence (figures/CSVs/scripts) stays in the out-of-repo Work/lattice-Paper/ workspace and is referenced, not duplicated.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "low",
+  "keywords": [
+    "experience-layer",
+    "decision-doc",
+    "development-record",
+    "documentation"
+  ],
+  "createdAt": "2026-06-19T01:25:08.211Z",
+  "startedAt": "2026-06-19T01:25:08.211Z",
+  "endedAt": "2026-06-19T01:42:51.634Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T01:25:08.221Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:27:42.500Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:28:03.992Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:31:07.827Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:35:09.591Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:39:32.572Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:42:51.634Z",
+      "branch": "story/B-cb13",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-19T01:35:09.591Z"
+}

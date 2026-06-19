@@ -17,7 +17,9 @@
         ".lattice/story/actives/B-2d6c/scope-contract.json"
       ],
       "resolvedReason": "Rebound CHK-002:adversarial:0 evidence to verdict=waived. PLAN over-reach guard expected only lattice-baseline manifest changes; DEV revealed 7 more parallel-timeout smokes. scope_contract_acknowledge documented (2 acks).",
-      "resolvedAt": "2026-06-17T21:10:27.671Z"
+      "resolvedAt": "2026-06-17T21:10:27.671Z",
+      "signatureTag": "scope-gate|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2d6c:F-002",
@@ -36,7 +38,9 @@
         "packages/main/smoke-manifest.json"
       ],
       "resolvedReason": "Fixed CHANGELOG count 7→8 in commit ac85acd8a.",
-      "resolvedAt": "2026-06-17T21:10:28.547Z"
+      "resolvedAt": "2026-06-17T21:10:28.547Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

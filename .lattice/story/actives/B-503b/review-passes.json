@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-503b:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review checked the new review assurance floor decision document against the referenced lifecycle, escalation, and Authority-boundary requirements. No real correctness blocker found.",
+      "createdAt": "2026-06-19T00:27:55.260Z",
+      "reviewRound": "2026-06-19T00:25:56.578Z",
+      "reviewRunId": "B-503b:RR-002",
+      "_hash": "a22df1d67b683cbd7ca51df360b7e1374e98f15c78f2601f3ea46510df18c275"
+    },
+    {
+      "id": "B-503b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: checked review-assurance-floor decision doc against story lifecycle, lifecycle gate receipt consumption, authority boundary, and local review escalation code; found no correctness blocker.",
+      "createdAt": "2026-06-19T00:28:35.669Z",
+      "reviewRound": "2026-06-19T00:25:56.578Z",
+      "reviewRunId": "B-503b:RR-003",
+      "_hash": "66a36548892f7d9cba9f9d206210458011734de9daccc6e5772920fb8ff281d6"
+    },
+    {
+      "id": "B-503b:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001 and CHK-002: checked the execution plan against the story background, decision, plan, and referenced lifecycle/receipt/escalation docs; no real concept correctness issue found. The plan preserves the ordinary one-round path, adds a zero-review code floor, treats 3x1 as local Non-authority evidence, and does not weaken existing 3x2 or Authority receipt boundaries.",
+      "createdAt": "2026-06-19T00:28:52.405Z",
+      "reviewRound": "2026-06-19T00:25:56.578Z",
+      "reviewRunId": "B-503b:RR-005",
+      "_hash": "071de5ed8736b832e79458924563b6b3d6e6344c289b444bf38c368b35c2d5fa"
+    },
+    {
+      "id": "B-503b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Targeted re-review of CHK-002 evidence verified runId-specific autopilot_review_status outputs for B-503b-local-audit-r1/r2/r3. Each shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, expected localReviewEvidenceRefs, and authorityDone/fullAuthorityDone/receiptVerified/multiHostVerified=false; review_escalation_status also keeps authorityDone/fullAuthorityDone/productionDone=false. No real correctness issue found.",
+      "createdAt": "2026-06-19T00:31:29.085Z",
+      "reviewRound": "2026-06-19T00:30:08.539Z",
+      "reviewRunId": "B-503b:RR-006",
+      "_hash": "7c3e7da471c9e0e7389b9423b1e63c487ec9a17692a16d64211babf920fdd640"
+    },
+    {
+      "id": "B-503b:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs consistency review found no blocker. Reviewed docs/requirements/decisions/review-assurance-floor-execution-plan.md against decision-doc escalation and Authority boundary docs; CHK-002 evidence now uses runId-specific autopilot_review_status commands. The three local audit runs remain Non-authority single-host evidence with authorityDone=false, fullAuthorityDone=false, productionDone=false, and no 3x1-as-3x2 overclaim.",
+      "createdAt": "2026-06-19T00:33:35.102Z",
+      "reviewRound": "2026-06-19T00:30:08.539Z",
+      "reviewRunId": "B-503b:RR-008",
+      "_hash": "0d977a31937c93dcac010b4e48f78aa4a94d69d93fd84edb7b0ba3e1c8a7c06a"
+    },
+    {
+      "id": "B-503b:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "PASS: current-round concept re-review found no correctness blocker. CHK-002 evidence now uses runId-specific autopilot_review_status checks for B-503b-local-audit-r1/r2/r3, each reports one passing local host, no stale verdicts, and no Authority completion flags. The document continues to separate ordinary review floor, local 3x1/non-authority evidence, stronger 3x2 policy, and Authority Server completion boundaries.",
+      "createdAt": "2026-06-19T00:33:46.375Z",
+      "reviewRound": "2026-06-19T00:30:08.539Z",
+      "reviewRunId": "B-503b:RR-009",
+      "_hash": "311236928f6ee34718207e2e25e21d80f246bf9f69bdb3158705572c1a632540"
+    },
+    {
+      "id": "B-503b:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS: reviewed docs/requirements/decisions/review-assurance-floor-execution-plan.md against related decision docs and reran the three runId-specific autopilot_review_status checks plus review_escalation_status. No real correctness issue found; CHK-002 evidence remains run-specific and Non-authority.",
+      "createdAt": "2026-06-19T00:33:54.204Z",
+      "reviewRound": "2026-06-19T00:30:08.539Z",
+      "reviewRunId": "B-503b:RR-007",
+      "_hash": "a29765c049bc6150374b7b7ec5bd4e4543e1a001f593c169c2da8ed98f8f34b7"
+    },
+    {
+      "id": "B-503b:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted current-round test-coverage review passed. Inspected checklist verification evidence via lattice checklist_get; re-ran CHK-001 docs/NAV probes, including rg for Review Assurance Floor Execution Plan in docs/requirements/NAV.md and policy boundary strings in docs/requirements/decisions/review-assurance-floor-execution-plan.md. NAV discoverability evidence is present, and CHK-002 audit evidence remains scoped to the decision document material rather than the NAV index. No real correctness issue found.",
+      "createdAt": "2026-06-19T00:39:12.653Z",
+      "reviewRound": "2026-06-19T00:37:32.784Z",
+      "reviewRunId": "B-503b:RR-013",
+      "_hash": "731c43f0597ea2b1d16736d5c6e26c5e6fe477fb009773ad8a3c9ec3bbb46e4b"
+    },
+    {
+      "id": "B-503b:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality targeted review passed for current material: NAV declares 52 decision files and contains the Review Assurance Floor link; CHK-001 evidence includes NAV discoverability; the decision doc preserves the docs-only one-round path, requires at least one current-material review round for code diffs, escalates failure signals to sticky 3x1, and does not overclaim 3x1 as two-host or Authority evidence.",
+      "createdAt": "2026-06-19T00:39:19.084Z",
+      "reviewRound": "2026-06-19T00:37:32.784Z",
+      "reviewRunId": "B-503b:RR-011",
+      "_hash": "47bf6b32ec09fd908b717c941e9ce030702293ff3d4f2cca515ca310b1e7e954"
+    },
+    {
+      "id": "B-503b:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Docs targeted review pass. Checked docs/requirements/NAV.md count/link delta: banner 52, 52 decision links, new Review Assurance Floor link resolves, no missing NAV link targets. Reviewed docs/requirements/decisions/review-assurance-floor-execution-plan.md against story-lifecycle, lifecycle-gate-receipt-consumption, and three-round-two-host review docs; local 3x1/degraded evidence remains Non-authority, does not claim two-host independence, and does not set authorityDone/fullAuthorityDone/productionDone. No real docs consistency, NAV, or Authority-boundary correctness issue found.",
+      "createdAt": "2026-06-19T00:39:48.558Z",
+      "reviewRound": "2026-06-19T00:37:32.784Z",
+      "reviewRunId": "B-503b:RR-012",
+      "_hash": "39b51e4c1de8125bc582fb8d48b450e12b22e39a8d7a1a488eb568b046d04775"
+    },
+    {
+      "id": "B-503b:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Reviewed current-round policy concept after NAV discoverability update. The plan defines zero-review code DONE as invalid, keeps clean ordinary code at one review round, escalates real failure signals to sticky local 3x1 unless stronger 3x2 policy applies, preserves Authority/two-host boundaries, and docs/requirements/NAV.md links the new decision doc. No real correctness issue found.",
+      "createdAt": "2026-06-19T00:40:17.803Z",
+      "reviewRound": "2026-06-19T00:37:32.784Z",
+      "reviewRunId": "B-503b:RR-010",
+      "_hash": "24ebe35428269f88cde74583bee02757fe69b6cce7a0b42f07038c8638314553"
+    }
+  ]
+}

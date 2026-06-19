@@ -16,7 +16,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
       ],
       "resolvedReason": "Resolved by commit 54a96bbc. Section 10 no longer implies object-form evidence refs: it now says digest-backed evidence refs must use artifact:<file>#sha256=<64-hex>, sha mismatches block, and EXPECTED_BLOCK requires non-empty refusalEvidenceRefs. Verified with rg for object-form remnants: refusalType, missing digest field, { path, digest }, and gateEvidenceRefs[].gateType are absent from the document.",
-      "resolvedAt": "2026-06-10T14:38:56.565Z"
+      "resolvedAt": "2026-06-10T14:38:56.565Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2949:F-002",
@@ -34,7 +36,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
       ],
       "resolvedReason": "Resolved by commits eea72922 and 1f74a1ff. Replaced the non-executable node -e placeholder evidence commands with replayable rg/git diff checks: CHK-001:edge:0 now uses rg over implementation readiness/local diagnostic/host transcript/formal proof terms; CHK-002:adversarial:0 now uses rg over fail-closed categories plus git diff --check main...HEAD. Stale CHK-003 evidence was refreshed by e8218bb.",
-      "resolvedAt": "2026-06-10T14:39:03.861Z"
+      "resolvedAt": "2026-06-10T14:39:03.861Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization",
+    "Do not optimize arbitrarily",
+    "Only fix real correctness issues",
+    "Follow consistency of logic across Lattice lifecycle gates"
+  ],
+  "drivers": [
+    "A code-changing story should not reach DONE with zero review evidence",
+    "Small tasks can still introduce bugs after low-risk PLAN classification",
+    "Full 3x2 on every code change would over-spend token/time budget",
+    "Local Non-authority review evidence must remain separate from Authority Server receipts"
+  ],
+  "options": [
+    {
+      "name": "A: Minimum review floor plus failure-triggered 3x1 escalation",
+      "pros": [
+        "Blocks zero-review code DONE while keeping low-risk work lightweight",
+        "Escalates after real bug, validation fail, reviewer finding, or rework signals",
+        "Fits existing degraded-single-host vocabulary without claiming two-host independence"
+      ],
+      "cons": [
+        "Requires a future implementation story to add mechanical DONE-oracle consumption and exact storage fields"
+      ]
+    },
+    {
+      "name": "B: Force every code change through three local single-host rounds",
+      "pros": [
+        "Maximizes consistency and is easy to explain",
+        "Would have caught more small-task regressions before DONE"
+      ],
+      "cons": [
+        "Over-applies heavy review to clean trivial code changes and increases token/time cost without a real failure signal"
+      ]
+    },
+    {
+      "name": "C: Keep current threshold-triggered review escalation only",
+      "pros": [
+        "No new policy surface and no implementation work beyond current gates",
+        "Avoids changing current DONE closure behavior"
+      ],
+      "cons": [
+        "Does not solve the observed correctness gap: a low-risk code task can still reach DONE with no minimum review floor"
+      ]
+    }
+  ],
+  "chosen": "A: Minimum review floor plus failure-triggered 3x1 escalation",
+  "rationale": "Choose A because the real correctness issue is not that every code task lacks full 3x2 review; it is that code-changing stories can have no review floor, and stories with actual failure signals need stronger closure. A preserves token discipline while making the missing minimum mechanical in a future implementation.",
+  "preMortem": [
+    {
+      "scenario": "The future implementation treats 3x1 as equivalent to two-host review",
+      "trigger": "Status output or summary says two-host passed when only one host submitted verdicts",
+      "consequence": "Lattice overclaims assurance and confuses local Non-authority evidence with independent host proof",
+      "mitigation": "Require assuranceLevel=degraded-single-host for 3x1 and forbid authorityDone/fullAuthorityDone/productionDone from local host verdicts"
+    },
+    {
+      "scenario": "The policy over-escalates every tiny code change to three rounds",
+      "trigger": "DONE oracle requires 3x1 merely because any source file changed",
+      "consequence": "Token usage rises sharply and developers bypass Lattice for small fixes",
+      "mitigation": "Keep clean ordinary code at one review round; escalate to 3x1 only after bug, validation fail, finding, rework, or explicit risk class"
+    },
+    {
+      "scenario": "The policy misses a bug because failure signals are not sticky",
+      "trigger": "A validation fail or bug is fixed, then evidence is removed or ignored before DONE",
+      "consequence": "The story returns to ordinary closure despite having shown real instability",
+      "mitigation": "Make failure-triggered review escalation sticky for the story material until DONE or explicit human degraded fallback"
+    }
+  ],
+  "timestamp": "2026-06-19T00:20:46.095Z"
+}

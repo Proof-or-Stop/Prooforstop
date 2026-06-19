@@ -17,7 +17,9 @@
         "packages/main/src/cli-init.ts"
       ],
       "resolvedReason": "已修复：原因是 6 条 verificationEvidence 在源码 commit(bf15f72a7) 之前记录，headHash 落后于实现 commit → validate 标 stale。回 DEV 后于 current HEAD 重跑 smoke 并重记全部 6 条 evidence（headHash 现 descend from bf15f72a7）。lattice validate --story 现报 total:6 required:5 covered:6 missingRequired:0；round-2 test-coverage reviewer 复核通过 RP-005。",
-      "resolvedAt": "2026-06-16T21:19:23.074Z"
+      "resolvedAt": "2026-06-16T21:19:23.074Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

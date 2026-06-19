@@ -15,7 +15,9 @@
       "files": [
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
-      "resolvedAt": "2026-06-15T10:29:01.270Z"
+      "resolvedAt": "2026-06-15T10:29:01.270Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-002",
@@ -35,7 +37,9 @@
         "packages/main/src/handlers/review-escalation.ts",
         "packages/main/src/cli-engine.ts"
       ],
-      "resolvedAt": "2026-06-15T10:29:07.918Z"
+      "resolvedAt": "2026-06-15T10:29:07.918Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/core/machine.ts",
         "packages/main/src/handlers/decision-doc-quorum.ts"
       ],
-      "resolvedAt": "2026-06-15T10:34:03.969Z"
+      "resolvedAt": "2026-06-15T10:34:03.969Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-004",
@@ -75,7 +81,9 @@
         "packages/main/src/core/decision-doc-quorum.ts",
         "packages/main/src/core/machine.ts"
       ],
-      "resolvedAt": "2026-06-15T10:42:13.847Z"
+      "resolvedAt": "2026-06-15T10:42:13.847Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-005",
@@ -92,7 +100,9 @@
       "files": [
         ".lattice/story/actives/B-59a6/checklist.json"
       ],
-      "resolvedAt": "2026-06-15T10:50:24.317Z"
+      "resolvedAt": "2026-06-15T10:50:24.317Z",
+      "signatureTag": "review-escalation|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-006",
@@ -112,7 +122,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
       "resolvedReason": "Updated review_escalation_fallback_set CLI schema/help and handler validation error so fallback reason explains the selected degraded eligibility and lower-assurance 3x1 use, without asserting host unavailability for explicit-human-approval.",
-      "resolvedAt": "2026-06-15T11:23:20.811Z"
+      "resolvedAt": "2026-06-15T11:23:20.811Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-59a6:F-007",
@@ -129,7 +141,9 @@
       "files": [
         ".lattice/story/actives/B-59a6/checklist.json",
         ".lattice/story/actives/B-59a6/process-events.jsonl"
-      ]
+      ],
+      "signatureTag": "review-escalation|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

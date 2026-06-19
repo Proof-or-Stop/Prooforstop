@@ -18,7 +18,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "resolvedReason": "Fixed by removing local broad metadata root/filename filters from lattice-parallel-wave.ts and routing ignored changed files through isMaterialExcludedPath, which uses story metadata and runtime artifact registry semantics. Smoke now asserts packages/main/src/process-events.jsonl remains material and .lattice runtime/story metadata remains ignored. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/lattice-parallel-wave-smoke.js.",
-      "resolvedAt": "2026-06-12T20:15:32.325Z"
+      "resolvedAt": "2026-06-12T20:15:32.325Z",
+      "signatureTag": "parallel-wave|hardcoded-value",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8404:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "resolvedReason": "Fixed by adding activeStoryChangedFileProbeFailures into story safety resolution. Any failed changed-file probe from another active story now adds a visible warn degradation, appears in blockers/guidance, and degrades selected output to plan_only until every active worktree projection succeeds. Smoke covers selecting B-clean while B-missing-worktree is active and broken.",
-      "resolvedAt": "2026-06-12T20:15:38.545Z"
+      "resolvedAt": "2026-06-12T20:15:38.545Z",
+      "signatureTag": "parallel-wave|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8404:F-003",
@@ -54,7 +58,9 @@
         "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
       ],
       "resolvedReason": "Fixed smoke fixture by persisting worktree.path as relative .worktrees/<id> instead of absolute temp-root paths. The story-worktree execution assertion now exercises resolveWorktreePath relative-path fallback through git common root.",
-      "resolvedAt": "2026-06-12T20:15:45.931Z"
+      "resolvedAt": "2026-06-12T20:15:45.931Z",
+      "signatureTag": "parallel-wave|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8404:F-004",
@@ -73,7 +79,9 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "resolvedReason": "Fixed smoke coverage by adding B-missing-worktree with a registered but absent relative worktree path. Tests assert changedFiles.status=failed, warning degradation, plan_only recommendation, and collection-level degradation of a selected clean story when another active probe failed.",
-      "resolvedAt": "2026-06-12T20:15:52.698Z"
+      "resolvedAt": "2026-06-12T20:15:52.698Z",
+      "signatureTag": "parallel-wave|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

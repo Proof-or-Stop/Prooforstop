@@ -17,7 +17,9 @@
         "packages/main/src/core/learning-store.ts"
       ],
       "resolvedReason": "Added smoke check 'concurrent writeFindingSignals never truncates (CHK-001:adversarial:1)': fires ~20 concurrent writes + interleaved reads, asserts every read is complete-or-absent (never truncated) and the final file is valid JSON equal to one written cache (last-writer-wins via atomic temp+rename). Smoke now 21/21; no production change needed. Commit 993390ba.",
-      "resolvedAt": "2026-06-17T11:55:37.092Z"
+      "resolvedAt": "2026-06-17T11:55:37.092Z",
+      "signatureTag": "experience-layer|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

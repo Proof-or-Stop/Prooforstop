@@ -23,7 +23,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266"
       ],
       "resolvedReason": "Fixed by removing checklist file declarations from decision_doc_save scope authorization; save now accepts only scope-contract allowedCreate/allowedModify or accepted/approved scope extension. Verified by decision-doc-promotion smoke checklist-only scope backdoor blocked and accepted scope extension authorizes outside-contract target.",
-      "resolvedAt": "2026-06-14T22:07:11.678Z"
+      "resolvedAt": "2026-06-14T22:07:11.678Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-acec:F-002",
@@ -42,7 +44,9 @@
         "packages/main/src/handlers/decision-doc-promotion.ts"
       ],
       "resolvedReason": "Fixed by adding preview read-only assertions for raw process-events.jsonl and store.readProcessEvents before/after decision_doc_preview, in addition to proposal metadata and target doc checks. Verified by npm --prefix packages/main run test:decision-doc-promotion-smoke.",
-      "resolvedAt": "2026-06-14T22:07:11.690Z"
+      "resolvedAt": "2026-06-14T22:07:11.690Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-acec:F-003",
@@ -62,7 +66,9 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "resolvedReason": "Fixed evidence path by adding phase-independent command-specific help smoke for decision_doc_proposal --help, decision_doc_preview --help, and decision_doc_save --help instead of relying on phase-filtered global help. Verified by decision-doc-promotion smoke and process fact contract.",
-      "resolvedAt": "2026-06-14T22:07:11.768Z"
+      "resolvedAt": "2026-06-14T22:07:11.768Z",
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-acec:F-004",
@@ -83,7 +89,9 @@
         "packages/main/src/handlers/decision-doc-promotion.ts:306"
       ],
       "resolvedReason": "Docs updated to remove the checklist/file-declaration authorization fallback. decision_doc_save is now documented as authorized only by story scope contract allowedCreate/allowedModify or an accepted/approved scope extension, matching the runtime gate.",
-      "resolvedAt": "2026-06-14T22:25:01.421Z"
+      "resolvedAt": "2026-06-14T22:25:01.421Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-acec:F-005",
@@ -101,7 +109,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "resolvedReason": "Docs updated across the durable execution plan: save authorization now consistently requires scope contract allowedCreate/allowedModify coverage or a mechanically valid accepted/approved scope extension. Targeted search found no stale PLAN scope, declared scope, checklist/file declaration fallback, or plain accepted-extension authorization wording in the save path.",
-      "resolvedAt": "2026-06-14T22:44:21.784Z"
+      "resolvedAt": "2026-06-14T22:44:21.784Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-acec:F-006",
@@ -122,7 +132,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "resolvedReason": "decision_doc_save now validates accepted/approved scope-extension proposals with existing scope anti-expansion digest helpers before path matching can authorize an outside-contract target: story id, proposal status, decision status, decision _hash, and proposal _hash must all be fresh. Smoke now refuses forged dummy _hash extensions and accepts a helper-built signed extension.",
-      "resolvedAt": "2026-06-14T22:44:29.431Z"
+      "resolvedAt": "2026-06-14T22:44:29.431Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     }
   ]
 }

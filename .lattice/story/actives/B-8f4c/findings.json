@@ -17,7 +17,9 @@
         ".gitignore"
       ],
       "resolvedReason": "Fixed in cd9cfe91 and verified by CHK-001/CHK-003 fresh evidence: Bucket A no longer scopes .gitignore or requires git check-ignore for .lattice/dev-memory/experience.jsonl; plan excludes dev-memory data by not restoring, staging, or committing it, with ignore-policy changes deferred to a separate future story.",
-      "resolvedAt": "2026-06-11T21:49:55.161Z"
+      "resolvedAt": "2026-06-11T21:49:55.161Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8f4c:F-002",
@@ -36,7 +38,9 @@
         "docs/requirements/NAV.md"
       ],
       "resolvedReason": "Fixed in cd9cfe91 and verified by CHK-002/CHK-003 fresh evidence plus independent read-only audit: Bucket D now forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must restore only the untracked doc from stash@{0}^3 and hand-merge the NAV link/count from current NAV state.",
-      "resolvedAt": "2026-06-11T21:50:00.324Z"
+      "resolvedAt": "2026-06-11T21:50:00.324Z",
+      "signatureTag": "docs|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8f4c:F-003",
@@ -54,7 +58,9 @@
         "docs/requirements/decisions/stash-split-execution-plan.md"
       ],
       "resolvedReason": "Fixed in 0a9056a: execution plan now captures EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and STASH_OBJECT=$(git rev-parse stash@{0}), verifies the subject, and uses STASH_OBJECT / STASH_OBJECT^1 / STASH_OBJECT^3 for executable diff, restore, show, stash show, and ls-tree commands.",
-      "resolvedAt": "2026-06-11T22:00:05.795Z"
+      "resolvedAt": "2026-06-11T22:00:05.795Z",
+      "signatureTag": "docs|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

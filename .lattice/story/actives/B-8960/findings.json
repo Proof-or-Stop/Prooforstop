@@ -13,7 +13,9 @@
       "files": [
         "scripts/verify-runtime-reviewer-contract.mjs",
         "scripts/verify-main-branch-runtime-health.mjs"
-      ]
+      ],
+      "signatureTag": "test-infra|hardcoded-value",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8960:F-002",
@@ -28,7 +30,9 @@
       "files": [
         "scripts/audit-silent-catches.mjs",
         "scripts/audit-silent-catches-baseline.json"
-      ]
+      ],
+      "signatureTag": "test-infra|false-positive-gate",
+      "signatureTagSource": "backfill"
     }
   ]
 }

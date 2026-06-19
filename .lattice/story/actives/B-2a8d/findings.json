@@ -16,7 +16,9 @@
         ".lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs"
       ],
       "resolvedReason": "Tightened the committed verifier with two dedicated asserts (structuredFirst, noUnchangedV1) and rebound CHK-002:happy:3 + CHK-002:adversarial:1 evidence to name those exact checks. Verifier-only change under .lattice/ (materialHash-excluded); verifier still TOTAL 20 | PASS 20 | FAIL 0.",
-      "resolvedAt": "2026-06-17T18:20:03.712Z"
+      "resolvedAt": "2026-06-17T18:20:03.712Z",
+      "signatureTag": "experience-layer|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

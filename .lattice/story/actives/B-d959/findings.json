@@ -16,7 +16,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
       "resolvedReason": "Fixed in commit f1581955f and revalidated in commit 661d7097e. The document now separates degraded fallback eligibility into unavailable-second-host and approved-single-host-local paths, clarifies which evidence belongs to each path, and splits requiredAssurance/effectiveAssurance/achievedAssurance so degraded review cannot be confused with the original two-host requirement.",
-      "resolvedAt": "2026-06-15T02:18:32.469Z"
+      "resolvedAt": "2026-06-15T02:18:32.469Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-503b:F-001",
+      "desc": "CHK-002:happy verificationEvidence (via lattice checklist_get/evidence_inspect) claims `lattice autopilot_review_submit x3` recorded three local single-host verdicts, but `lattice autopilot_review_status --storyId=B-503b --runId=default-run --format=json` and r1/r2/r3 all report totalVerdicts=0 and localReviewEvidenceRefs=[]; the happy intent requires three local single-host audit rounds recorded as Non-authority evidence, so the evidence coverage for that requirement is missing. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T00:28:33.397Z",
+      "reviewRound": "2026-06-19T00:25:56.578Z",
+      "reviewRunId": "B-503b:RR-004",
+      "_hash": "22069075070557a1a31784ffe75485ca70401bd35ec4a2c5a390cf892b4bac04",
+      "signatureTag": "missing|unknown|happy-verificationevidence-lattice",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the ambiguous CHK-002 evidence command \"lattice autopilot_review_submit x3\" with exact runId-specific autopilot_review_status checks for B-503b-local-audit-r1/r2/r3. Each status shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, and the expected localReviewEvidenceRefs; default-run is no longer used as proof.",
+      "resolvedAt": "2026-06-19T00:30:14.665Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

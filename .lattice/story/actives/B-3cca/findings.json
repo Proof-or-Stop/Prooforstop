@@ -17,7 +17,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Fixed in commit 88f311664: runCli runtime comment now says Lattice CLI; the broad koala CLI allowlist was removed; branding smoke now scans cli-engine and hooks src/dist and passes with all unclassified counts at 0.",
-      "resolvedAt": "2026-06-13T10:57:40.108Z"
+      "resolvedAt": "2026-06-13T10:57:40.108Z",
+      "signatureTag": "cli-engine|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/core/hooks.ts"
       ],
       "resolvedReason": "Fixed in commit 88f311664: shared hook runner diagnostics in packages/main/src/core/hooks.ts now emit [lattice-hook]; docs/guide-hooks.md was synced; branding smoke now includes hooks src/dist so this cannot regress silently.",
-      "resolvedAt": "2026-06-13T10:57:45.921Z"
+      "resolvedAt": "2026-06-13T10:57:45.921Z",
+      "signatureTag": "cli-engine|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-003",
@@ -54,7 +58,9 @@
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit 202077355: removed the broad legacy.*koala/koala.*legacy allowlist and replaced it with exact legacy alias patterns; npm --prefix packages/main run build and npm --prefix packages/main run test:cli-engine-branding-smoke passed with all unclassified counts at 0.",
-      "resolvedAt": "2026-06-13T11:03:17.242Z"
+      "resolvedAt": "2026-06-13T11:03:17.242Z",
+      "signatureTag": "test-infra|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-004",
@@ -73,7 +79,9 @@
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit ce395d900: docs/guide-hooks.md now uses Lattice/lattice for current-product hook guide wording, preserving only explicit compatibility/config/env/path/example Koala tokens; cli-engine-branding-smoke now audits docs/guide-hooks.md and reports guide-hooks doc unclassified=0 after build and smoke rerun.",
-      "resolvedAt": "2026-06-13T11:12:55.043Z"
+      "resolvedAt": "2026-06-13T11:12:55.043Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-005",
@@ -91,7 +99,9 @@
         "docs/guide-hooks.md"
       ],
       "resolvedReason": "Fixed in commit 9d25478e0: docs/guide-hooks.md now presents lattice.config.json as current hook config and koala.config.json only as legacy fallback; KOALA_COMMAND and KOALA_ROOT descriptions now say legacy env var names for current Lattice command/project root.",
-      "resolvedAt": "2026-06-13T11:22:40.167Z"
+      "resolvedAt": "2026-06-13T11:22:40.167Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-006",
@@ -110,7 +120,9 @@
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit 9d25478e0: docs/guide-hooks.md marks .koala health/activity paths as legacy runtime/mirror paths, and cli-engine-branding-smoke no longer allowlists whole lines for koala.config or .koala; it strips contextual legacy tokens then fails on remaining koala/Koala text.",
-      "resolvedAt": "2026-06-13T11:22:53.375Z"
+      "resolvedAt": "2026-06-13T11:22:53.375Z",
+      "signatureTag": "docs|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3cca:F-007",
@@ -129,7 +141,9 @@
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit 9d25478e0: branding smoke now uses token-based stripping instead of broad /KOALA_/ or /koala.config/ line allowlists; npm --prefix packages/main run test:cli-engine-branding-smoke passes with guide-hooks doc unclassified=0 under the stricter scanner.",
-      "resolvedAt": "2026-06-13T11:22:58.123Z"
+      "resolvedAt": "2026-06-13T11:22:58.123Z",
+      "signatureTag": "test-infra|false-positive-gate",
+      "signatureTagSource": "backfill"
     }
   ]
 }

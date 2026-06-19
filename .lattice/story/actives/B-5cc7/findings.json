@@ -18,7 +18,9 @@
         "packages/main/src/handlers/dev-memory.ts"
       ],
       "resolvedReason": "Resolved by commit a24a78aa updating docs/requirements/decisions/dev-memory.md to make .lattice the canonical dev-memory/story-candidate storage, restrict .koala to read-only legacy fallback, rename commands to lattice dev_memory_*, and retain non-authoritative gateEvidence:false / authority:non_authoritative semantics. Verified with rg checks for stale Koala/.koala command/path claims and git diff --check.",
-      "resolvedAt": "2026-06-11T23:21:11.284Z"
+      "resolvedAt": "2026-06-11T23:21:11.284Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cc7:F-002",
@@ -38,7 +40,9 @@
         "docs/requirements/decisions/dev-memory.md"
       ],
       "resolvedReason": "Resolved by commit 8f59161: resolveGlobalMemoryPath now only honors LATTICE_GLOBAL_MEMORY_DIR for writable global storage and otherwise uses canonical ~/.lattice/dev-memory/experience.jsonl. KOALA_GLOBAL_MEMORY_DIR remains available only through resolveLegacyGlobalMemoryPath / resolveGlobalMemoryReadPaths as read fallback. Focused smoke now asserts KOALA_GLOBAL_MEMORY_DIR alone cannot redirect the writable global path and that read paths remain current-first plus legacy fallback. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
-      "resolvedAt": "2026-06-11T23:30:33.940Z"
+      "resolvedAt": "2026-06-11T23:30:33.940Z",
+      "signatureTag": "memory|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cc7:F-003",
@@ -57,7 +61,9 @@
         "docs/requirements/decisions/dev-memory.md"
       ],
       "resolvedReason": "Resolved by commit bf001e43: lattice-parallel-wave experienceRefs now use readProjectMemoryEntries/readGlobalMemoryEntries so parallel dispatch/report include the same .lattice canonical plus .koala read-only legacy fallback as other dev-memory read consumers. Scope expansion was explicitly acknowledged in scope-contract.json because F-003 identified this file as a necessary dev-memory projection consumer. Verified by npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
-      "resolvedAt": "2026-06-11T23:43:01.548Z"
+      "resolvedAt": "2026-06-11T23:43:01.548Z",
+      "signatureTag": "parallel-wave|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cc7:F-004",
@@ -77,7 +83,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Resolved by commit bf001e43: dev_memory_start user-facing reminders now use lattice dev_memory_finish, lattice dev_memory_finish --scope=global, and lattice dev_memory_finish --storyId=<id>, matching docs/requirements/decisions/dev-memory.md. Focused smoke asserts lattice reminder is present and koala dev_memory_finish is absent.",
-      "resolvedAt": "2026-06-11T23:43:16.267Z"
+      "resolvedAt": "2026-06-11T23:43:16.267Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cc7:F-005",
@@ -96,7 +104,9 @@
         "docs/requirements/decisions/dev-memory.md"
       ],
       "resolvedReason": "Resolved with the same concrete fix as B-5cc7:F-004 in commit bf001e43: dev_memory_start no longer emits koala dev_memory_finish guidance and the smoke test verifies the lattice command prefix.",
-      "resolvedAt": "2026-06-11T23:42:26.611Z"
+      "resolvedAt": "2026-06-11T23:42:26.611Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5cc7:F-006",
@@ -117,7 +127,9 @@
         "packages/main/src/core/dev-memory.ts"
       ],
       "resolvedReason": "Resolved by commit ca87d7b: docs/requirements/decisions/lattice-parallel-wave.md now documents .lattice canonical dev-memory reads, .koala read-only legacy fallback, KOALA_GLOBAL_MEMORY_DIR legacy global fallback, and non-authoritative experienceRefs fields consistent with dev-memory.md and the lattice-parallel-wave implementation. Scope expansion was explicitly acknowledged for the decision doc.",
-      "resolvedAt": "2026-06-11T23:51:43.742Z"
+      "resolvedAt": "2026-06-11T23:51:43.742Z",
+      "signatureTag": "parallel-wave|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }
