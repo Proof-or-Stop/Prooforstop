@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T18:56:16.922Z",
-      "endTime": null,
+      "endTime": "2026-06-19T19:06:03.981Z",
       "userSees": "Targeted contract regression output includes \"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\" and no /v1/checks or /v1/commands contract diff is needed.",
       "files": {
         "modify": [
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: authority-client-smoke printed GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]; schema retained both arrays.",
+          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:04.079Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: schema test parsed changedFiles=[packages/main/src/core/authority-client.ts] with actualFileOverlaps=[] unchanged.",
+          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:04.164Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: schema rejected missing actualFileOverlaps, non-array changedFiles, and unrelated nested audit keys before signing.",
+          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:04.248Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
