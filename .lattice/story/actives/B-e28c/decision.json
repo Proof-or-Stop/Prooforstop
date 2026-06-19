@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Authenticate only protected server reads that require the customer key.",
+    "Keep public policy discovery keyless.",
+    "Do not translate transport success into Authority completion.",
+    "Make the regression visible in focused smoke tests."
+  ],
+  "drivers": [
+    "Staging protected job status currently returns 401 from CLI without Authorization.",
+    "Customer API keys are already resolved from env/path/trust env for server-backed Authority traffic.",
+    "Authority completion is a separate receipt plus quorum condition."
+  ],
+  "options": [
+    {
+      "name": "authenticated-protected-get-option",
+      "pros": [
+        "Fixes the reported 401 on protected job verdict/status reads",
+        "Keeps policy discovery keyless via an explicit option",
+        "Reuses existing customer key resolution"
+      ],
+      "cons": [
+        "Requires a small GET helper API change"
+      ]
+    },
+    {
+      "name": "add-auth-to-all-get-requests",
+      "pros": [
+        "Very small code change"
+      ],
+      "cons": [
+        "Would send customer key to policy discovery and blur public discovery vs protected reads"
+      ]
+    },
+    {
+      "name": "leave-cli-status-keyless",
+      "pros": [
+        "No code change"
+      ],
+      "cons": [
+        "Keeps staging authority_job_status broken with 401"
+      ]
+    }
+  ],
+  "chosen": "authenticated-protected-get-option",
+  "rationale": "Protected job status reads need the customer key, but policy discovery should remain unauthenticated and completion semantics must remain unchanged.",
+  "preMortem": [
+    {
+      "scenario": "Policy discovery starts sending customer keys",
+      "trigger": "The fix adds auth headers globally to all GET calls",
+      "consequence": "Public discovery no longer stays keyless and leaks credentials unnecessarily",
+      "mitigation": "Use an explicit authenticated GET option and keep discoverPolicy tests asserting no Authorization"
+    },
+    {
+      "scenario": "Status reports fullAuthorityDone from a successful read",
+      "trigger": "Regression test only checks 200/Authorization and ignores receipt/quorum flags",
+      "consequence": "CLI could overclaim completion when server still has zero verdicts or no receipt",
+      "mitigation": "Add smoke assertions for blocked/fullAuthorityDone=false without verified receipt/quorum"
+    },
+    {
+      "scenario": "Missing customer key causes confusing network 401 instead of local fail-closed",
+      "trigger": "Protected read path silently omits key or does not test absence behavior",
+      "consequence": "Developers cannot distinguish missing config from server rejection",
+      "mitigation": "Keep auth resolution explicit and cover the presence path for configured keys without changing local fallback"
+    }
+  ],
+  "timestamp": "2026-06-19T03:54:35.709Z"
+}

@@ -1,0 +1,24 @@
+{
+  "storyId": "B-e28c",
+  "checkedAt": "2026-06-19T04:37:11.430Z",
+  "reviewRound": "2026-06-19T04:16:19.316Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed git diff main...HEAD for packages/main/src/core/authority-client.ts and packages/main/src/tasks/authority-client-smoke.ts. authority-client.ts: listJobVerdicts calls get(..., { authenticated: true, rejectOverclaim: false }); get() trims customerApiKey, returns customer_api_key_unconfigured_fails_closed before fetch when missing, and otherwise sends Authorization: Bearer <customer-key>; discoverPolicy still calls default get() and remains keyless; authorityJobVerdictStatus combines listJobVerdicts with receipt/quorum reconciliation and keeps receiptVerified/authorityDone/fullAuthorityDone false without a verified receipt and satisfied quorum. Real commands: npm --prefix packages/main run build exited 0 with output: > @lattice-agent/core@0.3.6 build / > tsc. node packages/main/dist/tasks/authority-client-smoke.js exited 0 with output: authority client smoke passed. session_brief DONE pre-check transcript includes: [PASS] Review assurance floor: full-3x2; material code paths 2; local rounds 3/3."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed smoke coverage in packages/main/src/tasks/authority-client-smoke.ts. The smoke captures verdict GET headers, asserts protected verdict list fails closed without customer key and performs zero GET calls, asserts listJobVerdicts and authorityJobVerdictStatus send Authorization when key is configured, asserts policy discovery remains keyless via existing smoke coverage, and asserts successful protected status read with no receipt/quorum leaves receiptVerified=false, authorityDone=false, multiHostVerified=false, fullAuthorityDone=false. Real commands: node packages/main/dist/tasks/authority-client-smoke.js exited 0 with output: authority client smoke passed. node packages/main/dist/tasks/authority-completion-smoke.js exited 0 with output: ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge. lattice test_list --storyId=B-e28c reported PASS and verification intent coverage 6/6 covered, 0 required missing; session_brief reported full-3x2 review assurance floor with local rounds 3/3."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review found the story satisfies the target: server-backed protected authority_job_status/listJobVerdicts GETs carry the customer API key when configured, missing customer key fails closed before network, policy discovery remains keyless, and successful reads cannot mint authorityDone/fullAuthorityDone. Build, authority-client smoke, authority-completion smoke, verification coverage, and full-3x2 local review assurance evidence are present."
+  },
+  "_hash": "261c4806e80ece06df311ac5f89d34a9708fd4145552d9ad3fd132291e176759"
+}
