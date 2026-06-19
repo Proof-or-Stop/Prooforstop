@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T01:50:01.500Z",
       "reviewRunId": "B-7559:RR-009",
       "_hash": "6748fe5b607c550d4f6570caa43418e207cfd682ee16c245c2d0923170ebd1e2"
+    },
+    {
+      "id": "B-7559:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 20 prior findings confirmed resolved at HEAD 29bb434f7. CHK-001: all code-claims verified against source (canStartDevGuard in core/machine.ts, getGuardFailureReason in machine.ts, pathMatchesPattern in core/scope-contract.ts hand-rolled no-minimatch, VALID_MODES ReadonlySet<AuditMode> in audit-config.ts, resolveParallelSafety in parallel-policy.ts, actualFileOverlapsByStory+resolveWaveSafety in core/lattice-parallel-wave.ts, ScopeContractData fields in types.ts, transition-orchestrator.ts:156 warning text, parseFlags JSON-array behavior, userConfirmed non-optional, mode non-optional, cfg.mode=block call-site correct). CHK-002: all prompt templates copy-pasteable — scope_boundary_set has --userConfirmed=true, scope_contract_set has --mode=enforce, all array flags use JSON-array syntax; no contradictions (gate-pure/caller-enforces-mode consistent across §4.4 and §4.8, broadSide ref points to §4.3, §2 Step 2 refs correct, §4.2/§7-F4 refs correct, fail-open wording unambiguous).",
+      "createdAt": "2026-06-19T02:28:12.372Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-013",
+      "_hash": "1cd039eba75ac6818e944abf0a53ae34c1aea429c05c67066581ac7767c9de06"
     }
   ]
 }
