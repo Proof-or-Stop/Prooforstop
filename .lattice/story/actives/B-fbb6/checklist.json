@@ -75,9 +75,9 @@
       "id": "CHK-002",
       "title": "Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv",
       "context": "In lattice-dispatch.ts rename runGeminiRealLeafDispatch -> runAntigravityRealLeafDispatch and build agy's argv (`--print <prompt>` + `--print-timeout`, and `--dangerously-skip-permissions` if needed for non-interactive tool steps); route --host=gemini -> --host=antigravity (and the availability gate via antigravityCliAvailable). Update BoundedProviderName 'gemini' -> 'antigravity', PROVIDER_BINARY, defaultProviderAvailable, defaultBoundedProviderExecutor, and planned-steps-executor.ts imports (geminiCliAvailable/runBoundedGeminiProvider/GEMINI_CLI_BINARY). recordDispatchFinalForProvider's provider param 'gemini' -> 'antigravity' (writes an unavailable final since antigravity has no reportedUsage).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T17:34:11.303Z",
-      "endTime": null,
+      "endTime": "2026-06-19T17:57:24.338Z",
       "verificationIntent": {
         "happy": [
           {
