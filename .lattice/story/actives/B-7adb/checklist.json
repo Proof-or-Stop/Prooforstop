@@ -145,7 +145,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Operators see review assurance status grouped by local runs, voluntary 3x2 evidence is visible even when escalation is not required, and stale-material DONE output includes a concise recovery runbook."
+      "userSees": "Operators see review assurance status grouped by local runs, voluntary 3x2 evidence is visible even when escalation is not required, and stale-material DONE output includes a concise recovery runbook.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "Docs describe the new diagnostic views and stale-material recovery guidance as local diagnostic UX, not new completion capability.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Smoke coverage demonstrates the user-visible diagnostic output for all-runs/latest-runs, voluntary rounds, and stale recovery guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "Docs and tests explicitly preserve the distinction between local diagnostic assurance and future remote-proof work.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
