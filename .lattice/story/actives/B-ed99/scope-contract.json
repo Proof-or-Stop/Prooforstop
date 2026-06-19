@@ -1,0 +1,39 @@
+{
+  "storyId": "B-ed99",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "docs/parallel-decomposition-spec.md",
+    ".worktrees/B-491e",
+    ".worktrees/B-b5c0",
+    ".worktrees/B-cb13"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures",
+    "authority-server",
+    "packages/authority",
+    "docs/parallel-decomposition-spec.md"
+  ],
+  "scopeChangeReason": "Scope contract follows B-ed99 PLAN files: review assurance DONE gate implementation, focused smoke tests, and process-fact contract only.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T01:33:45.500Z",
+  "updatedAt": "2026-06-19T01:33:45.500Z"
+}
