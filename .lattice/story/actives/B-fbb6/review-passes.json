@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fbb6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified clean. All primary gemini symbols (extractGeminiUsage, adaptGeminiUsage, adapters/gemini, runGeminiRealLeafDispatch, runBoundedGeminiProvider, geminiCliAvailable, GEMINI_CLI_BINARY) return 0 matches in packages/main/src/. The only remaining gemini matches in packages/main/src/ are exclusively in tasks/*.smoke.ts files and all are intentional retirement-proof assertions (asserting gemini is rejected, absent, resolves to unknown/fallback, watcher-fallback, or not in current host/runtime lists). providers/ directory contains antigravity-cli.ts with no gemini-cli.ts. usage-ledger/adapters/ contains only anthropic.ts, openai.ts, shared.ts — no gemini.ts. smoke-manifest.json replaced provider-gemini with provider-antigravity. No antigravity||antigravity blind-rename duplicates found. Docs referencing gemini (guide-scope-guard.md, CHANGELOG.md, requirements docs) were not modified by this story and pre-existed on main; guide-scope-guard.md row is correctly labeled legacy/deprecated compatibility only. core/ production files have zero gemini string literals.",
+      "createdAt": "2026-06-19T18:10:00.788Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-001",
+      "_hash": "49f316f95fbcfae050b007cab8f590d2acd4ae238616733fcdb1a5db8e6e3298"
+    }
+  ]
+}
