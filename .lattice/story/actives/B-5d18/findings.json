@@ -54,6 +54,24 @@
       ],
       "signatureTag": "missing|ts|verificationevidence-entries-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d18:F-004",
+      "desc": "CHK-001:edge:0 evidence command mismatch: the logic_test evidence command is \"git show HEAD:packages/main/src/core/partial-done-recovery.ts\" which reads an unrelated recovery module; this does not demonstrate the claimed behavior (the smokes use resolveMainRepoRoot on a /tmp path which returns that path verbatim, giving isolated locks with no global main-write-lock contention). The concrete command to evidence this intent should read the smoke source or call resolveMainRepoRoot directly — not a file about partial-done recovery that shares no code path with the hang diagnosis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T17:48:46.781Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-006",
+      "_hash": "6a470716876c367862d4239de017cd3bc8f1b3c562c50a234ffbd5867f755a8b",
+      "files": [
+        ".lattice/story/actives/B-5d18/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|edge-evidence-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
