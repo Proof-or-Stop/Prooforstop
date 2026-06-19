@@ -109,6 +109,17 @@
           "headHash": "273ba5facf9d1adaac545b6553cc4b664e28db1d",
           "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
           "timestamp": "2026-06-19T12:57:59.125Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: classifyBroadness — dir/** at root BROAD, dir/* at root NARROW (bounded), deep dir/** NARROW, literal NARROW.",
+          "headHash": "0db7d7ad14ac1c7f69b2eb36cebf26481aeba96d",
+          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
+          "timestamp": "2026-06-19T12:58:00.257Z"
         }
       ]
     }
