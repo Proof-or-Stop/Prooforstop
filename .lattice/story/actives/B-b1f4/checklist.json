@@ -6,7 +6,70 @@
       "context": "In packages/main/src/core/usage-ledger/summary.ts add a primaryTotal (input+output, number|null) to DerivedRecordTotal computed in deriveRecordTotal: null when source=unavailable or when input OR output is null (never inferred); else input+output, independent of cache dims. In summarizeRecords accumulate primaryReportedTotal/primaryReportedCount over provider-reported records whose primaryTotal is non-null. Leave providerReportedTotal (strict four-field), estimateSubtotal, unknownCount EXACTLY as-is. Update both empty-summary returns in summarizeLedgerFile/summarizeRecords to include the new fields = 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build a codex provider-reported record (input=500, output=200, cacheCreation=null, cacheRead=null) and call deriveRecordTotal -> primaryTotal should be 700 (input+output) and unknown should be true (four-field total null because cacheCreation null). WHY: confirms the new primaryTotal field computes input+output independently of cache dims",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Build a claude provider-reported record with all four dims known (input=500, output=200, cacheCreation=10, cacheRead=50) and call deriveRecordTotal -> primaryTotal should be 700 and unknown should be false (four-field total is 760). WHY: confirms claude records contribute to primaryTotal AND the strict four-field total simultaneously",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Summarize a mix of records: 1 codex (input=500,output=200,cache*=null), 1 gemini (input=800,output=120,cacheCreation=null,cacheRead=40), 1 claude (input=500,output=200,cacheCreation=10,cacheRead=50) -> primaryReportedTotal = 500+200 + 800+120 + 500+200 = 2320, primaryReportedCount = 3; providerReportedTotal = 760 (claude only, the only four-field-known record), providerReportedCount = 1, unknownCount = 2. WHY: verifies the additive primary aggregate includes cache-less providers while strict four-field semantics remain unchanged",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Call summarizeLedgerFile with a non-existent path -> returned summary has primaryReportedTotal=0 and primaryReportedCount=0. WHY: confirms empty-summary returns include the new fields at zero",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Call summarizeRecords([]) with empty array -> returned summary has primaryReportedTotal=0 and primaryReportedCount=0. WHY: confirms the other empty-summary return path also initializes new fields",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Record with source=prompt-size-estimate (input=100,output=50,cache*=null) -> primaryTotal is 150 but record does NOT contribute to primaryReportedTotal (estimates excluded from primary aggregate). WHY: estimates must never pollute the primary aggregate just as they are excluded from providerReportedTotal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Record with source=unavailable -> primaryTotal is null regardless of dimension values. WHY: unavailable source must produce null primaryTotal by design (same as four-field behavior)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Record with input=null, output=200 (provider-reported) -> primaryTotal is null because input is null (never infer missing input). WHY: the spec says primaryTotal = null when input OR output is null",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Record with input=0, output=0 (provider-reported, all four dims 0) -> primaryTotal = 0 (not null); providerReportedTotal includes it. WHY: genuine zero is distinct from null/unknown — zero is a valid reported count",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Confirm that the UsageLedgerSummary type includes primaryReportedTotal and primaryReportedCount at the type level (TypeScript compilation check) and that providerReportedTotal, estimateSubtotal, unknownCount fields are byte-identical to the pre-story type (no field removed or renamed). WHY: the story is ADDITIVE — existing fields must not be modified or removed",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A record with input=500, output=200, cacheCreation=null contributes to primaryReportedTotal=700 but NOT to providerReportedTotal (still unknown). Verify primaryReportedTotal and providerReportedTotal are independently computed — no cross-contamination where a record counted in primary is also silently added to the strict total. WHY: ensures the two aggregates are truly independent accumulators",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
