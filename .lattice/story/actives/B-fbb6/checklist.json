@@ -298,6 +298,123 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Reconcile dispatch-policy host model (antigravity pre-exists) + retire legacy gemini refusal/availability smokes",
+      "context": "antigravity ALREADY exists as a scaffolded/refused host; gemini is the legacy real-leaf host. This is a PROMOTE+RETIRE, not a blind rename — do NOT sed gemini->antigravity blindly (it would create antigravity||antigravity duplicates). Specifically: dispatch-policy.ts — remove \"gemini\" from LEGACY_KNOWN_HOSTS and from parseHost (~line 99); in the unsupportedRealHosts filters (~lines 256/406) antigravity is ALREADY listed, so just drop the \"gemini\" term (no duplicate). lattice-dispatch.ts ~lines 815/2654 comments (\"codex/legacy gemini real-host live dispatch exists; antigravity is scaffolded\") — update so antigravity carries the real-leaf agy path. Rationale text in process-fact-levels.ts:215 and command-policy.ts:274 (\"Gemini is legacy compatibility only\" / \"Antigravity remain scaffolded/refused real-subprocess targets\") — update: antigravity gains the supervised real-leaf path (binary agy) but STAYS refused for unattended dispatch_auto (no policy-posture change); drop the legacy-gemini line. Legacy gemini refusal/availability smokes (host-overflow.md:244): unattended-dispatch-smoke.ts (allowedHosts [\"gemini\"], host \"gemini\", chk008-gemini*) and dispatch-run-smoke.ts (chk006-gemini refusal path) — convert to antigravity or remove, keeping the dispatch_auto refusal semantics intact. Acceptance: dispatch-policy parse/refusal tests green; no gemini host token remains in policy/dispatch; antigravity recognized exactly once in each filter.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbb6/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch-policy.ts LEGACY_KNOWN_HOSTS array does not contain gemini; CURRENT_KNOWN_HOSTS contains antigravity exactly once -> confirms gemini retired from host model and antigravity is the sole current entry; WHY: host identity retirement is the core deliverable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch-policy.ts parseHost: input gemini is rejected (throws or returns undefined/error) rather than resolving to any host; input antigravity and agy both resolve to antigravity -> confirms gemini no longer parses as a valid host; WHY: dead host must not silently route",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch-policy.ts unsupportedRealHosts filter at ~line 256 (allowedHosts validation) lists antigravity exactly once and does not list gemini; filter at ~line 406 (dispatch_auto policy check) also lists antigravity exactly once and does not list gemini -> confirms promote without duplication; WHY: antigravity was already present so removing gemini without adding antigravity again avoids duplicates",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "unattended-dispatch-smoke.ts chk008 tests use host:antigravity and allowedHosts:[antigravity] instead of gemini; dispatch_auto still throws matching /not available|not unattended-safe|unattendedSafe=false/ -> confirms legacy gemini smoke converted to antigravity with refusal semantics preserved; WHY: dispatch_auto refusal is a security invariant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch-run-smoke.ts chk006 real-host refusal tests use host:antigravity instead of gemini; dispatch_auto still throws matching /not available|not unattended-safe|unattendedSafe=false/ and no dispatch record is created for the refused host -> confirms chk006-gemini refusal path converted to antigravity; WHY: dispatch record non-creation on refusal is a safety invariant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "antigravity gains the supervised real-leaf dispatch path (runAntigravityRealLeafDispatch or equivalent is reachable from dispatch_run for host=antigravity) -> confirms PROMOTE from scaffolded-only to supervised real-leaf; WHY: the whole point of the migration is that antigravity replaces gemini as the real-leaf host",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "process-fact-levels.ts rationale text updated: no mention of Gemini as legacy compatibility; antigravity described appropriately (supervised real-leaf, not scaffolded-only) -> confirms rationale text tracks the promotion; WHY: fact-level text is auditable metadata",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "command-policy.ts host_runtime_list reason text updated: no mention of Gemini as legacy compatibility -> confirms policy text tracks retirement; WHY: policy text is user-visible",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseHost with input gemini after retirement: returns an error/undefined that includes a helpful message (e.g. suggests antigravity) rather than silently succeeding -> confirms graceful deprecation UX; WHY: operators with legacy scripts need a migration hint",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "allowedHosts:[antigravity] + allowRealHostSubprocess=true still refused by dispatch_auto policy check (unsupportedRealHosts filter catches antigravity) -> confirms no policy-posture change; antigravity stays refused for unattended dispatch_auto even though it gained supervised real-leaf; WHY: unattended safety boundary must not widen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch_list after antigravity dispatch_auto refusal shows no dispatch record with antigravity in its dispatchId -> confirms refusal does not leak partial state; WHY: matches existing chk006-gemini non-creation assertion converted to antigravity",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice-dispatch.ts comment at ~line 815 updated: antigravity is no longer described as scaffolded; it carries the real-leaf agy path alongside codex -> confirms comment accuracy; WHY: stale comments are misleading during audits",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -E antigravity.*antigravity packages/main/src/core/dispatch-policy.ts returns zero matches in the unsupportedRealHosts filter lines -> confirms no antigravity||antigravity duplicate from a blind sed gemini->antigravity; WHY: duplicate would cause double-counting in error messages and violates the exactly-once invariant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rinE \\\\bgemini\\\\b packages/main/src/core/dispatch-policy.ts returns zero matches -> confirms no stray gemini host token in policy module; WHY: any remaining gemini reference is either dead code or a missed rename",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rinE \\\\bgemini\\\\b packages/main/src/core/lattice-dispatch.ts returns zero provider-semantic matches (model-name strings explicitly justified are acceptable) -> confirms no stray gemini host token in dispatch module; WHY: dispatch is the routing layer and must not reference a retired host",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -n chk008-gemini packages/main/src/tasks/unattended-dispatch-smoke.ts returns zero matches AND grep -n chk006-gemini packages/main/src/tasks/dispatch-run-smoke.ts returns zero matches -> confirms no residual gemini-named test case IDs or generated file paths; WHY: stale test IDs reference non-existent fixtures",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "full smoke suite passes green after the promote+retire changes (no regression in codex/claude-code/fake host paths) -> confirms the refactor is isolated to gemini->antigravity transition; WHY: collateral damage prevention",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T17:19:05.556Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope-plan + test-intent reviewers found a blocker scope_gap: the legacy Gemini real-host refusal path (host-overflow.md:244, unattended/dispatch-run smokes) and the fact that antigravity already exists as a scaffolded host are not covered by CHK-001..004; this item makes the promote+retire host-model reconciliation explicit.",
+      "addedTitle": "Reconcile dispatch-policy host model (antigravity pre-exists) + retire legacy gemini refusal/availability smokes",
+      "addedContext": "antigravity ALREADY exists as a scaffolded/refused host; gemini is the legacy real-leaf host. This is a PROMOTE+RETIRE, not a blind rename — do NOT sed gemini->antigravity blindly (it would create antigravity||antigravity duplicates). Specifically: dispatch-policy.ts — remove \"gemini\" from LEGACY_KNOWN_HOSTS and from parseHost (~line 99); in the unsupportedRealHosts filters (~lines 256/406) antigravity is ALREADY listed, so just drop the \"gemini\" term (no duplicate). lattice-dispatch.ts ~lines 815/2654 comments (\"codex/legacy gemini real-host live dispatch exists; antigravity is scaffolded\") — update so antigravity carries the real-leaf agy path. Rationale text in process-fact-levels.ts:215 and command-policy.ts:274 (\"Gemini is legacy compatibility only\" / \"Antigravity remain scaffolded/refused real-subprocess targets\") — update: antigravity gains the supervised real-leaf path (binary agy) but STAYS refused for unattended dispatch_auto (no policy-posture change); drop the legacy-gemini line. Legacy gemini refusal/availability smokes (host-overflow.md:244): unattended-dispatch-smoke.ts (allowedHosts [\"gemini\"], host \"gemini\", chk008-gemini*) and dispatch-run-smoke.ts (chk006-gemini refusal path) — convert to antigravity or remove, keeping the dispatch_auto refusal semantics intact. Acceptance: dispatch-policy parse/refusal tests green; no gemini host token remains in policy/dispatch; antigravity recognized exactly once in each filter."
     }
   ]
 }

@@ -1,0 +1,500 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T17:14:24.815Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "3feaaa80ee61d8c7e0098ee59ae9fca2ab2fb546ad491778dad83ef176bc7d5b"
+    },
+    {
+      "timestamp": "2026-06-19T17:14:34.825Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "f59a738def8bd2cf93d355a0a4989852e98b3e9c46e24a9bf647b91c89c5bbe0"
+    },
+    {
+      "timestamp": "2026-06-19T17:14:48.318Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "f5d69a914d6bcc73274afe1c3a2ccf7e4a3aaf386995eb12067d74367f463931"
+    },
+    {
+      "timestamp": "2026-06-19T17:14:49.102Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "015cdffa7ac8852fa0d9cb758763250c40a89670677bd8f4e6cc8053d9dee024"
+    },
+    {
+      "timestamp": "2026-06-19T17:14:54.302Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "bfaa03672fa3658a3eba090079dcff399a47ebaf38fd4df853aace6563305ffc"
+    },
+    {
+      "timestamp": "2026-06-19T17:14:59.283Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "79e1ea33e2fe9a27cdfb50828014734ca73c767636324ea28b29c08fe68a7693"
+    },
+    {
+      "timestamp": "2026-06-19T17:15:05.666Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "b0e5b21aed98fd0777d2ee50bd023ebccb5936c8ae90172c1eb39af7da4cdf5f"
+    },
+    {
+      "timestamp": "2026-06-19T17:15:13.895Z",
+      "issueCount": 10,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction) + Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: usage source for antigravity -> source=unavailable (schema-mandated; no usage available).; RESOLVED: dig trajectory store for usage -> proven infeasible (inference + raw-surface violations).; RESOLVED: model capture -> best-effort parse the agy --log-file `label=\"...\"`, fallback to requested --model or 'unknown' (finalize exact mechanism in DEV).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "bf480d05b94bc0fb29a39b8d5c7dd7e59422c184eba2b4a88c87236b04af8a40"
+    }
+  ]
+}
