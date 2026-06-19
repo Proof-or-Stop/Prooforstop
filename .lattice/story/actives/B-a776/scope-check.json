@@ -1,0 +1,79 @@
+{
+  "storyId": "B-a776",
+  "checkedAt": "2026-06-19T18:02:45.705Z",
+  "features": [
+    {
+      "feature": "flag parser extraction",
+      "covered_by": "CHK-001; plan CHK-001; scope contract allows packages/main/src/cli/flag-parser.ts plus packages/main/src/cli-engine.ts; tests include cli-surface-smoke and cli-argument-ergonomics-smoke.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md Round 2; packages/main/src/cli-engine.ts parseFlags/parseFlagsTest/normalizeFlagKey anchors"
+    },
+    {
+      "feature": "help renderer extraction",
+      "covered_by": "CHK-002; plan CHK-002; scope contract allows packages/main/src/cli/help-renderer.ts plus packages/main/src/cli-engine.ts; tests include cli-surface-smoke, command-catalog-smoke, and lattice-cli-migration-smoke.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md Round 2 help/dry-run scope; cli-engine.ts printHelp/printToolHelp/dryRunHelpLine anchors"
+    },
+    {
+      "feature": "alias normalizer extraction",
+      "covered_by": "CHK-002; plan CHK-002; scope contract allows packages/main/src/cli/alias-normalizer.ts; verificationIntent CHK-002 edge covers nested space aliases.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "cli-engine.ts aliasStart/aliasMap canonical alias anchors; checklist CHK-002"
+    },
+    {
+      "feature": "CLI surface smoke",
+      "covered_by": "CHK-003; plan CHK-003; scope contract allows packages/main/src/tasks/cli-surface-smoke.ts and allowed tests include cli-surface-smoke, command-catalog-smoke, cli-argument-ergonomics-smoke, lattice-cli-migration-smoke, and process-fact contract.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-003; package tasks inventory"
+    },
+    {
+      "feature": "package script metadata",
+      "covered_by": "CHK-003; plan CHK-003 permits a package script if needed; scope contract allows modifying packages/main/package.json; current package.json has command-catalog smoke but no cli-surface smoke script yet.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/package.json scripts projection"
+    },
+    {
+      "feature": "lifecycle special dispatch behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraint; decision preMortem says B-57b5 owns lifecycle dispatch; scope contract explicitExcludes lifecycle special dispatch extraction.",
+      "source": "cli-engine.ts story_create/story_advance INIT_CHECK special dispatch anchors; docs modularization Round 4 lifecycle dispatch"
+    },
+    {
+      "feature": "INIT_CHECK metadata sync behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope contract explicitExcludes INIT_CHECK metadata sync extraction; CHK-002 adversarial verificationIntent; understanding constraint.",
+      "source": "cli-engine.ts commitInitCheckMetadataAndMergeMain and story_advance INIT_CHECK anchors"
+    },
+    {
+      "feature": "recover_evidence dispatch behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope contract explicitExcludes recover_evidence dispatch extraction; CHK-002 adversarial verificationIntent; understanding constraint.",
+      "source": "cli-engine.ts recover_evidence special dispatch anchor; docs modularization Round 4"
+    },
+    {
+      "feature": "Authority behavior and receipt semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope contract explicitExcludes Authority receipt behavior changes; modularization doc non-goal says local Authority readiness is not production Authority completion; Authority client doc keeps ordinary workflow local unless explicit Authority enforce path is approved/configured.",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md; docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4ad48fd316e6edae7a78e1b1941726b8fc959569231a78b6e5100ff49bebb1a9"
+}

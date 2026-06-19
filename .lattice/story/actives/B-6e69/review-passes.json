@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-6e69:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: extracted runtime-root, activity-policy, ownership-gate, and reviewer-readonly-gate helpers preserve cli-engine compatibility exports and keep enforcement at the runCli choke point. Root/worktree fallback, read-only activity policy, effective ownership boundary cases, owner lease takeover semantics, and reviewer readonly pre-hook/pre-lease ordering match the Round 3 modularization contract.",
+      "createdAt": "2026-06-19T17:44:18.560Z",
+      "reviewRound": "2026-06-19T17:41:56.043Z",
+      "reviewRunId": "B-6e69:RR-003",
+      "_hash": "348a7fdf9654f07667260c4b6dd85c6c7e995d8ba63c5f03005b02c6c676dfd9"
+    },
+    {
+      "id": "B-6e69:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review inspected cli-engine extraction, new runtime root/activity/ownership modules, command catalog compatibility, TypeScript no-emit compile, and help surfaces; found no blocking maintainability, TypeScript, import/export, integration, or behavior-drift issue.",
+      "createdAt": "2026-06-19T17:44:37.604Z",
+      "reviewRound": "2026-06-19T17:41:56.043Z",
+      "reviewRunId": "B-6e69:RR-001",
+      "_hash": "4ab4faadabf97e83db841bb6842da7c6f1286df18d62d3e4b1a9737a7f145e4e"
+    },
+    {
+      "id": "B-6e69:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage review passed: checklist evidence covers runtime root resolution, activity policy behavior, owner lease/takeover surfaces, reviewer readonly enforcement, process-fact contract, scope contract, and post-B-74a0 command catalog preservation; reran build, process-fact contract, command ownership, main-write-lock, reviewer-readonly, command-catalog, scope-contract, and runtime root/activity smokes with no blockers.",
+      "createdAt": "2026-06-19T17:45:13.644Z",
+      "reviewRound": "2026-06-19T17:41:56.043Z",
+      "reviewRunId": "B-6e69:RR-004",
+      "_hash": "12b5e7eb217f1ce1283b74bc30b15e687dcd536b89455a718a6f319341fc6491"
+    }
+  ]
+}

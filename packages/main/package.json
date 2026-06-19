@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -53,6 +53,8 @@
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
     "test:review-convergence-smoke": "node dist/tasks/review-convergence-smoke.js",
     "test:review-incremental-context-smoke": "node dist/tasks/review-incremental-context-smoke.js",
+    "test:command-catalog-smoke": "node dist/tasks/command-catalog-smoke.js",
+    "test:cli-surface-smoke": "node dist/tasks/cli-surface-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
   },
   "dependencies": {

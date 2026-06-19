@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Project extractCodexUsage/extractGeminiUsage output to token-count fields only",
+      "context": "In packages/main/src/providers/codex-cli.ts extractCodexUsage and packages/main/src/providers/gemini-cli.ts extractGeminiUsage: instead of returning the whole matched `usage`/`usageMetadata` object verbatim, return a NEW object containing ONLY the known token-count keys present -- openai: prompt_tokens, completion_tokens, prompt_tokens_details; gemini: promptTokenCount, candidatesTokenCount, cachedContentTokenCount (preserve cachedContentTokenCount/prompt_tokens_details as-is for the adapter; drop ANY other key incl. an embedded transcript/text/message). Keep returning undefined when no usage object is present, and keep never-throws. This enforces the raw-output-never-surfaced invariant the JSDoc already claims. Do NOT change ProviderExecResult digest/byte fields or import usage-ledger into providers/.",
+      "userSees": "A codex/gemini usage object that also carries a non-token key (e.g. transcript) yields a reportedUsage with ONLY the numeric token-count fields; the extra key is dropped.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "recordDispatchFinalForProvider: write an unavailable-final when buildProviderRecord throws",
+      "context": "In packages/main/src/core/usage-ledger/dispatch-usage.ts recordDispatchFinalForProvider: when reportedUsage is a usable object but buildProviderRecord throws (e.g. a malformed/negative token count fails validation), fall through to the unavailable-final branch instead of letting the outer catch swallow everything -- so the preflight estimate is STILL superseded. Wrap the buildProviderRecord + appendUsageRecord in an inner try/catch; on throw, append buildUnavailableFinalRecord (same supersede). Preserve the overall never-throws fail-open guarantee. Do NOT touch recordDispatchFinal (anthropic), parseClaudeCliOutput, the adapters, or buildProviderRecord.",
+      "userSees": "A codex/gemini dispatch whose provider reports a malformed usage object now records an 'unavailable' final that supersedes the preflight estimate (the estimate is no longer orphaned); the summary counts no stray estimate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the smoke to cover both hardened cases",
+      "context": "In packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts add: (a) extractCodexUsage/extractGeminiUsage given a usage object containing an extra non-token key (e.g. transcript) -> reportedUsage contains ONLY numeric token fields (the extra key is absent); (b) recordDispatchFinalForProvider with a malformed-but-object usage (prompt_tokens:-999) -> an unavailable final IS written AND supersedes the estimate (readLedger shows the unavailable final; summary.estimateCount===0). Keep all existing checks green.",
+      "userSees": "The smoke fails if the extractor leaks a non-token key or if a malformed usage orphans the estimate; it passes after the fix.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

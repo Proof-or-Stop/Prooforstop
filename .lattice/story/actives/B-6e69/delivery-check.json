@@ -1,0 +1,28 @@
+{
+  "storyId": "B-6e69",
+  "checkedAt": "2026-06-19T17:52:51.338Z",
+  "reviewRound": "2026-06-19T17:41:56.043Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/lattice.js validate --story=B-6e69 at 2026-06-19T17:51:24Z: PASS; verification coverage reported CHK-001 happy/edge/adversarial covered. Stored transcript also records node --input-type=module -e <runtime root/activity policy smoke>: PASS; it asserted worktree root fallback returns /Users/jek/Documents/Work/Orchestrate, story_get remains non-writing by default, LATTICE_ACTIVITY_RECORD_READONLY=1 opts read-only activity in, dryRun suppresses activity, and LATTICE_ACTIVITY_SOURCE=codex selects global-fallback. git diff main...HEAD creates packages/main/src/cli/runtime-root.ts and packages/main/src/cli/activity-policy.ts and keeps cli-engine.ts compatibility imports/re-exports."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:command-ownership-contract: PASS, command ownership contract covered 239 commands. node packages/main/dist/tasks/reviewer-readonly-command-policy-smoke.js: PASS, reviewer-readonly policy blocks non-readOnly commands before artifacts or owner-lease mutation. validate/test_list coverage reports CHK-002 happy/edge/adversarial covered, including B-META finding, validate evidence writes, delivery_check_set actor handling, dev-memory boundary rules, foreign-owned rejection, explicit takeover rules, and no silent lease steal."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node bin/lattice.js validate --story=B-6e69: PASS; build, authority-client-smoke, authority-completion-smoke, review-pass-discard-smoke, and init-window-data-loss-smoke passed, with verification coverage 9/9. Stored transcript records npm --prefix packages/main run test:main-write-lock-coverage: PASS for all 8 main-mutating paths, npm --prefix packages/main run test:command-ownership-contract: PASS for 239 commands, node packages/main/dist/tasks/command-catalog-smoke.js: command catalog smoke passed: 239 commands, and node bin/lattice.js scope_contract_check --storyId=B-6e69 --json: PASS. Local 3x2 verdicts B-6e69-local-3x2-round-1, round-2, and round-3 each report status pass with 2/2 passing independent hosts, stale=0, duplicate=0; review_escalation_status reports voluntaryLocalRounds 3/3 rounds x 2 hosts complete."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review inspected story/checklist, git diff versus main, evidence transcript, validate/test_list status, review_escalation_status, autopilot_review_status for local 3x2 rounds 1-3, related docs, and scoped TODO scan. Edge/adversarial coverage is present for all checklist items; docsPromises is [] because related docs state constraints and acceptance checks but no explicit documentation update promise for this story; scoped TODO/FIXME/XXX/TBD scan found none."
+  },
+  "_hash": "c4bb39871c8053e455500dd276f52b0e7c076dffd81c87151e71619bba3d2c57"
+}

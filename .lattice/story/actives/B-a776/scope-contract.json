@@ -1,0 +1,40 @@
+{
+  "storyId": "B-a776",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/cli/flag-parser.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/cli/runtime-root.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/cli/reviewer-readonly-gate.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts"
+  ],
+  "explicitExcludes": [
+    "lifecycle special dispatch extraction",
+    "INIT_CHECK metadata sync extraction",
+    "recover_evidence dispatch extraction",
+    "story_create worktree bootstrap extraction",
+    "Authority receipt behavior changes"
+  ],
+  "scopeChangeReason": "B-a776 is limited to flags/help/aliases/dry-run CLI surface extraction after B-74a0 and B-6e69.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T17:59:30.565Z",
+  "updatedAt": "2026-06-19T17:59:30.565Z"
+}

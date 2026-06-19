@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5d18",
+  "allowedCommands": [
+    "cat",
+    "git",
+    "grep",
+    "lattice",
+    "ls",
+    "node",
+    "npm",
+    "perl",
+    "rg",
+    "tsc"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "validate per-command timeout hardening + smoke.",
+  "createdAt": "2026-06-19T16:58:33.574Z",
+  "updatedAt": "2026-06-19T16:58:33.574Z",
+  "_hash": "a62cf991fc9ed4521bb65ae28eb5cf10df014e1a91ab39a158d90c5260e41420"
+}

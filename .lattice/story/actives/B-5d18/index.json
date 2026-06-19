@@ -4,7 +4,7 @@
   "title": "Fix validate-suite hang: a hung mutating smoke silently force-exits validate and blocks every story DONE",
   "description": "Two validate.commands smokes (review-pass-discard-smoke, init-window-data-loss-smoke) hang with no output for 300s, tripping the validate watchdog which force-exits the whole suite WITHOUT re-stamping test-evidence.materialHash. That makes the DONE Evidence-freshness gate impossible to pass, blocking EVERY story DONE (observed blocking B-4033). Fix the hang and make validate robust so one stuck command fails loudly instead of silently nuking the suite.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "validate",
@@ -25,6 +25,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:01:55.673Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5d18",
+    "branch": "story/B-5d18",
+    "createdAt": "2026-06-19T17:01:54.324Z"
+  }
 }
