@@ -1,0 +1,27 @@
+{
+  "storyId": "B-d674",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests",
+    "scripts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T15:07:48.487Z",
+  "updatedAt": "2026-06-19T15:07:48.487Z"
+}
