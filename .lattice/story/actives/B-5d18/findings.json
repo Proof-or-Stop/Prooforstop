@@ -160,7 +160,7 @@
       "desc": "CHK-001:edge:0 evidence command does not bind the claimed intent. Intent states: diagnosis recorded — the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention. The registered command is `git show HEAD:packages/main/src/core/partial-done-recovery.ts`, which only displays static source code; it does not run resolveMainRepoRoot on os.tmpdir() and does not show it returns the tmp path. A logic_test evidence entry must execute the logic under test. Main agent has acknowledged this and plans to re-bind with a command that calls resolveMainRepoRoot on os.tmpdir() and observes the return value.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T18:44:58.248Z",
@@ -171,7 +171,11 @@
         "packages/main/src/core/partial-done-recovery.ts"
       ],
       "signatureTag": "missing|ts|edge-evidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-001:edge:0 re-bound to a runtime logic_test that executes resolveMainRepoRoot(os.tmpdir()) and observes it returns the tmp path verbatim (isolated:true), replacing the prior static 'git show partial-done-recovery.ts'. Verified output {input:<tmp>,output:<tmp>,isolated:true}; validate --story confirms the intent is covered. Binds the literal behavioral claim per the evidence-must-bind-literal-intent-command rule.",
+      "resolvedAt": "2026-06-19T18:50:29.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
