@@ -192,17 +192,16 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The done_prepare smoke suite demonstrates ready, blocked, dry-run, stale-evidence, merge-conflict, runtime-guidance, degraded-assurance, and commit-required behavior with assertions on the exact terminal output and protected files.",
+      "userSees": "The smoke output includes \"done_prepare smoke passed\" after asserting clean ready path, dirty preflight, merge conflict, refreshStale=false, validate fail, runtime/docs-only detection, degraded wording, cleanTree, and dryRun no-mutation cases.",
       "files": {
-        "modify": [
-          "packages/main/src/tasks/validate.ts"
-        ],
+        "modify": [],
         "create": [
           "packages/main/src/tasks/done-prepare-smoke.ts"
         ],
         "test": [
           "packages/main/src/tasks/done-prepare-smoke.ts",
-          "packages/main/src/tasks/cli-validate.ts"
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "packages/main/src/tasks/run-all-smokes.js"
         ]
       },
       "verificationIntent": {
