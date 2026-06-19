@@ -48,7 +48,7 @@
       "desc": "codex host-2: the smoke does not exercise (a) a nested non-token key under prompt_tokens_details being dropped from the projected reportedUsage (the bug above), nor (b) the false-positive `in`-predicate case where a polluted Object.prototype token key makes an empty first usage object suppress a later real usage line. Add both cases for codex and (for the predicate case) gemini.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-19T19:28:00.928Z",
@@ -58,7 +58,11 @@
         "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
       ],
       "signatureTag": "missing|ts|codex-host-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke extended (+3 checks, now 53) covering the nested non-token-key drop and the polluted-prototype empty-first-usage suppression for codex and gemini. Fixed in 024bb0e30.",
+      "resolvedAt": "2026-06-19T19:33:31.564Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
