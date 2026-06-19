@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-997b",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice delivery_*",
+    "lattice finding_*",
+    "lattice plan_*",
+    "lattice review_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice summary_*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node packages/main/dist/cli.js *",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Codex multi_agent workers",
+    "Lattice CLI",
+    "shell read/build/test commands"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "docs/requirements/guide-scope-guard.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "direct docs/story file edits",
+    "direct tests/fixtures file edits",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Allowed paths are intentionally broad enough for wave-one scope hardening and focused tests, but later roadmap milestones must be split into later stories. Do not change global release policy or production authority semantics in this story.",
+  "createdAt": "2026-06-19T03:58:19.537Z",
+  "updatedAt": "2026-06-19T03:58:19.537Z",
+  "_hash": "7253e2dd748102d250f915f3f261ad91e120cb445920cf3a695af95dc3e15a75"
+}

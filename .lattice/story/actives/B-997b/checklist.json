@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define canonical scope boundary model for story execution",
+      "context": "Create or extend core runtime structures so allowed scope, excluded scope, execution boundary, stop conditions, and allowed file patterns are represented as first-class data consumed by scope checks rather than prose-only plan text.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Harden lifecycle artifact and path classification in scope checks",
+      "context": "Wire lifecycle artifact/path classification into existing scope guard/check behavior so generated story evidence, runtime artifacts, docs, and source changes are interpreted by the same classifier instead of ad hoc path rules.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add structured scope drift repair and fallback behavior",
+      "context": "When a scope check detects drift, expose deterministic repair/fallback guidance and structured evidence without letting the current agent silently expand scope or self-authorize unrelated work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify wave 1 with focused regression coverage and synchronized docs",
+      "context": "Add narrow tests and documentation updates proving the M1-M3 behavior works and that later roadmap milestones remain non-goals for this story.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
