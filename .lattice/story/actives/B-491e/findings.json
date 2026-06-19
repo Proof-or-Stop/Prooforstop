@@ -38,6 +38,27 @@
       ],
       "signatureTag": "adversarial|ts|codex-audit-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-491e:F-003",
+      "desc": "codex-cli-audit-r3 verified high docs/tests blocker: public CLI README still describes the old generator model. README.md line 273 says ordinary developer handoff should \"generate the bundle pair locally\" and that files \"should be regenerated on the destination machine\", contradicting this storys consumer-only contract and the docs updates in docs/guide.md and decision docs. The recorded docs evidence searched docs/guide.md and docs/requirements but did not include README.md. The recorded smoke evidence also does not cover the real server-generated relative sidecar contract: authority-client-smoke.ts lines 124-180 uses an absolute CUSTOMER_API_KEY_PATH in the fixture, and authority-status-smoke.ts lines 603-629 only covers cwd=bundleRoot. A focused repro against dist/core/authority-client.js showed server-style CUSTOMER_API_KEY_PATH=./lattice_staging-client.env fails or binds to a cwd sidecar when LATTICE_AUTHORITY_TRUST_ENV_FILE points at a bundle in another directory, so current evidence does not cover the actual handoff behavior the docs promise.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T01:15:36.070Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-004",
+      "_hash": "fd2b2f7ac02a5d6eb04cb729030cddcdbe726a03b002633470928c469df17930",
+      "files": [
+        "README.md",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts",
+        "packages/main/src/core/authority-client.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-audit-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
