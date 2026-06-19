@@ -1,0 +1,45 @@
+{
+  "storyId": "B-503b",
+  "checkedAt": "2026-06-19T00:21:21.915Z",
+  "features": [
+    {
+      "feature": "Create review assurance floor execution plan",
+      "covered_by": "CHK-001 creates docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist"
+    },
+    {
+      "feature": "Record three single-host local audit rounds",
+      "covered_by": "CHK-002 records three local Non-authority audit rounds for the document",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist"
+    },
+    {
+      "feature": "Runtime DONE gate implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope; future implementation story required",
+      "source": "scope-boundary"
+    },
+    {
+      "feature": "Authority Server receipt-backed completion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope; local evidence must not claim Authority completion",
+      "source": "scope-boundary"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 2,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7bd3a7958613a78784266fc10d37a68ccbbbbfcda49b6eb524c6be48dcafb4f4",
+  "openQuestions": []
+}
