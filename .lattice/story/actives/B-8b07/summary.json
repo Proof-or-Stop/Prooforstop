@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8b07",
+  "changes": "Added docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md and registered it in docs/requirements/NAV.md. The roadmap turns the three Lattice strengthening themes into 12 executable milestones with source/context mapping, non-goals, gates, tests, evidence, blockers, DONE criteria, sequencing, 3-round 2-host policy, baseline expectations, rollout, risks, and final acceptance template.",
+  "usage": "Open docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md to plan future strengthening stories. Use docs/requirements/NAV.md to discover the document from the requirements navigation.",
+  "expectedOutcome": "User sees a new decision document titled \"Lattice Strengthening Roadmap Execution Plan\" and a NAV entry pointing to decisions/lattice-strengthening-roadmap-execution-plan.md. The document clearly says it is an execution plan, not implemented runtime behavior.",
+  "actualTranscript": "Verified transcript: rg found docs/requirements/NAV.md:31 linking \"Lattice Strengthening Roadmap Execution Plan\" and docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:1 with the title. git diff --check passed. lattice scope_contract_check returned pass with 0 unacknowledged violations. lattice validate --story=B-8b07 returned Project validation commands passed and Verification intent coverage: 9/9 covered.",
+  "outcomeDiff": "No difference: the expected document, NAV registration, explicit plan-only boundary, scope check, and validation coverage are present.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story delivered the execution document only. Runtime CLI gates, Authority behavior, baseline runners, and review escalation implementations remain future milestone stories by design.",
+  "pitfalls": "INIT_CHECK first blocked until scope_freeze_check was recorded. PLAN review then blocked on missing plan.md and missing scope_check; both were fixed through plan_set and an independent scope-plan reviewer. Branch sync with main remains a DONE pre-check item handled during final advancement.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 110650
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23071
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 395306
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 562299
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 298676
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 73729
+    }
+  },
+  "totalDurationMs": 1463748,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T00:21:20.539Z",
+  "updatedAt": "2026-06-19T00:21:20.539Z"
+}
