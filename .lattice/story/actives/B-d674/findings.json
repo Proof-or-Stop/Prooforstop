@@ -116,6 +116,25 @@
       "resolvedAt": "2026-06-19T15:50:11.747Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d674:F-006",
+      "desc": "docs/requirements/decisions/host-overflow.md:231-236 documents `npm --prefix packages/main run test:unattended-dispatch-smoke` as the smoke verification command, but packages/main/package.json:21-55 has no `test:unattended-dispatch-smoke` script. Running that exact documented command fails with npm `Missing script: \"test:unattended-dispatch-smoke\"`, so the docs still overclaim a runnable smoke entrypoint even though the surrounding host-role wording is otherwise current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T15:53:13.375Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-011",
+      "_hash": "c2d0b71f5d2b1ac8236e7cb11e050901f134c8d12fbf648bb3ec46e2b3fb82eb",
+      "files": [
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
