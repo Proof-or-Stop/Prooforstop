@@ -32,6 +32,13 @@ export function resolveStoryLane(story: StoryInfo): StoryLane {
 }
 
 /**
+ * Terminal story phases — a story in one of these is no longer an active parallel peer.
+ * Single source shared by resolveParallelSafety, summarizeParallelPolicy, and the
+ * parallel-decomposition gate (B-986c), so "active peer" never drifts between them.
+ */
+export const TERMINAL_PHASES: ReadonlySet<string> = new Set(['DONE', 'DISCARDED']);
+
+/**
  * Resolve whether a story can safely run in parallel with other active stories.
  *
  * Rules (evaluated in order):
@@ -43,13 +50,6 @@ export function resolveStoryLane(story: StoryInfo): StoryLane {
  * 4. If story.depends includes an active story -> 'no'.
  * 5. Otherwise -> 'yes'.
  */
-/**
- * Terminal story phases — a story in one of these is no longer an active parallel peer.
- * Single source shared by resolveParallelSafety, summarizeParallelPolicy, and the
- * parallel-decomposition gate (B-986c), so "active peer" never drifts between them.
- */
-export const TERMINAL_PHASES: ReadonlySet<string> = new Set(['DONE', 'DISCARDED']);
-
 export function resolveParallelSafety(
   story: StoryInfo,
   allStories: StoryInfo[],

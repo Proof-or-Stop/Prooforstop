@@ -59,22 +59,47 @@ export function evaluateDecompositionGate(
   const advisories: string[] = [];
   const triggered = new Set<ParallelDecompositionBlock>();
 
+  // fake_dependency_chain: ADVISE-ONLY by design (computed first so it survives the fail-open
+  // return below). StoryInfo.depends is string[] with no cited symbol (spec §4.5 recommends
+  // adding no field), so the falsifiable "cited symbol absent from the peer's allowedCreate"
+  // sub-case has no input here and is NEVER a hard block. We only advise on a dependency edge
+  // that names a storyId not present among the supplied peers (a possibly-stale/fabricated edge).
+  if (story.depends && story.depends.length > 0) {
+    const peerIds = new Set(peers.map((p) => p.storyId));
+    for (const dep of story.depends) {
+      if (!peerIds.has(dep)) {
+        advisories.push(`depends cites ${dep}, which is not among the supplied peers (verify the dependency)`);
+      }
+    }
+  }
+
+  // §4.8 fail-OPEN on an unreadable OWN contract: never block a story on its own unreadable
+  // data — allow (block=null) with an advisory.
   const sContract = contracts.get(story.storyId);
-  const sWriteSet = sContract ? computeWriteSet(sContract) : [];
+  if (!sContract) {
+    advisories.push(`own scope contract for ${story.storyId} is unreadable; allowing (fail-open)`);
+    return { advisories, block: null };
+  }
+  const sWriteSet = computeWriteSet(sContract);
 
   // Active peers: not terminal (single TERMINAL_PHASES source), not self.
   const activePeers = peers.filter(
     (p) => p.storyId !== story.storyId && !TERMINAL_PHASES.has(p.phase),
   );
 
-  // Parallel-specific checks only when THIS story asserts parallel.
-  if (assertsParallel(story)) {
+  const broadEntries = sWriteSet.filter((e) => classifyBroadness(e) === 'broad');
+
+  // §4.8 "no active peers => no-op": a lone story is trivially parallel-safe — no parallel
+  // BLOCK. The parallel-specific blocks (overlap, peer-unreadable, broad-strict) run ONLY when
+  // this story asserts parallel AND there is at least one active peer to be unsafe WITH.
+  if (assertsParallel(story) && activePeers.length > 0) {
     for (const peer of activePeers) {
       if (!assertsParallel(peer)) continue;
 
       const pContract = contracts.get(peer.storyId);
       if (!pContract) {
-        // peer_contract_unreadable_parallel: disjointness is unprovable without the contract.
+        // §4.8 PEER contract unreadable => fail-CLOSED: the parallel assertion cannot be
+        // honored (closes the corrupt-peer bypass), so this is a block reason (not an advisory).
         advisories.push(`cannot read scope contract for parallel peer ${peer.storyId}; disjointness unprovable`);
         triggered.add('peer_contract_unreadable_parallel');
         continue;
@@ -97,9 +122,8 @@ export function evaluateDecompositionGate(
       }
     }
 
-    // broad_glob_unprovable_parallel: a BROAD glob asserted parallel-safe. Hard block ONLY
+    // broad_glob_unprovable_parallel: a BROAD glob asserted parallel-safe — hard block ONLY
     // under the strict profile (cfg.broadGlobBlocks); otherwise advise to narrow the contract.
-    const broadEntries = sWriteSet.filter((e) => classifyBroadness(e) === 'broad');
     if (broadEntries.length > 0) {
       if (cfg.broadGlobBlocks) {
         advisories.push(`broad glob asserted parallel-safe (strict profile): ${broadEntries[0]}`);
@@ -108,20 +132,9 @@ export function evaluateDecompositionGate(
         advisories.push(`broad glob asserted parallel-safe: ${broadEntries[0]} (narrow the contract)`);
       }
     }
-  }
-
-  // fake_dependency_chain: ADVISE-ONLY by design. StoryInfo.depends is string[] with no cited
-  // symbol (spec §4.5 recommends adding no field), so the falsifiable "cited symbol absent from
-  // the peer's allowedCreate" sub-case has no input here and is NEVER a hard block. We only
-  // advise on a dependency edge that names a storyId not present among the supplied peers (a
-  // possibly-stale or fabricated edge), which is a hint, not a provable contradiction.
-  if (story.depends && story.depends.length > 0) {
-    const peerIds = new Set(peers.map((p) => p.storyId));
-    for (const dep of story.depends) {
-      if (!peerIds.has(dep)) {
-        advisories.push(`depends cites ${dep}, which is not among the supplied peers (verify the dependency)`);
-      }
-    }
+  } else if (broadEntries.length > 0) {
+    // §4.2: a BROAD glob without a parallel assertion (or with no active peers) is ADVISE-ONLY.
+    advisories.push(`broad glob in write-set: ${broadEntries[0]} (narrow the contract)`);
   }
 
   const block = BLOCK_PRECEDENCE.find((r) => triggered.has(r)) ?? null;

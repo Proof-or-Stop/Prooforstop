@@ -3,9 +3,10 @@
  *
  * Hermetic — all StoryInfo / ScopeContractData fixtures are built in memory; no filesystem,
  * no git, no story store. Proves evaluateDecompositionGate blocks ONLY on provable scope
- * contradictions (tier-1 literal overlap, broad-glob-when-strict, missing-peer-contract),
- * advises on everything heuristic, never hard-blocks fake_dependency_chain, ignores terminal
- * peers, and never enforces cfg.mode.
+ * contradictions (tier-1 literal overlap, broad-glob-when-strict-with-peers, missing-peer-
+ * contract), advises on everything heuristic, fails OPEN on its own unreadable contract, is a
+ * no-op with no active peers, never hard-blocks fake_dependency_chain, ignores terminal peers,
+ * and never enforces cfg.mode.
  *
  * Run: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js
  */
@@ -42,135 +43,226 @@ const cfg = (broadGlobBlocks: boolean): ParallelGateConfig => ({
   broadGlobBlocks,
 });
 
-void (async () => {
+void (() => {
   try {
     // 0. TERMINAL_PHASES is the single exported source and is what the gate filters on.
     check('TERMINAL_PHASES exports DONE + DISCARDED only', TERMINAL_PHASES.has('DONE') && TERMINAL_PHASES.has('DISCARDED') && !TERMINAL_PHASES.has('DEV'));
 
     // 1. Clean disjoint parallel set -> no block, no overlap advisory.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/a/x.ts'] })],
-        ['P', contract('P', { allowedCreate: ['src/b/y.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(true));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/a/x.ts'] })], ['P', contract('P', { allowedCreate: ['src/b/y.ts'] })]]),
+        cfg(true),
+      );
       check('clean disjoint -> block null', r.block === null);
       check('clean disjoint -> no overlap advisory', !r.advisories.some((a) => a.includes('overlap')));
     }
 
-    // 2. Tier-1 literal collision (both parallel, same file) -> overlap_declared_parallel.
+    // 2. Tier-1 literal collision (both parallel, active) -> overlap_declared_parallel.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/shared.ts'] })],
-        ['P', contract('P', { allowedModify: ['src/shared.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(false));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })], ['P', contract('P', { allowedModify: ['src/shared.ts'] })]]),
+        cfg(false),
+      );
       check('tier-1 literal overlap -> overlap_declared_parallel', r.block === 'overlap_declared_parallel');
-      check('tier-1 block cites the colliding path + peer', r.advisories.some((a) => a.includes('src/shared.ts') && a.includes('P')));
+      check('tier-1 block cites path + peer', r.advisories.some((a) => a.includes('src/shared.ts') && a.includes('P')));
     }
 
     // 3. Tier-2 shared-prefix only (glob vs sibling literal, no literal collision) -> advisory, no block.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/feat/*'] })],
-        ['P', contract('P', { allowedCreate: ['src/feat/y.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(true));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/feat/*'] })], ['P', contract('P', { allowedCreate: ['src/feat/y.ts'] })]]),
+        cfg(true),
+      );
       check('tier-2 shared-prefix only -> block null', r.block === null);
       check('tier-2 emits a shared-prefix advisory', r.advisories.some((a) => a.includes('shared-prefix')));
     }
 
-    // 4. Broad glob asserted parallel: block only when strict (broadGlobBlocks).
+    // 4. Broad glob asserted parallel WITH an active parallel peer: block only when strict.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const contracts = new Map([['S', contract('S', { allowedCreate: ['src/**'] })]]);
-      const strict = evaluateDecompositionGate(s, [], contracts, cfg(true));
-      check('broad + strict -> broad_glob_unprovable_parallel', strict.block === 'broad_glob_unprovable_parallel');
-      const lenient = evaluateDecompositionGate(s, [], contracts, cfg(false));
-      check('broad + lenient -> block null', lenient.block === null);
-      check('broad + lenient -> advisory to narrow', lenient.advisories.some((a) => a.includes('narrow the contract')));
+      const peers = [story('P', { parallelSafe: 'yes' })];
+      const contracts = new Map([['S', contract('S', { allowedCreate: ['src/**'] })], ['P', contract('P', { allowedCreate: ['other/y.ts'] })]]);
+      const strict = evaluateDecompositionGate(story('S', { parallelSafe: 'yes' }), peers, contracts, cfg(true));
+      check('broad + parallel + active peer + strict -> broad_glob_unprovable_parallel', strict.block === 'broad_glob_unprovable_parallel');
+      const lenient = evaluateDecompositionGate(story('S', { parallelSafe: 'yes' }), peers, contracts, cfg(false));
+      check('broad + lenient -> block null + advise', lenient.block === null && lenient.advisories.some((a) => a.includes('narrow the contract')));
     }
 
-    // 5. Active parallel peer with a MISSING contract -> peer_contract_unreadable_parallel.
+    // 5. §4.8 no active peers => no-op: broad + parallel but NO peers -> no block, advise only.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([['S', contract('S', { allowedCreate: ['src/a.ts'] })]]); // no P contract
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(false));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [],
+        new Map([['S', contract('S', { allowedCreate: ['src/**'] })]]),
+        cfg(true),
+      );
+      check('broad + parallel + NO peers -> no-op (block null)', r.block === null);
+      check('no-peers broad still advises', r.advisories.some((a) => a.includes('narrow the contract')));
+    }
+
+    // 6. §4.2 BROAD without a parallel assertion -> advise only, never block.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'no' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/**'] })], ['P', contract('P', { allowedCreate: ['other/y.ts'] })]]),
+        cfg(true),
+      );
+      check('broad without parallel assertion -> block null', r.block === null);
+      check('broad without parallel -> advise to narrow', r.advisories.some((a) => a.includes('narrow the contract')));
+    }
+
+    // 7. Active parallel peer with a MISSING contract -> peer_contract_unreadable_parallel.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/a.ts'] })]]), // no P contract
+        cfg(false),
+      );
       check('missing parallel peer contract -> peer_contract_unreadable_parallel', r.block === 'peer_contract_unreadable_parallel');
     }
 
-    // 6. fake_dependency_chain is ADVISE-ONLY: a depends edge never produces that hard block.
+    // 8. §4.8 fail-OPEN on an unreadable OWN contract: allow (block null) + advisory; depends advisory survives.
     {
-      const s = story('S', { parallelSafe: 'yes', depends: ['GHOST'] });
-      const contracts = new Map([['S', contract('S', { allowedCreate: ['src/a.ts'] })]]);
-      const r = evaluateDecompositionGate(s, [], contracts, cfg(true));
-      check('depends edge -> never fake_dependency_chain block', r.block !== 'fake_dependency_chain');
-      check('unknown depends -> advisory only', r.advisories.some((a) => a.includes('GHOST')));
-      // a depends edge that IS among peers emits no stale-edge advisory
-      const p = story('P', { parallelSafe: 'yes' });
-      const s2 = story('S', { parallelSafe: 'yes', depends: ['P'] });
-      const contracts2 = new Map([
-        ['S', contract('S', { allowedCreate: ['src/a.ts'] })],
-        ['P', contract('P', { allowedCreate: ['src/b.ts'] })],
-      ]);
-      const r2 = evaluateDecompositionGate(s2, [p], contracts2, cfg(true));
-      check('known depends peer -> no stale-edge advisory', !r2.advisories.some((a) => a.includes('not among the supplied peers')));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes', depends: ['GHOST'] }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['P', contract('P', { allowedCreate: ['src/a.ts'] })]]), // no S contract
+        cfg(true),
+      );
+      check('own contract missing -> fail-open block null', r.block === null);
+      check('own contract missing -> fail-open advisory', r.advisories.some((a) => a.includes('fail-open')));
+      check('depends advisory survives the fail-open return', r.advisories.some((a) => a.includes('GHOST')));
     }
 
-    // 7. Terminal (DONE/DISCARDED) peers are ignored even on a literal collision.
+    // 9. fake_dependency_chain is ADVISE-ONLY; a known-peer depends emits no stale-edge advisory.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const done = story('P', { parallelSafe: 'yes', phase: 'DONE' });
-      const discarded = story('Q', { parallelSafe: 'yes', phase: 'DISCARDED' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/shared.ts'] })],
-        ['P', contract('P', { allowedCreate: ['src/shared.ts'] })],
-        ['Q', contract('Q', { allowedCreate: ['src/shared.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [done, discarded], contracts, cfg(true));
-      check('terminal peers ignored -> block null', r.block === null);
+      const ghost = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes', depends: ['GHOST'] }),
+        [],
+        new Map([['S', contract('S', { allowedCreate: ['src/a.ts'] })]]),
+        cfg(true),
+      );
+      check('depends edge -> never fake_dependency_chain block', ghost.block !== 'fake_dependency_chain');
+      check('unknown depends -> advisory only', ghost.advisories.some((a) => a.includes('GHOST')));
+      const known = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes', depends: ['P'] }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/a.ts'] })], ['P', contract('P', { allowedCreate: ['src/b.ts'] })]]),
+        cfg(true),
+      );
+      check('known depends peer -> no stale-edge advisory', !known.advisories.some((a) => a.includes('not among the supplied peers')));
     }
 
-    // 8. A non-parallel story yields NO parallel block even on a literal collision.
+    // 10/11. DONE and DISCARDED peers are each ignored in ISOLATION even on a literal collision.
     {
-      const s = story('S', { parallelSafe: 'no' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/shared.ts'] })],
-        ['P', contract('P', { allowedCreate: ['src/shared.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(true));
+      const sc = new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })], ['P', contract('P', { allowedCreate: ['src/shared.ts'] })]]);
+      const done = evaluateDecompositionGate(story('S', { parallelSafe: 'yes' }), [story('P', { parallelSafe: 'yes', phase: 'DONE' })], sc, cfg(true));
+      check('DONE peer ignored -> block null', done.block === null);
+      const discarded = evaluateDecompositionGate(story('S', { parallelSafe: 'yes' }), [story('P', { parallelSafe: 'yes', phase: 'DISCARDED' })], sc, cfg(true));
+      check('DISCARDED peer ignored -> block null', discarded.block === null);
+    }
+
+    // 12. parallel S + NON-parallel peer (overlapping) -> no block (peer does not assert parallel).
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'no' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })], ['P', contract('P', { allowedCreate: ['src/shared.ts'] })]]),
+        cfg(true),
+      );
+      check('parallel S + non-parallel peer -> block null', r.block === null);
+    }
+
+    // 13. A non-parallel STORY yields no parallel block even on a literal collision.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'no' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })], ['P', contract('P', { allowedCreate: ['src/shared.ts'] })]]),
+        cfg(true),
+      );
       check('non-parallel story -> no parallel block', r.block === null);
     }
 
-    // 9. Precedence: overlap (highest) beats broad when both trigger.
+    // 14. Precedence (2-way): overlap beats broad.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/shared.ts', 'src/**'] })],
-        ['P', contract('P', { allowedCreate: ['src/shared.ts'] })],
-      ]);
-      const r = evaluateDecompositionGate(s, [p], contracts, cfg(true));
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts', 'src/**'] })], ['P', contract('P', { allowedCreate: ['src/shared.ts'] })]]),
+        cfg(true),
+      );
       check('precedence: overlap beats broad', r.block === 'overlap_declared_parallel');
     }
 
-    // 10. The gate never enforces cfg.mode: mode=off still returns the same provable block.
+    // 15. Precedence (3-way): overlap (vs peer A) > peer_contract_unreadable (vs peer B) > broad, all triggered.
     {
-      const s = story('S', { parallelSafe: 'yes' });
-      const p = story('P', { parallelSafe: 'yes' });
-      const contracts = new Map([
-        ['S', contract('S', { allowedCreate: ['src/shared.ts'] })],
-        ['P', contract('P', { allowedCreate: ['src/shared.ts'] })],
-      ]);
-      const off = evaluateDecompositionGate(s, [p], contracts, { mode: 'off', maxConcurrentReview: 3, broadGlobBlocks: true });
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('A', { parallelSafe: 'yes' }), story('B', { parallelSafe: 'yes' })],
+        new Map([
+          ['S', contract('S', { allowedCreate: ['src/shared.ts', 'src/**'] })],
+          ['A', contract('A', { allowedCreate: ['src/shared.ts'] })],
+          // B contract intentionally absent -> peer_contract_unreadable
+        ]),
+        cfg(true),
+      );
+      check('precedence 3-way: overlap wins over peer-unreadable + broad', r.block === 'overlap_declared_parallel');
+    }
+
+    // 16. Multi-peer mixed: a terminal overlapping peer is ignored, an active overlapping peer blocks.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('DONEPEER', { parallelSafe: 'yes', phase: 'DONE' }), story('ACT', { parallelSafe: 'yes' })],
+        new Map([
+          ['S', contract('S', { allowedCreate: ['src/shared.ts'] })],
+          ['DONEPEER', contract('DONEPEER', { allowedCreate: ['src/shared.ts'] })],
+          ['ACT', contract('ACT', { allowedCreate: ['src/shared.ts'] })],
+        ]),
+        cfg(true),
+      );
+      check('multi-peer mixed: active overlap blocks, terminal ignored', r.block === 'overlap_declared_parallel');
+    }
+
+    // 17. Self listed as a peer is filtered out (no self-overlap).
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('S', { parallelSafe: 'yes' })], // same storyId as the subject
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })]]),
+        cfg(true),
+      );
+      check('self-as-peer filtered -> block null (no self-overlap)', r.block === null);
+    }
+
+    // 18. Duplicate paths in the write-set still detect a tier-1 collision without crashing.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/x.ts', 'src/x.ts'] })], ['P', contract('P', { allowedCreate: ['src/x.ts'] })]]),
+        cfg(true),
+      );
+      check('duplicate paths -> tier-1 still blocks', r.block === 'overlap_declared_parallel');
+    }
+
+    // 19. The gate never enforces cfg.mode: mode=off still returns the same provable block.
+    {
+      const off = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('P', { parallelSafe: 'yes' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/shared.ts'] })], ['P', contract('P', { allowedCreate: ['src/shared.ts'] })]]),
+        { mode: 'off', maxConcurrentReview: 3, broadGlobBlocks: true },
+      );
       check('gate ignores cfg.mode (off still reports the provable block)', off.block === 'overlap_declared_parallel');
     }
 
