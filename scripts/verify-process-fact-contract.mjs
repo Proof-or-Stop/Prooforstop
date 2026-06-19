@@ -2029,6 +2029,8 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(fallbackPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${fallbackCommand} destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(fallbackPolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${fallbackCommand} must stay storyScopedMutating`);
     assert(/degraded 3x1|degraded-single-host|current material hash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe degraded-single-host material binding`);
+    assert(/review escalation DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the local review escalation DONE gate`);
+    assert(/review assurance floor DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the review assurance floor DONE gate`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must preserve no-overclaim boundary`);
   }
   const fallbackLevel = levelRegistry.get(fallbackCommand);
@@ -2038,6 +2040,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(fallbackLevel.category === 'review-escalation-fallback', `${processFactLevelRegistryPath}: ${fallbackCommand} category drifted`);
     assert(fallbackLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${fallbackCommand} owner drifted`);
     assert(/review escalation/i.test(fallbackLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${fallbackCommand} gateConsumer drifted`);
+    assert(/review assurance floor/i.test(fallbackLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${fallbackCommand} gateConsumer must name review assurance floor`);
   }
   const fallbackRegistry = registry.get(fallbackCommand);
   assert(fallbackRegistry, `${processFactRegistryPath}: ${fallbackCommand} missing registry entry`);
@@ -2046,17 +2049,19 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(fallbackRegistry.gateEvidence === true, `${processFactRegistryPath}: ${fallbackCommand} registry gateEvidence must stay true`);
     assert(fallbackRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${fallbackCommand} must record process-events.jsonl evidence`);
     assert(/review escalation/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate drifted`);
+    assert(/review assurance floor/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate must name review assurance floor`);
   }
 
   const commandName = 'autopilot_review_submit';
   const policy = policyByName.get(commandName);
   assert(policy, `${commandPolicyPath}: required local host verdict command missing lifecycle policy: ${commandName}`);
   if (policy) {
-    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local review escalation`);
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local review escalation and review assurance floor`);
     assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
     assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(policy, 'reviewerWrite'), `${commandPolicyPath}: ${commandName} must stay reviewerWrite so independent hosts can submit verdicts without story owner lease`);
     assert(/review escalation DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local review escalation DONE gate`);
+    assert(/review assurance floor DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the review assurance floor DONE gate`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
   }
 
@@ -2067,6 +2072,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
     assert(/review escalation/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
+    assert(/review assurance floor/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name review assurance floor`);
   }
 
   const registryEntry = registry.get(commandName);
@@ -2080,6 +2086,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
       assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
     }
     assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+    assert(/review assurance floor/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate must name review assurance floor (${registryEntry.consumerGate})`);
   }
 }
 
