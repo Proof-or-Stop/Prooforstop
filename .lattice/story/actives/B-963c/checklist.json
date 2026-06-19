@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8. Host Identity, Review-Run, And 3x2 Quorum Strengthening",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T21:16:19.872Z",
-      "endTime": null,
+      "endTime": "2026-06-19T21:24:22.764Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-escalation.ts",
@@ -52,7 +52,39 @@
           }
         ]
       },
-      "userSees": "`review_escalation_status --storyId=<story> --json` includes an explicit high-risk policy trigger when a valid structured policy fact exists, and still shows authorityDone=false/fullAuthorityDone=false/productionDone=false."
+      "userSees": "`review_escalation_status --storyId=<story> --json` includes an explicit high-risk policy trigger when a valid structured policy fact exists, and still shows authorityDone=false/fullAuthorityDone=false/productionDone=false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review-escalation smoke passed 10 checks; covers valid explicit high-risk policy fact requiring 3x2 without first-round findings and satisfying full 3x2 host verdicts.",
+          "headHash": "2c678a5daeab66f5aa3a20574f67d4b5b70cbb5e",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:22.884Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review-escalation smoke check high-risk prose or paths do not trigger without explicit policy fact, so decision-doc/prose high-risk mentions stay diagnostic-only.",
+          "headHash": "2c678a5daeab66f5aa3a20574f67d4b5b70cbb5e",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:22.968Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review-escalation smoke asserts authorityDone=false, fullAuthorityDone=false, productionDone=false and that explicit policy can disallow degraded single-host fallback.",
+          "headHash": "2c678a5daeab66f5aa3a20574f67d4b5b70cbb5e",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:23.053Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
