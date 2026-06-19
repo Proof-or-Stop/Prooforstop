@@ -55,7 +55,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "review_escalation_status required=false output includes submitted voluntary local 3x2/host verdict rounds for operator visibility.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "When escalation is not required and no verdicts exist, output remains ok/required=false and renders an empty voluntary summary without implying missing required work.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Voluntary round visibility must not change ok, required, or assuranceLevel semantics for non-triggering stories.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
