@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fc82",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "tsc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/dirty-gate-policy.ts",
+    "packages/main/src/core/dirty-worktree-gate.ts",
+    "packages/main/src/core/done-oracle.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Relocate the review_run_start clean-tree preflight before captureReviewRunSnapshot + strengthen the smoke ordering assertion. dirty-worktree-gate/dirty-gate-policy/done-oracle are read-only (no logic change).",
+  "createdAt": "2026-06-19T16:05:39.214Z",
+  "updatedAt": "2026-06-19T16:05:39.214Z",
+  "_hash": "8b11d436719750c8d576a771b8a991e3267f97bc16938d9ea52df316f4008c98"
+}

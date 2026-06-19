@@ -1,20 +1,19 @@
 {
   "schemaVersion": "lattice.scope_boundary.v1",
   "storyId": "B-fc82",
-  "mode": "correctness_fix",
+  "mode": "feature",
   "allowed": [
-    "Relocate the clean-tree preflight block within packages/main/src/handlers/review-run.ts (before captureReviewRunSnapshot)",
-    "Strengthen packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts with an ordering assertion"
+    "Relocate the clean-tree preflight block to before captureReviewRunSnapshot in handlers/review-run.ts",
+    "Strengthen review-run-clean-tree-preflight-smoke.ts with an end-to-end ordering assertion"
   ],
   "excluded": [
-    "Any change to DIRTY_GATE_POLICY",
-    "Any change to isBlockingDirty or core/dirty-worktree-gate.ts logic",
-    "Any change to the DONE gate, materialHash computation, or the evidence-write-time freshness guard",
-    "New review_run_start behavior beyond the relocation"
+    "cross-project usage aggregation",
+    "storyFilesHash whole-tree-drift root-cause work",
+    "the done-premerge mainSha re-check capability"
   ],
   "confirmedBy": "story_create",
-  "confirmationNote": "Operator approved fixing the codex-found ordering bug via a Lattice story driven with genuine Claude+Codex 2-host review.",
-  "createdAt": "2026-06-19T16:02:44.764Z",
-  "updatedAt": "2026-06-19T16:02:44.764Z",
-  "_hash": "c85e8a6319f4bd2ea44aa92d5bb1ade0fdea2f3d648af55846b33341aba9daf5"
+  "confirmationNote": "Operator approved fixing the codex-found ordering bug; in-file invariants (isBlockingDirty / DONE gate / materialHash / freshness guard untouched) are guarded inside the CHK contexts.",
+  "createdAt": "2026-06-19T16:06:39.641Z",
+  "updatedAt": "2026-06-19T16:06:39.641Z",
+  "_hash": "419897520d816115496a2b59dc8fe3bf5abbc59866a9875b34b0724ddd6e15ee"
 }
