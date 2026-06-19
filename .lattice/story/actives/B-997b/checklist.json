@@ -358,7 +358,73 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Fresh on HEAD a5a814524: build passed, scope contract smoke printed scope contract smoke passed, and process fact verifier printed Process fact contract verified; together they cover M1-M3 rows/classifier/verifier behavior.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg M1-M3 wave complete / scope row markers across owned docs",
+          "result": "pass",
+          "note": "Roadmap, lifecycle artifact policy, and scope guard guide now describe scope row ids, lifecycle/runtime classifier treatment, guard modes, and acknowledgement visibility.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg M4-M12 remain follow-up milestones / Authority non-goals across owned docs",
+          "result": "pass",
+          "note": "Docs explicitly state M1-M3 wave complete; M4-M12 remain follow-up milestones, and name Authority/Layer 4/customer key, production receipt, renderer/scheduler, baseline unlock, and unrelated runtime work as non-goals for B-997b.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Scope smoke asserts registered lifecycle/runtime positives plus fail-closed rows for unknown story metadata, nested evidence notes, undeclared source, and direct fixture paths.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process verifier and smoke require classifier-backed rows and document that lifecycle/runtime classification is provenance only, not a substitute for validation, review, delivery, summary, or DONE gates.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs; lattice validate --story=B-997b",
+          "result": "pass",
+          "note": "After final material commit a5a814524, build, focused scope smoke, and process fact verifier passed. lattice validate exited 0 and configured validation commands passed; full story all-green remains pending on CHK-001/002/003 evidence refresh/additions, not on CHK-004 material checks.",
+          "headHash": "a5a814524d8da0ab5d27d13d07f479b8c2833d42",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:26:17.805Z"
+        }
+      ]
     }
   ]
 }
