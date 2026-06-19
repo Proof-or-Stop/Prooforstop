@@ -209,9 +209,9 @@
       "id": "CHK-002",
       "title": "diagnostics.ts: add per-source primary aggregate to rollups, keep four-field + cost unchanged",
       "context": "In packages/main/src/core/usage-ledger/diagnostics.ts add a PrimaryTokenDimensions {input,output} plus an asPrimaryDimensions helper (null when input or output null). Extend SourceTokenTotals with primaryKnown {input,output} + primaryKnownCount, init in emptySourceTotals. In aggregateByGroup accumulate primaryKnown independent of the four-field known check (a cache-less record is four-field-unknown yet primary-known); still exclude source=unavailable. Roll primaryKnown/primaryKnownCount into overall in buildUsageReport (SourceTotalsWithCost inherits the fields). Keep `known`, knownCount, unknownCount, and computeCost (four-field only) unchanged. Preserve the zero-cross-module-import invariant. Optionally surface primary in usage-ledger-report.ts renderHuman.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T13:15:19.885Z",
       "verificationIntent": {
         "happy": [
           {
