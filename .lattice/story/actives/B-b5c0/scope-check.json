@@ -1,0 +1,45 @@
+{
+  "storyId": "B-b5c0",
+  "checkedAt": "2026-06-19T01:14:31.773Z",
+  "features": [
+    {
+      "feature": "current implementation/source mapping",
+      "covered_by": "story description requires current implementation status and Authority/lifecycle receipt source mapping; CHK-001 title/context/userSees/verificationIntent cover baseline status and source-of-truth mapping; plan.md CHK-001 actions add source refs, current implementation status, and current-vs-future wording fixes",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail + plan_get"
+    },
+    {
+      "feature": "mechanical 3x2/validation",
+      "covered_by": "story description requires mechanical 3x2 predicate/signature language and concrete validation commands/artifacts; CHK-002 verificationIntent requires named inputs/truth conditions, local verdict signature/verifiability, and non-prose validation artifacts; plan.md CHK-002 and Final Validation list requires3x2, counted verdict binding, review status commands/artifacts, and three local review rounds",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail + plan_get"
+    },
+    {
+      "feature": "rollout/recovery controls",
+      "covered_by": "story description requires rollout policy/version handling, emergency bypass, validation artifacts, and milestone-to-rollout crosswalk; CHK-003 verificationIntent covers rollout stage/policy version/enforcement mode, in-flight treatment, rollback/de-escalation, and audited emergency bypass; plan.md CHK-003 actions add milestone-to-rollout crosswalk, policy-change handling, false-positive rollback/de-escalation, M11 staging, and dependency wording alignment",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail + plan_get"
+    },
+    {
+      "feature": "runtime implementation exclusion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story description says documentation only and explicitly says not to implement runtime gates or change CLI behavior; plan.md Boundary excludes runtime code, handlers, gates, Authority implementation, baseline runners, hooks, and fixtures; checklist files fields only list docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md for modification and no tests/runtime files",
+      "source": "story_get --detail + plan_get"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "87b2595b8cf7e0886911737a0f2c326d76ae6af0baeb83fe68e66bc82f0876e3",
+  "openQuestions": []
+}
