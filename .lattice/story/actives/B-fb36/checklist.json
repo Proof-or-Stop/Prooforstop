@@ -192,7 +192,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The smoke output includes \"done_prepare smoke passed\" after asserting clean ready path, dirty preflight, merge conflict, refreshStale=false, validate fail, runtime/docs-only detection, degraded wording, cleanTree, and dryRun no-mutation cases.",
+      "userSees": "Smoke output includes assertions for \"DONE prepare: PASS\", \"blockedAt: preflight\", \"blockedAt: mergeMain\", \"blockedAt: evidenceFreshness\", \"blockedAt: validate\", \"blockedAt: cleanTree\", \"postDoneRuntimeVersionBumpRequired: true\", \"postDoneRuntimeVersionBumpRequired: false\", \"reviewAssurance: degraded-single-host\", and \"dryRun: true\" with unchanged git status and protected version files.",
       "files": {
         "modify": [],
         "create": [
