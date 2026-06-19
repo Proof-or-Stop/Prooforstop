@@ -71,7 +71,13 @@
             "priority": "must"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "desc": "The smoke is non-vacuous: with the re-check present an external advance aborts (phase stays TEST, no phase=DONE, no merge commit) AND the unchanged-main happy path still reaches DONE — i.e. the smoke would fail if the re-check were removed or placed after the persist.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       },
       "files": {
         "modify": [],
@@ -79,7 +85,8 @@
           "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
         ],
         "test": []
-      }
+      },
+      "userSees": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js prints its checks and exits 0; full npm test exits 0 with the new smoke included."
     }
   ]
 }
