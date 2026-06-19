@@ -52,7 +52,34 @@
       "userSees": "User sees three local single-host audit results recorded as Non-authority evidence before closure.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Three local single-host audit rounds are recorded as Non-authority evidence for the current document material.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each round checks the same core principles: no optimization for optimization, no arbitrary optimization, only real correctness issues, and consistency of logic.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit results separate local Non-authority evidence from Authority Server proof and do not claim authorityDone, fullAuthorityDone, or productionDone.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
