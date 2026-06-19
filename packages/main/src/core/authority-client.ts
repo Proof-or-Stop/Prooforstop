@@ -21,6 +21,7 @@ import {
   type EvidenceEnvelopeContract,
   type GateEvaluateRequestContract,
   type GateEvaluateResultContract,
+  type MaterialOverlapAuditContract,
   type AuthorityRunEvent,
   buildAuthorityEvidenceBatchSubmission,
   buildAuthorityRunEventsEnvelope,
@@ -1043,6 +1044,8 @@ export interface AuthorityGateEvaluatorOptions {
   cwd?: string;
   /** Test seam: replace the default authority.md fs reader. */
   fileReader?: AuthorityFileReader;
+  /** Optional computed DONE material-overlap audit to include in the signed gate decision. */
+  materialOverlapAudit?: MaterialOverlapAuditContract;
 }
 
 export interface AuthorityGateEvaluatorResolution {
@@ -1272,6 +1275,7 @@ function buildGateEvaluateEnvelope(
       policyMode: 'balanced',
       authorityMode: 'enforce',
       evidenceHashes: request.evidenceRefs ?? [],
+      ...(request.materialOverlapAudit ? { materialOverlapAudit: request.materialOverlapAudit } : {}),
       requestedByActorId: actor.actorId,
       requestedAt: createdAt,
     },
@@ -1996,6 +2000,7 @@ export async function resolveAuthorityGateEvaluator(
     priorSteps,
     step => preGateEvidenceRef(jobPlan, step),
     projectId,
+    options.materialOverlapAudit,
   );
   const wiring = await runAuthorityGateWiring(client, {
     gateRequest,

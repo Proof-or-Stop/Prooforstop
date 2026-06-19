@@ -797,6 +797,16 @@ export function buildAuthorityRunEventsEnvelope(
 
 export type AuthorityGateDecisionValue = 'approve' | 'reject' | 'blocked';
 
+export interface MaterialOverlapAuditContract {
+  changedFiles: string[];
+  actualFileOverlaps: string[];
+}
+
+export const MaterialOverlapAuditContractSchema = z.object({
+  changedFiles: z.array(z.string()),
+  actualFileOverlaps: z.array(z.string()),
+}).strict();
+
 /** Gate input fields (B15) the client sends to /v1/gates/evaluate. */
 export interface GateEvaluateRequestContract {
   projectId: string;
@@ -818,6 +828,7 @@ export interface GateEvaluateRequestContract {
   providerEventRefs?: string[];
   commandEventRefs?: string[];
   gitEvidenceRefs?: string[];
+  materialOverlapAudit?: MaterialOverlapAuditContract;
 }
 
 export const GateEvaluateRequestContractSchema = z.object({
@@ -843,6 +854,7 @@ export const GateEvaluateRequestContractSchema = z.object({
   providerEventRefs: z.array(z.string()).optional(),
   commandEventRefs: z.array(z.string()).optional(),
   gitEvidenceRefs: z.array(z.string()).optional(),
+  materialOverlapAudit: MaterialOverlapAuditContractSchema.optional(),
 }).passthrough();
 
 /**
