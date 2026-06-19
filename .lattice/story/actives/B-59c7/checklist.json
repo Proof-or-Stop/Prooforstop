@@ -38,10 +38,10 @@
           "verdict": "success",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "tsc compiles parallel-decomposition.ts; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/PARALLEL_MODE_FALLBACK/computeWriteSet/globsOverlap/evaluateDecompositionGate all exported.",
-          "headHash": "c23bc65f905c141f59b2f44abfb3a3e7d7fb9898",
-          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
-          "timestamp": "2026-06-19T04:05:27.324Z"
+          "note": "tsc compiles parallel-decomposition.ts at current HEAD; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/computeWriteSet/globsOverlap/evaluateDecompositionGate exported.",
+          "headHash": "dc4551d292edc76bdb7cc2fe62560456aabbcab1",
+          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
+          "timestamp": "2026-06-19T04:10:18.046Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
