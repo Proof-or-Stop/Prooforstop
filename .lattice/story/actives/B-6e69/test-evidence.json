@@ -1,0 +1,187 @@
+{
+  "command": "lattice validate --story=B-6e69 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.7 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — resolveRoot, resolveMainRootFromWorktreeRoot, resolveRootForCommand, and activity policy helpers move into focused cli modules while cli-engine.ts keeps compatibility exports/imports.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — Worktree-to-main-root fallback remains stable for post-command activity logging, including when the original worktree is gone or cwd resolution would otherwise drift.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Read-only commands do not start writing activity by default, and global-fallback/source classification remains unchanged unless the explicit activity environment flags request it.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers move into cli modules while cli-engine.ts keeps compatibility re-exports for existing tests/consumers.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — Special effective-ownership cases remain unchanged: B-META finding updates, validate evidence writes, delivery_check_set actor handling, and memory commands keep their documented owner-gate behavior.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Foreign-owned story mutating commands still reject without stealing the lease, takeover rules remain explicit, and LATTICE_REVIEWER_READONLY=1 blocks non-readOnly commands before hooks or lease mutation.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — TypeScript build and process-fact contract pass after extraction; cli-engine compatibility exports continue compiling all existing consumers.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — command-ownership-contract and main-write-lock-coverage continue to pass, proving ownership class/gate and main shared mutation semantics did not drift.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — The implementation does not move flag parsing, aliases, command catalog, lifecycle special dispatch, INIT_CHECK metadata sync, or recover_evidence dispatch in this story.\"],\"warnings\":[],\"timestamp\":\"2026-06-19T17:09:36.015Z\",\"headSha\":\"94ecfa04152d3ba0ea4e6d3befc5516844b7a31e\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.7 build\\n> tsc\\n\\n\",\"durationMs\":14553},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":569},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":412},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":30094},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":1751}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"resolveRoot, resolveMainRootFromWorktreeRoot, resolveRootForCommand, and activity policy helpers move into focused cli modules while cli-engine.ts keeps compatibility exports/imports.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"TypeScript build passed after moving runtime-root and activity-policy helpers into packages/main/src/cli while cli-engine.ts imports and re-exports the moved helpers.\",\"headHash\":\"0c3ad3dac5903c1d70b4981e312c1719daf0a51d\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:36.032Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Worktree-to-main-root fallback remains stable for post-command activity logging, including when the original worktree is gone or cwd resolution would otherwise drift.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node --input-type=module -e <runtime root/activity policy smoke>\",\"result\":\"pass\",\"note\":\"Smoke passed and asserted resolveMainRootFromWorktreeRoot(process.cwd()) returns /Users/jek/Documents/Work/Orchestrate from the B-6e69 worktree, preserving the worktree-to-main fallback used for post-command activity logging.\",\"headHash\":\"0c3ad3dac5903c1d70b4981e312c1719daf0a51d\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:36.250Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Read-only commands do not start writing activity by default, and global-fallback/source classification remains unchanged unless the explicit activity environment flags request it.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node --input-type=module -e <runtime root/activity policy smoke>\",\"result\":\"pass\",\"note\":\"Smoke passed and asserted story_get remains non-writing by default, LATTICE_ACTIVITY_RECORD_READONLY=1 opts read-only activity in, dryRun suppresses mutating activity, and LATTICE_ACTIVITY_SOURCE=codex still selects global-fallback entrypoint behavior.\",\"headHash\":\"0c3ad3dac5903c1d70b4981e312c1719daf0a51d\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:36.456Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers move into cli modules while cli-engine.ts keeps compatibility re-exports for existing tests/consumers.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract\",\"result\":\"pass\",\"note\":\"Command ownership contract passed after moving ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers; existing consumers still import compatibility exports from cli-engine.ts.\",\"headHash\":\"aa978fd1233fc8eda73518d598ad8f0cf10c9448\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:47.406Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Special effective-ownership cases remain unchanged: B-META finding updates, validate evidence writes, delivery_check_set actor handling, and memory commands keep their documented owner-gate behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract\",\"result\":\"pass\",\"note\":\"Contract output confirmed B-META finding, validate --story/no-story, delivery_check_set delivery actor, and dev-memory ownership boundary rules resolve as documented after extraction.\",\"headHash\":\"aa978fd1233fc8eda73518d598ad8f0cf10c9448\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:47.676Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Foreign-owned story mutating commands still reject without stealing the lease, takeover rules remain explicit, and LATTICE_REVIEWER_READONLY=1 blocks non-readOnly commands before hooks or lease mutation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/reviewer-readonly-command-policy-smoke.js\",\"result\":\"pass\",\"note\":\"Reviewer-readonly smoke passed: LATTICE_REVIEWER_READONLY=1 blocks reviewerWrite/storyScopedMutating/mainSharedMutating/dangerous/unclassified commands before artifacts or owner-lease mutation, while normal reviewerWrite remains allowed without the env.\",\"headHash\":\"aa978fd1233fc8eda73518d598ad8f0cf10c9448\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:07:47.947Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"TypeScript build and process-fact contract pass after extraction; cli-engine compatibility exports continue compiling all existing consumers.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Final TypeScript build passed and process fact contract verifier ended with Process fact contract verified after the extraction.\",\"headHash\":\"44eb85504bf421d58a2facdf139920f02ecf2dc4\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:08:24.870Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"command-ownership-contract and main-write-lock-coverage continue to pass, proving ownership class/gate and main shared mutation semantics did not drift.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage\",\"result\":\"pass\",\"note\":\"Command ownership contract passed for 239 CLI commands and main-write-lock-coverage reported PASS for all 8 main-mutating paths, preserving owner/main shared mutation semantics.\",\"headHash\":\"44eb85504bf421d58a2facdf139920f02ecf2dc4\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:08:25.041Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The implementation does not move flag parsing, aliases, command catalog, lifecycle special dispatch, INIT_CHECK metadata sync, or recover_evidence dispatch in this story.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"git show --stat --oneline 0c3ad3dac && node bin/lattice.js scope_contract_check --storyId=B-6e69 --json\",\"result\":\"pass\",\"note\":\"Committed diff touched only cli-engine.ts and the four requested cli helper modules; scope_contract_check passed in enforce mode with those source files classified by allowedModify/allowedCreate, so flag parsing, aliases, command catalog/schema, runCli lifecycle dispatch, INIT_CHECK metadata sync, and recover_evidence dispatch stayed in cli-engine.ts.\",\"headHash\":\"44eb85504bf421d58a2facdf139920f02ecf2dc4\",\"materialHash\":\"9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1\",\"timestamp\":\"2026-06-19T17:08:25.272Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T17:09:39.541Z",
+  "headHash": "94ecfa04152d3ba0ea4e6d3befc5516844b7a31e",
+  "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "resolveRoot, resolveMainRootFromWorktreeRoot, resolveRootForCommand, and activity policy helpers move into focused cli modules while cli-engine.ts keeps compatibility exports/imports.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after moving runtime-root and activity-policy helpers into packages/main/src/cli while cli-engine.ts imports and re-exports the moved helpers.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.032Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Worktree-to-main-root fallback remains stable for post-command activity logging, including when the original worktree is gone or cwd resolution would otherwise drift.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e <runtime root/activity policy smoke>",
+          "result": "pass",
+          "note": "Smoke passed and asserted resolveMainRootFromWorktreeRoot(process.cwd()) returns /Users/jek/Documents/Work/Orchestrate from the B-6e69 worktree, preserving the worktree-to-main fallback used for post-command activity logging.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.250Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Read-only commands do not start writing activity by default, and global-fallback/source classification remains unchanged unless the explicit activity environment flags request it.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e <runtime root/activity policy smoke>",
+          "result": "pass",
+          "note": "Smoke passed and asserted story_get remains non-writing by default, LATTICE_ACTIVITY_RECORD_READONLY=1 opts read-only activity in, dryRun suppresses mutating activity, and LATTICE_ACTIVITY_SOURCE=codex still selects global-fallback entrypoint behavior.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.456Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers move into cli modules while cli-engine.ts keeps compatibility re-exports for existing tests/consumers.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Command ownership contract passed after moving ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers; existing consumers still import compatibility exports from cli-engine.ts.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Special effective-ownership cases remain unchanged: B-META finding updates, validate evidence writes, delivery_check_set actor handling, and memory commands keep their documented owner-gate behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output confirmed B-META finding, validate --story/no-story, delivery_check_set delivery actor, and dev-memory ownership boundary rules resolve as documented after extraction.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.676Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Foreign-owned story mutating commands still reject without stealing the lease, takeover rules remain explicit, and LATTICE_REVIEWER_READONLY=1 blocks non-readOnly commands before hooks or lease mutation.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/reviewer-readonly-command-policy-smoke.js",
+          "result": "pass",
+          "note": "Reviewer-readonly smoke passed: LATTICE_REVIEWER_READONLY=1 blocks reviewerWrite/storyScopedMutating/mainSharedMutating/dangerous/unclassified commands before artifacts or owner-lease mutation, while normal reviewerWrite remains allowed without the env.",
+          "headHash": "aa978fd1233fc8eda73518d598ad8f0cf10c9448",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:47.947Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "TypeScript build and process-fact contract pass after extraction; cli-engine compatibility exports continue compiling all existing consumers.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final TypeScript build passed and process fact contract verifier ended with Process fact contract verified after the extraction.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:24.870Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "command-ownership-contract and main-write-lock-coverage continue to pass, proving ownership class/gate and main shared mutation semantics did not drift.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage",
+          "result": "pass",
+          "note": "Command ownership contract passed for 239 CLI commands and main-write-lock-coverage reported PASS for all 8 main-mutating paths, preserving owner/main shared mutation semantics.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:25.041Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The implementation does not move flag parsing, aliases, command catalog, lifecycle special dispatch, INIT_CHECK metadata sync, or recover_evidence dispatch in this story.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git show --stat --oneline 0c3ad3dac && node bin/lattice.js scope_contract_check --storyId=B-6e69 --json",
+          "result": "pass",
+          "note": "Committed diff touched only cli-engine.ts and the four requested cli helper modules; scope_contract_check passed in enforce mode with those source files classified by allowedModify/allowedCreate, so flag parsing, aliases, command catalog/schema, runCli lifecycle dispatch, INIT_CHECK metadata sync, and recover_evidence dispatch stayed in cli-engine.ts.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:25.272Z"
+        }
+      }
+    ]
+  }
+}
