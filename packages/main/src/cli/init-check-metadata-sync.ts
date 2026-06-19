@@ -23,6 +23,16 @@ function isPathUnderAny(path: string, roots: string[]): boolean {
   return roots.some((root) => path === root || path.startsWith(`${root}/`));
 }
 
+function stagedPaths(root: string, pathspec?: string): string[] {
+  const args = pathspec
+    ? ['diff', '--cached', '--name-only', '--', pathspec]
+    : ['diff', '--cached', '--name-only'];
+  return gitCli(root, args)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 function stageBoundedMetadataPath(root: string, relPath: string): void {
   if (existsSync(join(root, relPath))) {
     gitCli(root, ['add', '-A', '--', relPath]);
@@ -80,29 +90,6 @@ export function commitInitCheckMetadataAndMergeMain(root: string, store: StorySt
     );
   }
   const storyRel = storyRelRaw;
-  stageBoundedMetadataPath(gitMainRoot, storyRel);
-  const staged = gitCli(gitMainRoot, ['diff', '--cached', '--name-only']);
-  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (stagedPaths.length === 0) {
-    // Story metadata already committed (retry / already-tracked) — nothing to
-    // reconcile, the DONE merge will not collide.
-    return '';
-  }
-  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, [storyRel]));
-  if (outOfBounds.length > 0) {
-    throw new Error(
-      `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
-    );
-  }
-
-  const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
-  const story = store.readStory(storyId);
-  const worktreePath = story.worktree?.path;
-  const storyBranch = story.worktree?.branch || `story/${storyId}`;
-  if (!worktreePath) {
-    throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
-  }
-  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(gitMainRoot, worktreePath);
 
   // B-7365: serialize the commit-on-main + merge-into-story-worktree critical
   // section under the unified main write lock. A concurrent session committing
@@ -112,10 +99,49 @@ export function commitInitCheckMetadataAndMergeMain(root: string, store: StorySt
   // INIT_CHECK can run inside an already-locked context (the lock is released
   // in the helper's finally even when the critical section throws).
   return withReentrantMainWriteLock(gitMainRoot, () => {
+    const preexistingStagedOutOfBounds = stagedPaths(gitMainRoot)
+      .filter((path) => !isPathUnderAny(path, [storyRel]));
+    if (preexistingStagedOutOfBounds.length > 0) {
+      // Refuse before staging storyRel so a user's unrelated index entries are
+      // neither committed nor accompanied by new Lattice-staged paths.
+      throw new Error(
+        `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${preexistingStagedOutOfBounds.join('\n')}`,
+      );
+    }
+
+    stageBoundedMetadataPath(gitMainRoot, storyRel);
+    const allStagedPaths = stagedPaths(gitMainRoot);
+    if (allStagedPaths.length === 0) {
+      // Story metadata already committed (retry / already-tracked) — nothing to
+      // reconcile, the DONE merge will not collide.
+      return '';
+    }
+    const outOfBounds = allStagedPaths.filter((path) => !isPathUnderAny(path, [storyRel]));
+    if (outOfBounds.length > 0) {
+      throw new Error(
+        `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
+      );
+    }
+    const storyStagedPaths = stagedPaths(gitMainRoot, storyRel);
+    if (storyStagedPaths.length === 0) {
+      return '';
+    }
+
+    const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
+    const story = store.readStory(storyId);
+    const worktreePath = story.worktree?.path;
+    const storyBranch = story.worktree?.branch || `story/${storyId}`;
+    if (!worktreePath) {
+      throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
+    }
+    const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(gitMainRoot, worktreePath);
+
     gitCli(gitMainRoot, [
       '-c', 'commit.gpgsign=false',
       'commit',
+      '--only',
       '-m', commitMessage,
+      '--', storyRel,
     ]);
     const mainHead = gitCli(gitMainRoot, ['rev-parse', '--short', 'HEAD']);
     const boundedStatus = gitCli(gitMainRoot, ['status', '--porcelain', '--', storyRel]);
