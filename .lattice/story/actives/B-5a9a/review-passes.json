@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T22:35:13.478Z",
       "reviewRunId": "B-5a9a:RR-008",
       "_hash": "6c52bd7b90709e2bcb5bf84187d1d2155ac8ae6cfe3afa9dcde2fb70f996f0b4"
+    },
+    {
+      "id": "B-5a9a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after F-001/F-002/F-003/F-004 resolution. Checked main...HEAD diff for concept deletion/replacement residue; no blocking concept cleanup issue found. Verified F-002 active DONE/test-evidence storyFilesHash adoption via TestEvidenceData, phase-gates/verifier writers, done-oracle freshness consumer, and flow-stability smoke coverage; completed DONE snapshot remains material snapshot based per resolved finding. Verified F-004 reviewer evidence storyFilesHash advisories surface through review-preflight reviewer-evidence warn gate and REVIEW->TEST preflight logging when warnings exist. Residue greps for material-only command descriptions, identity/material verdict wording, silent all-pass preflight wording, and old express-channel wording found no blocking stale concept residue.",
+      "createdAt": "2026-06-19T22:41:17.272Z",
+      "reviewRound": "2026-06-19T22:35:13.478Z",
+      "reviewRunId": "B-5a9a:RR-005",
+      "_hash": "6c42a63727aacc21b2759839d6d9eed714a5b6861bb14d8c983eaabf6ec2bdcd"
     }
   ]
 }
