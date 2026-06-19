@@ -343,7 +343,7 @@
       "desc": "doc-code-drift: spec §3 intro bullet (line 148) shows `scope_contract_set --storyId <id> --allowedModify … --allowedCreate … --allowedTest … --protectedFiles … --explicitExcludes …` without the required `--mode` parameter. The CLI schema (cli-engine.ts line 1976) declares `mode: z.enum([\"local\",\"shadow\",\"enforce\"])` without `.optional()` or `.default()`, so this command fails safeParse with an invalid-enum error when mode is absent. The round-1 F-010 fix only patched the template-block examples and the §5.1 meta-prompt bullet (line 469) but left the first-exposure shorthand in §3 (line 148) still missing `--mode`. An implementer who reads §3 to understand the command signature gets an incomplete model.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T02:12:05.623Z",
@@ -355,7 +355,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "missing|md|code-drift-spec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: §3 intro shorthand bullet (line 148) now includes --mode=enforce on scope_contract_set.",
+      "resolvedAt": "2026-06-19T02:20:25.972Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-017",
