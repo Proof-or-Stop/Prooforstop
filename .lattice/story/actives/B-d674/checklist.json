@@ -8,9 +8,80 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T15:08:19.926Z",
+      "endTime": "2026-06-19T15:25:13.210Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host_runtime_probe accepts antigravity and agy, normalizes both to host antigravity, and reports cliCommand agy.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When agy is missing from PATH, the probe reports unavailable or missing-cli with an actionable nextAction and does not fall back to another current host.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Gemini is treated only as deprecated legacy compatibility, not as a current runtime advertised or preferred by Antigravity registration paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`host_runtime_probe --host=antigravity --json` returns a JSON object with host=\"antigravity\", cliCommand=\"agy\", and an availability status derived from the local agy binary; legacy `--host=gemini` remains explicitly deprecated/legacy.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/capabilities.ts",
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests",
+          "scripts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node bin/lattice.js guard_session_start --storyId=B-d674 --provider=antigravity --viaDispatch --json; node bin/lattice.js guard_session_start --storyId=B-d674 --provider=agy --viaDispatch --json; node bin/lattice.js host_runtime_probe --host=antigravity --json; node bin/lattice.js host_runtime_probe --host=agy --json",
+          "result": "pass",
+          "note": "Post-fix CLI checks passed: provider=antigravity and provider=agy with viaDispatch=true both returned guardMode=wrapped-preapply, while host_runtime_probe maps antigravity and agy to host=antigravity with cliCommand=agy.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.334Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "PATH=/usr/bin:/bin /Users/jek/.nvm/versions/node/v22.13.0/bin/node bin/lattice.js host_runtime_probe --host=antigravity --json",
+          "result": "pass",
+          "note": "Restricted PATH hides agy and the probe reports status=unavailable, runtimeKind=missing-cli, cliCommand=agy, and nextAction=Install or expose agy in PATH without falling back to another current host.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
+          "result": "pass",
+          "note": "Gemini probe remains accepted only as legacy compatibility with explicit deprecated/legacy warning and limitation text; host_runtime_list advertises fake,codex,claude-code,antigravity and omits gemini from the current runtime list.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +91,82 @@
         "README.md",
         "docs/guide.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T15:25:19.454Z",
+      "endTime": "2026-06-19T15:25:36.059Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host list, docs, and policy surfaces show the current three real hosts as codex, claude-code, and antigravity, with agy as the Antigravity CLI command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dispatch policy creation and checks accept antigravity as an allowed host and persist or report the normalized current host value.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "User-facing errors, help, and policy messages do not advertise Gemini as a current host; any Gemini mention is explicitly legacy or deprecated.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`host_runtime_list --json` and host/dispatch policy surfaces present Codex CLI, Claude Code CLI, and Antigravity CLI as the current real host set, with Gemini wording limited to legacy/deprecated compatibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-policy.ts",
+          "packages/main/src/core/capabilities.ts",
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests",
+          "scripts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node bin/lattice.js host_runtime_list --json; node bin/lattice.js host_runtime_probe --host=gemini --json; docs/guide.md review",
+          "result": "pass",
+          "note": "Post-fix runtime and doc surfaces align: current runtime list is fake,codex,claude-code,antigravity; agy is the Antigravity CLI; docs/guide.md now names Codex CLI, Claude Code CLI, Antigravity CLI (agy), and keeps Gemini as deprecated legacy compatibility only.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import { checkDispatchPolicy } from ./packages/main/dist/core/dispatch-policy.js; /* antigravity and agy smoke */\"",
+          "result": "pass",
+          "note": "No-write policy smoke passed: allowedHosts=[antigravity] authorizes with normalizedPolicy.allowedHosts=[antigravity], and allowedHosts=[agy] also authorizes while normalizing to antigravity.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=unknown-host --json",
+          "result": "pass",
+          "note": "Expected refusal names current hosts as fake|codex|claude-code|antigravity and says agy aliases to antigravity; gemini is accepted only for legacy compatibility, so errors do not advertise Gemini as current.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +176,79 @@
         "README.md",
         "docs/guide.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T15:25:40.650Z",
+      "endTime": "2026-06-19T15:25:55.802Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build or focused smoke verification passes and proves antigravity and agy probes resolve to host antigravity with cliCommand agy.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy Gemini probe behavior remains bounded and explicitly legacy or deprecated, without becoming part of the default current host set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verification does not require or use a direct Gemini CLI invocation; Gemini is not needed as a current runtime for the Antigravity smoke path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Verification output shows build/smoke checks passing for Antigravity/agy host detection and shows legacy Gemini behavior remains bounded and non-current; no direct Gemini CLI execution is required.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-policy.ts",
+          "README.md",
+          "docs/guide.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests",
+          "scripts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; node bin/lattice.js scope_contract_check {storyId:B-d674}",
+          "result": "pass",
+          "note": "Post-fix build, focused capability-list smoke, focused dispatch-run smoke, and scope_contract_check all passed. Smokes now assert current Antigravity/agy behavior and keep Gemini compatibility separate and legacy.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
+          "result": "pass",
+          "note": "Legacy Gemini probe remains bounded and explicit: warnings/limitations say deprecated legacy compatibility and current third-host flows use antigravity/agy. host_runtime_list omits gemini from the default current runtime set.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json",
+          "result": "pass",
+          "note": "Gemini verification did not require invoking the Gemini CLI for version/help or execution; the probe only performs safe command-path detection and states version/help probing is intentionally skipped. Antigravity/agy smoke paths do not depend on Gemini.",
+          "headHash": "f0ec950796706da94b7e374a6a723bc554e682f0",
+          "materialHash": "22e9e9af5c820872c73ed3d4a2bc9410d4316c24e79ea381467bd8465300008e",
+          "timestamp": "2026-06-19T16:20:07.335Z"
+        }
+      ]
     }
   ]
 }

@@ -36,7 +36,7 @@ import {
 } from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
-// B-ceed: codex + gemini live-dispatch — bounded provider seams (real spawn).
+// B-ceed: codex + legacy gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
 // THIN ONE-WAY SEAM: dispatch imports the usage ledger only through this single
@@ -52,7 +52,7 @@ import {
   type DispatchUsageContext,
 } from './usage-ledger/dispatch-usage.js';
 
-export type HostRuntimeId = 'fake' | 'claude-code' | 'gemini' | 'codex';
+export type HostRuntimeId = 'fake' | 'codex' | 'claude-code' | 'antigravity' | 'gemini';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
 export type DispatchLifecycleStatus =
   | 'planned'
@@ -417,11 +417,15 @@ const TERMINAL_DISPATCH_STATUSES = new Set<DispatchLifecycleStatus>([
   'unavailable',
 ]);
 
-const HOST_RUNTIME_ORDER: HostRuntimeId[] = ['claude-code', 'gemini', 'codex', 'fake'];
+const CURRENT_HOST_RUNTIME_IDS = ['codex', 'claude-code', 'antigravity'] as const;
+const CURRENT_HOST_RUNTIME_DESCRIPTION = 'fake|codex|claude-code|antigravity';
+const LEGACY_HOST_RUNTIME_DESCRIPTION = 'agy aliases to antigravity; gemini is accepted only for legacy compatibility';
+const HOST_RUNTIME_ORDER: HostRuntimeId[] = ['codex', 'claude-code', 'antigravity', 'fake'];
 const REAL_HOST_CLI: Record<Exclude<HostRuntimeId, 'fake'>, string> = {
-  'claude-code': 'claude',
-  gemini: 'gemini',
   codex: 'codex',
+  'claude-code': 'claude',
+  antigravity: 'agy',
+  gemini: 'gemini',
 };
 
 function authorityState(): DispatchAuthorityState {
@@ -444,6 +448,7 @@ function normalizeHostRuntimeId(host: string | undefined): HostRuntimeId | null 
   const value = (host ?? '').trim().toLowerCase();
   if (!value || value === 'auto') return null;
   if (value === 'claude' || value === 'claude-code') return 'claude-code';
+  if (value === 'antigravity' || value === 'agy') return 'antigravity';
   if (value === 'gemini') return 'gemini';
   if (value === 'codex') return 'codex';
   if (value === 'fake') return 'fake';
@@ -452,7 +457,7 @@ function normalizeHostRuntimeId(host: string | undefined): HostRuntimeId | null 
 
 function detectCommandPath(command: string): string | null {
   try {
-    const path = execFileSync('sh', ['-lc', `command -v ${command}`], {
+    const path = execFileSync('sh', ['-c', `command -v ${command}`], {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -471,6 +476,7 @@ function currentCodexSessionAvailable(): boolean {
 function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   if (host === 'fake') return ['fake-runtime', '--deterministic'];
   if (host === 'claude-code') return ['claude', '--print', '<prompt-file>'];
+  if (host === 'antigravity') return ['agy', '--prompt-file', '<prompt-file>'];
   if (host === 'gemini') return ['gemini', '--prompt-file', '<prompt-file>'];
   return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
 }
@@ -644,6 +650,55 @@ function probeGeminiCapabilities(commandPath: string | null): RealHostCapabiliti
   };
 }
 
+function probeAntigravityCapabilities(commandPath: string | null): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  const versionStatus: VersionStatus = commandPath ? 'unknown' : 'unavailable';
+  const noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    degradations.push('agy version/help probing is intentionally skipped by host_runtime_probe; host CLIs can block or authenticate during help startup.');
+    unattendedReasons.push('antigravity noninteractive support is unverified by the safe probe; dispatch_auto must require policy binding and a bounded runner before launch.');
+  } else {
+    unattendedReasons.push('agy CLI is not available; noninteractive execution is impossible.');
+  }
+
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  const loginReadiness: LoginReadiness = 'unknown';
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('agy CLI is not available in PATH.');
+  }
+  unattendedReasons.push('Noninteractive mode is unverified for antigravity; bounded unattended execution cannot be guaranteed by host_runtime_probe alone.');
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
 function probeCodexCapabilities(commandPath: string | null, isCodexSession: boolean): RealHostCapabilities {
   const unattendedReasons: string[] = [];
   const degradations: string[] = [];
@@ -715,7 +770,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 export function probeHostRuntime(host: string): HostRuntimeProbe {
   const normalized = normalizeHostRuntimeId(host);
   if (!normalized) {
-    throw new Error(`host_runtime_probe requires host=fake|claude-code|gemini|codex; got ${host || '(empty)'}`);
+    throw new Error(`host_runtime_probe requires host=${CURRENT_HOST_RUNTIME_DESCRIPTION}; ${LEGACY_HOST_RUNTIME_DESCRIPTION}; got ${host || '(empty)'}`);
   }
   if (normalized === 'fake') {
     return {
@@ -757,12 +812,15 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? process.execPath
     : detectCommandPath(cliCommand);
   const available = Boolean(commandPath);
-  // B-ceed: codex/gemini real-host live dispatch now exists; only claude-code's
-  // own bespoke leaf retains the scaffolded-only path here, and even that is
+  // B-ceed: codex/legacy gemini real-host live dispatch exists; antigravity is
+  // manual-first until a bounded agy runner lands. Claude Code's bespoke leaf is
   // surfaced only as an informational note (real claude-code dispatch runs via
   // runClaudeCodeRealLeafDispatch when allowRealHostSubprocess is granted).
   const supportsLiveDispatch = normalized === 'codex' || normalized === 'gemini' || normalized === 'claude-code';
-  const warnings = available
+  const legacyWarnings = normalized === 'gemini'
+    ? ['gemini is deprecated legacy compatibility; use antigravity/agy for current third-host runtime flows.']
+    : [];
+  const availabilityWarnings = available
     ? supportsLiveDispatch
       ? []
       : [
@@ -771,13 +829,16 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
+  const warnings = [...legacyWarnings, ...availabilityWarnings];
 
   // Real host unattended capability contract (CHK-002 claude-code / CHK-004 all hosts)
   const capabilities: RealHostCapabilities = normalized === 'claude-code'
     ? probeClaudeCodeCapabilities(commandPath)
-    : normalized === 'gemini'
-      ? probeGeminiCapabilities(commandPath)
-      : probeCodexCapabilities(commandPath, isCodexSession);
+    : normalized === 'antigravity'
+      ? probeAntigravityCapabilities(commandPath)
+      : normalized === 'gemini'
+        ? probeGeminiCapabilities(commandPath)
+        : probeCodexCapabilities(commandPath, isCodexSession);
 
   return {
     schemaVersion: 'lattice.host_runtime_probe.v1',
@@ -805,7 +866,10 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     degradations: capabilities.degradations,
     limitations: supportsLiveDispatch
       ? [
-        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+        normalized === 'gemini'
+          ? 'Gemini is deprecated legacy compatibility; current third-host runtime flows use antigravity/agy.'
+          : 'A local receipt is still diagnostic-only and leaves productionDone=false.',
+        ...(normalized === 'gemini' ? ['A local receipt is still diagnostic-only and leaves productionDone=false.'] : []),
       ]
       : [
         'Real-host execution is scaffolded only in this milestone.',
@@ -814,7 +878,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       ],
     warnings,
     nextAction: available
-      ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
+      ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. ${normalized === 'gemini' ? 'Gemini is legacy compatibility; prefer antigravity/agy for current third-host runtime flows. ' : ''}Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
       : `Install or expose ${cliCommand} in PATH, or use host=fake for deterministic local coverage.`,
     authority: authorityState(),
   };
@@ -823,7 +887,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
 export function listHostRuntimes(): HostRuntimeList {
   return {
     schemaVersion: 'lattice.host_runtime_list.v1',
-    runtimes: ['fake', 'claude-code', 'gemini', 'codex'].map(host => probeHostRuntime(host)),
+    runtimes: ['fake', ...CURRENT_HOST_RUNTIME_IDS].map(host => probeHostRuntime(host)),
     authority: authorityState(),
   };
 }
@@ -943,6 +1007,7 @@ function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId
 
 function handoffTargetForRuntime(host: HostRuntimeId): string {
   if (host === 'claude-code') return 'claude-code';
+  if (host === 'antigravity') return 'antigravity';
   if (host === 'gemini') return 'gemini';
   return 'codex';
 }
@@ -1969,7 +2034,7 @@ function buildBudgetBlockedDispatchResult(
 }
 
 /**
- * B-ceed: minimal real-leaf dispatch for codex + gemini hosts.
+ * B-ceed: minimal real-leaf dispatch for codex + legacy gemini hosts.
  *
  * Unblocks the upstream live-dispatch story per [[llm-usage-ledger-status]] memory.
  * Mirrors the SCAFFOLDED record shape (status='accepted_local') but actually
@@ -2586,7 +2651,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   if (record.selectedHost === 'claude-code' && args.allowRealHostSubprocess === true && args.executionPolicy) {
     return runClaudeCodeRealLeafDispatch(root, record, pack, runtime, worktreeAbs, args.executionPolicy);
   }
-  // B-ceed: codex + gemini real-host live dispatch when CLI is available.
+  // B-ceed: codex + legacy gemini real-host live dispatch when CLI is available.
   // When the requested CLI is NOT in PATH, fall back to claude-code real dispatch
   // (per user (a3) decision 2026-06-17) with a logged degradation reason.
   if (record.selectedHost === 'codex' && args.allowRealHostSubprocess === true && args.executionPolicy) {
@@ -3091,7 +3156,7 @@ function bindDispatchAutoArgsToPolicy(
     deniedPaths: paths.deniedPaths,
     requiredCommands,
     executionPolicy: buildDispatchCommandExecutionPolicy(policy),
-    // B-ceed: live dispatch now exists for codex + gemini in addition to
+    // B-ceed: live dispatch exists for codex + legacy gemini in addition to
     // claude-code. The dispatch_run switch routes the requested host to its real
     // leaf when the CLI is available, and falls back to the claude-code real
     // leaf otherwise. policyAllowsRealHostSubprocess() still gates the whole
@@ -3132,7 +3197,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
   if (requestedHost) {
     const normalized = normalizeHostRuntimeId(requestedHost);
     if (!normalized) {
-      throw new Error(`dispatch_auto: unknown host "${requestedHost}"; must be fake|claude-code|gemini|codex`);
+      throw new Error(`dispatch_auto: unknown host "${requestedHost}"; must be ${CURRENT_HOST_RUNTIME_DESCRIPTION} (${LEGACY_HOST_RUNTIME_DESCRIPTION})`);
     }
     selectedHost = normalized;
   } else {
@@ -3171,13 +3236,12 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
         `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
       );
     }
-    // B-ceed: codex + gemini live dispatch is now wired through the dispatch_run
-    // switch (with claude-code fallback when the requested CLI is missing in
-    // PATH). The policy-side allowRealHostSubprocess gate below still applies
-    // uniformly across the three real hosts.
+    // B-ceed: codex + legacy gemini live dispatch is wired through the dispatch_run
+    // switch. Antigravity is first-class for supervised dispatch metadata, but it
+    // has no bounded agy subprocess runner yet, so dispatch_auto must refuse it.
     if (selectedHost !== 'claude-code' && selectedHost !== 'codex' && selectedHost !== 'gemini') {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code/codex/gemini; use host=fake for deterministic local coverage.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Antigravity has supervised metadata support but no bounded agy runner yet; use host=fake for deterministic local coverage.`,
       );
     }
     if (!policyAllowsRealHostSubprocess(policy)) {

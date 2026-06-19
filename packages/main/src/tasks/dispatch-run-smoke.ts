@@ -259,7 +259,7 @@ try {
 
   const runtimeList = run<HostRuntimeList>('host_runtime_list');
   assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
-  assert.deepEqual(runtimeList.runtimes.map(runtime => runtime.host), ['fake', 'claude-code', 'gemini', 'codex']);
+  assert.deepEqual(runtimeList.runtimes.map(runtime => runtime.host), ['fake', 'codex', 'claude-code', 'antigravity']);
   assert.equal(runtimeList.runtimes.find(runtime => runtime.host === 'fake')?.status, 'ready');
   assertAuthorityFalse(runtimeList, 'runtimeList');
 
@@ -277,7 +277,7 @@ try {
   assert.ok(Array.isArray(fakeProbe.unattendedReasons), 'fake probe must have unattendedReasons array');
   assert.ok(Array.isArray(fakeProbe.degradations), 'fake probe must have degradations array');
   assertAuthorityFalse(fakeProbe, 'fakeProbe');
-  assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|claude-code\|gemini\|codex/);
+  assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|codex\|claude-code\|antigravity.*agy aliases to antigravity.*gemini is accepted only for legacy compatibility/i);
 
   // CHK-002: Claude Code bounded unattended feasibility probe
   // Must work whether claude is installed or not
@@ -306,6 +306,26 @@ try {
     `claude probe nextAction must indicate supervised-only or missing CLI, got: ${claudeProbe.nextAction}`,
   );
   assertAuthorityFalse(claudeProbe, 'claudeProbe');
+
+  const antigravityProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
+  assert.equal(antigravityProbe.host, 'antigravity');
+  assert.equal(antigravityProbe.requestedHost, 'antigravity');
+  assert.equal(antigravityProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.equal(antigravityProbe.cliCommand, 'agy');
+  assert.equal(antigravityProbe.unattendedSafe, false, 'antigravity must not claim unattendedSafe=true');
+  assert.ok(Array.isArray(antigravityProbe.unattendedReasons), 'antigravity probe must have unattendedReasons array');
+  assert.ok(
+    antigravityProbe.unattendedReasons.some(reason => /dispatch_policy_check|dispatch_auto|policy binding/i.test(reason)),
+    'antigravity probe must surface dispatch_policy_check / dispatch_auto policy binding requirement',
+  );
+  assertAuthorityFalse(antigravityProbe, 'antigravityProbe');
+
+  const agyProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'agy' });
+  assert.equal(agyProbe.host, 'antigravity');
+  assert.equal(agyProbe.requestedHost, 'agy');
+  assert.equal(agyProbe.matchedFallback, true, 'agy aliases to the current Antigravity runtime');
+  assert.equal(agyProbe.cliCommand, 'agy');
+  assertAuthorityFalse(agyProbe, 'agyProbe');
 
   // If claude is installed, additional shape assertions apply
   if (claudeProbe.available) {
@@ -442,11 +462,46 @@ try {
   assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'missing-constraints dispatch_prepare must not create a receipt');
   assertAuthorityFalse(unconstrainedPrepared, 'unconstrainedPrepared');
 
+  const antigravityPrepared = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-antigravity-prepare',
+    host: 'antigravity',
+    objective: 'Antigravity dispatch should preserve current third-host identity in pack and prompt artifacts.',
+    allowedPaths: ['packages/main/src/generated/antigravity-prepare.txt'],
+    deniedPaths: ['README.md'],
+  });
+  const antigravityPack = readPack(root, antigravityPrepared.dispatchId);
+  const antigravityPrompt = readFileSync(join(root, antigravityPrepared.promptFile), 'utf8');
+  assert.equal(antigravityPrepared.selectedHost, 'antigravity');
+  assert.equal(antigravityPrepared.runtime.host, 'antigravity');
+  assert.equal(antigravityPrepared.runtime.cliCommand, 'agy');
+  assert.equal(antigravityPack.toHost, 'antigravity');
+  assert.ok(
+    antigravityPack.executionInstructions.some(instruction => /Use antigravity only as a bounded overflow execution host/i.test(instruction)),
+    'antigravity dispatch pack should preserve Antigravity host identity in execution instructions',
+  );
+  assert.match(antigravityPrompt, /Host runtime: antigravity/);
+  assert.match(antigravityPrompt, /Use antigravity only as a bounded overflow execution host/i);
+  assertAuthorityFalse(antigravityPrepared, 'antigravityPrepared');
+
+  const agyPrepared = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-agy-prepare',
+    host: 'agy',
+    objective: 'agy alias dispatch should preserve Antigravity host identity in pack and prompt artifacts.',
+    allowedPaths: ['packages/main/src/generated/agy-prepare.txt'],
+    deniedPaths: ['README.md'],
+  });
+  assert.equal(agyPrepared.requestedHost, 'agy');
+  assert.equal(agyPrepared.selectedHost, 'antigravity');
+  assert.equal(agyPrepared.runtime.host, 'antigravity');
+  assertAuthorityFalse(agyPrepared, 'agyPrepared');
+
   const geminiPrepared = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-gemini-prepare',
     host: 'gemini',
-    objective: 'Gemini dispatch should preserve host-neutral identity in pack and prompt artifacts.',
+    objective: 'Legacy Gemini dispatch should preserve compatibility identity in pack and prompt artifacts.',
     allowedPaths: ['packages/main/src/generated/gemini-prepare.txt'],
     deniedPaths: ['README.md'],
   });
@@ -454,6 +509,7 @@ try {
   const geminiPrompt = readFileSync(join(root, geminiPrepared.promptFile), 'utf8');
   assert.equal(geminiPrepared.selectedHost, 'gemini');
   assert.equal(geminiPrepared.runtime.host, 'gemini');
+  assert.ok(geminiPrepared.runtime.warnings.some(warning => /deprecated legacy compatibility/i.test(warning)));
   assert.equal(geminiPack.toHost, 'gemini');
   assert.ok(
     geminiPack.executionInstructions.some(instruction => /Use gemini only as a bounded overflow execution host/i.test(instruction)),
@@ -989,24 +1045,24 @@ try {
   const originalPath = process.env.PATH;
   try {
     process.env.PATH = '/usr/bin:/bin';
-    const unavailableProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+    const unavailableProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
     assert.equal(unavailableProbe.status, 'unavailable');
     assert.equal(unavailableProbe.runtimeKind, 'missing-cli');
     const beforeUnavailablePlanCount = dispatchCount(root);
     const unavailablePlan = run<DispatchPlanResult>('dispatch_plan', {
       storyId: 'B-dispatch',
-      host: 'gemini',
+      host: 'antigravity',
       objective: 'Explicit unavailable host should produce a degraded plan only.',
     });
     assert.equal(unavailablePlan.status, 'unavailable');
-    assert.equal(unavailablePlan.selectedHost, 'gemini');
+    assert.equal(unavailablePlan.selectedHost, 'antigravity');
     assert.equal(unavailablePlan.runtime.status, 'unavailable');
-    assert.ok(unavailablePlan.risks.some(risk => /gemini runtime is unavailable/i.test(risk)));
-    assert.ok(unavailablePlan.warnings.some(warning => /gemini CLI is not available/i.test(warning)));
+    assert.ok(unavailablePlan.risks.some(risk => /antigravity runtime is unavailable/i.test(risk)));
+    assert.ok(unavailablePlan.warnings.some(warning => /agy CLI is not available/i.test(warning)));
     assert.equal(dispatchCount(root), beforeUnavailablePlanCount, 'unavailable dispatch_plan must not create dispatch records');
     const unavailableRun = run<DispatchRunResult>('dispatch_run', {
       storyId: 'B-dispatch',
-      host: 'gemini',
+      host: 'antigravity',
       objective: 'Missing real host should degrade without worktree execution.',
     });
     assert.equal(unavailableRun.status, 'unavailable');
@@ -1014,6 +1070,12 @@ try {
     assert.equal(existsSync(resolve(root, missingRecord.worktree.worktreePath)), false);
     assert.equal(existsSync(join(root, missingRecord.receiptFile)), false);
     assertAuthorityFalse(unavailableRun, 'unavailableRun');
+
+    const legacyGeminiUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+    assert.equal(legacyGeminiUnavailable.host, 'gemini');
+    assert.equal(legacyGeminiUnavailable.status, 'unavailable');
+    assert.ok(legacyGeminiUnavailable.warnings.some(warning => /deprecated legacy compatibility/i.test(warning)));
+    assertAuthorityFalse(legacyGeminiUnavailable, 'legacyGeminiUnavailable');
   } finally {
     process.env.PATH = originalPath;
   }
@@ -1217,10 +1279,61 @@ try {
     );
     assertAuthorityFalse(claudeProbe4, 'claudeProbe4');
 
-    // gemini probe: must expose structured fields regardless of CLI availability
+    // antigravity probe: current third host must expose structured fields regardless of CLI availability
+    const antigravityProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
+    assert.equal(antigravityProbe4.host, 'antigravity');
+    assert.equal(antigravityProbe4.requestedHost, 'antigravity');
+    assert.equal(antigravityProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.equal(antigravityProbe4.cliCommand, 'agy');
+    assert.ok(VALID_VERSION_STATUS.includes(antigravityProbe4.versionStatus),
+      `antigravity versionStatus must be valid, got ${antigravityProbe4.versionStatus}`);
+    assert.ok(VALID_LOGIN_READINESS.includes(antigravityProbe4.loginReadiness),
+      `antigravity loginReadiness must be valid, got ${antigravityProbe4.loginReadiness}`);
+    assert.ok(VALID_NONINTERACTIVE.includes(antigravityProbe4.noninteractiveSupport),
+      `antigravity noninteractiveSupport must be valid, got ${antigravityProbe4.noninteractiveSupport}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(antigravityProbe4.receiptSupport),
+      `antigravity receiptSupport must be valid, got ${antigravityProbe4.receiptSupport}`);
+    assert.equal(antigravityProbe4.unattendedSafe, false, 'antigravity must not claim unattendedSafe=true');
+    assert.ok(Array.isArray(antigravityProbe4.unattendedReasons) && antigravityProbe4.unattendedReasons.length > 0,
+      'antigravity must have unattendedReasons');
+    assert.ok(
+      antigravityProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'antigravity unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assert.ok(typeof antigravityProbe4.nextAction === 'string' && antigravityProbe4.nextAction.length > 0,
+      'antigravity must have a nextAction');
+    assertAuthorityFalse(antigravityProbe4, 'antigravityProbe4');
+
+    // agy is the current Antigravity CLI alias.
+    const agyProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'agy' });
+    assert.equal(agyProbe4.host, 'antigravity');
+    assert.equal(agyProbe4.requestedHost, 'agy');
+    assert.equal(agyProbe4.cliCommand, 'agy');
+    assertAuthorityFalse(agyProbe4, 'agyProbe4');
+
+    // If antigravity is unavailable (agy CLI not in PATH), must degrade visibly.
+    if (!antigravityProbe4.available) {
+      assert.equal(antigravityProbe4.status, 'unavailable');
+      assert.equal(antigravityProbe4.runtimeKind, 'missing-cli');
+      assert.equal(antigravityProbe4.receiptSupport, 'unverified',
+        'unavailable antigravity must have receiptSupport=unverified');
+      assert.ok(
+        antigravityProbe4.unattendedReasons.some(r => /not available|install|expose|PATH/i.test(r)),
+        'unavailable antigravity must explain agy CLI is not in PATH',
+      );
+    } else {
+      assert.equal(antigravityProbe4.status, 'scaffolded');
+      assert.equal(antigravityProbe4.receiptSupport, 'transcript-capture',
+        'available antigravity must have receiptSupport=transcript-capture');
+      assert.ok(/supervised-only|dispatch_auto|policy/i.test(antigravityProbe4.nextAction),
+        'available antigravity nextAction must surface supervised-only or dispatch_auto requirement');
+    }
+
+    // legacy gemini probe: compatibility only, not part of the current runtime list
     const geminiProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
     assert.equal(geminiProbe4.host, 'gemini');
     assert.equal(geminiProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.ok(geminiProbe4.warnings.some(warning => /deprecated legacy compatibility/i.test(warning)));
     assert.ok(VALID_VERSION_STATUS.includes(geminiProbe4.versionStatus),
       `gemini versionStatus must be valid, got ${geminiProbe4.versionStatus}`);
     assert.ok(VALID_LOGIN_READINESS.includes(geminiProbe4.loginReadiness),
@@ -1240,7 +1353,7 @@ try {
       'gemini must have a nextAction');
     assertAuthorityFalse(geminiProbe4, 'geminiProbe4');
 
-    // If gemini is unavailable (CLI not in PATH), must degrade visibly
+    // If legacy gemini is unavailable (CLI not in PATH), must degrade visibly
     if (!geminiProbe4.available) {
       assert.equal(geminiProbe4.status, 'unavailable');
       assert.equal(geminiProbe4.runtimeKind, 'missing-cli');
@@ -1279,8 +1392,10 @@ try {
     );
     assertAuthorityFalse(codexProbe4, 'codexProbe4');
 
-    // host_runtime_list: all four hosts must expose loginReadiness and receiptSupport
+    // host_runtime_list: current hosts must expose loginReadiness and receiptSupport; legacy gemini is probe-only.
     const runtimeList4 = run<HostRuntimeList>('host_runtime_list');
+    assert.deepEqual(runtimeList4.runtimes.map(runtime => runtime.host), ['fake', 'codex', 'claude-code', 'antigravity']);
+    assert.equal(runtimeList4.runtimes.some(runtime => runtime.host === 'gemini'), false, 'legacy gemini is not in the current runtime list');
     for (const runtime of runtimeList4.runtimes) {
       assert.ok(VALID_LOGIN_READINESS.includes(runtime.loginReadiness),
         `runtime list ${runtime.host} must have valid loginReadiness, got ${runtime.loginReadiness}`);
@@ -1297,20 +1412,34 @@ try {
     const savedPath = process.env.PATH;
     try {
       process.env.PATH = '/usr/bin:/bin';
-      const geminiUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
-      assert.equal(geminiUnavailable.status, 'unavailable');
-      assert.equal(geminiUnavailable.runtimeKind, 'missing-cli');
-      assert.equal(geminiUnavailable.receiptSupport, 'unverified',
-        'unavailable gemini (PATH-restricted) must have receiptSupport=unverified');
-      assert.ok(['ready', 'requires-login', 'unknown'].includes(geminiUnavailable.loginReadiness),
-        `unavailable gemini loginReadiness must be valid, got ${geminiUnavailable.loginReadiness}`);
-      assert.equal(geminiUnavailable.unattendedSafe, false,
-        'unavailable gemini must not claim unattendedSafe=true');
+      const antigravityUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
+      assert.equal(antigravityUnavailable.status, 'unavailable');
+      assert.equal(antigravityUnavailable.runtimeKind, 'missing-cli');
+      assert.equal(antigravityUnavailable.receiptSupport, 'unverified',
+        'unavailable antigravity (PATH-restricted) must have receiptSupport=unverified');
+      assert.ok(['ready', 'requires-login', 'unknown'].includes(antigravityUnavailable.loginReadiness),
+        `unavailable antigravity loginReadiness must be valid, got ${antigravityUnavailable.loginReadiness}`);
+      assert.equal(antigravityUnavailable.unattendedSafe, false,
+        'unavailable antigravity must not claim unattendedSafe=true');
       assert.ok(
-        geminiUnavailable.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
-        'unavailable gemini must still reference policy binding requirement',
+        antigravityUnavailable.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+        'unavailable antigravity must still reference policy binding requirement',
       );
-      assertAuthorityFalse(geminiUnavailable, 'geminiUnavailable4');
+      assertAuthorityFalse(antigravityUnavailable, 'antigravityUnavailable4');
+
+      const agyUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'agy' });
+      assert.equal(agyUnavailable.host, 'antigravity');
+      assert.equal(agyUnavailable.status, 'unavailable');
+      assert.equal(agyUnavailable.runtimeKind, 'missing-cli');
+      assertAuthorityFalse(agyUnavailable, 'agyUnavailable4');
+
+      const legacyGeminiUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+      assert.equal(legacyGeminiUnavailable.status, 'unavailable');
+      assert.equal(legacyGeminiUnavailable.runtimeKind, 'missing-cli');
+      assert.equal(legacyGeminiUnavailable.receiptSupport, 'unverified',
+        'unavailable legacy gemini (PATH-restricted) must have receiptSupport=unverified');
+      assert.ok(legacyGeminiUnavailable.warnings.some(warning => /deprecated legacy compatibility/i.test(warning)));
+      assertAuthorityFalse(legacyGeminiUnavailable, 'legacyGeminiUnavailable4');
 
       const codexUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
       assert.equal(codexUnavailable.receiptSupport, 'unverified',

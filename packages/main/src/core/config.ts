@@ -162,7 +162,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or production authority
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'host_*', // Lattice CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
-    'host_runtime_*', // B-106b: dispatch runtime readiness probes for fake/claude-code/gemini/codex
+    'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
     'lattice_config_doctor', // Lattice CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
     'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence

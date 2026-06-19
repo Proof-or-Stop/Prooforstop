@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-d674:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage REVIEW pass: all CHK-001..CHK-003 happy/edge/adversarial verificationIntent entries have passing evidence. Re-ran host_runtime_list, antigravity/agy probes, missing-agy PATH probe, Gemini legacy probe, unknown-host refusal, host_probe Antigravity/agy/Gemini surfaces, and no-write dispatch-policy normalization smoke. Outputs confirm current real hosts are codex/claude-code/antigravity, agy normalizes to antigravity, missing agy is unavailable/missing-cli with nextAction, Gemini is legacy/deprecated and omitted from current runtime list, and host_runtime_probe skips Gemini version/help invocation; direct Gemini subprocess remains only in bounded legacy dispatch code, not the Antigravity smoke path.",
+      "createdAt": "2026-06-19T15:29:53.476Z",
+      "reviewRound": "2026-06-19T15:26:14.080Z",
+      "reviewRunId": "B-d674:RR-004",
+      "_hash": "dead5dada4ac524f3cde0e7781edc8879df7e2ce06a1248b36b4b8c9bf8670f7"
+    },
+    {
+      "id": "B-d674:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Second-round concept review passed. Rechecked B-d674:F-001/F-002/F-003 fixes: guard-session normalizes agy to antigravity and returns wrapped-preapply for antigravity/agy only viaDispatch; host_runtime_list/probe exposes current fake,codex,claude-code,antigravity with agy cliCommand and missing-CLI unavailable-safe behavior; Gemini remains probe-only legacy/deprecated; capability-list and dispatch-run smokes pass.",
+      "createdAt": "2026-06-19T15:42:41.093Z",
+      "reviewRound": "2026-06-19T15:37:54.182Z",
+      "reviewRunId": "B-d674:RR-007",
+      "_hash": "69c66a0fc0c93121f575c6d859442772aa99e5be4b6b798f1b8ef7c0dc90a337"
+    },
+    {
+      "id": "B-d674:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Second-round concept review passed. Rechecked B-d674:F-001/F-002/F-003 fixes: guard-session normalizes agy to antigravity and returns wrapped-preapply for antigravity/agy only viaDispatch; host_runtime_list/probe exposes current fake,codex,claude-code,antigravity with agy cliCommand and missing-CLI unavailable-safe behavior; Gemini is omitted from current runtime lists and retained only as explicit deprecated legacy compatibility; capability-list and dispatch-run smokes pass.",
+      "createdAt": "2026-06-19T15:43:00.497Z",
+      "reviewRound": "2026-06-19T15:37:54.182Z",
+      "reviewRunId": "B-d674:RR-007",
+      "_hash": "a34d1c44c9543f3fec033f8f185e8af75b0b44c341dffc951de197042baf628f"
+    },
+    {
+      "id": "B-d674:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: second-round test-coverage review found no blocker. Evidence plus independent smokes cover antigravity/agy probe normalization, restricted-PATH missing agy behavior, current host_runtime_list without Gemini, dispatch policy antigravity/agy normalization, guard_session_start wrapped-preapply for antigravity and agy, legacy Gemini bounded/deprecated probe behavior, and no Gemini version/help CLI invocation requirement.",
+      "createdAt": "2026-06-19T15:43:10.034Z",
+      "reviewRound": "2026-06-19T15:37:54.182Z",
+      "reviewRunId": "B-d674:RR-005",
+      "_hash": "572ff4a77951103d297aae31789f61bdc4b9f6fb969f1a04fa492c96e152b7cb"
+    },
+    {
+      "id": "B-d674:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality REVIEW pass after F-001/F-003/F-005 fixes. Independently checked changed source/docs; F-001/F-003 behavior is fixed: antigravity and agy normalize to wrapped-preapply only with viaDispatch, host_runtime_list exposes fake,codex,claude-code,antigravity, agy probes as antigravity with cliCommand=agy, and Gemini remains deprecated legacy probe-only/current-list-excluded. F-005 docs overclaim is resolved: host-overflow.md now limits unattended-dispatch-smoke coverage to claude-code plus legacy Gemini refusal and points Antigravity/agy coverage to dispatch-run-smoke plus targeted runtime/guard checks. Verification run: npm --prefix packages/main run build; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; compiled API assertions for resolveGuardMode/listHostRuntimes/probeHostRuntime/checkDispatchPolicy; git diff --check main...HEAD; negative rg for old unattended-dispatch-smoke Antigravity overclaim. No blocking quality finding.",
+      "createdAt": "2026-06-19T15:54:05.233Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-010",
+      "_hash": "9abaeb1c238437545be679481c4c86b426c6aa76e22887d4e0dcd1d82ee532c4"
+    },
+    {
+      "id": "B-d674:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: verified refreshed checklist evidence covers all 9 verificationIntent refs; reran npm --prefix packages/main run build, capability-list-smoke, dispatch-run-smoke, host_runtime_list/probe samples for antigravity/agy/restricted-PATH/gemini/unknown-host, and scope_contract_check after final docs fixes. No coverage blocker found.",
+      "createdAt": "2026-06-19T15:54:10.575Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-012",
+      "_hash": "f92787d8924d7859e01a5b1ea0e1bf903d02313a821139b112aecfe0e3a953ec"
+    },
+    {
+      "id": "B-d674:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane reviewed README.md, docs/guide.md, docs/guide-scope-guard.md, and docs/requirements/decisions/host-overflow.md against the current host runtime semantics. Verified F-006 and F-008 documented npm commands now exist and pass after build; Antigravity/agy is documented as current/scaffolded where appropriate, and Gemini appears only as deprecated legacy compatibility. No blocking docs findings.",
+      "createdAt": "2026-06-19T16:08:05.280Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-016",
+      "_hash": "9adef8de35b414b8c6aafe200000ebe0f669cbb16fbfbb5ae0f86fd99224b306"
+    },
+    {
+      "id": "B-d674:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: no remaining blocker after verifying F-001..F-009 resolved. Checked current host semantics: host_runtime_list exposes fake/codex/claude-code/antigravity; host_runtime_probe --host=antigravity and --host=agy resolve to cliCommand=agy, supervised/scaffolded, unattendedSafe=false; host_runtime_probe --host=gemini is deprecated legacy compatibility only. Source review confirms agy normalization, Antigravity wrapped-preapply only via dispatch, Gemini excluded from current runtime/capability lists. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js.",
+      "createdAt": "2026-06-19T16:08:14.786Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-014",
+      "_hash": "f48a19768464e690050627cfe992b7d5c65ba03d9b4a37b775bd16f7ccaabd0f"
+    },
+    {
+      "id": "B-d674:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "PASS: final independent quality review found no blocking findings after F-006..F-009 fixes. Verified scripts and smokes: npm --prefix packages/main run build; git diff --check main...HEAD; node bin/lattice.js scope_contract_check {storyId:B-d674}; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; npm run test:authority-enforce-matrix; npm --prefix packages/main run test:unattended-dispatch-smoke; node bin/lattice.js validate --story=B-d674 --json. Confirmed package scripts exist/run, host-guard-matrix asserts Antigravity/agy current semantics with Gemini legacy only, GuardSessionMode types wording is aligned, and scope gate passed.",
+      "createdAt": "2026-06-19T16:08:58.517Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-017",
+      "_hash": "40a4f57df3ed98b82e1a9eb6b77d3e1077a3ec068ead276d1c192a18e7f90701"
+    },
+    {
+      "id": "B-d674:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: independent test-coverage review reran npm --prefix packages/main run build; npm --prefix packages/main run test:unattended-dispatch-smoke; npm run test:authority-enforce-matrix; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; host_runtime_list/probe for antigravity, agy, gemini, unknown-host, and restricted PATH; node bin/lattice.js validate --story=B-d674 --json. Build, documented npm smoke scripts, host-guard-matrix, capability-list, dispatch-run, host probes, and stale-evidence validation all pass. validate reports allPass=true, 9/9 intents covered, warnings=[]; no stale evidence or missing coverage found after F-006..F-009.",
+      "createdAt": "2026-06-19T16:09:22.693Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-018",
+      "_hash": "f21efeb07de6f97edf5b2572fafbdd16934e28228fb8ce8a7ca0224edf4b16f7"
+    }
+  ]
+}

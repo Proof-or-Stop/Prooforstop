@@ -1,0 +1,33 @@
+{
+  "task": "把 Antigravity CLI 注册为当前第三个 Lattice Host runtime，并把 Gemini 语义降为 legacy/deprecated。",
+  "outcome": "用户运行 `node bin/lattice.js host_runtime_probe --host=antigravity --json` 会看到 `host:\"antigravity\"`、`cliCommand:\"agy\"`、状态来自本机 agy；运行 host_runtime_list 时当前 host 集合显示 Codex CLI、Claude Code CLI、Antigravity CLI，而不是把 Gemini 当作当前第三宿主。",
+  "facts": [
+    "本机 `codex --version` 可用并返回 codex-cli 0.140.0。",
+    "本机 `claude --version` 可用并返回 Claude Code 2.1.178。",
+    "本机 `agy --version` 可用并返回 1.0.10。",
+    "当前 Lattice host_runtime_probe 对 antigravity 报错，只接受 fake|claude-code|gemini|codex。",
+    "用户明确要求 Antigravity CLI 命令为 agy，Gemini CLI 语义已废弃。",
+    "B-d674 decision 选择 first-class antigravity + deprecated legacy gemini，以避免破坏旧 dispatch/policy records。"
+  ],
+  "constraints": [
+    "不运行 omx，不读写 .omx。",
+    "不直接读写 docs/story 或 tests/fixtures。",
+    "B-d674 只改 Host runtime 支持、相关 policy/docs/tests，不做 cli-engine 大拆。",
+    "直接 gemini CLI 调用在 execution boundary 中被 blocked；legacy Gemini 只能通过 Lattice surface 检查。",
+    "不能削弱 dispatch 或 authority safety gate。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "timestamp": "2026-06-19T14:54:21.977Z"
+}

@@ -41,7 +41,9 @@ export interface DispatchPolicyCheckResult {
   productionDone: false;
 }
 
-const KNOWN_HOSTS = new Set(['fake', 'claude-code', 'gemini', 'codex']);
+const CURRENT_KNOWN_HOSTS = ['fake', 'codex', 'claude-code', 'antigravity'] as const;
+const LEGACY_KNOWN_HOSTS = ['gemini'] as const;
+const KNOWN_HOSTS: ReadonlySet<string> = new Set([...CURRENT_KNOWN_HOSTS, ...LEGACY_KNOWN_HOSTS]);
 const MAX_PARALLEL = 10;
 const MAX_RUNTIME_MINUTES = 1440;
 const UNSAFE_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL/i;
@@ -90,6 +92,35 @@ function normalizeStringList(value: string | string[] | undefined): string[] {
   return [];
 }
 
+function normalizeDispatchHostId(host: string): string | null {
+  const value = host.trim().toLowerCase();
+  if (value === 'claude' || value === 'claude-code') return 'claude-code';
+  if (value === 'antigravity' || value === 'agy') return 'antigravity';
+  if (value === 'codex' || value === 'fake' || value === 'gemini') return value;
+  return null;
+}
+
+function knownHostsDescription(): string {
+  return `${CURRENT_KNOWN_HOSTS.join(', ')} (alias: agy=antigravity; legacy: ${LEGACY_KNOWN_HOSTS.join(', ')})`;
+}
+
+function normalizeHostList(value: string | string[] | undefined): { hosts: string[]; errors: string[] } {
+  const errors: string[] = [];
+  const seen = new Set<string>();
+  const hosts: string[] = [];
+  for (const host of normalizeStringList(value)) {
+    const normalized = normalizeDispatchHostId(host);
+    if (!normalized || !KNOWN_HOSTS.has(normalized)) {
+      errors.push(`allowedHosts contains unknown host: ${host} (known: ${knownHostsDescription()})`);
+      continue;
+    }
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    hosts.push(normalized);
+  }
+  return { hosts, errors };
+}
+
 function policiesDir(root: string): string {
   return join(root, LATTICE_DIR, 'dispatch-policies');
 }
@@ -111,15 +142,11 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     normalized.policy = policyName;
   }
 
-  const allowedHosts = normalizeStringList(args.allowedHosts);
+  const { hosts: allowedHosts, errors: allowedHostErrors } = normalizeHostList(args.allowedHosts);
+  errors.push(...allowedHostErrors);
   if (allowedHosts.length === 0) {
     errors.push('allowedHosts is required and must contain at least one host');
   } else {
-    for (const host of allowedHosts) {
-      if (!KNOWN_HOSTS.has(host)) {
-        errors.push(`allowedHosts contains unknown host: ${host} (known: ${[...KNOWN_HOSTS].join(', ')})`);
-      }
-    }
     normalized.allowedHosts = allowedHosts;
   }
 
@@ -226,7 +253,7 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
   if (typeof allowRealHostSubprocess !== 'boolean') {
     errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
   } else {
-    const unsupportedRealHosts = allowedHosts.filter(host => host === 'gemini' || host === 'codex');
+    const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
       errors.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
@@ -332,8 +359,12 @@ function fakePolicyRecord(): DispatchPolicy {
 }
 
 function normalizeDispatchPolicyRecord(policy: DispatchPolicy): DispatchPolicy {
+  const allowedHosts = (policy.allowedHosts ?? [])
+    .map(host => normalizeDispatchHostId(host) ?? host)
+    .filter((host, index, hosts) => hosts.indexOf(host) === index);
   return {
     ...policy,
+    allowedHosts,
     allowRealHostSubprocess: policy.allowRealHostSubprocess === true,
   };
 }
@@ -372,7 +403,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
-    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'gemini' || host === 'codex');
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
@@ -384,7 +415,8 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     reasons.push('allowedHosts is empty; at least one host must be authorized');
   } else {
     for (const host of policyRecord.allowedHosts) {
-      if (!KNOWN_HOSTS.has(host)) {
+      const normalized = normalizeDispatchHostId(host);
+      if (!normalized || !KNOWN_HOSTS.has(normalized)) {
         reasons.push(`allowedHosts contains unknown host: ${host}`);
       }
     }

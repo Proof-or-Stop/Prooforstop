@@ -14,8 +14,9 @@ remain follow-up work.
 
 - **`native-pretool` (pre-tool blocking)** — a host with a verified pre-tool
   hook can reject a forbidden write before the file is modified.
-- **`wrapped-preapply` (dispatch pre-apply blocking)** — Codex/Gemini can use
-  this only when running through Lattice dispatch/pre-apply flow.
+- **`wrapped-preapply` (dispatch pre-apply blocking)** — Codex and
+  Antigravity/agy can use this only when running through Lattice
+  dispatch/pre-apply flow.
 - **`watcher-fallback` (post-write detection)** — any host without a verified
   pre-tool or wrapped-preapply context is observed after the fact. Lattice
   detects the violation when `guard_session_check` runs and blocks lifecycle
@@ -31,8 +32,10 @@ difference is *when* the intervention happens.
 |---|---|---|
 | `claude`, `claude-code`, `claude_code`, `claudecode` with verified hook | `native-pretool` | Host hook fires before the write |
 | `codex` with verified Codex hook | `native-pretool` | Codex native hook fires before the write |
-| `codex` or `gemini` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply |
-| `codex`, `gemini`, `gemini-cli` without a verified context | `watcher-fallback` | Diff detected after write; no pre-tool interception |
+| `codex` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply |
+| `antigravity`, `agy` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply while preserving the Antigravity CLI host identity |
+| `codex`, `antigravity`, `agy` without a verified context | `watcher-fallback` | Diff detected after write; no pre-tool interception |
+| `gemini`, `gemini-cli` | legacy/deprecated compatibility only | Not a current guard-provider path; use `antigravity`/`agy` for current third-host flows |
 | Any other string | `watcher-fallback` | Default; no pre-tool hook assumption |
 
 `guard_session_start` derives the mode automatically from the `provider` you
@@ -65,6 +68,8 @@ A guard session is automatically re-checked at each `story_advance` gate
 ```bash
 lattice guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
 lattice guard_session_start '{"storyId":"B-xxxx","provider":"codex"}'
+lattice guard_session_start '{"storyId":"B-xxxx","provider":"antigravity","viaDispatch":true}'
+lattice guard_session_start '{"storyId":"B-xxxx","provider":"agy","viaDispatch":true}'
 ```
 
 Output includes `guardMode: native-pretool`, `guardMode: wrapped-preapply`, or
@@ -205,9 +210,10 @@ A `watcher-fallback` guard session still provides meaningful protection:
 - The lifecycle gate blocks if violations are present, regardless of mode.
 
 The only thing `watcher-fallback` cannot do is prevent the forbidden file from
-being written in the first place. For CI runners, Codex agents, and Gemini
-agents, this is the expected and correct behavior — the gate still catches the
-violation before the story moves to REVIEW.
+being written in the first place. For CI runners, Codex agents,
+Antigravity/agy agents outside dispatch/pre-apply flow, and legacy Gemini
+compatibility sessions, this is the expected and correct behavior — the gate
+still catches the violation before the story moves to REVIEW.
 
 ## Scope contract prerequisites
 

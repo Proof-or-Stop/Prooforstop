@@ -8,8 +8,10 @@
  *   - codex       + nativeHookVerified=true  → native-pretool
  *   - codex       + viaDispatch=true         → wrapped-preapply
  *   - codex       + no verified context      → watcher-fallback
- *   - gemini      + viaDispatch=true         → wrapped-preapply
- *   - gemini      + viaDispatch=false        → watcher-fallback
+ *   - antigravity + viaDispatch=true         → wrapped-preapply
+ *   - antigravity + viaDispatch=false        → watcher-fallback
+ *   - agy         + viaDispatch=true         → wrapped-preapply
+ *   - gemini      + viaDispatch=true         → wrapped-preapply (legacy only)
  *   - fake                                   → watcher-fallback
  *   - other/unknown                          → watcher-fallback
  *   - legacy 'active' mode renders as 'native-pretool' (backwards compat)
@@ -114,16 +116,43 @@ assert.equal(
   'codex + missing context → watcher-fallback',
 );
 
-// Gemini: wrapped-preapply only via dispatch
+// Antigravity/agy: wrapped-preapply only via dispatch
+assert.equal(
+  resolveGuardMode('antigravity', { viaDispatch: true }),
+  'wrapped-preapply',
+  'antigravity + viaDispatch=true → wrapped-preapply',
+);
+assert.equal(
+  resolveGuardMode('antigravity', { viaDispatch: false }),
+  'watcher-fallback',
+  'antigravity + viaDispatch=false → watcher-fallback',
+);
+assert.equal(
+  resolveGuardMode('antigravity', { nativeHookVerified: true, viaDispatch: false }),
+  'watcher-fallback',
+  'antigravity + nativeHookVerified without dispatch → watcher-fallback',
+);
+assert.equal(
+  resolveGuardMode('agy', { viaDispatch: true }),
+  'wrapped-preapply',
+  'agy + viaDispatch=true → wrapped-preapply',
+);
+assert.equal(
+  resolveGuardMode('agy', { viaDispatch: false }),
+  'watcher-fallback',
+  'agy + viaDispatch=false → watcher-fallback',
+);
+
+// Legacy Gemini compatibility: accepted by direct guard resolution only.
 assert.equal(
   resolveGuardMode('gemini', { viaDispatch: true }),
   'wrapped-preapply',
-  'gemini + viaDispatch=true → wrapped-preapply',
+  'legacy gemini + viaDispatch=true → wrapped-preapply',
 );
 assert.equal(
   resolveGuardMode('gemini', { viaDispatch: false }),
   'watcher-fallback',
-  'gemini + viaDispatch=false → watcher-fallback',
+  'legacy gemini + viaDispatch=false → watcher-fallback',
 );
 
 // fake: always watcher-fallback
@@ -146,11 +175,13 @@ for (const unknown of ['', 'other-host', 'some-agent', 'browser', 'server']) {
 
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('claude-code'), true);
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('codex'), true, 'codex is native-pretool capable when .codex hook is verified');
+assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('antigravity'), false, 'antigravity is NOT native-pretool');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('gemini'), false, 'gemini is NOT native-pretool');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('fake'), false, 'fake is NOT native-pretool');
 
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('codex'), true);
-assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('gemini'), true);
+assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('antigravity'), true);
+assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('gemini'), true, 'legacy gemini remains wrapped-preapply compatible');
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('claude-code'), false, 'claude-code is NOT wrapped-preapply');
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('fake'), false, 'fake is NOT wrapped-preapply');
 
@@ -225,8 +256,17 @@ assert.equal(codexNative.guardMode, 'native-pretool', 'codex + verified hook →
 const codexDirect = buildGuardSession({ storyId: 'B-x', provider: 'codex', context: { viaDispatch: false } });
 assert.equal(codexDirect.guardMode, 'watcher-fallback', 'codex + no dispatch → watcher-fallback session');
 
+const antigravityDispatch = buildGuardSession({ storyId: 'B-x', provider: 'antigravity', context: { viaDispatch: true } });
+assert.equal(antigravityDispatch.guardMode, 'wrapped-preapply', 'antigravity + dispatch → wrapped-preapply session');
+
+const antigravityDirect = buildGuardSession({ storyId: 'B-x', provider: 'antigravity', context: { viaDispatch: false } });
+assert.equal(antigravityDirect.guardMode, 'watcher-fallback', 'antigravity + no dispatch → watcher-fallback session');
+
+const agyDispatch = buildGuardSession({ storyId: 'B-x', provider: 'agy', context: { viaDispatch: true } });
+assert.equal(agyDispatch.guardMode, 'wrapped-preapply', 'agy + dispatch → wrapped-preapply session');
+
 const geminiDispatch = buildGuardSession({ storyId: 'B-x', provider: 'gemini', context: { viaDispatch: true } });
-assert.equal(geminiDispatch.guardMode, 'wrapped-preapply', 'gemini + dispatch → wrapped-preapply session');
+assert.equal(geminiDispatch.guardMode, 'wrapped-preapply', 'legacy gemini + dispatch → wrapped-preapply session');
 
 const fakeSession = buildGuardSession({ storyId: 'B-x', provider: 'fake', context: { nativeHookVerified: true, viaDispatch: true } });
 assert.equal(fakeSession.guardMode, 'watcher-fallback', 'fake + all flags → watcher-fallback');
@@ -261,10 +301,15 @@ const codexPGDeg = codexProfile.degradations.find(d => d.capability === 'prewrit
 assert.ok(codexPGDeg, 'codex has prewrite-guard degradation');
 assert.match(codexPGDeg!.reason, /\.codex|hook|dispatch|wrapped/i, 'codex prewrite-guard degradation mentions hook or dispatch');
 
-// gemini is conditional (wrapped-preapply via dispatch, else fallback)
-const geminiProfile = list.hosts.find(h => h.id === 'gemini')!;
-const geminiPG = geminiProfile.capabilities.find(c => c.category === 'prewrite-guard')!;
-assert.equal(geminiPG.status, 'conditional', 'gemini prewrite-guard is conditional');
+// antigravity is the current third-host profile (wrapped-preapply via dispatch, else fallback)
+const antigravityProfile = list.hosts.find(h => h.id === 'antigravity')!;
+assert.ok(antigravityProfile, 'antigravity profile exists');
+const antigravityPG = antigravityProfile.capabilities.find(c => c.category === 'prewrite-guard')!;
+assert.equal(antigravityPG.status, 'conditional', 'antigravity prewrite-guard is conditional');
+const antigravityPGDeg = antigravityProfile.degradations.find(d => d.capability === 'prewrite-guard');
+assert.ok(antigravityPGDeg, 'antigravity has prewrite-guard degradation');
+assert.match(antigravityPGDeg!.reason, /dispatch|wrapped-preapply|native PreToolUse/i, 'antigravity prewrite-guard degradation mentions dispatch/wrapped-preapply and no native hook');
+assert.equal(list.hosts.some(h => h.id === 'gemini'), false, 'gemini stays out of current capability_list hosts');
 
 // Non-editing hosts: prewrite-guard is unavailable
 for (const hostId of ['local-runner', 'browser', 'server', 'desktop-app', 'unknown/fallback']) {
@@ -281,6 +326,18 @@ const ccProbe = buildCapabilityProbe('claude-code');
 const ccPGProbe = ccProbe.profile.capabilities.find(c => c.category === 'prewrite-guard');
 assert.equal(ccPGProbe?.status, 'conditional', 'capability_probe for claude-code shows prewrite-guard=conditional');
 
+const agyProbe = buildCapabilityProbe('agy');
+assert.equal(agyProbe.host, 'antigravity', 'capability_probe aliases agy to antigravity');
+assert.equal(agyProbe.requestedHost, 'agy');
+assert.equal(agyProbe.matchedFallback, false, 'agy is a current alias, not fallback');
+assert.equal(agyProbe.profile.capabilities.find(c => c.category === 'prewrite-guard')?.status, 'conditional');
+
+const geminiProbe = buildCapabilityProbe('gemini');
+assert.equal(geminiProbe.host, 'gemini', 'capability_probe keeps legacy gemini compatibility');
+assert.equal(geminiProbe.matchedFallback, false);
+assert.match(geminiProbe.profile.summary, /deprecated legacy/i, 'gemini probe is clearly legacy');
+assert.equal(geminiProbe.profile.capabilities.find(c => c.category === 'prewrite-guard')?.status, 'conditional');
+
 const fakeProbe = buildCapabilityProbe('not-a-real-host');
 const fallbackPGProbe = fakeProbe.profile.capabilities.find(c => c.category === 'prewrite-guard');
 assert.equal(fallbackPGProbe?.status, 'unavailable', 'unknown/fallback probe shows prewrite-guard=unavailable');
@@ -294,9 +351,9 @@ assert.equal(
   'claude-code with viaDispatch=true but no nativeHookVerified → watcher-fallback (dispatch context irrelevant)',
 );
 assert.equal(
-  resolveGuardMode('gemini', { nativeHookVerified: true, viaDispatch: false }),
+  resolveGuardMode('antigravity', { nativeHookVerified: true, viaDispatch: false }),
   'watcher-fallback',
-  'gemini with nativeHookVerified but no viaDispatch → watcher-fallback',
+  'antigravity with nativeHookVerified but no viaDispatch → watcher-fallback',
 );
 
 console.log('✓ host guard matrix smoke passed');

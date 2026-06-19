@@ -1,0 +1,57 @@
+{
+  "storyId": "B-d674",
+  "checkedAt": "2026-06-19T16:18:14.766Z",
+  "reviewRound": "2026-06-19T16:04:17.173Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Project overview names Codex CLI, Claude Code CLI, Antigravity CLI agy, and keeps Gemini only as deprecated legacy compatibility.",
+      "status": "verified",
+      "verifiedBy": "rg plus live host_runtime_list and capability_list output",
+      "evidence": "docs/guide.md line 7 names Codex CLI, Claude Code CLI, Antigravity CLI agy, with Gemini deprecated legacy; host_runtime_list returned fake,codex,claude-code,antigravity and no gemini current runtime."
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md",
+      "promise": "Host Overflow docs describe Codex and Antigravity as scaffolded or refused real-subprocess targets, Gemini as legacy only, and Antigravity agy runtime probes as cliCommand agy without unattendedSafe=true.",
+      "status": "verified",
+      "verifiedBy": "doc inspection plus live probes plus focused smokes",
+      "evidence": "host_runtime_probe --host=antigravity and --host=agy returned host antigravity, cliCommand agy, unattendedSafe false; --host=gemini returned explicit deprecated legacy warnings; dispatch-run smoke passed."
+    },
+    {
+      "docPath": "docs/guide-scope-guard.md",
+      "promise": "Scope guard docs describe Antigravity and agy wrapped-preapply only through dispatch, watcher fallback outside dispatch, and Gemini legacy/deprecated rather than current guard-provider path.",
+      "status": "verified",
+      "verifiedBy": "doc inspection plus host-guard-matrix smoke",
+      "evidence": "docs/guide-scope-guard.md multi-host table matches resolveGuardMode behavior; node packages/main/dist/tasks/host-guard-matrix-smoke.js passed."
+    },
+    {
+      "docPath": "README.md and package scripts",
+      "promise": "Documented smoke commands exist and run: npm --prefix packages/main run test:unattended-dispatch-smoke and npm run test:authority-enforce-matrix.",
+      "status": "verified",
+      "verifiedBy": "package script inspection plus command execution",
+      "evidence": "packages/main/package.json exposes test:unattended-dispatch-smoke and test:authority-enforce-matrix; root package.json exposes test:authority-enforce-matrix; both commands passed in this review."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/lattice.js host_runtime_probe --host=antigravity --json returned host=antigravity, requestedHost=antigravity, status=scaffolded, cliCommand=agy, commandPath=/Users/jek/.local/bin/agy, unattendedSafe=false. node bin/lattice.js host_runtime_probe --host=agy --json returned host=antigravity, requestedHost=agy, cliCommand=agy, unattendedSafe=false."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node bin/lattice.js host_runtime_list --json returned runtimes fake,codex,claude-code,antigravity and authorityChanged=false receiptVerified=false productionDone=false. node bin/lattice.js capability_probe --host=agy --format=json returned host=antigravity, requestedHost=agy, matchedFallback=false. node bin/lattice.js capability_list --format=json listed current hosts including antigravity and no Gemini current host."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node bin/lattice.js host_runtime_probe --host=gemini --json returned explicit deprecated legacy warning and limitation text, while no direct Gemini version or help probing was performed. npm --prefix packages/main run test:unattended-dispatch-smoke passed. npm run test:authority-enforce-matrix passed. node packages/main/dist/tasks/capability-list-smoke.js, dispatch-run-smoke.js, and host-guard-matrix-smoke.js all passed. node bin/lattice.js review_escalation_status --storyId=B-d674 --json returned ok=true assuranceLevel=full-3x2."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted from product perspective: current host surfaces expose Codex CLI, Claude Code CLI, and Antigravity CLI agy; Gemini is bounded to deprecated legacy compatibility; documented smoke commands and focused Antigravity guard/runtime smokes pass. Known limitations are explicit non-goals: no production Authority receipt is claimed, and Antigravity remains supervised/scaffolded with unattendedSafe=false until a bounded runner is added."
+  },
+  "_hash": "c76b53f9d7b86e63b7ec0809cb07027d79dc1ad555b328be260907d4bb8c49cd"
+}

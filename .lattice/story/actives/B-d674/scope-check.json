@@ -1,0 +1,45 @@
+{
+  "storyId": "B-d674",
+  "checkedAt": "2026-06-19T15:07:08.010Z",
+  "features": [
+    {
+      "feature": "Antigravity/agy host runtime registration",
+      "covered_by": "understanding outcome names antigravity + cliCommand agy; decision option A chooses first-class antigravity with legacy gemini; CHK-001 title/context/verificationIntent; plan CHK-001 implementation and verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts via understanding_get, decision_get, checklist_get, plan_get"
+    },
+    {
+      "feature": "Current three-host runtime/policy/docs surfaces",
+      "covered_by": "understanding outcome requires Codex CLI, Claude Code CLI, Antigravity CLI current host set; CHK-002 title/context/verificationIntent and relatedDocs; plan CHK-002 runtime, policy, error-message, README/guide/decision-doc updates",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts via understanding_get, checklist_get, plan_get"
+    },
+    {
+      "feature": "Focused verification for agy and legacy Gemini behavior",
+      "covered_by": "CHK-003 verificationIntent happy/edge/adversarial; plan CHK-003 focused tests/smokes, build, agy --version, no direct gemini invocation; decision preMortem covers policy rejection, docs drift, and legacy gemini compatibility",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts via decision_get, checklist_get, plan_get"
+    },
+    {
+      "feature": "Broader cli-engine modularization and Authority gate changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints: no cli-engine big split and no dispatch/authority safety weakening; plan goal excludes larger cli-engine modularization; plan Out of scope excludes large cli-engine.ts modularization and Authority Server receipt-gate changes",
+      "source": "PLAN artifacts via understanding_get and plan_get"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "adc82c7926b0d71dff2e3e0073bd1d24bed8a6e34641c1aadf619265aecec2ab",
+  "openQuestions": []
+}

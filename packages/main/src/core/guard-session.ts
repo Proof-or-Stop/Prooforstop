@@ -61,6 +61,7 @@ export const GUARD_NATIVE_PRETOOL_PROVIDERS: ReadonlySet<string> = new Set([
  */
 export const GUARD_WRAPPED_PREAPPLY_PROVIDERS: ReadonlySet<string> = new Set([
   'codex',
+  'antigravity',
   'gemini',
 ]);
 
@@ -69,7 +70,9 @@ export const GUARD_PRELAUNCH_PROVIDERS: ReadonlySet<string> = GUARD_NATIVE_PRETO
 
 /** Normalize a provider string for capability lookup. */
 export function normalizeProvider(provider: string): string {
-  return provider.trim().toLowerCase();
+  const normalized = provider.trim().toLowerCase();
+  if (normalized === 'agy') return 'antigravity';
+  return normalized;
 }
 
 /** @deprecated Use resolveGuardMode with context. True only when provider CAN support native hook. */
@@ -101,8 +104,9 @@ export interface GuardModeContext {
  * - Claude Code + nativeHookVerified=true  → 'native-pretool'
  * - Claude Code + nativeHookVerified≠true  → 'watcher-fallback'
  * - Codex + nativeHookVerified=true        → 'native-pretool'
- * - Codex/Gemini + viaDispatch=true        → 'wrapped-preapply'
- * - Codex/Gemini + no verified context     → 'watcher-fallback'
+ * - Codex/Antigravity + viaDispatch=true   → 'wrapped-preapply'
+ * - Gemini + viaDispatch=true              → 'wrapped-preapply' (legacy)
+ * - Codex/Antigravity/Gemini + no verified context → 'watcher-fallback'
  * - fake / other                           → 'watcher-fallback'
  *
  * Never returns 'active' for new sessions — 'active' is a legacy alias kept
