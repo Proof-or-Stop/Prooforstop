@@ -99,10 +99,10 @@
           "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
           "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
           "result": "pass",
-          "note": "The abort throws to the EXISTING try/finally that releases the main-write-lock (no new lock code). Proven in-smoke: abort and happy run in the SAME temp root, and the happy-path DONE later acquires the same global main-write-lock and succeeds — so the aborted DONE released the lock (no deadlock). The abort also leaves the worktree+branch recoverable. Passed.",
-          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "note": "The abort throws to the SAME pre-existing try/finally (transition-orchestrator.ts ~588) that already releases the main-write-lock on EVERY DONE-gate throw (e.g. runDonePreMergeGate); this story adds only the throw, not any new lock handling, so it reuses the proven release path. The smoke additionally asserts the aborted story is recoverable (worktree + branch survive). Note: abort and happy use SEPARATE temp roots, so the smoke does not itself re-acquire the same lock; the lock-release evidence is the unchanged shared finally (code structure) confirmed by both review hosts. Passed.",
+          "headHash": "d4c5efdb82066e03b6b7721311c9d831e523d29e",
           "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
-          "timestamp": "2026-06-19T21:20:39.390Z"
+          "timestamp": "2026-06-19T21:27:47.923Z"
         }
       ]
     },
