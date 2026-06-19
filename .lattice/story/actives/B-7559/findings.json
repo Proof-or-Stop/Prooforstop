@@ -492,7 +492,7 @@
       "desc": "§5.4 Persist-to-Lattice block uses three JSON placeholders (INTEGRATION_ALLOWED_MODIFY_JSON, INTEGRATION_ALLOWED_CREATE_JSON, INTEGRATION_ALLOWED_TEST_JSON) with no explanatory comment in the §5.4 code block. The §5.3 collective note covering all _JSON placeholders is scoped to the §5.3 fenced block; only INTEGRATION_PROTECTED_JSON receives a comment in §5.4. A reader following the §5.4 prompt template has no in-block guidance for the three unexplained placeholders.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T02:25:36.127Z",
@@ -503,7 +503,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|persist-lattice-block",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: §5.4 fenced block now carries a comment that every {{..._JSON}} placeholder is a single JSON array string.",
+      "resolvedAt": "2026-06-19T02:40:44.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-024",
