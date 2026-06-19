@@ -84,7 +84,7 @@
       "userSees": "User sees three local single-host audit results recorded as Non-authority evidence before closure.",
       "status": "done",
       "startTime": "2026-06-19T00:23:59.698Z",
-      "endTime": "2026-06-19T00:25:44.570Z",
+      "endTime": "2026-06-19T00:29:50.878Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
@@ -116,32 +116,32 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "lattice autopilot_review_submit x3",
+          "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r2 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r3 --format=json",
           "result": "pass",
-          "note": "Three local Codex single-host verdicts were recorded for current material: r1 verdict-df35089fa5024a48, r2 verdict-12f2d912e2e9824e, r3 verdict-076efa73e2173746. Each decision=pass and mode=local.",
-          "headHash": "50cb00f3c648e97be96595eb0415f0e9f73af86f",
+          "note": "Each run-specific status shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, and a localReviewEvidenceRefs entry: r1 host-verdict:verdict-df35089fa5024a48, r2 host-verdict:verdict-12f2d912e2e9824e, r3 host-verdict:verdict-076efa73e2173746. Each is intentionally single-host local evidence, so status remains blocked for 2-host certification.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
           "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:25:44.802Z"
+          "timestamp": "2026-06-19T00:29:51.064Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "round prompts enforced no optimization for optimization, no arbitrary optimization, only real correctness issues, and consistency of logic",
+          "command": "run-specific status plus round notes in process-events.jsonl",
           "result": "pass",
-          "note": "Round 1 checked real zero-review code DONE gap, Round 2 checked consistency with threshold-triggered review escalation, Round 3 checked Authority boundary. Only one real correctness issue was found earlier and fixed: generated supersession wording incorrectly implied decision-doc edits always require 3x2.",
-          "headHash": "50cb00f3c648e97be96595eb0415f0e9f73af86f",
+          "note": "Round 1 checked real zero-review code DONE gap, Round 2 checked consistency with threshold-triggered review escalation, Round 3 checked Authority boundary. The earlier incorrect default-run/x3 evidence claim was replaced with exact runId-specific status commands.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
           "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:25:44.946Z"
+          "timestamp": "2026-06-19T00:29:51.183Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "lattice review_escalation_status {storyId:B-503b}",
+          "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json and review_escalation_status",
           "result": "pass",
-          "note": "Status reports authorityDone=false, fullAuthorityDone=false, productionDone=false, required=false, assuranceLevel=ordinary-review. The three local verdicts are story audit evidence, not Authority Server proof or automatic DONE-required quorum.",
-          "headHash": "50cb00f3c648e97be96595eb0415f0e9f73af86f",
+          "note": "Run-specific status reports authorityDone=false, fullAuthorityDone=false, receiptVerified=false, multiHostVerified=false. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false. The evidence is local Non-authority audit evidence only.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
           "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:25:45.094Z"
+          "timestamp": "2026-06-19T00:29:51.305Z"
         }
       ]
     }
