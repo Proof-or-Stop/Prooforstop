@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T19:16:59.705Z",
       "reviewRunId": "B-30c3:RR-002",
       "_hash": "e8eac2c49de99fb3a8aae30496ee5d83e02f313b4a8dae69599fb6eb7f493105"
+    },
+    {
+      "id": "B-30c3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 4 changed files (codex-cli.ts, gemini-cli.ts, dispatch-usage.ts, usage-ledger-codex-gemini-smoke.ts) against commit c47ec8359. Dead code: none — ownProp, sanitizeNestedDetails, pickCodexUsageKeys, pickGeminiUsageKeys, CODEX_USAGE_KEYS, GEMINI_USAGE_KEYS all used; OFF constant in smoke used; all imports (readFileSync, execFileSync, statSync, existsSync, aggregateByGroup, buildUsageReport, deriveRecordTotal, summarizeLedgerFile) used. Type safety: no as any; msg!/resp! non-null assertions are safe (ownProp guard ensures non-null before the assertion); as Record<string,unknown> casts follow isXxxUsageObject narrowing. I/O isolation: no usage-ledger imports in provider files. Inner catch in recordDispatchFinalForProvider correctly swallows only buildProviderRecord/appendUsageRecord throw so execution falls through to one unavailable-final; it is not a silent error sink — the outer catch is the final never-throws guard and the unavailable-final is still appended, superseding the estimate. isCodexUsageObject/isGeminiUsageObject use prototype-chain in for classification (not value reading) and were not changed by this diff. No blockers found.",
+      "createdAt": "2026-06-19T19:19:35.808Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-001",
+      "_hash": "b06f7c0418caf19fb956e08cea78675d3ab9ad7128ddb8cb19dfa3b4d1f9669e"
     }
   ]
 }
