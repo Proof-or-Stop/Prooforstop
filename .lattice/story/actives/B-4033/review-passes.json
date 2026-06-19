@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-19T14:07:40.976Z",
       "reviewRunId": "B-4033:RR-016",
       "_hash": "5a75cc87e35fde1a1b26eca867e7cc56a3103bc2fab54dced3c3cc31bc17acec"
+    },
+    {
+      "id": "B-4033:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 final concept sweep complete. No concept deletions or replacements identified. All comments in new files accurate: pathMatchesPattern is real (core/scope-contract.ts, prewrite-guard.ts, semantic-scope-gate.ts); GlobOverlapResult shape matches frozen contract; computeWriteSet=modify+create matches impl; tier-1/tier-2 labels match logic; normalizeEntry strips . not .. so src/.. surfaces and is rejected correctly; all 4 exports imported in smoke test (no doc-promise-undelivered); no stale synonyms, no TODOs/stubs; minimatch mention asserts absence per spec 4.2. No blockers.",
+      "createdAt": "2026-06-19T14:09:56.059Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-017",
+      "_hash": "3f5f4132eb532f975fbc4d8fecc53d5db150398bea6b6f7705971657539c676d"
     }
   ]
 }
