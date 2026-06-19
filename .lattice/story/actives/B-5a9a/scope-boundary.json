@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5a9a",
+  "mode": "feature",
+  "allowed": [
+    "Add or update focused smoke/regression coverage for unrelated main merge warning-only behavior and story-owned file change invalidation.",
+    "Compute and persist storyFilesHash alongside existing materialHash for review runs, escalation verdicts/fallback evidence, and verification evidence where freshness is evaluated.",
+    "Design a secondary storyFilesHash for story-owned changed files versus merge-base main, documented through the decision-doc flow.",
+    "Update freshness/gate semantics so unchanged storyFilesHash can keep bindings valid when only unrelated whole-tree materialHash drifted, while surfacing a re-attestation-required warning."
+  ],
+  "excluded": [
+    "Do not broaden usage-ledger or host-independence cross-module imports.",
+    "Do not change Authority server/client job-status or live E2E behavior except if an existing test fixture needs compile-only adaptation.",
+    "Do not implement B-0e53 DONE pre-merge mainSha race handling in this story.",
+    "Do not push remote branches or publish releases.",
+    "Do not remove, replace, or silently rebind the existing whole-tree materialHash."
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "User asked to execute development for B-5a9a after approving promotion from the per-story-files-hash-material-drift draft; scope is limited to the three checklist items.",
+  "createdAt": "2026-06-19T21:08:53.022Z",
+  "updatedAt": "2026-06-19T21:08:53.022Z",
+  "_hash": "7355f223c15e1920acfbb99a785a8aa865a74ad669c6392289f9df683bb8bb66"
+}

@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind the explicit high-risk 3x2 predicate to runtime process facts",
+      "context": "gap_analyze reports two high uncovered requirements from lattice-strengthening-roadmap-execution-plan.md where requires3x2 depends on explicitlyConfiguredHighRiskPolicyRequires3x2. Existing review assurance floor logic enforces high-risk 3x2 or degraded fallback, but the precise predicate name is not bound into the process-fact surface consumed by DONE/gap analysis.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8. Host Identity, Review-Run, And 3x2 Quorum Strengthening",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add contract and convergence evidence for the high-risk policy binding",
+      "context": "The fix must be mechanically verified: process fact contract should protect the explicit predicate binding and gap_analyze/convergence_check should no longer report the two high-priority uncovered requirements.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#3-Round 2-Host Validation Policy",
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

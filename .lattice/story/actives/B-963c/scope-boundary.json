@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-963c",
+  "mode": "custom",
+  "allowed": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excluded": [
+    ".omx legacy material",
+    "global publish or push",
+    "production receipt verification semantics",
+    "remote receipt server runtime behavior changes",
+    "unrelated active stories B-0e53, B-5a9a, B-fbb6"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User asked on 2026-06-19 to handle the two high-priority gap_analyze gaps for explicitlyConfiguredHighRiskPolicyRequires3x2; scope is limited to binding that predicate into Lattice runtime process facts and verification without changing remote receipt or production completion behavior.",
+  "createdAt": "2026-06-19T21:11:18.188Z",
+  "updatedAt": "2026-06-19T21:11:18.188Z",
+  "_hash": "d2c907b3926977f0a0b481699b895739cd878a5df0db8bc93974e6bb2ae668cc"
+}

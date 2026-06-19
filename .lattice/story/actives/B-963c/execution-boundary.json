@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-963c",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:smoke -- *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "lattice authority_* --live",
+    "node bin/lattice.js authority_* --live",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "lattice_senior_actor_ed25519.key",
+    "lattice_senior_authority_trust.env",
+    "lattice_senior_staging-client.env",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "B-963c execution is limited to local runtime policy binding and verification for explicitlyConfiguredHighRiskPolicyRequires3x2; no remote push or live Authority claim.",
+  "createdAt": "2026-06-19T21:11:03.595Z",
+  "updatedAt": "2026-06-19T21:11:03.595Z",
+  "_hash": "1d3a54622e453a3bf44e8774a4d68210dfda859fea4570eec0727a0887b5fe4b"
+}

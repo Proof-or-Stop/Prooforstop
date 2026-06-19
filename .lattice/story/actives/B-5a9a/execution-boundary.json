@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5a9a",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git merge main",
+    "git status *",
+    "lattice checklist_get *",
+    "lattice checklist_update *",
+    "lattice decision_set *",
+    "lattice finding_add *",
+    "lattice review_pass_set *",
+    "lattice review_run_start *",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice story_get *",
+    "lattice story_review *",
+    "lattice understanding_set *",
+    "lattice validate *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tasks",
+    "packages/main/tests",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Direct docs/story and fixture edits remain prohibited by AGENTS; Lattice commands may update story metadata. Code edits stay within storyFilesHash/materialHash freshness scope.",
+  "createdAt": "2026-06-19T21:08:53.119Z",
+  "updatedAt": "2026-06-19T21:08:53.119Z",
+  "_hash": "3747fa9947efbb1d6d8e10875382dee780092362aa9de7d8c2552d2ffec364b8"
+}
