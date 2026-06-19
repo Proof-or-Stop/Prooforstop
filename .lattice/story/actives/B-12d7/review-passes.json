@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T02:53:56.869Z",
       "reviewRunId": "B-12d7:RR-005",
       "_hash": "e9212e638dce19daf74af331d8b35ee5806744a40c67a1b9634ea5ab326a163f"
+    },
+    {
+      "id": "B-12d7:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. All 45 intents (CHK-001: 17, CHK-002: 14, CHK-003: 14) have evidence entries with result=pass. The three round-1 fixes are verified: CHK-003:adversarial:3 has a real concurrency test (two preflight+final cycles, 4 records, distinct ledgerCallId, verifyLedgerChain passes); CHK-002:edge:2 has a real model=null assertion (provider.model===unknown fallback); CHK-002:edge:3 has a real correlation=null assertion (fresh correlation minted, non-empty ledgerCallId/attemptId). All three rebound evidence entries carry headHash b2b6830 and their notes match the literal smoke check names. CHK-003:edge:3 audit_only verdict is confirmed as a legitimate known out-of-scope limitation (four-field cache model buckets openai/gemini records as unknownCount; double-count guard estimateCount===0 passes; F-004 dismissed). Smoke passes 17/17. No must-priority intent is uncovered. No new findings.",
+      "createdAt": "2026-06-19T03:24:58.391Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-006",
+      "_hash": "0a4cd9b7c48c53941c30bac244f266a8d05d759c2babd6149d262799c1da5852"
     }
   ]
 }
