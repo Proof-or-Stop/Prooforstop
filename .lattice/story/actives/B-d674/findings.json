@@ -70,6 +70,24 @@
       "resolvedAt": "2026-06-19T15:38:27.993Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d674:F-004",
+      "desc": "docs/guide-scope-guard.md:17,34-35,208 still presents Gemini/gemini-cli as active current guard-provider paths and expected watcher-fallback agents, while omitting Antigravity CLI/agy from the current host semantics. After F-002, current hosts should be Codex CLI, Claude Code CLI, and Antigravity CLI/agy, with Gemini retained only as legacy/deprecated compatibility. This public guide therefore still teaches the pre-F-002 host model. Severity: high because the story goal is retiring Gemini-first semantics in user-facing docs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T15:41:31.584Z",
+      "reviewRound": "2026-06-19T15:37:54.182Z",
+      "reviewRunId": "B-d674:RR-008",
+      "_hash": "1e17ecb7f822f4220fac2634c097d3638b2ad2ab384ab9303f153bfa5d3e9b28",
+      "files": [
+        "docs/guide-scope-guard.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-guide-scope",
+      "signatureTagSource": "auto"
     }
   ]
 }
