@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Keep cli-engine.ts as the compatibility boundary until downstream consumers migrate.",
+    "Move cohesive helper groups only; do not combine unrelated lifecycle dispatch work into this story.",
+    "Gate-consumed facts must remain mechanically verified by existing contract scripts and focused smokes.",
+    "Prefer small modules that preserve imports/types over broad rewrites."
+  ],
+  "drivers": [
+    "cli-engine.ts god-file pressure is high but gate behavior is production-sensitive.",
+    "Parallel story B-74a0 may add packages/main/src/cli modules, so this story should create disjoint files under that directory.",
+    "Owner lease and reviewer readonly semantics must remain fail-closed."
+  ],
+  "options": [
+    {
+      "name": "A: Extract four focused runtime/gate helper modules with compatibility re-exports",
+      "pros": [
+        "Matches the Round 3 execution plan exactly.",
+        "Keeps the public cli-engine export surface stable.",
+        "Allows focused ownership contract smoke coverage."
+      ],
+      "cons": [
+        "Requires careful import wiring because helpers share command policy and story owner lease types.",
+        "Does not reduce lifecycle dispatch complexity yet."
+      ]
+    },
+    {
+      "name": "B: Leave ownership gates in cli-engine and only extract root/activity helpers",
+      "pros": [
+        "Lower immediate risk around owner lease behavior.",
+        "Smaller diff."
+      ],
+      "cons": [
+        "Does not address the largest high-risk section in cli-engine.",
+        "Leaves reviewer readonly and owner lease logic tangled with run wrapper."
+      ]
+    },
+    {
+      "name": "C: Move full run wrapper and lifecycle dispatch together now",
+      "pros": [
+        "Maximizes line-count reduction in one story.",
+        "Could create a cleaner CLI shell quickly."
+      ],
+      "cons": [
+        "Combines Round 3 and Round 4 risks and conflicts with the staged plan.",
+        "Harder to isolate regressions in INIT_CHECK and recover_evidence dispatch."
+      ]
+    }
+  ],
+  "chosen": "A: Extract four focused runtime/gate helper modules with compatibility re-exports",
+  "rationale": "Choose the focused Round 3 extraction because it reduces cli-engine size while keeping gate semantics, exports, and lifecycle dispatch stable for parallel integration.",
+  "preMortem": [
+    {
+      "scenario": "Owner-gated command starts bypassing the story owner lease.",
+      "trigger": "Effective ownership class helper changes a null/invalid policy into an allow path.",
+      "consequence": "Foreign sessions can mutate story state and corrupt evidence.",
+      "mitigation": "Keep fail-closed null semantics, run command ownership contract smoke, and verify process fact contract."
+    },
+    {
+      "scenario": "Read-only reviewer mode accidentally writes hooks/activity/lease state before blocking.",
+      "trigger": "Reviewer readonly guard is moved after pre-command hooks or owner lease enforcement.",
+      "consequence": "Advisory reviewers can mutate state despite read-only mode.",
+      "mitigation": "Preserve call ordering and add/keep smoke assertions for read-only rejection before mutation."
+    },
+    {
+      "scenario": "Activity logging loses main-root fallback after DONE worktree cleanup.",
+      "trigger": "Root resolution helper prefers cwd after worktree deletion instead of saved fallback.",
+      "consequence": "Post-command activity logs vanish or write to the wrong root.",
+      "mitigation": "Extract root helpers without changing fallback order and cover with build plus validate commands."
+    },
+    {
+      "scenario": "Parallel merge with B-74a0 causes imports to diverge.",
+      "trigger": "Both stories edit cli-engine imports and create files under src/cli.",
+      "consequence": "Merge conflict or duplicate helper definitions during DONE integration.",
+      "mitigation": "Use disjoint module filenames and keep compatibility exports in cli-engine."
+    }
+  ],
+  "timestamp": "2026-06-19T16:50:38.812Z"
+}

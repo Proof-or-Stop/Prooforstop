@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add material-overlap audit to Authority gate request contracts",
+      "context": "Update GateEvaluateRequestContract and schema with a typed materialOverlapAudit containing changedFiles and actualFileOverlaps. Keep the field explicit and narrow; do not add new /v1/checks or /v1/commands contracts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Include material-overlap audit in signed DONE gate envelopes",
+      "context": "Ensure buildGateEvaluateEnvelope places decision.materialOverlapAudit inside the decision payload before signHexEnvelope. The general Authority gate path must preserve non-empty actualFileOverlaps rather than clearing them.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update live Python E2E smoke DONE preflight",
+      "context": "authority-live-python-e2e-smoke must submit a minimal empty materialOverlapAudit for the no-overlap staging smoke so DONE preflight no longer fails with present=false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression coverage and rebuild CLI",
+      "context": "Cover schema acceptance, envelope inclusion before signing, live smoke request shape, and preservation of non-empty overlaps. Rebuild packages/main/dist after source changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run targeted validation and record evidence",
+      "context": "Run the targeted tests/build and, if staging credentials are available, the Authority live smoke against https://staging.hostneutral.net. Record exact evidence and any remaining external blocker.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

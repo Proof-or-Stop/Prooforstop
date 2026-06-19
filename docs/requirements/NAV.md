@@ -1,10 +1,11 @@
 # Source of Truth Navigation
 
-> 65 files
+> 66 files
 
 ## decisions
 
 - [Structured Comment System](decisions/annotation-system.md)
+- [Authority DONE Material Overlap Audit CLI Fix](decisions/authority-done-material-overlap-audit-cli-fix.md)
 - [Lattice CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
 - [Authority Receipt Cross-Repo Live Smoke](decisions/authority-receipt-cross-repo-live-smoke.md)
 - [Authority Receipt Gate Integration Execution Plan](decisions/authority-receipt-gate-integration-execution-plan.md)

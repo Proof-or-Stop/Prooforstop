@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7e47",
+  "allowedCommands": [
+    "find *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "ls *",
+    "node *",
+    "npm --prefix packages/main *",
+    "npm test *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "codex",
+    "git-readonly",
+    "lattice-cli",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+    "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/planned-steps-executor.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git checkout *",
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "lattice_senior_actor_ed25519.key",
+    "lattice_senior_authority_trust.env",
+    "lattice_senior_staging-client.env",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Narrow correctness fix for materialOverlapAudit in signed Authority DONE gate input. Live staging smoke may be attempted only if existing environment credentials are available; do not read local senior secret files unless explicitly required.",
+  "createdAt": "2026-06-19T18:45:40.292Z",
+  "updatedAt": "2026-06-19T18:45:40.292Z",
+  "_hash": "8eefc4fc78f2bfd89b98b2b8b9e7a8c07d0b987833a2c0a3f29c1fe048f811d7"
+}

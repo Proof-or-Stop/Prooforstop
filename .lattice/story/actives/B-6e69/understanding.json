@@ -1,0 +1,31 @@
+{
+  "task": "Extract runtime root resolution, activity policy, owner lease gate helpers, and reviewer read-only helpers out of cli-engine.ts without changing gate semantics.",
+  "outcome": "cli-engine.ts delegates runtime root/activity/ownership/reviewer gate logic to focused cli modules while existing exports, command behavior, and validation gates remain unchanged.",
+  "facts": [
+    "cli-engine.ts currently contains resolveRoot, resolveMainRootFromWorktreeRoot, resolveRootForCommand, activity skip/source policy, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer read-only gate helpers.",
+    "The modularization execution plan names Round 3 modules runtime-root.ts, activity-policy.ts, ownership-gate.ts, and reviewer-readonly-gate.ts.",
+    "Compatibility exports from cli-engine.ts must remain for ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer read-only helpers.",
+    "Command policy ownership classes and process fact registry are gate-consumed facts; this story must not silently change classifications.",
+    "B-74a0 is extracting command catalog in a separate worktree, so this story should avoid MAIN_TOOLS/schema movement and keep imports merge-friendly."
+  ],
+  "constraints": [
+    "Do not change command classifications without explicit process-fact contract updates.",
+    "Do not alter owner lease takeover, stale lease, or fail-closed behavior.",
+    "Do not allow read-only reviewer mode to trigger hooks, acquire leases, or run mutating commands.",
+    "Do not move lifecycle special dispatch or INIT_CHECK metadata sync in this story.",
+    "Preserve compatibility re-exports from packages/main/src/cli-engine.ts."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/runtime-root.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/cli/reviewer-readonly-gate.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+    "packages/main/src/tasks/main-write-lock-coverage.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-19T16:51:51.073Z"
+}
