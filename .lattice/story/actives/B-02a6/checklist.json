@@ -38,7 +38,31 @@
       "context": "Extract/reuse the bootstrap safe-init-commit (force-add + commit-tree/update-ref) and invoke it at the end of story_create under the already-held main-write-lock. Decide commit target (story branch ref vs main) in PLAN; ensure INIT_CHECK bootstrap is idempotent when the ref/commit already exists, and story_discard --purge still reverses it.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After lattice story_create, git log on main shows a \"lattice: story B-xxx init\" commit and git ls-files lists .lattice/story/actives/B-xxx/index.json as tracked; a subsequent git clean -fd leaves the metadata fully intact.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create commits the INIT metadata to main HEAD; git ls-files shows the leaf tracked immediately after create",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail); story_discard --purge still reverses via purgeSafeInitCommit or tombstone fallback",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A concurrent git clean -fd and a wrong-branch checkout on the shared checkout cannot wipe the now-tracked metadata; the safe-init commit is inside the main-write-lock so it serializes against a concurrent DONE merge",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
