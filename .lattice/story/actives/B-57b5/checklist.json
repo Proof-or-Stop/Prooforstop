@@ -64,7 +64,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "INIT_CHECK output still reports metadata commit/merge when needed, recover_evidence still prints structured diagnostics before non-zero failures.",
+      "excludes": [
+        "Do not change StoryStore persistence semantics or storyMachine guard predicates.",
+        "Do not change Authority receipt classification or productionDone derivation.",
+        "Do not change main write lock implementation beyond preserving existing call sites through extracted sync helpers."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/init-check-metadata-sync.ts",
+          "packages/main/src/cli/recover-evidence-dispatch.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-coverage.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "commitInitCheckMetadataAndMergeMain and related bounded metadata reconcile helpers move to init-check-metadata-sync while cli-engine.ts keeps a compatibility export.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "INIT_CHECK metadata conflict resolution still resolves only machine-owned story metadata to the base branch version and aborts non-metadata conflicts without markers.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recover_evidence special dispatch still prints structured refused/fail JSON before returning non-zero and refuses unsupported dirty categories.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
