@@ -105,10 +105,10 @@
           "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "After real story_create the smoke asserts the leaf is tracked in HEAD (git ls-files / committed safe-init 'lattice: story <id> init'); validated green.",
-          "headHash": "8e9edccfdf6d559a3ddce3826104c5c63f2fe306",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:55:52.158Z"
+          "note": "After real story_create the leaf is tracked in HEAD (committed safe-init 'lattice: story <id> init'). Re-recorded at current HEAD.",
+          "headHash": "214ca27828074a10a15274d3447a13836d60844c",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:13.500Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
