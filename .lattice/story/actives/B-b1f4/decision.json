@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "Additive, not mutative: introduce a NEW aggregate; never redefine the strict four-field providerReportedTotal/known semantics.",
+    "Never infer an unreported value: a null input OR output excludes the record from the primary total; cacheCreation/cacheRead are never coerced to 0.",
+    "Keep informational-only informational-only: the new field feeds no gate and carries no gate/verdict/decision name.",
+    "Preserve module isolation: only ./ sibling + node: imports inside usage-ledger.",
+    "Parallel structure: model the primary aggregate symmetrically to the existing total so the code and tests read the same way."
+  ],
+  "drivers": [
+    "Audit rule: the ledger must never invent a token count a provider did not report (the whole reason cache-less records are 'unknown' today).",
+    "Backward compatibility: existing summary/diagnostics consumers and their invariants (providerReportedTotal, known rollups, cost) must be byte-for-byte unchanged.",
+    "Operator visibility: codex/gemini input+output spend must show up somewhere in the report instead of vanishing into an unknown bucket."
+  ],
+  "options": [
+    {
+      "name": "primary-total",
+      "pros": [
+        "Surfaces codex/gemini input+output without touching cacheCreation/cacheRead — no inference.",
+        "Strict four-field providerReportedTotal/known/cost stay exactly as-is (purely additive).",
+        "input/output are validator-guaranteed non-null for provider-reported, so the primary total is always defined for them.",
+        "Symmetric to existing total/known, low cognitive overhead, easy to test with a clean negative assertion."
+      ],
+      "cons": [
+        "Adds new fields to UsageSummary and SourceTokenTotals (shape grows; consumers verified to not deepEqual the whole object).",
+        "Two totals now coexist (primary vs four-field) — must be documented so operators don't conflate them."
+      ]
+    },
+    {
+      "name": "cacheCreation-known-zero-adapter-rule",
+      "pros": [
+        "No new aggregate fields; codex/gemini would flow into the existing providerReportedTotal.",
+        "Single total to read."
+      ],
+      "cons": [
+        "Mutates the strict four-field meaning: declares a value (cacheCreation=0) the provider never reported — violates the no-inference audit rule.",
+        "Still incomplete: cacheRead can be null when prompt_tokens_details/cachedContentTokenCount is absent, so the record can STILL be unknown.",
+        "Touches the adapters (out of scope) and risks contaminating cost derivation with an invented 0.",
+        "Higher blast radius on existing invariants/tests."
+      ]
+    }
+  ],
+  "chosen": "primary-total",
+  "rationale": "The primary-total approach is the only one that satisfies the hard audit constraint (never infer an unreported value) while still making codex/gemini input+output visible. It is purely additive, leaves the strict four-field providerReportedTotal/known/cost semantics and the adapters untouched, and is robust to cacheRead also being null. The cacheCreation=0 adapter rule both violates the no-inference rule and fails to fully solve the problem (null cacheRead), so it is rejected.",
+  "preMortem": [
+    {
+      "scenario": "The new primary aggregate silently double-counts or mis-buckets estimate/unavailable records.",
+      "trigger": "Accumulating primaryKnown without re-checking source, or summing primaryReportedTotal over non-provider-reported records.",
+      "consequence": "primaryReportedTotal becomes a meaningless mixed number; operators distrust the report.",
+      "mitigation": "Gate primaryReportedTotal on source==='provider-reported' (mirroring providerReportedTotal); exclude source==='unavailable' from the per-source primary accumulation; add a smoke asserting estimate/unavailable do NOT contribute."
+    },
+    {
+      "scenario": "An existing invariant regresses because providerReportedTotal/known/cost behavior shifted.",
+      "trigger": "Refactoring the shared accumulation loop and accidentally changing the four-field path.",
+      "consequence": "Prior smokes (usage-ledger-smoke, estimate-smoke, diagnostics-smoke, codex-gemini-smoke) fail or, worse, pass with wrong numbers.",
+      "mitigation": "Make the change strictly additive (new branches/fields only); run the FULL smoke suite green; keep the existing assertions (unknownCount unchanged for codex/gemini, providerReportedTotal excludes them) intact."
+    },
+    {
+      "scenario": "The added fields break the module isolation or the report's no-gate invariant.",
+      "trigger": "Importing a helper from outside usage-ledger, or naming a field with a banned gate/verdict/decision token.",
+      "consequence": "The static zero-cross-module-import check or the no-gate deep-key scan fails, blocking the gate.",
+      "mitigation": "Implement asPrimaryDimensions inside diagnostics.ts; name fields primaryReportedTotal/primaryKnown/primaryKnownCount (no banned tokens); rely on the existing static smokes to confirm."
+    }
+  ],
+  "timestamp": "2026-06-19T12:37:49.195Z"
+}

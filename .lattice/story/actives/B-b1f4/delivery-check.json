@@ -1,0 +1,59 @@
+{
+  "storyId": "B-b1f4",
+  "checkedAt": "2026-06-19T13:26:04.407Z",
+  "reviewRound": "2026-06-19T13:15:28.077Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/usage-ledger/summary.ts#UsageLedgerSummary",
+      "promise": "UsageLedgerSummary interface gains primaryReportedTotal (number) and primaryReportedCount (number) — additive sum of input+output for provider-reported records with both primary dims known",
+      "verifiedBy": "diff/read",
+      "evidence": "diff shows +primaryReportedTotal: number and +primaryReportedCount: number on UsageLedgerSummary; JSDoc describes semantics; summarizeRecords accumulates them before the four-field continue; summarizeLedgerFile zero-inits them"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/summary.ts#DerivedRecordTotalBase",
+      "promise": "DerivedRecordTotalBase gains primaryTotal (number|null) — null for unavailable source or null input/output; never inferred; computed once and placed on base so both union branches carry it",
+      "verifiedBy": "diff/read",
+      "evidence": "diff adds primaryTotal: number | null to DerivedRecordTotalBase with JSDoc; deriveRecordTotal computes it as null when source=unavailable or either dim is null, else input+output"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/diagnostics.ts#SourceTokenTotals",
+      "promise": "SourceTokenTotals gains primaryKnown (PrimaryTokenDimensions) and primaryKnownCount (number) — additive input+output over records whose both primary dims are known; independent of cache dims; never inferred",
+      "verifiedBy": "strings/grep",
+      "evidence": "strings output confirms SourceTokenTotals has primaryKnown: PrimaryTokenDimensions and primaryKnownCount: number; emptySourceTotals zero-inits them; aggregateByGroup accumulates via asPrimaryDimensions; buildUsageReport rolls them into overall"
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-report.ts#renderHuman",
+      "promise": "renderHuman output gains primary[in=.. out=..] column per source — inserted before strict tokens[...] column in both the overall section and the per-group section",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff adds primary[in=${s.primaryKnown.input} out=${s.primaryKnown.output}] at lines 100 and 126; transcript-diff.md verbatim output shows codex primary[in=500 out=200] tokens[in=0 ...], gemini primary[in=800 out=120], claude in both"
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts#CHK-PRIMARY",
+      "promise": "CHK-PRIMARY checks added: codex+gemini+claude all contribute to primaryReportedTotal; strict four-field providerReportedTotal unchanged; diagnostics primaryKnown/primaryKnownCount correct; estimates and unavailable excluded; deriveRecordTotal null-input/all-zero/unavailable-source guards",
+      "verifiedBy": "diff/test-evidence",
+      "evidence": "diff adds ~400 lines of CHK-PRIMARY checks with concrete assertions; test-evidence confirms all 30 verification items pass including CHK-001, CHK-002, CHK-003 sub-items"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "All 11 verification items (happy:0-4, edge:0-3, adversarial:0-1) pass in usage-ledger-codex-gemini-smoke.ts. Covers: deriveRecordTotal primaryTotal for codex/claude/null-input/all-zero/unavailable; summarizeRecords primary aggregate; source exclusion (estimate and unavailable); empty and absent-ledger zero-init. All recorded as manual_transcript verdict=success in test-evidence.json."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "All 11 verification items (happy:0-3, edge:0-3, adversarial:0-2) pass. Covers: aggregateByGroup primaryKnown for codex/claude; buildUsageReport overall rollup; per-group accumulation; unavailable/null-input exclusion; emptySourceTotals zero-init; cost computation unchanged; TypeScript type-level check; estimate source isolation. Items split between usage-ledger-codex-gemini-smoke.ts and usage-ledger-diagnostics-smoke.ts."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "All 8 verification items (happy:0-3, edge:0-1, adversarial:0-1) pass. End-to-end smoke asserts primaryReportedTotal=2320/count=3, strict four-field providerReportedTotal=760/count=1, diagnostics primaryKnown.input=1800/output=520. Smoke wired into run-all-smokes.ts. Real-machine transcript-diff.md confirms operator output from node packages/main/dist/tasks/usage-ledger-report.js on a real codex+gemini+claude ledger showing primary column with codex/gemini tokens previously invisible."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 code-level promises verified from diff and file reads: summary.ts primaryReportedTotal+Count fields, DerivedRecordTotalBase primaryTotal, diagnostics.ts SourceTokenTotals primaryKnown+Count, renderHuman primary column in both overall and per-group sections, and CHK-PRIMARY smoke checks. 30/30 verification items pass across all three checklist items. Real-machine transcript-diff.md shows verbatim output from usage-ledger-report.js. Strict four-field semantics and cost unchanged. No TODOs in source diff. No README/CLAUDE.md changes promised or missing."
+  },
+  "_hash": "25bfdd9c5a495d4081783259547df55eab827d684c2a3f84c8fd6e36e74dc3e0"
+}

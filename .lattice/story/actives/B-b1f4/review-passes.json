@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-b1f4:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. Story is purely ADDITIVE: new symbols primaryReportedTotal, primaryReportedCount, primaryTotal (summary.ts), PrimaryTokenDimensions, asPrimaryDimensions, primaryKnown, primaryKnownCount (diagnostics.ts), and renderHuman primary column (usage-ledger-report.ts). Grep across all .ts/.md/.json sources confirms all new symbols are fully defined and consistently used with zero orphaned residuals. No old concept was removed or renamed. CLAUDE.md/README/docs/ unchanged — no doc-promise-undelivered items. Concept residue check: clean, no blocker.",
+      "createdAt": "2026-06-19T13:17:59.214Z",
+      "reviewRound": "2026-06-19T13:15:28.077Z",
+      "reviewRunId": "B-b1f4:RR-001",
+      "_hash": "943ca095de14ea3b6e6d187e1beab8f0bd293d9a749e79cc8d95db253950db00"
+    },
+    {
+      "id": "B-b1f4:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 30 intents across CHK-001/002/003. Every must-priority intent has a bound evidence entry whose command (usage-ledger-codex-gemini-smoke.js, usage-ledger-diagnostics-smoke.js, npm build, run-all-smokes --select usage-ledger) literally exercises the stated intent claim. All four evidence commands confirmed green at head fcaf52d3. No gaps found.",
+      "createdAt": "2026-06-19T13:18:32.252Z",
+      "reviewRound": "2026-06-19T13:15:28.077Z",
+      "reviewRunId": "B-b1f4:RR-003",
+      "_hash": "c51432f439ea0d8c0a3088da7100b6e19c29247e059e6d3e42f081b35fdfb0d0"
+    },
+    {
+      "id": "B-b1f4:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no `as any`, no empty catch blocks, no cross-module imports. summary.ts four-field providerReportedTotal / known-rollup / computeCost semantics byte-unchanged. primaryReportedTotal accumulator is correctly independent (runs before the four-field `continue`, source=provider-reported guard, primaryTotal non-null guard). No inference of unreported values: null input/output or source=unavailable both yield primaryTotal null in deriveRecordTotal. cacheCreation/cacheRead never coerced to 0. Zero-cross-module-import invariant intact: diagnostics.ts imports only ./summary.js and ./record.js siblings; PrimaryTokenDimensions/asPrimaryDimensions defined and used in-module. UsageReport and all new interfaces carry no gate/verdict/decision/blocker/pass fields. All new imports (deriveRecordTotal, summarizeLedgerFile, aggregateByGroup, buildUsageReport, UsageLedgerRecord) are actively used. No promised-but-undelivered doc changes.",
+      "createdAt": "2026-06-19T13:18:43.128Z",
+      "reviewRound": "2026-06-19T13:15:28.077Z",
+      "reviewRunId": "B-b1f4:RR-002",
+      "_hash": "86ab221d7bf048be32f7988196a2bbc14b1806977a280d6e56ba71fcceb8dc01"
+    }
+  ]
+}
