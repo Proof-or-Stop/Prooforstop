@@ -68,6 +68,23 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "`host_runtime_list --json` and host/dispatch policy surfaces present Codex CLI, Claude Code CLI, and Antigravity CLI as the current real host set, with Gemini wording limited to legacy/deprecated compatibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-policy.ts",
+          "packages/main/src/core/capabilities.ts",
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests",
+          "scripts"
+        ]
       }
     },
     {
