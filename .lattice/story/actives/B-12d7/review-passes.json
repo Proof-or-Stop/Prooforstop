@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T02:53:56.869Z",
       "reviewRunId": "B-12d7:RR-002",
       "_hash": "f988608a76192efcd9d1855a5944bdcbc1fa7ff41f099a13fed17af7476518da"
+    },
+    {
+      "id": "B-12d7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 5 key invariants verified: (1) RAW-OUTPUT-NEVER-SURFACED holds — extractCodexUsage/extractGeminiUsage return only the token-count sub-object; buildProviderReportedUsage stores only payloadDigest(rawUsage) in the raw field, never the object itself; stdoutDigest/stderrDigest/stdoutBytes/stderrBytes are unchanged. (2) CLAUDE PATH BYTE-IDENTICAL — diff only touches runBoundedRealLeafDispatch and the import list; runClaudeCodeRealLeafDispatch, parseClaudeCliOutput, recordDispatchFinal, and finalContext are untouched. (3) FAIL-OPEN — both preflight and final calls in runBoundedRealLeafDispatch are wrapped in try/catch; recordDispatchFinalForProvider itself never throws (outer try/catch). (4) OFF BYTE-IDENTICAL — all ledger work is inside if(ledgerOn) blocks; runner call is unconditional between them. (5) ZERO CROSS-MODULE IMPORT — providers/codex-cli.ts and gemini-cli.ts have zero imports from core/usage-ledger (static grep verified). No dead code, no as-any casts, no empty catches without documented intent. The new smoke auto-discovers via run-all-smokes and is also registered as test:usage-ledger-codex-gemini npm script. No doc-promise-undelivered findings.",
+      "createdAt": "2026-06-19T02:58:47.018Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-001",
+      "_hash": "e1e2593fc1c54befe0db5f2deb010b53a1fda138527f0ca6ea9aff23bf103f5d"
     }
   ]
 }
