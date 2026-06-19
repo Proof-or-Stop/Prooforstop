@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-aa8a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed for B-aa8a version-bump feature. Verified: (1) version-bump.ts is the sole definition of all new symbols (applyPatchBump, bumpVersionOnDoneMerge, nextPatch, readSyncedVersion, parseSemver, formatSemver, VERSION_SYNC_FILES, VERSION_SYNC_PATHS, VERSION_BUMP_SKIPPED_LINE, PatchBumpResult, BumpOnDoneMergeOptions, GitRunner). (2) done-effects.ts is the only production call site of bumpVersionOnDoneMerge (grep confirmed single import + single call at line 890). (3) No circular import: version-bump.ts imports only node:fs and node:path; done-effects.ts imports bumpVersionOnDoneMerge from version-bump.ts; version-bump-smoke.ts imports from both but is a task not a core module, so no circular cycle. (4) No competing/duplicate version-bump logic found in any other file. (5) listChangedPathsBetweenMainShas is computed once (line 885) and passed into both bumpVersionOnDoneMerge and runDoneMainPackageBuildAfterMerge, no double-computation residue. (6) The version-bump.ts GitRunner type is independently declared with a different signature than worktree-policy.ts GitRunner; no file imports both, so no collision at the import level — no residue. (7) lattice.config.json correctly registers version-bump-smoke.js as the only new smoke entry. No concept deletion/replacement in scope; no leftover symbols from a prior approach. No blocker found.",
+      "createdAt": "2026-06-19T19:53:48.064Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-001",
+      "_hash": "18e61857b20dfb8e80d28e2f10632ed50aeb808756f571fc1be943e4881589a6"
+    }
+  ]
+}
