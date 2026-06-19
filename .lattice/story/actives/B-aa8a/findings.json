@@ -73,7 +73,7 @@
       "desc": "CHK-001:happy:4 intent states the success line returned by bumpVersionOnDoneMerge must contain the literal word \"auto-bumped\", but the smoke only asserts line6.includes(\"0.9.9\") && line6.includes(\"0.9.10\"). If the return string were changed to omit \"auto-bumped\" (e.g. \"✓ version bumped 0.9.9 → 0.9.10\") the smoke would still pass. The word \"auto-bumped\" is the operator-visible signal that the automation (not a manual bump) fired; the smoke should add a check(\"bump line contains auto-bumped\", line6.includes(\"auto-bumped\")) assertion to fully bind the intent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T20:08:21.361Z",
@@ -84,7 +84,11 @@
         "packages/main/src/tasks/version-bump-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-intent-states",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke case 6 now asserts the success line contains the 'auto-bumped' keyword per the intent.",
+      "resolvedAt": "2026-06-19T20:45:43.792Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-aa8a:F-005",
