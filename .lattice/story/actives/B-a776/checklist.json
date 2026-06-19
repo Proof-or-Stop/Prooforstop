@@ -55,9 +55,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after moving parseFlags/parseFlagsTest/coerce/addValue/normalizeFlagKey into packages/main/src/cli/flag-parser.ts and re-exporting parser compatibility APIs from cli-engine.ts.",
-          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:30.172Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:cli-surface-smoke",
           "result": "pass",
           "note": "CLI surface smoke asserts parser compatibility for repeated array flags, JSON-array flag values, key=value shorthand, booleans, numbers, camelized flag keys, unknown-key preservation, and cli-engine parseFlags re-export behavior.",
-          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:30.254Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
           "result": "pass",
           "note": "Invalid checklist_update verificationIntent input still fails with Argument validation failed, includes verificationIntent.happy.0.type and integration_test, and is not masked by phase-gate or session-brief noise.",
-          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:30.336Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "npm --prefix packages/main run test:command-catalog-smoke",
           "result": "pass",
           "note": "Command catalog smoke passed and asserts tool help still includes Lattice branding, schema arguments, story_advance dry-run text, and owner lease meta options after moving help rendering into packages/main/src/cli/help-renderer.ts.",
-          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:40.853Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "npm --prefix packages/main run test:cli-surface-smoke",
           "result": "pass",
           "note": "CLI surface smoke passed and asserts nested space aliases for lattice host runtime list/probe, lattice config doctor, lattice review escalation status, lattice autopilot review status, the four-part capability alias normalizer, and the lattice version special path.",
-          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:40.937Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,9 +158,9 @@
           "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
           "result": "pass",
           "note": "Scope contract returned status pass with no violations and changed source paths limited to cli-engine.ts, package.json, the three new cli helper modules, and cli-surface-smoke.ts; reserved lifecycle dispatch and extracted root/activity/ownership/reviewer modules were not modified.",
-          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:41.016Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         }
       ]
     },
@@ -224,9 +224,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-catalog-smoke && npm --prefix packages/main run test:cli-surface-smoke && node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js && node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
           "result": "pass",
           "note": "All required verification commands passed after extraction: build, process-fact contract, command-catalog smoke, new cli-surface smoke, cli-argument ergonomics smoke, and lattice-cli migration smoke.",
-          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:56.352Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -234,9 +234,9 @@
           "command": "npm --prefix packages/main run test:cli-surface-smoke",
           "result": "pass",
           "note": "CLI surface smoke asserts dry-run help classes for optional/default-on/always-on commands, Lattice branding in global/tool help, current antigravity/agy host wording, JSON body compatibility, and nested alias dispatch.",
-          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:56.438Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -244,9 +244,9 @@
           "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
           "result": "pass",
           "note": "Scope contract check returned status pass with zero violations; source changes are limited to cli-engine.ts, packages/main/package.json, cli/flag-parser.ts, cli/help-renderer.ts, cli/alias-normalizer.ts, and tasks/cli-surface-smoke.ts, with only command-generated B-a776 lifecycle metadata outside source scope.",
-          "headHash": "8d596e0c7029ec127a78f8609075bd6a37c6b4d7",
-          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
-          "timestamp": "2026-06-19T18:12:56.521Z"
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
         }
       ]
     }
