@@ -1,0 +1,150 @@
+{
+  "storyId": "B-0e53",
+  "checkedAt": "2026-06-19T21:06:56.024Z",
+  "features": [
+    {
+      "feature": "Post-lock, pre-merge mainSha re-check in transition-orchestrator.ts that aborts DONE before phase=DONE persists when main advanced externally after pre-check sync",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Baseline sha captured AFTER autoSyncMain completes so Lattice own sync does not false-positive the abort",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Re-read and comparison placed strictly BEFORE store.writeStory persists phase=DONE (~line 431)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Abort throw propagates through existing try/finally to release main-write-lock without deadlock",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On abort: story stays at TEST with no phase mutation and no partial merge commit on main",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Clear abort error message with resync hint (DONE aborted: main advanced ... Re-run story_advance DONE to resync)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Happy path (main unchanged inside lock) stays byte-identical: no abort, normal merge proceeds",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Only DONE transitions are affected; non-DONE paths and unchanged-main happy path are unmodified",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covering external-advance abort path: DONE aborts at TEST, no phase=DONE written, no merge commit lands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covering happy path: main unchanged inside lock, DONE merges and reaches DONE normally",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke is auto-discovered at packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts and npm test wired",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full npm test suite passes with the new smoke included",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "After-DONE auto-retry (considered and rejected: needs partial-DONE state machine + rollback, lengthens lock hold)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly rejected in decision.json (after-DONE-auto-retry option) and plan.md; out of scope per scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "Full merge-serialization rework (considered and rejected: lock already serializes Lattice DONEs, large risky rewrite)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly rejected in decision.json (full-merge-serialization-rework option); out of scope per scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "Changes to main-write-lock acquisition / stale-reclaim or applyDoneMergeEffects",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in plan.md and scope-boundary.json; merge stays atomic, lock handling unchanged",
+      "source": "description"
+    },
+    {
+      "feature": "Authority receipt gate behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded in scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "Review-assurance floor evaluation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded in scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "storyFilesHash secondary digest capability",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded in scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "Usage-ledger and provider extractor code",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded in scope-boundary.json",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 12,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a83a95ce720e06f8bdc60a001a162824e3cb0d249fab7b3017c7d1e2d45f3852",
+  "openQuestions": []
+}
