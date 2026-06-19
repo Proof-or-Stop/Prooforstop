@@ -668,6 +668,28 @@ decision-doc digest quorum state for operators, but it must not claim that every
 direct decision-doc edit requires DONE quorum. The hard DONE gate is
 `review_escalation_status` / the review escalation evaluator.
 
+### Local diagnostic UX
+
+These status surfaces are local diagnostics. They help an operator understand
+current local host verdicts and blocked DONE runbooks; they do not create remote
+proof, Authority receipt evidence, or a new completion capability.
+
+- `autopilot_review_status --storyId=<storyId>` should expose all local run ids
+  and latest local run summaries, including ignored stale, duplicate, failed, or
+  missing-binding verdicts.
+- `review_escalation_status --storyId=<storyId>` may expose
+  `voluntaryLocalRounds` when `required=false`. The voluntary summary must not
+  imply missing required work and must not change `ok`, `required`, or
+  `assuranceLevel`.
+- A stale-material DONE block should point to the local recovery sequence:
+  `lattice validate --story=<storyId> --json`,
+  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
+  followed by rerunning listed evidence commands, and fresh
+  `autopilot_review_submit` calls over the current material hash.
+- A stale or ignored local host verdict remains non-counting until resubmitted
+  with current material, validation, prompt, and identity bindings. The
+  diagnostic text must not suggest bypassing stale-material checks.
+
 ## File-Level Execution Plan
 
 | File | Change |
