@@ -6,7 +6,41 @@
       "context": "authority_job_status/listJobVerdicts should include the resolved customer API key for protected server reads while policy discovery remains unauthenticated.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`authority_job_status` sends `Authorization: Bearer <customer-key>` on protected `/v1/jobs/<jobId>/verdicts` reads, while `/v1/authority/policy` remains keyless.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "server-backed job status/verdict GET carries Authorization when a customer API key is configured",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "policy discovery GET still carries no Authorization header",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "successful protected read without receipt/quorum still leaves fullAuthorityDone false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
