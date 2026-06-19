@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-491e:F-001",
+      "desc": "codex-cli-audit-r1 verified high: CLI still resolves LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH from a parsed trust env against consumer cwd instead of the trust env file directory. Server B-42a2 emits CUSTOMER_API_KEY_PATH=\"./lattice_staging-client.env\" in lattice_authority_trust.env, so consuming an operator/server bundle by absolute LATTICE_AUTHORITY_TRUST_ENV_FILE from another cwd loads the trust env but fails to read the raw sidecar. Source: authority-client.ts lines 1541-1551 read the trust file path but only return env/path; lines 1616-1623 resolve trustPath via resolvePath(cwd, trustPath). Repro command: node --input-type=module minimal script importing dist/core/authority-client.js with trust env in a temp bundle and cwd in a different temp dir returned trustLoaded=true, urlSource=authority_trust_env, keySource=none, valuePresent=false, resolvedPathSuffix=authority-consumer-cwd-*/lattice_staging-client.env. Existing smokes only cover absolute sidecar path or cwd=bundleRoot, so the server-generated relative sidecar contract is not actually preserved.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T01:13:29.750Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-001",
+      "_hash": "047a1d6ec60812a24d438356620b6348f28bfe796d42d9324045ac21a67ee9ad",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-audit-verified",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
