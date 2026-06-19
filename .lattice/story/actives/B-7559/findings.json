@@ -5,7 +5,7 @@
       "desc": "dangling-cross-ref: §2.2 referenced but does not exist — §1.2 (line 17) and §1.3 (line 23) both cite §2.2 for the independence-test definition, but Section 2 has no numbered subsection 2.2; the independence test is defined under the unnumbered Step 2 heading. Reader directed to a non-existent anchor.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T01:53:04.667Z",
@@ -16,7 +16,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|dangling-cross-referenced",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: both §2.2 citations (lines 17, 23) changed to '§2, Step 2', the actual heading where the independence test is defined.",
+      "resolvedAt": "2026-06-19T02:05:01.687Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-002",
