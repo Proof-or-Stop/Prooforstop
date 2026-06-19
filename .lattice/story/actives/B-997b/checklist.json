@@ -252,7 +252,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "Temp-repo transcript passed: scope_contract_acknowledge output includes assurance=acknowledged-expansion, phase, headHash, materialHash, affectedPaths, and persisted acknowledged expansion metadata.",
+          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
+          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
+          "timestamp": "2026-06-19T04:22:45.345Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "Temp-repo transcript passed: follow-up scope_contract_check returns status=warn and acknowledgedPaths includes src/other.ts, keeping the acknowledged expansion visible instead of a silent pass.",
+          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
+          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
+          "timestamp": "2026-06-19T04:22:45.622Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge negative transcript>",
+          "result": "pass",
+          "note": "Negative transcript passed: short reason, unsafe relative path, and TEST-phase acknowledgement attempts are rejected with deterministic CLI/policy guidance.",
+          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
+          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
+          "timestamp": "2026-06-19T04:22:45.917Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prewrite-guard-smoke.js && node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "prewrite guard smoke passed, and acknowledgement transcript uses the lower-assurance acknowledged-expansion label rather than reviewer/independent-review wording.",
+          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
+          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
+          "timestamp": "2026-06-19T04:22:46.109Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
