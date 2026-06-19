@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Author + land the effectiveness-proof development record as a decision-doc",
+      "context": "Via decision_doc_proposal (sourceDecision=manual, slug=lattice-experience-layer-effectiveness-record) with structured fields (decision/context/scope/nonGoals/chosenApproach/alternatives>=2/operationalRules/verificationRequirements/risks) capturing: the six merged stories (IDs + what each is + key invariants), the evidence arc (Baseline A degraded lower-bound rho=-0.55 -> phase 3.5 real-signature held-out 62% -> live apply 656 signatures, recall 0.659, valid-rate 0.971), and the honesty guards (saturation not claimed; observational != causal; forward RCT pending). Then decision_doc_preview + decision_doc_save (mode=create, confirm=true) into docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md.",
+      "userSees": "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md exists on main, rendering the development record.",
+      "excludes": [
+        "No source/CLI/handler/gate change",
+        "No duplication of the lattice-Paper raw CSV/figure files"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify recorded facts are accurate, English-only, and cross-refs resolve",
+      "context": "Confirm the recorded story IDs (B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9) and the main commit (2750aadef) exist; the live numbers are reproducible on main (learning_scan ~320 signals; learning_effectiveness recall ~0.659; learning_validate valid-rate ~0.971); the doc is ASCII/English-only (english-artifacts gate); and the Work/lattice-Paper/ references name real files. docs reviewer checks doc-vs-code consistency.",
+      "userSees": "The recorded facts match main and the doc passes the docs review + english-artifacts gate.",
+      "excludes": [
+        "No re-running the heavy analysis (reference the committed lattice-Paper artifacts)"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

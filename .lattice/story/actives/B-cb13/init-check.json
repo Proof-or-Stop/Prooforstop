@@ -1,0 +1,25 @@
+{
+  "storyId": "B-cb13",
+  "checkedAt": "2026-06-19T01:26:35.994Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T01:26:34.011Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "The six referenced stories (B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9) all reside in .lattice/story/actives/, not completed/. CHK-002 should verify that describing them as merged is factually accurate (their code may be on main while their Lattice lifecycle is still open). This is a factual-accuracy advisory for the implementer, not a product-value blocker."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T01:26:35.994Z",
+      "issues": []
+    }
+  ],
+  "_hash": "1c8a8bc698d42a73689ee124c9fa02ff085102df2a0b125adb100e91513cd33c"
+}
