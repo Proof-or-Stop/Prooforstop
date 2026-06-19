@@ -11,12 +11,15 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "done_prepare is available from lattice help and, when run from a TEST story worktree, shows DONE prepare preflight status with storyId, phase, clean-tree, branch, and version-mutation safeguards before any mutation.",
+      "userSees": "User sees literal output such as \"done_prepare\" in lattice help, then \"DONE prepare: BLOCKED\" or \"DONE prepare: PASS\", \"storyId: B-xxxx\", \"phase: TEST\", \"preflight: PASS\", and \"worktreeClean: PASS\"; protected version files remain absent from git status.",
       "files": {
         "modify": [
+          "packages/main/src/cli-engine.ts",
           "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/cli/command-schemas.ts",
-          "packages/main/src/cli/lifecycle-dispatch.ts"
+          "packages/main/src/cli/lifecycle-dispatch.ts",
+          "packages/main/src/core/config.ts",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
         ],
         "create": [
           "packages/main/src/handlers/done-prepare.ts"
