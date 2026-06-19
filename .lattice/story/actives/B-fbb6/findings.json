@@ -36,6 +36,24 @@
       ],
       "signatureTag": "edge|ts|dangerously-skip-permissions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbb6:F-003",
+      "desc": "prompt text embedded in argv array for agy dispatch creates a large argvDigest payload. In runBoundedRealLeafDispatch for hostKind=antigravity, the full prompt file content (promptText) is passed as the --print argument inside the argv array. The argvDigest = sha256(JSON(argv)) digests the entire array including the prompt. This is I/O-isolation-correct (no raw content returned in result) but the argv digest string in ProviderExecResult will be a hash of a potentially large payload. This is consistent with the existing design and not a blocker; noting as an informational edge case for reviewers.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T18:12:38.213Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-002",
+      "_hash": "ea0301a45b56b513cdce938647a5231d22584d2ae4debd672e3a8c4d7dcf74f3",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|prompt-text-embedded",
+      "signatureTagSource": "auto"
     }
   ]
 }
