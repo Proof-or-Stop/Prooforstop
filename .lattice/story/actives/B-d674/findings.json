@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-d674:F-001",
+      "desc": "Antigravity is advertised as a first-class dispatch host with wrapped-preapply guard support via dispatch, but guard-session runtime still treats antigravity/agy as watcher-only. packages/main/src/core/capabilities.ts:268 and packages/main/src/core/capabilities.ts:277 state Antigravity gets wrapped-preapply through dispatch, and packages/main/src/cli-engine.ts:2016 says viaDispatch applies to Codex/Antigravity. The actual resolver only includes codex and gemini in GUARD_WRAPPED_PREAPPLY_PROVIDERS at packages/main/src/core/guard-session.ts:62, so resolveGuardMode('antigravity',{viaDispatch:true}) falls through to watcher-fallback at packages/main/src/core/guard-session.ts:116. Verified by guard_session_start with provider=antigravity viaDispatch=true returning guardMode=watcher-fallback. This breaks the product semantics for first-class Antigravity host/runtime safety; add antigravity/agy to guard normalization or change the advertised capability/help before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T15:29:08.891Z",
+      "reviewRound": "2026-06-19T15:26:14.080Z",
+      "reviewRunId": "B-d674:RR-001",
+      "_hash": "96eff079124e078b719777000738aadf9f5b6dd4b70700c14409b8ed832d26fd",
+      "files": [
+        "packages/main/src/core/guard-session.ts",
+        "packages/main/src/core/capabilities.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|antigravity-advertised-first",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
