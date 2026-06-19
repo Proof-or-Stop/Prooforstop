@@ -1,6 +1,6 @@
 {
   "storyId": "B-fbb6",
-  "checkedAt": "2026-06-19T17:14:22.208Z",
+  "checkedAt": "2026-06-19T17:22:32.462Z",
   "features": [
     {
       "feature": "Provider binary renamed from gemini to agy (ANTIGRAVITY_CLI_BINARY)",
@@ -66,9 +66,16 @@
       "source": "decisions:decisions/host-overflow.md"
     },
     {
-      "feature": "Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts and dispatch-run-smoke.ts preserved or converted to antigravity (host-overflow.md:244)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Dispatch-policy host model reconciliation: retire gemini from LEGACY_KNOWN_HOSTS/parseHost/unsupportedRealHosts; promote antigravity to supervised real-leaf without creating duplicates",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/host-overflow.md"
     },
@@ -95,14 +102,14 @@
     }
   ],
   "summary": {
-    "total": 13,
-    "covered": 12,
+    "total": 14,
+    "covered": 14,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "a86b3dc349fa0b24cc692d3487f3160f8137f62e430ead66533df5a510a9aa94",
+  "_hash": "882d10ff147fe104445c391c25fb0367d389caba4676c51926eb9569f0999830",
   "openQuestions": []
 }
