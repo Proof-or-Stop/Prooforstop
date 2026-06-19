@@ -1,0 +1,57 @@
+{
+  "storyId": "B-57b5",
+  "checkedAt": "2026-06-19T19:50:05.111Z",
+  "reviewRound": "2026-06-19T19:28:39.871Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "promise": "Round 4 moves lifecycle special dispatch, story_create/story_advance INIT_CHECK/recover_evidence routing, and commitInitCheckMetadataAndMergeMain behind lifecycle/INIT_CHECK helper modules while preserving lifecycle ordering, failure behavior, compatibility re-exports, and Authority production disclaimers.",
+      "status": "verified",
+      "verifiedBy": "rg + git diff + checklist_get + test_list",
+      "evidence": "rg found Round 4 lifecycle-dispatch/init-check-metadata-sync/recover_evidence promises and Authority production disclaimers; git diff shows cli-engine.ts split into packages/main/src/cli/lifecycle-dispatch.ts, init-check-metadata-sync.ts, and recover-evidence-dispatch.ts; cli-engine.ts still re-exports MAIN_TOOLS and commitInitCheckMetadataAndMergeMain; checklist/test_list show build, lifecycle smoke, registry, ownership, main-write-lock, and validate PASS evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Lifecycle completion must keep INIT_CHECK/worktree/DONE gate semantics intact: TEST requires validate PASS, bug fixes, fresh evidence, summary, delivery check, and branch sync before DONE merge/cleanup.",
+      "status": "verified",
+      "verifiedBy": "session_brief + test_list + bug_list + summary_get",
+      "evidence": "session_brief reports TEST phase with validate PASS, 9/9 verification coverage, BUG-001 fixed, fresh evidence, clean worktree, summary present, and delivery-check missing before this reviewer write; branch sync with main remains a separate DONE pre-check item for the main agent/DONE command."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "Local review or validation evidence must not be reported as production Authority gate_decision receipt consumption, fullAuthorityDone, authorityDone, or productionDone.",
+      "status": "verified",
+      "verifiedBy": "rg + summary_get + checklist_get",
+      "evidence": "rg found the document rule that productionDone requires verified production gate_decision receipt consumption; checklist CHK-003 explicitly excludes using local 3x2 host verdict as Authority Server completion; summary_get limitations state that no Authority Server production receipt is claimed and evidence is local Lattice validation plus Codex CLI/Claude Code verdicts."
+    },
+    {
+      "docPath": "AGENTS.md",
+      "promise": "Story work must stay in the story worktree, avoid direct docs/story and tests/fixtures edits, use lattice validate in TEST, and only treat completion as ready after evidence, summary, delivery check, and DONE gate requirements are met.",
+      "status": "verified",
+      "verifiedBy": "session_brief + git diff + test_list",
+      "evidence": "All reviewer commands ran in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-57b5; git diff for related docs is empty; story metadata was inspected through Lattice CLI; test_list shows node bin/lattice.js validate --story=B-57b5 --json PASS with configured build/smoke commands."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-57b5:validate",
+      "transcript": "Existing TEST evidence from test_list: node bin/lattice.js validate --story=B-57b5 --json result PASS at 2026-06-19T19:34:28.007Z; provider lattice-verifier-configured-commands; allPass true; verification coverage 9/9 required covered; warnings empty."
+    },
+    {
+      "featureId": "B-57b5:configured-build-and-smokes",
+      "transcript": "validate configured commands passed: npm --prefix packages/main run build, authority-client-smoke, authority-completion-smoke, review-pass-discard-smoke, and init-window-data-loss-smoke. Checklist evidence also records npm --prefix packages/main run build, npm --prefix packages/main run test:lifecycle-dispatch-smoke, process fact contract, lifecycle registry, command catalog, command ownership, main-write-lock coverage, INIT_CHECK reconcile conflict smoke, worktree-authority smoke, verification-freshness smoke, and scope_contract_check PASS."
+    },
+    {
+      "featureId": "BUG-001",
+      "transcript": "bug_list shows BUG-001 fixed at 2026-06-19T19:29:01.035Z. Fix evidence moved INIT_CHECK metadata stage/check/commit into the main write lock, refused unrelated pre-staged paths outside storyRel, and committed with git commit --only for storyRel; reproTest lists build, lifecycle smoke, worktree-authority, INIT_CHECK conflict, main-write-lock coverage, and scope_contract_check PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check verified docs promises, real machine validation, smoke/build evidence, fixed BUG-001, and summary posture. This check does not claim Authority Server production receipt, authorityDone, fullAuthorityDone, or productionDone; current evidence is local validation plus local 3x2 host review, and branch sync with main remains outside this delivery-check write."
+  },
+  "_hash": "a126efb6a7dc9250bf00a40b63a75821100428138e9a97367e0bbab5e232ec0f"
+}

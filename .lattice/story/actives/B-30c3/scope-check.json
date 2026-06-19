@@ -1,0 +1,66 @@
+{
+  "storyId": "B-30c3",
+  "checkedAt": "2026-06-19T19:12:26.889Z",
+  "features": [
+    {
+      "feature": "extractCodexUsage: own-property guards on every usage read; pickCodexUsageKeys returns Object.create(null) carrying only prompt_tokens/completion_tokens/prompt_tokens_details",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "sanitizeNestedDetails: null-protos the nested prompt_tokens_details object (codex-cli.ts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "extractGeminiUsage: own-property guards; pickGeminiUsageKeys returns Object.create(null) carrying only promptTokenCount/candidatesTokenCount/cachedContentTokenCount",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "recordDispatchFinalForProvider: inner try around buildProviderRecord+append; on throw fall through to one unavailable-final that supersedes the preflight estimate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "recordDispatchFinal (anthropic/claude path) stays byte-identical — untouched in this fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Comprehensive smoke test covering token-only projection, extra-key drop, null-prototype top+nested, own-property guards vs polluted prototype, and recordDispatchFinalForProvider malformed-object unavailable-final (openai+gemini)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Systematic prototype-pollution hardening of out-of-scope core: assemble.ts default-options reads, adapters in-reads, and related protected files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "deferred to dedicated story per operator decision",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b48f4aabcec0c9736434b7ccdf579890c73aff74a2a0791d8e7f594bd6d4479d",
+  "openQuestions": []
+}

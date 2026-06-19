@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.9",
+  "version": "0.3.11",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -44,6 +44,7 @@
     "test:storydir-inside-gitroot-smoke": "node dist/tasks/storydir-inside-gitroot-smoke.js",
     "test:storydir-inside-gitroot-suite": "node dist/tasks/storydir-inside-gitroot-suite.js",
     "test:runtime-fact-contract": "node ../../scripts/verify-runtime-fact-contract.mjs",
+    "test:lifecycle-dispatch-smoke": "node dist/tasks/lifecycle-dispatch-smoke.js",
     "test:anti-stall": "cd ../.. && node scripts/verify-anti-stall-guardrails.mjs",
     "test:lifecycle-registry-contract": "node dist/tasks/lifecycle-registry-contract.js",
     "test:main-write-lock-coverage": "node dist/tasks/main-write-lock-coverage.js",

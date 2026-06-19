@@ -82,13 +82,65 @@ function extractGeminiModel(stdout: string): string | undefined {
   return undefined;
 }
 
+/**
+ * OWN-property guard: true only when `o` is a non-null object that carries `k`
+ * as its OWN property (never via the prototype chain). Reading a candidate
+ * usageMetadata key (obj.usageMetadata / obj.response.usageMetadata) through the
+ * prototype chain would let a polluted Object.prototype.usageMetadata masquerade
+ * as real provider usage on a line with NO own usageMetadata key — so every read
+ * goes through this guard first.
+ */
+function ownProp(o: unknown, k: string): boolean {
+  return o != null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
+}
+
 /** A usageMetadata object is one carrying any of the Gemini token-count fields. */
 function isGeminiUsageObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
-  const u = value as Record<string, unknown>;
   return (
-    'promptTokenCount' in u || 'candidatesTokenCount' in u || 'cachedContentTokenCount' in u
+    ownProp(value, 'promptTokenCount')
+    || ownProp(value, 'candidatesTokenCount')
+    || ownProp(value, 'cachedContentTokenCount')
   );
+}
+
+/**
+ * The ONLY keys the Gemini adapter reads off a `usageMetadata` object. Everything
+ * else (an embedded transcript/text/candidates/__proto__/etc.) is dropped by the
+ * whitelist projection so a provider transcript can never ride along on the
+ * reportedUsage surface. `cachedContentTokenCount` is preserved verbatim because
+ * cacheRead depends on it.
+ */
+const GEMINI_USAGE_KEYS = [
+  'promptTokenCount',
+  'candidatesTokenCount',
+  'cachedContentTokenCount',
+] as const;
+
+/**
+ * Whitelist-project a matched usageMetadata object down to ONLY the adapter-read
+ * keys. Own-enumerable keys only (hasOwnProperty guard on the SOURCE, so an
+ * inherited / prototype-polluted key never leaks IN). Values are copied VERBATIM
+ * — the adapter is the validator, so we never transform them here. A key absent
+ * on the source stays absent on the result.
+ *
+ * SECURITY: the projected object is built with a NULL prototype
+ * (Object.create(null)) so it has NO prototype chain. A normal `{}` carries
+ * Object.prototype, so a downstream adapter reading a key that was NOT projected
+ * (e.g. adaptGeminiUsage reading `usage.promptTokenCount` when the source carried
+ * only `candidatesTokenCount`) would resolve a POLLUTED
+ * Object.prototype.promptTokenCount via inheritance — a bogus provider-reported
+ * count. With a null-proto result such a read resolves to `undefined`, so an
+ * absent token field stays absent. The result is still a plain
+ * `Record<string, unknown>` (typeof === 'object', not null) that the adapters
+ * accept; they only read OWN keys, which remain present.
+ */
+function pickGeminiUsageKeys(obj: Record<string, unknown>): Record<string, unknown> {
+  const out = Object.create(null) as Record<string, unknown>;
+  for (const key of GEMINI_USAGE_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) out[key] = obj[key];
+  }
+  return out;
 }
 
 /**
@@ -97,9 +149,16 @@ function isGeminiUsageObject(value: unknown): value is Record<string, unknown> {
  * skip blanks, JSON.parse each in a try/catch, and return the FIRST Gemini-shape
  * `usageMetadata` sub-object found — checked at the top level
  * (`obj.usageMetadata`) and nested under `response` (`obj.response.usageMetadata`).
- * Returns ONLY the numeric usageMetadata sub-object (the token-count fields),
- * NEVER the whole line/envelope or any transcript text. Never throws; returns
- * undefined when no usageMetadata object is present.
+ * Returns a NEW object carrying ONLY the keys the Gemini adapter reads
+ * (promptTokenCount / candidatesTokenCount / cachedContentTokenCount when
+ * present), NEVER the whole line/envelope, any other key, or any transcript text.
+ * Never throws; returns undefined when no usageMetadata object is present.
+ *
+ * SECURITY: every candidate read is OWN-property guarded (ownProp). A polluted
+ * Object.prototype.usageMetadata must NEVER be read off a line with no own
+ * usageMetadata key — we only consider `obj.usageMetadata` /
+ * `obj.response.usageMetadata` when they are OWN props, so prototype-chain reads
+ * can never inject bogus token counts.
  */
 function extractGeminiUsage(stdout: string): Record<string, unknown> | undefined {
   for (const line of stdout.split('\n')) {
@@ -109,9 +168,12 @@ function extractGeminiUsage(stdout: string): Record<string, unknown> | undefined
         usageMetadata?: unknown;
         response?: { usageMetadata?: unknown };
       };
-      if (isGeminiUsageObject(obj.usageMetadata)) return obj.usageMetadata;
-      if (obj.response && isGeminiUsageObject(obj.response.usageMetadata)) {
-        return obj.response.usageMetadata;
+      if (ownProp(obj, 'usageMetadata') && isGeminiUsageObject(obj.usageMetadata)) {
+        return pickGeminiUsageKeys(obj.usageMetadata);
+      }
+      const resp = ownProp(obj, 'response') ? obj.response : undefined;
+      if (ownProp(resp, 'usageMetadata') && isGeminiUsageObject(resp!.usageMetadata)) {
+        return pickGeminiUsageKeys(resp!.usageMetadata as Record<string, unknown>);
       }
     } catch { /* skip non-json lines */ }
   }

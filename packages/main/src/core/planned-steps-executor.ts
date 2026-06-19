@@ -33,7 +33,10 @@ import type {
   BoundedProviderName,
   ProviderExecResult,
 } from '../providers/types.js';
-import { computeGateInputDigest } from './authority-contracts.js';
+import {
+  computeGateInputDigest,
+  type MaterialOverlapAuditContract,
+} from './authority-contracts.js';
 import {
   normalizeRepairRetryPolicy,
   runRepairRetryLoop,
@@ -187,6 +190,7 @@ export interface AuthorityGateInput {
   plannedStepsDigest: string;
   evidenceRefs: string[];
   gateInputDigest: string;
+  materialOverlapAudit?: MaterialOverlapAuditContract;
 }
 
 /**
@@ -246,6 +250,8 @@ export interface ExecutePlannedStepsOptions {
    * See `buildGateEvidenceRefResolver` in `core/evidence-uploader.ts`.
    */
   gateEvidenceRefResolver?: (step: PlannedStepExecution) => string;
+  /** Optional computed DONE material-overlap audit to bind into the authority gate input. */
+  materialOverlapAudit?: MaterialOverlapAuditContract;
   /**
    * Reduce-only budget override (X6 + §B9): CLI safety limits may only TIGHTEN the
    * JobPlan's `budgetPolicy`, never expand it. Each `<= 0` field means "no override
@@ -299,6 +305,7 @@ export function buildAuthorityGateInput(
   priorSteps: PlannedStepExecution[],
   gateEvidenceRefResolver?: (step: PlannedStepExecution) => string,
   projectIdOverride?: string,
+  materialOverlapAudit?: MaterialOverlapAuditContract,
 ): AuthorityGateInput {
   // When a live evidence upload is configured the gate certifies the DURABLE,
   // uploaded evidence refs from the actual executed steps; otherwise it falls back
@@ -315,6 +322,7 @@ export function buildAuthorityGateInput(
     ...(jobPlan.jobCreateRequest ? { jobId: jobPlan.jobPlanDigest } : {}),
     plannedStepsDigest: plannedStepsDigestOf(jobPlan),
     evidenceRefs,
+    ...(materialOverlapAudit ? { materialOverlapAudit } : {}),
   };
   return { ...base, gateInputDigest: computeGateInputDigest(base) };
 }
@@ -866,6 +874,7 @@ function executeOneStep(
   providerCtx: ProviderExecContext,
   authorityGate: AuthorityGateEvaluator | undefined,
   gateEvidenceRefResolver?: (step: PlannedStepExecution) => string,
+  materialOverlapAudit?: MaterialOverlapAuditContract,
 ): PlannedStepExecution {
   const startedAt = now().toISOString();
   const op = operation(step);
@@ -965,7 +974,7 @@ function executeOneStep(
           note: 'authority DONE requires server gate_decision receipt issuance and verification',
         });
       }
-      const gateInput = buildAuthorityGateInput(jobPlan, priorSteps, gateEvidenceRefResolver);
+      const gateInput = buildAuthorityGateInput(jobPlan, priorSteps, gateEvidenceRefResolver, undefined, materialOverlapAudit);
       let outcome: AuthorityGateOutcome;
       try {
         outcome = authorityGate(gateInput);
@@ -1105,7 +1114,18 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
         break;
       }
     }
-    let result = executeOneStep(options.root, options.store, options.jobPlan, step, steps, now, providerCtx, options.authorityGate, options.gateEvidenceRefResolver);
+    let result = executeOneStep(
+      options.root,
+      options.store,
+      options.jobPlan,
+      step,
+      steps,
+      now,
+      providerCtx,
+      options.authorityGate,
+      options.gateEvidenceRefResolver,
+      options.materialOverlapAudit,
+    );
     if (enforceStep && result.status === 'passed' && gitStatusBefore) {
       // Postflight (§B2): capture the after-status as git evidence on the passing step,
       // and convert a step that INTRODUCED an edit to a forbidden path (story/fixture

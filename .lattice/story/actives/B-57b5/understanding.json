@@ -1,0 +1,28 @@
+{
+  "task": "Extract lifecycle-specific CLI dispatch and INIT_CHECK metadata reconciliation out of cli-engine.ts without changing lifecycle behavior.",
+  "outcome": "Lattice CLI lifecycle commands still behave the same, while cli-engine.ts delegates story_create, story_advance INIT_CHECK, recover_evidence dispatch, and INIT_CHECK metadata sync to focused modules.",
+  "facts": [
+    "B-a776 is merged into this worktree, so cli-engine.ts already imports command catalog, parser, help, alias, root, activity, ownership, and reviewer-readonly helpers from focused modules.",
+    "Current cli-engine.ts still defines commitInitCheckMetadataAndMergeMain, resolveInitCheckGitMainRoot, mergeBaseBranchIntoStoryWorktreeResolvingMetadata, runGitNoThrow, story_create special handling, story_advance INIT_CHECK bootstrap ordering, recover_evidence special output/exit handling, and the generic run wrapper.",
+    "The CLI modularization plan Round 4 targets run-cli/lifecycle-dispatch/init-check-metadata-sync/recover-evidence-dispatch while preserving compatibility re-exports.",
+    "Story lifecycle documentation requires INIT_CHECK worktree bootstrap, main metadata commit, merge-main safety, owner lease gating, DONE freshness, and local review escalation semantics to remain deterministic.",
+    "Existing regression coverage includes worktree-authority-smoke, init-check-reconcile-conflict-smoke, verification-freshness-smoke recover_evidence coverage, command-ownership-contract, main-write-lock-coverage, lifecycle-registry-contract, process-fact contract, and command-catalog smoke."
+  ],
+  "constraints": [
+    "Do not move business handlers or alter storyMachine gate rules in this story.",
+    "Keep compatibility exports from cli-engine.ts for commitInitCheckMetadataAndMergeMain and existing test-facing helpers.",
+    "Preserve command stdout/stderr and exit code semantics for story_create, story_advance INIT_CHECK, and recover_evidence.",
+    "Do not weaken owner lease, reviewer-readonly, main write lock, phase allowlist, hook ordering, or JSON stdout behavior.",
+    "Local host verdicts are not Authority Server receipts and must not set authorityDone, fullAuthorityDone, or productionDone."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/lifecycle-dispatch.ts",
+    "packages/main/src/cli/init-check-metadata-sync.ts",
+    "packages/main/src/cli/recover-evidence-dispatch.ts",
+    "packages/main/src/tasks/lifecycle-dispatch-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-19T18:42:57.039Z"
+}

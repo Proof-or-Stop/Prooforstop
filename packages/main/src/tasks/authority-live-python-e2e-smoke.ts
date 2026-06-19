@@ -279,6 +279,10 @@ export function signedGateRequest(ctx: LiveContext, decisionId: string): Record<
       policyMode: 'balanced',
       authorityMode: 'enforce',
       evidenceHashes: ctx.extraEvidenceRefs.map(ref => canonicalDigest({ ref })),
+      materialOverlapAudit: {
+        changedFiles: [],
+        actualFileOverlaps: [],
+      },
       requestedByActorId: ctx.mainActorId,
       requestedAt: timestamp,
     },

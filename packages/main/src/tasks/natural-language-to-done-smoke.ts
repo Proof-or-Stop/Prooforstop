@@ -43,6 +43,7 @@ import { executePlannedSteps } from '../core/planned-steps-executor.js';
 import type { BoundedProviderExecutor, ProviderExecRequest } from '../providers/types.js';
 import type { GitRunner } from '../core/worktree-policy.js';
 import { resolveAuthorityGateEvaluator, type AuthorityFetch, type AuthorityGateEvaluatorOptions } from '../core/authority-client.js';
+import { buildNoOverlapMaterialOverlapAuditDefault } from '../core/authority-contracts.js';
 import {
   canonicalDigest,
   generateEd25519KeyPair,
@@ -201,6 +202,11 @@ function authorityFetch(decision: 'approve' | 'reject'): AuthorityFetch {
       const projectId = req.decision?.projectId ?? req.projectId;
       const storyId = req.decision?.storyId ?? req.storyId;
       const decisionPayload = (req.decision && typeof req.decision === 'object') ? req.decision as JsonObject : {};
+      assert.deepEqual(
+        decisionPayload.materialOverlapAudit,
+        { changedFiles: [], actualFileOverlaps: [] },
+        'signed DONE gate decision must include the no-overlap materialOverlapAudit default',
+      );
       const gateInputDigest = decisionPayload.decisionId ?? req.gateInputDigest ?? '';
       assert(projectId, 'signed gate envelope must bind projectId');
       assert(storyId, 'signed gate envelope must bind storyId');
@@ -217,7 +223,12 @@ const noNetworkFetch: AuthorityFetch = async (input, init) => {
 };
 
 function gateOptions(decision: 'approve' | 'reject'): AuthorityGateEvaluatorOptions {
-  return { env: authorityEnv(), fetchImpl: authorityFetch(decision), now: () => FIXED_NOW };
+  return {
+    env: authorityEnv(),
+    fetchImpl: authorityFetch(decision),
+    now: () => FIXED_NOW,
+    materialOverlapAudit: buildNoOverlapMaterialOverlapAuditDefault(),
+  };
 }
 
 try {
@@ -489,6 +500,7 @@ try {
     gitRunner: cleanGit,
     authorityGate: approveGate.evaluator,
     gateEvidenceRefResolver: buildGateEvidenceRefResolver(providerJobPlan),
+    ...(approveGate.materialOverlapAudit ? { materialOverlapAudit: approveGate.materialOverlapAudit } : {}),
   }) as unknown as JsonObject;
 
   const ranStep = (providerRun.steps as JsonObject[]).find(s => s.type === 'provider.codex')!;
@@ -530,6 +542,7 @@ try {
     gitRunner: cleanGit,
     authorityGate: rejectGate.evaluator,
     gateEvidenceRefResolver: buildGateEvidenceRefResolver(providerJobPlan),
+    ...(rejectGate.materialOverlapAudit ? { materialOverlapAudit: rejectGate.materialOverlapAudit } : {}),
   }) as unknown as JsonObject;
   const ranThenBlocked = (providerBlockedRun.steps as JsonObject[]).find(s => s.type === 'provider.codex')!;
   assert.equal(ranThenBlocked.status, 'passed', 'the real provider step still runs even when the gate will block DONE');

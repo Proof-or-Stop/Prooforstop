@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-57b5:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: cli-engine now delegates story_create, INIT_CHECK story_advance, and recover_evidence to extracted dispatch modules while preserving the prior lifecycle order. INIT_CHECK still runs the full guard before dev_start, persists phase after successful bootstrap, commits bounded metadata on main, and merges main into the story worktree; recover_evidence still prints structured refused/fail output before throwing. No Authority Server production-completion claim or unrelated lifecycle/gate semantic drift found.",
+      "createdAt": "2026-06-19T19:06:58.193Z",
+      "reviewRound": "2026-06-19T19:03:54.687Z",
+      "reviewRunId": "B-57b5:RR-002",
+      "_hash": "2d2465c63ccc98c38096931801a4b962528f909ae80f424b3fcd5cb4aeb29274"
+    },
+    {
+      "id": "B-57b5:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: cli-engine.ts remains a thin runCli orchestrator with compatibility exports; lifecycle-dispatch.ts isolates story_create and INIT_CHECK dispatch using injected dependencies; init-check-metadata-sync.ts preserves bounded metadata staging, main-write-lock usage, merge args, and dirty/out-of-bounds handling; recover-evidence-dispatch.ts only wraps structured failure output; package script and smoke updates are scoped and maintainable.",
+      "createdAt": "2026-06-19T19:07:09.294Z",
+      "reviewRound": "2026-06-19T19:03:54.687Z",
+      "reviewRunId": "B-57b5:RR-003",
+      "_hash": "ce3062d841b90b460018827e432b469efdc0961f4e6f914b0d4abb40a3640293"
+    },
+    {
+      "id": "B-57b5:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: all 9 reviewed verificationIntent refs have passing evidence and current materialHash 63a9c2e4f86374a5899fe0bdbbcb319291742d5b3c0de14fe5cf75523a249286 matches the recorded evidence. Reran lifecycle-dispatch-smoke, init-check reconcile conflict smoke, worktree-authority smoke, verification freshness smoke, command catalog and ownership contracts, process-fact contract, lifecycle registry contract, and main-write-lock coverage. Coverage is sufficient for the refactor: extracted dispatch remains behind runCli wrapper gates, INIT_CHECK metadata sync still resolves metadata-only conflicts and preserves main-write-lock semantics, and the worktree-authority F-008 branch-ancestry topology check is sound for legacy fast-forward-compatible merge args.",
+      "createdAt": "2026-06-19T19:08:02.049Z",
+      "reviewRound": "2026-06-19T19:03:54.687Z",
+      "reviewRunId": "B-57b5:RR-001",
+      "_hash": "711a1de2ef662a727169ae97221e8c595169b8e5bb0561ecac593aa81c59f9e7"
+    },
+    {
+      "id": "B-57b5:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after BUG-001 fix: extraction preserves story_create, story_advance INIT_CHECK, and recover_evidence dispatch behavior. INIT_CHECK metadata helper refuses pre-staged out-of-bounds paths before staging story metadata and commits only the bounded story metadata path, so the index isolation fix is conceptually correct. No Authority production claim or scope drift found.",
+      "createdAt": "2026-06-19T19:31:39.472Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-004",
+      "_hash": "d8c7fc52f44ad0625294a81b8faaf92bb1c230377e58276e0e812df57b4745a7"
+    },
+    {
+      "id": "B-57b5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed BUG-001 fix scope: init-check metadata staging/check/commit now run under the main write lock, pre-staged out-of-bounds paths are refused before metadata staging, commit uses --only with the bounded story pathspec, merge args remain legacy-compatible, and the smoke coverage is maintainable. No blocking quality finding.",
+      "createdAt": "2026-06-19T19:31:56.420Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-006",
+      "_hash": "09886c7aecfc6cc9dca670fb8e0a7172188ffec86a4e26c0b76a28c84b6398da"
+    },
+    {
+      "id": "B-57b5:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass after BUG-001 fix: commitInitCheckMetadataAndMergeMain now performs pre-existing staged path inspection, bounded staging, cached diff checks, and git commit --only -- <storyRel> inside withReentrantMainWriteLock; worktree-authority-smoke has a direct pre-staged unrelated path regression that asserts refusal before staging story metadata, no commit, unrelated staged path preserved, and story metadata left unstaged. Worker command set covers build, lifecycle dispatch smoke, init-check conflict smoke, worktree authority BUG regression, main-write-lock coverage, and scope contract. evidence_inspect/refresh dry-run still report stale refs at HEAD cc22d00, so refresh/validate remains required before TEST/DONE, but I see no test-coverage blocker.",
+      "createdAt": "2026-06-19T19:32:53.979Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-005",
+      "_hash": "52092add513f90a0a8ad8032551fe8151ba34b33e2e52b2cc3295bea2afa0203"
+    }
+  ]
+}

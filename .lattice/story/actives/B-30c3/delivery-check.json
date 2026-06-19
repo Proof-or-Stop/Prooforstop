@@ -1,0 +1,24 @@
+{
+  "storyId": "B-30c3",
+  "checkedAt": "2026-06-19T19:52:52.559Z",
+  "reviewRound": "2026-06-19T19:33:11.552Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js -> 53 checks pass, exit 0. Covers: token-only null-proto projection (codex+gemini), own-property guards for isCodexUsageObject/isGeminiUsageObject (F-002), nested prompt_tokens_details whitelist for cached_tokens only (F-001), polluted-prototype empty-first-usage suppression, adversarial __proto__/constructor key drop, 50+ key flood whitelist, malformed-but-object usage -> unavailable-final (F-003), never-throws outer guard, two finals to same root -> distinct correlations, primaryReportedTotal aggregation, CHK-PRIMARY diagnostics edge cases."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm test -> ALL PASS, exit 0. Full suite including smoke task (53 checks), story-lifecycle, gap-convergence, dispatch-checklist-doctor wrapper-root smoke, graceful-sites wrapper-root smoke, nested-worktree bootstrap, cli-e2e lifecycle + gap-convergence steps all pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Diff modifies 4 source files only (codex-cli.ts, gemini-cli.ts, dispatch-usage.ts, usage-ledger-codex-gemini-smoke.ts) plus Lattice metadata. No documentation files changed, so docsPromises is empty. Real machine tests: smoke passes 53 checks covering happy path, edge cases (malformed usage, null correlations, NaN tokens), and adversarial cases (prototype pollution, key flooding, nested key whitelist). npm test ALL PASS. No TODO/FIXME/HACK found in changed source code. All three Codex host-2 findings (F-001, F-002, F-003) are verifiably addressed in the diff."
+  },
+  "_hash": "3799fa5f8dff1b79875885c15ab60b8d363ddee2d2017a5dda104cebcb432990"
+}

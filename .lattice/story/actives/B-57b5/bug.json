@@ -1,0 +1,23 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "INIT_CHECK metadata sync stages main index before acquiring main write lock and commits without story path isolation",
+      "status": "fixed",
+      "foundAt": "2026-06-19T19:23:48.095Z",
+      "fixedAt": "2026-06-19T19:29:01.035Z",
+      "checklistId": "CHK-002",
+      "evidence": {
+        "symptom": "INIT_CHECK metadata reconcile could consume or disturb a user pre-staged path in the main checkout while committing story metadata.",
+        "reproSteps": [
+          "In a main checkout with an INIT_CHECK story metadata change under .lattice/story/actives/<storyId>, stage an unrelated tracked path outside that story metadata directory.",
+          "Run commitInitCheckMetadataAndMergeMain(root, store, storyId) or the story_advance INIT_CHECK path that calls it.",
+          "Before the fix, the helper staged story metadata and inspected the shared index before acquiring the main write lock, then used an unrestricted git commit -m so unrelated staged paths could be swept into the metadata commit or left mixed with helper-staged paths on refusal."
+        ],
+        "rootCause": "packages/main/src/cli/init-check-metadata-sync.ts performed git add and git diff --cached inspection before withReentrantMainWriteLock, and the metadata commit did not use a storyRel pathspec. The critical section protected only the commit/merge tail, not the index mutation and cached-diff decision that determined what would be committed.",
+        "fixEvidence": "Moved pre-existing staged-path inspection, story metadata staging, cached-diff inspection, out-of-bounds refusal, and the metadata commit into the existing withReentrantMainWriteLock critical section. The helper now refuses pre-staged paths outside storyRel before staging storyRel, preserves the empty metadata no-op, and commits with git commit --only -m <message> -- <storyRel>. Added worktree-authority-smoke coverage that pre-stages unrelated-staged.txt, verifies the helper refuses without creating a commit, leaves the unrelated path staged, and keeps storyRel unstaged on refusal.",
+        "reproTest": "npm --prefix packages/main run build; npm --prefix packages/main run test:lifecycle-dispatch-smoke; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js; npm --prefix packages/main run test:main-write-lock-coverage; node bin/lattice.js scope_contract_check --storyId=B-57b5 --json=true"
+      }
+    }
+  ]
+}
