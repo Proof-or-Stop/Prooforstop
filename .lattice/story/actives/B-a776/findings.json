@@ -5,7 +5,7 @@
       "desc": "Required smoke evidence is not runnable in REVIEW: npm --prefix packages/main run test:cli-surface-smoke fails because the invalid checklist_update probe at packages/main/src/tasks/cli-surface-smoke.ts:160 runs with --root repoRoot while story B-a776 is in REVIEW, so the phase gate emits Command \"checklist_update\" is not available in REVIEW phase before the validation path. This invalidates the CHK-003 happy/edge smoke evidence for reviewer/TEST execution and leaves the advertised Argument validation failed path unproven in the active lifecycle phase.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T18:16:30.161Z",
@@ -16,7 +16,11 @@
         "packages/main/src/tasks/cli-surface-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|required-smoke-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by running the invalid checklist_update validation probe against an isolated temp --root/cwd, so argument validation is exercised before any active-story lifecycle gate. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:26.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a776:F-002",
