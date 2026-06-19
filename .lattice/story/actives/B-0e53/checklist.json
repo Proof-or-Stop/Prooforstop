@@ -46,7 +46,8 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "userSees": "On an external main advance mid-DONE, `lattice story_advance --phase=DONE` prints \"DONE aborted: main advanced (<old7> -> <new7>) after the pre-check sync; nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.\" and the story phase is still TEST (no partial merge). With main unchanged in-lock, DONE merges normally."
     },
     {
       "id": "CHK-002",
