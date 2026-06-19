@@ -4,7 +4,7 @@
   "title": "Define mandatory review assurance floor for code-change stories",
   "description": "Document and gate the policy that every code-change story gets at least one review round, while stories with validation failures, bugs, findings, or rework escalate to three single-host rounds unless stronger two-host or Authority proof is required.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "review-assurance",
@@ -77,6 +77,14 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-06-19T00:35:03.690Z",
+      "branch": "story/B-503b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T00:36:46.102Z",
       "branch": "story/B-503b",
       "user": "Harmonygo",
       "agent": "main"
