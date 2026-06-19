@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This project uses software engineering to manage the automated generation, optimization, and maintenance of a complete programming project by AI. It builds large-model development orchestration around the Claude Code CLI, the Codex CLI, and LLM APIs, plugging the right large model into the right scenario and making the best decisions across four dimensions: development needs, cost, efficiency, and production quality. It forms a closed development loop from a stakeholder raising a requirement, to the requirement landing as documentation, to task breakdown, and finally to delivery. The end goal is a system that can be maintained over the long term and that self-tunes and self-upgrades automatically.
+This project uses software engineering to manage the automated generation, optimization, and maintenance of a complete programming project by AI. It builds large-model development orchestration around the Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), and LLM APIs, with Gemini retained only as a deprecated legacy compatibility host, plugging the right large model into the right scenario and making the best decisions across four dimensions: development needs, cost, efficiency, and production quality. It forms a closed development loop from a stakeholder raising a requirement, to the requirement landing as documentation, to task breakdown, and finally to delivery. The end goal is a system that can be maintained over the long term and that self-tunes and self-upgrades automatically.
 
 ---
 

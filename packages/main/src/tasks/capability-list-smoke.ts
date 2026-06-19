@@ -24,7 +24,7 @@ import { createMainRegistry } from '../registry.js';
 const EXPECTED_HOSTS = [
   'codex',
   'claude-code',
-  'gemini',
+  'antigravity',
   'local-runner',
   'browser',
   'server',
@@ -133,10 +133,20 @@ const fallbackProbe = buildCapabilityProbe('not-a-real-host');
 assert.equal(fallbackProbe.host, 'unknown/fallback');
 assert.equal(fallbackProbe.matchedFallback, true);
 assert.equal(fallbackProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'unavailable');
+const antigravityProbe = buildCapabilityProbe('antigravity');
+assert.equal(antigravityProbe.host, 'antigravity');
+assert.equal(antigravityProbe.matchedFallback, false);
+assert.equal(antigravityProbe.profile.capabilities.find(c => c.category === 'prewrite-guard')?.status, 'conditional');
+const agyProbe = buildCapabilityProbe('agy');
+assert.equal(agyProbe.host, 'antigravity');
+assert.equal(agyProbe.requestedHost, 'agy');
+assert.equal(agyProbe.matchedFallback, false, 'agy is a current Antigravity alias, not fallback');
 const geminiProbe = buildCapabilityProbe('gemini');
 assert.equal(geminiProbe.host, 'gemini');
 assert.equal(geminiProbe.matchedFallback, false);
 assert.equal(geminiProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'conditional');
+assert.equal(list.hosts.some(h => h.id === 'gemini'), false, 'Gemini stays out of the current host list');
+assert.match(geminiProbe.profile.summary, /deprecated legacy/i);
 assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic-only/);
 
 // Registry and CLI schema expose the command.
@@ -185,6 +195,14 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS
     assert.equal(parsedProbe.host, 'browser');
     assert.equal(parsedProbe.profile.capabilities.find(c => c.category === 'shell/pty')?.status, 'unavailable');
     assert.equal(parsedProbe.degradations.find(d => d.capability === 'receipt-verify')?.authorityImpact, 'blocks-production-done');
+    const agyProbeStdout = execFileSync(process.execPath, [cliPath, '--root', root, 'capability_probe', '--host=agy', '--format=json'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const parsedAgyProbe = JSON.parse(agyProbeStdout) as typeof codexProbe;
+    assert.equal(parsedAgyProbe.host, 'antigravity');
+    assert.equal(parsedAgyProbe.requestedHost, 'agy');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
