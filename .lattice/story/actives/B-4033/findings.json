@@ -51,7 +51,7 @@
       "desc": "[Codex host P1] entriesOverlap under-flagged shared-prefix collisions for children globs: src/* vs src/csv/* and src/csv/* vs a deep literal (src/csv/impl/parser.ts) were not flagged, but spec 4.2 tier-2 requires conservative shared-directory-prefix flagging. Two stories could pass PLAN->DEV with intersecting scopes.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:11:41.139Z",
@@ -62,7 +62,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-entriesoverlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (Codex P1): entriesOverlap rewritten to conservative scope-directory nesting for any wildcard-involved pair — src/* vs src/csv/* and src/csv/* vs src/csv/impl/parser.ts now flag overlap; literal-vs-literal stays tier-1 exact. Verified by new smoke assertions.",
+      "resolvedAt": "2026-06-19T13:12:04.372Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4033:F-004",
