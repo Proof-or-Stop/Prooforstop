@@ -194,7 +194,7 @@
       "desc": "Quality blocker: the host guard matrix smoke still encodes Gemini as a current wrapped-preapply/capability profile and does not assert current Antigravity/agy guard semantics. Verified after a clean build by running `node packages/main/dist/tasks/host-guard-matrix-smoke.js`, which fails at dist/tasks/host-guard-matrix-smoke.js:139 with TypeError because `buildCapabilityList()` no longer returns a `gemini` host profile. Source references: packages/main/src/tasks/host-guard-matrix-smoke.ts:11,117-153,228-267 still test Gemini as current; packages/main/src/core/types.ts:1654 still documents wrapped-preapply as Codex or Gemini. Update the smoke to assert antigravity/agy wrapped-preapply via dispatch, keep Gemini only as explicit legacy probe compatibility if needed, and align the GuardSessionMode comment before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T15:54:38.901Z",
@@ -206,7 +206,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "stale-host-guard-matrix|ts|gemini-current-profile",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 733e079d0: the quality blocker is addressed by the same host guard matrix update: current Antigravity/agy dispatch guard semantics are asserted, Gemini is legacy probe compatibility only, and GuardSessionMode documentation is aligned. Verified after build with node packages/main/dist/tasks/host-guard-matrix-smoke.js passing, plus capability-list-smoke, dispatch-run-smoke, documented npm smoke commands, scope_contract_check, validate --story=B-d674 --json, and git diff --check.",
+      "resolvedAt": "2026-06-19T16:04:39.432Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
