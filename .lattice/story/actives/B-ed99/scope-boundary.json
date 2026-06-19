@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ed99",
+  "mode": "feature",
+  "allowed": [
+    "Implement Review Assurance Floor runtime DONE gate inside Lattice CLI local lifecycle policy",
+    "Keep local Non-authority review evidence separate from Authority Server receipt-backed completion",
+    "Update only necessary CLI/core handler code, process-fact/runtime diagnostics, and smoke tests that verify the new gate",
+    "Use existing host_verdict/autopilot review evidence semantics where possible instead of creating an arbitrary new review system"
+  ],
+  "excluded": [
+    "Do not dump full Lattice templates into external projects",
+    "Do not implement a broad global artifact isolation framework unrelated to this gate",
+    "Do not modify Lattice Authority Server or claim Authority completion",
+    "Do not run omx or use .omx",
+    "Do not touch unrelated active stories B-491e, B-b5c0, B-cb13 or unrelated untracked docs/parallel-decomposition-spec.md"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved parallel execution until DONE with mandatory 3 rounds x 2 hosts for the Review Assurance Floor runtime gate story.",
+  "createdAt": "2026-06-19T01:30:25.851Z",
+  "updatedAt": "2026-06-19T01:30:25.851Z",
+  "_hash": "7b1b221b96a593eb4b8b99fece69df829022fab815bf7a42b8f712c558b352bf"
+}

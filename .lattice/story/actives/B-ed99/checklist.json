@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify material code diffs and required review assurance before DONE",
+      "context": "Implement the documented review-assurance floor: material code diffs require at least one current-material review round; docs/typo/annotation-only work may remain lower-risk. Use structured state and existing Lattice evidence, not prose-only claims.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Escalate failure-triggered code-change stories to three local single-host rounds",
+      "context": "If validation fail, bug, verified reviewer finding, post-DONE regression, or repeated rework is present for a material code diff, DONE must require 3 rounds x 1 local host unless a stronger high-risk policy applies.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve host-neutral Authority boundary in review assurance evidence",
+      "context": "Local review assurance evidence is Non-authority and must not set authorityDone, fullAuthorityDone, productionDone, or imply Authority Server receipt-backed completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Expose actionable DONE preflight diagnostics and tests",
+      "context": "Add tests and CLI diagnostics proving zero-review code DONE blocks, clean code one-round passes, failure signal requires 3x1, high-risk remains 3x2/degraded, and docs-only low-risk is not overblocked.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
