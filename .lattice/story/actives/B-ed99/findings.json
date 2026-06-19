@@ -72,6 +72,27 @@
       ],
       "signatureTag": "missing|ts|review-assurance-floor",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ed99:F-004",
+      "desc": "Process-fact registration is incomplete for the new review assurance floor DONE consumer. The new evaluator consumes host_verdict evidence from autopilot_review_submit and degraded fallback evidence from review_escalation_fallback_set, but those command facts still declare only the review escalation DONE gate as their consumer: process-fact-levels.ts records autopilot_review_submit and review_escalation_fallback_set as consumed by storyMachine.canFinish DONE review escalation gate, and process-fact-registry.ts sets the same single consumerGate for both artifacts. The contract verifier also only asserts /review escalation/ for autopilot_review_submit and does not require either evidence-producing command to name the review assurance floor consumer, so node scripts/verify-process-fact-contract.mjs can pass while the registry remains stale. This violates the repo process-fact contract for gate-consumed evidence and can mislead audit/doctor consumers about which gates consume local host verdict and fallback evidence. Source refs: packages/main/src/core/process-fact-levels.ts:138, packages/main/src/core/process-fact-levels.ts:162, packages/main/src/core/process-fact-registry.ts:417, packages/main/src/core/process-fact-registry.ts:424, scripts/verify-process-fact-contract.mjs:2023, scripts/verify-process-fact-contract.mjs:2051.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T02:38:53.405Z",
+      "reviewRound": "2026-06-19T02:26:07.524Z",
+      "reviewRunId": "B-ed99:RR-007",
+      "_hash": "f647cd5de65b32e695e3b6770b6c904847879b12d8264c85aaaab51099c8a186",
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|process-fact-registration",
+      "signatureTagSource": "auto"
     }
   ]
 }
