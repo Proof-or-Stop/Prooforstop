@@ -91,6 +91,62 @@
         "modify": [],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Each of the six story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9) resolves to a real Lattice story -> lattice story_get for each returns valid JSON without error; WHY: recorded IDs must reference real stories",
+            "type": "cli"
+          },
+          {
+            "desc": "Commit 2750aadef exists in git history on main -> git log --oneline 2750aadef returns a valid entry; WHY: the commit hash is a factual claim that must be verifiable",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_scan on main returns approximately 320 signals -> run learning_scan and check count is in range 280-360; WHY: the live number must be reproducible within tolerance",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_effectiveness on main returns recall approximately 0.659 -> run and check recall is in range 0.60-0.72; WHY: the recall claim must be reproducible",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate on main returns valid-rate approximately 0.971 -> run and check valid-rate is in range 0.95-0.99; WHY: the valid-rate claim must be reproducible",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Work/lattice-Paper/ references in the doc name files that actually exist on disk -> extract referenced filenames and stat each; WHY: cross-refs must resolve to real artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc references to story IDs match the correct story titles (not swapped or misattributed) -> compare story_get title for each ID against what the doc says; WHY: ID-to-description mapping accuracy",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc passes the english-artifacts gate -> run the gate check (or grep -P \"[^\\x00-\\x7F]\") and confirm clean; WHY: the gate is a hard blocker for DONE",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stale or fabricated metrics: if learning_effectiveness recall has drifted beyond tolerance (outside 0.55-0.75) the doc number is flagged as potentially stale -> compare live output vs doc claim; WHY: numbers recorded at authoring time can become stale after code changes",
+            "type": "cli"
+          },
+          {
+            "desc": "CJK characters injected into the doc (e.g., via copy-paste from Chinese notes) -> grep -P \"[\\x{4E00}-\\x{9FFF}]\" returns empty; WHY: english-artifacts gate rejects non-ASCII, and the operator communicates in Chinese so accidental leakage is a real risk",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc overclaims causal relationship (uses phrases like \"caused by\", \"due to the Experience Layer\", \"proves effectiveness\") without the deferred-RCT qualifier -> grep for causal-claim patterns near the conclusion/summary sections returns empty or is accompanied by the deferral caveat; WHY: observational != causal is a core honesty guard",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc embeds raw CSV data or large data tables copied from lattice-Paper instead of referencing them -> line count of the .md file is reasonable (<500 lines) and no CSV-formatted blocks exist; WHY: the excludes clause forbids duplicating raw data",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
