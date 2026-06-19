@@ -97,9 +97,9 @@
       "id": "CHK-002",
       "title": "Hermetic smoke for the gate verdict: each block reason fires on its provable case plus degrades to advisory on the non-provable case; clean disjoint decomposition returns no block",
       "context": "new task smoke under packages/main/src/tasks/; build StoryInfo/ScopeContractData fixtures in-memory; assert overlap_declared_parallel (tier-1) vs advisory (tier-2), broad block only when broadGlobBlocks, fake_dependency_chain only when symbol absent, peer_contract_unreadable, and a clean parallel set returning block null; register in lattice.config.json",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T23:35:22.709Z",
       "files": {
         "modify": [
           "lattice.config.json"
