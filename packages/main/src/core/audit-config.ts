@@ -22,6 +22,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { LATTICE_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
+import type { ParallelGateConfig } from './parallel-decomposition.js';
 
 export type AuditMode = 'semi-auto' | 'full-auto' | 'off';
 
@@ -30,6 +31,9 @@ export interface AuditConfig {
   requireClaudeMdDiff: boolean;
   mode: AuditMode;
   deprecatedGcThreshold: number;
+  /** Parallel-decomposition gate config. Optional in Story 0 (contract only);
+   * resolveAuditConfig populates it in Story 3 (per-field override + profile tiering). */
+  parallelGate?: ParallelGateConfig;
 }
 
 /** Hardcoded fallback (last line of defense when all fields are missing). */
