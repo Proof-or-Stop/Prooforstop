@@ -117,7 +117,7 @@
       "desc": "CHK-001 through CHK-005 all have empty userSees fields. userSees must describe what the operator observes in the terminal after each item completes (e.g. smoke output line, CLI flag accepted, grep result). Without userSees the behavior reviewer cannot do a direct output-vs-claim comparison. Fix: add a concrete terminal output string to each item (e.g. CHK-001: \"provider antigravity smoke passed: real antigravityCliAvailable preflight; ...\"; CHK-002: dispatch-run-smoke last line; CHK-003: usage-ledger-adapter-smoke last line; CHK-004: grep -rinE \\\\bgemini\\\\b exits 0 / run-all-smokes 176/180; CHK-005: unattended-dispatch-smoke last line).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-19T18:13:21.586Z",
@@ -128,7 +128,11 @@
         ".lattice/story/actives/B-fbb6/checklist.json"
       ],
       "signatureTag": "missing|json|through-empty-usersees",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "userSees is frozen post-creation (checklist_update cannot set it). User-facing acceptance is captured by understanding_set.outcome (concrete report transcript) and will be reaffirmed in the TEST transcript-diff + summary_set user-value section (same pattern accepted at DONE for B-b1f4).",
+      "resolvedAt": "2026-06-19T18:21:35.781Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
