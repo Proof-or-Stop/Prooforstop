@@ -473,7 +473,7 @@
       "desc": "design-flaw: docs/parallel-decomposition-spec.md:707 S8 S0 scope_contract_set command omits audit-config.ts from allowedModify, but the same paragraph requires S0 to add the parallelGate field to the AuditConfig interface in audit-config.ts; an implementer following the command verbatim would touch audit-config.ts outside declared scope, violating the spec own scope enforcement model; audit-config.ts must appear in S0 allowedModify or the type-only edit must be moved to S3 with the spec updated accordingly",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:25:18.568Z",
@@ -481,7 +481,11 @@
       "reviewRunId": "B-7559:RR-014",
       "_hash": "e4a05305322de9e5d940db02d8c6f82fd439849c3cd895df9783b079ea20af7a",
       "signatureTag": "missing|unknown|design-flaw-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: §8 Story 0 scope_contract_set now lists packages/main/src/core/audit-config.ts in --allowedModify (the interface-field touch), so the command no longer writes outside declared scope.",
+      "resolvedAt": "2026-06-19T02:40:43.148Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-023",
