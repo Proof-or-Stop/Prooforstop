@@ -49,7 +49,7 @@
       "desc": "All 6 verificationEvidence entries are stale (materialHash 222b118929... vs current 5e27f345...); the round-2 process-group kill + 124 contract changes landed in commit 3b3a85c14 but no evidence was re-recorded, leaving both must-priority intents (CHK-001:happy:0 and CHK-002:happy:0) uncovered. validate confirms 0/6 covered, 2 required missing. All 6 entries must be re-bound at the current HEAD before DONE can proceed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T17:48:39.435Z",
@@ -61,7 +61,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-007 (same uniform evidence staleness). Resolved by the round-4 re-bind of all 6 verificationEvidence entries at the frozen HEAD followed by lattice validate --story.",
+      "resolvedAt": "2026-06-19T18:47:45.777Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5d18:F-004",
