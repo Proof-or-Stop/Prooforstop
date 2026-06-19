@@ -181,10 +181,10 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
-          "note": "Authority client/status smokes passed with server-style handoff fixtures: bundleRoot holds lattice_authority_trust.env pointing to ./lattice_staging-client.env while a separate consumer cwd contains a conflicting sidecar, proving the CLI resolves the key beside the trust env file.",
-          "headHash": "2cf46372f557f876abbbf3c22bcf5936b6a6cc58",
-          "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
-          "timestamp": "2026-06-19T01:22:12.923Z"
+          "note": "Authority client/status smokes passed at source commit 635b9f6d7 with server-style handoff fixtures: bundleRoot holds lattice_authority_trust.env pointing to ./lattice_staging-client.env while a separate consumer cwd contains a conflicting sidecar, proving the CLI resolves the key beside the trust env file.",
+          "headHash": "0c5605b07e14fcffd078e399e51c53c96631643b",
+          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
+          "timestamp": "2026-06-19T01:24:02.199Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
