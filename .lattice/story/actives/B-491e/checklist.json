@@ -120,6 +120,18 @@
           "headHash": "8681dd268c6f0461903825b5cc789c1ed983ff64",
           "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
           "timestamp": "2026-06-19T00:58:34.505Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/guide.md",
+          "command": "rg -n \"ordinary developers should not need senior files|PROJECT_ID.*only needed once you switch|GATE_ACTOR\" docs/guide.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "result": "pass",
+          "note": "Public docs now state ordinary developers consume the basic handoff pair and do not need senior files; PROJECT_ID and GATE_ACTOR variables are documented only for live runner or receipt/gate-consumption flows.",
+          "headHash": "45fc80316a8d377c9428a69b599e992b0f47717c",
+          "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
+          "timestamp": "2026-06-19T01:09:27.980Z"
         }
       ]
     },
