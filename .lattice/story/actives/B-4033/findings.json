@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-4033:F-001",
+      "desc": "computeWriteSet includes allowedTest but plan.md, checklist context, and userSees declare only allowedModify+allowedCreate: plan.md says dedupe(allowedModify++allowedCreate); scope-check feature says unions allowedModify+allowedCreate paths; userSees says unions a contract allowedModify+allowedCreate — none mention allowedTest. The implementation unions all three. Behavior is conservative (aligns with never-under-flag philosophy) and the verificationEvidence note acknowledges it, but the declared spec surface and implementation are inconsistent. If Story 2 callers rely on the plan-stated contract (allowedModify+allowedCreate only), the underdeclaration may cause confusion or test-file paths being unexpectedly included in overlap verdicts.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T13:02:46.504Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-002",
+      "_hash": "6f2366adb7951af66fb404240affa37ee8f93c08b99d33b56a5abb307bef972b",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts",
+        ".lattice/story/actives/B-4033/plan.md",
+        ".lattice/story/actives/B-4033/checklist.json"
+      ],
+      "signatureTag": "edge|ts|computewriteset-includes-allowedtest",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
