@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Export/extract readGitStatusLines + add the clean-tree preflight to review_run_start",
+      "context": "(1) In done-oracle.ts, readGitStatusLines is private (line ~75) -- export it OR extract the git status --porcelain read + the classify/evaluate path into a small shared helper, WITHOUT changing the DONE gate verdict logic. (2) In the review_run_start handler (handlers/review-run.ts / core/review-run.ts), after the REVIEW phase check and BEFORE capturing the review-run snapshot, evaluate the working tree via that shared path (classifyGitStatusRows with dirtyWorktreeClassifierOptionsForStory + evaluateDirtyGate over DIRTY_GATE_POLICY). Refuse when the evaluation reports ANY BLOCKING category (material_source or fixture changes) with a clear actionable message (commit/revert code/config, then rerun review_run_start); the non-blocking categories (lattice_metadata / runtime_artifact / declared_artifact) pass. Do NOT change the DONE gate verdict, materialHash/currentMaterialHash computation, or the evidence-write-time freshness guard.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke + verifier wiring for the review_run_start clean-tree preflight",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered by run-all-smokes) + npm script asserting: (a) review_run_start REFUSES on an uncommitted material-source change; (b) REFUSES on an uncommitted fixture change (fixtures are BLOCKING, matching the DONE gate); (c) PASSES when the tree is clean; (d) PASSES when only .lattice metadata (a non-blocking category) is dirty; (e) the refusal names the offending files; (f) the preflight yields the SAME blocking verdict as the DONE gate for an identical git status (shared evaluation).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
