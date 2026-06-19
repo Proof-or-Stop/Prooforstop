@@ -105,10 +105,10 @@
           "verdict": "success",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "AuditConfig includes parallelGate field with type imported from parallel-decomposition.js; tsc passes with no errors.",
-          "headHash": "75ced964feccafe9ad4dd3056fa4677e1c33b6bd",
-          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
-          "timestamp": "2026-06-19T04:05:28.911Z"
+          "note": "AuditConfig includes parallelGate (type imported from parallel-decomposition.js); tsc passes at current HEAD.",
+          "headHash": "d00d26ceb5b8cc74106829d03f05ca0d1309da4d",
+          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
+          "timestamp": "2026-06-19T04:10:19.767Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
