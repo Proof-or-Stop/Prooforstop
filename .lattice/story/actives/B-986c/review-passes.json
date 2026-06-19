@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T23:48:31.012Z",
       "reviewRunId": "B-986c:RR-005",
       "_hash": "296b7735647085ece9c201ee621649dd728b8826cad0d67a8095867f5b0af43e"
+    },
+    {
+      "id": "B-986c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check completed. The only code change is an additive guard (activePeers.length > 0) added to the else-if branch in packages/main/src/core/parallel-decomposition-gate.ts, plus two new/extended smoke assertions (#5 + #5b). No concept word was deleted or replaced en masse. The pre-existing 18-assertion strings in test-evidence.json and checklist.json are unchanged from round 1 and were not introduced by this round-3 commit (confirmed via git show d08c12fc1). No residue blocker.",
+      "createdAt": "2026-06-19T23:58:59.808Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-007",
+      "_hash": "6dd5e87c82171c8b69245376c764ca0972f11f7dae9cf81e051ebce692b9dddb"
     }
   ]
 }
