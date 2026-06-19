@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract lifecycle dispatch and runCli orchestration helpers",
+      "context": "Move lifecycle-specific dispatch branches and runCli orchestration helpers into a dedicated module while preserving command execution, stdout/stderr, and error semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Extract INIT_CHECK metadata sync and recover helpers",
+      "context": "Move commitInitCheckMetadataAndMergeMain and related metadata sync/recover handling behind stable APIs without weakening worktree/main consistency gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify lifecycle and merge-main safety after extraction",
+      "context": "Run build, lifecycle smoke commands, process fact contract checks, and any focused tests covering INIT_CHECK metadata and DONE/merge-main preconditions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
