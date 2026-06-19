@@ -358,6 +358,22 @@ withRepo('validate-created metadata blocks at final cleanTree', {
   assert.match(output, /test-evidence\.json/);
 });
 
+withRepo('safe stale refresh auto-commit blocks with generated commit guidance', {
+  storyId: 'B-dp-refresh-commit',
+  staleEvidence: 'safe',
+  changedFile: { path: 'docs/requirements/decisions/refresh-commit.md', content: '# refresh commit\n' },
+}, ({ worktreePath }) => {
+  const beforeHead = currentGitHead(worktreePath);
+  const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-refresh-commit', validate: false });
+  const afterHead = currentGitHead(worktreePath);
+  assert.notEqual(afterHead, beforeHead, output);
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /commits:/);
+  assert.match(output, /lattice: record B-dp-refresh-commit verification_evidence_refresh_stale metadata/);
+  assert.match(output, /rerun lattice done_prepare from the new HEAD/);
+  assert.doesNotMatch(output, /DONE prepare: PASS/);
+});
+
 withRepo('merge conflict blocks at mergeMain', {
   storyId: 'B-dp-conflict',
   baseConflictFile: true,
@@ -406,6 +422,33 @@ withRepo('dryRun reports without mutation', { storyId: 'B-dp-dryrun' }, ({ workt
   assert.equal(after, before, output);
   assert.match(output, /DONE prepare: PASS/);
   assert.match(output, /dryRun: true/);
+});
+
+withRepo('dryRun skips planned merge refresh validate and build mutations', {
+  storyId: 'B-dp-dryrun-planned',
+  staleEvidence: 'safe',
+  changedFile: { path: 'docs/requirements/decisions/dryrun-stale.md', content: '# dryRun stale\n' },
+}, ({ root, worktreePath }) => {
+  write(root, 'main-ahead.txt', 'main ahead\n');
+  git(root, ['add', 'main-ahead.txt']);
+  git(root, [...COMMIT_ENV, 'commit', '-m', 'main ahead']);
+
+  const checklistPath = join(worktreePath, '.lattice/story/actives/B-dp-dryrun-planned/checklist.json');
+  const beforeStatus = status(worktreePath);
+  const beforeHead = currentGitHead(worktreePath);
+  const beforeChecklist = readFileSync(checklistPath, 'utf-8');
+  const output = runLattice(worktreePath, 'done_prepare', {
+    storyId: 'B-dp-dryrun-planned',
+    dryRun: true,
+    build: true,
+  });
+  assert.equal(status(worktreePath), beforeStatus, output);
+  assert.equal(currentGitHead(worktreePath), beforeHead, output);
+  assert.equal(readFileSync(checklistPath, 'utf-8'), beforeChecklist, output);
+  assert.match(output, /mergeMain: SKIPPED.*planned mutation skipped: dryRun would run git merge main/);
+  assert.match(output, /staleEvidenceRefresh: SKIPPED.*planned mutation skipped: dryRun would refresh 1 metadata-only stale evidence item/);
+  assert.match(output, /validate: SKIPPED.*planned mutation skipped: dryRun does not run lattice validate/);
+  assert.match(output, /worktreeVersionCheck: SKIPPED.*planned mutation skipped: dryRun does not build/);
 });
 
 withRepo('version bump mode is rejected by command schema', { storyId: 'B-dp-version-reject' }, ({ worktreePath }) => {

@@ -43,6 +43,7 @@ interface DonePrepareBlocked {
   reason: string;
   next: string;
   files?: string[];
+  commits?: string[];
   commands?: string[];
   steps: DonePrepareStep[];
 }
@@ -176,6 +177,10 @@ function block(args: DonePrepareBlocked): string {
     lines.push('files:');
     for (const file of args.files) lines.push(`  - ${file}`);
   }
+  if (args.commits && args.commits.length > 0) {
+    lines.push('commits:');
+    for (const commit of args.commits) lines.push(`  - ${commit}`);
+  }
   if (args.commands && args.commands.length > 0) {
     lines.push('commands:');
     for (const command of args.commands) lines.push(`  - ${command}`);
@@ -264,6 +269,15 @@ function conflictFiles(gitCwd: string): string[] {
   const result = gitMaybe(gitCwd, ['diff', '--name-only', '--diff-filter=U']);
   if (!result.ok || !result.output.trim()) return [];
   return result.output.split('\n').map((line) => line.trim()).filter(Boolean);
+}
+
+function commitSummariesSince(gitCwd: string, beforeHead: string, afterHead: string): string[] {
+  if (!beforeHead || !afterHead || beforeHead === afterHead) return [];
+  const result = gitMaybe(gitCwd, ['log', '--reverse', '--pretty=format:%h %s', `${beforeHead}..${afterHead}`]);
+  if (result.ok && result.output.trim()) {
+    return result.output.split('\n').map((line) => line.trim()).filter(Boolean);
+  }
+  return [afterHead.slice(0, 12)];
 }
 
 function blockingRows(runbook: DoneClosureRunbook) {
@@ -551,7 +565,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       steps,
       'mergeMain',
       isMainAncestor(gitCwd) ? 'pass' : 'skipped',
-      isMainAncestor(gitCwd) ? undefined : 'dryRun would run git merge main',
+      isMainAncestor(gitCwd) ? undefined : 'planned mutation skipped: dryRun would run git merge main',
       'git merge main',
     );
   } else {
@@ -568,6 +582,17 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       });
     }
     setStep(steps, 'mergeMain', 'pass', merge.output || 'main already merged', 'git merge main');
+  }
+
+  const prepareMutationStartHead = currentGitHead(gitCwd);
+  if (!prepareMutationStartHead) {
+    setStep(steps, 'preflight', 'blocked', 'cannot read git HEAD before refresh/validate');
+    return block({
+      blockedAt: 'preflight',
+      reason: 'cannot read git HEAD before refresh/validate',
+      next: 'git rev-parse HEAD',
+      steps,
+    });
   }
 
   let stalePlan: StaleEvidencePlan;
@@ -605,7 +630,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       steps,
     });
   } else if (args.dryRun) {
-    setStep(steps, 'staleEvidenceRefresh', 'skipped', `dryRun would refresh ${stalePlan.safeRefresh.length} metadata-only stale evidence item(s)`);
+    setStep(steps, 'staleEvidenceRefresh', 'skipped', `planned mutation skipped: dryRun would refresh ${stalePlan.safeRefresh.length} metadata-only stale evidence item(s)`);
   } else {
     const refreshed = asText(createChecklistHandlers(ctx).verification_evidence_refresh_stale({ storyId }));
     setStep(steps, 'staleEvidenceRefresh', 'pass', refreshed.split('\n').find((line) => line.trim()) || stalePlan.dryRunTranscript);
@@ -614,7 +639,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   if (!args.validate) {
     setStep(steps, 'validate', 'skipped', 'validate=false');
   } else if (args.dryRun) {
-    setStep(steps, 'validate', 'skipped', 'dryRun does not run lattice validate');
+    setStep(steps, 'validate', 'skipped', 'planned mutation skipped: dryRun does not run lattice validate');
   } else {
     const verifier = createVerifierHandlers(ctx);
     let validateText = '';
@@ -642,9 +667,29 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'validate', 'pass', parsed.summary, `lattice validate --story=${storyId} --json`);
   }
 
+  const prepareMutationEndHead = currentGitHead(gitCwd);
+  if (prepareMutationEndHead && prepareMutationEndHead !== prepareMutationStartHead) {
+    const commits = commitSummariesSince(gitCwd, prepareMutationStartHead, prepareMutationEndHead);
+    const dirtyRows = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
+    const files = statusFiles(dirtyRows);
+    setStep(steps, 'cleanTree', 'blocked', 'refresh/validate produced commit(s); rerun from the new HEAD before DONE');
+    return block({
+      blockedAt: 'cleanTree',
+      reason: 'done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE',
+      commits,
+      ...(files.length > 0 ? { files } : {}),
+      commands: [
+        `git log --oneline ${prepareMutationStartHead}..HEAD`,
+        `lattice done_prepare '{"storyId":"${storyId}"}'`,
+      ],
+      next: 'review the generated commit(s), then rerun lattice done_prepare from the new HEAD',
+      steps,
+    });
+  }
+
   if (args.build) {
     if (args.dryRun) {
-      setStep(steps, 'worktreeVersionCheck', 'skipped', 'dryRun does not build');
+      setStep(steps, 'worktreeVersionCheck', 'skipped', 'planned mutation skipped: dryRun does not build');
     } else {
       try {
         execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
