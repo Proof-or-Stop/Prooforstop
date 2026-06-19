@@ -172,10 +172,10 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "TypeScript build passed after removing generator imports and exports.",
-          "headHash": "380548e857bce889ba9f237e01de016bee829d5e",
+          "note": "TypeScript build passed after resolving trust-env sidecar paths relative to the loaded trust env file and after adjusting the handoff smoke coverage.",
+          "headHash": "3f644e0a40a9553d3f9de43fb636e504f87a369b",
           "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
-          "timestamp": "2026-06-19T01:09:37.825Z"
+          "timestamp": "2026-06-19T01:22:19.123Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
