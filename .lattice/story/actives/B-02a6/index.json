@@ -4,7 +4,7 @@
   "title": "Make INIT-phase story metadata clean-proof at story_create (close the INIT->INIT_CHECK uncommitted-metadata data-loss window)",
   "description": "CRITICAL data-loss class bug (same family as the B-854c ClawCreek incident that lost 19 stories). story_create writes a story INIT metadata (index.json/background.md/checklist.json/init-check.json) into the SHARED main checkout under .lattice/story/actives/<id>/. The safe-init-commit that makes that metadata clean-proof is created ONLY at the INIT_CHECK bootstrap (packages/main/src/handlers/worktree.ts ~348-360: git add -f -- <storyRel> -> write-tree -> commit-tree -> update-ref refs/heads/story/<id>). So a story sitting in INIT (created but not yet advanced to INIT_CHECK) has its metadata as plain UNTRACKED files committed to no branch and recoverable from no git object. .gitignore allowlists .lattice/story/actives/** (the leaf is NOT ignored), but allowlisted is not the same as committed: a plain git clean -fd (untracked + not-ignored = exactly its target) or any working-tree-mutating git op on the shared main checkout permanently deletes it. With a fleet sharing the one main checkout, a concurrent session DONE/discard/recovery git op wipes another session uncommitted INIT metadata - permanent, no commit to restore. Confirmed casualty: B-0c17 (its index/background/checklist/init-check were wiped by concurrent fleet DONE-merge activity; owner-lease.json + init-self-check.json survived only because they were re-created AFTER the wipe). Root-cause-adjacent code: auto-commit-metadata.ts:182 returns early on non-story branch so story_create on main never commits; story-metadata-protection.ts:116-117 unsafe predicate is ignored && !tracked, treating the !ignored && !tracked INIT window as SAFE when it is not. Fix direction (PLAN to finalize): create the safe-init-commit at story_create time (force-add the new story metadata + commit so it is a durable, recoverable, clean-proof git object from birth), under the main-write-lock story_create already holds; the reverse purgeSafeInitCommit already exists (story_discard --purge). Must verify: INIT_CHECK bootstrap is idempotent when the branch/commit already exists; story_discard still cleanly reverses; the B-854c protection predicate is extended so !tracked is flagged regardless of ignored; a regression smoke reproduces the concurrent-wipe and proves the fix survives a simulated git clean -fd / wrong-branch op on the shared checkout. OUT OF SCOPE: redesigning the worktree/branch model; changing the INIT_CHECK reviewer gates; the .gitignore allowlist itself (it is correct).",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "data-loss",
@@ -26,7 +26,7 @@
   ],
   "createdAt": "2026-06-19T04:04:14.316Z",
   "startedAt": "2026-06-19T04:04:14.316Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T05:24:47.157Z",
   "events": [
     {
       "phase": "INIT",
@@ -115,12 +115,16 @@
       "user": "Harmonygo",
       "sessionId": "lattice-navfix",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T05:24:47.157Z",
+      "branch": "story/B-02a6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-navfix",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-02a6",
-    "branch": "story/B-02a6",
-    "createdAt": "2026-06-19T04:07:53.830Z"
-  },
   "currentReviewRound": "2026-06-19T05:07:35.197Z"
 }
