@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d674",
+  "allowedCommands": [
+    "agy --version",
+    "claude --version",
+    "codex --version",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js checklist_*",
+    "node bin/lattice.js decision_*",
+    "node bin/lattice.js dispatch_policy_*",
+    "node bin/lattice.js host_runtime_*",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_*",
+    "node bin/lattice.js understanding_*",
+    "node bin/lattice.js validate *",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test*",
+    "npm test*",
+    "rg *",
+    "which agy",
+    "which claude",
+    "which codex"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "multi_agent",
+    "rg",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/guide.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "gemini *",
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "lattice_senior_actor_ed25519.key",
+    "lattice_senior_authority_trust.env",
+    "lattice_senior_staging-client.env",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "B-d674 executes host runtime support for current hosts Codex CLI, Claude Code CLI, and Antigravity CLI via agy. Direct Gemini CLI execution is blocked; legacy Gemini behavior may only be inspected through Lattice surfaces.",
+  "createdAt": "2026-06-19T14:42:49.078Z",
+  "updatedAt": "2026-06-19T14:42:49.078Z",
+  "_hash": "f3916c3e0a4a90c73d90591d67a419f9b01e66099d05929293dbff4c7bd8257b"
+}

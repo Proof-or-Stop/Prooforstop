@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d674",
+  "mode": "feature",
+  "allowed": [
+    "docs/guide.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "packages/main/src/cli-engine.ts host runtime schema only",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/tasks/*host*",
+    "packages/main/tests/*host*",
+    "README.md",
+    "scripts/*host*"
+  ],
+  "excluded": [
+    "Authority Server receipt gate semantics",
+    "general cli-engine.ts modularization unrelated to host enum/schema",
+    "OMX or .omx artifacts",
+    "remote git push or release",
+    "story lifecycle phase gates"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User requested development start with three current hosts: Codex CLI, Claude Code CLI, and Antigravity CLI using agy; Gemini CLI semantics are deprecated. This boundary limits B-d674 to host runtime support and verification.",
+  "createdAt": "2026-06-19T14:40:53.060Z",
+  "updatedAt": "2026-06-19T14:40:53.060Z",
+  "_hash": "ab522c0f12d69582dc26cc8b27e2bef1f2589b0dc2390390b56e0c3566e8cdc2"
+}
