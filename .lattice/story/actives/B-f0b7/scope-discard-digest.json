@@ -1,0 +1,26 @@
+{
+  "storyId": "B-f0b7",
+  "updatedAt": "2026-06-19T12:44:04.196Z",
+  "entries": [
+    {
+      "digest": "42163b7f86f74acf61a433afaacc1927620b56731497bc9df1fcd4935bdce7ba",
+      "terms": [
+        "## Conversational Texture The operator first saw the ledger seam produce real data directly, then explicitly asked to also run the genuine dispatch_auto scheduler to see the same capture happen through the full unattended path.",
+        "## Key Insights dispatch_auto requires a storyId plus a policy that authorizes real claude-code subprocess launch (allowRealHostSubprocess, the canonical claude --print launcher in commandAllowlist, requireReceipt/requireReview true, allowAutoMerge/allowProductionDone false). The worker runs claude --print --output-format json which surfaces the four-field Anthropic usage object the ledger records.",
+        "## Solution Tradeoffs No real development is intended; the worker objective is a trivial no-op reply so the dispatch completes quickly and cheaply while still exercising the real scheduler, real subprocess, and the usage-ledger write path. The story will be discarded after the probe.",
+        "## Trigger Event On 2026-06-19 the operator asked to run the full dispatch_auto scheduler (not just the ledger seam directly) to confirm a real claude-code dispatch produces a usage-ledger record. This story is the throwaway scheduling target for that single probe dispatch.",
+        "## Trigger Event On 2026-06-19 the operator asked to run the full dispatch_auto scheduler (not just the ledger seam directly) to confirm a real claude-code dispatch produces a usage-ledger record. This story is the throwaway scheduling target for that single probe dispatch. ## Key Insights dispatch_auto requires a storyId plus a policy that authorizes real claude-code subprocess launch (allowRealHostSubprocess, the canonical claude --print launcher in commandAllowlist, requireReceipt/requireReview true, allowAutoMerge/allowProductionDone false). The worker runs claude --print --output-format json which surfaces the four-field Anthropic usage object the ledger records. ## Solution Tradeoffs No real development is intended; the worker objective is a trivial no-op reply so the dispatch completes quickly and cheaply while still exercising the real scheduler, real subprocess, and the usage-ledger write path. The story will be discarded after the probe. ## Conversational Texture The operator first saw the ledger seam produce real data directly, then explicitly asked to also run the genuine dispatch_auto scheduler to see the same capture happen through the full unattended path.",
+        "A throwaway probe story used only as a scheduling target so dispatch_auto can launch one real claude-code worker and we can observe the usage ledger capturing the real provider-reported token record. No code is produced; the worker objective is a trivial no-op reply.",
+        "dispatch",
+        "probe",
+        "Probe the dispatch_auto scheduler end-to-end for usage-ledger capture",
+        "Run one dispatch_auto claude-code worker and observe the ledger record",
+        "Throwaway probe; the worker objective is a trivial no-op reply. Success is a usage-ledger provider-reported record appearing after the dispatch.",
+        "usage-ledger"
+      ],
+      "reason": "Throwaway probe target for the dispatch_auto usage-ledger demonstration; dispatch completed and the ledger captured the real claude-code record. No code produced.",
+      "discardedAt": "2026-06-19T12:44:04.196Z",
+      "storyId": "B-f0b7"
+    }
+  ]
+}
