@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-19T18:22:07.640Z",
       "reviewRunId": "B-fbb6:RR-008",
       "_hash": "722c624ce5c8c2df35ddd8ddb0f7b420c742ffb85af3383bce9f9170ef0f6c1a"
+    },
+    {
+      "id": "B-fbb6:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 64 intents (55 must, 9 should) across CHK-001..CHK-005 have valid verificationEvidence whose bound commands literally exercise their claims. Round-1 blocker F-001 (stale test:usage-ledger-codex-gemini script in package.json) confirmed fixed in commit 9c79b87f: grep -nE gemini package.json = 0, package.json line 32 now test:usage-ledger-codex-antigravity pointing at usage-ledger-codex-antigravity-smoke.js (28 checks pass). All six named smokes re-confirmed green: provider-antigravity, usage-ledger-codex-antigravity, usage-ledger-adapter, dispatch-run, unattended-dispatch, usage-ledger-diagnostics. All grep-zero claims re-verified: extractGeminiUsage=0, adaptGeminiUsage=0, runGeminiRealLeafDispatch=0, runBoundedGeminiProvider=0, geminiCliAvailable=0, adapters/gemini=0, antigravity||antigravity=0, gemini in dispatch-policy.ts=0, gemini in lattice-dispatch.ts=0, chk008-gemini/chk006-gemini=0. Remaining bgemini\\b matches in src are strictly retirement-proof test assertions (gemini rejected/absent/fallback), consistent with CHK-004 justified-residue allowance. No coverage gaps remain.",
+      "createdAt": "2026-06-19T18:24:24.404Z",
+      "reviewRound": "2026-06-19T18:22:07.640Z",
+      "reviewRunId": "B-fbb6:RR-007",
+      "_hash": "d1a180aa1a8d6e5f94cab8ea62948a635425ff5f078d5f599b151931e0986406"
     }
   ]
 }
