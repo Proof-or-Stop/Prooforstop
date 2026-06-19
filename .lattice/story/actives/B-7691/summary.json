@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7691",
+  "changes": "Added a fail-fast material-source clean-tree preflight to review_run_start. New packages/main/src/core/dirty-worktree-gate.ts (readGitStatusLines + classifierOptionsForCheck extracted verbatim from done-oracle.ts + a new isBlockingDirty helper derived from the shared DIRTY_GATE_POLICY); done-oracle.ts import-swapped to use them (DONE verdict byte-identical); handlers/review-run.ts review_run_start gained the preflight (after the REVIEW phase check, before captureReviewRunSnapshot); new smoke packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts + npm script test:review-run-clean-tree-preflight.",
+  "usage": "When a reviewer runs lattice review_run_start while the working tree has uncommitted BLOCKING changes (material-source or fixture), it now refuses with a clear actionable message and records no run; commit or revert, then rerun. A clean tree -- or one dirty only in non-blocking categories (.lattice metadata / runtime artifacts / declared artifacts) -- proceeds exactly as before.",
+  "expectedOutcome": "review_run_start refuses on BLOCKING dirt (material_source/fixture) naming the offending files, proceeds on a clean or non-blocking-only tree, and fails open (proceeds) when git status is unreadable; the DONE gate verdict is unchanged after the readGitStatusLines extraction.",
+  "actualTranscript": "Smoke review-run-clean-tree-preflight 8/8 PASS (a material-source REFUSES+names file+no run; b fixture REFUSES; c clean PROCEEDS records RR-001; d metadata-only PROCEEDS; e refusal names file; f isBlockingDirty parity with the DONE gate; g DONE-gate regression unchanged; h fail-open on unreadable). Full npm test exit 0. Example refusal: 'review_run_start: git working tree has uncommitted material_source_changes (packages/main/src/foo.ts). Commit or revert all code/config changes, then rerun review_run_start.'",
+  "outcomeDiff": "Matches expected. Honest: 2 LOW coverage nits were dismissed -- F-002 (multiple non-blocking categories simultaneously: covered by construction, isBlockingDirty only flips on a blocking category) and F-001 (a git-quoted unicode path end-to-end: the preflight reuses the sound upstream unquoteGitPath, low risk, wontfix in this story).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "It is a fail-fast UX convenience gate, NOT a soundness gate -- checkEvidenceFreshnessForGit at evidence-write time remains the real guard, and the preflight cannot catch a commit made AFTER review_run_start snapshots. runtime_artifact / declared_artifact non-blocking categories are covered by construction (shared DIRTY_GATE_POLICY) rather than a direct dirtied-path test; a git-quoted unicode path is not exercised end-to-end (both LOW, dismissed).",
+  "pitfalls": "Any test-file edit drifts the whole-tree materialHash (the storyFilesHash root cause tracked separately), so fixing low coverage nits costs a full re-review round -- weigh that before reopening. The preflight reuses the shared DIRTY_GATE_POLICY/classifyGitStatusRows so it can never diverge from the DONE gate; when extracting helpers, keep done-oracle's verdict byte-identical (pure move).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 306131
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38302
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 610043
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2183585
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1037073
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 290936
+    }
+  },
+  "totalDurationMs": 4466071,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T15:13:56.184Z",
+  "updatedAt": "2026-06-19T15:13:56.184Z"
+}

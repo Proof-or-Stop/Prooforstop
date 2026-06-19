@@ -1,0 +1,29 @@
+{
+  "task": "Add a fail-fast clean-tree preflight to review_run_start so reviewers never snapshot a working tree that is about to drift and cost a lost review round.",
+  "outcome": "After this work, running lattice review_run_start while the working tree has uncommitted code or fixture changes prints a refusal like \"review_run_start: git working tree has uncommitted material-source changes (M packages/main/src/foo.ts). Commit or revert all code/config changes, then rerun review_run_start.\" and exits non-zero WITHOUT opening a review run. With a clean tree -- or when only non-blocking categories are dirty (.lattice metadata / runtime artifacts / declared artifacts) -- review_run_start proceeds exactly as today and records the run.",
+  "facts": [
+    "REVIEW evidence (finding_add / review_pass_set) binds to the review run headHash + materialHash captured at review_run_start; a mid-review commit staled it, and the only soundness guard is checkEvidenceFreshnessForGit at evidence-write time.",
+    "DONE gate precedent: done-oracle.ts evaluateDirtyGitStatus uses the shared classifier classifyGitStatusRows + DIRTY_GATE_POLICY (dirty-gate-policy.ts).",
+    "Per DIRTY_GATE_POLICY both material_source_changes AND fixture_changes are blocking; lattice_metadata_changes / runtime_artifact_changes / declared_artifact_changes are non-blocking.",
+    "readGitStatusLines is a PRIVATE (unexported) function in done-oracle.ts (~line 75); it must be exported or extracted into a shared helper before review_run_start can reuse the read+classify path.",
+    "review_run_start lives in handlers/review-run.ts (+ core/review-run.ts); there is NO clean-tree preflight at DEV->REVIEW or review_run_start today.",
+    "dirtyWorktreeClassifierOptionsForStory supplies the per-story classifier options used by the DONE gate."
+  ],
+  "constraints": [
+    "Fail-fast UX only -- must NOT change the DONE gate verdict logic, the materialHash/currentMaterialHash computation, or the checkEvidenceFreshnessForGit write-time guard.",
+    "Reuse the shared evaluation (evaluateDirtyGate over classifyGitStatusRows) -- no new classification logic, so the preflight can never diverge from the DONE gate.",
+    "Export/extract readGitStatusLines WITHOUT changing DONE-gate behavior (byte-identical DONE verdict).",
+    "Block only on the policy BLOCKING categories (material_source, fixture); the non-blocking categories pass.",
+    "It is a convenience gate, not a soundness gate, and cannot catch a commit made AFTER the snapshot."
+  ],
+  "unknowns": [
+    "Whether to export readGitStatusLines from done-oracle.ts vs extract it (and the classify/evaluate path) into a new small shared helper module -- PLAN decides.",
+    "Exact insertion point: the handlers/review-run.ts entry vs core/review-run.ts just before captureReviewRunSnapshot."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts (export/extract readGitStatusLines)",
+    "packages/main/src/handlers/review-run.ts and/or core/review-run.ts (the preflight)",
+    "packages/main/src/tasks/ new smoke + package.json npm script"
+  ],
+  "timestamp": "2026-06-19T14:05:44.556Z"
+}

@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Reuse the DONE gate exact dirty evaluation (no new classification) so the preflight can never diverge from it.",
+    "Keep the DONE gate verdict byte-identical: any extraction is a pure move, not a behavior change.",
+    "Fail-fast UX with honest framing -- a convenience gate, not a soundness gate.",
+    "Block only the policy BLOCKING categories (material_source, fixture); non-blocking categories pass."
+  ],
+  "drivers": [
+    "Must NOT change the DONE verdict logic, materialHash computation, or the checkEvidenceFreshnessForGit write-time guard.",
+    "Single source of truth for dirty classification -- no second copy that can drift.",
+    "Minimal blast radius on the hot review_run_start path; fail-open if git status is unreadable."
+  ],
+  "options": [
+    {
+      "name": "A: extract readGitStatusLines + evaluateDirtyGitStatus into a new shared module (core/dirty-worktree-gate.ts); done-oracle + review-run both import it",
+      "pros": [
+        "Single source of truth",
+        "DONE verdict stays byte-identical (pure move)",
+        "Does not pull the large done-oracle module into review-run import graph"
+      ],
+      "cons": [
+        "Touches done-oracle (import swap)",
+        "One new file"
+      ]
+    },
+    {
+      "name": "B: export the 3 helpers from done-oracle.ts; review-run imports from done-oracle",
+      "pros": [
+        "Most minimal diff (add export keywords)"
+      ],
+      "cons": [
+        "Couples review-run to the large done-oracle module",
+        "Higher circular-import risk"
+      ]
+    },
+    {
+      "name": "C: duplicate the git status read + classify/evaluate inside review-run",
+      "pros": [
+        "No done-oracle change"
+      ],
+      "cons": [
+        "Two copies of the dirty logic -> divergence risk; violates single-source principle"
+      ]
+    }
+  ],
+  "chosen": "A: extract readGitStatusLines + evaluateDirtyGitStatus into a new shared module (core/dirty-worktree-gate.ts); done-oracle + review-run both import it",
+  "rationale": "Option A satisfies single-source-of-truth and keeps the DONE verdict byte-identical (pure move), without coupling review-run to the whole done-oracle module. C risks divergence (two copies); B couples review-run to a large module and raises circular-import risk.",
+  "preMortem": [
+    {
+      "scenario": "The DONE gate verdict changes as a side effect of the extraction",
+      "trigger": "The move accidentally alters classifierOptionsForCheck / evaluateDirtyGitStatus semantics",
+      "consequence": "The DONE gate blocks or passes differently -> regression in an unrelated gate",
+      "mitigation": "Pure move (cut/paste + re-import), no logic edits; keep the existing DONE smoke green and add a regression assertion that the DONE gate verdict is unchanged for sample git statuses"
+    },
+    {
+      "scenario": "The preflight blocks when only non-blocking files are dirty (.lattice metadata)",
+      "trigger": "Blocking on all dirty categories instead of the policy BLOCKING set, or wrong classifier options",
+      "consequence": "Reviewers cannot start a run even when only metadata is dirty (false positive)",
+      "mitigation": "Reuse evaluateDirtyGate BLOCKING result (material_source + fixture only); smoke asserts only-metadata-dirty PASSES and clean PASSES"
+    },
+    {
+      "scenario": "Circular import / module load crash when review-run imports the new shared module",
+      "trigger": "The new module imports something that transitively imports review-run or done-oracle back",
+      "consequence": "Runtime import crash on review_run_start",
+      "mitigation": "The shared module imports only the leaf modules (dirty-worktree, dirty-gate-policy); no back-edge to review-run/done-oracle; tsc build + smoke catch it"
+    },
+    {
+      "scenario": "The preflight throws where git status is unreadable (e.g. bare metadata root), breaking review_run_start that used to work",
+      "trigger": "readGitStatusLines returns ok:false and the preflight throws instead of degrading",
+      "consequence": "review_run_start fails in edge environments it previously tolerated",
+      "mitigation": "On a git-status read failure do NOT block (fail-open -- it is a convenience gate), mirroring how the DONE gate tolerates the same condition; smoke covers the unreadable-status case"
+    }
+  ],
+  "timestamp": "2026-06-19T14:06:57.861Z"
+}
