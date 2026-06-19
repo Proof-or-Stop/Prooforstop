@@ -58,6 +58,55 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
+function requireScopeRows(result: unknown, label: string): Array<Record<string, unknown>> {
+  const rows = (result as { rows?: unknown }).rows;
+  assert.ok(Array.isArray(rows), `${label}: scope check must expose stable rows`);
+  for (const row of rows) {
+    assert.equal(typeof row, 'object', `${label}: each scope row must be an object`);
+    assert.ok(row !== null, `${label}: each scope row must be non-null`);
+    const typed = row as Record<string, unknown>;
+    assert.equal(typeof typed.id, 'string', `${label}: row must include id`);
+    assert.equal(typeof typed.status, 'string', `${label}: row ${String(typed.id)} must include status`);
+    assert.equal(typeof typed.blocking, 'boolean', `${label}: row ${String(typed.id)} must include blocking`);
+    assert.equal(typeof typed.source, 'string', `${label}: row ${String(typed.id)} must include source`);
+    assert.ok(
+      typeof typed.nextAction === 'string' || typeof typed.hint === 'string',
+      `${label}: row ${String(typed.id)} must include nextAction or hint`,
+    );
+  }
+  return rows as Array<Record<string, unknown>>;
+}
+
+function findScopeRow(
+  result: unknown,
+  label: string,
+  predicate: (row: Record<string, unknown>) => boolean,
+): Record<string, unknown> {
+  const rows = requireScopeRows(result, label);
+  const row = rows.find(predicate);
+  assert.ok(row, `${label}: expected scope row not found in ${JSON.stringify(rows)}`);
+  return row!;
+}
+
+function assertScopeRow(
+  result: unknown,
+  label: string,
+  expected: { id?: string; source: string; status: string; blocking: boolean; action?: RegExp },
+): void {
+  const row = findScopeRow(result, label, (candidate) => {
+    if (expected.id && candidate.id !== expected.id) return false;
+    return candidate.source === expected.source;
+  });
+  if (expected.id) assert.equal(row.id, expected.id, `${label}: stable row id`);
+  assert.equal(row.source, expected.source, `${label}: row source`);
+  assert.equal(row.status, expected.status, `${label}: row status`);
+  assert.equal(row.blocking, expected.blocking, `${label}: row blocking`);
+  if (expected.action) {
+    const action = String(row.nextAction ?? row.hint ?? '');
+    assert.match(action, expected.action, `${label}: row recovery action`);
+  }
+}
+
 const root = mkdtempSync(join(tmpdir(), 'lattice-scope-contract-'));
 try {
   git(root, ['init', '-b', 'main']);
@@ -137,6 +186,13 @@ try {
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
   assert.equal(checked.status, 'fail', 'unacknowledged out-of-scope file should fail enforce mode');
   assert.ok(checked.violations.some((v: any) => v.path === 'src/other.ts' && v.rule === 'out_of_scope'), 'violation should identify out-of-scope file');
+  assertScopeRow(checked, 'B-997b CHK-004 out-of-scope row', {
+    id: 'scope.out_of_scope:src/other.ts',
+    source: 'src/other.ts',
+    status: 'fail',
+    blocking: true,
+    action: /scope_contract_acknowledge|Declare the path/i,
+  });
 
   const ack = run(root, 'scope_contract_acknowledge', {
     storyId,
@@ -148,6 +204,74 @@ try {
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
   assert.equal(checked.status, 'warn', 'acknowledged out-of-scope file should warn, not pass silently');
   assert.ok(checked.acknowledgedPaths.includes('src/other.ts'), 'acknowledged path remains visible');
+  assertScopeRow(checked, 'B-997b CHK-004 acknowledged row', {
+    id: 'scope.out_of_scope:src/other.ts',
+    source: 'src/other.ts',
+    status: 'warn',
+    blocking: false,
+    action: /review|acknowledged|visible/i,
+  });
+
+  const waveContract = {
+    storyId,
+    mode: 'enforce' as const,
+    allowedModify: ['src/allowed.ts'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: [],
+    explicitExcludes: [],
+    acknowledgements: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const lifecycleRuntimePositive = checkScopeContract(waveContract, [
+    '.lattice/story/actives/B-scope/summary.json',
+    '.lattice/activity.jsonl',
+  ]);
+  assert.equal(lifecycleRuntimePositive.status, 'pass', 'registered lifecycle/runtime artifacts should pass scope');
+  assertScopeRow(lifecycleRuntimePositive, 'B-997b CHK-004 lifecycle row', {
+    id: 'scope.lifecycle_artifact:B-scope:summary.json',
+    source: '.lattice/story/actives/B-scope/summary.json',
+    status: 'pass',
+    blocking: false,
+    action: /provenance|artifact|not.*gate/i,
+  });
+  const runtimeRow = findScopeRow(
+    lifecycleRuntimePositive,
+    'B-997b CHK-004 runtime row',
+    row => typeof row.id === 'string'
+      && row.id.startsWith('scope.runtime_artifact:')
+      && row.source === '.lattice/activity.jsonl'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
+  assert.match(String(runtimeRow.nextAction ?? runtimeRow.hint ?? ''), /runtime|not.*scope|registry/i, 'runtime row should name registry/runtime treatment');
+
+  const failClosedNegative = checkScopeContract(waveContract, [
+    '.lattice/story/actives/B-scope/evidence/notes.md',
+    '.lattice/story/actives/B-scope/unknown-metadata.json',
+    'packages/main/src/handlers/unowned-source.ts',
+    'packages/main/tests/fixtures/direct-edit.json',
+  ]);
+  assert.equal(failClosedNegative.status, 'fail', 'unknown metadata/source/fixture paths should fail closed');
+  for (const source of [
+    '.lattice/story/actives/B-scope/evidence/notes.md',
+    '.lattice/story/actives/B-scope/unknown-metadata.json',
+    'packages/main/src/handlers/unowned-source.ts',
+    'packages/main/tests/fixtures/direct-edit.json',
+  ]) {
+    assert.ok(
+      failClosedNegative.violations.some((v: any) => v.path === source && v.rule === 'out_of_scope'),
+      `fail-closed violation should name ${source}`,
+    );
+    assertScopeRow(failClosedNegative, `B-997b CHK-004 fail-closed row ${source}`, {
+      id: `scope.out_of_scope:${source}`,
+      source,
+      status: 'fail',
+      blocking: true,
+      action: /scope_contract_acknowledge|Declare the path|fixture/i,
+    });
+  }
 
   write(root, 'src/protected.ts', 'export const protectedValue = 2;\n');
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));

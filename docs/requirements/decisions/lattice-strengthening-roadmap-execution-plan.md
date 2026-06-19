@@ -3,7 +3,8 @@
 Date: 2026-06-19
 Origin story: B-8b07
 Audit repair story: B-b5c0
-Status: Execution plan, not implemented runtime behavior
+Wave 1 implementation story: B-997b
+Status: M1-M3 wave complete; M4-M12 remain follow-up milestones
 
 ## Status And Purpose
 
@@ -21,9 +22,12 @@ Lattice along three coordinated tracks:
    and pre-DONE coordination fail closed before it can produce false DONE,
    stale review, duplicated work, or overclaimed authority.
 
-This roadmap does **not** implement those controls. It exists so future
-implementation stories can be scheduled, scoped, reviewed, validated, and
-accepted without rediscovering the same policy choices in every branch.
+B-997b implements the first hard-scope wave for M1-M3: canonical scope rows,
+registry-backed lifecycle/runtime artifact classification, guard projection, and
+explicit acknowledgement visibility. M4-M12 remain follow-up milestones; this
+document still schedules those later controls so future implementation stories
+can be scoped, reviewed, validated, and accepted without rediscovering the same
+policy choices in every branch.
 
 The desired product outcome is:
 
@@ -34,10 +38,12 @@ scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
 ```
 
-The product/material deliverable of B-b5c0 is only this document repair. It
-does not change NAV/runtime code/fixtures/hooks/generated assets. Any
-`.lattice/story/actives/B-b5c0/*` lifecycle metadata is story-scoped provenance
-produced by the Lattice workflow, not roadmap/runtime behavior.
+The product/material deliverable of B-b5c0 was only this document repair. The
+B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
+scope boundary behavior and keeps Authority/Layer 4/customer key work out of
+scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
+story-scoped provenance produced by the Lattice workflow, not proof of later
+roadmap milestones.
 
 ## Source And Context Mapping
 
@@ -92,7 +98,7 @@ behavior as if it were net-new.
 | `planned` | Adopted design or acceptance target exists, but this roadmap does not implement the runtime behavior. |
 | `greenfield` | No current product capability exists; a future story would create the first implementation. |
 
-Current baseline classification as of the B-b5c0 document repair:
+Current baseline classification after the B-997b M1-M3 wave:
 
 | Surface | Current status | Source of truth | Roadmap treatment |
 |---|---|---|---|
@@ -290,9 +296,46 @@ DONE criteria:
 - Required sections are present.
 - The story's final response clearly states this is an execution plan only.
 
+### Wave 1 shipped behavior
+
+M1-M3 wave complete; M4-M12 remain follow-up milestones.
+
+B-997b ships the hard-scope slice only:
+
+- Scope checks now expose canonical row-shaped decisions for product source,
+  docs, lifecycle metadata, runtime artifacts, fixtures, and unknown metadata.
+  A normal undeclared product edit has a stable row like
+  `scope.out_of_scope:src/other.ts` with `status=fail`, `blocking=true`, the
+  source path, and a next action that points back to PLAN scope declaration or
+  `scope_contract_acknowledge`.
+- Registered lifecycle artifacts are provenance, not product scope drift. A
+  current-story summary artifact is represented by
+  `scope.lifecycle_artifact:B-scope:summary.json` with `status=pass` and
+  `blocking=false`; it still cannot satisfy summary, delivery, review,
+  validation, or DONE gates by itself.
+- Registered runtime artifacts are accepted only through the runtime artifact
+  registry row family `scope.runtime_artifact:*`. Unknown `.lattice`, `.koala`,
+  story metadata, source, or fixture paths continue to fall through normal scope
+  enforcement and fail closed when undeclared.
+- A valid DEV/REVIEW acknowledgement does not convert a scope expansion into a
+  silent pass. The acknowledged `scope.out_of_scope:*` row remains `status=warn`,
+  `blocking=false`, and reviewer-visible so later gates can require acceptance.
+- Guard behavior reports the real host protection level: `native-pretool` only
+  when a verified pre-tool hook exists, `wrapped-preapply` only in a dispatch
+  pre-apply context, and `watcher-fallback` otherwise.
+
+Authority/Layer 4/customer key work remains out of scope for B-997b. Production
+receipts, server authority, baseline unlock suites, renderer/scheduler changes,
+customerKeyRef behavior, and unrelated app/runtime work remain in M4-M12 or
+separate follow-up stories.
+
 ### M1. Canonical Scope Boundary Model
 
 Track: hard scope boundaries
+
+Wave 1 status: shipped by B-997b for canonical row-shaped changed-file scope
+decisions and fail-closed unknown categories. Later stories may harden policy
+versioning and cross-surface rendering, but must consume this row contract.
 
 Purpose: make the story's allowed and excluded material changes explicit before
 implementation starts.
@@ -353,6 +396,10 @@ DONE criteria:
 
 Track: hard scope boundaries
 
+Wave 1 status: shipped by B-997b for lifecycle/runtime artifact classification,
+guard capability labels, and scope gate rows. Later stories may add broader
+oracle rendering, but must not reintroduce blanket directory exemptions.
+
 Purpose: make scope violations visible and blocking across hosts while
 truthfully reporting each host's protection level.
 
@@ -412,6 +459,11 @@ DONE criteria:
 
 Track: hard scope boundaries
 
+Wave 1 status: shipped by B-997b for DEV/REVIEW acknowledgement visibility and
+lower-assurance fallback labeling. Later stories may add reviewer automation or
+quorum integration, but acknowledgement remains repair evidence, not a PLAN
+scope replacement.
+
 Purpose: allow necessary mid-flight changes without converting exceptional
 repair into invisible normal behavior.
 
@@ -467,6 +519,8 @@ DONE criteria:
 ### M4. Process Fact Registry Coverage
 
 Track: mechanical verification and evidence chain
+
+Follow-up status: M4 starts the post-wave-1 roadmap and is not part of B-997b.
 
 Purpose: ensure every gate-consumed fact has a typed registry entry and a
 contract verifier, so prompt wording cannot drift away from runtime behavior.
