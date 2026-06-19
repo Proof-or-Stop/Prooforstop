@@ -4,7 +4,7 @@
   "title": "Harden codex/gemini usage capture (token-only projection + unavailable-final + prototype-safe extractors)",
   "description": "Clean single-pass re-do of a hardening fix for the codex/gemini usage capture (LLM usage ledger). A genuine Codex host-2 cross-review of merged story B-12d7 found two real correctness gaps, and follow-up review found the extractor projection could inherit polluted prototype keys. This story applies the COMPLETE, already-reviewed cumulative fix in one DEV commit: (1) extractCodexUsage/extractGeminiUsage project to ONLY the adapter-read token-count keys via own-property guards into a null-prototype object (top-level AND the nested prompt_tokens_details), so a non-token key or an inherited prototype key can never reach the surfaced reportedUsage; (2) recordDispatchFinalForProvider writes an unavailable-final when buildProviderRecord throws on a malformed-but-object usage, so the preflight estimate is always superseded (never orphaned). The claude/anthropic path stays byte-identical. The broader SYSTEMATIC prototype-pollution hardening of out-of-scope core (assemble.ts default-options, adapter `in` reads) is explicitly DEFERRED to a separate dedicated story per operator decision. The fix code is already written + reviewed (claude 3 lanes + codex); this re-do gives it a clean Lattice audit trail in one round.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "usage-ledger",
@@ -75,6 +75,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-19T19:33:11.552Z",
+      "branch": "story/B-30c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T19:50:23.566Z",
       "branch": "story/B-30c3",
       "user": "Harmonygo",
       "agent": "main"
