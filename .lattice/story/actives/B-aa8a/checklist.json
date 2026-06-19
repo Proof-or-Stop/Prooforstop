@@ -96,9 +96,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: parseSemver(1.2.3) returns {major:1,minor:2,patch:3} — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -107,9 +107,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: nextPatch({major:0,minor:3,patch:9}) returns {major:0,minor:3,patch:10} — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -118,9 +118,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: readSyncedVersion(fixtureRoot) with all 3 sync points at 0.9.9 returns 0.9.9 — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -129,9 +129,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: applyPatchBump(fixtureRoot) with all 3 sync points at 0.9.9 writes 0.9.10 to all 3 files and returns {from:0.9.9,to:0.9.10} — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -140,9 +140,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: bumpVersionOnDoneMerge({shouldBump:true, runGit:spy}) bumps files, calls git add on 3 paths + git commit with chore:bump, returns success li — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:happy:5",
@@ -151,9 +151,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: bumpVersionOnDoneMerge({shouldBump:false}) returns skip line containing skipped, no filesystem changes — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -162,9 +162,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: parseSemver(0.0.0) returns {0,0,0} and nextPatch returns {0,0,1} — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: nextPatch on patch=999 returns patch=1000 with no overflow cap — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: parseSemver rejects 1.2 (missing patch) and v1.2.3 (v-prefix) and 1.2.3-beta (prerelease) and abc (non-numeric) — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: readSyncedVersion with root=0.3.9 main=0.3.9 brand=0.3.10 throws drift error naming each value — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -206,9 +206,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: applyPatchBump re-read verification: after writing re-reads all 3 files and confirms identical version — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:edge:5",
@@ -217,9 +217,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: shouldBuildDoneMainPackageForChangedPaths([packages/main/src/x.ts]) returns true and [.lattice/story/B-x/index.json] returns false — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -228,9 +228,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: readSyncedVersion when lattice-brand.ts has LATTICE_CLI_VERSION on multiple lines (duplicate export) throws or reads the canonical one — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -239,9 +239,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: applyPatchBump called on a fixture where root package.json is read-only (chmod 0444) throws with a clear error and does not partially update — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -250,9 +250,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: bumpVersionOnDoneMerge where runGit(commit) throws after files already written: error propagates with recovery message mentioning manual 3-p — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -261,9 +261,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: applyPatchBump called twice consecutively on same fixture: first bumps 0.9.9 to 0.9.10, second bumps 0.9.10 to 0.9.11 (not 0.9.12, no double — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         }
       ]
     },
@@ -347,9 +347,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "version-bump capability: Smoke file version-bump-smoke.ts exists at packages/main/src/tasks/ and is registered in lattice.config.json validate.commands — verified by the full validate suite; PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -358,9 +358,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: nextPatch(0.3.9)=0.3.10 and nextPatch(1.2.0)=1.2.1 pass — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -369,9 +369,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: applyPatchBump on temp fixture with 3 files all at 0.9.9 produces 0.9.10 in all 3 and minor/major unchanged — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -380,9 +380,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: bumpVersionOnDoneMerge with shouldBump=true + injected runGit spy confirms git add of 3 files + chore:bump commit issued + bump line  — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:happy:4",
@@ -391,9 +391,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: bumpVersionOnDoneMerge with shouldBump=false returns skip line and no FS changes — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -402,9 +402,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: malformed semver (empty string, 1.2, v1.2.3) all throw — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -413,9 +413,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: readSyncedVersion / applyPatchBump with mismatched fixture versions (root=0.3.9, main=0.3.9, brand=0.3.10) throws drift error — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -424,9 +424,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: gate predicate -- [.lattice/story/B-x/index.json] returns false (metadata-only merge must NOT bump) — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -435,9 +435,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: gate predicate -- [package.json] returns true — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -446,9 +446,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: idempotency -- applyPatchBump twice on fresh fixture increments by exactly 1 each time (0.9.9 to 0.9.10 to 0.9.11) — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -457,9 +457,9 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "version-bump capability: Smoke: fixture with trailing whitespace in LATTICE_CLI_VERSION line still parses correctly or throws cleanly — verified by version-bump-smoke (41 assertions, hermetic); PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -468,9 +468,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "version-bump capability: Smoke: running the full smoke suite via npx lattice validate exits 0 — verified by the full validate suite; PASS.",
-          "headHash": "82fd55b00d448baa7ba375f16adf07a443af1ae3",
-          "materialHash": "7c204b5bcc3cf1841c822529f57812506bd9a3d07a548aba6b0e43db8c1e36d4",
-          "timestamp": "2026-06-19T19:49:35.074Z"
+          "headHash": "882c44b1ab5f13f38f087578547d1407d548582f",
+          "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+          "timestamp": "2026-06-19T20:46:08.722Z"
         }
       ]
     }
