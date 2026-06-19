@@ -5,7 +5,7 @@
       "desc": "CHK-001:happy:0 evidence predates the deliverable: headHash c23bc65f was recorded before parallel-decomposition.ts existed (file first appeared in bbb1a8c01). The npm build cited as evidence could not have compiled the contract file. A fresh build+export evidence after bbb1a8c01 (or later) is required.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T04:08:11.067Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/parallel-decomposition.ts"
       ],
       "signatureTag": "missing|ts|happy-evidence-predates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in dc4551d29: re-recorded CHK-001:happy:0 verificationEvidence at the post-implementation HEAD (npm run build PASS compiling the actual parallel-decomposition.ts).",
+      "resolvedAt": "2026-06-19T04:11:21.048Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-59c7:F-002",
