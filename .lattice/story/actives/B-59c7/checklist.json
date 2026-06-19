@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Create parallel-decomposition.ts contract: types, constants, NotImplemented function skeletons",
       "context": "packages/main/src/core/parallel-decomposition.ts — export ParallelGateConfig type, VALID_PARALLEL_MODES set, ParallelDecompositionBlock reason union/enum, and computeWriteSet/globsOverlap/evaluateDecompositionGate signatures with bodies that throw new Error(\"NotImplemented\"). Must compile under tsc.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T04:05:30.277Z",
       "userSees": "Running tsc shows no errors; parallel-decomposition.ts exports ParallelGateConfig, VALID_PARALLEL_MODES, ParallelDecompositionBlock, computeWriteSet, globsOverlap, evaluateDecompositionGate.",
       "verificationIntent": {
         "happy": [
