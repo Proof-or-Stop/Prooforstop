@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|adversarial-claims-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-986c:F-002",
+      "desc": "CHK-001:adversarial:2 claims evidence proves \"Story own contract missing from Map -> fail-open (block=null, NOT peer_contract_unreadable).\" No smoke block omits the story S from the contracts Map. Every fixture in parallel-decomposition-gate-smoke.ts (blocks 1-10) passes a contract for story S. The gate implementation at lines 62-63 handles this correctly (sContract check, sWriteSet defaults to []), but the stated behavioral claim is never exercised by the smoke. The evidence command node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js does not cover this intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:38:48.015Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "c3d9b366b49448f902c12e5f3e4761347c4a274778da10be900d698b8ff3b982",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts",
+        "packages/main/src/core/parallel-decomposition-gate.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-claims-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
