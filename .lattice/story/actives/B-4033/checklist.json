@@ -97,7 +97,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: validateWriteSetGrammar rejects mid-path double-star and bare top-level star; accepts literal/dir-star/dir-doublestar; smoke exits 0.",
+          "headHash": "273ba5facf9d1adaac545b6553cc4b664e28db1d",
+          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
+          "timestamp": "2026-06-19T12:57:59.125Z"
+        }
+      ]
     }
   ]
 }
