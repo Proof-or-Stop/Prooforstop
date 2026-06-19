@@ -32,6 +32,24 @@
       "_hash": "7269e3f7907e5e50352926ee6c8745273f807f814e534f8add7dd43ac83e9ef9",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-59c7:F-003",
+      "desc": "CHK-002:happy:0 evidence predates the deliverable: headHash 75ced964f was recorded before parallel-decomposition.ts existed. The npm build cited as evidence for AuditConfig.parallelGate field could not have compiled the import from parallel-decomposition.ts. A fresh build evidence after bbb1a8c01 is required.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T04:08:15.973Z",
+      "reviewRound": "2026-06-19T04:05:42.294Z",
+      "reviewRunId": "B-59c7:RR-003",
+      "_hash": "d236d2f991590e2605bdde562fa07187f8383db9a63b53f4a9ff9730d4b6c5b0",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-predates",
+      "signatureTagSource": "auto"
     }
   ]
 }
