@@ -103,18 +103,14 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees literal fields \"postDoneRuntimeVersionBumpRequired: true\" and \"postDoneNext: After story_advance DONE succeeds on local main, run the runtime version bump/finalize path.\" for runtime diffs, \"postDoneRuntimeVersionBumpRequired: false\" for docs-only diffs, and \"postDoneVersionState: inconsistent\" when version sources mismatch; no version file appears in git status.",
+      "userSees": "\"postDoneRuntimeVersionBumpRequired: true\" for runtime diffs and \"postDoneRuntimeVersionBumpRequired: false\" for docs-only diffs, with no package/version files changed.",
       "files": {
         "modify": [
-          "packages/main/src/handlers/done-prepare.ts",
-          "packages/main/src/core/version-bump.ts"
+          "packages/main/src/handlers/done-prepare.ts"
         ],
-        "create": [
-          "packages/main/src/core/done-prepare-runtime-classifier.ts"
-        ],
+        "create": [],
         "test": [
-          "packages/main/src/tasks/done-prepare-smoke.ts",
-          "packages/main/src/tasks/version-bump-smoke.ts"
+          "packages/main/src/tasks/done-prepare-smoke.ts"
         ]
       },
       "verificationIntent": {
