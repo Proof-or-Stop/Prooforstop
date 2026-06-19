@@ -49,9 +49,9 @@
       "title": "Smoke: DONE surfaces the drift advisory on the pass path",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that builds an escalation report with a downgrade-accepted host verdict (materialHash drift + matching storyFilesHash) and asserts the rendered DONE checklist Review-escalation row is PASS AND contains the re-attestation advisory text; and a control where no drift -> pass with no advisory text. Prefer driving the real done-oracle render path.",
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T23:53:07.113Z",
-      "endTime": null,
+      "endTime": "2026-06-19T23:57:57.462Z",
       "verificationIntent": {
         "happy": [
           {
