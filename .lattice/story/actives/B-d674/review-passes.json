@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T15:37:54.182Z",
       "reviewRunId": "B-d674:RR-005",
       "_hash": "572ff4a77951103d297aae31789f61bdc4b9f6fb969f1a04fa492c96e152b7cb"
+    },
+    {
+      "id": "B-d674:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality REVIEW pass after F-001/F-003/F-005 fixes. Independently checked changed source/docs; F-001/F-003 behavior is fixed: antigravity and agy normalize to wrapped-preapply only with viaDispatch, host_runtime_list exposes fake,codex,claude-code,antigravity, agy probes as antigravity with cliCommand=agy, and Gemini remains deprecated legacy probe-only/current-list-excluded. F-005 docs overclaim is resolved: host-overflow.md now limits unattended-dispatch-smoke coverage to claude-code plus legacy Gemini refusal and points Antigravity/agy coverage to dispatch-run-smoke plus targeted runtime/guard checks. Verification run: npm --prefix packages/main run build; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; compiled API assertions for resolveGuardMode/listHostRuntimes/probeHostRuntime/checkDispatchPolicy; git diff --check main...HEAD; negative rg for old unattended-dispatch-smoke Antigravity overclaim. No blocking quality finding.",
+      "createdAt": "2026-06-19T15:54:05.233Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-010",
+      "_hash": "9abaeb1c238437545be679481c4c86b426c6aa76e22887d4e0dcd1d82ee532c4"
     }
   ]
 }
