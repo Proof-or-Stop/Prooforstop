@@ -164,9 +164,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T13:25:31.271Z",
-      "endTime": null,
+      "endTime": "2026-06-19T13:34:38.660Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-assurance-floor.ts"
@@ -199,7 +199,42 @@
           }
         ]
       },
-      "userSees": "User sees \"Stale material recovery\" followed by \"1. Run lattice validate --story=B-xxxx\" and \"3. Re-submit local host verdicts over materialHash=<current>\" in DONE blocking output."
+      "userSees": "User sees \"Stale material recovery\" followed by \"1. Run lattice validate --story=B-xxxx\" and \"3. Re-submit local host verdicts over materialHash=<current>\" in DONE blocking output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts DONE failure text names stale host verdicts plus validate, verification_evidence_refresh_stale, and autopilot_review_submit recovery commands.",
+          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:38.940Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts many stale ignored verdicts are truncated while the Stale material recovery runbook remains visible.",
+          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:39.133Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke passed; assertions keep stale verdicts non-counting and ensure the runbook does not suggest skip, force DONE, override stale material, or Authority completion.",
+          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:39.309Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
