@@ -29,7 +29,7 @@
       "desc": "docs/guide.md:7 still describes Lattice as built around Claude Code CLI, Codex CLI, and LLM APIs, but omits Antigravity/agy from the current CLI host set. host_list reports codex, claude-code, and antigravity host profiles, and host_runtime_probe --host=antigravity reports cliCommand=agy. The guide should state the current hosts as Codex CLI, Claude Code CLI, and Antigravity CLI/agy, with Gemini only legacy/deprecated, so user-facing text does not preserve pre-Antigravity semantics.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T15:29:18.597Z",
@@ -40,7 +40,11 @@
         "docs/guide.md"
       ],
       "signatureTag": "doc-code-drift|md|docs-guide-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3cfbdeba3: docs/guide.md overview now names Codex CLI, Claude Code CLI, and Antigravity CLI (agy) as current CLI hosts, with Gemini retained only as deprecated legacy compatibility.",
+      "resolvedAt": "2026-06-19T15:38:21.588Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d674:F-003",
