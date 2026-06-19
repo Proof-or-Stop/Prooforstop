@@ -82,7 +82,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The roadmap contains a milestone-to-rollout crosswalk that binds each affected milestone to rollout stage, policy version, enforcement mode, and expected operator-visible artifact or command evidence.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "In-flight story treatment, false-positive rollback or de-escalation, and recovery controls are documented for stories already past PLAN/DEV/REVIEW when the rollout policy changes.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The self-hosting emergency bypass is tightly scoped, auditable, time-bounded or version-bounded, and cannot silently bypass policy/version gates or permanent blocker semantics.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
