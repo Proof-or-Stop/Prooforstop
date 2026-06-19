@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fc82",
+  "changes": "Moved the review_run_start dirty-tree preflight so blocking material-source dirtiness is checked before snapshot-derived review run diagnostics, and added regression coverage for that ordering.",
+  "usage": "Run node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js or lattice validate --story=B-fc82 to verify the CLI behavior.",
+  "expectedOutcome": "Dirty material-source changes should make review_run_start fail with the dirty preflight message before any review run is persisted; clean and fail-open paths should remain unchanged.",
+  "actualTranscript": "review-run-clean-tree-preflight-smoke passed including ordering scenario (i); field-regression-cli-smoke passed; lattice validate --story=B-fc82 passed with 6/6 verification intent coverage.",
+  "outcomeDiff": "No difference: actual transcript matches the expected ordering, persistence, and validation outcomes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by ordering smoke, field regression smoke, project validate, delivery check, and review assurance floor evidence.",
+  "pitfalls": "After merging current main, verificationEvidence became stale and had to be refreshed before DONE evidence could pass; Codex adapter evidence also needed a fresh verify event.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 249912
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12985
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 558206
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 339829
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 151730
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 555414
+    }
+  },
+  "totalDurationMs": 1868085,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T16:33:52.849Z",
+  "updatedAt": "2026-06-19T16:33:52.849Z"
+}

@@ -94,7 +94,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           );
         }
       }
-      // status.ok === false → fail-open: do not block; proceed to the snapshot.
+      // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
       const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
