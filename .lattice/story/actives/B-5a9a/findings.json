@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/story-files-hash-material-drift.md:20-45 says storyFilesHash is recorded alongside materialHash and applies to review escalation host verdicts plus degraded fallback records, but the producer commands still do not record or accept storyFilesHash. review_escalation_fallback_set only imports/currentMaterialHash and writes materialHash in packages/main/src/handlers/review-escalation.ts:4,68-89,103-118; autopilot_review_submit has no storyFilesHash schema field in packages/main/src/cli/command-catalog.ts:1983-1998 and appends host_verdict without storyFilesHash in packages/main/src/handlers/verdict.ts:190-203. Command-produced escalation records therefore cannot satisfy the documented adopted binding; only manually/synthetically seeded events with storyFilesHash can get the downgrade.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T22:15:57.321Z",
@@ -19,7 +19,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 19a543165: review_escalation_fallback_set schema/handler now accepts, validates when computable, returns, and persists storyFilesHash with materialHash; autopilot_review_submit schema/HostVerdict/SubmitArgs/process-event now persists storyFilesHash with materialDigest. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-19T22:35:22.656Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a9a:F-002",
