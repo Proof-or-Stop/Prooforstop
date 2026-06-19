@@ -138,7 +138,7 @@
       "desc": "All 6 verificationEvidence entries are stale (headHash mismatch vs current HEAD deaedfb). Cause: comment-only JSDoc reword in validation-executor.ts (7ab1e1db6) advanced the material hash without re-binding evidence. Main agent has stated all 6 entries will be re-bound at the frozen HEAD before TEST. This finding is advisory; re-bind + validate --story will clear it.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T18:44:52.555Z",
@@ -149,7 +149,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 6 verificationEvidence entries re-bound at the frozen HEAD (verification_evidence_add for CHK-001:edge:0 + refresh_stale for the other 5); lattice validate --story=B-5d18 now reports covered=6/6, missingRequired=0, status=pass. Residual binding drift from later metadata commits is re-freshened at the DONE gate per standard.",
+      "resolvedAt": "2026-06-19T18:50:29.139Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5d18:F-008",
