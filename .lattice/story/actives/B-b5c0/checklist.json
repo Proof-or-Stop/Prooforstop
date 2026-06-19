@@ -54,9 +54,9 @@
           "command": "rg -n \"Current Implementation Status Axis|shipped|harden-existing\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "The repaired roadmap contains a current implementation status axis and classifies shipped/harden-existing/current surfaces.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.572Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "rg -n \"lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|lifecycle-artifact-scope|session-ownership|lattice-parallel-wave\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Source mapping now includes direct Authority receipt and lifecycle receipt sources plus the existing lifecycle/session/parallel sources.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.572Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "git show --name-only --format= HEAD && rg -n \"not describe owner lease|rather than inventing scope freeze|not let local evidence set Authority completion\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Commit changed only the roadmap document and the new wording prevents existing scope/owner/parallel/receipt surfaces from being treated as net-new future work.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.572Z"
         },
         {
           "intentRef": "CHK-001:adversarial:provenance-boundary",
@@ -142,9 +142,9 @@
           "command": "rg -n \"requires3x2|explicitlyConfiguredHighRiskPolicyRequires3x2|firstReviewRoundCountableProblems\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "The roadmap now states the mechanical 3x2 predicate and separates threshold-triggered escalation from explicit high-risk policy opt-in.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -153,9 +153,9 @@
           "command": "rg -n \"signed canonical|registry-backed identity|host/session/key/material|validation/prompt binding\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Local counted verdict requirements now name identity/freshness bindings and signed or registry-backed provenance instead of accepting transcript/prose.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -164,9 +164,9 @@
           "command": "rg -n \"review_escalation_status|autopilot_review_status|decision_doc_quorum_check|lattice validate --story|npm --prefix packages/main run build\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && git diff --check HEAD^..HEAD && npm --prefix packages/main run build",
           "result": "pass",
           "note": "M6/M8/M12 validation sections list concrete commands/artifact rows; diff check and TypeScript build passed for the repaired tree.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         },
         {
           "intentRef": "CHK-002:adversarial:receipt-smokes",
@@ -229,9 +229,9 @@
           "command": "rg -n \"Milestone-To-Rollout Stage Crosswalk|policyVersion|Enforcement mode|Operator-visible evidence\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "The roadmap now contains a milestone-to-rollout crosswalk with policy version, enforcement mode, in-flight treatment, and operator-visible evidence columns.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -240,9 +240,9 @@
           "command": "rg -n \"in-flight|false-positive|de-escalation|prior accepted policy version|do not reopen\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "The repaired rollout section documents in-flight treatment and false-positive rollback/de-escalation without reopening DONE stories.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -251,9 +251,9 @@
           "command": "rg -n \"M11 staged runbook|Audited emergency bypass|expiry by time|policyVersion|must not bypass git cleanliness|cannot set `authorityDone`\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "The emergency bypass is explicitly audited, scoped to self-hosting over-block, time/policy bounded, and barred from setting Authority, DONE, full 3x2, or baseline PASS claims.",
-          "headHash": "f841abb7382b8981d714f1234cde44f79e7dcf03",
-          "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
-          "timestamp": "2026-06-19T02:43:46.645Z"
+          "headHash": "0ef0b57388b8cbeeabf69afaf4db8aa6935b84d2",
+          "materialHash": "7bbe97f907971b8fc9882b8f75ac494283a08c3c96fe6e1234d03fe0ed5e73f1",
+          "timestamp": "2026-06-19T03:46:33.573Z"
         }
       ]
     }
