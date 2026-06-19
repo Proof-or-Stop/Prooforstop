@@ -92,9 +92,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T01:26:07.482Z",
-      "endTime": null,
+      "endTime": "2026-06-19T01:26:08.195Z",
       "verificationIntent": {
         "happy": [
           {
@@ -122,7 +122,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"requires3x2|explicitlyConfiguredHighRiskPolicyRequires3x2|firstReviewRoundCountableProblems\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The roadmap now states the mechanical 3x2 predicate and separates threshold-triggered escalation from explicit high-risk policy opt-in.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:08.388Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"signed canonical|registry-backed identity|host/session/key/material|validation/prompt binding\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Local counted verdict requirements now name identity/freshness bindings and signed or registry-backed provenance instead of accepting transcript/prose.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:08.537Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"review_escalation_status|autopilot_review_status|decision_doc_quorum_check|lattice validate --story|npm --prefix packages/main run build\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && git diff --check HEAD^..HEAD && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "M6/M8/M12 validation sections list concrete commands/artifact rows; diff check and TypeScript build passed for the repaired tree.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:08.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -193,6 +228,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin auditor verification for mechanical 3x2 predicate, verdict binding, and validation command coverage."
+    },
+    {
+      "timestamp": "2026-06-19T01:26:08.195Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 verified against rg checks, diff check, and build."
     }
   ]
 }
