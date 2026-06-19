@@ -14,13 +14,13 @@ At **requirement-decomposition time** (before any worktree exists), a decomposer
 
 ### 1.2 The mandatory rule and the INVALID-decomposition rejection condition
 
-**Default-parallel rule.** If two stories are *independent* (§2.2), the decomposition MUST schedule them concurrently. Placing one after the other **with no must-finish-before path and no recorded `serializeReason`** is an **INVALID decomposition** and MUST be rejected and redone. "We just ran them one after another" is a defect, not a fallback.
+**Default-parallel rule.** If two stories are *independent* (§2, Step 2), the decomposition MUST schedule them concurrently. Placing one after the other **with no must-finish-before path and no recorded `serializeReason`** is an **INVALID decomposition** and MUST be rejected and redone. "We just ran them one after another" is a defect, not a fallback.
 
 **The one escape hatch (so the rule does not over-reject).** Real teams sometimes serialize *independent* work for legitimate non-dependency reasons: shared scarce reviewer expertise, risk staging (land the risky module first to fail fast), an operator wanting to learn from module A's review before authoring B, or external runtime-resource contention invisible as a file/interface edge. These are permitted **only** when named in an explicit, auditable `serializeReason` string on the story. The rule forbids *silent* serialization, not *all* serialization. No path and no `serializeReason` ⇒ INVALID.
 
 ### 1.3 Preventing gaming (fake dependencies and fake independence)
 
-The independence test (§2.2) has two halves with very different enforceability:
+The independence test (§2, Step 2) has two halves with very different enforceability:
 
 - **File-overlap half** — mechanically checkable from declared scope. This is the only half Lattice **hard-blocks** (§4).
 - **Logical-dependency half** — a semantic judgment that static analysis *cannot* verify. A decomposer can fabricate a dependency (to dodge parallelism) or fabricate independence (to dodge a real runtime coupling), and no static check can fully catch either.
@@ -62,7 +62,7 @@ fileOverlap(A,B) = writePaths(A) ∩ writePaths(B) ≠ ∅
 - Compare *write* scopes only; a file both merely *read* is not an overlap.
 - A modifies + B modifies the same file = overlap = **fails** (guaranteed merge conflict).
 - A *creates* a file that B *imports but never edits* = **not** a file overlap → it is a logical edge, handled by Test 2.
-- This is a **static, pattern-level** check (§4.2). It is the *predictive* control. It is **not** the same as Lattice's runtime `actualFileOverlapsByStory()`, which only inspects files already changed in existing worktrees and therefore **cannot produce meaningful results before DEV** — it *can* be called in PLAN (PLAN-phase stories count as active), but only stories that have entered DEV have actually modified files in their worktrees, so a pre-DEV call yields no real overlaps (see §4.5 / §7-F4). Do not conflate the two: the static check predicts; the runtime probe is a post-hoc safety net.
+- This is a **static, pattern-level** check (§4.2). It is the *predictive* control. It is **not** the same as Lattice's runtime `actualFileOverlapsByStory()`, which only inspects files already changed in existing worktrees and therefore **cannot produce meaningful results before DEV** — it *can* be called in PLAN (PLAN-phase stories count as active), but only stories that have entered DEV have actually modified files in their worktrees, so a pre-DEV call yields no real overlaps (see §4.2 / §7-F4). Do not conflate the two: the static check predicts; the runtime probe is a post-hoc safety net.
 
 **Test 2 — Logical-dependency (interface-level).**
 ```
@@ -178,9 +178,9 @@ keywords: [<feature>, contract, interface, skeleton]
 **Persist to Lattice (two commands):**
 ```
 scope_boundary_set --storyId contract-<feature> \
-  --allowedScope "<feature> shared interface & skeletons"
+  --allowedScope "<feature> shared interface & skeletons" --userConfirmed=true
 
-scope_contract_set --storyId contract-<feature> \
+scope_contract_set --storyId contract-<feature> --mode=enforce \
   --allowedModify  "src/<feature>/contract.ts" "src/<feature>/types.ts" \
                    "src/<feature>/index.ts" "src/<feature>/impl/*.ts" \
   --allowedCreate  "src/<feature>/contract.ts" "src/<feature>/types.ts" \
@@ -220,9 +220,9 @@ sharedHotspots: []                   # MUST be empty; non-empty ⇒ the split is
 
 **Persist to Lattice:**
 ```
-scope_boundary_set --storyId impl-<modK> --allowedScope "implement <modK> module only"
+scope_boundary_set --storyId impl-<modK> --allowedScope "implement <modK> module only" --userConfirmed=true
 
-scope_contract_set --storyId impl-<modK> \
+scope_contract_set --storyId impl-<modK> --mode=enforce \
   --allowedModify  "src/<feature>/impl/<modK>.ts" \
   --allowedCreate  "src/<feature>/impl/<modK>.test.ts" \
   --allowedTest    "src/<feature>/impl/<modK>.test.ts" \
@@ -253,9 +253,9 @@ keywords: [<feature>, integration, wiring, e2e]
 
 **Persist to Lattice:**
 ```
-scope_boundary_set --storyId integration-<feature> --allowedScope "wire & e2e-test <feature>"
+scope_boundary_set --storyId integration-<feature> --allowedScope "wire & e2e-test <feature>" --userConfirmed=true
 
-scope_contract_set --storyId integration-<feature> \
+scope_contract_set --storyId integration-<feature> --mode=enforce \
   --allowedModify  "src/<feature>/integration/*" \
   --allowedCreate  "src/<feature>/integration/*" "src/<feature>/integration.e2e.test.ts" \
   --allowedTest    "src/<feature>/integration.e2e.test.ts" \
@@ -330,19 +330,21 @@ Conditions 1–2 are facts. Condition 3 is a hard block only on the *falsifiable
 The critical correction: **`getGuardFailureReason` is NOT the decision oracle.** `transition-orchestrator.ts:156` warns explicitly: *"Do not use getGuardFailureReason as a decision oracle: it renders human hints and can intentionally fall through to null after config/read failures."* The real PLAN→DEV decision is the XState predicate **`canStartDevGuard`** (`machine.ts`), wired as guard `canStartDev` on the PLAN→DEV transition and consulted via `actor.can()`. Returning a reason from `getGuardFailureReason` would be a **no-op block**.
 
 So enforcement requires **two coordinated edits sharing one predicate** (the established `canEnterInitCheckGuard` + `getGuardFailureReason` pattern):
-1. **DECISION — `canStartDevGuard` (`machine.ts`).** After the existing review-blocker check, call `evaluateDecompositionGate(story, peers, contracts, cfg)`. If it returns a non-null `block` AND `cfg.parallelGate.mode === 'block'`, return `false`. This is what actually aborts the transition through `actor.can()`. Wrap in try/catch returning `true` (fail-open, §4.7), consistent with the guard's existing `catch { return false }` shape but **inverted to fail-open** for this additive check so a config/read error never DoSes a legitimate transition.
+1. **DECISION — `canStartDevGuard` (`machine.ts`).** After the existing review-blocker check, call `evaluateDecompositionGate(story, peers, contracts, cfg)`. If it returns a non-null `block` AND `cfg.parallelGate.mode === 'block'`, return `false`. This is what actually aborts the transition through `actor.can()`. Wrap this additive check in its own try/catch returning `true` (**fail-open**, §4.8) — deliberately the *opposite* of the surrounding guard's fail-closed `catch { return false }`, so that a config/read error in the new gate never DoSes an otherwise-legitimate transition. (The guard stays fail-closed overall; only this added sub-check fails open.)
 2. **MESSAGE — `getGuardFailureReason` (`machine.ts`, DEV branch).** Add the matching human-readable branch so the rejection is *explained*. This renders the reason; it does not decide.
 
 Both call the **same** `evaluateDecompositionGate` so decision and message never diverge.
 
 **Detector module — new file** `packages/main/src/core/parallel-decomposition.ts` (pure functions, like `parallel-policy.ts`):
 - `computeWriteSet(contract: ScopeContractData): string[]`
-- `globsOverlap(a, b): { overlap: boolean; pairs: [string,string][]; broad: boolean }` (tiers from §4.2)
-- `evaluateDecompositionGate(story, peers, contracts, cfg): { advisories: string[]; block: string | null }`
+- `globsOverlap(a: string[], b: string[]): { overlap: boolean; pairs: [string,string][]; broadSide: 'a' | 'b' | 'both' | null }` — `broadSide` names *which* operand carried the broad glob, so §4.8 block messages can cite the offending story (tiers from §4.2)
+- `evaluateDecompositionGate(story: StoryInfo, peers: StoryInfo[], contracts: Map<string, ScopeContractData>, cfg: ParallelGateConfig): { advisories: string[]; block: string | null }`
+
+Because `canStartDevGuard(context)` receives only the machine context, the guard must first load the active `peers` (the same `terminalPhases`-filtered set `summarizeParallelPolicy` uses) and their `ScopeContractData` into `contracts`, then pass both in — the gate function itself stays pure.
 
 **ADVISE injections (non-blocking):**
 3. **`handlers/story-review.ts`** — call `evaluateDecompositionGate` before the scope-check block; push `advisories[]` as severity `advisory`. These do NOT raise `blockerCount`, so they never affect the signed `review.json`.
-4. **`handlers/lattice-parallel-wave.ts`** — `resolveWaveSafety` gains a `scope_glob_overlap` degradation kind, populated from `globsOverlap`, so the operator sees the overlap fact in the wave projection *before* hitting the PLAN→DEV block.
+4. **`core/lattice-parallel-wave.ts`** — the private (non-exported) `resolveWaveSafety` here in `core/`, **not** `handlers/`, gains a `scope_glob_overlap` degradation kind, populated from `globsOverlap`, so the operator sees the overlap fact in the wave projection *before* hitting the PLAN→DEV block.
 
 ### 4.5 The one new schema field — placement corrected
 
@@ -356,7 +358,7 @@ Reuse `StoryInfo.depends` (already the directed edge, already read by `resolvePa
 
 ### 4.7 Config block — separate validation set (not AuditMode reuse)
 
-The real `AuditMode` is `{semi-auto, full-auto, off}` with invalid-fallback `semi-auto`. Its *meaningful* values `{semi-auto, full-auto}` are disjoint from the values this gate needs `{advise, block}` — the two only overlap on the shared `off` escape hatch — and `VALID_MODES` is typed to `Set<AuditMode>`, so it cannot be reused to validate `{advise, block, off}`. So we define a **new** set, following the same *shape* (not reusing `VALID_MODES`):
+The real `AuditMode` is `{semi-auto, full-auto, off}` with invalid-fallback `semi-auto`. Its *meaningful* values `{semi-auto, full-auto}` are disjoint from the values this gate needs `{advise, block}` — the two only overlap on the shared `off` escape hatch — and `VALID_MODES` is typed to `ReadonlySet<AuditMode>`, so it cannot be reused to validate `{advise, block, off}`. So we define a **new** set, following the same *shape* (not reusing `VALID_MODES`):
 
 ```ts
 // core/audit-config.ts — extend AuditConfig
@@ -369,6 +371,7 @@ parallelGate: {
 ```
 - `mode` validated against `VALID_PARALLEL_MODES` (same *structure* as `VALID_MODES`, different values); invalid → `console.warn` + `'advise'`.
 - `maxConcurrentReview` uses the integer-≥-1 guard copied from `deprecatedGcThreshold`/`auditTriggerWindow`; else warn + profile default.
+- **Nested-object validation:** unlike the existing *flat scalar* fields (`auditTriggerWindow`, `deprecatedGcThreshold`), `parallelGate` is a nested object, and the per-scalar `readUserConfig` path does not recurse into it. `resolveAuditConfig` therefore delegates to a dedicated `resolveParallelGate(raw?: unknown): ParallelGateConfig` helper that reads the nested object and applies each sub-field's guard+fallback individually (missing or non-object → all profile defaults). Copying the flat pattern verbatim would silently skip every nested check.
 - `mode: 'off'` disables both behaviors — the same reversible escape hatch every Lattice gate provides.
 
 Resolution priority inherited from `resolveAuditConfig`: (1) per-field override in `.lattice/audit-config.json`, (2) profile defaults, (3) hardcoded fallback.
@@ -462,8 +465,8 @@ G. Self-audit (REJECT gate), YES/NO + justification:
 
 ## Persist to Lattice (for each story your plan emits)
 - story_create  → name,title,type,priority,lane,parallelSafe,depends,blockingFor,keywords
-- scope_boundary_set --storyId <id> --allowedScope "<semantic direction>"   (INIT_CHECK boundary)
-- scope_contract_set --storyId <id> --allowedModify … --allowedCreate … --allowedTest …
+- scope_boundary_set --storyId <id> --allowedScope "<semantic direction>" --userConfirmed=true   (INIT_CHECK boundary)
+- scope_contract_set --storyId <id> --mode=enforce --allowedModify … --allowedCreate … --allowedTest …
                      --protectedFiles … --explicitExcludes …                (file-level scope gate)
 Glob grammar allowed: literal path, dir/*, dir/**. NO mid-path ** and NO bare top-level *.
 ````
@@ -499,7 +502,7 @@ SHARED TYPES / DOMAIN OBJECTS: {{SHARED_TYPES_OR_INFER}}
    downstream module's needs covered by an exported symbol, (d) barrel re-exports all impls.
 
 ## Persist to Lattice
-scope_contract_set --storyId {{S0_ID}} \
+scope_contract_set --storyId {{S0_ID}} --mode=enforce \
   --allowedModify {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} {{IMPL_SKELETON_PATHS}} \
   --allowedCreate {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} {{IMPL_SKELETON_PATHS}} \
   --protectedFiles "" --explicitExcludes "src/{{FEATURE}}/integration/*"
@@ -540,7 +543,7 @@ SCOPE: allowedModify={{IMPL_FILE}} allowedCreate={{TEST_FILE}}
    none match protectedFiles/explicitExcludes. Out-of-scope ⇒ revert and report a blocker.
 
 ## Persist to Lattice
-scope_contract_set --storyId {{STORY_ID}} \
+scope_contract_set --storyId {{STORY_ID}} --mode=enforce \
   --allowedModify {{IMPL_FILE}} --allowedCreate {{TEST_FILE}} --allowedTest {{ALLOWED_TEST_GLOBS}} \
   --protectedFiles {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} --explicitExcludes {{EXPLICIT_EXCLUDES}}
 (The real scope enforcement is the reviewer's scope_check_save + the PLAN→DEV gate, not this self-check.)
@@ -574,7 +577,7 @@ ENTRYPOINT/WIRING FILE(S): {{ENTRYPOINT_FILES}}    E2E BEHAVIORS: {{ACCEPTANCE_S
    request a contract amendment — exactly what and why (feedback for next decomposition).
 
 ## Persist to Lattice
-scope_contract_set --storyId {{INTEGRATION_STORY_ID}} \
+scope_contract_set --storyId {{INTEGRATION_STORY_ID}} --mode=enforce \
   --allowedModify {{INTEGRATION_ALLOWED_MODIFY}} --allowedCreate {{INTEGRATION_ALLOWED_CREATE}} \
   --allowedTest {{INTEGRATION_ALLOWED_TEST}} \
   --protectedFiles {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} "src/{{FEATURE}}/impl/*.ts"
@@ -615,7 +618,7 @@ export interface Writer    { write(rows: Iterable<string>, sink: NodeJS.Writable
 // each impl/<mod>.ts: class declared, methods throw new Error("NotImplemented: …")
 // src/csv/index.ts: re-exports CsvParser, CsvFormatter, CsvWriter from ./impl/*
 ```
-`scope_contract_set --storyId contract-csv --allowedModify src/csv/contract.ts src/csv/index.ts "src/csv/impl/*.ts" --allowedCreate <same> --protectedFiles "" --explicitExcludes "src/csv/integration/*"`
+`scope_contract_set --storyId contract-csv --mode=enforce --allowedModify src/csv/contract.ts src/csv/index.ts "src/csv/impl/*.ts" --allowedCreate <same> --protectedFiles "" --explicitExcludes "src/csv/integration/*"`
 
 **Step 4 — dependency graph:**
 ```
@@ -698,7 +701,7 @@ Build the gate itself **through the Lattice story workflow** (every code change 
 ### Suggested story breakdown (itself contract-first)
 
 **Story 0 — Contract (SERIAL, first).** Create `packages/main/src/core/parallel-decomposition.ts` with the pure-function **signatures + skeletons** (`computeWriteSet`, `globsOverlap`, `evaluateDecompositionGate` all throwing NotImplemented), the `ParallelGateConfig` type, the new `VALID_PARALLEL_MODES` constant, and the `ParallelDecompositionBlock` reason enum. Also add the `parallelGate` field to the `AuditConfig` interface in `audit-config.ts` (type only, no resolution logic). This freezes the interface every other story imports.
-`scope_contract_set --allowedModify "packages/main/src/core/parallel-decomposition.ts" --allowedCreate <same>` plus a narrowly-scoped touch of `audit-config.ts` for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
+`scope_contract_set --storyId <S0> --mode=enforce --allowedModify "packages/main/src/core/parallel-decomposition.ts" --allowedCreate <same>` plus a narrowly-scoped touch of `audit-config.ts` for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
 
 **Story 1 — Static overlap engine (PARALLEL).** Implement `computeWriteSet` + `globsOverlap` (literal-path intersection + shared-dir-prefix heuristic + broadness classifier over the defined grammar), and the `scope_contract_set` grammar validator that rejects mid-path `**` / bare `*`. `allowedModify: parallel-decomposition.ts` impl region + a new `parallel-decomposition.test.ts`. depends:[S0] cites `globsOverlap` signature.
 
