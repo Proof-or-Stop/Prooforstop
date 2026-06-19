@@ -38,7 +38,31 @@
       "context": "packages/main/src/core/audit-config.ts — add parallelGate: ParallelGateConfig to the AuditConfig interface only; do NOT add resolveAuditConfig handling (that is Story 3). Import the type from parallel-decomposition.ts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "AuditConfig now has a parallelGate: ParallelGateConfig field; tsc compiles; resolveAuditConfig body unchanged.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no resolution logic added — diff is one field line plus the import",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
