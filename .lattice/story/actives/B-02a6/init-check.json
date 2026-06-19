@@ -1,0 +1,25 @@
+{
+  "storyId": "B-02a6",
+  "checkedAt": "2026-06-19T04:05:46.989Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T04:05:28.247Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items lack userSees fields describing user-observable outcomes (CLAUDE.md requirement). Each CHK should state what the user/operator concretely sees when that item is done (e.g. CHK-001: smoke test fails on current main proving the bug; CHK-002: story_create output includes safe-init-commit confirmation, and a simulated git clean no longer wipes metadata; CHK-003: lattice doctor flags untracked INIT metadata as at-risk). Advisory only -- story scope and fix direction are correct."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T04:05:46.989Z",
+      "issues": []
+    }
+  ],
+  "_hash": "506ea000780b23a8b3c859d67dd4b14080e48158e8c0f2c508b9ef03d0b2bf16"
+}
