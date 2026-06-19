@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-19T18:22:07.640Z",
       "reviewRunId": "B-fbb6:RR-007",
       "_hash": "d1a180aa1a8d6e5f94cab8ea62948a635425ff5f078d5f599b151931e0986406"
+    },
+    {
+      "id": "B-fbb6:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Rebind at HEAD 024b879. Functional verdict unchanged from RR-008/RP-006: F-004 (host-overflow.md spec drift) and F-005 (dispatch-policy.ts misleading message) verified fixed in 9c79b87f. Antigravity dispatch routes to runAntigravityRealLeafDispatch with agy --print argv + source=unavailable ledger final; --host=gemini rejected by normalizeHostRuntimeId; dispatch_auto stays refused for antigravity at both the unattended-safe check and the allowRealHostSubprocess=false binding; chk006/chk008 refusal smokes pass. No new blockers.",
+      "createdAt": "2026-06-19T18:26:17.614Z",
+      "reviewRound": "2026-06-19T18:22:07.640Z",
+      "reviewRunId": "B-fbb6:RR-009",
+      "_hash": "1fce365cdf58c5ab241aef387f8895798c3634b9db3c51ab3b0413ae06f0122e"
     }
   ]
 }
