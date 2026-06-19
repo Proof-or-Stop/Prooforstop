@@ -376,6 +376,24 @@
       ],
       "signatureTag": "missing|md|persist-lattice-blocks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-019",
+      "desc": "CHK-002: §4.4 vs §4.8 still contradict who is responsible for mode-checking. §4.4 (line 333) states the CALLER (canStartDevGuard) checks cfg.mode === block after evaluateDecompositionGate returns a non-null block — implying the gate always populates block regardless of mode. §4.8 (line 389) states the GATE itself checks mode internally: \"under mode: block, refuse the parallel assertion (block with peer_contract_unreadable_parallel)\". These two designs are irreconcilable: if the gate is mode-aware it should return block=null under advise mode, defeating the caller check; if the caller is mode-aware, the gate must always emit block strings and never check mode internally. An implementer cannot correctly implement evaluateDecompositionGate from this spec. Filed as F-013 in round 1, unresolved in commit 76c535499.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T02:13:39.080Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-008",
+      "_hash": "1c21ecf20fbe00c232e1ae2509dab5171f4b27fe48521685be586ddda702f15d",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|still-contradict-responsible",
+      "signatureTagSource": "auto"
     }
   ]
 }
