@@ -31,7 +31,19 @@
     "docs/parallel-decomposition-spec.md"
   ],
   "scopeChangeReason": "Replanned after two-agent audit: separate review-assurance-floor evaluator plus DONE row, reusing existing review escalation primitives.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required for verified finding B-ed99:F-001: story_advance actor.can must receive the same resolved DONE gitCwd as the DONE oracle in wrapper-root layouts.",
+      "timestamp": "2026-06-19T02:25:48.941Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "anchors": [
+        "B_ed99_F_001.wrapper_root_actor_gitcwd"
+      ]
+    }
+  ],
   "createdAt": "2026-06-19T01:33:45.500Z",
-  "updatedAt": "2026-06-19T01:36:34.834Z"
+  "updatedAt": "2026-06-19T02:25:48.941Z"
 }
