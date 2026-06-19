@@ -5,7 +5,7 @@
       "desc": "resource-leak: validation-executor.ts:267 spawn(\"taskkill\", ...) return value has no error listener and is not .unref()d; if taskkill is not found or fails to launch, Node.js emits an unhandled error event on the returned ChildProcess, which crashes the process with an unhandled exception on Windows",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T17:46:31.593Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "missing|ts|resource-leak-validation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f968e6013: the win32 taskkill spawn in killTree() now chains .on('error', () => child.kill(signal)) so a missing/unlaunchable taskkill cannot emit an unhandled 'error' event (no process crash) and falls back to a direct kill. POSIX path unchanged. Confirmed by Claude quality round-3/4 and Codex host-2 round-3/4.",
+      "resolvedAt": "2026-06-19T18:47:30.726Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5d18:F-002",
