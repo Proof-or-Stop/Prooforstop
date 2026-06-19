@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e28c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: protected Authority verdict list/job status GETs are tenant-scoped reads and now require Authorization with the configured customer API key, failing closed before network when absent; policy discovery remains keyless because discoverPolicy() does not opt into authenticated GET; receipt/quorum/fullAuthorityDone semantics remain unchanged because list/status success only exposes reconciliation, receiptVerified stays false without a verified native gate_decision receipt, multiHostVerified still depends on server reconciliation plus review-wave/staleness gates, and fullAuthorityDone remains receiptVerified && multiHostVerified.",
+      "createdAt": "2026-06-19T04:10:46.051Z",
+      "reviewRound": "2026-06-19T04:00:36.320Z",
+      "reviewRunId": "B-e28c:RR-001",
+      "_hash": "c1bd42356213ceecf59ca0e326cf793500bc4dc9ddef894a59f18714c1de7f40"
+    }
+  ]
+}
