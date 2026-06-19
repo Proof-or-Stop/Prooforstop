@@ -124,14 +124,13 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
-          "verdict": "success",
-          "file": "docs/guide.md",
-          "command": "rg -n \"ordinary developers should not need senior files|PROJECT_ID.*only needed once you switch|GATE_ACTOR\" docs/guide.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+          "file": "README.md",
+          "command": "rg -n \"operator/server-provided pair|relative sidecar paths|Normal local story development does not require developers to set\" README.md",
           "result": "pass",
-          "note": "Public docs now state ordinary developers consume the basic handoff pair and do not need senior files; PROJECT_ID and GATE_ACTOR variables are documented only for live runner or receipt/gate-consumption flows.",
-          "headHash": "45fc80316a8d377c9428a69b599e992b0f47717c",
+          "note": "README now documents operator/server-provided handoff files, says relative sidecar paths stay beside the trust env, and keeps ordinary developers free of PROJECT_ID/GATE_ACTOR unless they switch to live runner or receipt/gate-consumption flows.",
+          "headHash": "95bcd61990d3038d9d6fb263678dc6e419bcce72",
           "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
-          "timestamp": "2026-06-19T01:09:27.980Z"
+          "timestamp": "2026-06-19T01:22:41.196Z"
         }
       ]
     },
