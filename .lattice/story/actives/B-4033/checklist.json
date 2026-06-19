@@ -38,7 +38,31 @@
       "context": "Validator rejects mid-path ** and bare top-level * at the write-set grammar boundary. Tests via a smoke script packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts (repo convention: node dist/tasks/<name>-smoke.js; no .test.ts framework). Smoke covers: literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection. tsc + smoke green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The grammar validator rejects mid-path ** and bare top-level *; node dist/tasks/parallel-decomposition-overlap-smoke.js prints PASS for all 5 behaviors.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grammar validator rejects mid-path ** and bare top-level *; smoke exits 0 (PASS) covering all 5 behaviors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NARROW vs BROAD classification is correct for literal / dir/* / dir/** below vs at package root",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke fails loudly (non-zero exit) if any assertion breaks — not a silent pass",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
