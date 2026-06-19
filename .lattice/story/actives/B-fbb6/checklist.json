@@ -219,7 +219,85 @@
       "context": "Rename the 'gemini' provider-semantic literals / runtime-probe ids across core (e.g. capabilities.ts, command-policy.ts, dispatch-policy.ts, planner.ts, verdicts.ts, config.ts, types.ts, process-fact-levels.ts, host runtime probe ids) to 'antigravity'. Rename/rework gemini-named smokes (provider-gemini-smoke, usage-ledger-codex-gemini-smoke gemini cases) + package.json scripts + run-all-smokes discovery. Build clean (tsc, no any) and run the full smoke suite green. Acceptance: `grep -rinE '\\bgemini\\b' packages/main/src` shows no remaining PROVIDER-semantic reference (model-name strings unrelated to the provider, if any, are explicitly justified); an antigravity dispatch writes a provider.name=antigravity / source=unavailable ledger final.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -rinE \\\\bgemini\\\\b packages/main/src returns zero provider-semantic matches (model-name strings in comments explicitly justified are acceptable) -> confirms grep-clean acceptance signal; WHY: primary acceptance criteria for the story",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "capabilities.ts host profile uses id=antigravity (not gemini); buildLegacyGeminiProfile is removed or renamed -> confirms capabilities rename; WHY: host identity in capability system",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch-policy.ts LEGACY_KNOWN_HOSTS and isKnownHost use antigravity not gemini; policy validation accepts antigravity -> confirms policy rename; WHY: dispatch routing depends on policy host list",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "planner.ts preferredVerifierProviders includes antigravity not gemini -> confirms planner rename; WHY: planner provider selection",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verdicts.ts provider type includes antigravity not gemini -> confirms verdict type rename; WHY: verdict recording correctness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "tsc build completes with zero errors (no any, no unused) -> confirms type-level correctness post-rename; WHY: build-clean gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "full smoke suite (run-all-smokes or equivalent) passes green; no smoke references gemini in its filename -> confirms runtime correctness + test rename; WHY: suite-green acceptance signal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "package.json smoke scripts reference provider-antigravity-smoke not provider-gemini-smoke; usage-ledger-codex-gemini-smoke renamed to usage-ledger-codex-antigravity-smoke or gemini cases removed -> confirms npm script rename; WHY: CI invocation correctness",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -rinE \\\\bgemini\\\\b packages/main/src matches only in explicitly justified contexts (e.g. a comment explaining legacy compatibility or a model-name string) with each match individually accounted for -> confirms intentional residue is documented; WHY: false-positive prevention in grep-clean check",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "process-fact-levels.ts and guard-session.ts and authority-client.ts gemini references are updated to antigravity or removed -> confirms no overlooked core files; WHY: these files appeared in initial grep",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run-all-smokes discovery logic finds the renamed smoke files (antigravity-smoke) and does not look for gemini-smoke -> confirms discovery mechanism updated; WHY: silent test omission if discovery uses old names",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "an antigravity dispatch end-to-end writes a ledger final with provider.name=antigravity and source=unavailable and a non-empty unavailableReason; no field contains gemini -> confirms full-stack rename in a live dispatch path; WHY: integration-level acceptance combining CHK-001 through CHK-003",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "no anthropic or codex smoke regresses (all non-antigravity smokes pass unchanged) -> confirms no collateral damage from the rename; WHY: refactor safety",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "BoundedProviderName and ProviderName unions are exhaustive in all switch/if chains (tsc --noUnusedLocals catches unreachable branches) -> confirms no dead branches or missing cases post-rename; WHY: type exhaustiveness prevents silent fallthrough",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
