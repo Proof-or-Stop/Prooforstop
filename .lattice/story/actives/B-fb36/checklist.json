@@ -148,7 +148,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "done_prepare prints PASS or BLOCKED readiness summaries that separate localDoneReady, degraded-single-host local assurance, two-host review status, Authority receipt backed completion, production completion, and cleanTree commit-required blockers.",
+      "userSees": "User sees \"DONE prepare: PASS\" or \"DONE prepare: BLOCKED\", \"Authority completion:\", \"localDoneReady: true\", \"reviewAssurance: degraded-single-host\" when applicable, \"authorityDone: false\", \"fullAuthorityDone: false\", \"productionDone: false\", and for metadata writes \"blockedAt: cleanTree\" with exact files and \"git add <files> && git commit -m\" guidance.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
