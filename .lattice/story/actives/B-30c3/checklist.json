@@ -7,7 +7,50 @@
       "userSees": "A codex/gemini usage with an extra/inherited non-token key yields a null-prototype reportedUsage carrying only numeric token fields; a malformed-but-object usage records an unavailable-final that supersedes the estimate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A normal codex (openai) usage {prompt_tokens, completion_tokens, prompt_tokens_details:{cached_tokens}} projects to a null-prototype reportedUsage carrying exactly those token keys; cacheRead survives.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A normal gemini usage {promptTokenCount, candidatesTokenCount, cachedContentTokenCount} projects to a null-prototype reportedUsage carrying exactly those keys.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A usage carrying an extra non-token key (e.g. transcript) drops it; only adapter-read token keys reach reportedUsage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The nested prompt_tokens_details is itself a null-prototype object (no inherited keys).",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A malformed-but-object usage makes recordDispatchFinalForProvider append ONE unavailable-final that supersedes the preflight estimate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An inherited Object.prototype.usage / cached_tokens / prompt_tokens does NOT leak into reportedUsage (own-property guards).",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider never throws even when buildProviderRecord throws; the outer try/catch holds (openai + gemini).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

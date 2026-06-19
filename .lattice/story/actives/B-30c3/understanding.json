@@ -1,0 +1,25 @@
+{
+  "task": "Apply the reviewed cumulative codex/gemini usage hardening (own-property + null-prototype projection + unavailable-final-on-throw) in one clean DEV pass, re-applying the exact files captured from the discarded B-fe1f.",
+  "outcome": "After this, node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js passes all checks: a codex/gemini usage with an extra or inherited-prototype non-token key yields a null-prototype reportedUsage carrying ONLY the numeric token fields (cache fields preserved); a malformed-but-object usage records an unavailable-final that supersedes the preflight estimate; recordDispatchFinalForProvider never throws; the claude/anthropic path is byte-identical. Full npm test exits 0.",
+  "facts": [
+    "The complete fix is captured in /tmp/fe1f-final/ (codex-cli.ts, gemini-cli.ts, dispatch-usage.ts, usage-ledger-codex-gemini-smoke.ts) and was already reviewed by claude 3 lanes (concept/quality/test-coverage) + a genuine Codex host-2 across the discarded B-fe1f.",
+    "The fix closes 2 real B-12d7 bugs (transcript-leak via whole-usage-object return; orphaned estimate on malformed usage) + extractor prototype-pollution hardening (own-property reads + null-proto top + nested prompt_tokens_details).",
+    "The npm script test:usage-ledger-codex-gemini already exists in the ROOT package.json (line 32, from B-12d7).",
+    "recordDispatchFinal (anthropic), parseClaudeCliOutput, buildProviderRecord, and the adapters are unchanged; the systematic prototype-pollution class in assemble.ts/adapters is deferred to a separate story."
+  ],
+  "constraints": [
+    "Apply the four files verbatim from /tmp/fe1f-final/ (already-reviewed content); do not re-derive or diverge.",
+    "Preserve the adapter-read keys (prompt_tokens_details / cachedContentTokenCount) so cacheRead survives.",
+    "recordDispatchFinalForProvider keeps the never-throws guarantee and appends at most one final.",
+    "No change to recordDispatchFinal / buildProviderRecord / the adapters / the claude path; providers/ imports nothing from usage-ledger.",
+    "The comprehensive smoke must pass and full npm test must be green, all in one DEV commit (single review round)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T19:02:17.819Z"
+}
