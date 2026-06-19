@@ -4,7 +4,7 @@
   "title": "Migrate the gemini provider to the Antigravity CLI (agy); usage recorded as unavailable",
   "description": "Google's Gemini CLI semantics are deprecated in favor of the Antigravity CLI (command `agy`). Hard-rename the in-tree `gemini` provider to `antigravity` (binary gemini->agy, print-mode interface), and DELETE the now-dead Gemini-API usage adapter. agy's CLI surface does NOT expose per-call token usage (verified by probe), so antigravity dispatch records usage as source=unavailable — no token inference, no raw transcript surfaced.",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "antigravity",
@@ -45,6 +45,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-19T17:10:19.170Z",
+      "branch": "story/B-fbb6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:22:52.908Z",
       "branch": "story/B-fbb6",
       "user": "Harmonygo",
       "agent": "main"
