@@ -161,7 +161,7 @@
       "desc": "[Codex host P2] normalizeEntry did not canonicalize redundant path segments (src/./a.ts, src//a.ts), so equivalent paths compared distinct and a real write-set collision could be missed.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:40:17.715Z",
@@ -172,7 +172,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-normalizeentry",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: normalizeEntry now collapses repeated / and mid-path /./ segments (and strips leading ./ and trailing /), so src/./a.ts and src//a.ts canonicalize to src/a.ts. computeWriteSet dedupes them and globsOverlap detects the collision. Verified by 3 new smoke assertions (38 total).",
+      "resolvedAt": "2026-06-19T13:40:20.055Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
