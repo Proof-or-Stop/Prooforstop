@@ -1,7 +1,8 @@
 # Lattice Strengthening Roadmap Execution Plan
 
 Date: 2026-06-19
-Story: B-8b07
+Origin story: B-8b07
+Audit repair story: B-b5c0
 Status: Execution plan, not implemented runtime behavior
 
 ## Status And Purpose
@@ -33,8 +34,9 @@ scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
 ```
 
-The near-term deliverable of this story is only this document plus NAV
-registration.
+The near-term deliverable of B-b5c0 is only this document repair. It does not
+change NAV, runtime code, lifecycle metadata, fixtures, hooks, or generated
+assets.
 
 ## Source And Context Mapping
 
@@ -47,6 +49,8 @@ registration.
 | `docs/requirements/decisions/story-lifecycle.md` | Defines the current `INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE` lifecycle, `verificationIntent`, `verificationEvidence`, review runs, stale evidence, process fact registry, owner lease, and user-value DONE semantics. | This roadmap uses lifecycle phase gates as the placement for scope, evidence, review, validation, delivery, and user-value checks; it requires two-layer protection for process facts. |
 | `docs/requirements/decisions/testing-completeness.md` | Defines flow-function test expectations and gate-consumed test evidence metadata. | This roadmap requires flow-level and end-to-end validation for shared gate logic, not only unit tests; it keeps validation metadata separate from material drift. |
 | `docs/requirements/decisions/verification-context-pack.md` | Defines structured verification context packs, digest parity, required refs, context expansion, and authority evidence envelopes. | This roadmap uses context packs as the verifier reading boundary and requires every future evidence-chain milestone to bind evidence to changed files, refs, commands, and material hashes. |
+| `docs/requirements/decisions/lattice-authority-receipt-contract.md` | Defines the server-owned Authority receipt contract directly: current policy discovery, actor key registry, runner/session baseline, evidence envelope handling, `gate_decision` receipt subject fields, proof bundle, state-version freshness, server key trust, and minimum server tests. | This roadmap derives Authority receipt requirements from that primary contract, not from a secondary summary. Future Authority-facing milestones must preserve `gate_decision` subject/input/decision digest binding, trusted server key verification, state-version freshness, actor/runner/session requirements when policy makes them hard, and the rule that server receipts do not exist merely because local prose or transcripts say they do. |
+| `docs/requirements/decisions/lifecycle-gate-receipt-consumption.md` | Defines the CLI lifecycle-gate receipt consumer directly: TEST/DONE Authority shadow/enforce baseline, REVIEW policy-dependence, receipt eligibility predicate, gate consumption predicate, `strongEvidenceConsumed`, local review escalation, and the boundary between local host verdicts and Authority completion. | This roadmap derives lifecycle receipt and local review-escalation requirements from that primary contract. Future lifecycle milestones must keep receipt eligibility separate from consumption, require exact story/phase/head/material/policy binding, and prevent local verdicts, degraded fallback, decision-doc diagnostics, or Authority identity from setting local completion or Authority completion fields by prose. |
 | `docs/requirements/decisions/lifecycle-artifact-scope.md` | Defines the narrow story-scoped lifecycle artifact classifier and rejects blanket runtime/story metadata exemptions. | This roadmap requires filename-aware lifecycle artifact allowances and negative controls for arbitrary metadata files. |
 | `docs/requirements/decisions/session-ownership-and-write-leases.md` | Defines story owner leases, main write locks, read-only reviewer mode, and multi-session mutation classes. | This roadmap makes owner lease, main lock, takeover, and read-only advisory reviewer behavior preconditions for collaboration milestones. |
 | `docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md` | Defines the difference between PLAN `scope_check_save` evidence and later scope contracts, and requires better guidance without weakening gates. | This roadmap keeps PLAN scope review, DEV/REVIEW scope acknowledgements, and runtime guard sessions distinct; it prevents `scope_contract_check` from substituting for `scope_check_save`. |
@@ -63,12 +67,45 @@ Overlapping concepts are intentionally kept separate:
 - **Mid-flight repair** is an explicit migration/repair escape hatch; it must
   not normalize silent late mutation.
 - **3-round 2-host review** is a high-assurance final review pattern; it does
-  not create Authority receipts or production claims.
+  not create Authority receipts, local completion fields, or production claims.
+- **Authority receipt contracts** are server/gate contracts with signed
+  `gate_decision` receipt refs; local host verdicts, local identities,
+  decision-doc diagnostics, and transcripts cannot stand in for them.
 - **Baseline PASS suites** prove selected capability classes only after they
   run; this roadmap merely names expected future suites.
 - **Negative-control BLOCKED suites** are successful safety outcomes only when
   the expected block is mechanically checkable and the suite definition allows
   `EXPECTED_BLOCK`.
+
+## Current Implementation Status Axis
+
+Future stories must classify each touched surface before implementation. The
+status axis prevents a roadmap milestone from reintroducing already shipped
+behavior as if it were net-new.
+
+| Status | Meaning for future stories |
+|---|---|
+| `shipped` | Current runtime/docs already define and deliver the behavior. Future stories may test, preserve, or extend it, but must not claim to be creating the baseline from scratch. |
+| `harden-existing` | A baseline exists and the milestone adds stricter rows, tests, identity binding, status projection, or negative controls. |
+| `partial` | Some primitives are shipped, but important policy, binding, enforcement, or cross-surface consumption remains incomplete. |
+| `planned` | Adopted design or acceptance target exists, but this roadmap does not implement the runtime behavior. |
+| `greenfield` | No current product capability exists; a future story would create the first implementation. |
+
+Current baseline classification as of the B-b5c0 document repair:
+
+| Surface | Current status | Source of truth | Roadmap treatment |
+|---|---|---|---|
+| `INIT -> INIT_CHECK` scope anti-expansion gate | `shipped` + `harden-existing` | `story-lifecycle.md`; `lifecycle-artifact-scope.md` | Preserve the existing hard gate and add clearer row ids, validation commands, and cross-host negative controls where later milestones touch it. |
+| `scope_boundary_set`, `execution_boundary_set`, `scope_freeze_check`, `scope_extension_decide` artifacts | `shipped` + `harden-existing` | `story-lifecycle.md`; `lifecycle-artifact-scope.md` | Treat these as current structured process facts. Future work hardens freshness, renderer parity, and audit visibility rather than inventing scope freeze. |
+| Lifecycle artifact classifier and runtime artifact registry split | `shipped` + `harden-existing` | `lifecycle-artifact-scope.md`; `story-lifecycle.md` | Keep filename-aware provenance classification separate from gate receipt or DONE satisfaction. Future work adds expected-block coverage. |
+| Story owner lease, `--takeover` / `--forceTakeover`, main write lock, and `session_brief` ownership rendering | `shipped` + `harden-existing` | `session-ownership-and-write-leases.md`; `story-lifecycle.md` | Build preflight and rollout controls on the existing owner/main-lock baseline. Do not describe owner lease, main lock, or ownership rendering as future invention. |
+| Parallel Wave planning surfaces | `shipped` + `harden-existing` | `lattice-parallel-wave.md` | Treat `parallel_wave_*`, `parallel_plan`, `parallel_dispatch`, `parallel_status`, `parallel_merge_queue`, and `parallel_report` as current L0/read-only non-authority planning surfaces. M10 hardens scheduling integration; it does not make wave output gate evidence. |
+| Process fact registry and contract verifier | `shipped` + `harden-existing` | `story-lifecycle.md`; `AGENTS.md` | Future process facts must extend the existing registry/verifier model before gates consume them. |
+| Runtime fact registry and runtime artifact registry surfaces, including material-hash exclusions and baseline-risk inputs | `shipped` + `harden-existing` | `story-lifecycle.md`; `lifecycle-artifact-scope.md` | Keep runtime/environment/artifact facts out of the process registry while requiring future gates and doctors to consume registered tables. |
+| Local review escalation and host-verdict quorum | `partial` + `harden-existing` | `story-lifecycle.md`; `three-round-two-host-review-escalation-execution-plan.md`; `lifecycle-gate-receipt-consumption.md` | Preserve threshold-triggered local escalation and diagnostic commands, then harden policy-version binding, verdict identity binding, and false-positive controls in M8/M11. |
+| Authority receipt contract and lifecycle receipt consumption | `partial` + `harden-existing` | `lattice-authority-receipt-contract.md`; `lifecycle-gate-receipt-consumption.md` | Preserve current receipt subject/proof and TEST/DONE consumption baseline. Future work hardens policy, state-version, actor/runner/session, and lifecycle consumer checks; it does not let local evidence set Authority completion. |
+| Baseline suites and production capability claims | `planned` | `lattice-baseline-two-host-multi-agent-execution-plan.md`; unlock-suite docs | Treat baseline reports and production claims as future proof targets only. This document and B-b5c0 produce no baseline PASS, `authorityDone`, `fullAuthorityDone`, `productionDone`, or `receiptVerified`. |
+| Cross-track certification package | `planned` | This roadmap plus lower-level contracts above | M12 is final certification after implementation milestones land; B-b5c0 only names validation expectations. |
 
 ## Non-Goals
 
@@ -85,8 +122,8 @@ This roadmap story does not:
   `receiptVerified`, or formal capability unlock;
 - replace lower-level Authority, lifecycle, receipt, scope, or baseline
   contracts;
-- use host transcripts, decision-doc prose, or this NAV registration as gate
-  evidence;
+- use host transcripts, decision-doc prose, or documentation registration as
+  gate evidence;
 - expand Lattice into a generic optimization program; future stories must fix
   real correctness issues or close named evidence gaps.
 
@@ -182,8 +219,8 @@ Core product questions:
 | M7 | B | Formalize baseline suite expectations and report math for Development, Engineering, Loop Engineering, and Production Safety. | M6 | baseline suite gate |
 | M8 | C | Strengthen host identity, review-run, and 3-round 2-host quorum policy. | M4-M6 | DONE escalation gate |
 | M9 | C | Build a preflight command center that renders next actions from gate oracle rows. | M1-M8 | session_brief / status |
-| M10 | C | Integrate parallel wave scheduling with owner leases, hotspots, dependencies, and read-only advisory reviewers. | M1, M8-M9 | dispatch/preflight |
-| M11 | All | Roll out migration, compatibility, docs, and operator guidance without changing claim boundaries. | M1-M10 | release readiness |
+| M10 | C | Integrate parallel wave scheduling with owner leases, hotspots, dependencies, and read-only advisory reviewers. | M1, M8, M9 | dispatch/preflight |
+| M11 | All | Roll out migration, compatibility, docs, and operator guidance without changing claim boundaries. | M0; finalized after M1-M10 | release readiness |
 | M12 | All | Final cross-track certification and handoff package. | M1-M11 | TEST / DONE |
 
 ## Milestone Details
@@ -196,8 +233,11 @@ Purpose: create a stable, auditable base for future implementation stories.
 
 Deliverables:
 
-- This roadmap registered in `docs/requirements/NAV.md`.
+- This roadmap repaired in place for B-b5c0; NAV updates are out of scope for
+  this audit repair unless a later story explicitly permits them.
 - A source/context mapping that names the existing governance documents used.
+- A current implementation status axis with `shipped`, `harden-existing`,
+  `partial`, `planned`, and `greenfield`.
 - A non-goal list that prevents future implementation stories from treating the
   roadmap as shipped behavior.
 - Initial milestone IDs and track ownership language.
@@ -212,12 +252,23 @@ Gate placement:
 Required tests or checks:
 
 - Documentation check: `git diff --check`.
-- NAV check: link exists and points to this document.
-- Reviewer check: no runtime behavior is claimed as implemented by B-8b07.
+- Scope check: `git diff --name-only main...HEAD` shows only files allowed by
+  the active story scope.
+- Spot check: `rg -n "Current Implementation Status Axis|lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|requires3x2|Milestone-To-Rollout Stage Crosswalk" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`.
+- TEST check when the story enters TEST: `lattice validate --story=B-b5c0`.
+- Build guard: `npm --prefix packages/main run build` is required only when
+  `git diff --name-only main...HEAD` includes CLI runtime inputs such as
+  `packages/main/src/**`, package manifests, or TypeScript config. A doc-only
+  B-b5c0 repair should record that the build guard was not applicable.
+- Reviewer check: no runtime behavior is claimed as implemented by B-b5c0.
 
 Expected evidence:
 
-- Commit diff containing only this document and NAV registration for B-8b07.
+- Commit diff containing only this document for B-b5c0.
+- Expected row/artifact ids for future validation: `M0.scope-source-freeze`,
+  `M0.current-implementation-status`, `M0.source-mapping-authority-receipt`,
+  `M0.source-mapping-lifecycle-receipt`, and
+  `M0.execution-plan-only-boundary`.
 - Future stories should reference M0 when using this roadmap as a source.
 
 Blockers:
@@ -230,7 +281,7 @@ Blockers:
 
 DONE criteria:
 
-- The document is registered.
+- The document repair is committed as the only B-b5c0 material change.
 - Required sections are present.
 - The story's final response clearly states this is an execution plan only.
 
@@ -552,12 +603,26 @@ Required tests:
   same row result.
 - No false pass: a local transcript cannot set Authority status.
 
+Minimum validation commands and expected rows:
+
+| Command | Expected artifact or row ids |
+|---|---|
+| `git diff --name-only main...HEAD` | Material input list for the matrix run; runtime/story artifacts must be classified through registries, not blanket path exemptions. |
+| `git diff --check` | Clean documentation/source diff before matrix evidence is accepted. |
+| `npm --prefix packages/main run build` | Required for M6 implementation stories that touch CLI runtime inputs; build output is referenced by `M6.build.runtime-fresh`. |
+| `lattice validate --story=<storyId>` | Validation evidence rows `M6.validation.fresh`, `M6.validation.stale-evidence`, and `M6.validation.expected-blocks-recorded`. |
+| `lattice review_escalation_status --storyId=<storyId>` | Read-only projection row `M6.review-escalation.local-only-not-authority`; must not consume or create Authority receipt facts. |
+| Receipt negative-control smoke or successor task | Rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.wrong-material-blocked`, `M6.receipt.local-transcript-blocked`, and `M6.receipt.eligible-not-consumed`. |
+
 Expected evidence:
 
 - Machine-readable test matrix report.
 - `verificationEvidence` records for each expected block.
 - Reviewer finding/pass evidence confirming the matrix covers edge and
   adversarial cases.
+- The matrix report must name row ids rather than only free-form prose. A
+  seeded `EXPECTED_BLOCK` counts as success only when the row id and blocked
+  reason match the suite definition.
 
 Blockers:
 
@@ -640,6 +705,39 @@ Track: collaboration and preflight controls
 Purpose: make independent review evidence meaningful and prevent duplicate,
 stale, or self-certified host verdicts from satisfying high-risk final gates.
 
+Mechanical trigger predicate:
+
+```text
+requires3x2 =
+  firstReviewRoundCountableProblems >= 2
+  || explicitlyConfiguredHighRiskPolicyRequires3x2
+```
+
+`firstReviewRoundCountableProblems` is the count of first lifecycle REVIEW
+round findings that satisfy the countable-problem definition from
+`three-round-two-host-review-escalation-execution-plan.md`: reviewer-lane,
+`critical|high|medium`, verified or legacy-missing `evidenceState`, and not
+suspected, disproven, low, pass-only, non-reviewer, or later-round feedback.
+
+`explicitlyConfiguredHighRiskPolicyRequires3x2` may be true only when a
+structured policy/fact exists before the DONE evaluator consumes it. The fact
+must be registry-backed or otherwise machine-verifiable and must bind:
+
+- `policyVersion`;
+- story id;
+- milestone id or risk class;
+- source policy ref;
+- effective rollout stage;
+- whether degraded single-host fallback is allowed for that risk class;
+- material/head freshness expectations;
+- issuer/approver identity and timestamp.
+
+Transcript text, reviewer prose, decision-doc prose, or a changed file path by
+itself cannot set this boolean. A policy change introduced after a story has
+already passed PLAN follows the in-flight story rules in M11: it may be
+advisory, require explicit opt-in/replan, or require an audited emergency
+operator decision, but it must not silently mutate the DONE requirement.
+
 Deliverables:
 
 - Shared host independence predicate covering host id, provider, session id,
@@ -651,6 +749,10 @@ Deliverables:
   high-risk process-framework milestones.
 - Degraded single-host fallback fields: eligibility, reason, evidence refs or
   approval ref, fresh material binding, and lower-assurance labels.
+- Local counted verdict predicate requiring host/session/key/material/
+  validation/prompt binding plus either a valid signature over the canonical
+  payload or a registry-backed identity binding that supplies equivalent
+  signer/key provenance.
 
 Gate placement:
 
@@ -668,6 +770,22 @@ Required tests:
 - Stale validation digest is rejected after TEST changes material.
 - Degraded fallback cannot be reported as full two-host independence.
 - Local host verdict cannot set Authority facts.
+- Authority-backed receipt or Authority runner identity cannot set local
+  `requires3x2`, `quorumResult`, `reviewEscalationComplete`, DONE, or degraded
+  fallback fields. It can be consumed only through the lifecycle receipt
+  predicate for Authority-backed gates.
+
+Minimum validation commands and expected rows:
+
+| Command | Expected artifact or row ids |
+|---|---|
+| `git diff --name-only main...HEAD` | Material input list used to decide whether M8 runtime build checks apply. |
+| `git diff --check` | Clean diff before host-verdict artifacts are accepted. |
+| `npm --prefix packages/main run build` | Required for M8 implementation stories that touch CLI runtime inputs; referenced by `M8.build.runtime-fresh`. |
+| `lattice validate --story=<storyId>` | Current validation digest for counted verdicts; rows `M8.validation.current` and `M8.validation.stale-verdict-ignored`. |
+| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, and `M8.quorum.blocked`. |
+| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`. |
+| `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic-only row `M8.decision-doc.diagnostic-only`; direct decision-doc edits do not set `requires3x2` unless the threshold or explicit policy predicate is true. |
 
 Expected evidence:
 
@@ -675,6 +793,7 @@ Expected evidence:
 - Quorum status showing full, degraded, or blocked result.
 - Ignored-verdict reasons for stale, duplicate, failed, blocked, missing, or
   non-independent verdicts.
+- Policy-version binding for any explicit high-risk 3x2 requirement.
 
 Blockers:
 
@@ -809,12 +928,22 @@ Deliverables:
 
 - Rollout stages for docs-only, diagnostic-only, advisory, fail-closed in new
   stories, and migration/backfill for legacy stories.
+- Milestone-to-rollout stage crosswalk that names `policyVersion`,
+  enforcement mode, in-flight story treatment, and expected operator-visible
+  evidence.
 - Compatibility policy for legacy missing fields, old story metadata, old host
   verdicts, and historical baseline artifacts.
+- False-positive rollback/de-escalation policy for advisory rows, local review
+  escalation, and new blockers.
 - Operator runbooks for common blocked states: out-of-scope path, stale
   evidence, missing verification intent, missing scope check, foreign lease,
   main lock contention, missing second host, baseline expected block, and fake
   receipt.
+- Staged runbook and repair dry-run prerequisites before any new blocker moves
+  from advisory to fail-closed.
+- Audited emergency bypass for self-hosting over-block, limited to local
+  lifecycle progress and never usable for Authority, receipt, or production
+  claims.
 - NAV and docs updates for every new decision or contract.
 
 Gate placement:
@@ -834,24 +963,38 @@ Required tests:
 - New story fails closed under the strengthened policy.
 - Migration dry-run reports proposed changes without writing.
 - Operator runbook examples match current command help.
+- False-positive de-escalation preserves the original row and writes an audit
+  reason instead of deleting the evidence.
+- Emergency bypass expires by policy version or time window and cannot set
+  `authorityDone`, `fullAuthorityDone`, `productionDone`, or `receiptVerified`.
 
 Expected evidence:
 
 - Migration report, dry-run output, or compatibility matrix.
 - User-facing command transcript for each runbook path.
 - Reviewer pass confirming no overclaim or authority boundary drift.
+- Policy-version binding report showing the active rollout stage and treatment
+  for in-flight stories.
+- Emergency bypass audit event when and only when self-hosting over-block forces
+  a local temporary unblock.
 
 Blockers:
 
 - Migration silently edits story JSON or fixture files.
 - Rollout breaks old stories without a repair path.
 - Docs describe commands or schemas that do not exist in the selected release.
+- A policy-version change silently changes DONE requirements for stories already
+  past PLAN/DEV/REVIEW without advisory output, explicit opt-in, or audited
+  operator decision.
+- A repair command has no dry-run path before fail-closed enforcement.
 
 DONE criteria:
 
 - Existing operators can understand what changed and what did not.
 - Legacy exceptions are visible and bounded.
 - Future stories know which rollout stage they are implementing.
+- Any temporary bypass is visible, scoped, expiring, and excluded from Authority
+  or production claims.
 
 ### M12. Cross-Track Certification And Handoff
 
@@ -889,12 +1032,27 @@ Required tests:
 - Quorum adversarial: duplicate host/session/key cannot satisfy 3x2.
 - Baseline adversarial: seeded false DONE remains `EXPECTED_BLOCK` or `FAIL`.
 
+Minimum validation commands and expected rows:
+
+| Command | Expected artifact or row ids |
+|---|---|
+| `git diff --name-only main...HEAD` | Final material inventory, attached to `M12.material.final-inventory`. |
+| `git diff --check` | Final whitespace/doc hygiene row `M12.diff.clean`. |
+| `npm --prefix packages/main run build` | Required for any cross-track certification that touched CLI runtime inputs; row `M12.build.runtime-fresh`. |
+| `lattice validate --story=<storyId>` | Final validation evidence rows `M12.validation.pass`, `M12.validation.stale-block`, and `M12.validation.coverage-complete`. |
+| `lattice review_escalation_status --storyId=<storyId>` | Final local review assurance rows `M12.review.full-3x2`, `M12.review.degraded-3x1`, or `M12.review.not-required`. |
+| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory row `M12.host-verdicts.bound-and-fresh`; ignored reasons must match M8. |
+| `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic row `M12.decision-doc.diagnostic-only` when decision docs changed; it must not contradict `review_escalation_status`. |
+| Receipt/ref verification command for Authority-required stories | Rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.not-authority-required`; B-b5c0 should have no Authority-required receipt row. |
+
 Expected evidence:
 
 - Cross-track suite report.
 - Host verdict summary for high-risk implementation stories.
 - User-value summary and delivery check refs.
 - Final handoff document or report.
+- Policy-version and rollout-stage summary proving the final certification used
+  the intended enforcement mode.
 
 Blockers:
 
@@ -926,10 +1084,13 @@ Recommended order:
    freshness contracts.
 7. **M9 after the first oracle rows exist**: preflight should render canonical
    rows rather than invent rules.
-8. **M10 after M1 and M9**: scheduling can safely use scope and preflight
-   projections.
-9. **M11 throughout, finalized after M1-M10**: rollout notes should follow the
-   actual staged behavior.
+8. **M10 after M1, M8, and M9**: scheduling can safely use scope, review
+   assurance, and preflight projections. M8 is explicit because M10 may render
+   host capability and reviewer-mode guidance, but its output remains
+   non-authoritative.
+9. **M11 begins at M0 and finalizes after M1-M10**: runbooks, compatibility
+   notes, and dry-runs can be drafted early, but fail-closed rollout cannot
+   advance ahead of the milestones it enforces.
 10. **M12 last**: cross-track certification should run only after material
    implementation has settled.
 
@@ -973,8 +1134,20 @@ Rules for all parallel work:
 
 ## 3-Round 2-Host Validation Policy
 
-This policy applies to future implementation stories under this roadmap when
-they touch any of the following:
+This policy applies to future implementation stories under this roadmap only
+through the M8 mechanical predicate:
+
+```text
+requires3x2 =
+  firstReviewRoundCountableProblems >= 2
+  || explicitlyConfiguredHighRiskPolicyRequires3x2
+```
+
+The following risk classes are candidates for
+`explicitlyConfiguredHighRiskPolicyRequires3x2`, but they do not set it merely
+by appearing in prose or in a changed-file list. A story requires 3x2 through
+the high-risk policy branch only when the project/story policy records a
+registry-backed, policy-versioned fact for the story, milestone, or risk class:
 
 - lifecycle phase gates or state transitions;
 - process fact registry, command policy, reviewer lane, review pass/finding,
@@ -983,6 +1156,11 @@ they touch any of the following:
 - host independence, 3x2 quorum, degraded fallback, or review escalation;
 - broad scope guard/classifier behavior;
 - baseline unlock claim evaluators or false-DONE controls.
+
+Direct documentation or decision-doc edits are diagnostic context, not an
+automatic trigger. `decision_doc_quorum_check` may report that context, but the
+hard DONE requirement comes from `review_escalation_status` and the predicate
+above.
 
 Default shape:
 
@@ -1020,10 +1198,19 @@ Host independence minimum for counted full 3x2 verdicts:
 - distinct host id;
 - distinct session id;
 - distinct key id or identity digest;
-- signed or otherwise verifiable verdict payload where the policy requires it;
-- same current material and validation binding;
+- signed canonical verdict payload, or a registry-backed identity binding that
+  supplies equivalent signer/key provenance;
+- same current head, material, validation, and prompt binding;
 - PASS decision;
 - no duplicate verdict id.
+
+Counted local verdicts are structured process evidence. A transcript, prose
+review, unbound local identity, or Authority receipt ref cannot be counted as a
+local host verdict unless a local host-verdict artifact also satisfies the
+predicate above. Authority-backed receipts and Authority runner identities are
+consumed only by the lifecycle receipt-consumption predicate; they do not set
+local completion, quorum, fallback, `authorityDone`, `fullAuthorityDone`,
+`productionDone`, or `receiptVerified` fields.
 
 Degraded single-host fallback:
 
@@ -1048,7 +1235,7 @@ Documentation-only changes:
 
 This roadmap expects future implementation stories to prove both positive
 capability and fail-closed safety. The following expectations are not proof from
-B-8b07; they are acceptance targets for later stories.
+B-8b07 or B-b5c0; they are acceptance targets for later stories.
 
 ### Baseline PASS Expectations
 
@@ -1082,6 +1269,79 @@ B-8b07; they are acceptance targets for later stories.
 
 Rollout should be staged to avoid breaking active stories while still failing
 closed for new high-risk work.
+
+### Milestone-To-Rollout Stage Crosswalk
+
+Every enforcement artifact introduced by M1-M12 must record the rollout
+`policyVersion` it was evaluated under. A row may be rendered by an older
+policy for compatibility, but a gate may enforce it only when the row's policy
+version is accepted by the current gate and the story's in-flight treatment
+allows enforcement.
+
+| Stage | Milestones | Policy version binding | Enforcement mode | In-flight story treatment | Operator-visible evidence |
+|---|---|---|---|---|---|
+| 0 Documentation And Classification | M0; M11 drafts | `lattice-strengthening-roadmap.v0-docs` | Documentation only | No existing story requirements change. | `git diff --name-only main...HEAD`, `git diff --check`, source/status mapping. |
+| 1 Read-Only Diagnostics | M1-M4 prototypes; M9 read-only projections; M11 runbook drafts | `lattice-strengthening-roadmap.v1-diagnostic` | Read-only/advisory | Stories already past PLAN receive diagnostics only unless they opt in. Stories before PLAN may use the new guidance. | `session_brief`, `status`, `doctor`, dry-run reports, registry verifier output. |
+| 2 Advisory Gate Rows | M2, M4-M6, M8 diagnostics, M10 scheduling projections | `lattice-strengthening-roadmap.v2-advisory` | Advisory rows; no new blockers | DEV/REVIEW/TEST stories show rows and remediation. DONE should not be newly blocked unless an older gate already blocks. | Oracle rows with `blocking=false`, `review_escalation_status`, `autopilot_review_status`, `decision_doc_quorum_check`. |
+| 3 Fail-Closed For New Stories | Tested M1-M8 rows; M9 renderers | `lattice-strengthening-roadmap.v3-new-story-enforce` | Fail-closed for stories created after policy activation and explicitly opted-in high-risk milestones | In-flight stories continue under their creation policy unless they replan, opt in, or an audited emergency/operator decision changes treatment. | Gate rows with `blocking=true`, validation evidence, policy-version report. |
+| 4 Legacy Migration And Compatibility Tightening | M3 repairs; M6 negative controls; M8 identity migration; M11 repairs | `lattice-strengthening-roadmap.v4-legacy-tighten` | Audited migration plus selected blockers after dry-run success | Legacy stories get dry-run repair reports first; mutation requires explicit command, reason, owner lease, and policy version. Completed DONE stories are not reopened. | Migration dry-run report, repair audit event, stale/compatibility matrix. |
+| 5 Formal Baseline And Capability Claims | M7 and M12 after required implementation milestones land | `lattice-strengthening-roadmap.v5-certification` | Formal proof and claim boundary | Only fresh implementation stories participate; old diagnostics are inputs, not proof. | Baseline reports, cross-track certification, host verdict summary, receipt refs where required. |
+
+Policy-version binding rules:
+
+- A gate-consuming row must carry `policyVersion`, `rolloutStage`, story id,
+  material/head hash, producer, timestamp, and row id.
+- A newer policy may read older rows for explanation, but enforcement requires
+  either an accepted compatibility mapping or regenerated rows under the current
+  policy.
+- If policy changes while a story is in PLAN, the story should re-run the
+  PLAN/review step before DEV. If it changes in DEV/REVIEW/TEST, the default is
+  advisory until the story opts in, replans, or records an audited operator
+  decision. If it changes after DONE, do not reopen the story retroactively.
+- `explicitlyConfiguredHighRiskPolicyRequires3x2` is true only when this
+  policy-versioned fact exists; changed-file classification or prose cannot set
+  it.
+
+False-positive rollback and de-escalation:
+
+- Do not delete the original blocker row. Record a `deescalated` or
+  `false-positive` disposition with reason, evidence refs, operator/reviewer,
+  timestamp, `policyVersion`, and current material binding.
+- De-escalation may unblock local lifecycle only when the consuming gate has an
+  explicit de-escalation predicate. It cannot make stale evidence fresh, cannot
+  convert degraded 3x1 into full 3x2, and cannot set Authority receipt
+  completion fields.
+- When a row blocks because of a newly over-broad policy, first roll back to
+  Stage 2 advisory for that row id or pin the affected story to its prior
+  accepted policy version. Then fix the policy and add a negative-control test
+  before re-enabling fail-closed mode.
+
+M11 staged runbook and repair prerequisite:
+
+- Before Stage 3/4 fail-closed enforcement, every new blocker class must have a
+  runbook entry with the command to inspect it, the command to repair it if a
+  repair exists, the expected dry-run output, and the expected audit event.
+- Repair commands must support dry-run where practical. The dry-run must print
+  proposed file/artifact changes and row ids without writing story JSON,
+  fixtures, runtime code, or lifecycle evidence.
+- A blocker cannot move from advisory to fail-closed until its runbook examples
+  match current command help and at least one dry-run transcript has been
+  reviewed.
+
+Audited emergency bypass for self-hosting over-block:
+
+- Use only when Lattice's strengthened local gate blocks the story that is
+  required to fix that same gate and no normal replan/repair path can proceed.
+- Requires explicit human/operator reason, owner lease for story-scoped writes,
+  main write lock for main/shared writes, current material/head hash, affected
+  row ids, expiry by time or `policyVersion`, and reviewer visibility.
+- The bypass may downgrade a local row from fail-closed to advisory for the
+  named story and policy version only. It must not bypass git cleanliness,
+  main-lock serialization, evidence freshness, receipt verification, or final
+  claim boundaries.
+- The bypass can never set `authorityDone`, `fullAuthorityDone`,
+  `productionDone`, `receiptVerified`, `strongEvidenceConsumed`, full 3x2, or
+  baseline PASS. It must be surfaced in final acceptance as a limitation.
 
 ### Stage 0. Documentation And Classification
 
@@ -1178,6 +1438,8 @@ Story:
 Milestone(s):
 Track(s):
 Status:
+Current implementation status: shipped / harden-existing / partial / planned / greenfield
+Policy version / rollout stage:
 Implemented controls:
 Not implemented / deferred:
 
@@ -1199,6 +1461,7 @@ Review and collaboration:
 - Reviewer runs:
 - Findings resolved:
 - 3x2 required? yes/no:
+- requires3x2 predicate input:
 - 3x2 result or degraded fallback:
 - Owner lease / main lock considerations:
 - Parallel/combination review considerations:
@@ -1222,17 +1485,26 @@ Final claim:
 - Freshness caveats:
 ```
 
-Acceptance for this B-8b07 document specifically:
+Acceptance for this B-b5c0 audit repair specifically:
 
 ```text
-The roadmap document exists.
-NAV links to it.
-The document is explicit that it is a plan, not runtime behavior.
-It maps source documents to roadmap decisions.
+The roadmap document is repaired in place.
+No runtime code, NAV, story metadata, fixtures, hooks, or source files are
+changed by the B-b5c0 commit.
+The document is explicit that it is a plan, not implemented runtime behavior.
+It maps source documents to roadmap decisions, including the Authority receipt
+contract and lifecycle gate receipt consumption documents as primary sources.
+It includes a current implementation status axis and does not describe shipped
+INIT scope, owner/main-lock/session_brief, parallel wave, or registry surfaces
+as net-new behavior.
 It decomposes hard scope boundaries, mechanical evidence, and collaboration
 preflight into milestones with deliverables, gates, tests, evidence, blockers,
 and DONE criteria.
-It includes sequencing, parallelization rules, 3-round 2-host policy,
-baseline/negative-control expectations, rollout strategy, risks, and final
-acceptance template.
+It defines the 3x2 predicate, counted local verdict binding requirements,
+minimal validation commands/artifact rows for M0/M6/M8/M12, rollout crosswalk,
+policy-version binding, in-flight treatment, false-positive de-escalation, M11
+dry-run prerequisites, and audited self-hosting emergency bypass.
+It preserves the boundary that B-b5c0 does not claim `authorityDone`,
+`fullAuthorityDone`, `productionDone`, `receiptVerified`, full Authority, or
+baseline/prod capability unlock.
 ```
