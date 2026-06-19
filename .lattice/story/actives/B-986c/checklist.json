@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Implement evaluateDecompositionGate in new core/parallel-decomposition-gate.ts: pure verdict (advisories plus first block) over story/peers/contracts/cfg per spec 4.3/4.4, consuming the Story-1 overlap engine; no cfg.mode enforcement",
       "context": "new file core/parallel-decomposition-gate.ts; import computeWriteSet/globsOverlap/classifyBroadness from parallel-decomposition-overlap.js plus types from parallel-decomposition.js; filter active peers via terminalPhases = {DONE, DISCARDED} (reuse parallel-policy.ts); the four block reasons with tier-1 vs tier-2 (advisory) split, broadGlobBlocks config-gating, fake_dependency_chain falsifiable-only, peer_contract_unreadable_parallel",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T23:30:27.366Z",
       "endTime": null,
       "files": {
         "modify": [
