@@ -1,0 +1,55 @@
+{
+  "storyId": "B-b1f4",
+  "changes": "Added an ADDITIVE input+output (\"primary\") aggregate to the informational usage-ledger so cache-less-provider (codex/gemini) tokens become visible. summary.ts: DerivedRecordTotal.primaryTotal plus UsageLedgerSummary.primaryReportedTotal/primaryReportedCount. diagnostics.ts: PrimaryTokenDimensions + asPrimaryDimensions, SourceTokenTotals.primaryKnown/primaryKnownCount rolled into per-group and overall. usage-ledger-report.ts renderHuman adds a primary[in=.. out=..] column. The strict four-field providerReportedTotal/known/cost semantics are byte-unchanged; no provider-unreported value is inferred (cacheCreation/cacheRead never coerced to 0). Tracked follow-up for finding B-12d7:F-004.",
+  "usage": "Run the reporter task: node packages/main/dist/tasks/usage-ledger-report.js <ledger.jsonl> [price-table.json] [--json]. Codex/gemini provider-reported records now show their input+output in the primary[in=.. out=..] column (human) and summary.primaryReportedTotal / bySource['provider-reported'].primaryKnown (--json), while the strict four-field tokens[...] / providerReportedTotal still exclude them.",
+  "expectedOutcome": "For a ledger with a codex (input=500,output=200,cacheCreation=null), a gemini (input=800,output=120,cacheCreation=null) and a claude (all four dims known) provider-reported record, the report surfaces codex/gemini input+output in a new primary column while their strict four-field tokens stay 0 (cacheCreation never invented); claude appears in BOTH primary and the four-field totals; overall provider-reported primaryKnownCount=3 vs four-field knownCount=1, unknownCount=2.",
+  "actualTranscript": "node packages/main/dist/tasks/usage-ledger-report.js <ledger> produced: overall provider-reported 'count=3 known=1 unknown=2 primary[in=2300 out=820] tokens[in=1000 out=500 cacheCreate=10 cacheRead=20]'; codex group 'known=0 unknown=1 primary[in=500 out=200] tokens[in=0 out=0 cacheCreate=0 cacheRead=0]'; gemini group 'known=0 unknown=1 primary[in=800 out=120] tokens[in=0 ...]'; claude group 'known=1 unknown=0 primary[in=1000 out=500] tokens[in=1000 out=500 cacheCreate=10 cacheRead=20]'. --json overall: primaryKnown={input:2300,output:820} primaryKnownCount=3, four-field known knownCount=1 unknownCount=2. Full transcript at .lattice/story/actives/B-b1f4/evidence/transcript-diff.md.",
+  "outcomeDiff": "No meaningful diff — actual matches expected on every property: codex/gemini input+output visible in primary, strict four-field tokens unchanged (cacheCreation not invented), claude in both aggregates, overall primaryKnownCount=3 vs knownCount=1. Smokes: usage-ledger-codex-gemini 28, diagnostics 34, summary 61, estimate 55 — all green.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The primary aggregate intentionally surfaces only input+output (the two dimensions cache-less providers always report); it does NOT and must not include cacheCreation/cacheRead for codex/gemini (those are genuinely unreported, never inferred). Production Authority strong-proof (3x2) was not available in this solo environment (live runner unprovisioned, codex second host supervised-only); review assurance was satisfied via the sanctioned degraded single-host 3x1 fallback (review_escalation_fallback_set + 3 bound local PASS rounds).",
+  "pitfalls": "Do not conflate primaryReportedTotal with the strict four-field providerReportedTotal — they are independent accumulators (claude is in both; codex/gemini only in primary and remain in unknownCount for the four-field view). Cost is still derived from the four-field known totals ONLY; the primary aggregate must never feed cost. diagnostics.ts is flagged 'binary' by git due to a PRE-EXISTING intentional NUL sentinel ('\\u0000null') in groupKeyString — not introduced by this story.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 198372
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 69075
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 541596
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1820501
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 321462
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 805764
+    }
+  },
+  "totalDurationMs": 3756793,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T13:34:15.303Z",
+  "updatedAt": "2026-06-19T13:34:15.303Z"
+}

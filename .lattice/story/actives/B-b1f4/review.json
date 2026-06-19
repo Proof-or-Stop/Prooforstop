@@ -1,0 +1,211 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T12:41:16.741Z",
+      "issueCount": 17,
+      "blockerCount": 9,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when summary.ts: add additive primaryReportedTotal + primaryReportedCount to UsageSummary + diagnostics.ts: add per-source primary aggregate to rollups, keep four-field + cost unchanged are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: where to store the per-record primary value — chosen: add primaryTotal:number|null to DerivedRecordTotal in summary.ts (parallel to total).; RESOLVED: granularity of the diagnostics primary aggregate — chosen: per-source (primaryKnown {input,output} + primaryKnownCount on SourceTokenTotals), rolled into overall and per-group.; RESOLVED: whether to surface primary in the human report — chosen: yes, add a primary[in=.. out=..] column to renderHuman so the operator sees it (also resolves the INIT low note).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "8edf84e5b87648a9935d50d5dbafd7994a078fd7cc10538ea021d2aa303a5bc6"
+    },
+    {
+      "timestamp": "2026-06-19T12:44:17.912Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when summary.ts: add additive primaryReportedTotal + primaryReportedCount to UsageSummary + diagnostics.ts: add per-source primary aggregate to rollups, keep four-field + cost unchanged are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: where to store the per-record primary value — chosen: add primaryTotal:number|null to DerivedRecordTotal in summary.ts (parallel to total).; RESOLVED: granularity of the diagnostics primary aggregate — chosen: per-source (primaryKnown {input,output} + primaryKnownCount on SourceTokenTotals), rolled into overall and per-group.; RESOLVED: whether to surface primary in the human report — chosen: yes, add a primary[in=.. out=..] column to renderHuman so the operator sees it (also resolves the INIT low note).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "6afee091fece7c036ad93dda30cfaa8824bdef24938be50e567af47e945b7ded"
+    },
+    {
+      "timestamp": "2026-06-19T12:44:30.666Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when summary.ts: add additive primaryReportedTotal + primaryReportedCount to UsageSummary + diagnostics.ts: add per-source primary aggregate to rollups, keep four-field + cost unchanged are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 4 undigested unknowns: RESOLVED: where to store the per-record primary value — chosen: add primaryTotal:number|null to DerivedRecordTotal in summary.ts (parallel to total).; RESOLVED: granularity of the diagnostics primary aggregate — chosen: per-source (primaryKnown {input,output} + primaryKnownCount on SourceTokenTotals), rolled into overall and per-group.; RESOLVED: whether to surface primary in the human report — chosen: yes, add a primary[in=.. out=..] column to renderHuman so the operator sees it (also resolves the INIT low note).…"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "73d7528dea5fd62fa501eef74556dbe36123b5b7be0e6a859dea779802d9ec75"
+    }
+  ]
+}

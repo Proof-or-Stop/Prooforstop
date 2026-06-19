@@ -1,0 +1,129 @@
+{
+  "storyId": "B-b1f4",
+  "checkedAt": "2026-06-19T12:40:45.268Z",
+  "features": [
+    {
+      "feature": "summary.ts: add primaryReportedTotal + primaryReportedCount to UsageSummary (additive input+output aggregate for provider-reported records)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "summary.ts: add primaryTotal field to DerivedRecordTotal (per-record input+output; null when source=unavailable or either input/output is null)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "summary.ts: update empty-summary returns (summarizeLedgerFile + summarizeRecords) to include new primary fields = 0",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "diagnostics.ts: add per-source primaryKnown {input, output} + primaryKnownCount to SourceTokenTotals, accumulated independent of the four-field known check",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "diagnostics.ts: init primaryKnown + primaryKnownCount in emptySourceTotals (zero-init for consistent shape)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "diagnostics.ts: roll primaryKnown + primaryKnownCount into overall rollup in buildUsageReport",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "diagnostics.ts: keep strict four-field known / knownCount / unknownCount / computeCost semantics unchanged",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Do NOT change the strict four-field providerReportedTotal / known rollup semantics",
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Never infer cacheCreation or cacheRead as 0 for cache-less providers (null means unavailable, not zero)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Do NOT infer cacheCreation/cacheRead as 0 for cache-less providers (no provider-unreported value may be invented)",
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "usage-ledger-report.ts: surface primary aggregate in renderHuman output (primary column)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: codex (openai adapter) provider-reported final contributes input+output to summary.primaryReportedTotal and diagnostics primaryKnown",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: gemini provider-reported final contributes input+output to summary.primaryReportedTotal and diagnostics primaryKnown",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: strict four-field providerReportedTotal and bySource.known STILL exclude codex+gemini (unknownCount unchanged)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke: an anthropic/claude record with all four dims known appears in BOTH primaryReportedTotal and providerReportedTotal",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Preserve usage-ledger zero-cross-module-import invariant (only ./ siblings + node: builtins)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Do NOT introduce any cross-module import into usage-ledger (preserve zero-cross-module-import invariant)",
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Do not modify openai/gemini/anthropic adapters or record schema/validator",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Do NOT modify the openai/gemini/anthropic adapters or the record schema/validator",
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Do not wire diagnostics/report into any gate (informational-only must stay informational-only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Do NOT wire the report/diagnostics into any gate (informational-only must stay informational-only)",
+      "source": "decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 10,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "22b917cfc37034247af41e378537735ce32885560389470b8471fe756aae8ff8",
+  "openQuestions": []
+}

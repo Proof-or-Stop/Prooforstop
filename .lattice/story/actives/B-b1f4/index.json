@@ -4,7 +4,7 @@
   "title": "Surface cache-less-provider (codex/gemini) tokens in usage-ledger aggregates via an additive primaryReportedTotal",
   "description": "Provider-reported codex/gemini token records are captured on disk (B-12d7) but never appear in any usage-ledger aggregate, because the strict four-field identity buckets every record with a null cache dimension as unknown. Add a NEW additive primary (input+output) aggregate to summary.ts and diagnostics.ts so these tokens become visible, without inferring any value the provider did not report and without changing the strict four-field providerReportedTotal semantics.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "usage-ledger",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-06-19T12:31:38.510Z",
   "startedAt": "2026-06-19T12:31:38.510Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T13:40:22.875Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,6 +41,46 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:36:05.980Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:45:07.576Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:15:28.077Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:20:49.539Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:40:22.875Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -50,9 +90,5 @@
       "at": "2026-06-19T12:32:00.785Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b1f4",
-    "branch": "story/B-b1f4",
-    "createdAt": "2026-06-19T12:34:53.678Z"
-  }
+  "currentReviewRound": "2026-06-19T13:15:28.077Z"
 }
