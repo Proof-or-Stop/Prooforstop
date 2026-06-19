@@ -1,0 +1,130 @@
+{
+  "command": "lattice validate --story=B-503b --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check — The document defines the mandatory review floor for code-changing stories and the failure-triggered 3x1 escalation path.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check — The document keeps docs-only typo/annotation changes in the one-round low-risk path and does not force every code change into 3x1.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check — The document does not claim 3x1 equals two-host review or Authority Server receipt-backed completion.\",\"  ✓ CHK-002:happy:0 [happy/must/manual] covered via manual_transcript — Three local single-host audit rounds are recorded as Non-authority evidence for the current document material.\",\"  ✓ CHK-002:edge:0 [edge/must/manual] covered via manual_transcript — Each round checks the same core principles: no optimization for optimization, no arbitrary optimization, only real correctness issues, and consistency of logic.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/manual] covered via manual_transcript — Audit results separate local Non-authority evidence from Authority Server proof and do not claim authorityDone, fullAuthorityDone, or productionDone.\"],\"warnings\":[],\"timestamp\":\"2026-06-19T00:35:44.480Z\",\"headSha\":\"054b46d8371d07ecaf443b3db1003db92c2c71a1\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":25320},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":1688},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":2076}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document defines the mandatory review floor for code-changing stories and the failure-triggered 3x1 escalation path.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"zero-review|three rounds x one|3x1|3x2\\\" docs/requirements/decisions/review-assurance-floor-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document defines zero-review code DONE as invalid, one review round for clean ordinary code, failure-triggered 3x1 local single-host audit, and high-risk 3x2/degraded fallback boundaries.\",\"headHash\":\"0921847713ff70af5a3c8515fe44924b595d73ca\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:23:49.943Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document keeps docs-only typo/annotation changes in the one-round low-risk path and does not force every code change into 3x1.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\\\" docs/requirements/decisions/review-assurance-floor-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document preserves the docs-only low-risk path and explicitly rejects forcing every code-changing story into three rounds by default.\",\"headHash\":\"0921847713ff70af5a3c8515fe44924b595d73ca\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:23:50.531Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The document does not claim 3x1 equals two-host review or Authority Server receipt-backed completion.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"two-host independent|authorityDone|fullAuthorityDone|productionDone|Authority Server\\\" docs/requirements/decisions/review-assurance-floor-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document explicitly forbids treating local 3x1 as two-host independent review and forbids local evidence from claiming Authority Server completion or authorityDone/fullAuthorityDone/productionDone.\",\"headHash\":\"0921847713ff70af5a3c8515fe44924b595d73ca\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:23:50.758Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Three local single-host audit rounds are recorded as Non-authority evidence for the current document material.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r2 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r3 --format=json\",\"result\":\"pass\",\"note\":\"Each run-specific status shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, and a localReviewEvidenceRefs entry: r1 host-verdict:verdict-df35089fa5024a48, r2 host-verdict:verdict-12f2d912e2e9824e, r3 host-verdict:verdict-076efa73e2173746. Each is intentionally single-host local evidence, so status remains blocked for 2-host certification.\",\"headHash\":\"6d4b44dbf72f599515178d977781e9cb3da4b572\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:29:51.064Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Each round checks the same core principles: no optimization for optimization, no arbitrary optimization, only real correctness issues, and consistency of logic.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"run-specific status plus round notes in process-events.jsonl\",\"result\":\"pass\",\"note\":\"Round 1 checked real zero-review code DONE gap, Round 2 checked consistency with threshold-triggered review escalation, Round 3 checked Authority boundary. The earlier incorrect default-run/x3 evidence claim was replaced with exact runId-specific status commands.\",\"headHash\":\"6d4b44dbf72f599515178d977781e9cb3da4b572\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:29:51.183Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Audit results separate local Non-authority evidence from Authority Server proof and do not claim authorityDone, fullAuthorityDone, or productionDone.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json and review_escalation_status\",\"result\":\"pass\",\"note\":\"Run-specific status reports authorityDone=false, fullAuthorityDone=false, receiptVerified=false, multiHostVerified=false. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false. The evidence is local Non-authority audit evidence only.\",\"headHash\":\"6d4b44dbf72f599515178d977781e9cb3da4b572\",\"materialHash\":\"2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5\",\"timestamp\":\"2026-06-19T00:29:51.305Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T00:35:46.298Z",
+  "headHash": "054b46d8371d07ecaf443b3db1003db92c2c71a1",
+  "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document defines the mandatory review floor for code-changing stories and the failure-triggered 3x1 escalation path.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"zero-review|three rounds x one|3x1|3x2\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document defines zero-review code DONE as invalid, one review round for clean ordinary code, failure-triggered 3x1 local single-host audit, and high-risk 3x2/degraded fallback boundaries.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:49.943Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document keeps docs-only typo/annotation changes in the one-round low-risk path and does not force every code change into 3x1.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves the docs-only low-risk path and explicitly rejects forcing every code-changing story into three rounds by default.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:50.531Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The document does not claim 3x1 equals two-host review or Authority Server receipt-backed completion.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"two-host independent|authorityDone|fullAuthorityDone|productionDone|Authority Server\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly forbids treating local 3x1 as two-host independent review and forbids local evidence from claiming Authority Server completion or authorityDone/fullAuthorityDone/productionDone.",
+          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:23:50.758Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Three local single-host audit rounds are recorded as Non-authority evidence for the current document material.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r2 --format=json && lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r3 --format=json",
+          "result": "pass",
+          "note": "Each run-specific status shows totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, and a localReviewEvidenceRefs entry: r1 host-verdict:verdict-df35089fa5024a48, r2 host-verdict:verdict-12f2d912e2e9824e, r3 host-verdict:verdict-076efa73e2173746. Each is intentionally single-host local evidence, so status remains blocked for 2-host certification.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:29:51.064Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Each round checks the same core principles: no optimization for optimization, no arbitrary optimization, only real correctness issues, and consistency of logic.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "run-specific status plus round notes in process-events.jsonl",
+          "result": "pass",
+          "note": "Round 1 checked real zero-review code DONE gap, Round 2 checked consistency with threshold-triggered review escalation, Round 3 checked Authority boundary. The earlier incorrect default-run/x3 evidence claim was replaced with exact runId-specific status commands.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:29:51.183Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Audit results separate local Non-authority evidence from Authority Server proof and do not claim authorityDone, fullAuthorityDone, or productionDone.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice autopilot_review_status --storyId=B-503b --runId=B-503b-local-audit-r1 --format=json and review_escalation_status",
+          "result": "pass",
+          "note": "Run-specific status reports authorityDone=false, fullAuthorityDone=false, receiptVerified=false, multiHostVerified=false. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false. The evidence is local Non-authority audit evidence only.",
+          "headHash": "6d4b44dbf72f599515178d977781e9cb3da4b572",
+          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
+          "timestamp": "2026-06-19T00:29:51.305Z"
+        }
+      }
+    ]
+  }
+}
