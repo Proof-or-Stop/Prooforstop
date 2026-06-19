@@ -30,7 +30,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "lattice.config.json now bounds review-pass-discard + init-window smokes with timeoutMs=120000 (object form); both still PASS when run directly (idle), so a slow run fails loud instead of hanging the suite.",
+          "headHash": "252554db371916cb9e31c63aa37e484ed654f4f5",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:20.823Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
