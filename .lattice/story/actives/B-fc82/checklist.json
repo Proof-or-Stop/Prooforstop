@@ -80,9 +80,9 @@
       "id": "CHK-002",
       "title": "Strengthen the smoke to assert the preflight precedes captureReviewRunSnapshot",
       "context": "Extend packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts with an ORDERING assertion that would have caught this bug: prove that on a BLOCKING dirty tree, review_run_start refuses BEFORE captureReviewRunSnapshot runs (e.g. assert the thrown error is the preflight 'uncommitted ... changes' error and that NO review run / snapshot-derived artifact was produced; or drive a fixture where reaching captureReviewRunSnapshot would produce a distinguishable outcome). Keep all existing scenarios (a)-(h) green. The goal is an end-to-end ordering check, not the prior isolation-only fail-open unit test.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T16:21:03.179Z",
       "userSees": "The review-run clean-tree preflight smoke fails if captureReviewRunSnapshot can run before the dirty-tree preflight refusal.",
       "files": {
         "modify": [],
@@ -116,7 +116,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "PASS: new scenario (i) asserts the preflight dirty-tree error wins before snapshot-derived missing_material_hash diagnostics and records no review run.",
+          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:03.313Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "PASS: existing scenarios (a)-(h) continue to pass after adding the ordering regression assertion.",
+          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:03.406Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "PASS: broader field regression smoke accepts the new pre-snapshot dirty refusal and would catch review-run diagnostic/persistence regressions.",
+          "headHash": "44f46a7e39843fc22491a40db00c754048dd2036",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:03.494Z"
+        }
+      ]
     }
   ]
 }
