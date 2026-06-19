@@ -168,9 +168,9 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T01:26:31.460Z",
-      "endTime": null,
+      "endTime": "2026-06-19T01:26:32.219Z",
       "verificationIntent": {
         "happy": [
           {
@@ -198,7 +198,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Milestone-To-Rollout Stage Crosswalk|policyVersion|Enforcement mode|Operator-visible evidence\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The roadmap now contains a milestone-to-rollout crosswalk with policy version, enforcement mode, in-flight treatment, and operator-visible evidence columns.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:32.331Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"in-flight|false-positive|de-escalation|prior accepted policy version|do not reopen\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The repaired rollout section documents in-flight treatment and false-positive rollback/de-escalation without reopening DONE stories.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:32.439Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"M11 staged runbook|Audited emergency bypass|expiry by time|policyVersion|must not bypass git cleanliness|cannot set `authorityDone`\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The emergency bypass is explicitly audited, scoped to self-hosting over-block, time/policy bounded, and barred from setting Authority, DONE, full 3x2, or baseline PASS claims.",
+          "headHash": "90199776f3eafa349f7d7439e6a49ce98786652b",
+          "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+          "timestamp": "2026-06-19T01:26:32.545Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -246,6 +281,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin auditor verification for rollout crosswalk and recovery controls."
+    },
+    {
+      "timestamp": "2026-06-19T01:26:32.219Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-003 verified against rollout/recovery grep checks."
     }
   ]
 }
