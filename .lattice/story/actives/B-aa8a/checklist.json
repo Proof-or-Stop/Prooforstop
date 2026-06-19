@@ -6,7 +6,79 @@
       "context": "done-effects.ts: reuse isDoneMainRuntimeBuildInput/shouldBuildDoneMainPackageForChangedPaths to gate; bump root package.json + packages/main/package.json + lattice-brand.ts LATTICE_CLI_VERSION patch; commit on main; ordering before runDoneMainPackageBuildAfterMerge so rebuilt dist reports the new version",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parseSemver(1.2.3) returns {major:1,minor:2,patch:3}; WHY: validates the fundamental parse that all other functions depend on",
+            "type": "cli"
+          },
+          {
+            "desc": "nextPatch({major:0,minor:3,patch:9}) returns {major:0,minor:3,patch:10}; WHY: confirms patch-only increment, minor/major untouched",
+            "type": "cli"
+          },
+          {
+            "desc": "readSyncedVersion(fixtureRoot) with all 3 sync points at 0.9.9 returns 0.9.9; WHY: proves 3-point read + sync assertion pass when versions match",
+            "type": "cli"
+          },
+          {
+            "desc": "applyPatchBump(fixtureRoot) with all 3 sync points at 0.9.9 writes 0.9.10 to all 3 files and returns {from:0.9.9,to:0.9.10}; WHY: end-to-end FS mutation of all 3 sync points",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpVersionOnDoneMerge({shouldBump:true, runGit:spy}) bumps files, calls git add on 3 paths + git commit with chore:bump, returns success line containing auto-bumped; WHY: full orchestration path including git interaction",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpVersionOnDoneMerge({shouldBump:false}) returns skip line containing skipped, no filesystem changes; WHY: gate-off path must be inert",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseSemver(0.0.0) returns {0,0,0} and nextPatch returns {0,0,1}; WHY: zero-boundary patch increment from floor value",
+            "type": "cli"
+          },
+          {
+            "desc": "nextPatch on patch=999 returns patch=1000 with no overflow cap; WHY: large patch number boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "parseSemver rejects 1.2 (missing patch) and v1.2.3 (v-prefix) and 1.2.3-beta (prerelease) and abc (non-numeric); WHY: strict X.Y.Z enforcement prevents silent corruption",
+            "type": "cli"
+          },
+          {
+            "desc": "readSyncedVersion with root=0.3.9 main=0.3.9 brand=0.3.10 throws drift error naming each value; WHY: drift detection prevents silent desync",
+            "type": "cli"
+          },
+          {
+            "desc": "applyPatchBump re-read verification: after writing re-reads all 3 files and confirms identical version; WHY: write-then-verify guards against partial write",
+            "type": "cli"
+          },
+          {
+            "desc": "shouldBuildDoneMainPackageForChangedPaths([packages/main/src/x.ts]) returns true and [.lattice/story/B-x/index.json] returns false; WHY: gate predicate correctly distinguishes material vs metadata paths",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "readSyncedVersion when lattice-brand.ts has LATTICE_CLI_VERSION on multiple lines (duplicate export) throws or reads the canonical one; WHY: adversarial file content with ambiguous version source",
+            "type": "cli"
+          },
+          {
+            "desc": "applyPatchBump called on a fixture where root package.json is read-only (chmod 0444) throws with a clear error and does not partially update the other 2 files; WHY: partial-write atomicity under filesystem permission failure",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpVersionOnDoneMerge where runGit(commit) throws after files already written: error propagates with recovery message mentioning manual 3-point sync; WHY: git failure after FS mutation must surface recovery instructions",
+            "type": "cli"
+          },
+          {
+            "desc": "applyPatchBump called twice consecutively on same fixture: first bumps 0.9.9 to 0.9.10, second bumps 0.9.10 to 0.9.11 (not 0.9.12, no double-bump); WHY: idempotency -- each call reads current state, never accumulates",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

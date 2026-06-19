@@ -1,0 +1,30 @@
+{
+  "task": "When a story DONE-merges to local main with material code changes, no version bump happens today; build the capability to auto-increment the patch version across the 3 sync points as part of the existing DONE post-merge effect.",
+  "outcome": "After DONE-merging a story that changed packages/main/src code, the operator sees in the DONE output a line like '✓ version auto-bumped 0.3.9 → 0.3.10 across 3 sync points after DONE merge', and a 'chore: bump lattice cli to 0.3.10' commit lands on main; running 'lattice --version' then prints 'Lattice CLI 0.3.10'. When a story merges with ONLY .lattice/metadata changes, the output instead reads '✓ version bump skipped (no material code change)' and the version is unchanged.",
+  "facts": [
+    "done-effects.ts applyDoneMergeEffects: Step 3 merges the story branch into main (capturing mainShaBeforeDoneMerge/mainShaAfterDoneMerge ~line 745-753), then ~line 878 calls runDoneMainPackageBuildAfterMerge(mainMergeRoot, before, after); the whole effect runs under the DONE merge-lock",
+    "RESOLVED unknown #1 (call-site): insert the bump AFTER Step 3 merge and BEFORE the line-878 build call; mainMergeRoot + before/after SHAs are in scope; compute changedPaths once and reuse for both bump-gate and build-gate",
+    "RESOLVED unknown #2 (commit): land a SEPARATE chore:bump commit on main in mainMergeRoot (matches the 0.3.x history, cleaner than amending the merge commit)",
+    "RESOLVED unknown #3 (hermetic smoke): split a pure applyPatchBump(root) that writes the 3 files in a given root (testable on a temp fixture dir) from bumpVersionOnDoneMerge(shouldBump, runGit) orchestration; version-bump.ts must NOT import done-effects.ts (done-effects passes the shouldBuild boolean) to avoid a circular import",
+    "Version sync points: root package.json, packages/main/package.json, lattice-brand.ts LATTICE_CLI_VERSION; rollout-check.ts enforces identical; current main = 0.3.9",
+    "packages/main/dist is gitignored and rebuilt by runDoneMainPackageBuildAfterMerge; bumping the source BEFORE that build makes the rebuilt dist report the new version with no extra build"
+  ],
+  "constraints": [
+    "Patch-only (operator decision); no semantic feat/minor inference",
+    "Bump only when material code changed: reuse isDoneMainRuntimeBuildInput/shouldBuildDoneMainPackageForChangedPaths so metadata-only (.lattice) merges never bump",
+    "Update all 3 sync points atomically (rollout-check consistency) and commit on main under the existing DONE merge-lock",
+    "If the 3 points are NOT in sync before bumping, fail loud (do not silently pick one)",
+    "Idempotent: exactly one patch increment per qualifying DONE merge",
+    "version-bump.ts must not import done-effects.ts (avoid circular dependency)"
+  ],
+  "unknowns": [
+    "None material remaining — call-site, commit strategy, and hermetic-smoke approach all resolved by reading done-effects.ts applyDoneMergeEffects"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/version-bump.ts (NEW: parse/format semver, nextPatch, applyPatchBump(root) writing the 3 files atomically, bumpVersionOnDoneMerge orchestration)",
+    "packages/main/src/handlers/done-effects.ts (wire bumpVersionOnDoneMerge in before the line-878 build call, under the merge-lock, gated on shouldBuildDoneMainPackageForChangedPaths)",
+    "packages/main/src/tasks/version-bump-smoke.ts (NEW hermetic smoke with temp fixture copies)",
+    "lattice.config.json (register the smoke)"
+  ],
+  "timestamp": "2026-06-19T19:28:28.786Z"
+}
