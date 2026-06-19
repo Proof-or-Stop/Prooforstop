@@ -99,9 +99,9 @@
       "id": "CHK-002",
       "title": "Implement storyFilesHash computation + thread it as a secondary binding signal",
       "context": "Compute storyFilesHash from the storys changed files vs merge-base main and record it ALONGSIDE materialHash on review runs, escalation verdicts/fallback, and verification evidence. Keep the whole-tree materialHash byte-unchanged and continue recording it (no inference, no removal). Preserve the usage-ledger/host-independence zero-cross-module-import invariants.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T21:48:42.248Z",
-      "endTime": null,
+      "endTime": "2026-06-19T21:58:59.265Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
@@ -153,7 +153,59 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability smoke asserts review-run workspaceBinding captures storyFilesHash alongside materialHash and verifyReviewRun accepts the signed binding.",
+          "headHash": "522a5c63bfd89a3cf058f775dbe69f82e33db175",
+          "materialHash": "84012c484761befe0b4ab7f4ea693b49e174fde0224a5e5b1f101e636b949969",
+          "timestamp": "2026-06-19T21:58:59.380Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "checklist evidence normalization now stamps storyFilesHash from the same resolved git cwd/metadata root as materialHash without dropping materialHash.",
+          "headHash": "522a5c63bfd89a3cf058f775dbe69f82e33db175",
+          "materialHash": "84012c484761befe0b4ab7f4ea693b49e174fde0224a5e5b1f101e636b949969",
+          "timestamp": "2026-06-19T21:58:59.469Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "checkEvidenceFreshnessForGit keeps legacy records without storyFilesHash on the existing strict materialHash path.",
+          "headHash": "522a5c63bfd89a3cf058f775dbe69f82e33db175",
+          "materialHash": "84012c484761befe0b4ab7f4ea693b49e174fde0224a5e5b1f101e636b949969",
+          "timestamp": "2026-06-19T21:58:59.553Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "freshness only downgrades materialHash drift when recorded and current storyFilesHash both exist and match; missing/uncomputable storyFilesHash falls back to strict materialHash behavior.",
+          "headHash": "522a5c63bfd89a3cf058f775dbe69f82e33db175",
+          "materialHash": "84012c484761befe0b4ab7f4ea693b49e174fde0224a5e5b1f101e636b949969",
+          "timestamp": "2026-06-19T21:58:59.635Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability smoke tampers workspaceBinding.storyFilesHash and verifyReviewRun rejects the signed/bound record.",
+          "headHash": "522a5c63bfd89a3cf058f775dbe69f82e33db175",
+          "materialHash": "84012c484761befe0b4ab7f4ea693b49e174fde0224a5e5b1f101e636b949969",
+          "timestamp": "2026-06-19T21:58:59.717Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
