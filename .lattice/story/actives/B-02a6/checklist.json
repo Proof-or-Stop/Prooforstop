@@ -127,10 +127,10 @@
           "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "Concurrent git clean -fd / -fdx cannot wipe the now-tracked metadata (smoke); safe-init commit registered as cross-function main-write-locked in main-write-lock-coverage, serializing against concurrent DONE merge.",
-          "headHash": "a1dad8bbba237e19b385f614583acf3c40e40d56",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:55:53.121Z"
+          "note": "Concurrent clean -fd/-fdx cannot wipe tracked metadata; safe-init-commit registered cross-function main-write-locked, serializing vs concurrent DONE merge. Re-recorded at current HEAD.",
+          "headHash": "950e2b050af004dc7a1f5b2c27a3770c17b9106a",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:14.481Z"
         }
       ]
     },
