@@ -154,9 +154,8 @@ export function commitInitCheckMetadataAndMergeMain(root: string, store: StorySt
  * not machine-owned and cannot be silently auto-resolved — we abort the merge
  * and throw a clear recovery error rather than guess.
  *
- * The clean (no-conflict) path keeps a merge commit even when the base branch
- * could be fast-forwarded into the story branch. That preserves a distinct
- * story-branch topology for the later DONE merge.
+ * The clean (no-conflict) path is byte-identical to the legacy bare
+ * `git merge <base> --no-edit`: `git merge` returns 0, we return immediately.
  */
 export function mergeBaseBranchIntoStoryWorktreeResolvingMetadata(args: {
   worktreeAbs: string;
@@ -169,11 +168,11 @@ export function mergeBaseBranchIntoStoryWorktreeResolvingMetadata(args: {
   // inspected + resolved rather than surfacing as an opaque marker corruption.
   const merge = runGitNoThrow(worktreeAbs, [
     '-c', 'commit.gpgsign=false',
-    'merge', baseBranch, '--no-ff', '--no-edit',
+    'merge', baseBranch, '--no-edit',
   ]);
   if (merge.code === 0) {
-    // Clean (no-conflict) path: git has already created the merge commit.
-    // Return immediately.
+    // Clean (no-conflict) path: byte-identical to the legacy bare merge — git
+    // has already created the merge commit. Return immediately.
     return;
   }
 
