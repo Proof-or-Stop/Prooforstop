@@ -59,7 +59,86 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a normal codex (openai) usage {prompt_tokens, completion_tokens, prompt_tokens_details:{cached_tokens}} projects via extractCodexUsage to a null-prototype reportedUsage carrying exactly those token keys with cacheRead preserved. Passed (50 checks).",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a normal gemini usage {promptTokenCount, candidatesTokenCount, cachedContentTokenCount} projects via extractGeminiUsage to a null-prototype reportedUsage carrying exactly those keys. Passed (50 checks).",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a usage carrying an extra non-token key (transcript / 50+ extra keys) drops it; only adapter-read token keys reach reportedUsage. Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts the nested prompt_tokens_details is itself a null-prototype object via sanitizeNestedDetails (no inherited keys). Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a malformed-but-object usage makes recordDispatchFinalForProvider append ONE unavailable-final that supersedes the preflight estimate (openai + gemini). Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke pollutes Object.prototype (usage/usageMetadata/cached_tokens/prompt_tokens) and asserts none leak into reportedUsage thanks to own-property guards. Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts recordDispatchFinalForProvider never throws even when buildProviderRecord throws on malformed input; the outer try/catch holds for openai + gemini. Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -98,7 +177,41 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke directly: exits 0 and prints \"usage-ledger codex/gemini smoke passed (50 checks)\".",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with the new usage-ledger-codex-gemini smoke included in the suite.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "result": "pass",
+          "note": "The smoke explicitly covers the polluted-prototype guard cases and the malformed-object unavailable-final path, not just happy projection (50 distinct checks). Passed.",
+          "headHash": "c47ec8359c6d30afb6b8bddcb4506f2266377c03",
+          "materialHash": "dec299a6831c6abe348e41afe284b0f4d2ba403e96238e3d9abcafd938164e09",
+          "timestamp": "2026-06-19T19:16:54.683Z"
+        }
+      ]
     }
   ]
 }
