@@ -2,25 +2,25 @@
 
 ## CHK-001
 
-Extend the existing `evaluateReviewEscalation` path into the Review Assurance Floor instead of adding a second DONE gate. Classify whether the story has a material code diff from the git diff against main; source/runtime/test/script/package files count as material code, while markdown-only docs changes do not. For material code diffs, require at least one fresh current-material local review evidence round before DONE. Keep `done-oracle` and `machine.canFinish` consuming the same evaluator.
+Add a focused `review-assurance-floor` core evaluator and a separate DONE oracle row. Do not fold the floor into the existing first-round `review-escalation` predicate, because they are different lifecycle claims. Classify material code diffs from the git diff against main; source/runtime/test/script/package files count as material code, while markdown-only docs changes do not. For material code diffs, require at least one fresh current-material review assurance record before DONE.
 
 Verification: the smoke task will create synthetic stories proving zero-review material code is blocked, one fresh local review round passes, and docs-only markdown is not overblocked.
 
 ## CHK-002
 
-Add failure-signal escalation to the same evaluator. Durable signals include validation failure evidence, open or historical bug evidence, verified reviewer findings, post-DONE regression markers if present, and repeated rework signals available in story events/process events. When such a signal exists for a material code diff, require three fresh local single-host rounds unless the existing stronger 3x2 escalation is required and satisfied.
+Add failure-signal escalation to the new floor evaluator while reusing existing `evaluateHostVerdictRounds` host binding logic. Durable signals include validation failure evidence, bug evidence, verified reviewer findings, and repeated rework signals that are available in story/process artifacts. When such a signal exists for a material code diff, require three fresh local single-host rounds unless the existing stronger 3x2 escalation is required and satisfied separately.
 
 Verification: the smoke task will prove failure-triggered 3x1 is sticky after repair and stale/missing materialDigest verdicts do not count.
 
 ## CHK-003
 
-Preserve host-neutral and Authority boundaries. Local assurance evidence must report `authorityDone=false`, `fullAuthorityDone=false`, and `productionDone=false`. A degraded 3x1 result must be labeled `degraded-single-host`, not two-host independent or Authority receipt-backed. Update process-fact registry/contract only if the gate semantics change in a way the registry must expose.
+Preserve host-neutral and Authority boundaries. Local assurance evidence must report `authorityDone=false`, `fullAuthorityDone=false`, and `productionDone=false`. A degraded 3x1 result must be labeled `degraded-single-host`, not two-host independent or Authority receipt-backed. Register the new floor predicate as an L4 gate-consumed process fact and update the process-fact contract.
 
 Verification: the smoke task and process-fact contract will assert the local reports keep Authority flags false and the new DONE gate is registered as a gate-consumed process fact.
 
 ## CHK-004
 
-Expose actionable diagnostics in the DONE checklist and status report. The blocked output should say whether the story is missing one review round, missing 3x1 rounds, has stale material hashes, or lacks binding fields. Add a focused smoke task under `packages/main/src/tasks/` and wire it into package scripts only if the existing validation discovery needs it; otherwise record the exact command as verification evidence.
+Expose actionable diagnostics in the DONE checklist and machine guard failure reason. The blocked output should say whether the story is missing the one-round floor, missing 3x1 rounds, has stale material hashes, or lacks host binding fields. Add a focused smoke task under `packages/main/src/tasks/` and record the exact command as verification evidence.
 
 Verification: run the new smoke task, `scripts/verify-process-fact-contract.mjs`, package build, and `lattice validate` before DONE.
 

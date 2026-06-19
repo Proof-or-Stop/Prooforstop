@@ -2,21 +2,19 @@
   "storyId": "B-ed99",
   "mode": "enforce",
   "allowedModify": [
-    "packages/main/src/core/review-escalation.ts",
     "packages/main/src/core/done-oracle.ts",
     "packages/main/src/core/machine.ts",
     "packages/main/src/core/host-independence.ts",
-    "packages/main/src/handlers/review-escalation.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs"
   ],
   "allowedCreate": [
+    "packages/main/src/core/review-assurance-floor.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
-    "scripts/verify-process-fact-contract.mjs"
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
   ],
   "protectedFiles": [
     "docs/parallel-decomposition-spec.md",
@@ -32,8 +30,8 @@
     "packages/authority",
     "docs/parallel-decomposition-spec.md"
   ],
-  "scopeChangeReason": "Scope contract follows B-ed99 PLAN files: review assurance DONE gate implementation, focused smoke tests, and process-fact contract only.",
+  "scopeChangeReason": "Replanned after two-agent audit: separate review-assurance-floor evaluator plus DONE row, reusing existing review escalation primitives.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T01:33:45.500Z",
-  "updatedAt": "2026-06-19T01:33:45.500Z"
+  "updatedAt": "2026-06-19T01:36:34.834Z"
 }
