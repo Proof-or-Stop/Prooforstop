@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5d18",
+  "mode": "correctness_fix",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+  ],
+  "excluded": [
+    "the global idle watchdog in cli-engine.ts (unchanged)",
+    "the hanging smokes own logic (no deterministic bug)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Adopt B-5d18: harden validate via default per-command timeout (validation-executor.ts) + bound the slow mutating smokes (lattice.config.json timeoutMs) + a smoke. Diagnosis: smokes use isolated /tmp locks (no global contention); hang was transient machine saturation.",
+  "createdAt": "2026-06-19T16:58:33.289Z",
+  "updatedAt": "2026-06-19T16:58:33.289Z",
+  "_hash": "d5248d834490836ba734a3714742bf774551de2604deddfacd7a936ecd7d1e8a"
+}

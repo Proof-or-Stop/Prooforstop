@@ -8,7 +8,7 @@ import { join } from 'path';
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'lattice.js');
-const EXPECTED_CORE_VERSION = '0.3.7';
+const EXPECTED_CORE_VERSION = '0.3.8';
 const EXPECTED_EXTENSION_VERSION = '0.3.1';
 
 function assert(condition, message) {

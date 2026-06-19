@@ -4,11 +4,11 @@
   "title": "Extract CLI command catalog and schemas from cli-engine",
   "description": "Refactor cli-engine.ts by extracting command definitions, command schemas, and main tool registration into dedicated modules while preserving existing command behavior and compatibility exports.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-19T14:33:32.926Z",
   "startedAt": "2026-06-19T14:33:32.926Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T17:35:48.989Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:33:54.426Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:38:17.595Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:48:40.470Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:54:50.797Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:57:14.126Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:03:21.595Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T17:35:48.989Z",
+      "branch": "story/B-74a0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-74a0",
-    "branch": "story/B-74a0",
-    "createdAt": "2026-06-19T16:32:57.168Z"
-  }
+  "currentReviewRound": "2026-06-19T16:57:14.126Z"
 }

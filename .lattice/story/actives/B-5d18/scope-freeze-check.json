@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5d18",
+  "checkedAt": "2026-06-19T16:58:33.884Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "d5248d834490836ba734a3714742bf774551de2604deddfacd7a936ecd7d1e8a",
+  "executionBoundaryHash": "a62cf991fc9ed4521bb65ae28eb5cf10df014e1a91ab39a158d90c5260e41420",
+  "freshnessHash": "2ab9016fb35df529aae9d6a3464cb427847c4cf0cbce5d30840724fb7daf5c1a",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "the global idle watchdog in cli-engine.ts (unchanged)",
+    "the hanging smokes own logic (no deterministic bug)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "the global idle watchdog in cli-engine.ts (unchanged)",
+      "source": "scopeBoundary.excluded",
+      "text": "the global idle watchdog in cli-engine.ts (unchanged)",
+      "excluded": true
+    },
+    {
+      "keyword": "the hanging smokes own logic (no deterministic bug)",
+      "source": "scopeBoundary.excluded",
+      "text": "the hanging smokes own logic (no deterministic bug)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "14b319b647976d5006f63f6e9a698c0a2666ba87a188d0d19f92ace22740283c"
+}

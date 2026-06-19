@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Keep review_run_start ordering mechanically obvious: refusal checks that guard snapshot creation must run before snapshot capture.",
+    "Preserve existing policy semantics: only move the preflight boundary, do not change dirty classification, material hash computation, or review evidence freshness rules.",
+    "Use black-box smoke coverage for the ordering regression so future refactors cannot silently move the gate behind snapshot capture again."
+  ],
+  "drivers": [
+    "Dirty material-source changes must be rejected before a review run snapshot can be captured.",
+    "Unreadable git-status fail-open behavior should remain meaningful because snapshot capture should not happen first.",
+    "The fix touches REVIEW gate evidence production, so the verification must be deterministic and narrow."
+  ],
+  "options": [
+    {
+      "name": "A: Move the existing preflight block before captureReviewRunSnapshot and add an ordering smoke",
+      "pros": [
+        "Minimal behavior change that directly matches the bug.",
+        "Keeps existing dirty-worktree policy and hash semantics intact.",
+        "The smoke catches the exact ordering regression."
+      ],
+      "cons": [
+        "Requires updating existing diagnostics expectations where snapshot failures used to happen first."
+      ]
+    },
+    {
+      "name": "B: Leave handler order unchanged and only adjust diagnostics",
+      "pros": [
+        "Smallest implementation change."
+      ],
+      "cons": [
+        "Does not fix the actual gate ordering bug.",
+        "Fail-open preflight remains bypassed by earlier snapshot failure paths."
+      ]
+    },
+    {
+      "name": "C: Refactor snapshot capture and preflight into a shared orchestration helper",
+      "pros": [
+        "Could make ordering explicit in a reusable abstraction."
+      ],
+      "cons": [
+        "Larger blast radius for a narrow bug.",
+        "Risks changing unrelated review-run behavior while trying to fix one ordering issue."
+      ]
+    }
+  ],
+  "chosen": "A: Move the existing preflight block before captureReviewRunSnapshot and add an ordering smoke",
+  "rationale": "Choose the narrow relocation plus targeted smoke because it directly fixes the REVIEW evidence gate ordering while preserving the existing dirty-worktree and freshness semantics.",
+  "preMortem": [
+    {
+      "scenario": "Preflight is moved before snapshot but accidentally changes classification behavior.",
+      "trigger": "The relocation rewrites classifierOptionsForCheck or isBlockingDirty inputs instead of moving the existing block intact.",
+      "consequence": "review_run_start starts rejecting or allowing different dirty trees than before.",
+      "mitigation": "Keep the same readGitStatusLines/classifyGitStatusRows/isBlockingDirty calls and run the existing clean-tree preflight smoke."
+    },
+    {
+      "scenario": "The new smoke only checks the final error text and misses ordering.",
+      "trigger": "A dirty tree still errors after snapshot capture, so a weak assertion passes even if the bug returns.",
+      "consequence": "The regression can reappear without test failure.",
+      "mitigation": "Assert no review run is persisted and use a scenario where the preflight error must win before snapshot-derived behavior."
+    },
+    {
+      "scenario": "Moving the preflight too early loses required workspace context.",
+      "trigger": "The block is placed before signedWorkspaceRoot or metadata root resolution is available.",
+      "consequence": "review_run_start throws unrelated errors or uses the wrong config root.",
+      "mitigation": "Place the block immediately after the REVIEW phase check, where workspace, signedWorkspaceRoot, store, and ctx.root are already in scope."
+    }
+  ],
+  "timestamp": "2026-06-19T16:13:42.705Z"
+}

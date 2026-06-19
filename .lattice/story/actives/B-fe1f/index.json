@@ -1,0 +1,48 @@
+{
+  "storyId": "B-fe1f",
+  "name": "ledger-codex-gemini-usage-hardening",
+  "title": "Harden codex/gemini usage capture: token-only projection + unavailable-final on malformed usage",
+  "description": "A genuine Codex host-2 cross-review of merged story B-12d7 (VERDICT: FAIL) found two real correctness gaps the Claude-only review missed. (1) extractCodexUsage/extractGeminiUsage return the WHOLE provider usage sub-object verbatim, so a non-token key embedded inside `usage` (e.g. a transcript field) would survive into ProviderExecResult.reportedUsage, contradicting the 'numeric token fields only, never raw transcript' invariant the JSDoc claims. (2) recordDispatchFinalForProvider: when a usable-but-malformed usage object (e.g. prompt_tokens:-999) makes buildProviderRecord throw, the outer try/catch swallows it and the unavailable-final branch is skipped, so NO final is written and the preflight estimate is never superseded (orphaned) -- contradicting the design intent that garbage usage still writes an unavailable final that supersedes. This story hardens both, keeping the claude/anthropic path byte-identical, and extends the smoke to cover the cases that masked them.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "usage-ledger",
+    "codex",
+    "gemini",
+    "hardening",
+    "cross-review"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-19T16:45:39.468Z",
+  "startedAt": "2026-06-19T16:45:39.468Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T16:45:39.477Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T16:58:14.689Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fe1f",
+    "branch": "story/B-fe1f",
+    "createdAt": "2026-06-19T16:58:12.961Z"
+  }
+}

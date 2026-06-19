@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fe1f",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "tsc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/usage-ledger/adapters/",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/providers/claude-cli.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Token-only projection in extractors + unavailable-final-on-throw in recordDispatchFinalForProvider + smoke. recordDispatchFinal(anthropic)/buildProviderRecord/adapters/claude path untouched.",
+  "createdAt": "2026-06-19T16:58:00.599Z",
+  "updatedAt": "2026-06-19T16:58:00.599Z",
+  "_hash": "697e611e7a6e99bec416699263bfc7c2ade83470c2537855412b394c4bd4d99a"
+}
