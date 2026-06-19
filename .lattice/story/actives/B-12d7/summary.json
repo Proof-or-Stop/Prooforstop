@@ -1,0 +1,55 @@
+{
+  "storyId": "B-12d7",
+  "changes": "Added codex/gemini token-usage capture to the LLM usage ledger dispatch seam: extractCodexUsage/extractGeminiUsage surface token-count-only reportedUsage on ProviderExecResult (providers/codex-cli.ts, gemini-cli.ts, types.ts); recordDispatchFinalForProvider + finalContextForProvider route a bare openai/gemini usage through buildProviderRecord (core/usage-ledger/dispatch-usage.ts); runBoundedRealLeafDispatch records a preflight estimate + a superseding provider-reported final (fail-open, OFF byte-identical) in core/lattice-dispatch.ts. New smoke usage-ledger-codex-gemini (17/17) + npm script test:usage-ledger-codex-gemini.",
+  "usage": "With LATTICE_USAGE_LEDGER=1, a codex (--host=codex) or gemini (--host=gemini) real-leaf dispatch now writes a sequence-2 provider-reported final usage record carrying the real per-record token counts; inspect the ledger JSONL. With the flag OFF or =0, behavior is byte-identical to before (no ledger file written).",
+  "expectedOutcome": "A codex/gemini real-leaf dispatch with the ledger ON records a provider-reported final (provider openai/gemini, served model, input/output/cacheRead token counts) that supersedes the preflight estimate; the claude path and the ledger-OFF path stay byte-identical.",
+  "actualTranscript": "smoke usage-ledger-codex-gemini 17/17 PASS: codex usage {prompt_tokens:500,completion_tokens:200,cached_tokens:50} and gemini usageMetadata {promptTokenCount:800,candidatesTokenCount:120,cachedContentTokenCount:40} each produce a sequence-2 provider-reported final (gemini final.usage.inputTokens=800/outputTokens=120/cacheReadInputTokens=40) that supersedes the estimate (summary.estimateCount=0); flag OFF writes no ledger file; claude recordDispatchFinal unchanged. Full npm test EXIT=0.",
+  "outcomeDiff": "Matches expected for per-record capture + supersede. ONE documented divergence: the summary/diagnostics aggregate providerReportedTotal does NOT include codex/gemini records (they bucket as unknownCount) because openai/gemini cacheCreation is structurally null and the pre-existing four-field identity treats any null dimension as unknown. Per-record token counts are captured correctly; aggregate-total visibility is a tracked follow-up.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Codex/gemini provider-reported records are excluded from the aggregate providerReportedTotal (bucketed as unknownCount) until a separate summary-layer story surfaces cache-less-provider tokens (finding F-004, dismissed out_of_scope). Budget-guard (fail-closed pre-spawn block) parity for codex/gemini and Authority receipt-backed signing are explicitly deferred.",
+  "pitfalls": "Do NOT surface raw provider stdout to make tokens visible -- the raw-output-never-surfaced security invariant requires only numeric token counts leave the runner. When extending the summary to count cache-less providers, change the aggregation identity, NOT the adapters' no-inference rule. The codex/gemini preflight estimate model is intentionally 'unknown' (the served model is only known post-run, bound on the final record).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 251075
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 84002
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 813545
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1135887
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2399321
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 724865
+    }
+  },
+  "totalDurationMs": 5408705,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T03:46:01.061Z",
+  "updatedAt": "2026-06-19T03:46:01.061Z"
+}
