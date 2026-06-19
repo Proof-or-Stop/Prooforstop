@@ -1,4 +1,4 @@
-# koala's Refactor Plan for Learning from Claude Code
+# Lattice's Refactor Plan for Learning from Claude Code
 
 > 2026.04 · Summarized after a full audit of koala's current state
 
