@@ -47,6 +47,7 @@ import {
   parseClaudeCliOutput,
   recordBudgetBlock,
   recordDispatchFinal,
+  recordDispatchFinalForProvider,
   recordDispatchPreflight,
   type DispatchUsageContext,
 } from './usage-ledger/dispatch-usage.js';
@@ -1993,6 +1994,38 @@ function runBoundedRealLeafDispatch(
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
   const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
+
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
+  // All new work below is inside `if (ledgerOn)` blocks, so when the flag is OFF
+  // this function behaves exactly as before (no preflight, no final, no extra I/O).
+  // Each ledger call is fail-open: any error is transcribed non-fatally and the
+  // dispatch proceeds. Models the claude seam (runClaudeCodeRealLeafDispatch).
+  const ledgerOn = isUsageLedgerEnabled();
+  const ledgerCtx: DispatchUsageContext = {
+    storyId: record.storyId,
+    phase: DISPATCH_LEDGER_PHASE,
+    agentType: `lattice-dispatch:${hostKind}`,
+    model: DISPATCH_LEDGER_ESTIMATE_MODEL,
+  };
+  const ledgerOpts = {
+    recordedAt: startedAt,
+    projectRootHash: dispatchProjectRootHash(root),
+    command: (runtime.invocationTemplate ?? [hostKind]).join(' '),
+    host: { kind: record.selectedHost },
+    env: process.env,
+  };
+  let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
+  if (ledgerOn) {
+    try {
+      const promptText = readFileSync(promptFile, 'utf8');
+      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
+    } catch (error) {
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger preflight skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
+
   const result = runner({
     provider: hostKind,
     argv,
@@ -2001,6 +2034,26 @@ function runBoundedRealLeafDispatch(
     maxAttempts: 1,
     env: process.env,
   });
+
+  if (ledgerOn) {
+    try {
+      recordDispatchFinalForProvider(
+        root,
+        ledgerCtx,
+        ledgerHandle?.correlation ?? null,
+        ledgerHandle?.estimateRecordId ?? null,
+        hostKind === 'codex' ? 'openai' : 'gemini',
+        result.reportedUsage,
+        result.model ?? null,
+        ledgerOpts,
+      );
+    } catch (error) {
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger final skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
+
   const endedAt = nowIso();
   appendTranscript(transcriptPath, [
     `[${startedAt}] ${hostKind} real subprocess started (worktree ${record.worktree.worktreePath})`,

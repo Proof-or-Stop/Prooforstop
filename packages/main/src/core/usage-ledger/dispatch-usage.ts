@@ -380,6 +380,83 @@ export function recordDispatchFinal(
   }
 }
 
+/**
+ * Record the final usage AFTER a codex/gemini dispatch, superseding the preflight
+ * estimate. Provider-parametric sibling of recordDispatchFinal: the claude path
+ * (recordDispatchFinal) is left byte-identical, while this entry point routes a
+ * bare provider usage object through buildProviderRecord('openai' | 'gemini', ...).
+ *
+ * - flag OFF -> returns immediately (strict no-op);
+ * - reportedUsage is a usable non-null object -> assembles a provider-reported
+ *   record (sequence 2, supersedesRecordIds=[estimateRecordId]) via the openai /
+ *   gemini adapter (buildProviderRecord runs adaptUsageFor; its extractRawUsage
+ *   passes a bare `usage` / `usageMetadata` object straight to the adapter, so a
+ *   bare object works directly) and appends it. The provider-reported final
+ *   SUPERSEDES the estimate so the summary counts only the final (no double count).
+ * - otherwise (null / non-object / garbage usage) -> appends an 'unavailable'
+ *   final (sequence 2, supersedes the estimate) so the estimate is still
+ *   superseded even when the CLI reported no usable usage.
+ *
+ * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
+ * throw) is swallowed so dispatch proceeds.
+ *
+ * `provider` is 'openai' for the codex host and 'gemini' for the gemini host —
+ * the record's provider.name is set accordingly (NOT hardcoded anthropic).
+ * `model` is the served model the provider reported; null falls back to the
+ * best-effort default.
+ */
+export function recordDispatchFinalForProvider(
+  root: string,
+  ctx: DispatchUsageContext,
+  correlation: CallCorrelation | null,
+  estimateRecordId: string | null,
+  provider: 'openai' | 'gemini',
+  reportedUsage: unknown,
+  model: string | null,
+  opts: DispatchUsageOptions,
+): void {
+  if (!isUsageLedgerEnabled(opts.env)) return;
+
+  try {
+    const corr = correlation ?? mintCallCorrelation();
+    const supersedes = buildSupersedes(estimateRecordId);
+
+    // A usable usage is a non-null, non-array object. Anything else (null,
+    // undefined, primitive, array) falls through to the unavailable branch so the
+    // estimate is still superseded.
+    const usable =
+      typeof reportedUsage === 'object' && reportedUsage !== null && !Array.isArray(reportedUsage);
+
+    if (usable) {
+      const record = buildProviderRecord(
+        provider,
+        reportedUsage,
+        {
+          ledgerCallId: corr.ledgerCallId,
+          attemptId: corr.attemptId,
+          sequence: 2,
+          supersedesRecordIds: supersedes,
+        },
+        attributionFor(ctx),
+        finalContextForProvider(opts, provider, model),
+      );
+      appendUsageRecord(root, record, { env: opts.env });
+      return;
+    }
+
+    // No usable usage -> an 'unavailable' final that still supersedes the estimate.
+    const unavailable = buildUnavailableFinalRecord(
+      corr,
+      supersedes,
+      attributionFor(ctx),
+      finalContextForProvider(opts, provider, model),
+    );
+    appendUsageRecord(root, unavailable, { env: opts.env });
+  } catch {
+    // Never propagate a ledger error to the dispatch caller.
+  }
+}
+
 /** Map a DispatchUsageContext to the assemble/estimate attribution shape. */
 function attributionFor(ctx: DispatchUsageContext): RecordAttribution {
   return {
@@ -404,6 +481,28 @@ function finalContext(opts: DispatchUsageOptions, model: string | null): RecordC
     command: opts.command,
     host: opts.host,
     provider: { name: 'anthropic', model: bound },
+  };
+}
+
+/**
+ * Provider-parametric sibling of finalContext: builds the RecordContext for a
+ * codex/gemini final record, binding the named provider (openai/gemini) rather
+ * than the hardcoded anthropic. finalContext (anthropic) stays byte-identical; a
+ * null/empty served model falls back to the best-effort default.
+ */
+function finalContextForProvider(
+  opts: DispatchUsageOptions,
+  providerName: 'openai' | 'gemini',
+  model: string | null,
+): RecordContext {
+  const bound = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
+  return {
+    recordedAt: opts.recordedAt,
+    projectRootHash: opts.projectRootHash,
+    redactionProfile: opts.redactionProfile,
+    command: opts.command,
+    host: opts.host,
+    provider: { name: providerName, model: bound },
   };
 }
 

@@ -81,6 +81,35 @@ function extractCodexModel(stdout: string): string | undefined {
   return undefined;
 }
 
+/** A usage object is one carrying any of the OpenAI token-count fields. */
+function isCodexUsageObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const u = value as Record<string, unknown>;
+  return 'prompt_tokens' in u || 'completion_tokens' in u || 'prompt_tokens_details' in u;
+}
+
+/**
+ * Best-effort token-count usage extraction from Codex JSON output; never required
+ * for success. EXACTLY analogous to extractCodexModel: iterate the JSONL lines,
+ * skip blanks, JSON.parse each in a try/catch, and return the FIRST OpenAI-shape
+ * `usage` sub-object found — checked at the top level (`obj.usage`) and nested
+ * under `message` (`obj.message.usage`), mirroring extractCodexModel's
+ * obj.message.model precedent. Returns ONLY the numeric usage sub-object (the
+ * token-count fields), NEVER the whole line/envelope or any transcript text.
+ * Never throws; returns undefined when no usage object is present.
+ */
+function extractCodexUsage(stdout: string): Record<string, unknown> | undefined {
+  for (const line of stdout.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const obj = JSON.parse(line) as { usage?: unknown; message?: { usage?: unknown } };
+      if (isCodexUsageObject(obj.usage)) return obj.usage;
+      if (obj.message && isCodexUsageObject(obj.message.usage)) return obj.message.usage;
+    } catch { /* skip non-json lines */ }
+  }
+  return undefined;
+}
+
 /**
  * Run a single bounded `provider.codex` request, capturing structured evidence.
  *
@@ -124,9 +153,11 @@ export function runBoundedCodexProvider(
   }
 
   const model = extractCodexModel(stdout);
+  const reportedUsage = extractCodexUsage(stdout);
   return {
     provider: 'codex',
     ...(model ? { model } : {}),
+    ...(reportedUsage ? { reportedUsage } : {}),
     argvDigest: providerDigest(request.argv),
     exitCode: spawnError ? null : status,
     stdoutDigest: providerDigest(stdout),
