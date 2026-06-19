@@ -172,10 +172,10 @@
           "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "predicate: tracked leaf (either ignore state) -> unsafe=false (safe); committed-leaf bootstrap+doctor cases assert no false positive. Covers the happy path that a correctly committed metadata leaf is never flagged.",
-          "headHash": "eeff4bd6e081e6ec17a76ebb6599abaa12a3f77c",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:54:08.532Z"
+          "note": "evaluateStoryMetadataProtection flags !ignored && !tracked (INIT window) as unsafe=true. Re-recorded at current HEAD.",
+          "headHash": "402fa45f1032e793c812181713b153887e64f247",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:14.964Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
