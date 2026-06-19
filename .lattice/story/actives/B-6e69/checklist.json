@@ -112,7 +112,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Build, process-fact contract, ownership contract, and lock/reviewer smokes stay green after the runtime/gate extraction.",
+      "userSees": "Expected transcript includes \"Process fact contract verified\", \"command ownership contract passed\", and \"main-write-lock-coverage: PASS\" or equivalent PASS output.",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts"
