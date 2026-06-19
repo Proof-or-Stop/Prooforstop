@@ -10,9 +10,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T00:14:11.679Z",
       "verificationIntent": {
         "happy": [
           {
@@ -40,7 +40,42 @@
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes a visible Source And Context Mapping section that lists the related governance documents and maps each source to roadmap decisions.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:11.846Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,260p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The mapping keeps unattended completion, mid-flight repair, 3-round 2-host review, baseline PASS suites, and negative-control BLOCKED suites separate instead of flattening them into vague citations.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:11.951Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"authorityDone|fullAuthorityDone|productionDone|receiptVerified|implemented runtime|runtime behavior|already implemented|guarantees|guaranteed|enforces|blocks|passes|complete\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Overclaim scan found boundary language such as not implemented runtime behavior, not proof, and future expectations; no direct story/fixture edits were included.",
+          "headHash": "7fbef167dacf947537d85c09341282a52967d6eb",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:12.076Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -126,6 +161,17 @@
         ],
         "test": []
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T00:14:11.679Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Source/context mapping verified against the new roadmap document and overclaim scan."
     }
   ]
 }
