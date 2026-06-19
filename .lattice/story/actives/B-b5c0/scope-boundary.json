@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b5c0",
+  "mode": "maintenance",
+  "allowed": [
+    "Edit docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md to address the failed 3-round 2-host audit findings",
+    "Update docs/requirements/NAV.md only if the target document title or navigation entry must change",
+    "Use Lattice CLI metadata commands required by the lifecycle for B-b5c0"
+  ],
+  "excluded": [
+    "No direct manual edits to story metadata or fixture directories",
+    "No new capability claim, Authority receipt claim, productionDone/fullAuthorityDone/authorityDone claim, or formal unlock claim",
+    "No runtime CLI handler, gate, state-machine, process registry, Authority, baseline runner, hook, package, or test fixture implementation changes",
+    "No scope expansion into unrelated Lattice roadmap items outside the named audit gaps"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested Lattice CLI repair of the failed B-8b07 roadmap audit findings with old-rule 3 round 2 host validation; this story is documentation-only.",
+  "createdAt": "2026-06-19T01:07:48.765Z",
+  "updatedAt": "2026-06-19T01:07:48.765Z",
+  "_hash": "83759cb68f39679c105f611882baeee16da0c8510061e811edbd07801f28d88e"
+}
