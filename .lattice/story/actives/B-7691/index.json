@@ -4,7 +4,7 @@
   "title": "Add a material-source clean-tree preflight to review_run_start",
   "description": "Refuse review_run_start when the working tree has uncommitted BLOCKING changes (material-source or fixture), reusing the DONE gate's shared dirty evaluation (classifyGitStatusRows + DIRTY_GATE_POLICY via evaluateDirtyGate). A fail-fast UX gate that prevents reviewers from snapshotting a tree about to drift and lose the round; lattice metadata / runtime artifacts / declared artifacts stay non-blocking. Not a soundness gate (evidence-freshness at write time remains that); cannot catch a commit made after the snapshot. Requires exporting/extracting the currently-private readGitStatusLines without changing DONE-gate behavior.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "review",
@@ -35,6 +35,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T14:04:36.245Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7691",
+    "branch": "story/B-7691",
+    "createdAt": "2026-06-19T14:04:34.591Z"
+  }
 }

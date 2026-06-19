@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7691",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "tsc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/dirty-gate-policy.ts",
+    "packages/main/src/core/dirty-worktree.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "review_run_start clean-tree preflight: reuse the DONE-gate shared dirty evaluation; done-oracle.ts may change ONLY to export/extract readGitStatusLines (no verdict-logic change); dirty-gate-policy/dirty-worktree/evidence-freshness are read-only reuse and must not change.",
+  "createdAt": "2026-06-19T14:02:27.932Z",
+  "updatedAt": "2026-06-19T14:02:27.932Z",
+  "_hash": "c6f26a4aa36e3f089cc932a98b864d732b2a3702de3c4dd8151c8d36a45c0c61"
+}
