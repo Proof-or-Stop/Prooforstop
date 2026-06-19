@@ -39,9 +39,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc compiles parallel-decomposition.ts at current HEAD; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/computeWriteSet/globsOverlap/evaluateDecompositionGate exported.",
-          "headHash": "dc4551d292edc76bdb7cc2fe62560456aabbcab1",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:18.046Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node -e \"const m=require('./packages/main/dist/core/parallel-decomposition.js');m.computeWriteSet()\"",
           "result": "pass",
           "note": "Each skeleton throws Error(NotImplemented: <name>) — confirmed at current HEAD, no silent stub.",
-          "headHash": "7c733869cc643cdb942694589389c505db15fea5",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:18.681Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "git diff --stat main...HEAD -- packages/main/src/core/parallel-decomposition.ts",
           "result": "pass",
           "note": "Skeleton bodies are void-params + throw only; no logic/IO; module import has zero side effects.",
-          "headHash": "c9407175daef362051e9ae6cf703cd272f968ed2",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:19.202Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "AuditConfig includes parallelGate (type imported from parallel-decomposition.js); tsc passes at current HEAD.",
-          "headHash": "d00d26ceb5b8cc74106829d03f05ca0d1309da4d",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:19.767Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/audit-config.ts",
           "result": "pass",
           "note": "resolveAuditConfig body and HARD_DEFAULTS unchanged; parallelGate optional so existing literals compile (resolution deferred to Story 3).",
-          "headHash": "4e983607056d1ea473fba267b90f1526dbe62ff9",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:20.245Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/audit-config.ts",
           "result": "pass",
           "note": "Diff is one import line + one optional field line; no resolution logic.",
-          "headHash": "641f6e2ff3d45bad4ec5631bba33a9e45210dec2",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:20.796Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       ]
     }
