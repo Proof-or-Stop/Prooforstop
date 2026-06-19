@@ -4,7 +4,7 @@
   "title": "Add Antigravity CLI host runtime and retire Gemini-first semantics",
   "description": "Add Antigravity CLI as the current third host runtime using the agy command, keep Gemini only as deprecated legacy semantics where required, and verify host_runtime_probe/list/dispatch-policy surfaces expose Codex CLI, Claude Code CLI, and Antigravity CLI as the current host set.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-19T14:31:30.666Z",
   "startedAt": "2026-06-19T14:31:30.666Z",
@@ -73,6 +73,14 @@
       "branch": "story/B-d674",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T15:49:54.354Z",
+      "branch": "story/B-d674",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -80,5 +88,5 @@
     "branch": "story/B-d674",
     "createdAt": "2026-06-19T14:44:29.659Z"
   },
-  "currentReviewRound": "2026-06-19T15:37:54.182Z"
+  "currentReviewRound": "2026-06-19T15:49:54.354Z"
 }
