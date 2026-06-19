@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T18:54:57.964Z",
       "userSees": "Focused smoke output includes `lifecycle dispatch smoke passed`; INIT_CHECK dry-run output still includes `[DRY-RUN] INIT_CHECK bootstrap plan` and `no phase, branch, commit, or worktree changes were made`.",
       "excludes": [
         "Do not move business handlers or storyMachine transition guards.",
@@ -52,7 +52,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "git show --stat --oneline 2839def41b6a6bf589508ba9fb28038fe0553660",
+          "result": "pass",
+          "note": "Commit 2839def41 extracts story_create/story_advance INIT_CHECK dispatch from cli-engine.ts into cli/lifecycle-dispatch.ts while preserving the shared run wrapper call sites.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:54:58.058Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after extraction, proving cli-engine orchestration imports and helper dependency wiring compile.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:54:58.143Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js scope_contract_check json true",
+          "result": "pass",
+          "note": "Scope contract passed with lifecycle-dispatch.ts and recover/init-check helper creates classified as allowed.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:54:58.223Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -169,6 +201,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T18:54:57.964Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented lifecycle dispatch extraction in commit 2839def41."
     }
   ]
 }
