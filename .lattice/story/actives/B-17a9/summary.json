@@ -1,0 +1,55 @@
+{
+  "storyId": "B-17a9",
+  "changes": "Added signature_backfill: a writing L2 experience-layer CLI that fills each finding's EMPTY signatureTag from a committed { findingId -> 'area|failureMode' } map (the phase-3.5 LLM artifact) with signatureTagSource='backfill'. Pure decideBackfill leaf (core/signature-backfill.ts) + writing handler (handlers/signature-backfill.ts). Extends SignatureTagSource with 'backfill'. Registered across cli-engine/registry/config/command-policy/process-fact-levels (NOT in READ_ONLY_COMMANDS). Dry-run is the default; --apply writes via store.writeFindings; only empty tags filled (confirmed never overwritten; auto only with --overwriteAuto); idempotent. CRITICAL: the audit-only fields are attached after the finding _hash and never fed to signFinding, so every touched finding's _hash is byte-identical.",
+  "usage": "Run `node bin/lattice.js signature_backfill --map <path-to-backfill_signatures.json>` to dry-run (reports scanned/would-fill/skip-by-reason + by-source breakdown, writes nothing); add `--apply` to persist; `--overwriteAuto` to also replace auto candidates; `--json` for structured output. The actual mass-apply against live findings is a post-DONE operation using this command.",
+  "expectedOutcome": "Dry-run prints a tally and writes nothing; --apply fills empty signatureTags with source=backfill while leaving confirmed/auto untouched and every finding _hash unchanged.",
+  "actualTranscript": "Smoke 12/12 confirms: dry-run byte-unchanged; --apply fills the empty finding (source=backfill), confirmed untouched, auto untouched (filled only with --overwriteAuto); the finding _hash is byte-identical before/after AND equals a fresh real signFinding (no field leak); absent-from-map skipped; second --apply is idempotent (filled=0, byte-identical). Verifier 66/66 (leaf pure, handler no-signFinding/no-finding-verify/no-network, attaches after _hash, registered across surfaces, NOT read-only). Full npm test green incl. process-fact-contract.",
+  "outcomeDiff": "Matches expected: _hash-safe, dry-run-default, idempotent backfill.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The command consumes a committed map and does NOT call an LLM at runtime (the phase-3.5 backfill produced the map). The actual mass-apply against live findings is a separate post-DONE operation (kept out of this story's diff). It enriches the live substrate (after apply, learning_scan derives real signals + learning_effectiveness reports non-zero); it is NOT a causal proof that hints improve outcomes (that remains the forward ON/OFF RCT). No weighting of backfill vs confirmed vs auto in finding-signals derivation.",
+  "pitfalls": "The single most important property: writing the audit-only signatureTag/signatureTagSource must NEVER change a finding _hash (attached after _hash, never via signFinding) — a mass write that moved _hash would break the REVIEW->TEST findings gate across ~190 stories. Dry-run is the default (writes only with --apply); confirmed tags are never overwritten. signatureTagSource='backfill' keeps the LLM-backfilled provenance distinct from auto/confirmed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 342741
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12679
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 326208
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 931375
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 444632
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 5110
+    }
+  },
+  "totalDurationMs": 2062755,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T00:39:50.667Z",
+  "updatedAt": "2026-06-19T00:39:50.667Z"
+}
