@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fbb6",
+  "allowedCommands": [
+    "agy *",
+    "git *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node packages/main/dist/tasks/run-all-smokes.js*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/planned-steps-executor.ts",
+    "packages/main/src/core/planner.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/usage-ledger/",
+    "packages/main/src/core/verdicts.ts",
+    "packages/main/src/providers/",
+    "packages/main/src/tasks/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Hard rename gemini->antigravity (binary agy) + delete dead gemini usage adapter; usage=unavailable; preserve usage-ledger invariants; no anthropic/codex changes.",
+  "createdAt": "2026-06-19T17:09:40.547Z",
+  "updatedAt": "2026-06-19T17:09:40.547Z",
+  "_hash": "65bc3f16bccd6b21f181e30a4446c470d4a0f63a8e0a90ac5bb57d771e478c48"
+}

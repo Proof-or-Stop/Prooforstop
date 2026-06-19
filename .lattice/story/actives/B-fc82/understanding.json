@@ -1,0 +1,21 @@
+{
+  "task": "Fix review_run_start clean-tree preflight ordering so blocking dirty-tree checks run before review snapshot capture.",
+  "outcome": "review_run_start refuses blocking material-source dirty trees before captureReviewRunSnapshot can create or validate a reviewer snapshot; unreadable git-status remains fail-open and then snapshot handling keeps its own diagnostics.",
+  "facts": [
+    "B-7691 added a material-source clean-tree preflight to review_run_start, but the handler ordering placed captureReviewRunSnapshot before the preflight.",
+    "The intended policy is a pre-snapshot refusal gate for blocking dirty material-source changes, not a post-snapshot abort.",
+    "The existing dirty-worktree classifier and DIRTY_GATE_POLICY already encode the refusal policy and should be reused unchanged.",
+    "The targeted regression belongs in packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts because that smoke owns the review_run_start clean-tree preflight surface."
+  ],
+  "constraints": [
+    "Move the existing preflight block without changing dirty classification, material hash computation, DONE gate behavior, or evidence freshness policy.",
+    "Keep the ordering test deterministic and end-to-end through the CLI handler.",
+    "Preserve existing review-run workspace diagnostics where they are not directly contradicted by the pre-snapshot dirty-tree refusal policy."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T16:15:42.095Z"
+}

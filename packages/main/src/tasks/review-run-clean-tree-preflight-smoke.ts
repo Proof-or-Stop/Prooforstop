@@ -24,6 +24,8 @@
  *       verdict the DONE gate's evaluateDirtyGitStatus would for an identical git status
  *   (g) REGRESSION: the DONE gate still classifies/blocks identically after the extraction
  *   (h) FAIL-OPEN: an unreadable git status does NOT block review_run_start
+ *   (i) ORDERING: a dirty tree whose HEAD cannot produce materialHash reports
+ *       the preflight dirty-tree refusal, not the snapshot missing_material_hash
  *
  * On success prints `✓ review-run-clean-tree-preflight-smoke passed`; any assert
  * failure throws -> exit 1.
@@ -168,6 +170,40 @@ function initReviewRepo(prefix: string, storyId: string): string {
   return root;
 }
 
+/** Initialize a repo whose HEAD has no material files, then leave both project
+ * config/story metadata and a material-source file dirty. If snapshot capture
+ * runs before the preflight, this shape reports missing_material_hash. */
+function initEmptyHeadDirtyReviewRepo(prefix: string, storyId: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, [
+    '-c', 'user.name=Lattice Smoke',
+    '-c', 'user.email=smoke@example.test',
+    '-c', 'commit.gpgsign=false',
+    'commit',
+    '--allow-empty',
+    '-m', 'empty material base',
+  ]);
+  git(root, ['checkout', '-b', `story/${storyId}`]);
+  write(root, 'lattice.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    fixturesDir: 'tests/fixtures',
+    worktreeDir: '.worktrees',
+    workflow: { profile: 'balanced' },
+  }, null, 2));
+  resetConfigCache();
+  const store = new StoryStore(root);
+  writeReviewStory(store, storyId);
+  write(root, 'packages/main/src/ordering.ts', 'export const dirtyBeforeSnapshot = true;\n');
+  return root;
+}
+
 function gitWorkingTreeRow(rows: DoneCheckRow[]): DoneCheckRow {
   const row = rows.find((r) => r.id === 'git-working-tree');
   assert.ok(row, 'DONE checklist must include a git-working-tree row');
@@ -176,6 +212,30 @@ function gitWorkingTreeRow(rows: DoneCheckRow[]): DoneCheckRow {
 
 function reviewRunCount(root: string, storyId: string): number {
   return new StoryStore(root).readReviewRuns(storyId).runs.length;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// (i) ORDERING: blocking dirty-tree preflight runs BEFORE snapshot capture.
+// ════════════════════════════════════════════════════════════════════════════
+async function assertDirtyPreflightBeatsMissingMaterialSnapshot(): Promise<void> {
+  const storyId = 'B-ord';
+  const root = initEmptyHeadDirtyReviewRepo('lattice-rrclean-ordering-', storyId);
+  try {
+    const result = await runLatticeRaw(root, 'review_run_start', {
+      storyId,
+      agent: 'lattice-review-quality',
+      prompt: 'inspect diff',
+    });
+    const combined = result.stdout + result.stderr;
+    assert.notEqual(result.code, 0, `ordering dirty tree must fail, got:\n${combined}`);
+    assert.match(combined, /git working tree has uncommitted/, '(i) preflight refusal must win before snapshot diagnostics');
+    assert.match(combined, /material_source_changes/, '(i) refusal must include the dirty material-source category');
+    assert.doesNotMatch(combined, /missing_material_hash/, '(i) snapshot missing_material_hash would prove capture ran before preflight');
+    assert.equal(reviewRunCount(root, storyId), 0, '(i) no review run must be recorded on preflight refusal');
+    console.log('  ✓ (i) ordering: dirty preflight beats missing-material snapshot diagnostics');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -400,6 +460,7 @@ function assertFailOpenOnUnreadableStatus(): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  await assertDirtyPreflightBeatsMissingMaterialSnapshot();
   await assertMaterialSourceDirtyRefuses();
   await assertFixtureDirtyRefuses();
   await assertCleanTreeProceeds();

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fbb6",
+  "mode": "maintenance",
+  "allowed": [
+    "DELETE packages/main/src/core/usage-ledger/adapters/gemini.ts and remove its assemble.ts wiring (ProviderName union + adaptUsageFor case gemini)",
+    "packages/main/src/core/lattice-dispatch.ts: runGeminiRealLeafDispatch -> runAntigravityRealLeafDispatch, agy --print argv, --host=antigravity, BoundedProviderName/PROVIDER_BINARY/defaultProviderAvailable/defaultBoundedProviderExecutor",
+    "packages/main/src/core/planned-steps-executor.ts: update gemini provider imports/routing to antigravity",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts: recordDispatchFinalForProvider provider param gemini -> antigravity (unavailable final when no reportedUsage)",
+    "Rename gemini provider-semantic literals / runtime-probe ids across core (capabilities.ts, command-policy.ts, dispatch-policy.ts, planner.ts, verdicts.ts, config.ts, types.ts, process-fact-levels.ts, host runtime probes) to antigravity",
+    "Rename packages/main/src/providers/gemini-cli.ts -> antigravity-cli.ts (binary agy, antigravityCliAvailable, runBoundedAntigravityProvider, drop usageMetadata extraction, best-effort model from --log-file)",
+    "Rename/rework gemini-named smokes (provider-gemini-smoke, usage-ledger-codex-gemini-smoke, usage-ledger-adapter-smoke gemini cases) + package.json scripts + run-all-smokes"
+  ],
+  "excluded": [
+    "Do NOT capture antigravity token usage (deferred until agy exposes it on a stable surface); usage stays source=unavailable",
+    "Do NOT change summary.ts/diagnostics.ts aggregate logic (B-b1f4) beyond what the rename requires",
+    "Do NOT infer any token value or read raw agy transcript/trajectory blobs into the ledger (preserve no-inference + raw-never-surfaced invariants)",
+    "Do NOT introduce any cross-module import into usage-ledger (zero-cross-module-import invariant)",
+    "Do NOT keep a gemini backward-compat alias (hard rename)",
+    "Do NOT modify the anthropic / codex(openai) provider or adapter paths"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directive 2026-06-19: Gemini CLI deprecated -> Antigravity CLI (agy); hard rename gemini->antigravity, delete the dead gemini usage adapter, usage=unavailable (agy surfaces no per-call tokens).",
+  "createdAt": "2026-06-19T17:09:33.599Z",
+  "updatedAt": "2026-06-19T17:09:33.599Z",
+  "_hash": "5d4f83729cf1923e7809b744bb2b82dcb1d61cfb610f9f202cdc33bb426e4717"
+}

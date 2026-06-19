@@ -1,0 +1,24 @@
+{
+  "storyId": "B-fc82",
+  "checkedAt": "2026-06-19T16:31:05.565Z",
+  "reviewRound": "2026-06-19T16:22:05.705Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Transcript evidence shows node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js passed: ordering, material-source dirty refusal before persistence, fixture dirty refusal, clean-tree proceed, metadata-only proceed, dirty-gate parity, and unreadable git-status fail-open behavior. lattice validate --story=B-fc82 passed configured validation commands and reported verification intent coverage 6/6."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript evidence shows the strengthened review-run-clean-tree-preflight smoke passed scenario (i), proving the preflight dirty-tree error wins before snapshot-derived missing_material_hash behavior and no review run is recorded; existing scenarios (a)-(h) also passed. field-regression-cli-smoke passed, and lattice validate --story=B-fc82 passed with verification intent coverage 6/6."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine smoke and validate transcript coverage is present for CHK-001 and CHK-002, including edge/fail-open coverage. No docs promises are declared for this story, and unresolved TODOs are absent from the reviewed delivery evidence."
+  },
+  "_hash": "b6444a1f960f1a20692cad41383c8eb34eb7773f4169f61aa31c4c4407faa6ed"
+}
