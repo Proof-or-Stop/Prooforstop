@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement computeWriteSet + globsOverlap in new core/parallel-decomposition-overlap.ts",
+      "context": "Pure functions per spec 4.2: computeWriteSet(contract: ScopeContractData) returns created+modified paths; globsOverlap(a,b) does literal-path intersection + shared-dir-prefix heuristic + broadness (NARROW/BROAD over literal|dir/*|dir/**), returning GlobOverlapResult {overlap,pairs,broadSide}. Import types from parallel-decomposition.js. No I/O.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add grammar validator + unit tests (parallel-decomposition-overlap.test.ts)",
+      "context": "Validator rejects mid-path ** and bare top-level * at the write-set grammar boundary. Tests cover: literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection. tsc + tests green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
