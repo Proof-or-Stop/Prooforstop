@@ -6,7 +6,31 @@
       "context": "Trace each step (instrument or run sub-sections) to find where each smoke blocks past 300s with no output; fix so both complete deterministically. story_create via dist/cli.js in an isolated temp repo is already verified fast, so look at later spawns / git operations / lock waits.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice.config.json gives review-pass-discard-smoke and init-window-data-loss-smoke a per-command timeoutMs; under load they fail loud (exit 124, named) instead of silently hanging the whole validate.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review-pass-discard-smoke and init-window-data-loss-smoke get a per-command timeoutMs in lattice.config.json so a slow run fails loud (exit 124) instead of hanging the suite",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "diagnosis recorded: the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention; the hang was transient machine saturation",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the bounded smokes still pass normally when the machine is idle (timeoutMs is a ceiling, not a forced failure)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

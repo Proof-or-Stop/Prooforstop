@@ -1,0 +1,25 @@
+{
+  "task": "Harden lattice validate so a slow/hung validate command fails loud (per-command timeout, attributed) instead of the global 300s idle watchdog silently force-exiting the whole suite without re-stamping freshness.",
+  "outcome": "validation-executor applies a default per-command timeout; a command exceeding it is killed (exit 124, named) and validate completes/reports; the two slow mutating smokes get a config timeoutMs; tsc + a new smoke green.",
+  "facts": [
+    "validation-executor.ts:210 only arms a SIGTERM/SIGKILL timer when command.timeoutMs>0; configured commands are bare strings without timeoutMs",
+    "cli-engine.ts:4031-4042 has a process-wide 300s no-output idle watchdog that force-exits the whole validate without attribution or re-stamping test-evidence",
+    "resolveMainRepoRoot(/tmp/X) returns /tmp/X for a standalone git repo, so the smokes spawn story_create against an ISOLATED lock — no global main-write-lock contention",
+    "the two smokes PASS standalone in <30s when the machine is idle; the prior \"hang\" was transient machine saturation under the concurrent-session swarm"
+  ],
+  "constraints": [
+    "minimal core change: a default per-command timeout in validation-executor.ts",
+    "do NOT change the global idle watchdog; keep explicit per-command timeoutMs override",
+    "default must be below the 300s global idle watchdog so the per-command kill fires first and is attributable, and above the slowest legit command (build ~160s) with margin"
+  ],
+  "unknowns": [
+    "exact default timeout value (target ~240s: < 300s global, > build runtime)",
+    "whether to also pinpoint a deterministic slow step in the smokes (vs accept transient saturation + bound via config)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/validation-executor.ts",
+    "lattice.config.json",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T17:03:03.942Z"
+}
