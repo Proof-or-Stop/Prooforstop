@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T23:57:53.346Z",
       "reviewRunId": "B-986c:RR-007",
       "_hash": "6dd5e87c82171c8b69245376c764ca0972f11f7dae9cf81e051ebce692b9dddb"
+    },
+    {
+      "id": "B-986c:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review: branch logic correct — parallel+activePeers>0 goes into the block/advise branch; non-parallel WITH activePeers>0 goes into the else-if advise-only branch; parallel with no active peers (or all-terminal peers) falls through both branches, producing truly empty advisories (F-007 resolved). No dead code: TERMINAL_PHASES extraction replaces both inline local Sets in parallel-policy.ts cleanly, all imports in gate and smoke files are used. No as-any or empty-catch. No shell importing gate directly (smoke is a task, not a shell). Smoke #5 and #5b exercise the new else-if guard and assert zero advisories; assertions match stated intent.",
+      "createdAt": "2026-06-19T23:59:16.857Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-008",
+      "_hash": "7322b1406888e497ad9b9a119f803a1215cb742dde0032334b85c3c4a6e1300d"
     }
   ]
 }
