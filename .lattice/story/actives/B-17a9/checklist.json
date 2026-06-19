@@ -251,6 +251,114 @@
         "test": [
           "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke: dry-run with synthetic findings+map => report printed, store files byte-identical before/after (nothing written); WHY: dry-run safety contract verified end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: --apply fills empty-tag finding with signatureTag from map + signatureTagSource=backfill; WHY: primary fill path end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: --apply leaves confirmed-source finding completely untouched; WHY: confirmed immutability verified in integration",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: --apply leaves auto-source finding untouched without overwriteAuto; WHY: auto preservation default verified",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: --apply with overwriteAuto fills auto-source finding; WHY: override path verified",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: finding absent from map => skipped with skip-no-mapping action; WHY: unmapped findings must survive",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: _hash byte-identical before/after --apply for EVERY touched finding, recomputed via real signFinding; WHY: THE critical invariant tested with real hashing",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: second --apply run changes nothing (filled=0, idempotent), store content identical after both runs; WHY: operator safety on re-run",
+            "type": "cli"
+          },
+          {
+            "desc": "npm script test:experience-layer-signature-backfill exists in package.json and runs smoke to completion; WHY: CI integration",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier prints TOTAL/PASS/FAIL summary with all intents mapped; WHY: evidence gate requires structured pass/fail",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke uses temp store (hermetic) with no dependency on real repo findings; WHY: test isolation prevents flaky failures",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers all three tag states (empty + confirmed + auto) in a single run; WHY: combinatorial coverage in one pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: signature-backfill.ts leaf imports only types (no I/O modules); WHY: purity architecture enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: handler attaches signatureTag+signatureTagSource after _hash and never feeds signFinding; WHY: hash-domain leak detection",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier runs full npm test suite including process-fact-contract test; WHY: catches missing registration across surfaces",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier confirms signature_backfill registered in all 5 surfaces: cli-engine, registry, config, command-policy, process-fact-levels; WHY: incomplete registration breaks enforcement",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "_hash invariance probe: take a finding, run --apply, then recompute _hash from scratch via real signFinding on the post-backfill finding object => byte-identical to original; WHY: THE critical regression test -- if new fields leak into hash domain, entire finding integrity collapses",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirmed tag overwrite probe: feed confirmed finding into --apply + overwriteAuto:true => confirmed finding STILL untouched; WHY: overwriteAuto must affect only auto, never confirmed (the strongest invariant)",
+            "type": "cli"
+          },
+          {
+            "desc": "Accidental write probe: dry-run mode (default) must produce zero file changes => verified by file content hash or mtime comparison; WHY: accidental write in dry-run is silent data corruption",
+            "type": "cli"
+          },
+          {
+            "desc": "Non-idempotent re-apply probe: run --apply twice, assert second run reports filled=0 and store content byte-identical after both runs; WHY: non-idempotent behavior means double-run corrupts data",
+            "type": "cli"
+          },
+          {
+            "desc": "Missing PROCESS_FACT_LEVELS entry probe: verifier static check confirms L2 experience-layer entry exists, prints FAIL if missing; WHY: missing entry breaks process-fact-contract test silently",
+            "type": "cli"
+          },
+          {
+            "desc": "READ_ONLY_COMMANDS contamination probe: verifier static check confirms signature_backfill NOT in READ_ONLY_COMMANDS, prints FAIL if present; WHY: read-only classification silently disables writes",
+            "type": "cli"
+          },
+          {
+            "desc": "LLM/network at runtime probe: smoke runs in fully offline hermetic env (no network mocks), any fetch/http call would throw and fail the test; WHY: backfill must be offline-only",
+            "type": "cli"
+          },
+          {
+            "desc": "Map file missing probe: invoke handler with non-existent map path => clear error thrown, zero writes to store; WHY: missing file must not silently succeed or corrupt",
+            "type": "cli"
+          },
+          {
+            "desc": "Map file malformed probe: invoke handler with invalid JSON map => clear parse error thrown, zero writes, no store corruption; WHY: corrupted input must not propagate to store",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
