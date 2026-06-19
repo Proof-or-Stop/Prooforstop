@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-19T13:52:10.850Z",
       "reviewRunId": "B-4033:RR-015",
       "_hash": "62c383c45d04fa454a77398992e779a13867fa51e68bb5e412c450372891d79c"
+    },
+    {
+      "id": "B-4033:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Smoke ran live (44/44 assertions, exit 0). Must intents CHK-001:happy:0 (manual_transcript, pass) and CHK-002:happy:0 (manual_transcript, pass) each carry the exact command node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js and verdict=success. All 6 intents covered (2 must, 4 should). Loud-fail confirmed: check() throws on any assertion failure (non-zero exit). No gaps.",
+      "createdAt": "2026-06-19T14:09:16.189Z",
+      "reviewRound": "2026-06-19T14:07:40.976Z",
+      "reviewRunId": "B-4033:RR-018",
+      "_hash": "67e41f5fb744dad075b522ebd568568f666fb5cc491b381b1ad57197c1aafc37"
     }
   ]
 }
