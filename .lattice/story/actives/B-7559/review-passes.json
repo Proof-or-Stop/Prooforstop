@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-7559:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Express channel; audit-itself IS the verification. CHK-001: all named code symbols (canStartDevGuard, getGuardFailureReason, pathMatchesPattern in core/scope-contract.ts, resolveParallelSafety, actualFileOverlapsByStory, AuditMode/VALID_MODES/resolveAuditConfig, ScopeContractData, scope_boundary_set/scope_contract_set, terminalPhases, mergeOrder, acquireOwnerLease, deprecatedGcThreshold, transition-orchestrator.ts:156 warning) verified against packages/main/src; 3 named corrections in commit message match source reality. CHK-002: internal consistency evidenced by unified CSV example (no stray types.ts), precise concurrent-vs-serial write-set validity proof, and fixed cross-references; sections 1-8, four prompt templates, and worked example are self-consistent.",
+      "createdAt": "2026-06-19T01:52:41.939Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-004",
+      "_hash": "3eacea0d87ef9e58c181599185b75a2d9d8f48d3f94f2f0b8f3f4c30de1e6858"
+    },
+    {
+      "id": "B-7559:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept/cross-reference review complete. F-001 (§2.2 → §2, Step 2 at lines 17 and 23), F-003 (§4.5 → §4.2 at line 65), and F-005 (§4.7 → §4.8 at line 333) are all confirmed fixed. No new dangling cross-references introduced by the fixes. Full sweep: all 14 unique §-references in the document (§1.2, §1.3, §2, §3, §4, §4.1, §4.2, §4.3, §4.4, §4.6, §4.7, §4.8, §7-F4, §7.1) resolve to real headings. Step 2 under §2 exists. F1–F8 all defined in §7 table. All introduced terms (VALID_PARALLEL_MODES, resolveWaveSafety, evaluateDecompositionGate, computeWriteSet, globsOverlap) are defined in context. No blocker.",
+      "createdAt": "2026-06-19T02:09:39.803Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-009",
+      "_hash": "6748fe5b607c550d4f6570caa43418e207cfd682ee16c245c2d0923170ebd1e2"
+    },
+    {
+      "id": "B-7559:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 20 prior findings confirmed resolved at HEAD 29bb434f7. CHK-001: all code-claims verified against source (canStartDevGuard in core/machine.ts, getGuardFailureReason in machine.ts, pathMatchesPattern in core/scope-contract.ts hand-rolled no-minimatch, VALID_MODES ReadonlySet<AuditMode> in audit-config.ts, resolveParallelSafety in parallel-policy.ts, actualFileOverlapsByStory+resolveWaveSafety in core/lattice-parallel-wave.ts, ScopeContractData fields in types.ts, transition-orchestrator.ts:156 warning text, parseFlags JSON-array behavior, userConfirmed non-optional, mode non-optional, cfg.mode=block call-site correct). CHK-002: all prompt templates copy-pasteable — scope_boundary_set has --userConfirmed=true, scope_contract_set has --mode=enforce, all array flags use JSON-array syntax; no contradictions (gate-pure/caller-enforces-mode consistent across §4.4 and §4.8, broadSide ref points to §4.3, §2 Step 2 refs correct, §4.2/§7-F4 refs correct, fail-open wording unambiguous).",
+      "createdAt": "2026-06-19T02:28:12.372Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-013",
+      "_hash": "1cd039eba75ac6818e944abf0a53ae34c1aea429c05c67066581ac7767c9de06"
+    },
+    {
+      "id": "B-7559:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 final docs review. Pure docs diff (Fallback 1 path — no code symbol changes). Verified 24+ claims against code: parseFlags one-value-per-flag + JSON-array-for-[ behavior correct; --protectedFiles empty-string yields [\"\"] and \"[]\" yields [] confirmed; scope_contract_set --mode=enforce and JSON-array flag examples all runnable; scope_boundary_set --userConfirmed=true in all examples; canStartDevGuard/getGuardFailureReason in machine.ts confirmed; transition-orchestrator.ts:156 warning exact-match; AuditMode/VALID_MODES/resolveAuditConfig correct; resolveParallelSafety order correct; resolveWaveSafety private in core/; actualFileOverlapsByStory exists; terminalPhases={DONE,DISCARDED} correct; ScopeBoundaryData.allowed/excluded and ScopeContractData fields correct; parallel_report/parallel_merge_queue commands exist; no minimatch/micromatch/picomatch confirmed. One high finding registered (F-024): story_create templates in §3/§5 list lane/parallelSafe/blockingFor/sharedHotspots as story_create CLI fields but these are NOT in the schema and are silently dropped.",
+      "createdAt": "2026-06-19T02:37:46.830Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-010",
+      "_hash": "3c17d59e46421fcb8a7df2d496209cfb993c81936b0c98f09319d89eec40d379"
+    },
+    {
+      "id": "B-7559:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-021 verified: §4.2 policy bullet, §4.3 cond.2, and §4.7 field comment are now fully consistent — BROAD+parallelSafe:yes blocks when cfg.broadGlobBlocks:true (strict), advises when false (light/balanced). No contradiction remains between the three sections. F-022 verified: §8 Story 0 scope_contract_set now lists audit-config.ts in --allowedModify alongside parallel-decomposition.ts; the command no longer requires writes outside its declared scope. One new finding F-025 raised (medium) for undefined block confidence term in §4.3 cond.1 vs §4.2 — not a F-021/F-022 regression, a pre-existing gap not previously addressed. All 24 prior findings resolved; F-021 and F-022 fixes confirmed sound.",
+      "createdAt": "2026-06-19T02:43:01.474Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-015",
+      "_hash": "8862a043fdc15f5d84764f38c0790d1954911d4f15b1447a5822420590c53205"
+    },
+    {
+      "id": "B-7559:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "§4 enforcement model is now internally consistent end-to-end. §4.3 cond.1 correctly restricts the hard block to tier-1 literal-path intersection only (zero false positives); tier-2 shared-directory-prefix is explicitly advisory-only — confirmed consistent with §4.2 policy and §4.3 cond.2/cond.3. §4.2, §4.3 cond.2, and §4.7 are fully aligned: broadGlobBlocks=true (strict) → hard block for BROAD+parallelSafe:yes; broadGlobBlocks=false (light/balanced) → advisory only. Gate purity (§4.4): mode check is caller-side; broadGlobBlocks is used inside evaluateDecompositionGate as a pure cfg parameter — not a side-effect violation. §4.8 peer-unreadable fail-closed path correctly routes through caller mode check. No dead code, no type-safety issues, and no I/O shell isolation violations (doc-only story). Only pre-existing §1.3 shorthand (broad-glob described as hard-blocked without mentioning broadGlobBlocks condition) is present but was not introduced by this fix and resolves on forward-reference to §4.2.",
+      "createdAt": "2026-06-19T02:55:47.210Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-019",
+      "_hash": "d689637f584e8a2b594ecfaeac160b637598d5943e7bc5885c1b541775cfd7fc"
+    },
+    {
+      "id": "B-7559:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed (pure docs diff, Fallback 1 applied). Step 2/3: focused comparison of §3.1/§3.2/§3.3 story_create cards and §5.1 resolveStoryLane note against parallel-policy.ts + cli-engine.ts story_create schema. All 7 checks passed: (1) §3.1 priority=high→lane:mainline DERIVED annotation matches resolveStoryLane case high→mainline; (2) §3.2 priority=medium→lane:supporting DERIVED annotation matches resolveStoryLane case medium→supporting; (3) §3.3 priority=high→lane:mainline DERIVED annotation matches resolveStoryLane case high→mainline; (4) §5.1 resolveStoryLane description critical/high→mainline/medium→supporting/low+else→exploratory is exact code match; (5) lane/parallelSafe/blockingFor/sharedHotspots confirmed absent from story_create CLI schema — correctly described as non-passable flags silently discarded; (6) blockingFor annotated as DERIVED with no CLI setter in all three cards — confirmed no blockingFor in story_create schema; (7) anchor line 729 resolveParallelSafety eval order (blockingFor→depends→sharedHotspots) matches actual implementation ordering in parallel-policy.ts lines 59/67/75. No doc-code drift found.",
+      "createdAt": "2026-06-19T02:56:18.412Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-018",
+      "_hash": "58ea9dc3d84e1477aa4c052323117a6283d2b22ada9200ff64dc6999a948919f"
+    },
+    {
+      "id": "B-7559:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Final cross-reference sweep clean. All 15 section references (§1.2/§1.3/§2/§3/§4/§4.1/§4.2/§4.3/§4.4/§4.6/§4.7/§4.8/§5.1/§7/§7.1 and §7-F4) resolve to actual headings or table rows. No dangling §2.2 reference remains (prior F-001). §4.5 appears only as its own heading, not as a stale cross-ref. §4.4/§4.8 mode-check asymmetry is consistent: gate returns block reason (pure), caller enforces mode check (§4.4), fail-open on gate infra errors, fail-closed on unreadable peer (§4.8). All Step N references (Step 1-5, Pseudo-algorithm) correspond to real subsections in §2. F1-F8 in §7 table are self-contained with no external broken refs. No concept deletion/replacement detected in diff; no introduced term left undefined. Prior findings F-001/F-003/F-005/F-023 confirmed resolved. No new blocking issues found.",
+      "createdAt": "2026-06-19T03:16:24.124Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-020",
+      "_hash": "1272f09e82d34cc763ba22330441e1b027ac0118357d6e2433bd69f3fb53fed4"
+    },
+    {
+      "id": "B-7559:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "both checklist items fully evidenced on current material; all prior findings resolved. CHK-001: all cited Lattice symbols (canStartDevGuard, getGuardFailureReason, pathMatchesPattern, resolveParallelSafety, actualFileOverlapsByStory, audit-config fields) are accurately described in §4.2/§4.4/§4.7 against packages/main/src. CHK-002: sections 1-8 are internally consistent, four prompt templates each carry a Persist-to-Lattice epilogue with correct field routing, array-flag syntax documented in §3, CSV worked example matches the algorithm, no contradictions or dangling references found. Express channel: verificationPolicy express-exempt, build+smoke tests pass (headSha 14e2634).",
+      "createdAt": "2026-06-19T03:20:02.311Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-021",
+      "_hash": "b02b497fd6571aaeda7f2d37785876f8e9fc06e346d14abb76ef4a123bd438e7"
+    }
+  ]
+}

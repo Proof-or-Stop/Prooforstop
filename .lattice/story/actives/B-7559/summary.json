@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7559",
+  "changes": "Added docs/parallel-decomposition-spec.md, a mandatory contract-first parallel-decomposition spec for Lattice requirement breakdown, then audited it across 3 review rounds: 27 findings (incl. high template/code-claim errors) found and all resolved.",
+  "usage": "A decomposer (human or AI) follows the spec to split one requirement into a contract-first parallel story set: Story 0 freezes the shared interface, Stories 1..N implement modules in parallel against non-overlapping scope globs, Story N+1 does serial integration. Section 5 has copy-pasteable decomposer/author prompts.",
+  "expectedOutcome": "A trustworthy spec an implementer can follow with zero surprises: every cited Lattice symbol/file/behavior is accurate, every CLI example runs as written, sections are internally consistent, and the enforcement model is honest about what is provably enforceable.",
+  "actualTranscript": "lattice validate PASS (tsc build + authority-client-smoke + authority-completion-smoke; express-exempt). 4 independent reviewer lanes (docs/quality/concept/test-coverage) ran 3 rounds + confirmation + final gate; 27 findings filed and all resolved; fresh per-lane passes (RR-020/RR-021) clean with 0 new findings; delivery-check PASS (7 docsPromises) by lattice-review-delivery.",
+  "outcomeDiff": "The audit corrected 27 discrepancies between the draft and live code/CLI (e.g. pathMatchesPattern is in core/ not handlers/; array flags need JSON syntax not space-separated; story_create does not accept lane/parallelSafe/blockingFor; VALID_MODES is ReadonlySet). Post-fix diff: none material — the document now matches the intended deliverable.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Review assurance is degraded-single-host (3 rounds x 1 host, fallback REF-mqkdj9gg) because this is a single operator/machine and the live Authority runner is not provisioned (authorityStatus=fail); a genuine 3x2 two-host strong proof was not available and was not fabricated. The deliverable is a DESIGN spec — the enforcement gate it describes is not yet implemented (Section 8 plans that as a separate 6-story program).",
+  "pitfalls": "When following the spec, remember: array-valued scope flags require a single JSON array string (parseFlags drops space-separated extras); scope_boundary_set needs --userConfirmed=true and scope_contract_set needs --mode=enforce; lane/parallelSafe/blockingFor are derived (lane from priority, parallelSafe computed), not story_create flags; --protectedFiles \"\" means [\"\"] not empty (use [] ).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 222431
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 39437
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 24848
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 652476
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 5647283
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 739241
+    }
+  },
+  "totalDurationMs": 7325745,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T03:36:28.024Z",
+  "updatedAt": "2026-06-19T03:36:28.024Z"
+}
