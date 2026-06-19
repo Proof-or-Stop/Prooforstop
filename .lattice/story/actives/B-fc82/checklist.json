@@ -6,7 +6,43 @@
       "context": "In packages/main/src/handlers/review-run.ts review_run_start: relocate the B-7691 preflight block (preflightRoot + readGitStatusLines(signedWorkspaceRoot) + classifyGitStatusRows + isBlockingDirty + the blocking throw) to immediately AFTER the REVIEW phase check (the `if (preflightStory.phase !== 'REVIEW')` block) and BEFORE the `const lane = ...` / `captureReviewRunSnapshot(...)` lines. Pure relocation of the existing logic -- do NOT change isBlockingDirty, the DIRTY_GATE_POLICY table, classifierOptionsForCheck, the DONE gate, materialHash computation, or the evidence-write-time freshness guard. Update the trailing comment (it currently says 'proceed to the snapshot' from the wrong position). Verify tsc + the existing review-run-clean-tree-preflight smoke still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "On a blocking dirty material-source tree, review_run_start prints \"git working tree has uncommitted ... changes\" before any review run is created.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Blocking dirty material-source changes are rejected by review_run_start before a reviewer run is persisted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Unreadable git-status remains fail-open and reaches the existing snapshot diagnostic path rather than changing classifier semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The relocation does not alter DIRTY_GATE_POLICY, isBlockingDirty, materialHash computation, or evidence freshness behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
