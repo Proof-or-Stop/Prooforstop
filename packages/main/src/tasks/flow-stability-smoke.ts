@@ -76,6 +76,7 @@ import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js'
 import { buildVerificationCoverage } from '../core/verification.js';
 import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
@@ -1492,6 +1493,12 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
       { deferredGateEvidence: 'missing' },
     );
     assert.equal(staleCoverage.entries[0]?.status, 'stale', 'story-owned file changes must still stale verification evidence');
+
+    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
+    const refreshResult = handlers.verification_evidence_refresh_stale({ storyId });
+    assert.match(refreshResult, /Refreshed 1\/1 stale evidence/, 'refresh helper should refresh the stale story-owned evidence');
+    const refreshed = store.readChecklist(storyId).items[0]?.verificationEvidence?.[0];
+    assert.equal(refreshed?.storyFilesHash, currentStoryFilesHash(root), 'refresh helper must preserve the current storyFilesHash binding');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

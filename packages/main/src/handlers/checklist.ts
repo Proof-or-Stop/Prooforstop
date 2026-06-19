@@ -998,6 +998,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
       }
       const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
+      const storyFilesHash = currentStoryFilesHash(refreshGitCwd, 'HEAD', root);
       const coverage = buildVerificationCoverage(
         cl,
         headHash,
@@ -1031,6 +1032,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           note: ev.note,
           headHash,
           ...(materialHash ? { materialHash } : {}),
+          ...(storyFilesHash ? { storyFilesHash } : {}),
           ...(ev.attestation ? { attestation: ev.attestation } : {}),
           ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
           ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
