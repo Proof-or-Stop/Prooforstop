@@ -153,7 +153,65 @@
       "context": "DELETE packages/main/src/core/usage-ledger/adapters/gemini.ts and remove its use in assemble.ts: drop 'gemini' from the ProviderName union and the `case 'gemini'` in adaptUsageFor (keep anthropic/openai). buildProviderRecord is never called for antigravity (no reportedUsage), so no antigravity adapter is needed; antigravity finals go through the source=unavailable path with a clear unavailableReason (e.g. 'antigravity (agy) print mode does not surface per-call token usage'). Remove the adaptGeminiUsage cases from usage-ledger-adapter-smoke.ts. Confirm no other importer of adaptGeminiUsage / adapters/gemini remains.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "packages/main/src/core/usage-ledger/adapters/gemini.ts does not exist (deleted) -> confirms adapter file removal; WHY: gemini adapter is dead code since antigravity has no reportedUsage",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "assemble.ts ProviderName union does NOT include gemini (only anthropic | openai remain); no case gemini in adaptUsageFor switch -> confirms wiring removal; WHY: no adapter to route to",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "antigravity dispatch final has source=unavailable with unavailableReason containing a clear explanation (e.g. mentions agy print mode does not surface per-call token usage) -> confirms unavailable path is used with honest reason; WHY: acceptance signal + no-inference invariant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "buildProviderRecord is never called for antigravity dispatches (no reportedUsage triggers the unavailable path instead) -> confirms no antigravity adapter is needed or invoked; WHY: adapter-less design for providers that genuinely lack usage data",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "usage-ledger-adapter-smoke.ts has no gemini test cases; existing anthropic and openai adapter cases still pass -> confirms gemini cases removed without collateral damage; WHY: test hygiene",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "import of adaptGeminiUsage or adapters/gemini anywhere in packages/main/src returns zero grep matches -> confirms no orphaned importers of deleted module; WHY: orphaned import = build failure",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "assemble.ts adaptUsageFor called with an unknown provider name (neither anthropic nor openai) throws or returns a clear error rather than silently producing empty data -> confirms exhaustive handling; WHY: future providers should fail loudly if they reach the adapter path without an adapter",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -rn adaptGeminiUsage packages/main/src/ returns zero matches -> confirms complete removal of gemini adapter function references; WHY: any remaining reference is either a build break or dead code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn adapters/gemini packages/main/src/ returns zero matches -> confirms no import path references the deleted file; WHY: module resolution failure at runtime",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "zero-cross-module-import invariant: usage-ledger modules do NOT import from providers/ or core/lattice-dispatch (and vice versa for adapter internals) -> confirms usage-ledger encapsulation is maintained through the refactor; WHY: architectural boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
