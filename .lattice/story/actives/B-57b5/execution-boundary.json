@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-57b5",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Antigravity CLI agy",
+    "Claude Code CLI",
+    "Codex CLI",
+    "git read-only/status/diff/log plus story-scoped commits",
+    "Lattice CLI",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core",
+    "packages/main/src/core/story-machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "gemini *",
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard*",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "Gemini CLI as current host",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Supervised multi-host development only; owns lifecycle dispatch/INIT_CHECK metadata extraction and must preserve B-d674 host semantics.",
+  "createdAt": "2026-06-19T16:26:20.578Z",
+  "updatedAt": "2026-06-19T16:26:20.578Z",
+  "_hash": "db84234924d91e396b1a35899e9b5bc0df4a1656e3fc4ab461d6f99452ebe3d3"
+}

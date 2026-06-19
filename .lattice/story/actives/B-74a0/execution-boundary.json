@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-74a0",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Antigravity CLI agy",
+    "Claude Code CLI",
+    "Codex CLI",
+    "git read-only/status/diff/log plus story-scoped commits",
+    "Lattice CLI",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "gemini *",
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard*",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "Gemini CLI as current host",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Supervised multi-host development only; Codex/Claude/Antigravity may inspect or implement within scope, but no unattended external host subprocess and no Authority production claim.",
+  "createdAt": "2026-06-19T16:26:19.468Z",
+  "updatedAt": "2026-06-19T16:26:19.468Z",
+  "_hash": "d6efd56ae6eb3782d5333dc073b73d0a530fbfe280612708e3199e715cef1876"
+}
