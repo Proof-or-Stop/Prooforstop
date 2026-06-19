@@ -9,9 +9,9 @@
         "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T04:14:02.555Z",
-      "endTime": null,
+      "endTime": "2026-06-19T04:21:49.189Z",
       "userSees": "Expected terminal JSON includes \"rows\":[{\"id\":\"scope.out_of_scope:src/other.ts\",\"status\":\"fail\",\"blocking\":true,\"nextAction\":\"Declare the path in the PLAN scope or run scope_contract_acknowledge with a reason.\"}].",
       "files": {
         "modify": [
@@ -62,7 +62,69 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Build passed and scope-contract smoke passed; core types now expose ScopePathClassification/ScopeCheckRow and checkScopeContract consumes classifier data for allowed/protected/excluded rows.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.300Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts stable rows such as scope.out_of_scope:src/other.ts with status/source/blocking/action fields and registered lifecycle/runtime pass rows.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.396Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers fail-closed unknown paths including unregistered story evidence, unknown metadata, undeclared source, and fixture paths.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.534Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Runtime and lifecycle registry categories are first-class classifier rows, while unregistered metadata and fixture paths remain out_of_scope rather than prose-only exceptions.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.680Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies registered lifecycle/runtime artifacts pass and arbitrary metadata/source/fixture paths block when undeclared.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.822Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "scope-contract.ts now imports classifyScopePath from the shared classifier; guard-session core consumes checkScopeContract violations from the same path-level decision path.",
+          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
+          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
+          "timestamp": "2026-06-19T04:21:49.929Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
