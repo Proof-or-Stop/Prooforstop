@@ -109,6 +109,17 @@
           "headHash": "8e9edccfdf6d559a3ddce3826104c5c63f2fe306",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:55:52.158Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "review-pass-discard assertPurgeDropsSafeInitCommit still passes (discard reverses safe-init via HEAD~1; tombstone fallback when buried); INIT_CHECK bootstrap idempotent (before=1 after=1 init commit) per CHK-002 transcript.",
+          "headHash": "dd04c6fab545412aff42508899f800a1e9257ba9",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:52.645Z"
         }
       ]
     },
