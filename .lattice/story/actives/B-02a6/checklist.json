@@ -116,10 +116,10 @@
           "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "review-pass-discard assertPurgeDropsSafeInitCommit still passes (discard reverses safe-init via HEAD~1; tombstone fallback when buried); INIT_CHECK bootstrap idempotent (before=1 after=1 init commit) per CHK-002 transcript.",
-          "headHash": "dd04c6fab545412aff42508899f800a1e9257ba9",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:55:52.645Z"
+          "note": "assertPurgeDropsSafeInitCommit (HEAD reset) + assertPurgeTombstonesBuriedSafeInitCommit (buried -> commitDiscardMetadata tombstone, clean tree, history preserved); INIT_CHECK idempotent. Re-recorded at current HEAD.",
+          "headHash": "4f07fdd516c663c5cbe04dbf740a994f5f415b7d",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:14.009Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
