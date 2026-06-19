@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Build passed and scope-contract smoke passed; core types now expose ScopePathClassification/ScopeCheckRow and checkScopeContract consumes classifier data for allowed/protected/excluded rows.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -80,9 +80,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke asserts stable rows such as scope.out_of_scope:src/other.ts with status/source/blocking/action fields and registered lifecycle/runtime pass rows.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -90,9 +90,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke covers fail-closed unknown paths including unregistered story evidence, unknown metadata, undeclared source, and fixture paths.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -100,9 +100,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Runtime and lifecycle registry categories are first-class classifier rows, while unregistered metadata and fixture paths remain out_of_scope rather than prose-only exceptions.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -110,9 +110,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke verifies registered lifecycle/runtime artifacts pass and arbitrary metadata/source/fixture paths block when undeclared.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -121,9 +121,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prewrite-guard-smoke.js && node packages/main/dist/tasks/scope-contract-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "F-001 resolved on current material diff: prewrite_guard_check consumes classifyScopePath/pathMatchesScopePattern, and prewrite guard smoke verifies .lattice/story/actives/B-scope/summary.json plus .lattice/activity.jsonl are allowed by the shared lifecycle/runtime classifier while protected/excluded/unknown paths remain blocked.",
-          "headHash": "8cfca5367713b87c21a9563f61f29b3436a57679",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:45:57.481Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         }
       ]
     },
@@ -199,9 +199,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Scope contract smoke asserts registered lifecycle rows such as scope.lifecycle_artifact:B-scope:summary.json and registered runtime rows pass without product scope violations.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -210,9 +210,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke validates JSON scope rows expose id, status, source, nextAction/hint, and blocking fields for classifier decisions used by scope_contract_check output.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -221,9 +221,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verifies legacy story metadata treatment and rejects obsolete .koala/story paths as lifecycle artifacts.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -232,9 +232,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Scope smoke covers nearby unregistered .lattice story evidence notes, unknown metadata JSON, undeclared source, and direct fixture paths failing closed when undeclared.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -243,9 +243,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier checks the implementation does not regress to blanket .koala/.lattice exemptions and requires the shared scope path classifier to consume lifecycle/runtime registries.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -254,9 +254,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Docs and verifier state lifecycle classification is provenance only and does not satisfy delivery, summary, review, validation, or DONE gate receipts.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         }
       ]
     },
@@ -329,9 +329,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "Temp-repo transcript passed: scope_contract_acknowledge output includes assurance=acknowledged-expansion, phase, headHash, materialHash, affectedPaths, and persisted acknowledged expansion metadata.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -339,9 +339,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "Temp-repo transcript passed: follow-up scope_contract_check returns status=warn and acknowledgedPaths includes src/other.ts, keeping the acknowledged expansion visible instead of a silent pass.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -349,9 +349,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge negative transcript>",
           "result": "pass",
           "note": "Negative transcript passed: short reason, unsafe relative path, and TEST-phase acknowledgement attempts are rejected with deterministic CLI/policy guidance.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -359,9 +359,9 @@
           "command": "node packages/main/dist/tasks/prewrite-guard-smoke.js && node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "prewrite guard smoke passed, and acknowledgement transcript uses the lower-assurance acknowledged-expansion label rather than reviewer/independent-review wording.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -370,9 +370,9 @@
           "command": "node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
           "result": "pass",
           "note": "Semantic scope guard smoke keeps broad or plan-invalidating scope movement blocking and points back to explicit scope acknowledgement or scope contract repair rather than silently accepting local drift.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -381,9 +381,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract preserves reviewer-only scope_check_save as PLAN evidence and confirms implementation does not let the main implementer self-sign reviewer scope evidence or replace authored intent silently.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.294Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         }
       ]
     },
@@ -457,9 +457,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Fresh on HEAD a5a814524: build passed, scope contract smoke printed scope contract smoke passed, and process fact verifier printed Process fact contract verified; together they cover M1-M3 rows/classifier/verifier behavior.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -468,9 +468,9 @@
           "command": "rg M1-M3 wave complete / scope row markers across owned docs",
           "result": "pass",
           "note": "Roadmap, lifecycle artifact policy, and scope guard guide now describe scope row ids, lifecycle/runtime classifier treatment, guard modes, and acknowledgement visibility.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -479,9 +479,9 @@
           "command": "rg M4-M12 remain follow-up milestones / Authority non-goals across owned docs",
           "result": "pass",
           "note": "Docs explicitly state M1-M3 wave complete; M4-M12 remain follow-up milestones, and name Authority/Layer 4/customer key, production receipt, renderer/scheduler, baseline unlock, and unrelated runtime work as non-goals for B-997b.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -490,9 +490,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Scope smoke asserts registered lifecycle/runtime positives plus fail-closed rows for unknown story metadata, nested evidence notes, undeclared source, and direct fixture paths.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -501,9 +501,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process verifier and smoke require classifier-backed rows and document that lifecycle/runtime classification is provenance only, not a substitute for validation, review, delivery, summary, or DONE gates.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -511,9 +511,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs; lattice validate --story=B-997b",
           "result": "pass",
           "note": "After final material commit a5a814524, build, focused scope smoke, and process fact verifier passed. lattice validate exited 0 and configured validation commands passed; full story all-green remains pending on CHK-001/002/003 evidence refresh/additions, not on CHK-004 material checks.",
-          "headHash": "96789a97f243bded616b79e7047c4b3167d4ce79",
-          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
-          "timestamp": "2026-06-19T04:47:17.295Z"
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
         }
       ]
     }
