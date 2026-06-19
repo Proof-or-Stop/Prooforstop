@@ -83,7 +83,7 @@
       "desc": "quality-correctness: packages/main/src/core/review-run.ts:823-833 collects storyFilesHash whole-tree drift advisories for reviewer evidence, but packages/main/src/core/machine.ts:353-354 and :782-785 decide REVIEW->TEST using only invalid bindings and never render evidenceState.advisories. WHY: if a review run becomes materialHash-stale after an unrelated main merge but storyFilesHash still matches, collectReviewerEvidenceState treats the evidence as valid and the gate can pass without showing the mandatory re-attestation warning; that is a silent drift downgrade. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T22:18:36.409Z",
@@ -96,7 +96,11 @@
         "packages/main/src/core/reviewer-status.ts"
       ],
       "signatureTag": "missing|ts|quality-correctness-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 19a543165: review-preflight now converts collectReviewerEvidenceState advisories into a non-blocking reviewer-evidence warn gate, renderPreflight prints warning details, and REVIEW->TEST preflight logs the rendered output when warnings are present even if gates pass. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/flow-stability-smoke.js.",
+      "resolvedAt": "2026-06-19T22:35:48.935Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
