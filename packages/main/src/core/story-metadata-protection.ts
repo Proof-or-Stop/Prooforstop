@@ -3,7 +3,9 @@
  *
  * PURE predicate module (no direct process spawn here): given the result of two
  * git probes on a story-metadata LEAF path, decide whether that metadata is in
- * the data-loss-prone "neither tracked nor protected" state.
+ * the data-loss-prone state. The rule is broadened to `unsafe = !tracked` (any
+ * uncommitted leaf is clean-prone, covering the B-02a6 INIT window), regardless
+ * of ignore state.
  *
  * Why a pure module: the same truth source is consumed by THREE entry points —
  *   (A) worktree.ts INIT_CHECK bootstrap (force-add + check-ignore guard),

@@ -259,4 +259,4 @@ function assertInitMetadataSurvivesConcurrentClean(): void {
 
 assertInitMetadataSurvivesConcurrentClean();
 
-console.log('✓ init-window data-loss smoke passed (real story_create metadata survives concurrent git clean)');
+console.log('✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout');
