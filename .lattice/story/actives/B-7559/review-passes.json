@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7559:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Express channel; audit-itself IS the verification. CHK-001: all named code symbols (canStartDevGuard, getGuardFailureReason, pathMatchesPattern in core/scope-contract.ts, resolveParallelSafety, actualFileOverlapsByStory, AuditMode/VALID_MODES/resolveAuditConfig, ScopeContractData, scope_boundary_set/scope_contract_set, terminalPhases, mergeOrder, acquireOwnerLease, deprecatedGcThreshold, transition-orchestrator.ts:156 warning) verified against packages/main/src; 3 named corrections in commit message match source reality. CHK-002: internal consistency evidenced by unified CSV example (no stray types.ts), precise concurrent-vs-serial write-set validity proof, and fixed cross-references; sections 1-8, four prompt templates, and worked example are self-consistent.",
+      "createdAt": "2026-06-19T01:52:41.939Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-004",
+      "_hash": "3eacea0d87ef9e58c181599185b75a2d9d8f48d3f94f2f0b8f3f4c30de1e6858"
+    }
+  ]
+}
