@@ -1,0 +1,1270 @@
+{
+  "command": "lattice validate --story=B-17a9 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 66/66 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — decideBackfill(empty signatureTag, valid mappedSig) => action:fill, signatureTag=mappedSig, signatureTagSource=backfill; WHY: covers primary fill path\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via logic_test — decideBackfill(source=confirmed, valid mappedSig) => action:skip-confirmed, no signatureTag in result; WHY: confirmed must never be overwritten\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via logic_test — decideBackfill(source=auto, valid mappedSig, overwriteAuto:false) => action:skip-has-auto; WHY: auto preserved unless explicit override\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via logic_test — decideBackfill(source=auto, valid mappedSig, overwriteAuto:true) => action:fill with backfill source; WHY: overwriteAuto enables auto replacement\",\"  ✓ CHK-001:happy:4 [happy/must/cli] covered via logic_test — decideBackfill(any current, undefined mappedSig) => action:skip-no-mapping; WHY: unmapped findings must be left alone\",\"  ✓ CHK-001:happy:5 [happy/must/cli] covered via logic_test — SignatureTagSource type in experience-layer-types.ts accepts backfill as valid literal => TypeScript compiles; WHY: type coverage\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — decideBackfill with signatureTag=undefined AND signatureTagSource=undefined (completely absent fields) + valid mappedSig => action:fill; WHY: real findings may lack these fields entirely\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via logic_test — decideBackfill with mappedSig as empty string => action:skip-empty-sig; WHY: empty string is not a valid signature to fill\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via logic_test — decideBackfill with opts=undefined (no opts object) => defaults overwriteAuto to false, auto tags preserved; WHY: callers may omit opts\",\"  ✓ CHK-001:edge:3 [edge/must/cli] covered via logic_test — decideBackfill with non-empty signatureTag but signatureTagSource is unknown string (not auto/confirmed) => action:skip-nonempty; WHY: unknown provenance must not be overwritten\",\"  ✓ CHK-001:edge:4 [edge/must/cli] covered via logic_test — Return value always has signatureTagSource=backfill when action=fill, never auto or confirmed; WHY: provenance integrity\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test — Static import analysis: signature-backfill.ts imports ONLY from types modules (no fs, path, store, I/O) => leaf is pure; WHY: I/O in the leaf is an architecture violation\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via logic_test — decideBackfill never mutates the input finding object => original object byte-identical after call; WHY: mutation would cause hidden side-effects in the caller\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via logic_test — overwriteAuto:true with source=confirmed => still skip-confirmed; WHY: confirmed is sacrosanct even when overwriteAuto is on (the strongest invariant)\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/cli] covered via logic_test — Passing extra/unexpected properties in finding object does not alter decision logic => same action regardless of extra fields; WHY: defensive against future field additions\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/cli] covered via integration_test — Deterministic: identical inputs always produce identical outputs across repeated calls => no hidden state or randomness; WHY: purity contract\",\"  ✓ CHK-001:adversarial:5 [adversarial/must/cli] covered via logic_test — Return type structurally exact: action=fill always includes signatureTag+signatureTagSource; action=skip-* never includes signatureTag; WHY: downstream code must not see stale fields\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — signature_backfill --map <valid-map> without --apply => dry-run output shows scanned/filled/skipped counts, store files byte-identical before/after (nothing written); WHY: dry-run-default is the safety contract\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via logic_test — signature_backfill --map <valid-map> --apply => findings with empty signatureTag receive signatureTag from map + signatureTagSource=backfill via store.writeFindings; WHY: primary write path\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via logic_test — After --apply, finding _hash is byte-identical to _hash before backfill for every touched finding; WHY: THE critical invariant -- fields attached AFTER _hash domain\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via logic_test — Dry-run output includes per-source breakdown (empty/confirmed/auto counts) and per-action tally (fill/skip-confirmed/skip-has-auto/skip-no-mapping); WHY: operator needs actionable report\",\"  ✓ CHK-002:happy:4 [happy/must/cli] covered via logic_test — --json flag produces structured JSON output with all counts, actions, and per-finding decisions; WHY: machine-readable integration\",\"  ✓ CHK-002:happy:5 [happy/must/cli] covered via logic_test — --overwriteAuto combined with --apply overwrites auto-sourced tags with backfill; WHY: intentional override path\",\"  ✓ CHK-002:happy:6 [happy/must/cli] covered via integration_test — signature_backfill registered in all 5 surfaces: registry.ts (registerBatch), cli-engine.ts (command schema), config.ts (DEFAULT_PHASE_TOOLS), command-policy.ts (writing ownershipClass), process-fact-levels.ts (L2 experience-layer); WHY: incomplete registration breaks discoverability or policy enforcement\",\"  ✓ CHK-002:happy:7 [happy/must/cli] covered via integration_test — signature_backfill is NOT in READ_ONLY_COMMANDS list; WHY: it is a writing command and read-only classification would prevent writes\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test — --map points to file with zero entries (empty JSON {}) => scanned>0, filled=0, all skip-no-mapping; WHY: empty map is a valid but degenerate case\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via logic_test — Map contains findingIds that exist in no story => those entries silently ignored, no crash, filled=0 for those entries; WHY: map may be stale or over-inclusive\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via logic_test — Store has a story with zero findings => processed without error, contributes scanned=0 for that story; WHY: empty stories should not crash iteration\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via logic_test — All findings already have signatureTag+source=backfill => --apply results in filled=0 (all skip-nonempty), writeFindings NOT called; WHY: no-op when already filled\",\"  ✓ CHK-002:edge:4 [edge/must/cli] covered via logic_test — Running without --map arg => clear required-argument error, no writes, no silent default; WHY: no implicit map path\",\"  ✓ CHK-002:edge:5 [edge/must/cli] covered via integration_test — process-fact-levels entry at L2 experience-layer with owner handlers/signature-backfill; WHY: missing entry fails process-fact-contract test\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test — After --apply, recompute _hash via real signFinding on every touched finding => byte-identical to stored _hash; WHY: THE critical regression -- if fields leak into hash domain, all finding integrity breaks\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via logic_test — Dry-run mode (default) => zero calls to store.writeFindings verified by checking file content/mtime before vs after; WHY: accidental write in dry-run is a data-corruption bug\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via integration_test — Static analysis: handler source never imports or calls signFinding => no _hash recomputation possible; WHY: calling signFinding would recompute and change the hash\",\"  ✓ CHK-002:adversarial:3 [adversarial/must/cli] covered via integration_test — Static analysis: handler source has no fetch/http/llm/network imports => no LLM or network calls at runtime; WHY: backfill must be offline/deterministic\",\"  ✓ CHK-002:adversarial:4 [adversarial/must/cli] covered via logic_test — Map file is malformed JSON => handler throws clear parse error, writes nothing, store uncorrupted; WHY: corrupted map must not corrupt findings\",\"  ✓ CHK-002:adversarial:5 [adversarial/must/cli] covered via logic_test — Map file path does not exist on disk => handler throws clear file-not-found error, writes nothing; WHY: missing file must not silently succeed\",\"  ✓ CHK-002:adversarial:6 [adversarial/must/cli] covered via integration_test — command-policy entry has writing ownershipClass (like signature_registry_set), NOT readOnly; WHY: misclassification blocks the write path or hides it from audit\",\"  ✓ CHK-002:adversarial:7 [adversarial/must/cli] covered via integration_test — Handler does not import or modify finding-verify.ts; WHY: touching verification logic risks breaking finding integrity across the system\",\"  ✓ CHK-002:adversarial:8 [adversarial/must/cli] covered via logic_test — Concurrent invocation: two --apply runs on same store => second run is idempotent no-op, no data corruption; WHY: operator may accidentally double-run\",\"  ✓ CHK-002:adversarial:9 [adversarial/must/cli] covered via integration_test — READ_ONLY_COMMANDS contamination: signature_backfill must NOT appear in READ_ONLY_COMMANDS => static grep confirms absence; WHY: presence would silently prevent writes\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — Smoke: dry-run with synthetic findings+map => report printed, store files byte-identical before/after (nothing written); WHY: dry-run safety contract verified end-to-end\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via logic_test — Smoke: --apply fills empty-tag finding with signatureTag from map + signatureTagSource=backfill; WHY: primary fill path end-to-end\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via logic_test — Smoke: --apply leaves confirmed-source finding completely untouched; WHY: confirmed immutability verified in integration\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via logic_test — Smoke: --apply leaves auto-source finding untouched without overwriteAuto; WHY: auto preservation default verified\",\"  ✓ CHK-003:happy:4 [happy/must/cli] covered via logic_test — Smoke: --apply with overwriteAuto fills auto-source finding; WHY: override path verified\",\"  ✓ CHK-003:happy:5 [happy/must/cli] covered via logic_test — Smoke: finding absent from map => skipped with skip-no-mapping action; WHY: unmapped findings must survive\",\"  ✓ CHK-003:happy:6 [happy/must/cli] covered via integration_test — Smoke: _hash byte-identical before/after --apply for EVERY touched finding, recomputed via real signFinding; WHY: THE critical invariant tested with real hashing\",\"  ✓ CHK-003:happy:7 [happy/must/cli] covered via logic_test — Smoke: second --apply run changes nothing (filled=0, idempotent), store content identical after both runs; WHY: operator safety on re-run\",\"  ✓ CHK-003:happy:8 [happy/must/cli] covered via integration_test — npm script test:experience-layer-signature-backfill exists in package.json and runs smoke to completion; WHY: CI integration\",\"  ✓ CHK-003:happy:9 [happy/must/cli] covered via logic_test — Verifier prints TOTAL/PASS/FAIL summary with all intents mapped; WHY: evidence gate requires structured pass/fail\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — Smoke uses temp store (hermetic) with no dependency on real repo findings; WHY: test isolation prevents flaky failures\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via logic_test — Smoke covers all three tag states (empty + confirmed + auto) in a single run; WHY: combinatorial coverage in one pass\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via integration_test — Verifier static check: signature-backfill.ts leaf imports only types (no I/O modules); WHY: purity architecture enforcement\",\"  ✓ CHK-003:edge:3 [edge/must/cli] covered via integration_test — Verifier static check: handler attaches signatureTag+signatureTagSource after _hash and never feeds signFinding; WHY: hash-domain leak detection\",\"  ✓ CHK-003:edge:4 [edge/must/cli] covered via integration_test — Verifier runs full npm test suite including process-fact-contract test; WHY: catches missing registration across surfaces\",\"  ✓ CHK-003:edge:5 [edge/must/cli] covered via integration_test — Verifier confirms signature_backfill registered in all 5 surfaces: cli-engine, registry, config, command-policy, process-fact-levels; WHY: incomplete registration breaks enforcement\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test — _hash invariance probe: take a finding, run --apply, then recompute _hash from scratch via real signFinding on the post-backfill finding object => byte-identical to original; WHY: THE critical regression test -- if new fields leak into hash domain, entire finding integrity collapses\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via logic_test — Confirmed tag overwrite probe: feed confirmed finding into --apply + overwriteAuto:true => confirmed finding STILL untouched; WHY: overwriteAuto must affect only auto, never confirmed (the strongest invariant)\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via logic_test — Accidental write probe: dry-run mode (default) must produce zero file changes => verified by file content hash or mtime comparison; WHY: accidental write in dry-run is silent data corruption\",\"  ✓ CHK-003:adversarial:3 [adversarial/must/cli] covered via logic_test — Non-idempotent re-apply probe: run --apply twice, assert second run reports filled=0 and store content byte-identical after both runs; WHY: non-idempotent behavior means double-run corrupts data\",\"  ✓ CHK-003:adversarial:4 [adversarial/must/cli] covered via integration_test — Missing PROCESS_FACT_LEVELS entry probe: verifier static check confirms L2 experience-layer entry exists, prints FAIL if missing; WHY: missing entry breaks process-fact-contract test silently\",\"  ✓ CHK-003:adversarial:5 [adversarial/must/cli] covered via integration_test — READ_ONLY_COMMANDS contamination probe: verifier static check confirms signature_backfill NOT in READ_ONLY_COMMANDS, prints FAIL if present; WHY: read-only classification silently disables writes\",\"  ✓ CHK-003:adversarial:6 [adversarial/must/cli] covered via integration_test — LLM/network at runtime probe: smoke runs in fully offline hermetic env (no network mocks), any fetch/http call would throw and fail the test; WHY: backfill must be offline-only\",\"  ✓ CHK-003:adversarial:7 [adversarial/must/cli] covered via logic_test — Map file missing probe: invoke handler with non-existent map path => clear error thrown, zero writes to store; WHY: missing file must not silently succeed or corrupt\",\"  ✓ CHK-003:adversarial:8 [adversarial/must/cli] covered via logic_test — Map file malformed probe: invoke handler with invalid JSON map => clear parse error thrown, zero writes, no store corruption; WHY: corrupted input must not propagate to store\"],\"warnings\":[],\"timestamp\":\"2026-06-19T00:33:26.782Z\",\"headSha\":\"802fd693a53b494bd970bf3d893b36775035d895\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":17509},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":380},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":319}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":66,\"reason\":\"verificationIntent entries present (66)\"},\"verificationCoverage\":{\"total\":66,\"required\":66,\"covered\":66,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decideBackfill(empty signatureTag, valid mappedSig) => action:fill, signatureTag=mappedSig, signatureTagSource=backfill; WHY: covers primary fill path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decideBackfill(source=confirmed, valid mappedSig) => action:skip-confirmed, no signatureTag in result; WHY: confirmed must never be overwritten\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decideBackfill(source=auto, valid mappedSig, overwriteAuto:false) => action:skip-has-auto; WHY: auto preserved unless explicit override\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decideBackfill(source=auto, valid mappedSig, overwriteAuto:true) => action:fill with backfill source; WHY: overwriteAuto enables auto replacement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:happy:4\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decideBackfill(any current, undefined mappedSig) => action:skip-no-mapping; WHY: unmapped findings must be left alone\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:happy:5\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"SignatureTagSource type in experience-layer-types.ts accepts backfill as valid literal => TypeScript compiles; WHY: type coverage\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"decideBackfill with signatureTag=undefined AND signatureTagSource=undefined (completely absent fields) + valid mappedSig => action:fill; WHY: real findings may lack these fields entirely\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"decideBackfill with mappedSig as empty string => action:skip-empty-sig; WHY: empty string is not a valid signature to fill\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"decideBackfill with opts=undefined (no opts object) => defaults overwriteAuto to false, auto tags preserved; WHY: callers may omit opts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"decideBackfill with non-empty signatureTag but signatureTagSource is unknown string (not auto/confirmed) => action:skip-nonempty; WHY: unknown provenance must not be overwritten\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Return value always has signatureTagSource=backfill when action=fill, never auto or confirmed; WHY: provenance integrity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Static import analysis: signature-backfill.ts imports ONLY from types modules (no fs, path, store, I/O) => leaf is pure; WHY: I/O in the leaf is an architecture violation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"decideBackfill never mutates the input finding object => original object byte-identical after call; WHY: mutation would cause hidden side-effects in the caller\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"overwriteAuto:true with source=confirmed => still skip-confirmed; WHY: confirmed is sacrosanct even when overwriteAuto is on (the strongest invariant)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Passing extra/unexpected properties in finding object does not alter decision logic => same action regardless of extra fields; WHY: defensive against future field additions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Deterministic: identical inputs always produce identical outputs across repeated calls => no hidden state or randomness; WHY: purity contract\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-001:adversarial:5\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Return type structurally exact: action=fill always includes signatureTag+signatureTagSource; action=skip-* never includes signatureTag; WHY: downstream code must not see stale fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"signature_backfill --map <valid-map> without --apply => dry-run output shows scanned/filled/skipped counts, store files byte-identical before/after (nothing written); WHY: dry-run-default is the safety contract\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"signature_backfill --map <valid-map> --apply => findings with empty signatureTag receive signatureTag from map + signatureTagSource=backfill via store.writeFindings; WHY: primary write path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"After --apply, finding _hash is byte-identical to _hash before backfill for every touched finding; WHY: THE critical invariant -- fields attached AFTER _hash domain\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Dry-run output includes per-source breakdown (empty/confirmed/auto counts) and per-action tally (fill/skip-confirmed/skip-has-auto/skip-no-mapping); WHY: operator needs actionable report\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:4\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"--json flag produces structured JSON output with all counts, actions, and per-finding decisions; WHY: machine-readable integration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:5\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"--overwriteAuto combined with --apply overwrites auto-sourced tags with backfill; WHY: intentional override path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:6\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"signature_backfill registered in all 5 surfaces: registry.ts (registerBatch), cli-engine.ts (command schema), config.ts (DEFAULT_PHASE_TOOLS), command-policy.ts (writing ownershipClass), process-fact-levels.ts (L2 experience-layer); WHY: incomplete registration breaks discoverability or policy enforcement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:6\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:happy:7\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"signature_backfill is NOT in READ_ONLY_COMMANDS list; WHY: it is a writing command and read-only classification would prevent writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:7\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"--map points to file with zero entries (empty JSON {}) => scanned>0, filled=0, all skip-no-mapping; WHY: empty map is a valid but degenerate case\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Map contains findingIds that exist in no story => those entries silently ignored, no crash, filled=0 for those entries; WHY: map may be stale or over-inclusive\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Store has a story with zero findings => processed without error, contributes scanned=0 for that story; WHY: empty stories should not crash iteration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"All findings already have signatureTag+source=backfill => --apply results in filled=0 (all skip-nonempty), writeFindings NOT called; WHY: no-op when already filled\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Running without --map arg => clear required-argument error, no writes, no silent default; WHY: no implicit map path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:edge:5\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"process-fact-levels entry at L2 experience-layer with owner handlers/signature-backfill; WHY: missing entry fails process-fact-contract test\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:5\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"After --apply, recompute _hash via real signFinding on every touched finding => byte-identical to stored _hash; WHY: THE critical regression -- if fields leak into hash domain, all finding integrity breaks\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Dry-run mode (default) => zero calls to store.writeFindings verified by checking file content/mtime before vs after; WHY: accidental write in dry-run is a data-corruption bug\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Static analysis: handler source never imports or calls signFinding => no _hash recomputation possible; WHY: calling signFinding would recompute and change the hash\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Static analysis: handler source has no fetch/http/llm/network imports => no LLM or network calls at runtime; WHY: backfill must be offline/deterministic\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:4\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Map file is malformed JSON => handler throws clear parse error, writes nothing, store uncorrupted; WHY: corrupted map must not corrupt findings\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:5\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Map file path does not exist on disk => handler throws clear file-not-found error, writes nothing; WHY: missing file must not silently succeed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:6\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"command-policy entry has writing ownershipClass (like signature_registry_set), NOT readOnly; WHY: misclassification blocks the write path or hides it from audit\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:6\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:7\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Handler does not import or modify finding-verify.ts; WHY: touching verification logic risks breaking finding integrity across the system\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:7\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:8\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Concurrent invocation: two --apply runs on same store => second run is idempotent no-op, no data corruption; WHY: operator may accidentally double-run\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:8\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-002:adversarial:9\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"READ_ONLY_COMMANDS contamination: signature_backfill must NOT appear in READ_ONLY_COMMANDS => static grep confirms absence; WHY: presence would silently prevent writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:9\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: dry-run with synthetic findings+map => report printed, store files byte-identical before/after (nothing written); WHY: dry-run safety contract verified end-to-end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: --apply fills empty-tag finding with signatureTag from map + signatureTagSource=backfill; WHY: primary fill path end-to-end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: --apply leaves confirmed-source finding completely untouched; WHY: confirmed immutability verified in integration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: --apply leaves auto-source finding untouched without overwriteAuto; WHY: auto preservation default verified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:4\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: --apply with overwriteAuto fills auto-source finding; WHY: override path verified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:5\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: finding absent from map => skipped with skip-no-mapping action; WHY: unmapped findings must survive\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:6\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: _hash byte-identical before/after --apply for EVERY touched finding, recomputed via real signFinding; WHY: THE critical invariant tested with real hashing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:6\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:7\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke: second --apply run changes nothing (filled=0, idempotent), store content identical after both runs; WHY: operator safety on re-run\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:7\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:8\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"npm script test:experience-layer-signature-backfill exists in package.json and runs smoke to completion; WHY: CI integration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:8\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:happy:9\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Verifier prints TOTAL/PASS/FAIL summary with all intents mapped; WHY: evidence gate requires structured pass/fail\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:9\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Smoke uses temp store (hermetic) with no dependency on real repo findings; WHY: test isolation prevents flaky failures\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Smoke covers all three tag states (empty + confirmed + auto) in a single run; WHY: combinatorial coverage in one pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Verifier static check: signature-backfill.ts leaf imports only types (no I/O modules); WHY: purity architecture enforcement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Verifier static check: handler attaches signatureTag+signatureTagSource after _hash and never feeds signFinding; WHY: hash-domain leak detection\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:4\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Verifier runs full npm test suite including process-fact-contract test; WHY: catches missing registration across surfaces\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:edge:5\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Verifier confirms signature_backfill registered in all 5 surfaces: cli-engine, registry, config, command-policy, process-fact-levels; WHY: incomplete registration breaks enforcement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:5\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"_hash invariance probe: take a finding, run --apply, then recompute _hash from scratch via real signFinding on the post-backfill finding object => byte-identical to original; WHY: THE critical regression test -- if new fields leak into hash domain, entire finding integrity collapses\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Confirmed tag overwrite probe: feed confirmed finding into --apply + overwriteAuto:true => confirmed finding STILL untouched; WHY: overwriteAuto must affect only auto, never confirmed (the strongest invariant)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Accidental write probe: dry-run mode (default) must produce zero file changes => verified by file content hash or mtime comparison; WHY: accidental write in dry-run is silent data corruption\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:3\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Non-idempotent re-apply probe: run --apply twice, assert second run reports filled=0 and store content byte-identical after both runs; WHY: non-idempotent behavior means double-run corrupts data\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:4\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Missing PROCESS_FACT_LEVELS entry probe: verifier static check confirms L2 experience-layer entry exists, prints FAIL if missing; WHY: missing entry breaks process-fact-contract test silently\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:5\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"READ_ONLY_COMMANDS contamination probe: verifier static check confirms signature_backfill NOT in READ_ONLY_COMMANDS, prints FAIL if present; WHY: read-only classification silently disables writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:5\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:6\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"LLM/network at runtime probe: smoke runs in fully offline hermetic env (no network mocks), any fetch/http call would throw and fail the test; WHY: backfill must be offline-only\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:6\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:7\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Map file missing probe: invoke handler with non-existent map path => clear error thrown, zero writes to store; WHY: missing file must not silently succeed or corrupt\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:7\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}},{\"intentRef\":\"CHK-003:adversarial:8\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Map file malformed probe: invoke handler with invalid JSON map => clear parse error thrown, zero writes, no store corruption; WHY: corrupted input must not propagate to store\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:8\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-signature-backfill\",\"result\":\"pass\",\"note\":\"Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).\",\"headHash\":\"4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb\",\"materialHash\":\"04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15\",\"timestamp\":\"2026-06-19T00:32:17.838Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T00:33:30.392Z",
+  "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+  "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+  "verificationCoverage": {
+    "total": 66,
+    "required": 66,
+    "covered": 66,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decideBackfill(empty signatureTag, valid mappedSig) => action:fill, signatureTag=mappedSig, signatureTagSource=backfill; WHY: covers primary fill path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decideBackfill(source=confirmed, valid mappedSig) => action:skip-confirmed, no signatureTag in result; WHY: confirmed must never be overwritten",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decideBackfill(source=auto, valid mappedSig, overwriteAuto:false) => action:skip-has-auto; WHY: auto preserved unless explicit override",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decideBackfill(source=auto, valid mappedSig, overwriteAuto:true) => action:fill with backfill source; WHY: overwriteAuto enables auto replacement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:4",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decideBackfill(any current, undefined mappedSig) => action:skip-no-mapping; WHY: unmapped findings must be left alone",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:5",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "SignatureTagSource type in experience-layer-types.ts accepts backfill as valid literal => TypeScript compiles; WHY: type coverage",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "decideBackfill with signatureTag=undefined AND signatureTagSource=undefined (completely absent fields) + valid mappedSig => action:fill; WHY: real findings may lack these fields entirely",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "decideBackfill with mappedSig as empty string => action:skip-empty-sig; WHY: empty string is not a valid signature to fill",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "decideBackfill with opts=undefined (no opts object) => defaults overwriteAuto to false, auto tags preserved; WHY: callers may omit opts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "decideBackfill with non-empty signatureTag but signatureTagSource is unknown string (not auto/confirmed) => action:skip-nonempty; WHY: unknown provenance must not be overwritten",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:4",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Return value always has signatureTagSource=backfill when action=fill, never auto or confirmed; WHY: provenance integrity",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Static import analysis: signature-backfill.ts imports ONLY from types modules (no fs, path, store, I/O) => leaf is pure; WHY: I/O in the leaf is an architecture violation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "decideBackfill never mutates the input finding object => original object byte-identical after call; WHY: mutation would cause hidden side-effects in the caller",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "overwriteAuto:true with source=confirmed => still skip-confirmed; WHY: confirmed is sacrosanct even when overwriteAuto is on (the strongest invariant)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Passing extra/unexpected properties in finding object does not alter decision logic => same action regardless of extra fields; WHY: defensive against future field additions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Deterministic: identical inputs always produce identical outputs across repeated calls => no hidden state or randomness; WHY: purity contract",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:5",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Return type structurally exact: action=fill always includes signatureTag+signatureTagSource; action=skip-* never includes signatureTag; WHY: downstream code must not see stale fields",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "signature_backfill --map <valid-map> without --apply => dry-run output shows scanned/filled/skipped counts, store files byte-identical before/after (nothing written); WHY: dry-run-default is the safety contract",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "signature_backfill --map <valid-map> --apply => findings with empty signatureTag receive signatureTag from map + signatureTagSource=backfill via store.writeFindings; WHY: primary write path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "After --apply, finding _hash is byte-identical to _hash before backfill for every touched finding; WHY: THE critical invariant -- fields attached AFTER _hash domain",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Dry-run output includes per-source breakdown (empty/confirmed/auto counts) and per-action tally (fill/skip-confirmed/skip-has-auto/skip-no-mapping); WHY: operator needs actionable report",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:4",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "--json flag produces structured JSON output with all counts, actions, and per-finding decisions; WHY: machine-readable integration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:5",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "--overwriteAuto combined with --apply overwrites auto-sourced tags with backfill; WHY: intentional override path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:6",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "signature_backfill registered in all 5 surfaces: registry.ts (registerBatch), cli-engine.ts (command schema), config.ts (DEFAULT_PHASE_TOOLS), command-policy.ts (writing ownershipClass), process-fact-levels.ts (L2 experience-layer); WHY: incomplete registration breaks discoverability or policy enforcement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:6",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:7",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "signature_backfill is NOT in READ_ONLY_COMMANDS list; WHY: it is a writing command and read-only classification would prevent writes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:7",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "--map points to file with zero entries (empty JSON {}) => scanned>0, filled=0, all skip-no-mapping; WHY: empty map is a valid but degenerate case",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Map contains findingIds that exist in no story => those entries silently ignored, no crash, filled=0 for those entries; WHY: map may be stale or over-inclusive",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Store has a story with zero findings => processed without error, contributes scanned=0 for that story; WHY: empty stories should not crash iteration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "All findings already have signatureTag+source=backfill => --apply results in filled=0 (all skip-nonempty), writeFindings NOT called; WHY: no-op when already filled",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:4",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Running without --map arg => clear required-argument error, no writes, no silent default; WHY: no implicit map path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:5",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "process-fact-levels entry at L2 experience-layer with owner handlers/signature-backfill; WHY: missing entry fails process-fact-contract test",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "After --apply, recompute _hash via real signFinding on every touched finding => byte-identical to stored _hash; WHY: THE critical regression -- if fields leak into hash domain, all finding integrity breaks",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Dry-run mode (default) => zero calls to store.writeFindings verified by checking file content/mtime before vs after; WHY: accidental write in dry-run is a data-corruption bug",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Static analysis: handler source never imports or calls signFinding => no _hash recomputation possible; WHY: calling signFinding would recompute and change the hash",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Static analysis: handler source has no fetch/http/llm/network imports => no LLM or network calls at runtime; WHY: backfill must be offline/deterministic",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:4",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Map file is malformed JSON => handler throws clear parse error, writes nothing, store uncorrupted; WHY: corrupted map must not corrupt findings",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:5",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Map file path does not exist on disk => handler throws clear file-not-found error, writes nothing; WHY: missing file must not silently succeed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:6",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "command-policy entry has writing ownershipClass (like signature_registry_set), NOT readOnly; WHY: misclassification blocks the write path or hides it from audit",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:6",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:7",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Handler does not import or modify finding-verify.ts; WHY: touching verification logic risks breaking finding integrity across the system",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:7",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:8",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Concurrent invocation: two --apply runs on same store => second run is idempotent no-op, no data corruption; WHY: operator may accidentally double-run",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:8",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:9",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "READ_ONLY_COMMANDS contamination: signature_backfill must NOT appear in READ_ONLY_COMMANDS => static grep confirms absence; WHY: presence would silently prevent writes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:9",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: dry-run with synthetic findings+map => report printed, store files byte-identical before/after (nothing written); WHY: dry-run safety contract verified end-to-end",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: --apply fills empty-tag finding with signatureTag from map + signatureTagSource=backfill; WHY: primary fill path end-to-end",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: --apply leaves confirmed-source finding completely untouched; WHY: confirmed immutability verified in integration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: --apply leaves auto-source finding untouched without overwriteAuto; WHY: auto preservation default verified",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:4",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: --apply with overwriteAuto fills auto-source finding; WHY: override path verified",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:5",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: finding absent from map => skipped with skip-no-mapping action; WHY: unmapped findings must survive",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:6",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: _hash byte-identical before/after --apply for EVERY touched finding, recomputed via real signFinding; WHY: THE critical invariant tested with real hashing",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:6",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:7",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke: second --apply run changes nothing (filled=0, idempotent), store content identical after both runs; WHY: operator safety on re-run",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:7",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:8",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "npm script test:experience-layer-signature-backfill exists in package.json and runs smoke to completion; WHY: CI integration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:8",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:9",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Verifier prints TOTAL/PASS/FAIL summary with all intents mapped; WHY: evidence gate requires structured pass/fail",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:9",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Smoke uses temp store (hermetic) with no dependency on real repo findings; WHY: test isolation prevents flaky failures",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Smoke covers all three tag states (empty + confirmed + auto) in a single run; WHY: combinatorial coverage in one pass",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Verifier static check: signature-backfill.ts leaf imports only types (no I/O modules); WHY: purity architecture enforcement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Verifier static check: handler attaches signatureTag+signatureTagSource after _hash and never feeds signFinding; WHY: hash-domain leak detection",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:4",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Verifier runs full npm test suite including process-fact-contract test; WHY: catches missing registration across surfaces",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:5",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Verifier confirms signature_backfill registered in all 5 surfaces: cli-engine, registry, config, command-policy, process-fact-levels; WHY: incomplete registration breaks enforcement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "_hash invariance probe: take a finding, run --apply, then recompute _hash from scratch via real signFinding on the post-backfill finding object => byte-identical to original; WHY: THE critical regression test -- if new fields leak into hash domain, entire finding integrity collapses",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Confirmed tag overwrite probe: feed confirmed finding into --apply + overwriteAuto:true => confirmed finding STILL untouched; WHY: overwriteAuto must affect only auto, never confirmed (the strongest invariant)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Accidental write probe: dry-run mode (default) must produce zero file changes => verified by file content hash or mtime comparison; WHY: accidental write in dry-run is silent data corruption",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:3",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Non-idempotent re-apply probe: run --apply twice, assert second run reports filled=0 and store content byte-identical after both runs; WHY: non-idempotent behavior means double-run corrupts data",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:4",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Missing PROCESS_FACT_LEVELS entry probe: verifier static check confirms L2 experience-layer entry exists, prints FAIL if missing; WHY: missing entry breaks process-fact-contract test silently",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:5",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "READ_ONLY_COMMANDS contamination probe: verifier static check confirms signature_backfill NOT in READ_ONLY_COMMANDS, prints FAIL if present; WHY: read-only classification silently disables writes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:6",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "LLM/network at runtime probe: smoke runs in fully offline hermetic env (no network mocks), any fetch/http call would throw and fail the test; WHY: backfill must be offline-only",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:6",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-backfill smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-backfill.ts pure imports-only-types; handler never imports finding-verify / never calls signFinding / no network; registered across cli-engine/registry/config/command-policy/process-fact-levels[L2]; NOT in READ_ONLY_COMMANDS). TOTAL 66 | PASS 66 | FAIL 0.",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:7",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Map file missing probe: invoke handler with non-existent map path => clear error thrown, zero writes to store; WHY: missing file must not silently succeed or corrupt",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:7",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:8",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Map file malformed probe: invoke handler with invalid JSON map => clear parse error thrown, zero writes, no store corruption; WHY: corrupted input must not propagate to store",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:8",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-backfill",
+          "result": "pass",
+          "note": "Hermetic signature-backfill smoke (12/12): decideBackfill fill/skip-confirmed/skip-auto(+overwriteAuto)/skip-no-mapping; dry-run writes nothing; --apply fills empty + leaves confirmed/auto untouched; CRITICAL the finding _hash is byte-identical before/after (== fresh real signFinding, no field leak); absent-from-map skipped; second --apply is idempotent (no change).",
+          "headHash": "4d939de72b2efb5e6ecbb58b58a28ce3b1f272bb",
+          "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+          "timestamp": "2026-06-19T00:32:17.838Z"
+        }
+      }
+    ]
+  }
+}

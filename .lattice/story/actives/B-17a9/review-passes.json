@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-17a9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed: (1) backfill enum value consistently added to SignatureTagSource in experience-layer-types.ts (3-value union auto|confirmed|backfill, single definition, no old 2-value residue). (2) signature_backfill command fully wired across all 6 surfaces: cli-engine.ts schema, registry.ts import+registerBatch, command-policy.ts COMMAND_POLICIES, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts PROCESS_FACT_LEVELS, and package.json test script. (3) core/signature-backfill.ts (pure leaf) and handlers/signature-backfill.ts both exist; types BackfillAction/BackfillDecision/BackfillOptions used consistently between them. (4) signature_backfill is NOT in READ_ONLY_COMMANDS (correct for a writing command). (5) Other uses of the word backfill in the codebase (verification_intent_repair, gap-log, test-story, cli-prompts) are all pre-existing unrelated usages, not residue of any deleted/replaced concept. No concept deletion/replacement this round; no blocker found.",
+      "createdAt": "2026-06-19T00:34:00.316Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-001",
+      "_hash": "0dd6928e09b8553eddd4212a4c09b06115418ca5ac02bd8947744282bb16431c"
+    }
+  ]
+}
