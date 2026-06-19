@@ -154,6 +154,28 @@
       ],
       "signatureTag": "stale-host-guard-matrix|ts|gemini-current-profile",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-d674:F-008",
+      "desc": "README.md:460-463 and docs/guide.md:191-193 advertise `npm run test:authority-enforce-matrix` as the authority enforce matrix smoke command, but neither package.json:9-80 nor packages/main/package.json:21-55 defines that script. Running the exact documented command fails with npm `Missing script: \"test:authority-enforce-matrix\"`. The backing task exists at packages/main/src/tasks/authority-enforce-matrix-smoke.ts, so the docs should either add the script or name the existing runnable entrypoint instead of promising a missing npm command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T15:53:45.824Z",
+      "reviewRound": "2026-06-19T15:49:54.354Z",
+      "reviewRunId": "B-d674:RR-011",
+      "_hash": "65c79a3e21739a887c7bdec2009fd0d6e3ce60508a77bd17e2d61016a4dd98fc",
+      "files": [
+        "README.md",
+        "docs/guide.md",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/tasks/authority-enforce-matrix-smoke.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|readme-docs-guide",
+      "signatureTagSource": "auto"
     }
   ]
 }
