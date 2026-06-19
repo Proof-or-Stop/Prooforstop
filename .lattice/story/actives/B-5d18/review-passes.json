@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T18:36:10.135Z",
       "reviewRunId": "B-5d18:RR-007",
       "_hash": "aa348f83bd427ed8b9763fca1129ef378cce3524bcdbf629cb7ab1d27013b244"
+    },
+    {
+      "id": "B-5d18:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check — only validation-executor.ts changed (two commits: taskkill .on(error) guard + runValidationCommand JSDoc). Checked all concept words introduced or removed: (1) F-001 fix: spawn(taskkill,...).on(error,...) pattern is new; no old unguarded taskkill spawns exist in validation-executor.ts. The browser-executor.ts and verifier/browser-executor.ts taskkill spawns are unrelated scope; concept check passes for this file. (2) F-002 fix: JSDoc added on runValidationCommand documenting defaultTimeoutMs as a test seam; text is accurate and implementation-consistent: the seam is present as the 3rd parameter with default DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. (3) No concept deletions or replacements happened in round 3 that require residue checking beyond what round 2 already covered. (4) No README/docs/.md files were changed; no doc-promise-undelivered risk. (5) child.kill() in the worktree appears only as fallback inside killTree (error handler and POSIX catch) — correct. (6) All new exported symbols (DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, resolveCommandTimeoutMs) and the seam (defaultTimeoutMs) remain consistent with round-2 pass. No blocker found.",
+      "createdAt": "2026-06-19T18:38:32.900Z",
+      "reviewRound": "2026-06-19T18:36:10.135Z",
+      "reviewRunId": "B-5d18:RR-009",
+      "_hash": "b8bd807f6425531b4b184b928ae6a17d99e8fa6ae3e068e41c5115f2aa987744"
     }
   ]
 }
