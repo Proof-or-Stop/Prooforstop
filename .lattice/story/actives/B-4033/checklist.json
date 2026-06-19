@@ -116,10 +116,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
           "result": "pass",
-          "note": "Smoke PASS 41 assertions; path redundancy robustly canonicalized.",
-          "headHash": "063f36a182270beef3e22cf942cd8ee31c7939ab",
-          "materialHash": "949f398dc2afb57840a68d12a5c1260c5f1ef413db6339e80ab8059df050fee0",
-          "timestamp": "2026-06-19T13:52:17.363Z"
+          "note": "Smoke PASS 44 assertions; path grammar canonicalizes redundancy + rejects all malformed (incl ..).",
+          "headHash": "6d1947872df248c92b4399577573a692405c1e57",
+          "materialHash": "5aa36f0757032fae628897afbaf3025b830b624726651252783fb837b02cfa43",
+          "timestamp": "2026-06-19T14:07:46.374Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
