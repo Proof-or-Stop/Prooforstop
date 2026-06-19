@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Move the review_run_start clean-tree preflight to BEFORE captureReviewRunSnapshot",
+      "context": "In packages/main/src/handlers/review-run.ts review_run_start: relocate the B-7691 preflight block (preflightRoot + readGitStatusLines(signedWorkspaceRoot) + classifyGitStatusRows + isBlockingDirty + the blocking throw) to immediately AFTER the REVIEW phase check (the `if (preflightStory.phase !== 'REVIEW')` block) and BEFORE the `const lane = ...` / `captureReviewRunSnapshot(...)` lines. Pure relocation of the existing logic -- do NOT change isBlockingDirty, the DIRTY_GATE_POLICY table, classifierOptionsForCheck, the DONE gate, materialHash computation, or the evidence-write-time freshness guard. Update the trailing comment (it currently says 'proceed to the snapshot' from the wrong position). Verify tsc + the existing review-run-clean-tree-preflight smoke still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Strengthen the smoke to assert the preflight precedes captureReviewRunSnapshot",
+      "context": "Extend packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts with an ORDERING assertion that would have caught this bug: prove that on a BLOCKING dirty tree, review_run_start refuses BEFORE captureReviewRunSnapshot runs (e.g. assert the thrown error is the preflight 'uncommitted ... changes' error and that NO review run / snapshot-derived artifact was produced; or drive a fixture where reaching captureReviewRunSnapshot would produce a distinguishable outcome). Keep all existing scenarios (a)-(h) green. The goal is an end-to-end ordering check, not the prior isolation-only fail-open unit test.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
