@@ -1,0 +1,108 @@
+{
+  "storyId": "B-fbb6",
+  "checkedAt": "2026-06-19T17:14:22.208Z",
+  "features": [
+    {
+      "feature": "Provider binary renamed from gemini to agy (ANTIGRAVITY_CLI_BINARY)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Provider name renamed from gemini to antigravity (ProviderExecResult.provider, BoundedProviderName)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Drop Gemini usage extraction (extractGeminiUsage / isGeminiUsageObject removed; agy exposes no usageMetadata)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Antigravity dispatch records source=unavailable (no per-call token usage)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Delete adapters/gemini.ts + assemble.ts wiring (ProviderName union + adaptUsageFor case gemini)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "host_runtime_list exposes antigravity (runtime probe id rename)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "host_runtime_probe accepts both antigravity and agy",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Runtime reports cliCommand: agy without claiming unattendedSafe=true",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "dispatch-run-smoke.ts asserts host_runtime_list/host_runtime_probe/cliCommand/wrapped-preapply for antigravity/agy",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Legacy Gemini real-host refusal path in unattended-dispatch-smoke.ts preserved or explicitly justified (host-overflow.md line 244: the legacy Gemini real-host refusal path where applicable)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "agy --print argv (print-mode interface for dispatch)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Rename all gemini provider-semantic literals across core (capabilities, command-policy, dispatch-policy, planner, verdicts, config, types, process-fact-levels)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "Rename/rework gemini-named smokes + package.json scripts + run-all-smokes, full suite green",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 12,
+    "excluded": 0,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a86b3dc349fa0b24cc692d3487f3160f8137f62e430ead66533df5a510a9aa94",
+  "openQuestions": []
+}
