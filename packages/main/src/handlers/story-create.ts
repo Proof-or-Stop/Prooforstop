@@ -3,9 +3,11 @@ import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
 import type { ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
-import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync } from 'fs';
-import { join } from 'path';
+import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync, realpathSync } from 'fs';
+import { join, relative, isAbsolute } from 'path';
 import { createHash } from 'crypto';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { createSafeInitCommitOnHead } from '../core/safe-init-commit.js';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
@@ -281,6 +283,45 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // resolveMainRepoRoot (a worktree subdir falls back to the main root).
       const createLockMainRepoRoot = resolveMainRepoRoot(ctx.root);
       return withReentrantMainWriteLock(createLockMainRepoRoot, () => {
+      // B-02a6 CHK-002: after a story's INIT metadata has been persisted to
+      // disk, commit ONLY that story's metadata dir onto the current branch HEAD
+      // so the leaf is a tracked (clean-proof) git object from birth. This runs
+      // INSIDE the held main-write-lock (we are already inside the lock body), so
+      // it serializes against a concurrent DONE merge / story_create. It is a
+      // deliberate, scoped main-HEAD commit, NOT a relaxation of
+      // auto-commit-metadata.ts's `!branch.startsWith('story/')` early-return.
+      // Best-effort: never throws, so a successful create cannot fail on it.
+      const commitSafeInitMetadata = (storyId: string): void => {
+        try {
+          // Resolve the actual git repo root the same way the bootstrap and the
+          // metadata auto-commit do (handles wrapper-root layouts; plain repos
+          // fall back to ctx.root). The story metadata was just written, so the
+          // signed-workspace resolver can read it.
+          const repoRoot = resolveGitCwd({
+            store,
+            storyId,
+            metadataRoot: ctx.root,
+            projectRoot: ctx.root,
+          });
+          // storyRel must be relative to the RESOLVED repo root so the scoped
+          // `git add` works whether or not the metadata root is the git root.
+          // Canonicalize both sides (realpath) so a /var → /private/var symlink
+          // does not corrupt the relative path. When repoRoot === ctx.root this
+          // equals the legacy storyDir/id.
+          const storyAbs = join(ctx.root, store.storyDirRel().replace(/\/$/, ''), storyId);
+          const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
+          const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
+          const storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+          // Story metadata outside the resolved git root cannot be committed here;
+          // the worktree.ts / cli-engine reconcile guards surface that dead end at
+          // INIT_CHECK. Skip silently (warn-only is owned by those guards).
+          if (!storyRel || isAbsolute(storyRel) || storyRel.split('/').includes('..')) return;
+          createSafeInitCommitOnHead({ storyId, storyRel, repoRoot });
+        } catch {
+          // Defensive: the safe-init commit is best-effort observability of a
+          // durable object; a successful story_create must never fail on it.
+        }
+      };
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
       if (args.fromDraft) {
@@ -385,6 +426,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
         // Delete draft directory
         rmSync(draftsDir, { recursive: true, force: true });
+
+        // B-02a6 CHK-002: make the freshly written INIT metadata a tracked
+        // clean-proof git object on the current branch HEAD (inside the lock).
+        commitSafeInitMetadata(storyId);
 
         // B-198c CHK-003: early storyDir-outside-gitRoot advisory (warn-only,
         // Option A) — also surface on the from-draft create surface so the
@@ -723,6 +768,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but branch/worktree phase is not yet available. To continue the normal INIT_CHECK/DEV flow, first git init + initial commit.`
           : '';
+        // B-02a6 CHK-002: make the freshly written metadata a tracked clean-proof
+        // git object on the current branch HEAD (inside the lock).
+        commitSafeInitMetadata(storyId);
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // only the create conclusion + non-advisory guidance stays on stdout.
         emitAdvisoryToStderr();
@@ -787,12 +835,21 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but INIT_CHECK/worktree flow still requires git init + initial commit first.`
           : '';
+        // B-02a6 CHK-002: make the freshly written INIT metadata a tracked
+        // clean-proof git object on the current branch HEAD (inside the lock),
+        // closing the INIT-window data-loss window against a concurrent
+        // `git clean -fd` / wrong-branch checkout on the shared checkout.
+        commitSafeInitMetadata(storyId);
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // the create conclusion + INIT-review guidance stays on stdout.
         emitAdvisoryToStderr();
         return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
       }
 
+      // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on
+      // the shared checkout, so it is equally exposed to a concurrent clean -fd —
+      // make it tracked too.
+      commitSafeInitMetadata(storyId);
       // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr.
       emitAdvisoryToStderr();
       return `Story ${storyId} created (IDEA)`;

@@ -22,6 +22,7 @@ import {
   type StoryMetadataProbe,
 } from '../core/story-metadata-protection.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 
@@ -905,14 +906,31 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // INIT_CHECK bootstrap must not advance or stage the user's current
       // branch. Build a scoped tree with only this story directory in a
       // temporary git index, then point story/B-* at that commit.
+      const storyIndexRel = `${storyRel}/index.json`;
       if (gitRefExists(branch, repoRoot)) {
-        const storyIndexRel = `${storyRel}/index.json`;
         if (!gitTreePathExists(branch, storyIndexRel, repoRoot)) {
           story.worktree = undefined;
           store.writeStory(args.storyId, story);
           throw new Error(
             `Branch ${branch} already exists but does not contain ${storyIndexRel}. ` +
             `This usually indicates a stale/dirty branch is being reused; please delete or repair the branch and retry.`,
+          );
+        }
+      } else if (refContainsStoryMetadata(repoRoot, 'HEAD', storyIndexRel)) {
+        // B-02a6 CHK-002: main HEAD already carries this story's metadata (the
+        // safe-init commit landed it at story_create time). Branching from main
+        // as-is gives a valid story/<id> branch whose tree already contains the
+        // metadata — do NOT run createScopedStoryBootstrapCommit, which would
+        // re-add the same paths and produce a duplicate/empty init commit. Point
+        // the branch ref straight at HEAD; this is idempotent and never hard-fails.
+        try {
+          const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
+          gitFile(['update-ref', `refs/heads/${branch}`, head], repoRoot);
+        } catch (e: any) {
+          story.worktree = undefined;
+          store.writeStory(args.storyId, story);
+          throw new Error(
+            `Unable to branch ${branch} from main HEAD (which already carries ${storyIndexRel}): ${gitErrorMessage(e)}.`,
           );
         }
       } else {
@@ -1372,13 +1390,29 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         // the main checkout (gitRoot) — a main-HEAD rewrite that must be
         // serialized under the unified main write lock. Reentrant: story_discard
         // can run inside an already-locked context.
-        results.push(
-          withReentrantMainWriteLock(
-            gitRoot,
-            () => purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot),
-            { label: 'story_discard purge reset' },
-          ),
+        const purgeResult = withReentrantMainWriteLock(
+          gitRoot,
+          () => purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot),
+          { label: 'story_discard purge reset' },
         );
+        results.push(purgeResult);
+        // B-02a6 CHK-002: tombstone fallback. With the safe-init commit landing
+        // at story_create time, OTHER commits (other stories' init commits, the
+        // INIT-review metadata auto-commits) routinely land on main AFTER it — so
+        // the init commit is no longer HEAD and `purgeSafeInitCommit` cannot
+        // `reset --hard HEAD~1` (it returns a ⚠ warning and leaves the rmSync as a
+        // staged tracked-file deletion → dirty main). When the safe reset did NOT
+        // happen, commit the deletion (a "discard" tombstone) so discard still
+        // CONVERGES to a clean tree instead of leaving dirty state. No-op when
+        // there is nothing to commit (e.g. the metadata was never tracked).
+        if (!purgeResult.startsWith('✓ main init commit safely rolled back')) {
+          const tombstone = withReentrantMainWriteLock(
+            gitRoot,
+            () => commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot),
+            { label: 'story_discard purge tombstone' },
+          );
+          if (tombstone) results.push(tombstone);
+        }
         return results.join('\n');
       }
 
