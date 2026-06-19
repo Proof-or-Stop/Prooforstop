@@ -121,7 +121,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "build, process-fact contract, lifecycle dispatch smoke, INIT_CHECK reconcile smoke, worktree authority smoke, command ownership, main-write-lock, and recover_evidence freshness checks pass.",
+      "userSees": "Verification transcript should include `lifecycle dispatch smoke passed`, `lifecycle-registry consistency: PASS`, `command-ownership contract passed`, and `main-write-lock-coverage:` with no scope-contract violations.",
       "excludes": [
         "Do not use a local 3x2 host verdict as Authority Server completion.",
         "Do not defer behavior verification to docs-only review; lifecycle smoke evidence is required.",
