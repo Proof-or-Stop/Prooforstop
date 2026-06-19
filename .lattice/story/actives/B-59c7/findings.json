@@ -46,7 +46,7 @@
       "desc": "CHK-002:happy:0 evidence predates the deliverable: headHash 75ced964f was recorded before parallel-decomposition.ts existed. The npm build cited as evidence for AuditConfig.parallelGate field could not have compiled the import from parallel-decomposition.ts. A fresh build evidence after bbb1a8c01 is required.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T04:08:15.973Z",
@@ -57,7 +57,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "missing|ts|happy-evidence-predates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in dc4551d29: re-recorded CHK-002:happy:0 verificationEvidence at the post-implementation HEAD (tsc PASS with AuditConfig.parallelGate present).",
+      "resolvedAt": "2026-06-19T04:11:21.966Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-59c7:F-004",
