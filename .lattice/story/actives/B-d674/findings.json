@@ -88,6 +88,26 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-guide-scope",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d674:F-005",
+      "desc": "docs/requirements/decisions/host-overflow.md:231-239 now claims the full unattended-dispatch smoke covers host_runtime_probe for claude-code and antigravity/agy and shows npm --prefix packages/main run test:unattended-dispatch-smoke, but packages/main/src/tasks/unattended-dispatch-smoke.ts:299-304 only probes claude-code, packages/main/src/tasks/unattended-dispatch-smoke.ts:498-536 still uses gemini for the real-host refusal path, and packages/main/src/tasks/unattended-dispatch-smoke.ts:995 still summarizes the smoke as claude-code capability probe. Antigravity coverage exists in dispatch-run-smoke/targeted checks, so the doc should either name that smoke or the unattended smoke should be updated before claiming this coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T15:43:21.964Z",
+      "reviewRound": "2026-06-19T15:37:54.182Z",
+      "reviewRunId": "B-d674:RR-006",
+      "_hash": "13dc4136be6101b1aba4ed94a287111ea4158c2fff4ca080e2f2c207b6e0ef08",
+      "files": [
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
