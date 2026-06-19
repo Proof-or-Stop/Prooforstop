@@ -6,12 +6,18 @@ Created: 2026-06-19
 ## Purpose
 
 Add a conservative `lattice done_prepare` command that automates the mechanical
-closure work between a TEST-passing story and a clean DONE attempt.
+closure work between a TEST-passing story and an explicit DONE attempt.
 
 The target is time reduction without quality reduction. The command must not
 weaken DONE gates, review gates, evidence freshness, Authority receipt
 boundaries, or version discipline. It should only orchestrate steps that agents
 already run manually today.
+
+`done_prepare` is a pre-DONE readiness assistant. It must not modify runtime
+version files before DONE, because version changes alter the material hash and
+can invalidate the evidence that made DONE ready. Runtime version bumping belongs
+to a separate post-DONE local-main finalization step after the story branch has
+merged back to local `main`.
 
 ## Problem
 
@@ -23,14 +29,21 @@ implementation. The repeated closure sequence is predictable:
 - refresh stale verification evidence after material hash changes;
 - rerun `lattice validate`;
 - run `done_closure`;
-- handle CLI runtime patch version bump when the story changes runtime behavior;
-- rebuild the CLI;
-- confirm `lattice --version`;
 - produce the exact next DONE command.
 
 Each step is valid. The inefficiency is that humans and agents must manually
 sequence them, inspect partial failures, and remember version rules. That causes
 delay and inconsistent operator behavior.
+
+After DONE succeeds, runtime-changing stories still require a second, separate
+local-main finalization sequence:
+
+- bump the CLI patch version;
+- update package and lockfile version sources;
+- rebuild the CLI;
+- confirm the global `lattice --version`.
+
+That post-DONE work is related but must not be folded into pre-DONE readiness.
 
 ## Guiding Principles
 
@@ -49,7 +62,8 @@ In scope:
 - stale evidence refresh orchestration after `main` sync;
 - validation orchestration;
 - DONE closure readiness reporting;
-- CLI runtime patch version bump orchestration;
+- detecting and reporting whether post-DONE CLI runtime patch finalization will
+  be required;
 - clear local versus Authority completion status output;
 - smoke tests for the command and its failure modes.
 
@@ -63,13 +77,14 @@ Out of scope:
 - pushing to remote;
 - handling unrelated dirty files by stashing, reverting, or deleting them;
 - replacing reviewer, coverage, or delivery gates.
+- mutating CLI runtime version files before DONE.
 
 ## Command Contract
 
 Primary command:
 
 ```bash
-lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true,"versionBump":"auto"}'
+lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
 ```
 
 Recommended defaults:
@@ -79,17 +94,23 @@ Recommended defaults:
   "mergeMain": true,
   "refreshStale": true,
   "validate": true,
-  "versionBump": "auto",
-  "build": true,
   "dryRun": false
 }
 ```
 
-Supported `versionBump` values:
+`done_prepare` should not accept a version-bump mode in its first
+implementation. It may report:
 
-- `none`: never bump version; fail if runtime change requires a bump.
-- `auto`: detect runtime behavior changes and bump patch when required.
-- `patch`: always bump patch version after validation succeeds.
+```json
+{
+  "postDoneRuntimeVersionBumpRequired": true,
+  "postDoneNext": "After story_advance DONE succeeds on local main, run the runtime version bump/finalize path."
+}
+```
+
+The post-DONE finalization surface can be a later `lattice version_bump --patch`
+or `lattice done_finalize` command. It is intentionally not part of
+`done_prepare`.
 
 Supported `dryRun` behavior:
 
@@ -111,11 +132,14 @@ Supported `dryRun` behavior:
 - repo root cannot be resolved;
 - `main` cannot be found locally.
 
-Allowed dirty files:
+Dirty-file policy:
 
-- existing Lattice metadata changes that the current command itself produced
-  and can safely commit is not allowed in the first version. The first version
-  should require a clean worktree before mutation.
+- the first implementation requires `git status --porcelain` to be clean before
+  mutation;
+- no pre-existing dirty files are allowed, including Lattice metadata files;
+- if `done_prepare` itself produces metadata changes, the command must stop in a
+  `requiresCommit` state and list the exact files to commit before DONE;
+- a successful `DONE prepare: PASS` requires the worktree to be clean.
 
 This keeps the first implementation simple and avoids implicit git behavior.
 
@@ -132,7 +156,7 @@ If the merge conflicts, stop immediately and output:
 - `blockedAt: mergeMain`;
 - conflicted files;
 - next command guidance after manual conflict resolution;
-- no validation, version bump, or DONE attempt.
+- no validation, runtime-change detection, or DONE attempt.
 
 The command must not auto-resolve conflicts.
 
@@ -141,12 +165,22 @@ The command must not auto-resolve conflicts.
 After a successful main merge, run a freshness check through the same material
 hash logic used by `lattice validate` and `done_closure`.
 
-If evidence is stale and `refreshStale=true`, run the existing stale evidence
-refresh path:
+First run the stale-evidence refresh path in classification mode:
+
+```bash
+lattice verification_evidence_refresh_stale --storyId=B-xxxx --dryRun
+```
+
+If the dry run reports evidence that can be safely refreshed by existing
+evidence machinery and `refreshStale=true`, run:
 
 ```bash
 lattice verification_evidence_refresh_stale --storyId=B-xxxx
 ```
+
+If the dry run reports evidence commands that must be rerun, stop and print
+those commands. The command must not convert stale evidence to fresh solely by
+rewriting hashes.
 
 If evidence is stale and `refreshStale=false`, stop with:
 
@@ -172,7 +206,8 @@ If validation fails, stop and surface:
 - failing command or missing coverage summary;
 - the next command emitted by validate when available.
 
-No version bump should happen after failed validation.
+No post-DONE finalization guidance should be treated as actionable after failed
+validation.
 
 ### 5. DONE Closure
 
@@ -185,14 +220,15 @@ lattice done_closure '{"storyId":"B-xxxx"}'
 If `canAttemptDone=false`, stop and show blocking rows. The command must not
 call `story_advance DONE`.
 
-If `canAttemptDone=true`, continue to optional version bump and final output.
+If `canAttemptDone=true`, continue to runtime-change detection and final output.
 
-### 6. Runtime Version Bump
+### 6. Runtime Change Detection
 
-When `versionBump=auto`, detect whether the story changed Lattice CLI runtime
-behavior. The first implementation can use a conservative path-based rule.
+Detect whether the story changed Lattice CLI runtime behavior. The first
+implementation can use a conservative path-based rule.
 
-Require patch bump if the story diff includes any of:
+Report `postDoneRuntimeVersionBumpRequired=true` if the story diff includes any
+of:
 
 - `packages/main/src/core/**`;
 - `packages/main/src/handlers/**`;
@@ -206,7 +242,8 @@ Require patch bump if the story diff includes any of:
 Do not require patch bump for docs-only, story metadata-only, review
 evidence-only, or comment-only changes.
 
-Patch bump must update:
+Do not update version files in `done_prepare`. The report should name the
+post-DONE files that the finalization step must update:
 
 - `package.json`;
 - `package-lock.json`;
@@ -214,30 +251,54 @@ Patch bump must update:
 - `packages/main/package-lock.json`;
 - `packages/main/src/core/lattice-brand.ts`.
 
-The command should use existing package/version parsing rather than ad hoc
-string replacement where feasible. If a required version file is missing or
-contains inconsistent values, stop with `blockedAt: versionBump`.
+If required version sources are already inconsistent, report
+`postDoneVersionState: inconsistent` and include the mismatched values. This is
+advisory for `done_prepare` but should block the later post-DONE finalization
+step.
 
-### 7. Build And Version Check
+### 7. Optional Worktree Build Check
 
-If a version bump occurred, or if `build=true`, run:
+`done_prepare` may run a worktree-local build when validation did not already do
+so, but it should not use the global `lattice` binary for pre-DONE version
+checks. In a story worktree, the reliable command is:
 
 ```bash
 npm --prefix packages/main run build
-lattice --version
+node packages/main/dist/cli.js --version
 ```
 
-The version check must confirm the expected version string. If the global
-`lattice` binary still reports the previous version, stop with:
+The global `lattice --version` check belongs after DONE merge on local `main`.
+Before DONE, global `lattice` may still point at local main and not the story
+worktree build.
+
+If the worktree-local CLI cannot run after build, stop with:
 
 ```text
-blockedAt: versionCheck
-reason: global lattice does not resolve to the rebuilt CLI
+blockedAt: worktreeVersionCheck
+reason: worktree CLI build does not execute
 ```
 
-Do not continue to DONE guidance if version check fails.
+Do not continue to DONE guidance if the optional build check was requested and
+failed.
 
-### 8. Output Final Next Step
+### 8. Final Clean-Tree Check
+
+Before printing `DONE prepare: PASS`, rerun `git status --porcelain`.
+
+If `done_prepare` produced metadata changes that are not committed, stop with:
+
+```text
+DONE prepare: BLOCKED
+blockedAt: cleanTree
+reason: done_prepare produced files that must be committed before DONE
+files:
+  - .lattice/story/actives/B-xxxx/test-evidence.json
+next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
+```
+
+The command must not auto-commit in the first implementation.
+
+### 9. Output Final Next Step
 
 On success, print one clear next step:
 
@@ -261,9 +322,8 @@ mergeMain: PASS
 staleEvidenceRefresh: PASS
 validate: PASS
 doneClosure: PASS
-versionBump: 0.3.9 -> 0.3.10
-build: PASS
-versionCheck: Lattice CLI 0.3.10
+worktreeClean: PASS
+postDoneRuntimeVersionBumpRequired: true
 
 Authority completion:
   localDoneReady: true
@@ -283,6 +343,18 @@ storyId: B-xxxx
 blockedAt: validate
 reason: CHK-003 verification evidence stale
 next: lattice verification_evidence_refresh_stale --storyId=B-xxxx
+```
+
+Commit-required output:
+
+```text
+DONE prepare: BLOCKED
+storyId: B-xxxx
+blockedAt: cleanTree
+reason: done_prepare produced metadata changes that must be committed before DONE
+files:
+  - .lattice/story/actives/B-xxxx/test-evidence.json
+next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
 ```
 
 The output must explicitly distinguish:
@@ -327,8 +399,7 @@ Inputs:
 - `mergeMain` optional boolean;
 - `refreshStale` optional boolean;
 - `validate` optional boolean;
-- `versionBump` optional enum;
-- `build` optional boolean;
+- `build` optional boolean for worktree-local build checks only;
 - `dryRun` optional boolean.
 
 The handler should call existing lifecycle utilities instead of duplicating
@@ -362,21 +433,33 @@ Use existing implementations for:
 If direct reuse is not currently possible, extract a narrow shared helper from
 the existing command rather than copying behavior.
 
-### Step 4. Implement Version Bump Helper
+### Step 4. Implement Runtime Change Detection
 
-Add a version bump helper with a narrow contract:
+Add a runtime-change detector with a narrow contract:
 
-- read current versions;
-- compute patch version;
-- update required files;
-- run build when requested;
-- verify `lattice --version`.
+- inspect `git diff main...HEAD`;
+- classify docs-only, metadata-only, test-only, and runtime-affecting diffs;
+- report whether post-DONE patch finalization is required;
+- report current version source consistency without modifying files.
 
-The helper must fail if version sources disagree before modification, unless
-the disagreement is an already-known lockfile drift that the helper is
-explicitly designed to repair.
+Do not modify version files in this helper.
 
-### Step 5. Add Smokes
+### Step 5. Define Post-DONE Finalization Separately
+
+Define the post-DONE finalization path as a separate story or a later command.
+That path runs only from local `main` after `story_advance DONE` succeeds.
+
+The finalization path may:
+
+- bump the patch version;
+- update package and lockfile version sources;
+- run `npm --prefix packages/main run build`;
+- verify global `lattice --version`;
+- commit the version bump.
+
+It must remain separate from pre-DONE readiness.
+
+### Step 6. Add Smokes
 
 Add focused smoke tests rather than broad end-to-end tests.
 
@@ -386,10 +469,13 @@ Required smokes:
 - dirty worktree blocks before mutation;
 - merge-main conflict blocks at `mergeMain`;
 - stale evidence after main merge triggers refresh when enabled;
+- stale evidence that requires command rerun blocks and prints rerun commands;
 - stale evidence blocks when refresh is disabled;
-- validate fail stops before version bump;
-- runtime source diff with `versionBump=auto` bumps patch version;
-- docs-only diff with `versionBump=auto` does not bump version;
+- validate fail stops before DONE guidance;
+- runtime source diff reports post-DONE patch finalization required without
+  modifying version files;
+- docs-only diff reports no post-DONE patch finalization required;
+- metadata changes produced by prepare block at `cleanTree` until committed;
 - degraded-single-host readiness prints local-only status and does not claim
   Authority DONE;
 - `dryRun=true` reports planned steps without changing files.
@@ -419,21 +505,42 @@ Enable mutation for:
 Acceptance:
 
 - a story that previously required manual merge/refresh/validate reaches
-  `canAttemptDone=true` through `done_prepare`;
+  `canAttemptDone=true` through `done_prepare` when no files were mutated, or
+  stops at `cleanTree` with exact commit-required files when refresh/validate
+  produced metadata changes;
+- after those commit-required files are committed, rerunning `done_prepare`
+  reaches `DONE prepare: PASS`;
 - failure modes stop at the correct step.
 
-### Wave 3. Version Bump And Build
+### Wave 3. Runtime Change Detection
 
-Enable `versionBump=auto`, patch bump, build, and version check.
+Enable runtime-change detection and post-DONE finalization reporting.
 
 Acceptance:
 
-- runtime behavior changes bump exactly one patch version;
-- docs-only changes do not bump;
-- version files remain consistent;
-- `lattice --version` reports the bumped version.
+- runtime behavior changes report `postDoneRuntimeVersionBumpRequired=true`;
+- docs-only changes report `postDoneRuntimeVersionBumpRequired=false`;
+- no version files are modified before DONE;
+- version source inconsistency is reported clearly for later finalization.
 
-### Wave 4. Default Operator Path
+### Wave 4. Post-DONE Finalization Command
+
+Implement a separate post-DONE main command if needed:
+
+```bash
+lattice done_finalize '{"storyId":"B-xxxx","versionBump":"patch"}'
+```
+
+Acceptance:
+
+- runs only from local `main`;
+- refuses to run before the story is DONE;
+- bumps exactly one patch version for runtime behavior changes;
+- updates package and lockfile version sources consistently;
+- runs build and confirms global `lattice --version`;
+- commits only finalization files.
+
+### Wave 5. Default Operator Path
 
 Update `session_brief` and DONE blocker hints to recommend:
 
@@ -449,14 +556,16 @@ Acceptance:
 
 ## Risks
 
-- Over-broad version bump detection could consume version numbers on docs-only
-  work.
-- Under-broad version bump detection could leave runtime changes with stale
-  version output.
+- Over-broad runtime-change detection could ask for unnecessary post-DONE
+  finalization on docs-only work.
+- Under-broad runtime-change detection could leave runtime changes without
+  post-DONE version guidance.
 - Automated merge could surprise operators if dirty tree preflight is weak.
 - Duplicating existing lifecycle logic could create drift from `validate` or
   `done_closure`.
 - Confusing local readiness with Authority readiness could overclaim completion.
+- Pre-DONE mutation that leaves the tree dirty could make `story_advance DONE`
+  fail after `done_prepare` reports success.
 
 ## Risk Controls
 
@@ -465,18 +574,26 @@ Acceptance:
 - Reuse existing validation and DONE closure utilities.
 - Make `dryRun` available from the first wave.
 - Keep local/Authority/prod fields separate in output.
-- Add tests for docs-only and runtime-change version bump decisions.
+- Keep version mutation out of `done_prepare`.
+- Add tests for docs-only and runtime-change finalization guidance.
+- Require a final clean-tree check before `DONE prepare: PASS`.
 
 ## Acceptance Criteria
 
 The implementation is accepted only when:
 
-- `done_prepare` can turn a clean TEST story with stale evidence after main
-  merge into a ready-to-DONE state;
+- `done_prepare` can turn a clean TEST story with no required metadata writes
+  into a ready-to-DONE state;
+- `done_prepare` can handle stale evidence after main merge by either refreshing
+  safely and stopping with exact commit-required files, or by blocking with
+  rerun commands when evidence must be regenerated;
 - all existing DONE gates still run and still block when invalid;
-- runtime behavior stories bump patch version consistently;
-- docs-only stories do not bump version;
+- runtime behavior stories report post-DONE patch finalization required without
+  modifying version files before DONE;
+- docs-only stories do not request post-DONE patch finalization;
 - blocked states report exactly where the process stopped;
+- prepare-generated metadata changes block with a clear commit-required state
+  instead of printing a false DONE-ready result;
 - degraded-single-host local readiness is never rendered as Authority DONE;
 - no remote push or production claim happens automatically.
 
