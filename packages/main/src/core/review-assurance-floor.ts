@@ -69,6 +69,7 @@ export interface ReviewAssuranceFloorFallbackRecord {
 
 export interface ReviewAssuranceFloorReport {
   schemaVersion: 'lattice.review_assurance_floor.v1';
+  storyId?: string;
   ok: boolean;
   required: boolean;
   requiredAssurance: ReviewAssuranceFloorRequiredAssurance;
@@ -425,6 +426,11 @@ function reportBase(
 
 export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorArgs): ReviewAssuranceFloorReport {
   const gitCwd = args.gitCwd ?? args.projectRoot;
+  const storyId = normalizeString(args.storyId);
+  const base = (overrides: Partial<ReviewAssuranceFloorReport>): ReviewAssuranceFloorReport => reportBase({
+    ...(storyId ? { storyId } : {}),
+    ...overrides,
+  });
   const listed = args.changedFiles ? { files: args.changedFiles } : listChangedFiles(gitCwd);
   const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot));
   const materialCodePaths = changedFiles
@@ -435,7 +441,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   const highRiskSignals = collectHighRiskSignals(args, materialCodePaths);
 
   if (listed.error) {
-    return reportBase({
+    return base({
       ok: false,
       required: true,
       requiredAssurance: 'one-local-round',
@@ -452,7 +458,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   }
 
   if (materialCodePaths.length === 0) {
-    return reportBase({
+    return base({
       changedFiles,
       materialHash,
       failureSignals,
@@ -477,7 +483,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       : 'one-local-round';
 
   if (!materialHash) {
-    return reportBase({
+    return base({
       ok: false,
       required: true,
       requiredAssurance,
@@ -525,6 +531,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
 
   return {
     schemaVersion: 'lattice.review_assurance_floor.v1',
+    ...(storyId ? { storyId } : {}),
     ok,
     required: true,
     requiredAssurance,
@@ -613,14 +620,52 @@ function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: stri
   return latestByIndex(records);
 }
 
+const INVALID_ROUND_DETAIL_LIMIT = 5;
+const IGNORED_VERDICT_DETAIL_LIMIT = 8;
+const STALE_VERDICT_SUMMARY_LIMIT = 4;
+
+function ignoredVerdictKey(verdict: IgnoredHostVerdict): string {
+  return verdict.verdictId ?? `event#${verdict.index}`;
+}
+
+function uniqueIgnoredVerdicts(verdicts: IgnoredHostVerdict[]): IgnoredHostVerdict[] {
+  const seen = new Set<string>();
+  const unique: IgnoredHostVerdict[] = [];
+  for (const verdict of verdicts) {
+    const key = `${ignoredVerdictKey(verdict)}:${verdict.index}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(verdict);
+  }
+  return unique;
+}
+
+function isStaleMaterialVerdict(verdict: IgnoredHostVerdict): boolean {
+  return verdict.reasons.some(reason => /material(Digest|Hash) is stale|stale material/i.test(reason));
+}
+
+function formatIgnoredVerdictSummary(verdict: IgnoredHostVerdict): string {
+  const id = ignoredVerdictKey(verdict);
+  const run = verdict.runId ? `@${verdict.runId}` : '';
+  const material = verdict.materialDigest ? ` materialDigest=${verdict.materialDigest}` : '';
+  return `${id}${run}${material}`;
+}
+
 export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorReport): string {
   if (report.ok) return '';
+  const storyRef = report.storyId ?? '<storyId>';
+  const materialRef = report.materialHash ?? '<current-materialHash>';
   const signalSummary = report.failureSignals.length > 0
     ? report.failureSignals.map(signal => `${signal.kind}${signal.id ? `:${signal.id}` : ''}`).join(', ')
     : 'none';
   const highRiskSummary = report.highRiskSignals.length > 0
     ? report.highRiskSignals.map(signal => `${signal.kind}:${signal.value}`).join(', ')
     : 'none';
+  const ignoredVerdicts = uniqueIgnoredVerdicts([
+    ...report.localRounds.ignoredVerdicts,
+    ...report.degradedFallback.ignoredVerdicts,
+  ]);
+  const staleVerdicts = ignoredVerdicts.filter(isStaleMaterialVerdict);
   const lines = [
     'Cannot enter DONE: material code diff requires review assurance floor. [review_assurance_floor_missing]',
     `  - required assurance: ${report.requiredAssurance}`,
@@ -632,16 +677,38 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
     `  - failure signals: ${signalSummary}`,
     `  - high-risk signals: ${highRiskSummary}`,
   ];
-  for (const round of report.localRounds.invalidRounds.slice(0, 5)) {
+  if (staleVerdicts.length > 0) {
+    const shown = staleVerdicts.slice(0, STALE_VERDICT_SUMMARY_LIMIT).map(formatIgnoredVerdictSummary).join(', ');
+    const suffix = staleVerdicts.length > STALE_VERDICT_SUMMARY_LIMIT
+      ? ` (+${staleVerdicts.length - STALE_VERDICT_SUMMARY_LIMIT} more)`
+      : '';
+    lines.push(`  - stale host verdicts: ${shown}${suffix}`);
+  } else if (ignoredVerdicts.length > 0) {
+    lines.push(`  - ignored host verdicts: ${ignoredVerdicts.length} (see reasons below)`);
+  }
+  for (const round of report.localRounds.invalidRounds.slice(0, INVALID_ROUND_DETAIL_LIMIT)) {
     lines.push(`  - invalid local round ${round.runId}: ${round.reasons.join('; ')}`);
   }
-  for (const ignored of report.localRounds.ignoredVerdicts.slice(0, 8)) {
-    const id = ignored.verdictId ?? `event#${ignored.index}`;
+  if (report.localRounds.invalidRounds.length > INVALID_ROUND_DETAIL_LIMIT) {
+    lines.push(`  - ${report.localRounds.invalidRounds.length - INVALID_ROUND_DETAIL_LIMIT} more invalid local round(s) omitted; run review_escalation_status for full diagnostics`);
+  }
+  for (const ignored of ignoredVerdicts.slice(0, IGNORED_VERDICT_DETAIL_LIMIT)) {
+    const id = ignoredVerdictKey(ignored);
     lines.push(`  - ignored host verdict ${id}: ${ignored.reasons.join('; ')}`);
+  }
+  if (ignoredVerdicts.length > IGNORED_VERDICT_DETAIL_LIMIT) {
+    lines.push(`  - ${ignoredVerdicts.length - IGNORED_VERDICT_DETAIL_LIMIT} more ignored host verdict(s) omitted; run autopilot_review_status for full diagnostics`);
   }
   for (const reason of report.reasons) {
     lines.push(`  - ${reason}`);
   }
-  lines.push('→ Submit fresh local host verdicts with autopilot_review_submit over the current material hash; failure-signal stories need 3 local single-host rounds; high-risk lifecycle/gate/Authority/process-fact stories need 3x2 or review_escalation_fallback_set degraded 3x1 evidence.');
+  lines.push(
+    'Stale material recovery:',
+    `  1. Re-run validation: lattice validate --story=${storyRef} --json`,
+    `  2. Refresh stale verificationEvidence: lattice verification_evidence_refresh_stale --storyId=${storyRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
+    `  3. Re-submit local host verdicts over materialHash=${materialRef}: lattice autopilot_review_submit --storyId=${storyRef} --runId=<round-id> --hostId=<host> --sessionId=<session> --keyId=<key> --decision=pass --materialDigest=${materialRef} --validationDigest=<fresh-validation-digest> --promptDigest=<current-prompt-digest>`,
+    `  4. Re-check local diagnostics: lattice autopilot_review_status --storyId=${storyRef}; lattice review_escalation_status --storyId=${storyRef}`,
+    '  - Do not bypass stale material checks; stale verdicts/evidence stay ignored until refreshed or resubmitted over the current material.',
+  );
   return lines.join('\n');
 }

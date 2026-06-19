@@ -1,0 +1,73 @@
+{
+  "storyId": "B-7adb",
+  "checkedAt": "2026-06-19T13:23:52.089Z",
+  "features": [
+    {
+      "feature": "CHK-001 all-runs/latest-runs local verdict diagnostics",
+      "covered_by": "CHK-001 + plan ## CHK-001 + understanding outcome/facts + decision Option A cover additive all-runs/latest-runs summaries while preserving runId behavior and local non-authoritative semantics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/understanding/decision/plan/scope_contract"
+    },
+    {
+      "feature": "CHK-002 voluntary local 3x2 visibility",
+      "covered_by": "CHK-002 + plan ## CHK-002 + understanding facts cover required=false voluntary local host verdict visibility without changing ok/required/assuranceLevel.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/understanding/decision/plan/scope_contract"
+    },
+    {
+      "feature": "CHK-003 stale-material DONE runbook",
+      "covered_by": "CHK-003 + plan ## CHK-003 + understanding outcome + decision premortem cover stale evidence/verdict details, current material hash context, and refresh/resubmit command guidance.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/understanding/decision/plan/scope_contract"
+    },
+    {
+      "feature": "CHK-004 docs and smoke observability",
+      "covered_by": "CHK-004 + plan ## CHK-004 + touchpoints cover docs and smoke tasks for all-runs/latest-runs, voluntary rounds, and stale-material recovery as local diagnostics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/understanding/decision/plan/scope_contract"
+    },
+    {
+      "feature": "future roadmap capability beyond diagnostic UX",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Decision Option C explicitly rejected; plan limits work to diagnostic UX; scope contract excludes new product/business features.",
+      "source": "decision/plan/scope_contract"
+    },
+    {
+      "feature": "server-backed or remote-proof workflow",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding says do not implement server-backed proof workflows; plan excludes server-backed proof workflows; scope contract explicitly excludes server-backed proof workflow.",
+      "source": "understanding/plan/scope_contract"
+    },
+    {
+      "feature": "external host orchestration or unattended orchestration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan excludes external host orchestration; scope contract excludes external host execution and unattended orchestration.",
+      "source": "plan/scope_contract"
+    },
+    {
+      "feature": "lifecycle gate semantic changes or new completion semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding and plan both forbid changing review assurance pass/fail, DONE semantics, lifecycle predicates, or creating new completion semantics; scope contract excludes lifecycle gate semantic changes.",
+      "source": "understanding/plan/scope_contract"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a8e31a54d06230a11324f807b789edfcc5d6368acf6f619c95dedee83cab95bf",
+  "openQuestions": []
+}

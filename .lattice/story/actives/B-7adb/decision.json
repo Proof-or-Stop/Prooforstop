@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Diagnostics must reflect existing gate facts without changing pass/fail semantics.",
+    "Operator recovery should be explicit: stale item, reason, next command.",
+    "Current local review assurance must stay distinct from future server-backed proof work."
+  ],
+  "drivers": [
+    "B-997b closure showed default-run output can hide submitted custom runs.",
+    "Voluntary local 3x2 evidence should be visible even when escalation is not required.",
+    "Stale material guidance needs to reduce repeated manual diagnosis."
+  ],
+  "options": [
+    {
+      "name": "A: Add read-only summaries and runbook text around existing evaluators",
+      "pros": [
+        "Smallest behavioral blast radius",
+        "Preserves existing gate predicates",
+        "Can be covered by focused smoke tests"
+      ],
+      "cons": [
+        "Does not add new completion capability",
+        "Still depends on operators submitting fresh verdicts correctly"
+      ]
+    },
+    {
+      "name": "B: Change DONE/review assurance gate predicates to consume voluntary rounds differently",
+      "pros": [
+        "Could make closure stricter in one implementation pass"
+      ],
+      "cons": [
+        "Out of scope for a diagnostics story",
+        "Higher regression risk for lifecycle gates",
+        "Would blur local diagnostics with completion semantics"
+      ]
+    },
+    {
+      "name": "C: Implement future server-backed proof workflow now",
+      "pros": [
+        "Would eventually solve remote proof visibility more comprehensively"
+      ],
+      "cons": [
+        "Explicitly out of scope",
+        "Large dependency chain",
+        "Would delay the immediate UX fix"
+      ]
+    }
+  ],
+  "chosen": "A: Add read-only summaries and runbook text around existing evaluators",
+  "rationale": "Choose the diagnostic-only path because the bug is operator visibility, not a missing gate predicate. Existing evaluators already know enough facts; the fix should surface them clearly and preserve semantics.",
+  "preMortem": [
+    {
+      "scenario": "Status summary overclaims completion",
+      "trigger": "New all-runs or voluntary-round fields are named as if they satisfy DONE",
+      "consequence": "Operators may treat local diagnostics as stronger proof than they are",
+      "mitigation": "Use local diagnostic naming and keep authority/full/prod flags false in existing reports"
+    },
+    {
+      "scenario": "RunId-specific callers regress",
+      "trigger": "autopilot_review_status changes default output shape too aggressively",
+      "consequence": "Existing scripts expecting default-run summary break",
+      "mitigation": "Keep current fields and add summaries as additive data"
+    },
+    {
+      "scenario": "Runbook becomes stale prose",
+      "trigger": "Failure formatter hardcodes vague commands without stale item context",
+      "consequence": "User still needs manual debugging after DONE blocks",
+      "mitigation": "Include stale verdict/evidence reason rows and exact recovery commands in smoke assertions"
+    }
+  ],
+  "timestamp": "2026-06-19T13:20:16.758Z"
+}

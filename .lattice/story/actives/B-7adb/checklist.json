@@ -8,9 +8,75 @@
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T13:25:30.456Z",
+      "endTime": "2026-06-19T13:33:35.833Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verdicts.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/planner-unattended-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "autopilot_review_status without runId still returns the default-run summary and additionally exposes all/local latest run summaries when custom runs exist.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A story with multiple custom run ids shows per-run counts/status without counting stale, duplicate, or failing verdicts as passing independence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The added summary must not set server-backed completion flags for local verdicts and must preserve existing runId-specific output fields.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User sees \"runs: default-run, round-1, round-2, round-3\" and \"latestRuns\" in autopilot_review_status output instead of only an empty default-run summary.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "planner unattended smoke asserts autopilot_review_status without runId preserves default-run top-level fields while exposing allRunIds/allRuns/latestRuns for custom run ids.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "smoke uses summarizeVerdictRuns with a fresh material anchor and verifies stale, duplicate-identity, and failing custom runs remain blocked in per-run summaries.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "build and smoke verify added diagnostics remain local-only with authorityDone/fullAuthorityDone/multiHostVerified false for local status.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +86,75 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T13:25:32.193Z",
+      "endTime": "2026-06-19T13:33:46.650Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "review_escalation_status required=false output includes submitted voluntary local 3x2/host verdict rounds for operator visibility.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "When escalation is not required and no verdicts exist, output remains ok/required=false and renders an empty voluntary summary without implying missing required work.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Voluntary round visibility must not change ok, required, or assuranceLevel semantics for non-triggering stories.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User sees \"voluntaryLocalRounds: 3/3\" in review_escalation_status while the same output still says \"required: false\" and \"ok: true\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review escalation smoke asserts required=false output includes voluntaryLocalRounds 3/3 when local 3x2 verdict rounds were submitted.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts required=false with no host verdicts keeps ok=true and renders voluntaryLocalRounds 0/3 without implying missing required work.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "build and smoke verify voluntaryLocalRounds is diagnostic-only and does not alter ok, required, assuranceLevel, or authority completion flags.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +164,77 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T13:25:31.271Z",
+      "endTime": "2026-06-19T13:34:38.660Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "DONE/review assurance failure text names stale host verdicts and shows a concise recovery sequence with validation refresh and verdict resubmission commands.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Failure text remains concise when there are many invalid rounds or ignored verdicts by truncating detailed rows and preserving the actionable runbook.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Runbook text must not suggest bypassing stale material checks or changing DONE gate semantics.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "User sees \"Stale material recovery\" followed by \"1. Run lattice validate --story=B-xxxx\" and \"3. Re-submit local host verdicts over materialHash=<current>\" in DONE blocking output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts DONE failure text names stale host verdicts plus validate, verification_evidence_refresh_stale, and autopilot_review_submit recovery commands.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed and asserts many stale ignored verdicts are truncated while the Stale material recovery runbook remains visible.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke passed; assertions keep stale verdicts non-counting and ensure the runbook does not suggest skip, force DONE, override stale material, or Authority completion.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -44,10 +244,121 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Operators see review assurance status grouped by local runs, voluntary 3x2 evidence is visible even when escalation is not required, and stale-material DONE output includes a concise recovery runbook."
+      "status": "done",
+      "startTime": "2026-06-19T13:25:31.731Z",
+      "endTime": "2026-06-19T13:34:57.940Z",
+      "userSees": "User sees docs that name \"autopilot_review_status all-runs/latest-runs\", \"review_escalation_status voluntaryLocalRounds\", and \"Stale material recovery\" as local diagnostics.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "Docs describe the new diagnostic views and stale-material recovery guidance as local diagnostic UX, not new completion capability.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Smoke coverage demonstrates the user-visible diagnostic output for all-runs/latest-runs, voluntary rounds, and stale recovery guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "Docs and tests explicitly preserve the distinction between local diagnostic assurance and future remote-proof work.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "command": "rg -n \"Local diagnostic UX|Local Diagnostic UX|Stale material recovery|voluntaryLocalRounds|all-runs/latest-runs|remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Docs grep found the local diagnostic UX sections, stale-material recovery guidance, all-runs/latest-runs and voluntaryLocalRounds wording, plus explicit non-remote-proof and non-completion boundaries.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "Focused smokes passed in the current worktree: stale recovery guidance, voluntary local 3x2 visibility, and planner/autopilot multi-host verdict diagnostics remained observable.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js && rg -n \"remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Build, stale recovery smoke, and docs grep passed; docs and tests keep local diagnostic assurance separate from future remote proof, Authority receipt evidence, and completion claims.",
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T13:25:30.456Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: implement all-runs/latest-runs local verdict diagnostic summary.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:31.271Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: improve stale-material recovery runbook.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:31.731Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: document and verify observable diagnostic UX.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:32.193Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: expose voluntary local 3x2 rounds in review_escalation_status.",
+      "agent": "codex-main"
     }
   ]
 }

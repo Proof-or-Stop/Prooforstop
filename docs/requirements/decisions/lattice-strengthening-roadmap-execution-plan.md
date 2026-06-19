@@ -847,8 +847,8 @@ Minimum validation commands and expected rows:
 | `git diff --check` | Clean diff before host-verdict artifacts are accepted. |
 | `npm --prefix packages/main run build` | Required for M8 implementation stories that touch CLI runtime inputs; referenced by `M8.build.runtime-fresh`. |
 | `lattice validate --story=<storyId>` | Current validation digest for counted verdicts; rows `M8.validation.current` and `M8.validation.stale-verdict-ignored`. |
-| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, and `M8.quorum.blocked`. |
-| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`. |
+| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, `M8.quorum.blocked`, and local diagnostic `voluntaryLocalRounds` when verdicts exist but escalation is not required. |
+| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`; local all-runs/latest-runs summaries are diagnostic visibility only. |
 | `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic-only row `M8.decision-doc.diagnostic-only`; direct decision-doc edits do not set `requires3x2` unless the threshold or explicit policy predicate is true. |
 
 Expected evidence:
@@ -857,6 +857,9 @@ Expected evidence:
 - Quorum status showing full, degraded, or blocked result.
 - Ignored-verdict reasons for stale, duplicate, failed, blocked, missing, or
   non-independent verdicts.
+- Stale-material DONE runbook text that names stale local host verdicts and
+  shows the local commands to rerun validation, refresh stale verification
+  evidence, and resubmit local host verdicts over the current material hash.
 - Policy-version binding for any explicit high-risk 3x2 requirement.
 
 Blockers:
@@ -871,6 +874,9 @@ DONE criteria:
 - Full 3x2 means three fresh rounds with two independent PASS hosts per round.
 - Degraded 3x1 is labeled lower assurance and accepted only where policy allows.
 - Review escalation remains threshold-triggered, not documentation-triggered.
+- Local all-runs/latest-runs, voluntary round summaries, and stale-material
+  runbooks are diagnostic UX only; they do not create remote proof, Authority
+  receipt evidence, or production/DONE completion claims.
 
 ### M9. Preflight Command Center
 
@@ -1000,9 +1006,9 @@ Deliverables:
 - False-positive rollback/de-escalation policy for advisory rows, local review
   escalation, and new blockers.
 - Operator runbooks for common blocked states: out-of-scope path, stale
-  evidence, missing verification intent, missing scope check, foreign lease,
-  main lock contention, missing second host, baseline expected block, and fake
-  receipt.
+  evidence, stale-material local host verdicts, missing verification intent,
+  missing scope check, foreign lease, main lock contention, missing second host,
+  baseline expected block, and fake receipt.
 - Staged runbook and repair dry-run prerequisites before any new blocker moves
   from advisory to fail-closed.
 - Audited emergency bypass for self-hosting over-block, limited to local
@@ -1036,6 +1042,11 @@ Expected evidence:
 
 - Migration report, dry-run output, or compatibility matrix.
 - User-facing command transcript for each runbook path.
+- Stale-material recovery transcript showing
+  `lattice validate --story=<storyId> --json`,
+  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`,
+  and fresh `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  without suggesting a stale-material bypass.
 - Reviewer pass confirming no overclaim or authority boundary drift.
 - Policy-version binding report showing the active rollout stage and treatment
   for in-flight stories.
@@ -1387,6 +1398,12 @@ M11 staged runbook and repair prerequisite:
 - Before Stage 3/4 fail-closed enforcement, every new blocker class must have a
   runbook entry with the command to inspect it, the command to repair it if a
   repair exists, the expected dry-run output, and the expected audit event.
+- The stale-material local diagnostics runbook must inspect local verdict
+  inventory with `autopilot_review_status`, refresh validation/evidence with
+  `lattice validate --story=<storyId> --json` and
+  `verification_evidence_refresh_stale`, and resubmit local host verdicts over
+  the current material hash. It must not describe remote proof or completion
+  capability.
 - Repair commands must support dry-run where practical. The dry-run must print
   proposed file/artifact changes and row ids without writing story JSON,
   fixtures, runtime code, or lifecycle evidence.

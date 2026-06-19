@@ -263,7 +263,8 @@ try {
     assert.match(report.reasons.join('\n'), /requires 1 fresh local PASS/);
     const formatted = formatReviewAssuranceFloorFailure(report);
     assert.match(formatted, /Cannot enter DONE: material code diff requires review assurance floor/);
-    assert.match(formatted, /Submit fresh local host verdicts with autopilot_review_submit/);
+    assert.match(formatted, /Stale material recovery:/);
+    assert.match(formatted, /autopilot_review_submit/);
   });
 
   check('one fresh local review round passes clean material code', () => {
@@ -286,6 +287,7 @@ try {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story(),
+      storyId: STORY_ID,
       changedFiles: ['packages/main/src/index.ts'],
       processEvents: [verdict('round-1', 'codex-a', 'stale-material')],
       materialHash,
@@ -293,6 +295,35 @@ try {
     assert.equal(report.ok, false);
     assert.equal(report.localRounds.validRounds.length, 0);
     assert.equal(report.localRounds.ignoredVerdicts.some(v => v.reasons.some(reason => reason.includes('stale'))), true);
+    const formatted = formatReviewAssuranceFloorFailure(report);
+    assert.match(formatted, /stale host verdicts: round-1-codex-a@round-1 materialDigest=stale-material/);
+    assert.match(formatted, new RegExp(`lattice validate --story=${STORY_ID} --json`));
+    assert.match(formatted, new RegExp(`lattice verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
+    assert.match(formatted, new RegExp(`Re-submit local host verdicts over materialHash=${materialHash}`));
+    assert.match(formatted, /lattice autopilot_review_submit/);
+    assert.match(formatted, /Do not bypass stale material checks/);
+    assert.doesNotMatch(formatted, /Authority Server receipt|remote proof|productionDone/);
+  });
+
+  check('stale recovery output truncates ignored verdict details', () => {
+    const staleVerdicts = Array.from({ length: 12 }, (_, index) =>
+      verdict(`round-${index + 1}`, `codex-${index + 1}`, `stale-material-${index + 1}`),
+    );
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story(),
+      storyId: STORY_ID,
+      changedFiles: ['packages/main/src/index.ts'],
+      processEvents: staleVerdicts,
+      materialHash,
+    });
+    const formatted = formatReviewAssuranceFloorFailure(report);
+    assert.match(formatted, /\(\+8 more\)/);
+    assert.match(formatted, /4 more ignored host verdict\(s\) omitted/);
+    assert.equal((formatted.match(/ignored host verdict /g) ?? []).length, 8);
+    assert.match(formatted, /Stale material recovery:/);
+    assert.match(formatted, /lattice autopilot_review_status --storyId=B-review-assurance-floor/);
+    assert.doesNotMatch(formatted, /skip stale|force DONE|override stale/i);
   });
 
   check('failure signals require sticky 3x1 local rounds', () => {

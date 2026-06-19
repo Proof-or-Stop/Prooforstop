@@ -71,6 +71,28 @@ Introduce a review assurance floor: zero-review code DONE is invalid; clean ordi
 - Local host verdicts and degraded fallback evidence are Non-authority evidence and must not set authorityDone, fullAuthorityDone, or productionDone.
 - Future implementation must fail closed on stale material hash, missing host identity, missing prompt or validation binding, and duplicate/self-claimed assurance.
 
+## Local Diagnostic UX
+
+The local diagnostic surfaces are operator guidance only. They explain why a
+local DONE pre-check is blocked and which local commands refresh the evidence;
+they do not create remote proof, Authority receipt evidence, or a new completion
+capability.
+
+- `autopilot_review_status --storyId=<storyId>` may show all local run ids and
+  latest local run summaries, including counted and ignored host verdicts.
+- `review_escalation_status --storyId=<storyId>` may show
+  `voluntaryLocalRounds` even when escalation is not required. That visibility
+  must not change `required`, `ok`, or `assuranceLevel`.
+- A review-assurance DONE block should render `Stale material recovery` with:
+  `lattice validate --story=<storyId> --json`,
+  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
+  followed by the same command without `--dryRun` after rerunning listed
+  evidence commands, and `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  for fresh local host verdicts.
+- Stale verification evidence and stale or ignored host verdicts remain
+  non-counting until refreshed or resubmitted over the current material hash.
+  The runbook must not suggest bypassing stale-material checks.
+
 ## Verification Requirements
 
 - A future smoke test proves an ordinary code-diff story cannot reach DONE with zero review rounds.
@@ -78,6 +100,10 @@ Introduce a review assurance floor: zero-review code DONE is invalid; clean ordi
 - A future smoke test proves validation failure or bug evidence makes 3x1 required and sticky before DONE.
 - A future smoke test proves high-risk lifecycle/gate/Authority/process-fact stories still require 3x2 or explicit degraded-single-host evidence.
 - A future smoke test proves 3x1 evidence reports assuranceLevel=degraded-single-host and never claims Authority Server receipt-backed completion.
+- A smoke test proves stale-material recovery text names stale local host
+  verdicts, truncates long ignored-verdict details, shows the validation,
+  stale-evidence refresh, and local verdict resubmission commands, and preserves
+  the local/non-authority boundary.
 
 ## Risks
 
