@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-30c3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 10 intents (9 must + 1 should). All 7 CHK-001 must-intents and 2 CHK-002 must-intents have concrete, item-scoped logic_test/manual_transcript evidence pointing at usage-ledger-codex-gemini-smoke.ts. Smoke independently executed and confirmed 50/50 checks passed: null-proto projection (top-level + nested), extra-key drop, cacheRead preservation, prototype-pollution own-property guards (usage/usageMetadata/prompt_tokens/cached_tokens), malformed-object unavailable-final-supersedes, never-throws. No coverage gaps found.",
+      "createdAt": "2026-06-19T19:18:30.464Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-002",
+      "_hash": "e8eac2c49de99fb3a8aae30496ee5d83e02f313b4a8dae69599fb6eb7f493105"
+    }
+  ]
+}
