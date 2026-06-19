@@ -39,6 +39,8 @@ import {
 } from '../core/usage-ledger/dispatch-usage.js';
 import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/writer.js';
 import { summarizeRecords } from '../core/usage-ledger/summary.js';
+import { aggregateByGroup, buildUsageReport } from '../core/usage-ledger/diagnostics.js';
+import type { UsageLedgerRecord } from '../core/usage-ledger/record.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -408,6 +410,242 @@ async function main(): Promise<void> {
     assert.equal(finals.length, 1, 'exactly one provider-reported record must be written');
     assert.ok((finals[0].ledgerCallId ?? '').length > 0, 'a fresh correlation must mint a non-empty ledgerCallId');
     assert.ok((finals[0].attemptId ?? '').length > 0, 'a fresh correlation must mint a non-empty attemptId');
+  });
+
+  // ======================================================================
+  // CHK-PRIMARY (B-b1f4): the ADDITIVE input+output ("primary") aggregate.
+  //
+  // A codex (openai adapter) and a gemini provider-reported final each set
+  // cacheCreation=null BY DESIGN, so they stay four-field-UNKNOWN (excluded
+  // from providerReportedTotal / bySource.known) — yet their input+output MUST
+  // surface in summary.primaryReportedTotal and diagnostics
+  // bySource['provider-reported'].primaryKnown. A claude record (all four dims
+  // known) appears in BOTH the strict four-field total AND the primary total.
+  // Estimates and unavailable records contribute to NEITHER primary aggregate.
+  // ======================================================================
+
+  // Build a single combined ledger by writing codex/gemini/claude finals (each
+  // supersedes its own preflight estimate) into ONE shared root, then reading
+  // the whole chain back. Distinct correlations per preflight keep them apart.
+  const primaryRoot = freshRoot();
+
+  // codex final: input=500, output=200, cache* null -> four-field unknown.
+  {
+    const h = recordDispatchPreflight(primaryRoot, ctx(), 'codex-prompt', opts(ON));
+    assert.ok(h);
+    recordDispatchFinalForProvider(
+      primaryRoot,
+      ctx(),
+      h!.correlation,
+      h!.estimateRecordId,
+      'openai',
+      { prompt_tokens: 500, completion_tokens: 200 },
+      'gpt-5-codex',
+      opts(ON),
+    );
+  }
+  // gemini final: input=800, output=120, cacheRead=40, cacheCreation null ->
+  // four-field unknown (cacheCreation null) but primary-known.
+  {
+    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
+    const h = recordDispatchPreflight(primaryRoot, gctx, 'gemini-prompt', opts(ON));
+    assert.ok(h);
+    recordDispatchFinalForProvider(
+      primaryRoot,
+      gctx,
+      h!.correlation,
+      h!.estimateRecordId,
+      'gemini',
+      { promptTokenCount: 800, candidatesTokenCount: 120, cachedContentTokenCount: 40 },
+      'gemini-2.5-pro',
+      opts(ON),
+    );
+  }
+  // claude final: all four dims known (input=500, output=200, cacheCreation=10,
+  // cacheRead=50) -> four-field total 760 AND primary 700.
+  {
+    const cctx = ctx({ agentType: 'lattice-dispatch:claude-code', model: 'claude-code' });
+    const h = recordDispatchPreflight(primaryRoot, cctx, 'claude-prompt', opts(ON));
+    assert.ok(h);
+    recordDispatchFinal(
+      primaryRoot,
+      cctx,
+      h!.correlation,
+      h!.estimateRecordId,
+      { input_tokens: 500, output_tokens: 200, cache_creation_input_tokens: 10, cache_read_input_tokens: 50 },
+      'claude-opus-4-8',
+      opts(ON),
+    );
+  }
+  const primaryRecords = readLedger(primaryRoot);
+
+  await check('CHK-PRIMARY summary: codex+gemini+claude all contribute to primaryReportedTotal', () => {
+    const summary = summarizeRecords(primaryRecords);
+    // (500+200) + (800+120) + (500+200) = 700 + 920 + 700 = 2320 across 3 finals.
+    assert.equal(summary.primaryReportedTotal, 2320, 'primary total = sum of all three input+output');
+    assert.equal(summary.primaryReportedCount, 3, 'all three provider-reported finals contribute to primary');
+  });
+
+  await check('CHK-PRIMARY summary: strict four-field UNCHANGED (claude only, codex/gemini still unknown)', () => {
+    const summary = summarizeRecords(primaryRecords);
+    // Only claude has all four dims known: 500+200+10+50 = 760.
+    assert.equal(summary.providerReportedTotal, 760, 'four-field total counts claude only');
+    assert.equal(summary.providerReportedCount, 1, 'only claude is four-field-known');
+    // codex + gemini are four-field unknown (cacheCreation null by design).
+    assert.equal(summary.unknownCount, 2, 'codex+gemini four-field unknown; estimates superseded');
+    // Estimates were all superseded by their finals -> none counted.
+    assert.equal(summary.estimateCount, 0, 'preflight estimates are superseded, not counted');
+    assert.equal(summary.estimateSubtotal, 0, 'no estimate subtotal (all superseded)');
+  });
+
+  await check('CHK-PRIMARY diagnostics: bySource provider-reported carries primaryKnown AND four-field known', () => {
+    const report = buildUsageReport(primaryRecords);
+    const pr = report.overall.bySource['provider-reported'];
+    // Primary aggregate spans all three finals: in = 500+800+500 = 1800; out = 200+120+200 = 520.
+    assert.equal(pr.primaryKnown.input, 1800, 'overall primary input across all three finals');
+    assert.equal(pr.primaryKnown.output, 520, 'overall primary output across all three finals');
+    assert.equal(pr.primaryKnownCount, 3, 'all three finals are primary-known');
+    // Four-field known counts claude only (codex/gemini cacheCreation null).
+    assert.deepEqual(
+      pr.known,
+      { input: 500, output: 200, cacheCreation: 10, cacheRead: 50 },
+      'four-field known is the claude record only',
+    );
+    assert.equal(pr.knownCount, 1, 'only claude contributes to four-field known');
+    assert.equal(pr.unknownCount, 2, 'codex+gemini are four-field unknown');
+  });
+
+  await check('CHK-PRIMARY aggregateByGroup: codex group is four-field-unknown yet primary-known', () => {
+    // Isolate a single codex record so its group bucket is unambiguous.
+    const codexOnlyRoot = freshRoot();
+    const h = recordDispatchPreflight(codexOnlyRoot, ctx(), 'codex-only', opts(ON));
+    assert.ok(h);
+    recordDispatchFinalForProvider(
+      codexOnlyRoot,
+      ctx(),
+      h!.correlation,
+      h!.estimateRecordId,
+      'openai',
+      { prompt_tokens: 500, completion_tokens: 200 },
+      'gpt-5-codex',
+      opts(ON),
+    );
+    const groups = aggregateByGroup(readLedger(codexOnlyRoot));
+    // Selection drops the superseded estimate, leaving the single codex final.
+    const codexGroup = groups.find((g) => g.bySource['provider-reported'].primaryKnownCount > 0);
+    assert.ok(codexGroup, 'expected a group with a primary-known provider-reported record');
+    const b = codexGroup!.bySource['provider-reported'];
+    assert.deepEqual(b.primaryKnown, { input: 500, output: 200 }, 'codex primaryKnown = input+output');
+    assert.equal(b.primaryKnownCount, 1, 'codex contributes one primary-known record');
+    assert.equal(b.knownCount, 0, 'codex four-field-known count is 0 (cacheCreation null)');
+    assert.equal(b.unknownCount, 1, 'codex is four-field unknown');
+  });
+
+  await check('CHK-PRIMARY edge: estimate + unavailable records do NOT contribute to the primary aggregate', () => {
+    // A standalone preflight estimate (NOT superseded) survives selection as a
+    // single prompt-size-estimate record (input-only; output null), so it never
+    // contributes to the provider-reported primary aggregate.
+    const estimateRoot = freshRoot();
+    recordDispatchPreflight(estimateRoot, ctx(), 'estimate-only-prompt', opts(ON));
+    const estimateRecords = readLedger(estimateRoot);
+    const estSummary = summarizeRecords(estimateRecords);
+    assert.equal(estSummary.selected.length, 1, 'one standalone estimate record selected');
+    assert.equal(estSummary.selected[0].source, 'prompt-size-estimate', 'selected record is the estimate');
+    assert.equal(
+      estSummary.primaryReportedTotal,
+      0,
+      'an estimate must NOT contribute to primaryReportedTotal (provider-reported only)',
+    );
+    assert.equal(estSummary.primaryReportedCount, 0, 'estimate contributes 0 to primary count');
+    const estReport = buildUsageReport(estimateRecords);
+    assert.equal(
+      estReport.overall.bySource['provider-reported'].primaryKnownCount,
+      0,
+      'estimate does not populate the provider-reported primaryKnown bucket',
+    );
+
+    // unavailable final (garbage usage) -> source=unavailable, excluded from primary.
+    const unavailRoot = freshRoot();
+    const h = recordDispatchPreflight(unavailRoot, ctx(), 'unavail-prompt', opts(ON));
+    assert.ok(h);
+    recordDispatchFinalForProvider(
+      unavailRoot,
+      ctx(),
+      h!.correlation,
+      h!.estimateRecordId,
+      'openai',
+      'garbage-not-an-object',
+      'gpt-5-codex',
+      opts(ON),
+    );
+    const unavailRecords = readLedger(unavailRoot);
+    const unavailSummary = summarizeRecords(unavailRecords);
+    assert.equal(unavailSummary.unknownCount, 1, 'the unavailable final is counted unknown');
+    assert.equal(
+      unavailSummary.primaryReportedTotal,
+      0,
+      'an unavailable record must NOT contribute to primaryReportedTotal',
+    );
+    assert.equal(unavailSummary.primaryReportedCount, 0, 'unavailable contributes 0 to primary count');
+    const unavailReport = buildUsageReport(unavailRecords);
+    assert.equal(
+      unavailReport.overall.bySource['provider-reported'].primaryKnownCount,
+      0,
+      'unavailable does not populate the provider-reported primaryKnown bucket',
+    );
+
+    // Source-based exclusion (not just null-based): a prompt-size-estimate with
+    // BOTH primary dims known (input=100, output=50) still must NOT contribute
+    // to the PROVIDER-REPORTED primary aggregate — primaryReportedTotal is
+    // provider-reported-only. Its OWN source bucket DOES carry primaryKnown.
+    const synthEstimate: UsageLedgerRecord = {
+      schemaVersion: 1,
+      recordId: 'llmuse_synth-estimate',
+      ledgerCallId: 'llmcall_synth',
+      attemptId: 'llmatt_synth',
+      sequence: 1,
+      supersedesRecordIds: [],
+      recordedAt: '2026-06-19T00:00:00.000Z',
+      projectRootHash: 'sha256:x',
+      storyId: 'S-test',
+      phase: 'dispatch',
+      agentType: 'lattice-dispatch:codex',
+      decision: { kind: 'allowed' },
+      usage: {
+        source: 'prompt-size-estimate',
+        inputTokens: 100,
+        outputTokens: 50,
+        cacheCreationInputTokens: null,
+        cacheReadInputTokens: null,
+        canonical: { input: 100, output: 50, cacheCreation: null, cacheRead: null },
+        estimator: { name: 'char-heuristic', version: '1', unit: 'chars', confidence: 'low' },
+      },
+      privacy: { promptStored: false, transcriptStored: false, redactionProfile: 'no-raw-content-v1' },
+      authority: { mode: 'local', receiptId: null, receiptVerified: false },
+      integrity: { previousRecordHash: null, recordHash: 'sha256:synth' },
+    };
+    const synthSummary = summarizeRecords([synthEstimate]);
+    assert.equal(
+      synthSummary.primaryReportedTotal,
+      0,
+      'a both-dims-known estimate must NOT feed primaryReportedTotal (provider-reported only)',
+    );
+    const synthReport = buildUsageReport([synthEstimate]);
+    assert.equal(
+      synthReport.overall.bySource['provider-reported'].primaryKnownCount,
+      0,
+      'the estimate must not leak into the provider-reported primaryKnown bucket',
+    );
+    assert.deepEqual(
+      synthReport.overall.bySource['prompt-size-estimate'].primaryKnown,
+      { input: 100, output: 50 },
+      'the estimate primaryKnown lands in its OWN source bucket (source isolation preserved)',
+    );
+    assert.equal(
+      synthReport.overall.bySource['prompt-size-estimate'].primaryKnownCount,
+      1,
+      'one estimate record contributes to its own bucket primaryKnown',
+    );
   });
 
   // ======================================================================

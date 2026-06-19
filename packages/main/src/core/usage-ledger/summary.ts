@@ -27,6 +27,8 @@ interface DerivedRecordTotalBase {
   ledgerCallId: string;
   attemptId: string;
   source: UsageLedgerRecord['usage']['source'];
+  /** input+output when BOTH primary dims are known (independent of cache dims), else null. Never inferred; null for source=unavailable. */
+  primaryTotal: number | null;
 }
 
 /**
@@ -77,6 +79,10 @@ export interface UsageLedgerSummary {
   estimateCount: number;
   /** Selected records reported as unknown (unavailable / null dimensions). */
   unknownCount: number;
+  /** Additive: sum of input+output over provider-reported records whose BOTH primary dims are known. Includes cache-less providers (codex/gemini) that the strict four-field providerReportedTotal excludes. Distinct from providerReportedTotal; never inferred. */
+  primaryReportedTotal: number;
+  /** How many provider-reported records contributed to primaryReportedTotal. */
+  primaryReportedCount: number;
 }
 
 /**
@@ -89,11 +95,22 @@ export interface UsageLedgerSummary {
  */
 export function deriveRecordTotal(record: UsageLedgerRecord): DerivedRecordTotal {
   const { usage } = record;
+  // primaryTotal = input+output when BOTH primary dims are known, else null.
+  // Independent of the cache dims and NEVER inferred: unavailable source, or a
+  // null input/output, both yield null. Computed once and placed on `base` so
+  // both union members carry it regardless of the four-field `unknown` verdict.
+  const primaryTotal =
+    usage.source === 'unavailable' ||
+    usage.inputTokens === null ||
+    usage.outputTokens === null
+      ? null
+      : usage.inputTokens + usage.outputTokens;
   const base: DerivedRecordTotalBase = {
     recordId: record.recordId,
     ledgerCallId: record.ledgerCallId,
     attemptId: record.attemptId,
     source: usage.source,
+    primaryTotal,
   };
 
   if (usage.source === 'unavailable') {
@@ -176,8 +193,18 @@ export function summarizeRecords(records: UsageLedgerRecord[]): UsageLedgerSumma
   let estimateSubtotal = 0;
   let estimateCount = 0;
   let unknownCount = 0;
+  let primaryReportedTotal = 0;
+  let primaryReportedCount = 0;
 
   for (const item of selected) {
+    // ADDITIVE primary aggregate, computed BEFORE the four-field `continue`: a
+    // cache-less provider record IS four-field-unknown yet must still contribute
+    // its input+output here. Independent accumulator — never touches the strict
+    // providerReportedTotal below. Estimates / unavailable are excluded.
+    if (item.source === 'provider-reported' && item.primaryTotal !== null) {
+      primaryReportedTotal += item.primaryTotal;
+      primaryReportedCount += 1;
+    }
     if (item.unknown) {
       unknownCount += 1;
       continue;
@@ -202,6 +229,8 @@ export function summarizeRecords(records: UsageLedgerRecord[]): UsageLedgerSumma
     estimateSubtotal,
     estimateCount,
     unknownCount,
+    primaryReportedTotal,
+    primaryReportedCount,
   };
 }
 
@@ -219,6 +248,8 @@ export function summarizeLedgerFile(ledgerPath: string): UsageLedgerSummary {
       estimateSubtotal: 0,
       estimateCount: 0,
       unknownCount: 0,
+      primaryReportedTotal: 0,
+      primaryReportedCount: 0,
     };
   }
   return summarizeRecords(parseLedgerLines(readFileSync(ledgerPath, 'utf8')));
