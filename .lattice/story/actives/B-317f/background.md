@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-19 while driving story B-4033 to DONE, validate stalled: a mutating smoke (review-pass-discard / init-window-data-loss) hung under transient global main-write-lock contention, producing no output until cli-engine.ts:4038 IDLE watchdog (300s) force-exited the whole validate process. Because the force-exit skips re-stamping test-evidence.materialHash, the DONE Evidence-freshness gate could not pass — appearing as a deadlock that blocks EVERY story DONE under load.
+
+## Key Insights
+validation-executor.ts:210 only arms a per-command SIGTERM/SIGKILL timer when command.timeoutMs>0; lattice.config.json validate.commands are bare strings (no timeoutMs), so most commands have NO per-command ceiling. The only backstop is the process-wide 300s idle watchdog in cli-engine.ts:4031-4042, which force-exits the ENTIRE process and does not attribute the failure to a command or re-stamp evidence. Per-command timeouts already exist (the timeout diagnostic at validation-executor.ts:33-39) but are opt-in. Making them default-on (with a sensible ceiling below the global idle watchdog) attributes a hang to the offending command (exit 124) and lets validate finish/report instead of silently dying.
+
+## Solution Tradeoffs
+Add a DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS in validation-executor.ts and use it when command.timeoutMs is unset, so every command gets a hard per-command ceiling; keep per-command override via lattice.config.json for legitimately long commands. Choose the default below the 300s global idle watchdog so the per-command kill fires first and is attributable. Do NOT change the global watchdog or lattice.config.json itself (config is environment-specific); the fix is one core file + a smoke. This does not fix the underlying lock contention (transient, load-dependent) — it makes validate robust to it.
+
+## Conversational Texture
+The operator hit this as an apparent DONE deadlock that turned out to be transient lock contention amplified by a silent whole-suite force-exit. The value is that a hung validate command produces a clear, attributed timeout failure instead of mysteriously blocking DONE for all stories; acceptance is a smoke proving a hung command is killed (exit 124, named) while a normal command is unaffected, tsc green.

@@ -1,0 +1,29 @@
+{
+  "storyId": "B-317f",
+  "name": "validate-percommand-timeout",
+  "title": "Harden validate: default per-command timeout so a hung validate command fails loud instead of silently aborting the suite",
+  "description": "The validate command runner only applies a per-command kill timer when lattice.config.json sets command.timeoutMs; the configured commands are bare strings with no timeoutMs, so a hung command produces no output until the GLOBAL 300s idle watchdog force-exits the whole validate process — which never re-stamps test-evidence.materialHash, silently blocking the DONE Evidence-freshness gate. Add a default per-command timeout (below the global idle watchdog) so a hung command is killed with a clear per-command timeout failure (exit 124, naming the command) rather than nuking the suite.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "validate",
+    "timeout",
+    "watchdog",
+    "robustness",
+    "validation-executor"
+  ],
+  "createdAt": "2026-06-19T16:41:28.721Z",
+  "startedAt": "2026-06-19T16:41:28.721Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T16:41:28.734Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
