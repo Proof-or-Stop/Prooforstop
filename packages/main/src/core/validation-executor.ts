@@ -181,6 +181,16 @@ export function formatWorktreePollutionDetails(
   return lines;
 }
 
+/**
+ * Run a single validation command, enforcing a per-command wall-clock timeout.
+ *
+ * `defaultTimeoutMs` is a TEST SEAM: it overrides the module-default ceiling used when the
+ * command carries no explicit `timeoutMs`, letting tests exercise the default-arming path
+ * with a tiny value instead of waiting the full default. Production callers go through
+ * {@link executeValidationPlan}, which intentionally does NOT thread this parameter through —
+ * every production command either carries its own `timeoutMs` or wants the real
+ * DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, so there is no plan-level injection to expose.
+ */
 export function runValidationCommand(
   command: ValidationCommand,
   projectRoot: string,
@@ -264,7 +274,11 @@ export function runValidationCommand(
       try {
         if (isWindows) {
           // Windows has no process groups/POSIX signals; force-kill the whole tree.
-          spawn('taskkill', ['/pid', String(pid), '/t', '/f'], { stdio: 'ignore' });
+          // Attach an 'error' handler: a missing/unlaunchable taskkill emits an async
+          // 'error' on the returned child, which would otherwise be an unhandled exception
+          // that crashes the process. Fall back to a direct child.kill() in that case.
+          spawn('taskkill', ['/pid', String(pid), '/t', '/f'], { stdio: 'ignore' })
+            .on('error', () => { try { child.kill(signal); } catch { /* already gone */ } });
         } else {
           process.kill(-pid, signal); // negative pid → the child's process group
         }
