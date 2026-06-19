@@ -1,0 +1,56 @@
+{
+  "storyId": "B-503b",
+  "changes": "Created docs/requirements/decisions/review-assurance-floor-execution-plan.md and linked it from docs/requirements/NAV.md. The plan defines a mandatory review assurance floor: code changes cannot close with zero review, failure or bug signals escalate to 3x1 local audit, and high-risk gate/Authority/process-fact work keeps 3x2 or explicit degraded-single-host evidence.",
+  "usage": "Use the new decision document as the execution source for the next implementation story that adds mechanical DONE-oracle enforcement for review assurance floors.",
+  "expectedOutcome": "User expects to see a durable execution plan saying ordinary code changes require at least one review round, bug/failure/rework changes require three local single-host rounds, and local evidence never claims Authority Server completion.",
+  "actualTranscript": "Observed: new decision doc exists, NAV links Review Assurance Floor Execution Plan, lattice validate passed build plus authority-client-smoke plus authority-completion-smoke, 6/6 verification intents covered, three runId-specific local audit rounds recorded and delivery reviewer passed.",
+  "outcomeDiff": "No product-level difference: expected document, NAV link, 3x1 local audit evidence, validation PASS, and delivery check PASS were all observed. Runtime enforcement is intentionally future work.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Runtime DONE gate enforcement is not implemented in this story; this is the approved execution plan and local Non-authority evidence only.",
+  "pitfalls": "A real review issue was found: initial CHK-002 evidence cited an ambiguous x3/default-run check. It was fixed by using runId-specific autopilot_review_status for r1/r2/r3. NAV also needed a small discoverability update after merging main.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 101341
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20867
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 143467
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 285271
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 785661
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 234675
+    }
+  },
+  "totalDurationMs": 1571292,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T00:44:12.114Z",
+  "updatedAt": "2026-06-19T00:44:12.114Z"
+}
