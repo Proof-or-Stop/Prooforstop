@@ -1,0 +1,124 @@
+{
+  "command": "lattice validate --story=B-ed99 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 12 required intent(s)\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 0/12 covered (12 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] missing — A material code diff story with one valid current-material local review round satisfies the review assurance floor without requiring 3x2 by default\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — A docs-only markdown diff is not classified as material code and is not overblocked by the zero-review code floor\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] missing — A material code diff story with zero current-material review evidence is blocked before DONE with an actionable review assurance floor message\",\"  ✗ CHK-002:happy:0 [happy/must/logic] missing — A validation failure, bug, or verified finding signal makes a material code story require three local single-host rounds before DONE\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — A failure-triggered story remains escalated after repair until the required fresh-material rounds exist\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — Stale or missing materialDigest host verdicts do not satisfy the failure-triggered 3x1 requirement\",\"  ✗ CHK-003:happy:0 [happy/must/logic] missing — Local review assurance reports authorityDone=false, fullAuthorityDone=false, and productionDone=false for both one-round and 3x1 evidence\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — Degraded single-host evidence is labeled degraded-single-host and never as two-host independent review\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — A forged local process event that claims Authority completion does not become Authority Server receipt-backed proof\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — The smoke task covers zero-review block, one-round pass, failure-triggered 3x1 pass, and Authority flags false\",\"  ✗ CHK-004:edge:0 [edge/must/cli] missing — DONE preflight diagnostics name the missing assurance reason and next action\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/cli] missing — Process-fact contract fails if the new DONE gate semantics are documented only in prose and not registered as gate-consumed facts\"],\"warnings\":[],\"timestamp\":\"2026-06-19T01:47:16.156Z\",\"headSha\":\"02e6fccb3232185cf9cf6351b11551d882e36b86\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":11505},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":220},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":196}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":0,\"missingRequired\":12,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A material code diff story with one valid current-material local review round satisfies the review assurance floor without requiring 3x2 by default\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A docs-only markdown diff is not classified as material code and is not overblocked by the zero-review code floor\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A material code diff story with zero current-material review evidence is blocked before DONE with an actionable review assurance floor message\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A validation failure, bug, or verified finding signal makes a material code story require three local single-host rounds before DONE\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A failure-triggered story remains escalated after repair until the required fresh-material rounds exist\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Stale or missing materialDigest host verdicts do not satisfy the failure-triggered 3x1 requirement\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Local review assurance reports authorityDone=false, fullAuthorityDone=false, and productionDone=false for both one-round and 3x1 evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Degraded single-host evidence is labeled degraded-single-host and never as two-host independent review\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A forged local process event that claims Authority completion does not become Authority Server receipt-backed proof\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"The smoke task covers zero-review block, one-round pass, failure-triggered 3x1 pass, and Authority flags false\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"DONE preflight diagnostics name the missing assurance reason and next action\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Process-fact contract fails if the new DONE gate semantics are documented only in prose and not registered as gate-consumed facts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-19T01:47:16.392Z",
+  "headHash": "02e6fccb3232185cf9cf6351b11551d882e36b86",
+  "materialHash": "ebdf8153f3a3b63679fada22b8903ca055fbb01e154251da9f7ec8c98b08d168",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 0,
+    "missingRequired": 12,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A material code diff story with one valid current-material local review round satisfies the review assurance floor without requiring 3x2 by default",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A docs-only markdown diff is not classified as material code and is not overblocked by the zero-review code floor",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A material code diff story with zero current-material review evidence is blocked before DONE with an actionable review assurance floor message",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "A validation failure, bug, or verified finding signal makes a material code story require three local single-host rounds before DONE",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "A failure-triggered story remains escalated after repair until the required fresh-material rounds exist",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Stale or missing materialDigest host verdicts do not satisfy the failure-triggered 3x1 requirement",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Local review assurance reports authorityDone=false, fullAuthorityDone=false, and productionDone=false for both one-round and 3x1 evidence",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Degraded single-host evidence is labeled degraded-single-host and never as two-host independent review",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A forged local process event that claims Authority completion does not become Authority Server receipt-backed proof",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "The smoke task covers zero-review block, one-round pass, failure-triggered 3x1 pass, and Authority flags false",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "DONE preflight diagnostics name the missing assurance reason and next action",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Process-fact contract fails if the new DONE gate semantics are documented only in prose and not registered as gate-consumed facts",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}

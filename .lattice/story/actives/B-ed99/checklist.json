@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T01:40:26.608Z",
-      "endTime": null,
+      "endTime": "2026-06-19T01:48:29.089Z",
       "files": {
         "modify": [
           "packages/main/src/core/done-oracle.ts",
@@ -47,7 +47,39 @@
           }
         ]
       },
-      "userSees": "DONE Gate Checklist shows Review assurance floor: PASS for material code diff after one fresh local review round; zero-review material code shows a blocking missing_review_floor reason."
+      "userSees": "DONE Gate Checklist shows Review assurance floor: PASS for material code diff after one fresh local review round; zero-review material code shows a blocking missing_review_floor reason.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: one fresh local review round passes clean material code without requiring 3x2.",
+          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:29.248Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: docs-only markdown is not overblocked.",
+          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:29.341Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: zero-review material code is blocked with formatted DONE diagnostic.",
+          "headHash": "848c071c878ac8da0371e4be0c975d00a4f313a7",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:29.435Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
