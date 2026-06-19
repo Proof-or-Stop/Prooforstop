@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|adversarial-evidence-intent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-aa8a:F-002",
+      "desc": "misleading-test: version-bump-smoke.ts:139-141 test 12 name claims whitespace around brand literal still parses but only exercises readSyncedVersion (read path); applyPatchBump replaceOnce uses a fixed-format needle LATTICE_CLI_VERSION = (single space, no padding) which would fail to match the whitespace-padded form tested, leaving a latent write-path failure undiscovered by the test",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T19:54:33.648Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "eb846e51d838394727a50f0322d5675a8ffb938b6c33d89d3b1c0d57a7b79cad",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts",
+        "packages/main/src/core/version-bump.ts"
+      ],
+      "signatureTag": "edge|ts|misleading-test-version",
+      "signatureTagSource": "auto"
     }
   ]
 }
