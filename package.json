@@ -28,6 +28,7 @@
     "test:done-oracle-wrapper-root": "npm --prefix packages/main run test:done-oracle-wrapper-root",
     "test:dispatch-checklist-doctor-wrapper-root": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
     "test:graceful-sites-gitroot-cwd": "node packages/main/dist/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.js",
+    "test:usage-ledger-codex-gemini": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
     "test:storydir-inside-gitroot-smoke": "npm --prefix packages/main run test:storydir-inside-gitroot-smoke",
     "test:storydir-inside-gitroot-suite": "npm --prefix packages/main run test:storydir-inside-gitroot-suite",
     "test:smokes-full": "npm run test:storydir-inside-gitroot-suite && npm run test:all",

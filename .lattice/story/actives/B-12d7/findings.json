@@ -1,0 +1,93 @@
+{
+  "findings": [
+    {
+      "id": "B-12d7:F-001",
+      "desc": "concept-naming: DISPATCH_LEDGER_ESTIMATE_MODEL (value claude-code) reused as preflight estimate model for codex/gemini dispatches in runBoundedRealLeafDispatch (lattice-dispatch.ts:2008); preflight estimate records for hostKind=codex/gemini will carry model=claude-code, which is semantically wrong — a codex preflight should carry a codex/unknown model, not claude-code. A provider-specific constant or unknown is needed for the codex/gemini ledgerCtx.model.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T02:56:25.796Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-002",
+      "_hash": "cfe600444aa847adc3a76c52e7cbd6a77f7297717c2b36709b8b423f13368b57",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|concept-naming-dispatch",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b2b6830: runBoundedRealLeafDispatch ledgerCtx no longer sets model to the claude-code constant; the codex/gemini preflight estimate falls back to DEFAULT_ESTIMATE_MODEL=unknown (honest pre-run model), and the final record binds the real result.model via finalContextForProvider. DISPATCH_LEDGER_ESTIMATE_MODEL stays used only by the claude path.",
+      "resolvedAt": "2026-06-19T03:11:21.732Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-12d7:F-002",
+      "desc": "CHK-003:adversarial:3 intent requires concurrent dispatch test (two codex runs in rapid succession, distinct correlations, no file corruption) but the bound evidence file (usage-ledger-codex-gemini-smoke.ts) contains no concurrent test -- the note itself acknowledges sequential dispatches only. The dispatch-smoke CHK-001 concurrent-preflights test is preflight-only and a different smoke, not bound to this intent. The concurrent ledger-append correctness at the runBoundedRealLeafDispatch level is untested. A real concurrent test with Promise.allSettled or two synchronous appends to the same ledger file is needed to satisfy this must-priority adversarial intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T02:59:28.532Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-003",
+      "_hash": "8936aed7c1aa73bc799c47d8b2e53862e1d948a7ef680d3f581e65db7e146f68",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b2b6830: added smoke check \"CHK-003 adversarial:3: two codex finals to the SAME root -> distinct correlations, chain intact\" (two preflight+final cycles to one ledger root; asserts 4 records, distinct ledgerCallId on the two finals, verifyLedgerChain passes). Evidence rebound to the new check.",
+      "resolvedAt": "2026-06-19T03:11:26.355Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-12d7:F-003",
+      "desc": "CHK-002:edge:2 (model=null -> fallback model id) and CHK-002:edge:3 (correlation=null -> mints fresh) are must-priority intents with evidence notes that only cite code-path analysis (no executing smoke assertion). The codex-gemini smoke passes null correlation to recordDispatchFinalForProvider only in the OFF-flag test (line 296-297) which asserts nothing was written, not that a null correlation correctly mints a fresh one and still records. CHK-002:edge:2 has no test at all passing model=null. These are thin but not blockers given the code paths are structurally simple and the surrounding tests exercise the functions heavily; advisory to add direct null-model and null-correlation assertions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T02:59:44.592Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-003",
+      "_hash": "09af87ca3ce151e5458aedc640a286d6d4fd38dd8235969ae79ddf1e699fd872",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-model-fallback",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b2b6830: added executable assertions \"CHK-002 edge:2 (model=null -> provider.model unknown)\" and \"CHK-002 edge:3 (correlation=null + estimateRecordId=null -> fresh correlation minted, final written)\". Evidence rebound from code-analysis to the real assertions.",
+      "resolvedAt": "2026-06-19T03:11:30.384Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-12d7:F-004",
+      "desc": "CHK-003:edge:3 verdict is audit_only (result=pass) but the literal intent -- providerReportedTotal equals the stub token counts -- is not satisfied. The honest note explains why: openai/gemini structurally never report cacheCreation, so summary.ts buckets every codex/gemini record as unknownCount rather than providerReportedTotal. What IS verified: per-record token counts are correct, estimateCount===0 (no double-count), and the WHY of the intent (supersede semantics eliminate the estimate) holds. The gap (cache-less-provider tokens excluded from aggregate total) is a known design limitation tracked as out-of-scope follow-up. Judged acceptable at advisory severity given the honest disclosure and follow-up tracking; not a blocker.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T03:00:14.498Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-003",
+      "_hash": "ef6356e95db26c1bf3a97abba2b377967b1962a8433f3f51af04502abf32f54c",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+        "packages/main/src/core/usage-ledger/summary.ts"
+      ],
+      "signatureTag": "missing|ts|edge-verdict-audit",
+      "signatureTagSource": "auto",
+      "dismissReason": "Known design limitation, out of this story scope (dispatch-seam capture). openai/gemini structurally never report cacheCreation, so the pre-existing four-field summary identity buckets their records as unknownCount. This story correctly CAPTURES per-record token counts + supersede semantics; surfacing cache-less-provider tokens in the aggregate providerReportedTotal requires a summary-layer change (a separate follow-up story), which is excluded here. The audit_only evidence honestly discloses this.",
+      "dismissedAt": "2026-06-19T03:11:51.225Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
+    }
+  ]
+}

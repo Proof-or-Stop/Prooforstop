@@ -1,0 +1,31 @@
+{
+  "storyId": "B-12d7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/providers/types.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/*-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/src/core/finding.ts",
+    "packages/main/src/core/finding-verify.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
+  ],
+  "scopeChangeReason": "Codex/gemini usage-capture vertical: providers token-count extraction, ProviderExecResult.reportedUsage, dispatch-usage canonical per-provider final, runBoundedRealLeafDispatch seam, new smoke. Claude path / anthropic adapter / finding signing protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T02:26:01.590Z",
+  "updatedAt": "2026-06-19T02:26:01.590Z"
+}
