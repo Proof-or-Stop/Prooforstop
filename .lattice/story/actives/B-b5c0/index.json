@@ -4,11 +4,11 @@
   "title": "Fix Lattice strengthening roadmap audit gaps",
   "description": "Revise docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md after the explicit local 3-round 2-host audit failed. Scope is documentation only: add current implementation status, Authority receipt source mapping, mechanical 3x2 predicate/signature language, rollout policy/version handling, emergency bypass for self-hosting deadlock, concrete validation commands/artifacts, and milestone-to-rollout crosswalk. Do not implement runtime gates or change CLI behavior in this story.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-19T01:05:53.090Z",
   "startedAt": "2026-06-19T01:05:53.090Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T03:49:40.849Z",
   "events": [
     {
       "phase": "INIT",
@@ -121,12 +121,15 @@
       "branch": "story/B-b5c0",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:49:40.849Z",
+      "branch": "story/B-b5c0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b5c0",
-    "branch": "story/B-b5c0",
-    "createdAt": "2026-06-19T01:08:17.044Z"
-  },
   "currentReviewRound": "2026-06-19T02:46:56.426Z"
 }
