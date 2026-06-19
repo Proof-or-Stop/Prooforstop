@@ -5,12 +5,49 @@
       "title": "Extract root resolution and activity policy helpers",
       "context": "Move effective root selection, activity source/write policy, and related runtime helper code out of cli-engine.ts while keeping command behavior unchanged.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-        "AGENTS.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-3-runtime-root-activity-ownership-and-reviewer-gates",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/guide-scope-guard.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Root resolution and activity policy still behave the same through lattice commands while cli-engine.ts delegates to focused runtime/activity modules.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveRoot, resolveMainRootFromWorktreeRoot, resolveRootForCommand, and activity policy helpers move into focused cli modules while cli-engine.ts keeps compatibility exports/imports.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Worktree-to-main-root fallback remains stable for post-command activity logging, including when the original worktree is gone or cwd resolution would otherwise drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Read-only commands do not start writing activity by default, and global-fallback/source classification remains unchanged unless the explicit activity environment flags request it.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
