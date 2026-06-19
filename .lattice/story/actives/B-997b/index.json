@@ -1,0 +1,42 @@
+{
+  "storyId": "B-997b",
+  "name": "implement-strengthening-scope-wave-1",
+  "title": "Implement strengthening wave 1 scope boundary controls",
+  "description": "Implement the first development wave from docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md. Current status: M0 document/source freeze was completed by the prior roadmap repair story, but runtime development must start with the dependency-safe M1-M3 layer before later evidence, baseline, quorum, preflight, collaboration, rollout, or final certification milestones. Outcome: Lattice exposes a canonical scope boundary model, uses explicit lifecycle artifact/path classification in existing scope checks, and has a structured scope drift/repair/fallback path that can be validated mechanically. Execution boundary: do M1 canonical scope boundary model, M2 lifecycle artifact/path hardening for scope checks, M3 drift/repair/fallback behavior, and focused tests/docs for those changes. Do not implement later roadmap milestones in this story: process fact expansion beyond touched facts, verification context packs, oracle matrices, baseline suites, host identity quorum, preflight command center, collaboration scheduler, rollout migrations, final certification, production authority changes, receipt contracts, customer key references, or Layer4 capability work. Stop if implementation requires changing Authority/receipt semantics, global release policy, productionDone/authorityDone semantics, or broad baseline rewrite.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-19T03:55:54.609Z",
+  "startedAt": "2026-06-19T03:55:54.609Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T03:55:54.611Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:58:58.020Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-main-B-997b",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-997b",
+    "branch": "story/B-997b",
+    "createdAt": "2026-06-19T03:58:57.013Z"
+  }
+}
