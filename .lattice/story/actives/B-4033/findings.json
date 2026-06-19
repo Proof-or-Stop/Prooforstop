@@ -19,6 +19,24 @@
       ],
       "signatureTag": "edge|ts|computewriteset-includes-allowedtest",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4033:F-002",
+      "desc": "smoke-gap: parallel-decomposition-overlap-smoke.ts has no assertions for children-vs-subtree, overlapping subtree-vs-subtree, or children-vs-children interactions — the three non-literal wildcard combinations that use the tier-2 heuristic branch; if entriesOverlap is modified later these regressions have no coverage",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:03:05.738Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "f28b74d8a0c3657737f84bf6af4666f07516d9a143ef5c0bf2a230a29930d019",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-parallel-decomposition",
+      "signatureTagSource": "auto"
     }
   ]
 }
