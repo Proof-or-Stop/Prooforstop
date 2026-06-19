@@ -57,7 +57,7 @@
       "desc": "Review assurance floor now consumes host_verdict evidence from autopilot_review_submit and review_escalation_fallback records, but the existing process fact entries still state these facts are consumed only by the review escalation DONE gate. That conflicts with the story decision/process-fact contract: gate-consumed evidence for the new review_assurance_floor DONE predicate must be mechanically registered and must not leave stale \"only review escalation\" semantics in PROCESS_FACT_LEVELS / PROCESS_FACT_REGISTRY verification. Update the autopilot_review_submit and review_escalation_fallback_set process-fact rationale/gateConsumer/contract checks to include the review assurance floor consumer, while preserving the no-Authority-overclaim boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T02:37:27.579Z",
@@ -71,7 +71,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "missing|ts|review-assurance-floor",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by registering autopilot_review_submit host-verdict evidence and review_escalation_fallback_set degraded fallback evidence as consumed by both storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate in PROCESS_FACT_LEVELS plus process-events artifact registry, with COMMAND_POLICIES and verify-process-fact-contract assertions updated to require both consumers while preserving Authority receipt/authorityDone/fullAuthorityDone/productionDone no-overclaim language. Verified: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/review-assurance-floor-smoke.js; lattice validate --story=B-ed99 --json after verification evidence refresh.",
+      "resolvedAt": "2026-06-19T02:45:59.204Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ed99:F-004",
