@@ -1,0 +1,42 @@
+{
+  "storyId": "B-491e",
+  "checkedAt": "2026-06-19T00:42:47.246Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "low",
+      "desc": "CHK-001 verification should explicitly include the staging/client env side of the ordinary bundle. Evidence: checklist read via `sed -n 1,260p .lattice/story/actives/B-491e/checklist.json` names `lattice_authority_trust.env` and `lattice_senior_*`, while `sed -n 1,240p docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md` shows the ordinary bundle pair is `lattice_authority_trust.env` + `lattice_staging-client.env`. Without naming `lattice_staging-client.env`, local client-env generation could survive the intended public-CLI cleanup."
+    },
+    {
+      "id": "I-2",
+      "severity": "low",
+      "desc": "CHK-003 is verification/process work rather than a distinct user-observable acceptance item, and it overlaps CHK-001/CHK-002 verificationIntent. Evidence: checklist read via `sed -n 1,260p .lattice/story/actives/B-491e/checklist.json`; CHK-003 title is `Verify CLI tests after cleanup` and userSees is test pass/fail rather than a product behavior. Prefer folding these test expectations into verification evidence for the functional/docs items, or restating it as a user-observable CLI behavior that remains intact."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T00:42:28.976Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T00:42:47.246Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "low",
+          "desc": "CHK-001 verification should explicitly include the staging/client env side of the ordinary bundle. Evidence: checklist read via `sed -n 1,260p .lattice/story/actives/B-491e/checklist.json` names `lattice_authority_trust.env` and `lattice_senior_*`, while `sed -n 1,240p docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md` shows the ordinary bundle pair is `lattice_authority_trust.env` + `lattice_staging-client.env`. Without naming `lattice_staging-client.env`, local client-env generation could survive the intended public-CLI cleanup."
+        },
+        {
+          "id": "I-2",
+          "severity": "low",
+          "desc": "CHK-003 is verification/process work rather than a distinct user-observable acceptance item, and it overlaps CHK-001/CHK-002 verificationIntent. Evidence: checklist read via `sed -n 1,260p .lattice/story/actives/B-491e/checklist.json`; CHK-003 title is `Verify CLI tests after cleanup` and userSees is test pass/fail rather than a product behavior. Prefer folding these test expectations into verification evidence for the functional/docs items, or restating it as a user-observable CLI behavior that remains intact."
+        }
+      ]
+    }
+  ],
+  "_hash": "95aa098beba05d9f5806ee9e4666c44e3979a507d515a4780401b210ff005e3a"
+}
