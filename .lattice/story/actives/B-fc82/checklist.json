@@ -50,7 +50,41 @@
       "context": "Extend packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts with an ORDERING assertion that would have caught this bug: prove that on a BLOCKING dirty tree, review_run_start refuses BEFORE captureReviewRunSnapshot runs (e.g. assert the thrown error is the preflight 'uncommitted ... changes' error and that NO review run / snapshot-derived artifact was produced; or drive a fixture where reaching captureReviewRunSnapshot would produce a distinguishable outcome). Keep all existing scenarios (a)-(h) green. The goal is an end-to-end ordering check, not the prior isolation-only fail-open unit test.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The review-run clean-tree preflight smoke fails if captureReviewRunSnapshot can run before the dirty-tree preflight refusal.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "The smoke asserts the preflight dirty-tree error wins before snapshot-derived behavior and no review run is persisted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Existing clean-tree preflight scenarios continue to pass after the ordering assertion is added.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "A regression that moves the preflight after captureReviewRunSnapshot would fail the smoke through observable CLI output and persisted artifact checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
