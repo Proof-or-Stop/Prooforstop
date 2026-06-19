@@ -47,7 +47,24 @@
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered) + npm wiring: simulate an external advance to main between the pre-check sync and the in-lock merge -> story_advance DONE aborts cleanly at TEST with the resync hint, NO phase=DONE persisted, NO partial merge; the happy path (main unchanged in-lock) still merges and reaches DONE.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js exits 0 and reports all checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full npm test exits 0 with the new smoke included in the suite.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": []
+      }
     }
   ]
 }
