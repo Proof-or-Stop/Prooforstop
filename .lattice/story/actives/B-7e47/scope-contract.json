@@ -1,0 +1,31 @@
+{
+  "storyId": "B-7e47",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/planned-steps-executor.ts",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
+    "packages/main/package.json",
+    "packages/main/package-lock.json"
+  ],
+  "allowedCreate": [
+    "packages/main/dist"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/tests",
+    "packages/main/package.json",
+    "packages/main/package-lock.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T18:55:25.490Z",
+  "updatedAt": "2026-06-19T18:55:25.490Z"
+}
