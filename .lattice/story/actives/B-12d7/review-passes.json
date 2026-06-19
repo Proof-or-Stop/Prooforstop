@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T02:53:56.869Z",
       "reviewRunId": "B-12d7:RR-004",
       "_hash": "d9954ba11ceb39429356d00136a75502b81fd9833f7f578611b1560511882f87"
+    },
+    {
+      "id": "B-12d7:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-audit clean. Fix commit b2b6830 correctly removes the `model` field from the codex/gemini ledgerCtx, adds concurrency test (2 sequential calls to same ledger root verify distinct correlations and chain integrity), model=null assertion (provider.model falls back to unknown), and correlation=null assertion (fresh correlation minted). All 5 invariants still hold: (1) raw-output-never-surfaced — codex/gemini runners never surface stdout, only digest+bytecount; (2) claude path byte-identical — runClaudeCodeRealLeafDispatch unchanged; (3) fail-open — every ledger call wrapped in try/catch; (4) OFF byte-identical — all ledger work guarded by ledgerOn; (5) zero cross-module import — providers/codex-cli.ts and gemini-cli.ts import only crypto, child_process, and ./types.js. No dead code, no unsafe any, no empty catch swallowing errors, no shell isolation violation. 0 findings.",
+      "createdAt": "2026-06-19T03:18:08.454Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-005",
+      "_hash": "e9212e638dce19daf74af331d8b35ee5806744a40c67a1b9634ea5ab326a163f"
     }
   ]
 }
