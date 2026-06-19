@@ -54,12 +54,51 @@
       "title": "Extract help rendering alias normalization and dry-run handling",
       "context": "Move help text, command alias normalization, and dry-run parse surfaces out of cli-engine.ts without changing command output or legacy aliases that are still intentionally supported.",
       "relatedDocs": [
-        "README.md",
-        "docs/guide.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Command help, nested lattice aliases, dry-run guidance, and owner lease meta help stay visible and unchanged from a user perspective.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "printHelp, printToolHelp, dryRunHelpLine, and normalizeHelpText move into a focused help-renderer module while retaining Lattice branding, command sections, schema argument descriptions, owner lease meta options, and dry-run lines.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Nested space aliases including lattice host runtime list/probe, lattice config doctor, lattice codex verify, autopilot review status, and review escalation status normalize to their flat command names without changing arg consumption.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The extraction does not move story_advance lifecycle special dispatch, INIT_CHECK dry-run execution branch, recover_evidence dispatch, story_create bootstrap, hook order, reviewer-readonly gate, or owner lease gate out of cli-engine.ts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
