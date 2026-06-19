@@ -183,7 +183,7 @@
       "desc": "[Codex host P1] normalizeEntry only stripped the FIRST leading ./, so repeated-prefix inputs validatePaths accepts (./* , ././src/**) stayed distinct — a disguised top-level wildcard could pass grammar validation and equal paths could miss in overlap/broadness.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:51:48.639Z",
@@ -194,7 +194,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-normalizeentry",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed robustly: normalizeEntry rewritten to split on / and drop every empty and same-dir (.) segment, then rejoin. This canonicalizes //, /./, leading ./, repeated ./ uniformly: ./*  and ././* collapse to bare * (grammar-rejected), ././src/** -> src/**, src/./a.ts and src//a.ts -> src/a.ts. Verified by 41 smoke assertions incl. repeated-leading-./ cases.",
+      "resolvedAt": "2026-06-19T13:51:49.481Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
