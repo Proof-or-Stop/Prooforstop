@@ -37,6 +37,24 @@
       ],
       "signatureTag": "missing|ts|smoke-parallel-decomposition",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4033:F-003",
+      "desc": "[Codex host P1] entriesOverlap under-flagged shared-prefix collisions for children globs: src/* vs src/csv/* and src/csv/* vs a deep literal (src/csv/impl/parser.ts) were not flagged, but spec 4.2 tier-2 requires conservative shared-directory-prefix flagging. Two stories could pass PLAN->DEV with intersecting scopes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T13:11:41.139Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "a8825fcb1b97cba5133477b566a51f6db90973bba5b2052cb870d5326a6c9d7a",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-entriesoverlap",
+      "signatureTagSource": "auto"
     }
   ]
 }
