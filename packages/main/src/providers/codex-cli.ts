@@ -95,8 +95,11 @@ function ownProp(o: unknown, k: string): boolean {
 /** A usage object is one carrying any of the OpenAI token-count fields. */
 function isCodexUsageObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
-  const u = value as Record<string, unknown>;
-  return 'prompt_tokens' in u || 'completion_tokens' in u || 'prompt_tokens_details' in u;
+  return (
+    ownProp(value, 'prompt_tokens')
+    || ownProp(value, 'completion_tokens')
+    || ownProp(value, 'prompt_tokens_details')
+  );
 }
 
 /**
@@ -108,22 +111,31 @@ function isCodexUsageObject(value: unknown): value is Record<string, unknown> {
  */
 const CODEX_USAGE_KEYS = ['prompt_tokens', 'completion_tokens', 'prompt_tokens_details'] as const;
 
+/** The ONLY nested key the OpenAI adapter reads off prompt_tokens_details. */
+const CODEX_NESTED_DETAIL_KEYS = ['cached_tokens'] as const;
+
 /**
- * Copy a value into a fresh null-prototype object carrying ONLY its OWN
- * enumerable keys, so a downstream `in`/access read can never resolve an
- * inherited (prototype-polluted) key. Used to sanitize the NESTED
- * `prompt_tokens_details` object: the OpenAI adapter reads its `cached_tokens`
- * via `'cached_tokens' in details` (a prototype-chain `in`), so a polluted
- * Object.prototype.cached_tokens on a details object that still carries
- * Object.prototype would leak into cacheReadInputTokens. One level is
- * sufficient — the adapter only reads `details.cached_tokens`, never deeper.
- * A non-object value is returned VERBATIM (the adapter rejects non-objects).
+ * Whitelist-project the NESTED `prompt_tokens_details` object down to ONLY the
+ * single key the OpenAI adapter reads (`cached_tokens`). Builds a fresh
+ * null-prototype object carrying ONLY the source's OWN `cached_tokens` (via
+ * hasOwnProperty), so:
+ *   - a non-token own key (e.g. `transcript`) can NEVER ride along onto the
+ *     reportedUsage surface — the token-only projection contract holds at the
+ *     nested level just like CODEX_USAGE_KEYS holds at the top level; and
+ *   - the OpenAI adapter reads `cached_tokens` via `'cached_tokens' in details`
+ *     (a prototype-chain `in`), so a polluted Object.prototype.cached_tokens on
+ *     a details object that still carried Object.prototype would otherwise leak
+ *     into cacheReadInputTokens — the null prototype closes that read.
+ * One level is sufficient — the adapter only reads `details.cached_tokens`,
+ * never deeper. A non-object value is returned VERBATIM (the adapter rejects
+ * non-objects).
  */
 function sanitizeNestedDetails(value: unknown): unknown {
   if (typeof value !== 'object' || value === null) return value;
+  const src = value as Record<string, unknown>;
   const out = Object.create(null) as Record<string, unknown>;
-  for (const key of Object.keys(value as Record<string, unknown>)) {
-    out[key] = (value as Record<string, unknown>)[key];
+  for (const key of CODEX_NESTED_DETAIL_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(src, key)) out[key] = src[key];
   }
   return out;
 }

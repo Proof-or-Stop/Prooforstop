@@ -97,9 +97,10 @@ function ownProp(o: unknown, k: string): boolean {
 /** A usageMetadata object is one carrying any of the Gemini token-count fields. */
 function isGeminiUsageObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
-  const u = value as Record<string, unknown>;
   return (
-    'promptTokenCount' in u || 'candidatesTokenCount' in u || 'cachedContentTokenCount' in u
+    ownProp(value, 'promptTokenCount')
+    || ownProp(value, 'candidatesTokenCount')
+    || ownProp(value, 'cachedContentTokenCount')
   );
 }
 

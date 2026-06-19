@@ -843,6 +843,125 @@ async function main(): Promise<void> {
     );
   });
 
+  // F-001 (B-30c3 Codex host-2): the NESTED prompt_tokens_details projection must
+  // WHITELIST only cached_tokens (the single key the OpenAI adapter reads). A
+  // details object carrying {cached_tokens, transcript} must surface ONLY
+  // cached_tokens — the non-token transcript must NOT ride along on reportedUsage
+  // (token-only projection contract holds at the nested level too). The projected
+  // details must be null-proto, and cacheRead must still resolve from cached_tokens.
+  await check('CHK-001 F-001 codex: nested prompt_tokens_details drops non-token key (transcript), keeps only cached_tokens', () => {
+    const stdout = JSON.stringify({
+      type: 'result',
+      usage: {
+        prompt_tokens: 100,
+        completion_tokens: 50,
+        prompt_tokens_details: { cached_tokens: 5, transcript: 'secret' },
+      },
+    });
+    const result = runBoundedCodexProvider(
+      { provider: 'codex', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+      fakeRunner(stdout),
+    );
+    assert.ok(result.reportedUsage, 'expected a projected usage object');
+    const details = result.reportedUsage!.prompt_tokens_details as Record<string, unknown>;
+    // ONLY cached_tokens survives; the non-token transcript is dropped.
+    assert.equal(Object.getPrototypeOf(details), null, 'nested prompt_tokens_details must be null-proto');
+    assert.deepEqual(Object.keys(details), ['cached_tokens'], 'only the own cached_tokens key survives');
+    assert.equal(Object.keys(details).length, 1, 'exactly one nested key survives');
+    assert.equal(details.cached_tokens, 5, 'cached_tokens value preserved verbatim');
+    assert.ok(
+      !Object.prototype.hasOwnProperty.call(details, 'transcript'),
+      'the non-token "transcript" key must NOT survive the nested projection',
+    );
+    assertNoTranscriptText(result.reportedUsage);
+    // cacheRead still resolves end-to-end (cached_tokens preserved) via the openai adapter.
+    const sub = freshRoot();
+    const handle = recordDispatchPreflight(sub, ctx(), 'prompt', opts(ON));
+    assert.ok(handle);
+    recordDispatchFinalForProvider(
+      sub,
+      ctx(),
+      handle!.correlation,
+      handle!.estimateRecordId,
+      'openai',
+      result.reportedUsage,
+      'gpt-5-codex',
+      opts(ON),
+    );
+    const final = readLedger(sub).find((r) => r.usage.source === 'provider-reported');
+    assert.ok(final, 'expected a provider-reported final');
+    assert.equal(final?.usage.cacheReadInputTokens, 5, 'cacheRead resolves from the preserved cached_tokens');
+  });
+
+  // F-002 (B-30c3 Codex host-2): the usage-shape predicates use OWN-property
+  // guards, NOT prototype-chain `in`. Under Object.prototype pollution an empty
+  // {} (no own token key) must NOT match as a usage object — otherwise the
+  // extractor selects it (returning an empty projection) BEFORE a later line that
+  // carries a REAL usage object. Pollute inside a try and ALWAYS restore in finally.
+  await check('CHK-001 F-002 codex: polluted Object.prototype.prompt_tokens does NOT make an empty first usage suppress a later real one', () => {
+    Object.defineProperty(Object.prototype, 'prompt_tokens', {
+      configurable: true,
+      enumerable: false,
+      value: 999,
+    });
+    try {
+      // Precondition: a normal {} sees the polluted key via the chain (NOT own).
+      assert.ok('prompt_tokens' in ({} as Record<string, unknown>), 'precondition: `in` resolves it via the chain');
+      assert.ok(
+        !Object.prototype.hasOwnProperty.call({}, 'prompt_tokens'),
+        'precondition: it is NOT an own key on {}',
+      );
+      // First line: an EMPTY usage object (no own token key). Second line: a REAL one.
+      const stdout = JSON.stringify({ usage: {} }) + '\n'
+        + JSON.stringify({ usage: { prompt_tokens: 10, completion_tokens: 2 } });
+      const result = runBoundedCodexProvider(
+        { provider: 'codex', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+        fakeRunner(stdout),
+      );
+      assert.ok(result.reportedUsage, 'expected the REAL usage object, not an empty first match');
+      assert.equal(result.reportedUsage?.prompt_tokens, 10, 'must select the later real prompt_tokens=10');
+      assert.equal(result.reportedUsage?.completion_tokens, 2, 'must select the later real completion_tokens=2');
+    } finally {
+      delete (Object.prototype as Record<string, unknown>).prompt_tokens;
+    }
+    assert.equal(
+      ({} as Record<string, unknown>).prompt_tokens,
+      undefined,
+      'Object.prototype.prompt_tokens restored after the check',
+    );
+  });
+
+  await check('CHK-001 F-002 gemini: polluted Object.prototype.promptTokenCount does NOT make an empty first usageMetadata suppress a later real one', () => {
+    Object.defineProperty(Object.prototype, 'promptTokenCount', {
+      configurable: true,
+      enumerable: false,
+      value: 999,
+    });
+    try {
+      assert.ok('promptTokenCount' in ({} as Record<string, unknown>), 'precondition: `in` resolves it via the chain');
+      assert.ok(
+        !Object.prototype.hasOwnProperty.call({}, 'promptTokenCount'),
+        'precondition: it is NOT an own key on {}',
+      );
+      const stdout = JSON.stringify({ usageMetadata: {} }) + '\n'
+        + JSON.stringify({ usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 2 } });
+      const result = runBoundedGeminiProvider(
+        { provider: 'gemini', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+        fakeRunner(stdout),
+      );
+      assert.ok(result.reportedUsage, 'expected the REAL usageMetadata object, not an empty first match');
+      assert.equal(result.reportedUsage?.promptTokenCount, 10, 'must select the later real promptTokenCount=10');
+      assert.equal(result.reportedUsage?.candidatesTokenCount, 2, 'must select the later real candidatesTokenCount=2');
+    } finally {
+      delete (Object.prototype as Record<string, unknown>).promptTokenCount;
+    }
+    assert.equal(
+      ({} as Record<string, unknown>).promptTokenCount,
+      undefined,
+      'Object.prototype.promptTokenCount restored after the check',
+    );
+  });
+
   // ======================================================================
   // CHK-002/003: recordDispatchFinalForProvider
   // ======================================================================
