@@ -32,7 +32,7 @@
       "desc": "Accepted Review Assurance Floor says high-risk lifecycle/gate/Authority/process-fact work keeps the stronger 3x2 or explicit degraded-single-host path (docs/requirements/decisions/review-assurance-floor-execution-plan.md:10,62,70,79), but evaluateReviewAssuranceFloor only chooses one-local-round vs three-local-rounds from failureSignals and never reads story riskSignals/priority/touchpoints (packages/main/src/core/review-assurance-floor.ts:324-329). Existing review escalation only requires 3x2 after the first REVIEW round has >=2 countable problems (packages/main/src/core/review-escalation.ts:225-229), so a high-risk gate/process-fact material code change with no failure signal can satisfy DONE with one local round. That undercuts the accepted concept rather than preserving the stronger-review boundary for high-risk local non-authority evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T02:11:49.424Z",
@@ -46,7 +46,11 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
       "signatureTag": "missing|ts|accepted-review-assurance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3b6a2682b by adding high-risk lifecycle/gate/Authority/process-fact review assurance floor semantics: 3 rounds x 2 independent local hosts, or explicit degraded-single-host fallback bound to current material; ordinary clean material code remains one local round and failure signals remain sticky 3x1 unless high-risk applies. Local evidence continues to report authorityDone=false, fullAuthorityDone=false, productionDone=false. Verified: npm run build; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node scripts/verify-process-fact-contract.mjs; lattice validate --story=B-ed99.",
+      "resolvedAt": "2026-06-19T02:26:24.753Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
