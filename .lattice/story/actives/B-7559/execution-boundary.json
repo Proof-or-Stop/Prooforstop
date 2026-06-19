@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7559",
+  "allowedCommands": [
+    "cat",
+    "find",
+    "git",
+    "grep",
+    "lattice",
+    "ls",
+    "node",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/parallel-decomposition-spec.md",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Documentation audit: only docs/parallel-decomposition-spec.md is modified. packages/main/src is read-only, used to verify code claims (no writes).",
+  "createdAt": "2026-06-19T01:37:45.011Z",
+  "updatedAt": "2026-06-19T01:37:45.011Z",
+  "_hash": "c726d3f57cc0f96c9633fe565a2b560f44951635de7c5c91141a491de8244485"
+}
