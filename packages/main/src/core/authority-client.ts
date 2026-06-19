@@ -460,7 +460,7 @@ export class AuthorityClient {
     return this.get<AuthorityVerdictListResult>(
       `/v1/jobs/${encodeURIComponent(jobId)}/verdicts`,
       AuthorityVerdictListResultSchema,
-      { rejectOverclaim: false },
+      { authenticated: true, rejectOverclaim: false },
     );
   }
 
@@ -517,6 +517,7 @@ export class AuthorityClient {
     path: string,
     schema?: ZodType<T>,
     options: {
+      authenticated?: boolean;
       policyOverclaimGuard?: boolean;
       rejectOverclaim?: boolean;
       label?: string;
@@ -525,13 +526,25 @@ export class AuthorityClient {
   ): Promise<AuthorityClientOutcome<T>> {
     const label = options.label ?? 'authority policy response';
     const rejectOverclaim = options.rejectOverclaim !== false && options.policyOverclaimGuard !== false;
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (options.authenticated === true) {
+      const customerApiKey = this.auth.customerApiKey?.trim();
+      if (!customerApiKey) {
+        return {
+          kind: 'error',
+          ok: false,
+          message: 'customer_api_key_unconfigured_fails_closed: customer API key is required for protected Authority reads',
+        };
+      }
+      headers.Authorization = `Bearer ${customerApiKey}`;
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMS);
     let response: AuthorityFetchResponse;
     try {
       response = await this.fetchImpl(joinURL(this.baseURL, path), {
         method: 'GET',
-        headers: { Accept: 'application/json' },
+        headers,
         signal: controller.signal,
       });
     } catch (error) {
@@ -2120,9 +2133,9 @@ export interface AuthorityVerdictBacking {
 /**
  * Decide whether the verdict commands talk to the Authority server or local storage.
  * Server-backed iff authority mode is enabled (enforce/shadow) AND a URL is set.
- * Read-only verdict list/status can use server GET without a customer key; mutating
- * verdict submit still fails closed inside {@link AuthorityClient.post} when no
- * customer key is configured.
+ * Protected verdict list/status reads use authenticated GET when the server has a
+ * customer key configured; verdict submit still fails closed inside
+ * {@link AuthorityClient.post} when no customer key is configured.
  */
 export function resolveAuthorityVerdictBacking(
   options: AuthorityVerdictBackingOptions = {},

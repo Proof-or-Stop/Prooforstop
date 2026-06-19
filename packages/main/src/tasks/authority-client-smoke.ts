@@ -1555,7 +1555,12 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
 function verdictRouterFetch(opts: {
   submit?: { status: number; body: unknown };
   list?: { status: number; body: unknown };
-  capture?: { submitPath?: string; submitBody?: string; listPath?: string };
+  capture?: {
+    submitPath?: string;
+    submitBody?: string;
+    listPath?: string;
+    listHeaders?: Record<string, string>;
+  };
 }): AuthorityFetch {
   const ok = (s: number) => s >= 200 && s < 300;
   return async (input, init) => {
@@ -1566,7 +1571,7 @@ function verdictRouterFetch(opts: {
       return { ok: ok(s.status), status: s.status, text: async () => JSON.stringify(s.body) };
     }
     if (url.includes('/verdicts') && init.method === 'GET') {
-      if (opts.capture) opts.capture.listPath = url;
+      if (opts.capture) { opts.capture.listPath = url; opts.capture.listHeaders = init.headers; }
       const l = opts.list ?? { status: 404, body: {} };
       return { ok: ok(l.status), status: l.status, text: async () => JSON.stringify(l.body) };
     }
@@ -1617,7 +1622,7 @@ const sampleVerdictEnvelope = {
   signature: 'test-signature',
 };
 
-// --- Backing: configured server URL remains server-backed without submit key -------
+// --- Protected reads require the customer key; policy discovery stays keyless ------
 {
   const capture: { submitPath?: string; listPath?: string } = {};
   const listBody = {
@@ -1648,8 +1653,10 @@ const sampleVerdictEnvelope = {
   assert.ok(backing.client, 'server-backed verdict commands expose an AuthorityClient');
 
   const listed = await listAuthorityHostVerdicts(backing.client!, 'job-9');
-  assert.equal(listed.ok, true, 'verdict list uses server GET without customer key');
-  assert.ok(capture.listPath?.endsWith('/v1/jobs/job-9/verdicts'));
+  assert.equal(listed.ok, false, 'protected verdict list fails closed without a customer key');
+  assert.equal(listed.transport, 'error');
+  assert.match(listed.reason ?? '', /customer_api_key_unconfigured_fails_closed/);
+  assert.equal(capture.listPath, undefined, 'protected verdict list performs zero GET calls without customer key');
 
   const submitted = await submitAuthorityHostVerdict(backing.client!, 'job-9', sampleVerdictClaim, { env: verdictEnv });
   assert.equal(submitted.ok, false, 'verdict submit fails closed without customer key');
@@ -1760,7 +1767,7 @@ const sampleVerdictEnvelope = {
 
 // --- GET: list verdicts + reconciliation exposes independentHostCount + satisfied ---
 {
-  const capture: { listPath?: string } = {};
+  const capture: { listPath?: string; listHeaders?: Record<string, string> } = {};
   const listBody = {
     jobId: 'job-9',
     runId: 'run-7',
@@ -1781,6 +1788,7 @@ const sampleVerdictEnvelope = {
   const out = await client.listJobVerdicts('job-9');
   assert.equal(out.kind, 'success', 'verdict list success');
   assert.ok(capture.listPath?.endsWith('/v1/jobs/job-9/verdicts'), 'list hits /v1/jobs/{jobId}/verdicts');
+  assert.equal(capture.listHeaders?.Authorization, 'Bearer test-customer-key', 'protected verdict GET sends the customer API key');
   assert.equal(out.data?.verdicts.length, 2);
   assert.equal(out.data?.reconciliation.independentHostCount, 2, 'reconciliation exposes the server-computed independentHostCount');
   assert.equal(out.data?.reconciliation.satisfied, true, 'reconciliation exposes the satisfied flag');
@@ -1808,6 +1816,33 @@ const sampleVerdictEnvelope = {
   assert.equal(out.kind, 'success');
   assert.equal(out.data?.reconciliation.satisfied, false, 'a single host is not a satisfied multi-host wave');
   assert.equal(out.data?.reconciliation.independentHostCount, 1);
+}
+
+// --- Job status: protected read success does not mint Authority completion ---------
+{
+  const capture: { listPath?: string; listHeaders?: Record<string, string> } = {};
+  const listBody = {
+    jobId: 'job-401',
+    runId: 'run-401',
+    verdicts: [],
+    reconciliation: {
+      independentHostCount: 0,
+      requiredHostCount: 2,
+      passingIndependentHostCount: 0,
+      failingIndependentHostCount: 0,
+      duplicateVerdictCount: 0,
+      satisfied: false,
+    },
+  };
+  const client = testAuthorityClient('https://a.test', verdictRouterFetch({ list: { status: 200, body: listBody }, capture }));
+  const status = await authorityJobVerdictStatus(client, { jobId: 'job-401', runId: 'run-401' });
+  assert.equal(status.ok, true, 'job status can read the protected server endpoint with a configured customer key');
+  assert.equal(capture.listHeaders?.Authorization, 'Bearer test-customer-key', 'job status protected GET sends Authorization');
+  assert.equal(status.certification?.receiptVerified, false, 'job status does not verify a receipt when none was supplied');
+  assert.equal(status.certification?.authorityDone, false, 'job status does not mint authorityDone from a successful read');
+  assert.equal(status.certification?.multiHostVerified, false, 'zero independent hosts is not a multi-host quorum');
+  assert.equal(status.certification?.fullAuthorityDone, false, 'read success without receipt/quorum cannot claim fullAuthorityDone');
+  assert.match(status.certification?.blockedReason ?? '', /authority_receipt_unverified/);
 }
 
 // --- POST/GET transport taxonomy still applies (http_error, empty path guard) -------
