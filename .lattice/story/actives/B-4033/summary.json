@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4033",
+  "changes": "Implemented the static overlap engine in new core/parallel-decomposition-overlap.ts: computeWriteSet (allowedModify union allowedCreate), globsOverlap (tier-1 literal intersection + tier-2 conservative shared-dir-prefix nesting + NARROW/BROAD + broadSide), validateWriteSetGrammar (rejects bare/mid-path/empty-dir wildcards and .. segments), classifyBroadness, with robust segment-filter path canonicalization. + smoke (44 assertions).",
+  "usage": "Story 2 (gate verdict) imports globsOverlap/computeWriteSet from core/parallel-decomposition-overlap.js to compute scope overlap between stories; the §4.3 gate hard-blocks only tier-1 literal pairs, tier-2 is advisory.",
+  "expectedOutcome": "tsc compiles; the smoke prints 44 assertions passed and exits 0; globsOverlap conservatively flags real prefix collisions without under-flagging and never over-flags genuine siblings.",
+  "actualTranscript": "lattice validate PASS; smoke 44/44. Genuine Claude+Codex dual-host review over 6 rounds — full-3x2.",
+  "outcomeDiff": "10 findings resolved. Codex (host 2) caught 6 real correctness bugs Claude missed (children shared-prefix under-flag, empty-dir wildcards, single-segment literals, redundant segments, repeated leading ./, terminal ..). After fixes expected==actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The engine lives in a sidecar; the frozen contract parallel-decomposition.ts still exports NotImplemented stubs — re-export reconciliation is Story 5 by design (Story 1 cannot edit the frozen contract). Pattern-vs-pattern subsumption beyond the literal|dir/*|dir/** grammar is intentionally not implemented (conservative two-tier per spec).",
+  "pitfalls": "globsOverlap MAY over-flag in tier-2 (advisory) but never under-flags a literal collision; the gate must hard-block only on tier-1 literal-vs-literal pairs. Write-set entries must be POSIX relative paths in the literal|dir/*|dir/** grammar; .. and malformed wildcards are rejected, not canonicalized.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1035182
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10869
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 184611
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 430654
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 4648640
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 54022
+    }
+  },
+  "totalDurationMs": 6363998,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T14:16:41.487Z",
+  "updatedAt": "2026-06-19T14:16:41.487Z"
+}
