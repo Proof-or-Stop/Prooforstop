@@ -77,7 +77,75 @@
       "context": "In lattice-dispatch.ts rename runGeminiRealLeafDispatch -> runAntigravityRealLeafDispatch and build agy's argv (`--print <prompt>` + `--print-timeout`, and `--dangerously-skip-permissions` if needed for non-interactive tool steps); route --host=gemini -> --host=antigravity (and the availability gate via antigravityCliAvailable). Update BoundedProviderName 'gemini' -> 'antigravity', PROVIDER_BINARY, defaultProviderAvailable, defaultBoundedProviderExecutor, and planned-steps-executor.ts imports (geminiCliAvailable/runBoundedGeminiProvider/GEMINI_CLI_BINARY). recordDispatchFinalForProvider's provider param 'gemini' -> 'antigravity' (writes an unavailable final since antigravity has no reportedUsage).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runAntigravityRealLeafDispatch exists in lattice-dispatch.ts and is invoked when host=antigravity; runGeminiRealLeafDispatch does not exist -> confirms dispatch function rename; WHY: dispatch entry-point is the routing target",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "--host=antigravity flag routes through normalizeHostRuntime to antigravity and reaches runAntigravityRealLeafDispatch; --host=gemini also resolves to legacy compatibility path (if kept) or is rejected -> confirms routing plumbing; WHY: CLI user-facing flag must work",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "agy argv includes --print <prompt> and --print-timeout; --dangerously-skip-permissions present when non-interactive -> confirms correct agy CLI argument construction; WHY: agy uses --print mode not --prompt-file",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "BoundedProviderName type includes antigravity and does NOT include gemini -> confirms type union update; WHY: type-level correctness prevents stale provider references at compile time",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "PROVIDER_BINARY map has antigravity:agy entry and no gemini entry; defaultProviderAvailable routes antigravity to antigravityCliAvailable; defaultBoundedProviderExecutor routes antigravity to runBoundedAntigravityProvider -> confirms plumbing in planned-steps-executor.ts; WHY: step executor must dispatch to correct provider",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider called with provider=antigravity writes a ledger final with provider.name=antigravity and source=unavailable (since no reportedUsage) -> confirms usage recording path; WHY: acceptance signal for ledger correctness",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "--host=gemini input: system either maps to antigravity with a deprecation warning or rejects with a clear error -> confirms legacy alias handling is explicit, not silently broken; WHY: existing scripts may pass --host=gemini",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "antigravityCliAvailable returns false: dispatch fails with a clear unavailability message before attempting spawn -> confirms availability gate prevents blind spawn; WHY: meaningful error vs cryptic ENOENT",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "HostRuntimeId type includes antigravity; gemini is either removed or explicitly marked legacy -> confirms type-level host identity is updated; WHY: type exhaustiveness in switch/if chains",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -n runGeminiRealLeafDispatch packages/main/src/ returns zero matches -> confirms no residual dispatch function under old name; WHY: dead dispatch function would be unreachable code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -n runBoundedGeminiProvider packages/main/src/core/ returns zero matches -> confirms no core module imports the old provider runner; WHY: stale import = build break",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -n geminiCliAvailable packages/main/src/core/ returns zero matches -> confirms no core module references old availability check; WHY: stale availability gate references old binary name",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
