@@ -13,8 +13,8 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T01:25:38.706Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -129,6 +129,17 @@
         "create": [],
         "test": []
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T01:25:38.706Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin auditor verification for current implementation baseline and source mapping after implementer commit 90199776f."
     }
   ]
 }
