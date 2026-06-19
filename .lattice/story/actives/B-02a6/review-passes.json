@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-02a6:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) have valid integration_test or logic_test evidence pointing to real production-path smokes. CHK-001 drives the actual story_create CLI in a throwaway git repo (not hand-written untracked files), asserts file bytes not exit codes, and would fail without the CHK-002 fix (regression-locking property confirmed by cat-file -e HEAD:leaf precondition check). CHK-002:edge assertPurgeDropsSafeInitCommit is exercised in review-pass-discard-smoke.ts. CHK-002:adversarial serialization is mechanically guarded by main-write-lock-coverage.ts EXCEPTIONS registry (crossFunctionLocked entry for core/safe-init-commit.ts). CHK-003 predicate smoke covers all four cases: tracked->safe, !ignored&&!tracked->unsafe (INIT window), ignored&&!tracked->unsafe (ClawCreek), blank->throws. The CHK-003:happy:0 evidence note text describes the false-positive case rather than the INIT-window positive case, but the pointed file (story-metadata-protection-smoke.ts) genuinely exercises the !ignored&&!tracked->unsafe=true assertion at line 191-199, so the evidence is real. No blocker found.",
+      "createdAt": "2026-06-19T04:58:12.263Z",
+      "reviewRound": "2026-06-19T04:55:53.568Z",
+      "reviewRunId": "B-02a6:RR-003",
+      "_hash": "d88831f6e29b636ba8285437ceda42176f6fe41f1c84a43017f5a5dea4cdf032"
+    }
+  ]
+}

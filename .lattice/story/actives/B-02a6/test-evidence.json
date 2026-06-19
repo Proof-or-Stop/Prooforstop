@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-02a6 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.6 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/init-window-data-loss-smoke.ts) — Smoke creates a story in INIT, simulates a concurrent git clean -fd on the shared checkout, and on current main asserts the metadata files are gone (reproduces the bug)\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/init-window-data-loss-smoke.ts) — Smoke covers both the allowlisted-not-ignored leaf (.lattice/story/actives/**) and an ignored leaf, since clean -fd vs clean -fdx differ\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/init-window-data-loss-smoke.ts) — Smoke asserts actual metadata file bytes present/absent (not just an exit code), so a no-op fix cannot make it falsely pass\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/init-window-data-loss-smoke.ts) — story_create commits the INIT metadata to main HEAD; git ls-files shows the leaf tracked immediately after create\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail); story_discard --purge still reverses via purgeSafeInitCommit or tombstone fallback\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/main-write-lock-coverage.ts) — A concurrent git clean -fd and a wrong-branch checkout on the shared checkout cannot wipe the now-tracked metadata; the safe-init commit is inside the main-write-lock so it serializes against a concurrent DONE merge\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — evaluateStoryMetadataProtection flags unsafe=true for the !ignored && !tracked (allowlisted-but-uncommitted) state\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — Still flags the original ignored && !tracked case; a tracked leaf remains safe (unsafe=false) regardless of ignore state\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — Blank/whitespace leaf path is rejected (throws), so no consumer can classify an empty path as safe; doctor surfaces the new case without false-positiving a correctly committed leaf\"],\"warnings\":[],\"timestamp\":\"2026-06-19T04:56:59.045Z\",\"headSha\":\"ad57dce0cad56c8ef77ca4e6d09192a2252b9d79\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.6 build\\n> tsc\\n\\n\",\"durationMs\":5519},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":195},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":175}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Smoke creates a story in INIT, simulates a concurrent git clean -fd on the shared checkout, and on current main asserts the metadata files are gone (reproduces the bug)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-window-data-loss-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"init-window-data-loss smoke drives the real story_create then a concurrent git clean -fd; asserts the INIT metadata survives (would be RED without the fix, proven by scratch neutralization).\",\"headHash\":\"774a6f48a3aba1bb728c26b0061742d702185b8f\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:50.657Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Smoke covers both the allowlisted-not-ignored leaf (.lattice/story/actives/**) and an ignored leaf, since clean -fd vs clean -fdx differ\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-window-data-loss-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Smoke covers the allowlisted-not-ignored actives leaf (survives clean -fd once tracked) AND an ignored runtime leaf (removed by clean -fdx), proving allowlist+tracking is what saves it.\",\"headHash\":\"38f7679aa262f3e777cd4d8105f3e87712bef711\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:51.173Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Smoke asserts actual metadata file bytes present/absent (not just an exit code), so a no-op fix cannot make it falsely pass\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-window-data-loss-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"All assertions read actual file bytes (existsSync + byte-identity readFileSync), never exit codes, so a no-op fix cannot fake a pass.\",\"headHash\":\"079474c9dabad515dcd932bf390fef38709c872d\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:51.671Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story_create commits the INIT metadata to main HEAD; git ls-files shows the leaf tracked immediately after create\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-window-data-loss-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"After real story_create the smoke asserts the leaf is tracked in HEAD (git ls-files / committed safe-init 'lattice: story <id> init'); validated green.\",\"headHash\":\"8e9edccfdf6d559a3ddce3826104c5c63f2fe306\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:52.158Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail); story_discard --purge still reverses via purgeSafeInitCommit or tombstone fallback\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"review-pass-discard assertPurgeDropsSafeInitCommit still passes (discard reverses safe-init via HEAD~1; tombstone fallback when buried); INIT_CHECK bootstrap idempotent (before=1 after=1 init commit) per CHK-002 transcript.\",\"headHash\":\"dd04c6fab545412aff42508899f800a1e9257ba9\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:52.645Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A concurrent git clean -fd and a wrong-branch checkout on the shared checkout cannot wipe the now-tracked metadata; the safe-init commit is inside the main-write-lock so it serializes against a concurrent DONE merge\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/main-write-lock-coverage.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Concurrent git clean -fd / -fdx cannot wipe the now-tracked metadata (smoke); safe-init commit registered as cross-function main-write-locked in main-write-lock-coverage, serializing against concurrent DONE merge.\",\"headHash\":\"a1dad8bbba237e19b385f614583acf3c40e40d56\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:55:53.121Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"evaluateStoryMetadataProtection flags unsafe=true for the !ignored && !tracked (allowlisted-but-uncommitted) state\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"predicate: tracked leaf (either ignore state) -> unsafe=false (safe); committed-leaf bootstrap+doctor cases assert no false positive. Covers the happy path that a correctly committed metadata leaf is never flagged.\",\"headHash\":\"eeff4bd6e081e6ec17a76ebb6599abaa12a3f77c\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:54:08.532Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Still flags the original ignored && !tracked case; a tracked leaf remains safe (unsafe=false) regardless of ignore state\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"edge: the new INIT-window case !ignored && !tracked (allowlisted-but-uncommitted leaf) -> unsafe=true. Covered by predicate unit, bootstrap dev_start DATA-LOSS warning, and doctor scan INIT-window risk line + unsafeLeaves(ignored=false,tracked=false).\",\"headHash\":\"d3fa56db788612c79b6abf27dbfca7fc6851c7b9\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:54:14.464Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Blank/whitespace leaf path is rejected (throws), so no consumer can classify an empty path as safe; doctor surfaces the new case without false-positiving a correctly committed leaf\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"adversarial: a blank/whitespace leaf throws at the consumer (runtime re-validation, never silently safe); ignored && !tracked stays unsafe (ClawCreek); and installing the allowlist via doctor --repair alone does NOT make an uncommitted leaf safe (still unsafe until committed). All asserted in the protection smoke.\",\"headHash\":\"f3b4e88166aecb9b0992ec7a75bc7bcd17bc377a\",\"materialHash\":\"c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc\",\"timestamp\":\"2026-06-19T04:54:22.286Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T04:56:59.545Z",
+  "headHash": "ad57dce0cad56c8ef77ca4e6d09192a2252b9d79",
+  "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Smoke creates a story in INIT, simulates a concurrent git clean -fd on the shared checkout, and on current main asserts the metadata files are gone (reproduces the bug)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "init-window-data-loss smoke drives the real story_create then a concurrent git clean -fd; asserts the INIT metadata survives (would be RED without the fix, proven by scratch neutralization).",
+          "headHash": "774a6f48a3aba1bb728c26b0061742d702185b8f",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:50.657Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Smoke covers both the allowlisted-not-ignored leaf (.lattice/story/actives/**) and an ignored leaf, since clean -fd vs clean -fdx differ",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Smoke covers the allowlisted-not-ignored actives leaf (survives clean -fd once tracked) AND an ignored runtime leaf (removed by clean -fdx), proving allowlist+tracking is what saves it.",
+          "headHash": "38f7679aa262f3e777cd4d8105f3e87712bef711",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:51.173Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Smoke asserts actual metadata file bytes present/absent (not just an exit code), so a no-op fix cannot make it falsely pass",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "All assertions read actual file bytes (existsSync + byte-identity readFileSync), never exit codes, so a no-op fix cannot fake a pass.",
+          "headHash": "079474c9dabad515dcd932bf390fef38709c872d",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:51.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story_create commits the INIT metadata to main HEAD; git ls-files shows the leaf tracked immediately after create",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "After real story_create the smoke asserts the leaf is tracked in HEAD (git ls-files / committed safe-init 'lattice: story <id> init'); validated green.",
+          "headHash": "8e9edccfdf6d559a3ddce3826104c5c63f2fe306",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:52.158Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail); story_discard --purge still reverses via purgeSafeInitCommit or tombstone fallback",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "review-pass-discard assertPurgeDropsSafeInitCommit still passes (discard reverses safe-init via HEAD~1; tombstone fallback when buried); INIT_CHECK bootstrap idempotent (before=1 after=1 init commit) per CHK-002 transcript.",
+          "headHash": "dd04c6fab545412aff42508899f800a1e9257ba9",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:52.645Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A concurrent git clean -fd and a wrong-branch checkout on the shared checkout cannot wipe the now-tracked metadata; the safe-init commit is inside the main-write-lock so it serializes against a concurrent DONE merge",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Concurrent git clean -fd / -fdx cannot wipe the now-tracked metadata (smoke); safe-init commit registered as cross-function main-write-locked in main-write-lock-coverage, serializing against concurrent DONE merge.",
+          "headHash": "a1dad8bbba237e19b385f614583acf3c40e40d56",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:53.121Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "evaluateStoryMetadataProtection flags unsafe=true for the !ignored && !tracked (allowlisted-but-uncommitted) state",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "predicate: tracked leaf (either ignore state) -> unsafe=false (safe); committed-leaf bootstrap+doctor cases assert no false positive. Covers the happy path that a correctly committed metadata leaf is never flagged.",
+          "headHash": "eeff4bd6e081e6ec17a76ebb6599abaa12a3f77c",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:08.532Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Still flags the original ignored && !tracked case; a tracked leaf remains safe (unsafe=false) regardless of ignore state",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "edge: the new INIT-window case !ignored && !tracked (allowlisted-but-uncommitted leaf) -> unsafe=true. Covered by predicate unit, bootstrap dev_start DATA-LOSS warning, and doctor scan INIT-window risk line + unsafeLeaves(ignored=false,tracked=false).",
+          "headHash": "d3fa56db788612c79b6abf27dbfca7fc6851c7b9",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:14.464Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Blank/whitespace leaf path is rejected (throws), so no consumer can classify an empty path as safe; doctor surfaces the new case without false-positiving a correctly committed leaf",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "adversarial: a blank/whitespace leaf throws at the consumer (runtime re-validation, never silently safe); ignored && !tracked stays unsafe (ClawCreek); and installing the allowlist via doctor --repair alone does NOT make an uncommitted leaf safe (still unsafe until committed). All asserted in the protection smoke.",
+          "headHash": "f3b4e88166aecb9b0992ec7a75bc7bcd17bc377a",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:22.286Z"
+        }
+      }
+    ]
+  }
+}
