@@ -15,7 +15,7 @@
  *   - [CHK-002] Expose the exact requirement predicate in code metadata so
  *     gap_analyze can bind the roadmap requirement to runtime coverage.
  */
-import { currentMaterialHash } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
   type HostVerdictRound,
@@ -60,9 +60,11 @@ export interface ReviewEscalationFallbackRecord {
   evidenceRefs: string[];
   approvalRef?: string;
   materialHash?: string;
+  storyFilesHash?: string;
   assuranceLevel?: string;
   valid: boolean;
   reasons: string[];
+  advisories?: string[];
 }
 
 export interface ReviewEscalationExplicitHighRiskPolicyRecord {
@@ -115,6 +117,8 @@ export interface ReviewEscalationReport {
     explicitHighRiskPolicy: ReviewEscalationExplicitHighRiskPolicyStatus;
   };
   materialHash: string | null;
+  storyFilesHash: string | null;
+  advisories?: string[];
   fullQuorum: {
     requiredRounds: number;
     requiredPassingHostsPerRound: number;
@@ -149,6 +153,7 @@ export interface EvaluateReviewEscalationArgs {
   findings?: Finding[];
   processEvents?: ProcessEvent[];
   materialHash?: string;
+  storyFilesHash?: string;
 }
 
 function normalizeString(value: unknown): string {
@@ -221,6 +226,7 @@ function fallbackRecordFromEvent(
   event: ProcessEvent,
   index: number,
   expectedMaterialHash: string,
+  expectedStoryFilesHash: string | null,
 ): ReviewEscalationFallbackRecord {
   const eligibility = normalizeString(event.eligibility);
   const reason = normalizeString(event.reason);
@@ -229,8 +235,10 @@ function fallbackRecordFromEvent(
     : [];
   const approvalRef = normalizeString(event.approvalRef);
   const materialHash = normalizeString(event.materialHash);
+  const storyFilesHash = normalizeString(event.storyFilesHash);
   const assuranceLevel = normalizeString(event.assuranceLevel);
   const reasons: string[] = [];
+  const advisories: string[] = [];
 
   if (!isReviewEscalationFallbackEligibility(eligibility)) {
     reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
@@ -238,7 +246,13 @@ function fallbackRecordFromEvent(
   if (reason.length < 20) reasons.push('reason must be at least 20 characters');
   if (evidenceRefs.length === 0 && !approvalRef) reasons.push('fallback requires evidenceRefs or approvalRef');
   if (!materialHash) reasons.push('missing materialHash');
-  else if (materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+  else if (materialHash !== expectedMaterialHash) {
+    if (expectedStoryFilesHash && storyFilesHash && storyFilesHash === expectedStoryFilesHash) {
+      advisories.push('materialHash is stale but storyFilesHash matches; re-attestation advisory required');
+    } else {
+      reasons.push('materialHash is stale');
+    }
+  }
   if (assuranceLevel !== 'degraded-single-host') {
     reasons.push('assuranceLevel must be degraded-single-host');
   }
@@ -251,9 +265,11 @@ function fallbackRecordFromEvent(
     evidenceRefs,
     ...(approvalRef ? { approvalRef } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(assuranceLevel ? { assuranceLevel } : {}),
     valid: reasons.length === 0,
     reasons,
+    ...(advisories.length > 0 ? { advisories } : {}),
   };
 }
 
@@ -331,11 +347,11 @@ function evaluateExplicitHighRiskPolicy(
   };
 }
 
-function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string): ReviewEscalationFallbackRecord | null {
+function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string, expectedStoryFilesHash: string | null): ReviewEscalationFallbackRecord | null {
   const records = events
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => event.type === 'review_escalation_fallback')
-    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash));
+    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash));
   return latestByIndex(records);
 }
 
@@ -389,6 +405,29 @@ function evaluateVoluntaryLocalRounds(
   };
 }
 
+function eventsWithStoryFilesHashDowngrade(
+  events: ProcessEvent[],
+  currentMaterialHash: string,
+  currentStoryFilesHash: string | null,
+  advisories: string[],
+): ProcessEvent[] {
+  if (!currentStoryFilesHash) return events;
+  return events.map((event, index) => {
+    if (event.type !== 'host_verdict') return event;
+    const materialDigest = normalizeString(event.materialDigest);
+    const storyFilesHash = normalizeString(event.storyFilesHash);
+    if (!materialDigest || materialDigest === currentMaterialHash) return event;
+    if (!storyFilesHash || storyFilesHash !== currentStoryFilesHash) return event;
+    const verdictId = normalizeString(event.verdictId) || `event#${index}`;
+    advisories.push(`host verdict ${verdictId}: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required`);
+    return {
+      ...event,
+      originalMaterialDigest: materialDigest,
+      materialDigest: currentMaterialHash,
+    };
+  });
+}
+
 export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): ReviewEscalationReport {
   const story = readStory(args);
   const findings = readFindings(args);
@@ -398,11 +437,16 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     .map(finding => countableFinding(finding, firstReviewRound))
     .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
   const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
+  const storyFilesHash = args.storyFilesHash ?? currentStoryFilesHash(args.projectRoot) ?? null;
   const explicitHighRiskPolicy = evaluateExplicitHighRiskPolicy(events, materialHash);
   const thresholdRequired = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
   const required = thresholdRequired || explicitHighRiskPolicy.required;
-  const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(events, materialHash);
   const reasons: string[] = [];
+  const advisories: string[] = [];
+  const effectiveEvents = materialHash
+    ? eventsWithStoryFilesHashDowngrade(events, materialHash, storyFilesHash, advisories)
+    : events;
+  const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(effectiveEvents, materialHash);
   const trigger = {
     firstReviewRound,
     requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
@@ -418,6 +462,8 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       required: false,
       trigger,
       materialHash,
+      storyFilesHash,
+      ...(advisories.length > 0 ? { advisories } : {}),
       fullQuorum: { ...emptyRoundReport(), ok: true },
       degradedFallback: {
         ok: false,
@@ -446,6 +492,8 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       required: true,
       trigger,
       materialHash: null,
+      storyFilesHash,
+      ...(advisories.length > 0 ? { advisories } : {}),
       fullQuorum: emptyRoundReport(),
       degradedFallback: {
         ok: false,
@@ -466,13 +514,14 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     };
   }
 
-  const fullRounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND);
+  const fullRounds = evaluateHostVerdictRounds(effectiveEvents, materialHash, REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND);
   const fullOk = fullRounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS;
-  const fallback = latestFallbackRecord(events, materialHash);
-  const degradedRounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND);
+  const fallback = latestFallbackRecord(events, materialHash, storyFilesHash);
+  const degradedRounds = evaluateHostVerdictRounds(effectiveEvents, materialHash, REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND);
   const degradedRoundsOk = degradedRounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS;
   const explicitPolicyDisallowsDegraded = explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false;
   const degradedOk = !explicitPolicyDisallowsDegraded && fallback?.valid === true && degradedRoundsOk;
+  if (fallback?.advisories?.length) advisories.push(...fallback.advisories.map(reason => `fallback advisory: ${reason}`));
 
   if (!fullOk && !degradedOk) {
     reasons.push(
@@ -494,6 +543,8 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     required: true,
     trigger,
     materialHash,
+    storyFilesHash,
+    ...(advisories.length > 0 ? { advisories } : {}),
     fullQuorum: {
       requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
       requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
@@ -532,6 +583,7 @@ export function formatReviewEscalationFailure(report: ReviewEscalationReport): s
     `  - countable first-round problems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `  - explicit high-risk policy: ${report.trigger.explicitHighRiskPolicy.required ? 'required' : 'not-required'}`,
     `  - materialHash: ${report.materialHash ?? '<missing>'}`,
+    `  - storyFilesHash: ${report.storyFilesHash ?? '<missing>'}`,
     `  - full quorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds with ${report.fullQuorum.requiredPassingHostsPerRound} independent PASS hosts`,
     `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
   ];
@@ -555,6 +607,9 @@ export function formatReviewEscalationFailure(report: ReviewEscalationReport): s
   for (const reason of report.reasons) {
     lines.push(`  - ${reason}`);
   }
+  for (const advisory of report.advisories || []) {
+    lines.push(`  - advisory: ${advisory}`);
+  }
   lines.push('→ Run review_escalation_status for diagnostics. Submit fresh host verdicts with autopilot_review_submit, or record an explicit degraded fallback with review_escalation_fallback_set.');
   return lines.join('\n');
 }
@@ -572,6 +627,7 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
     `countableProblems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `explicitHighRiskPolicy: ${report.trigger.explicitHighRiskPolicy.required ? 'required' : 'not-required'} (${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE})`,
     `materialHash: ${report.materialHash ?? '<missing>'}`,
+    `storyFilesHash: ${report.storyFilesHash ?? '<missing>'}`,
     `fullQuorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds x ${report.fullQuorum.requiredPassingHostsPerRound} hosts`,
     `voluntaryLocalRounds: ${report.voluntaryLocalRounds.validRoundCount}/${report.voluntaryLocalRounds.requiredRounds} rounds x ${report.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (submitted=${report.voluntaryLocalRounds.submittedRoundCount}, complete=${report.voluntaryLocalRounds.complete})`,
     `degradedFallback: ${report.degradedFallback.ok ? 'pass' : 'not-satisfied'} (${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds x ${report.degradedFallback.requiredPassingHostsPerRound} host)`,
@@ -585,6 +641,12 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
   }
   if (report.degradedFallback.record) {
     lines.push(`fallbackRecord: ${report.degradedFallback.record.valid ? 'valid' : 'invalid'} ${report.degradedFallback.record.fallbackId ?? `event#${report.degradedFallback.record.index}`}`);
+    for (const advisory of report.degradedFallback.record.advisories || []) {
+      lines.push(`  - fallback advisory: ${advisory}`);
+    }
+  }
+  for (const advisory of report.advisories || []) {
+    lines.push(`  - advisory: ${advisory}`);
   }
   if (report.trigger.explicitHighRiskPolicy.validPolicy) {
     const policy = report.trigger.explicitHighRiskPolicy.validPolicy;

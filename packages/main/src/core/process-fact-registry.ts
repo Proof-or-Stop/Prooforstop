@@ -31,6 +31,7 @@ export type ProcessFactSemantic =
   | 'execution-evidence'
   | 'finding-state'
   | 'flow-policy'
+  | 'freshness-policy'
   | 'gate-evidence'
   | 'host-verdict'
   | 'no-blocker-evidence'
@@ -126,6 +127,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
+  'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
+  'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
@@ -197,7 +200,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; workspaceBinding.bindingHash is folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
+    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash and workspaceBinding.bindingHash are folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -582,7 +585,7 @@ function commandFactSemantics(name: string, level: ProcessFactLevel): ProcessFac
 function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSemantic[] {
   const semantics: ProcessFactSemantic[] = ['artifact'];
   if (artifact.signed) semantics.push('signed-artifact');
-  if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract', 'workspace-binding');
+  if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract', 'workspace-binding', 'freshness-policy');
   if (artifact.path === 'review-loops.jsonl') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'test-evidence.json') semantics.push('validation-result', 'test-evidence');
   if (artifact.path === 'eval-evidence.json') semantics.push('validation-result');
@@ -767,12 +770,12 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:review-runs.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract', 'workspace-binding'],
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract', 'workspace-binding', 'freshness-policy'],
     level: 'L4',
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bound current REVIEW findings and passes to a fresh lane-specific boundary.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness.',
   },
   {
     name: 'artifact:findings.json',

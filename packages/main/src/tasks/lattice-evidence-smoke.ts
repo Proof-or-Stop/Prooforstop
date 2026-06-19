@@ -50,6 +50,7 @@ function writeConfig(root: string): void {
 
 function seedStory(store: StoryStore, headHash: string, materialHash: string): void {
   const now = '2026-06-02T00:00:00.000Z';
+  const storyFilesHash = 'f'.repeat(64);
   const testEvidence: VerificationEvidence & {
     receiptRef: string;
     redaction: { applied: boolean; secretsRedacted: boolean; notes: string[] };
@@ -62,6 +63,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
     note: 'Handoff accept/resume evidence.',
     headHash,
     materialHash,
+    storyFilesHash,
     timestamp: now,
     receiptRef: 'local-runner-receipt-ref',
     redaction: {
@@ -79,6 +81,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
     note: 'Authority proof remains blocked: receiptVerified=false, authorityDone=false, and no gate_decision receipt exists.',
     headHash,
     materialHash,
+    storyFilesHash,
     timestamp: now,
   };
   const waiverEvidence: VerificationEvidence = {
@@ -91,6 +94,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
     note: 'Lifecycle coverage waiver remains distinct from the failed Authority proof ref.',
     headHash,
     materialHash,
+    storyFilesHash,
     timestamp: now,
   };
   const story: StoryInfo = {
@@ -130,6 +134,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
             note: 'Transcript reference for portability smoke.',
             headHash,
             materialHash,
+            storyFilesHash,
             timestamp: now,
           },
           failedProofEvidence,
@@ -179,6 +184,7 @@ function assertManifestFresh(manifest: EvidenceManifest, headHash: string, mater
   assert.ok(manifest.testRefs.includes('command:npm run test:lattice-handoff-smoke'), 'manifest carries test command refs');
   assert.ok(manifest.evidenceRefs.some(ref => ref.receiptRefs.includes('local-runner-receipt-ref')), 'manifest carries receipt lineage per evidence ref');
   assert.ok(manifest.evidenceRefs.some(ref => ref.redaction.secretsRedacted), 'manifest carries redaction metadata per evidence ref');
+  assert.ok(manifest.evidenceRefs.every(ref => ref.storyFilesHash === 'f'.repeat(64)), 'manifest preserves storyFilesHash per evidence ref');
   assert.ok(manifest.evidenceRefs.every(ref => ref.freshness.status === 'fresh'), 'all refs start fresh');
   assertEvidenceRefSemantics(manifest.evidenceRefs);
   assert.equal(manifest.refreshGuidance.refreshOnlyProvidesGuidance, true);

@@ -25,6 +25,7 @@ import {
   type AuthorityVerdictClaim,
 } from '../core/authority-contracts.js';
 import { readPlannerRun, type JobPlan } from '../core/planner.js';
+import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -97,6 +98,7 @@ type SubmitArgs = {
   promptProfile?: string;
   promptDigest?: string;
   artifactDigest?: string;
+  storyFilesHash?: string;
   note?: string;
 } & FormatArgs &
   AuthorityBackingSeams;
@@ -185,7 +187,10 @@ function buildAuthorityClaim(root: string, args: SubmitArgs): AuthorityVerdictCl
 
 export function createVerdictHandlers(ctx: HandlerContext) {
   const submitLocal = (mode: VerdictMode, args: SubmitArgs) => {
-    const verdict = submitVerdict(ctx.root, { ...args, mode });
+    const computedStoryFilesHash = mode === 'local' && args.storyId && !args.storyFilesHash
+      ? currentStoryFilesHash(ctx.root, 'HEAD', ctx.root)
+      : undefined;
+    const verdict = submitVerdict(ctx.root, { ...args, ...(computedStoryFilesHash ? { storyFilesHash: computedStoryFilesHash } : {}), mode });
     if (mode === 'local' && verdict.storyId) {
       ctx.store.appendProcessEvent(verdict.storyId, {
         type: 'host_verdict',
@@ -198,6 +203,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         keyId: verdict.keyId,
         decision: verdict.decision,
         materialDigest: verdict.materialDigest,
+        ...(verdict.storyFilesHash ? { storyFilesHash: verdict.storyFilesHash } : {}),
         validationDigest: verdict.validationDigest,
         promptDigest: verdict.promptDigest,
       });
