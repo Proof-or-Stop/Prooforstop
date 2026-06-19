@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-a776:F-001",
+      "desc": "Required smoke evidence is not runnable in REVIEW: npm --prefix packages/main run test:cli-surface-smoke fails because the invalid checklist_update probe at packages/main/src/tasks/cli-surface-smoke.ts:160 runs with --root repoRoot while story B-a776 is in REVIEW, so the phase gate emits Command \"checklist_update\" is not available in REVIEW phase before the validation path. This invalidates the CHK-003 happy/edge smoke evidence for reviewer/TEST execution and leaves the advertised Argument validation failed path unproven in the active lifecycle phase.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:16:30.161Z",
+      "reviewRound": "2026-06-19T18:14:13.955Z",
+      "reviewRunId": "B-a776:RR-003",
+      "_hash": "54c6ca6f954bd89deeeacffb810f83c8c475e29bbf05dbbac04d4b5f8e4cf8cb",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|required-smoke-evidence",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
