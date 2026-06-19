@@ -66,6 +66,7 @@ export interface ReviewerEvidenceRecord {
 export interface ReviewerEvidenceState {
   valid: ReviewerEvidenceRecord[];
   invalid: ReviewRunIssue[];
+  advisories?: ReviewRunIssue[];
 }
 
 export function isReviewRunLane(value: string): value is ReviewRunLane {
@@ -680,6 +681,9 @@ export function assertCurrentReviewRunForEvidence(
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
+  if (freshness.warnings?.length) {
+    console.warn(`review evidence for ${agent} bound reviewRunId ${reviewRunId}: ${freshness.warnings.join('; ')}`);
+  }
   // B-6bfd CHK-005: for a scope-protected story, the run's scope binding must
   // still match the live scope contract + diff. A reviewer must capture a fresh
   // binding (via review_run_start) before recording evidence; natural-language
@@ -703,6 +707,7 @@ function validateEvidenceRunBinding(
   runs: ReviewRun[],
   evidence: ReviewerEvidenceRecord,
   scopeContext: CurrentScopeContext | null,
+  advisories?: ReviewRunIssue[],
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
   if (evidence.reviewRound !== story.currentReviewRound) {
@@ -815,6 +820,16 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
     };
   }
+  if (freshness.warnings?.length) {
+    advisories?.push({
+      code: 'stale_run_hash',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has whole-tree materialHash drift but matching storyFilesHash: ${freshness.warnings.join('; ')}`,
+    });
+  }
   // B-6bfd CHK-005: scope-protected stories require the run's scope binding to
   // match the live scope contract + diff. Checked last so it only applies to the
   // current, otherwise-valid run. scopeContext is null for unprotected/legacy
@@ -890,9 +905,10 @@ export function collectReviewerEvidenceState(
 
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
+  const advisories: ReviewRunIssue[] = [];
 
   for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
-    const issue = validateEvidenceRunBinding(store, story, projectRoot, runs, evidence, scopeContext);
+    const issue = validateEvidenceRunBinding(store, story, projectRoot, runs, evidence, scopeContext, advisories);
     if (issue) {
       rawInvalid.push(issue);
     } else {
@@ -914,5 +930,5 @@ export function collectReviewerEvidenceState(
     return true;
   });
 
-  return { valid, invalid };
+  return { valid, invalid, ...(advisories.length > 0 ? { advisories } : {}) };
 }

@@ -1001,7 +1001,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const coverage = buildVerificationCoverage(
         cl,
         headHash,
-        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root).fresh,
+        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
         { deferredGateEvidence: 'missing' },
       );
       const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);
