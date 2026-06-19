@@ -183,10 +183,10 @@
           "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "edge: the new INIT-window case !ignored && !tracked (allowlisted-but-uncommitted leaf) -> unsafe=true. Covered by predicate unit, bootstrap dev_start DATA-LOSS warning, and doctor scan INIT-window risk line + unsafeLeaves(ignored=false,tracked=false).",
-          "headHash": "d3fa56db788612c79b6abf27dbfca7fc6851c7b9",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:54:14.464Z"
+          "note": "Still flags ignored && !tracked (ClawCreek); tracked leaf safe regardless of ignore state. Re-recorded at current HEAD.",
+          "headHash": "8ceb643947e016fa48972836daf384b1004b0e83",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:15.454Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
