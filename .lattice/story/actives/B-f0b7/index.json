@@ -4,7 +4,7 @@
   "title": "Probe the dispatch_auto scheduler end-to-end for usage-ledger capture",
   "description": "A throwaway probe story used only as a scheduling target so dispatch_auto can launch one real claude-code worker and we can observe the usage ledger capturing the real provider-reported token record. No code is produced; the worker objective is a trivial no-op reply.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "DISCARDED",
   "priority": "high",
   "keywords": [
     "dispatch",
@@ -20,7 +20,7 @@
   "priorityElevatedFrom": "low",
   "createdAt": "2026-06-19T12:42:06.187Z",
   "startedAt": "2026-06-19T12:42:06.187Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T12:44:04.143Z",
   "events": [
     {
       "phase": "INIT",
@@ -29,6 +29,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-19T12:44:04.143Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Throwaway probe target for the dispatch_auto usage-ledger demonstration; dispatch completed and the ledger captured the real claude-code record. No code produced."
     }
   ]
 }
