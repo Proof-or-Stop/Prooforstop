@@ -236,10 +236,18 @@ npm --prefix packages/main run test:unattended-dispatch-smoke
 ```
 
 The smoke covers: dispatch policy creation and check, `host_runtime_probe` for
-claude-code and antigravity/agy (works whether or not the CLI is installed), `dispatch_auto` with
+claude-code (works whether or not the CLI is installed), `dispatch_auto` with
 fake policy (deterministic parallel workers), `dispatch_watch` lifecycle,
 `dispatch_cancel` evidence preservation, `dispatch_review` transcript/runner
 evidence, `dispatch_merge_plan` `manualOnly=true`, explicit refusals for missing
 policy / unavailable host / missing real-host subprocess opt-in /
-`unattendedSafe=false` host, all authority flags fixed at `false`, and
-`overflow_auto` `nextAction` pointing to `dispatch_auto`.
+`unattendedSafe=false` host, the legacy Gemini real-host refusal path where
+applicable, all authority flags fixed at `false`, and `overflow_auto`
+`nextAction` pointing to `dispatch_auto`.
+
+Antigravity/agy coverage lives in `packages/main/src/tasks/dispatch-run-smoke.ts`
+and targeted host runtime / guard checks. Those checks assert that
+`host_runtime_list` exposes `antigravity`, `host_runtime_probe` accepts both
+`antigravity` and `agy`, the runtime reports `cliCommand: agy` without claiming
+`unattendedSafe=true`, and dispatch/pre-apply guard sessions can use
+`wrapped-preapply` for current Antigravity/agy flows.
