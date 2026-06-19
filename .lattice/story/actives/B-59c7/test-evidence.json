@@ -1,15 +1,15 @@
 {
   "command": "lattice validate --story=B-59c7 --json",
-  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 2 required intent(s)\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.6 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 0/6 covered (2 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via manual_transcript verdict=success — tsc compiles parallel-decomposition.ts with every named symbol exported\",\"  ✗ CHK-001:edge:0 [edge/should/logic] stale via logic_test verdict=success — invoking any skeleton function throws Error(NotImplemented: <name>) — no silent stub\",\"  ✗ CHK-001:adversarial:0 [adversarial/should/logic] stale via logic_test verdict=success — no real logic or I/O leaked into skeletons; importing the module has zero side effects\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via manual_transcript verdict=success — AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes\",\"  ✗ CHK-002:edge:0 [edge/should/logic] stale via logic_test verdict=success — resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected\",\"  ✗ CHK-002:adversarial:0 [adversarial/should/logic] stale via logic_test verdict=success — no resolution logic added — diff is one field line plus the import\"],\"warnings\":[],\"timestamp\":\"2026-06-19T04:26:43.137Z\",\"headSha\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.6 build\\n> tsc\\n\\n\",\"durationMs\":5329},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":204},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":195}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":2,\"covered\":0,\"missingRequired\":2,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"tsc compiles parallel-decomposition.ts with every named symbol exported\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"tsc compiles parallel-decomposition.ts at current HEAD; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/computeWriteSet/globsOverlap/evaluateDecompositionGate exported.\",\"headHash\":\"dc4551d292edc76bdb7cc2fe62560456aabbcab1\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:18.046Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"invoking any skeleton function throws Error(NotImplemented: <name>) — no silent stub\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node -e \\\"const m=require('./packages/main/dist/core/parallel-decomposition.js');m.computeWriteSet()\\\"\",\"result\":\"pass\",\"note\":\"Each skeleton throws Error(NotImplemented: <name>) — confirmed at current HEAD, no silent stub.\",\"headHash\":\"7c733869cc643cdb942694589389c505db15fea5\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:18.681Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"no real logic or I/O leaked into skeletons; importing the module has zero side effects\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff --stat main...HEAD -- packages/main/src/core/parallel-decomposition.ts\",\"result\":\"pass\",\"note\":\"Skeleton bodies are void-params + throw only; no logic/IO; module import has zero side effects.\",\"headHash\":\"c9407175daef362051e9ae6cf703cd272f968ed2\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:19.202Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"AuditConfig includes parallelGate (type imported from parallel-decomposition.js); tsc passes at current HEAD.\",\"headHash\":\"d00d26ceb5b8cc74106829d03f05ca0d1309da4d\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:19.767Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/audit-config.ts\",\"result\":\"pass\",\"note\":\"resolveAuditConfig body and HARD_DEFAULTS unchanged; parallelGate optional so existing literals compile (resolution deferred to Story 3).\",\"headHash\":\"4e983607056d1ea473fba267b90f1526dbe62ff9\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:20.245Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"no resolution logic added — diff is one field line plus the import\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/audit-config.ts\",\"result\":\"pass\",\"note\":\"Diff is one import line + one optional field line; no resolution logic.\",\"headHash\":\"641f6e2ff3d45bad4ec5631bba33a9e45210dec2\",\"materialHash\":\"751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f\",\"timestamp\":\"2026-06-19T04:10:20.796Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-19T04:26:43.493Z",
-  "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.6 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — tsc compiles parallel-decomposition.ts with every named symbol exported\",\"  ✓ CHK-001:edge:0 [edge/should/logic] covered via logic_test verdict=success — invoking any skeleton function throws Error(NotImplemented: <name>) — no silent stub\",\"  ✓ CHK-001:adversarial:0 [adversarial/should/logic] covered via logic_test verdict=success — no real logic or I/O leaked into skeletons; importing the module has zero side effects\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes\",\"  ✓ CHK-002:edge:0 [edge/should/logic] covered via logic_test verdict=success — resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected\",\"  ✓ CHK-002:adversarial:0 [adversarial/should/logic] covered via logic_test verdict=success — no resolution logic added — diff is one field line plus the import\"],\"warnings\":[],\"timestamp\":\"2026-06-19T04:27:46.845Z\",\"headSha\":\"f8ee0cbd37ed1299cf0595b45ce4f053c3a37231\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.6 build\\n> tsc\\n\\n\",\"durationMs\":6227},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":184},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":186}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":2,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"tsc compiles parallel-decomposition.ts with every named symbol exported\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"tsc compiles parallel-decomposition.ts at current HEAD; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/computeWriteSet/globsOverlap/evaluateDecompositionGate exported.\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"invoking any skeleton function throws Error(NotImplemented: <name>) — no silent stub\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node -e \\\"const m=require('./packages/main/dist/core/parallel-decomposition.js');m.computeWriteSet()\\\"\",\"result\":\"pass\",\"note\":\"Each skeleton throws Error(NotImplemented: <name>) — confirmed at current HEAD, no silent stub.\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"no real logic or I/O leaked into skeletons; importing the module has zero side effects\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff --stat main...HEAD -- packages/main/src/core/parallel-decomposition.ts\",\"result\":\"pass\",\"note\":\"Skeleton bodies are void-params + throw only; no logic/IO; module import has zero side effects.\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"AuditConfig includes parallelGate (type imported from parallel-decomposition.js); tsc passes at current HEAD.\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/audit-config.ts\",\"result\":\"pass\",\"note\":\"resolveAuditConfig body and HARD_DEFAULTS unchanged; parallelGate optional so existing literals compile (resolution deferred to Story 3).\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"no resolution logic added — diff is one field line plus the import\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/audit-config.ts\",\"result\":\"pass\",\"note\":\"Diff is one import line + one optional field line; no resolution logic.\",\"headHash\":\"7c4aa039843c25657c6173ef9810c371e3c89025\",\"materialHash\":\"0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205\",\"timestamp\":\"2026-06-19T04:27:15.081Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T04:27:47.240Z",
+  "headHash": "f8ee0cbd37ed1299cf0595b45ce4f053c3a37231",
   "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
   "verificationCoverage": {
     "total": 6,
     "required": 2,
-    "covered": 0,
-    "missingRequired": 2,
+    "covered": 6,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "tsc compiles parallel-decomposition.ts with every named symbol exported",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
@@ -26,9 +26,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc compiles parallel-decomposition.ts at current HEAD; node import confirms ParallelGateConfig/VALID_PARALLEL_MODES/computeWriteSet/globsOverlap/evaluateDecompositionGate exported.",
-          "headHash": "dc4551d292edc76bdb7cc2fe62560456aabbcab1",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:18.046Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       },
       {
@@ -38,7 +38,7 @@
         "desc": "invoking any skeleton function throws Error(NotImplemented: <name>) — no silent stub",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -46,9 +46,9 @@
           "command": "node -e \"const m=require('./packages/main/dist/core/parallel-decomposition.js');m.computeWriteSet()\"",
           "result": "pass",
           "note": "Each skeleton throws Error(NotImplemented: <name>) — confirmed at current HEAD, no silent stub.",
-          "headHash": "7c733869cc643cdb942694589389c505db15fea5",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:18.681Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       },
       {
@@ -58,7 +58,7 @@
         "desc": "no real logic or I/O leaked into skeletons; importing the module has zero side effects",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -66,9 +66,9 @@
           "command": "git diff --stat main...HEAD -- packages/main/src/core/parallel-decomposition.ts",
           "result": "pass",
           "note": "Skeleton bodies are void-params + throw only; no logic/IO; module import has zero side effects.",
-          "headHash": "c9407175daef362051e9ae6cf703cd272f968ed2",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:19.202Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       },
       {
@@ -78,7 +78,7 @@
         "desc": "AuditConfig includes parallelGate, type imported from parallel-decomposition.ts, tsc passes",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
@@ -86,9 +86,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "AuditConfig includes parallelGate (type imported from parallel-decomposition.js); tsc passes at current HEAD.",
-          "headHash": "d00d26ceb5b8cc74106829d03f05ca0d1309da4d",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:19.767Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       },
       {
@@ -98,7 +98,7 @@
         "desc": "resolveAuditConfig still returns without resolving parallelGate (Story 3); existing fields unaffected",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -106,9 +106,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/audit-config.ts",
           "result": "pass",
           "note": "resolveAuditConfig body and HARD_DEFAULTS unchanged; parallelGate optional so existing literals compile (resolution deferred to Story 3).",
-          "headHash": "4e983607056d1ea473fba267b90f1526dbe62ff9",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:20.245Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       },
       {
@@ -118,7 +118,7 @@
         "desc": "no resolution logic added — diff is one field line plus the import",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -126,9 +126,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/audit-config.ts",
           "result": "pass",
           "note": "Diff is one import line + one optional field line; no resolution logic.",
-          "headHash": "641f6e2ff3d45bad4ec5631bba33a9e45210dec2",
-          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
-          "timestamp": "2026-06-19T04:10:20.796Z"
+          "headHash": "7c4aa039843c25657c6173ef9810c371e3c89025",
+          "materialHash": "0c0e1d3c2f1e9bbfd76591df30978213a416412b53c4e53800d145f531e8c205",
+          "timestamp": "2026-06-19T04:27:15.081Z"
         }
       }
     ]
