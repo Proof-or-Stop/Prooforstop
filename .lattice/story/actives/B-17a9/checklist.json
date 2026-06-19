@@ -34,7 +34,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/signature-backfill.ts"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
