@@ -10,7 +10,49 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lifecycle dispatch smoke passed; story_create and story_advance INIT_CHECK user-facing text remains recognizable after extraction.",
+      "excludes": [
+        "Do not move business handlers or storyMachine transition guards.",
+        "Do not rewrite generic parse/validate/run wrapper order beyond calling extracted lifecycle helper functions.",
+        "Do not change command names, aliases, help text, or JSON stdout contracts outside lifecycle special dispatch."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/lifecycle-dispatch.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-dispatch-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create and story_advance INIT_CHECK special dispatch move behind a lifecycle-dispatch helper while preserving the visible next-step text and handler invocation order.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Nested command aliases, command help, command ownership policy, and phase allowlist still flow through the existing shared run wrapper before lifecycle helper execution.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The extraction must not bypass reviewer-readonly gate, story owner lease gate, hook ordering, activity logging, or wantsMachineJson hint suppression.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
