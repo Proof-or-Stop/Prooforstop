@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T02:53:56.869Z",
       "reviewRunId": "B-12d7:RR-001",
       "_hash": "e1e2593fc1c54befe0db5f2deb010b53a1fda138527f0ca6ea9aff23bf103f5d"
+    },
+    {
+      "id": "B-12d7:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check clean. F-001 fix confirmed correct in b2b6830: runBoundedRealLeafDispatch ledgerCtx no longer sets model field, so codex/gemini preflight estimate falls back to DEFAULT_ESTIMATE_MODEL=unknown (not claude-code). DISPATCH_LEDGER_ESTIMATE_MODEL=claude-code is used only in runClaudeCodeRealLeafDispatch (line 2140) -- correct scope. New symbols are consistently named: recordDispatchFinalForProvider / finalContextForProvider are provider-parametric siblings of recordDispatchFinal / finalContext; extractCodexUsage / extractGeminiUsage mirror extractCodexModel / extractGeminiModel. The claude-code reference in usage-ledger-codex-gemini-smoke.ts line 418 is in a clearly-marked CLAUDE PATH REGRESSION block, not a codex/gemini path. No concept deletion, no orphaned residue, no doc-promise-undelivered issues. Zero findings this round.",
+      "createdAt": "2026-06-19T03:17:56.996Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-004",
+      "_hash": "d9954ba11ceb39429356d00136a75502b81fd9833f7f578611b1560511882f87"
     }
   ]
 }

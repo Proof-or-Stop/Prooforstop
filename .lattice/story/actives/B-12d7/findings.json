@@ -71,7 +71,7 @@
       "desc": "CHK-003:edge:3 verdict is audit_only (result=pass) but the literal intent -- providerReportedTotal equals the stub token counts -- is not satisfied. The honest note explains why: openai/gemini structurally never report cacheCreation, so summary.ts buckets every codex/gemini record as unknownCount rather than providerReportedTotal. What IS verified: per-record token counts are correct, estimateCount===0 (no double-count), and the WHY of the intent (supersede semantics eliminate the estimate) holds. The gap (cache-less-provider tokens excluded from aggregate total) is a known design limitation tracked as out-of-scope follow-up. Judged acceptable at advisory severity given the honest disclosure and follow-up tracking; not a blocker.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T03:00:14.498Z",
@@ -83,7 +83,11 @@
         "packages/main/src/core/usage-ledger/summary.ts"
       ],
       "signatureTag": "missing|ts|edge-verdict-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Known design limitation, out of this story scope (dispatch-seam capture). openai/gemini structurally never report cacheCreation, so the pre-existing four-field summary identity buckets their records as unknownCount. This story correctly CAPTURES per-record token counts + supersede semantics; surfacing cache-less-provider tokens in the aggregate providerReportedTotal requires a summary-layer change (a separate follow-up story), which is excluded here. The audit_only evidence honestly discloses this.",
+      "dismissedAt": "2026-06-19T03:11:51.225Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
     }
   ]
 }
