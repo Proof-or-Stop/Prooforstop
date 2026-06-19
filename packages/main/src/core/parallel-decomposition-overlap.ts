@@ -90,31 +90,21 @@ function isUnderOrEqual(child: string, parent: string): boolean {
   return child === parent || child.startsWith(parent + '/');
 }
 
-function dirname(path: string): string {
-  const i = path.lastIndexOf('/');
-  return i < 0 ? '' : path.slice(0, i);
-}
-
-/** The directory an entry ranges over: a literal's parent dir, or the wildcard's dir. */
-function scopeDir(e: ParsedEntry): string {
-  return e.kind === 'literal' ? dirname(e.dir) : e.dir;
-}
-
 /**
  * Whether two parsed entries can both write the same path.
  * - literal vs literal → tier-1 exact equality (zero false positives).
  * - any wildcard involved → tier-2 shared-directory-prefix (§4.2): flag when the two
- *   entries' scope directories nest either way (one under-or-equal the other). This is
- *   deliberately conservative — it MAY over-flag (e.g. `src/*` vs a deep literal) but
- *   NEVER under-flags a real prefix collision such as `src/*` vs `src/csv/*` or
- *   `src/csv/*` vs `src/csv/impl/parser.ts`. The gate (§4.3) hard-blocks only on tier-1
- *   literal pairs; tier-2 flags are advisory, so over-flagging here is safe.
+ *   entries' regions nest either way. The region is `e.dir`, which for a literal is its
+ *   FULL path (so single-segment root literals participate: `docs` vs `docs/*` overlaps)
+ *   and for a wildcard is its directory. Deliberately conservative — MAY over-flag (e.g.
+ *   `src/*` vs a deep literal) but NEVER under-flags a real prefix collision
+ *   (`src/*` vs `src/csv/*`, `src/csv/*` vs `src/csv/impl/parser.ts`, `docs` vs `docs/*`).
+ *   `README.md` vs `README/*` correctly stays disjoint (no shared directory prefix). The
+ *   gate (§4.3) hard-blocks only on tier-1 literal pairs; tier-2 flags are advisory.
  */
 function entriesOverlap(x: ParsedEntry, y: ParsedEntry): boolean {
   if (x.kind === 'literal' && y.kind === 'literal') return x.dir === y.dir;
-  const dx = scopeDir(x);
-  const dy = scopeDir(y);
-  return isUnderOrEqual(dx, dy) || isUnderOrEqual(dy, dx);
+  return isUnderOrEqual(x.dir, y.dir) || isUnderOrEqual(y.dir, x.dir);
 }
 
 /**

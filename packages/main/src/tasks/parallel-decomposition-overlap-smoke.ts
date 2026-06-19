@@ -22,7 +22,7 @@ function check(name: string, cond: boolean): void {
   passed += 1;
 }
 
-// 1. computeWriteSet unions allowedModify + allowedCreate + allowedTest, deduped.
+// 1. computeWriteSet unions allowedModify + allowedCreate, deduped (allowedTest excluded).
 const contract = {
   storyId: 'B-test',
   allowedModify: ['src/csv/impl/parser.ts', 'src/csv/impl/parser.ts'],
@@ -97,5 +97,10 @@ check('subtree vs subtree sibling: no overlap', globsOverlap(['src/csv/**'], ['l
 const c2 = { storyId: 'B-t', allowedModify: ['src/a.ts'], allowedCreate: ['src/a.create.ts'], allowedTest: ['src/a.test.ts'] } as unknown as ScopeContractData;
 const ws2 = computeWriteSet(c2);
 check('computeWriteSet excludes allowedTest', ws2.length === 2 && !ws2.includes('src/a.test.ts'));
+
+// 11. single-segment root literals participate in wildcard overlap (literal IS the dir).
+check('root literal vs its children-glob (docs vs docs/*) overlaps', globsOverlap(['docs'], ['docs/*']).overlap === true);
+check('root literal vs its subtree (docs vs docs/**) overlaps', globsOverlap(['docs'], ['docs/**']).overlap === true);
+check('distinct root file vs unrelated dir-glob (README.md vs README/*): no overlap', globsOverlap(['README.md'], ['README/*']).overlap === false);
 
 console.log(`parallel-decomposition-overlap smoke passed: ${passed} assertions`);
