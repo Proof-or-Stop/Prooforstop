@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement patch-bump of the 3 version sync points in the DONE post-merge effect, gated on material code changes, before the dist rebuild, under the merge-lock",
+      "context": "done-effects.ts: reuse isDoneMainRuntimeBuildInput/shouldBuildDoneMainPackageForChangedPaths to gate; bump root package.json + packages/main/package.json + lattice-brand.ts LATTICE_CLI_VERSION patch; commit on main; ordering before runDoneMainPackageBuildAfterMerge so rebuilt dist reports the new version",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke test: bump fires on material-code merge, skips metadata-only merge, syncs all 3 points to the same new patch, is patch-only (idempotent, no double-bump)",
+      "context": "new task smoke under packages/main/src/tasks/; assert the 3 points read identical bumped patch; assert .lattice-only change set does NOT bump; assert minor/major unchanged",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

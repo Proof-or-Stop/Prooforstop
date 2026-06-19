@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-5d18:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate-command-timeout-smoke.js ran live with 10 assertions: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS constant range, resolveCommandTimeoutMs unit checks (no/explicit/zero/negative timeoutMs), integration hung-command kill (exit 124, timedOut=true), fast-command clean pass, overall allPass=false. CHK-001:happy:0 (must) genuinely covered: lattice.config.json bounds both smokes at timeoutMs:120000 and both still pass idle. CHK-002:happy:0 (must) genuinely covered: smoke proves hung command killed exit 124 + default ceiling applied. Smoke exits non-zero (exit 1) on broken assertion — loud failure confirmed. CHK-001:edge:0 logic_test diagnosis via git-show is sound (resolveMainRepoRoot on /tmp path falls back to root, so isolated lock, no global contention). No 240s-wait demanded. No gaps found.",
+      "createdAt": "2026-06-19T17:13:53.853Z",
+      "reviewRound": "2026-06-19T17:11:42.485Z",
+      "reviewRunId": "B-5d18:RR-003",
+      "_hash": "8c4525c4955cde2de65b47748abb4451bf52db261e29ea2b5757796faf8077d6"
+    },
+    {
+      "id": "B-5d18:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement issues. All checks passed: (1) DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=240_000 is strictly below the cli-engine 300s idle watchdog and above the ~160s tsc build — both claims verified against cli-engine.ts line 4024 (IDLE_TIMEOUT=5*60*1000=300s) and margin assertion in smoke (>=200_000). (2) resolveCommandTimeoutMs naming is consistent across export, call sites in runValidationCommand and formatTimeoutDiagnostics, and smoke import. (3) Old timer-conditional-undefined pattern removed cleanly; no residue. (4) Old timeout-diagnostic output (unavailable) replaced by ms+(default) label with no residue in active code. (5) lattice.config.json object-form {command,args,timeoutMs} is consistent with the verifier.ts configuredValidationCommands handler which passes through timeoutMs for object entries. (6) Diagnosis (isolated /tmp locks, transient saturation not global-lock contention) is accurate: both smokes use mkdtempSync into system tmp, not the live global repo lock. (7) The lattice.config.json change is within B-5d18 scope (CHK-001 explicitly authorises converting the two bare-string entries to object form). (8) No introduced-but-undefined concepts; exit-124 attribution confirmed at validation-executor.ts line 238. (9) No concept deletions requiring cleanup grep — the only removed code is the conditional timer arm, which has zero residue.",
+      "createdAt": "2026-06-19T17:14:22.682Z",
+      "reviewRound": "2026-06-19T17:11:42.485Z",
+      "reviewRunId": "B-5d18:RR-001",
+      "_hash": "15388aaac82c17efe6c3b658ceed73bda966690787e560b4d075b85f150438bb"
+    },
+    {
+      "id": "B-5d18:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type-safety, or I/O isolation issues found in the diff. Checked: (1) timer always-arm: const timer declared after finish() closure is safe — closure captures the binding, finish() is only called asynchronously after timer is initialized; (2) double-settle: settled flag + clearTimeout in finish() prevents double-resolve; killTimer is cleared in finish() before SIGKILL can fire after SIGTERM close; (3) resolveCommandTimeoutMs handles unset, 0, negative, and NaN (via Number.isFinite) — all return DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=240000 which is < 300s global watchdog and > 200s margin above slowest legit command; (4) lattice.config.json object-form entries {command, args, timeoutMs} are valid per config.ts schema; bare-string entries still parse; (5) formatTimeoutDiagnostics renders explicit as Xms, implicit as Xms (default) — existing validation-protocol-smoke assertion /configured timeoutMs=100ms/ still matches explicit case; (6) smoke test runs and passes 10 assertions (all assertions verified by node run). No findings registered.",
+      "createdAt": "2026-06-19T17:14:31.915Z",
+      "reviewRound": "2026-06-19T17:11:42.485Z",
+      "reviewRunId": "B-5d18:RR-002",
+      "_hash": "87d888afde4f43c1e2ca9b27a7b78e239e0345ee9fcbbfc4f4ef7d11655baf21"
+    },
+    {
+      "id": "B-5d18:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement issues found. Checked all symbols introduced or removed by round 2: (1) OLD timer-conditional pattern `command.timeoutMs && command.timeoutMs > 0 ? setTimeout(...) : undefined` is fully removed; zero residue in the worktree. (2) OLD `child.kill(SIGTERM/SIGKILL)` direct calls removed from timer callback; `killTree()` replaces them. The only remaining `child.kill(signal)` is the degraded fallback inside `killTree`s catch block — intentional and correct. (3) OLD `finish(1)` error handler replaced by `finish(null)` — no residue. (4) OLD inline `process.platform === win32` at the shell option replaced by `isWindows` local — all 4 uses consistent, no stale inline form. (5) OLD `unavailable` string in timeout diagnostic output replaced by `(default)` suffix — zero residue; `validation-protocol-smoke.ts` assertion `/configured timeoutMs=100ms/` still matches the explicit case. (6) NEW symbols `DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS`, `resolveCommandTimeoutMs`, `defaultTimeoutMs` seam, `killTree`, `detached: true` all present only in scope (validation-executor.ts + smoke), no orphaned references. (7) `detached` occurrences in other files (browser-executor, verifier, safe-init-commit, etc.) are unrelated git/spawn concepts — not residue. (8) `timedOut ? 124 : 1` in `lattice-dispatch.ts:1589` is the independent `spawnExitCode` helper for `spawnSync` — not a residue of the old in-close-handler pattern. (9) No CLAUDE.md/README/schema promises made without implementation. (10) `lattice.config.json` smoke entry `validate-command-timeout-smoke.js` matches the source file name. Concept residue check: no blocker.",
+      "createdAt": "2026-06-19T17:48:02.012Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-004",
+      "_hash": "e83e76f508d8a9958cc5336a3870d16dfa18ce87bfcfd80ed42b839a980c2deb"
+    },
+    {
+      "id": "B-5d18:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 scope: validation-executor.ts (F-001 win32 taskkill .on(error) chain + F-002 JSDoc on defaultTimeoutMs seam) and validate-command-timeout-smoke.ts (new file). F-001 verified: the taskkill spawn now chains .on(error,...) inline; the handler falls back to child.kill(signal) in a try/catch; the outer catch on process.kill(-pid) also falls back the same way — no unhandled error event path remains. F-002 verified: JSDoc on runValidationCommand accurately documents defaultTimeoutMs as a test seam and explains why executeValidationPlan intentionally omits it; all production call sites in verifier.ts omit the third argument and correctly receive DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. No dead code: all imports in the smoke file (DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, ValidationCommand, ValidationPlan) are exercised. No unnecessary any casts. No empty catch swallowing meaningful errors — all empty catches are intentional best-effort kill fallbacks (already gone / ESRCH race) or git-status probe degradation with comments. No bridge.ts in this project so I/O shell isolation check not applicable. No new issues introduced.",
+      "createdAt": "2026-06-19T18:38:01.149Z",
+      "reviewRound": "2026-06-19T18:36:10.135Z",
+      "reviewRunId": "B-5d18:RR-007",
+      "_hash": "aa348f83bd427ed8b9763fca1129ef378cce3524bcdbf629cb7ab1d27013b244"
+    },
+    {
+      "id": "B-5d18:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check — only validation-executor.ts changed (two commits: taskkill .on(error) guard + runValidationCommand JSDoc). Checked all concept words introduced or removed: (1) F-001 fix: spawn(taskkill,...).on(error,...) pattern is new; no old unguarded taskkill spawns exist in validation-executor.ts. The browser-executor.ts and verifier/browser-executor.ts taskkill spawns are unrelated scope; concept check passes for this file. (2) F-002 fix: JSDoc added on runValidationCommand documenting defaultTimeoutMs as a test seam; text is accurate and implementation-consistent: the seam is present as the 3rd parameter with default DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. (3) No concept deletions or replacements happened in round 3 that require residue checking beyond what round 2 already covered. (4) No README/docs/.md files were changed; no doc-promise-undelivered risk. (5) child.kill() in the worktree appears only as fallback inside killTree (error handler and POSIX catch) — correct. (6) All new exported symbols (DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, resolveCommandTimeoutMs) and the seam (defaultTimeoutMs) remain consistent with round-2 pass. No blocker found.",
+      "createdAt": "2026-06-19T18:38:32.900Z",
+      "reviewRound": "2026-06-19T18:36:10.135Z",
+      "reviewRunId": "B-5d18:RR-009",
+      "_hash": "b8bd807f6425531b4b184b928ae6a17d99e8fa6ae3e068e41c5115f2aa987744"
+    },
+    {
+      "id": "B-5d18:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 diff is a single JSDoc reword on runValidationCommand. Verified all three production call sites (executeValidationPlan line 324, verifier.ts line 317, verifier.ts line 776) omit the third arg; JSDoc claim is accurate. No dead code, no type-safety issues, no shell-isolation violations. Zero findings.",
+      "createdAt": "2026-06-19T18:43:56.473Z",
+      "reviewRound": "2026-06-19T18:42:53.962Z",
+      "reviewRunId": "B-5d18:RR-011",
+      "_hash": "f125e24f93793ff9a66d6110403160d5cd4c8627369427b606f62e515c0fcc97"
+    },
+    {
+      "id": "B-5d18:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 change is comment-only: JSDoc reword on runValidationCommand in validation-executor.ts, expanding the production-caller description to accurately name both executeValidationPlan and the direct handler callers in verifier.ts (legacy validate.ts + external-command paths). No concept was deleted or replaced en masse. No residue grep required. Cross-checked: (1) verifier.ts lines 317 and 776 both call runValidationCommand directly without the third argument — consistent with updated JSDoc claim. (2) The only previously removed concept was the timeout-diagnostic string literal unavailable (replaced by ms+(default)); grep of active .ts files shows zero residue of that pattern in test assertions or production code. (3) No introduced concepts. No doc-promise-undelivered issues. Zero concept blocker.",
+      "createdAt": "2026-06-19T18:44:20.686Z",
+      "reviewRound": "2026-06-19T18:42:53.962Z",
+      "reviewRunId": "B-5d18:RR-010",
+      "_hash": "cb28aa9c7af5bbd4439f2dc0d38d685f656a8f5d5fe442f0ac1e7389efc0557c"
+    }
+  ]
+}

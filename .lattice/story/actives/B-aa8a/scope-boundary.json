@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-aa8a",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "excluded": [
+    "package.json (bumped at RUNTIME by the feature, not edited by story code)",
+    "packages/main/package.json (runtime bump target, not edited by story code)",
+    "packages/main/src/core/lattice-brand.ts (runtime bump target, not edited by story code)",
+    "unrelated DONE-merge logic beyond the version-bump insertion point"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator approved building auto-patch-bump on DONE-merge (patch-only, material-code-only trigger) on 2026-06-19; new core/version-bump.ts + done-effects.ts wire-in + smoke.",
+  "createdAt": "2026-06-19T19:25:08.271Z",
+  "updatedAt": "2026-06-19T19:25:08.271Z",
+  "_hash": "8006f0104de26cceff26963b474d3dee87d8861f864714b116c39d62e5dea032"
+}

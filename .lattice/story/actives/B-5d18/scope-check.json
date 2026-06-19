@@ -1,0 +1,108 @@
+{
+  "storyId": "B-5d18",
+  "checkedAt": "2026-06-19T17:04:45.611Z",
+  "features": [
+    {
+      "feature": "Add per-command timeoutMs to review-pass-discard-smoke in lattice.config.json (convert bare-string entry to {command,args,timeoutMs} form)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add per-command timeoutMs to init-window-data-loss-smoke in lattice.config.json (convert bare-string entry to {command,args,timeoutMs} form)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record the diagnosis that smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), no global main-write-lock contention; hang was transient machine saturation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Bounded smokes still pass (timeoutMs is a ceiling, not a forced failure) when machine is idle",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Introduce DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS in validation-executor.ts (applied when command.timeoutMs is unset/<=0) so the SIGTERM/SIGKILL timer always arms",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Timed-out command exits with code 124 and an attributable message; SIGKILL escalation after 1s preserved",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Explicit per-command timeoutMs override still honored (default does not override explicit config)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Default timeout strictly below the cli-engine 300s global idle watchdog so per-command kill fires first",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New smoke packages/main/src/tasks/validate-command-timeout-smoke.ts: a command that sleeps past the ceiling is killed and reported timed-out (exit 124)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New smoke: a fast command completes normally (no spurious timeout)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Global idle watchdog in cli-engine.ts is intentionally unchanged (excluded from scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope description explicitly states the global idle watchdog in cli-engine.ts is intentionally EXCLUDED (unchanged)",
+      "source": "description"
+    },
+    {
+      "feature": "validate hard-fails a required command on timeout (fail-loud, not silent force-exit) — validate completes and reports rather than global 300s watchdog force-exiting whole process",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Per-command receipt records command, args, code, durationMs, output (audit evidence fields per testing-infra.md)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 11,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3c51a86da186caa637e4620e715c610e7b58da423bb377adea055e82b7f5d098",
+  "openQuestions": []
+}

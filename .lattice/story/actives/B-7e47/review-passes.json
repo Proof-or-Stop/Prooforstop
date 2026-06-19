@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-7e47:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: materialOverlapAudit is threaded into the Authority/DONE gate input digest and the signed /v1/gates/evaluate decision envelope on planner_run, runAuthorityCompletionLoop, and live claimed-job paths; the branch adds no new /v1/checks or /v1/commands client contract; local/non-DONE host-neutral Authority semantics remain fail-closed/unchanged.",
+      "createdAt": "2026-06-19T19:21:47.580Z",
+      "reviewRound": "2026-06-19T19:17:55.371Z",
+      "reviewRunId": "B-7e47:RR-001",
+      "_hash": "edd322adf65caa4231124d41f4c4151b44956d51efc17bcbb5d8481c947b613a"
+    },
+    {
+      "id": "B-7e47:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: verificationIntent/evidence cover schema acceptance, signed envelope inclusion, live smoke request shape, non-empty overlap preservation, real completion/planner/live caller paths, build, and classified live smoke skip. Reviewer reran npm --prefix packages/main run build, node packages/main/dist/tasks/authority-client-smoke.js, node packages/main/dist/tasks/natural-language-to-done-smoke.js, and node packages/main/dist/tasks/authority-live-python-e2e-smoke.js (classified SKIPPED due missing live credentials).",
+      "createdAt": "2026-06-19T19:22:26.037Z",
+      "reviewRound": "2026-06-19T19:17:55.371Z",
+      "reviewRunId": "B-7e47:RR-002",
+      "_hash": "213df6c94159f506dd172ad9350d60ea765d5321763d8ecd819f55c210add16f"
+    },
+    {
+      "id": "B-7e47:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed on the latest run: verificationIntent/evidence cover schema acceptance, signed envelope inclusion, live smoke request shape, non-empty overlap preservation, real completion/planner/live caller paths, build, and classified live smoke skip. Reviewer reran npm --prefix packages/main run build, node packages/main/dist/tasks/authority-client-smoke.js, node packages/main/dist/tasks/natural-language-to-done-smoke.js, and node packages/main/dist/tasks/authority-live-python-e2e-smoke.js (classified SKIPPED due missing live credentials).",
+      "createdAt": "2026-06-19T19:22:38.338Z",
+      "reviewRound": "2026-06-19T19:17:55.371Z",
+      "reviewRunId": "B-7e47:RR-004",
+      "_hash": "f123d94a6ac1fca751456ba8d4180c68ce1041dff9af7e3610d8ed5ab42e3bfc"
+    },
+    {
+      "id": "B-7e47:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass. Reviewed materialOverlapAudit contract/schema, signed DONE gate envelope plumbing, executor digest consistency, caller threading, and targeted smoke coverage. Build passed; authority-client and natural-language-to-done smokes passed. No implementation quality blocker found; lattice validate command execution passed but evidence freshness still reports 4 stale intents for TEST/coverage follow-up.",
+      "createdAt": "2026-06-19T19:24:09.958Z",
+      "reviewRound": "2026-06-19T19:17:55.371Z",
+      "reviewRunId": "B-7e47:RR-005",
+      "_hash": "ef096efbcc060ea98d571ceae608a7f273ac8dedcc06efb66d650955913090a5"
+    }
+  ]
+}

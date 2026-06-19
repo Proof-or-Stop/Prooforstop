@@ -18,6 +18,7 @@ import {
   type ConsumeClaimedAuthorityJobResult,
 } from './authority-runner.js';
 import type { AuthorityGateDecision } from './authority-client.js';
+import type { MaterialOverlapAuditContract } from './authority-contracts.js';
 import type { AuthorityGateEvaluator } from './planned-steps-executor.js';
 import type { AuthorityCompletionVerdict, AuthorityReceiptRef } from './authority-completion.js';
 import type { AuthorityJobLoopTrace } from './authority-job-loop-live.js';
@@ -161,6 +162,8 @@ export interface ExecuteAutopilotOptions {
    */
   claimedJobAuthorityGate?: AuthorityGateEvaluator;
   claimedJobGateDecision?: AuthorityGateDecision;
+  /** Material-overlap audit paired with claimedJobAuthorityGate for the signed DONE gate request. */
+  claimedJobMaterialOverlapAudit?: MaterialOverlapAuditContract;
   /**
    * Injected fetch for the live authority job loop (tests inject a fake server).
    * Threaded only into the live `--mode=authority` loop; unused on every other
@@ -481,6 +484,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
         now,
         ...(options.claimedJobAuthorityGate ? { authorityGate: options.claimedJobAuthorityGate } : {}),
         ...(options.claimedJobGateDecision ? { gateDecision: options.claimedJobGateDecision } : {}),
+        ...(options.claimedJobMaterialOverlapAudit ? { materialOverlapAudit: options.claimedJobMaterialOverlapAudit } : {}),
       });
       claimedJobExecution = consume;
       completion = consume.completion;

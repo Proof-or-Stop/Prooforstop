@@ -1,0 +1,79 @@
+{
+  "storyId": "B-7e47",
+  "checkedAt": "2026-06-19T19:30:27.315Z",
+  "reviewRound": "2026-06-19T19:17:55.371Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "GateEvaluateRequestContract includes a narrow materialOverlapAudit contract/schema with changedFiles and actualFileOverlaps arrays.",
+      "status": "verified",
+      "verifiedBy": "source review + lattice validate",
+      "evidence": "packages/main/src/core/authority-contracts.ts:800 defines MaterialOverlapAuditContract; lines 805-808 strict schema; lines 839 and 865 add it to GateEvaluateRequestContract. lattice validate printed GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "DONE gate envelopes include materialOverlapAudit inside decision before signing.",
+      "status": "verified",
+      "verifiedBy": "source review + smoke signature verification",
+      "evidence": "packages/main/src/core/authority-client.ts:1270-1284 builds decision.materialOverlapAudit before signHexEnvelope. authority-client smoke verifies stripSignature(envelope) signature with the audit-bearing decision and printed signed DONE gate envelope contains decision.materialOverlapAudit before signature."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "Live Python E2E DONE preflight request shape sends materialOverlapAudit.present=true with empty changedFiles and actualFileOverlaps for the no-overlap smoke.",
+      "status": "verified",
+      "verifiedBy": "source review + request-shape smoke",
+      "evidence": "packages/main/src/tasks/authority-live-python-e2e-smoke.ts:273-285 includes materialOverlapAudit in the signed decision. authority-client smoke exercised zero/one/two extra evidence refs and printed materialOverlapAudit.present=true overlapCount=0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "Non-empty actualFileOverlaps are preserved rather than normalized away, allowing Authority to reject/fail closed.",
+      "status": "verified",
+      "verifiedBy": "source review + regression smoke",
+      "evidence": "packages/main/src/tasks/authority-client-smoke.ts:1205-1238 asserts a non-empty actualFileOverlaps entry reaches /v1/gates/evaluate unchanged, preserves the signed envelope value, and rejects fail-closed; validate printed actualFileOverlaps preserved count=1."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "Real queued/completion caller paths carry the same materialOverlapAudit into the signed request and executor gate input.",
+      "status": "verified",
+      "verifiedBy": "source review + real-path smoke",
+      "evidence": "packages/main/src/core/authority-completion.ts:752-772 passes the default audit into resolveAuthorityGateEvaluator and executePlannedSteps; packages/main/src/core/authority-job-loop-live.ts:790-828 and authority-runner/autopilot propagate it for claimed live jobs. node packages/main/dist/tasks/natural-language-to-done-smoke.js passed fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "No new /v1/checks or /v1/commands material-overlap contract is introduced; the contract stays on /v1/gates/evaluate.",
+      "status": "verified",
+      "verifiedBy": "git diff search",
+      "evidence": "git diff main...HEAD over packages/main/src shows materialOverlapAudit additions only on the gate evaluate path and no added /v1/checks or /v1/commands contract surface."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "promise": "Host-neutral semantics are preserved: local validation may prove request shape, while live staging is only claimed when credentials are available.",
+      "status": "verified",
+      "verifiedBy": "validation + live smoke attempt",
+      "evidence": "lattice validate passed local request-shape and authority-client coverage. node packages/main/dist/tasks/authority-live-python-e2e-smoke.js exited with SKIPPED because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were unset, so no staging/production pass was claimed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-7e47",
+      "transcript": "lattice validate --story=B-7e47 --json PASS: build, authority-client-smoke, authority-completion-smoke, review-pass-discard-smoke, init-window-data-loss-smoke all passed; verification intent coverage 15/15 covered; key output included schema PASS, materialOverlapAudit.present=true overlapCount=0, signed DONE gate envelope contains decision.materialOverlapAudit before signature, actualFileOverlaps preserved count=1, authority completion loop no-overlap audit default PASS."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node packages/main/dist/tasks/natural-language-to-done-smoke.js PASS: one-sentence/requestFile NL -> Story -> typed Authority JobPlan -> provider/validate/evidence/gate -> verified native receipt -> authorityDone; confirms a real planner/provider caller path uses the audit-bearing gate request."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/authority-live-python-e2e-smoke.js SKIPPED because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were unset; this is the expected classified external blocker and does not claim a live staging pass.",
+      "waiverReason": "Staging Authority credentials were not present in the environment, and the task explicitly required recording the external blocker rather than inspecting secret files or pretending the live smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises verified for contract/schema, signed DONE envelope inclusion, live request shape, non-empty overlap preservation, real completion/queued caller propagation, no /v1/checks or /v1/commands expansion, and host-neutral live-smoke semantics. Remaining DONE blockers are separate lifecycle gates: branch sync, review assurance floor, and summary."
+  },
+  "_hash": "58fa6ced10eb5babf6a21edde5014f97dc0d2a72746bf427a07d328ed6144f23"
+}
