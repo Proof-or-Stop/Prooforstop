@@ -56,8 +56,38 @@
         "storyFilesHash_consumers",
         "portable_evidence_inspection"
       ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "B-5a9a F-001 F-002 F-003 F-004 require command schemas/producers, DONE evidence freshness, and REVIEW preflight advisory rendering outside the original narrow path set.",
+      "timestamp": "2026-06-19T22:35:00.038Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/verdicts.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/verdicts.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "affectedPathCount": 8,
+      "phase": "DEV",
+      "headHash": "19a5431656ba0477fa7355351009afcd4b04af22",
+      "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c"
     }
   ],
   "createdAt": "2026-06-19T21:44:57.457Z",
-  "updatedAt": "2026-06-19T22:09:40.812Z"
+  "updatedAt": "2026-06-19T22:35:00.038Z"
 }
