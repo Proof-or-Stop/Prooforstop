@@ -10,7 +10,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare is available from lattice help and, when run from a TEST story worktree, shows DONE prepare preflight status with storyId, phase, clean-tree, branch, and version-mutation safeguards before any mutation.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/cli/lifecycle-dispatch.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From the correct story worktree in TEST phase with a clean tree, lattice done_prepare --storyId=B-xxxx resolves the requested story, recognizes the expected story branch, applies documented defaults for mergeMain, refreshStale, validate, build, and dryRun, and reaches the preflight step without touching version files. WHY: proves the command surface and handler input contract are wired for the pre-DONE assistant.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "From a valid worktree but a non-TEST story phase, lattice done_prepare --storyId=B-xxxx fails closed before merge, validation, evidence refresh, or runtime detection. WHY: prevents TEST PASS and DONE closure mechanics from leaking into earlier lifecycle phases.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run done_prepare for B-xxxx from the wrong cwd, wrong branch, missing local main, or with a dirty worktree before mutation; it refuses to continue and does not stash, clean, auto-commit, merge, refresh evidence, validate, or mutate version files. WHY: automated preparation must not hide workspace ownership or dirty-tree hazards.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
