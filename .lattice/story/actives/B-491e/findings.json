@@ -5,7 +5,7 @@
       "desc": "codex-cli-audit-r1 verified high: CLI still resolves LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH from a parsed trust env against consumer cwd instead of the trust env file directory. Server B-42a2 emits CUSTOMER_API_KEY_PATH=\"./lattice_staging-client.env\" in lattice_authority_trust.env, so consuming an operator/server bundle by absolute LATTICE_AUTHORITY_TRUST_ENV_FILE from another cwd loads the trust env but fails to read the raw sidecar. Source: authority-client.ts lines 1541-1551 read the trust file path but only return env/path; lines 1616-1623 resolve trustPath via resolvePath(cwd, trustPath). Repro command: node --input-type=module minimal script importing dist/core/authority-client.js with trust env in a temp bundle and cwd in a different temp dir returned trustLoaded=true, urlSource=authority_trust_env, keySource=none, valuePresent=false, resolvedPathSuffix=authority-consumer-cwd-*/lattice_staging-client.env. Existing smokes only cover absolute sidecar path or cwd=bundleRoot, so the server-generated relative sidecar contract is not actually preserved.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T01:13:29.750Z",
@@ -18,14 +18,18 @@
         "packages/main/src/tasks/authority-status-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-audit-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 635b9f6d7: trust-env CUSTOMER_API_KEY_PATH relative values now resolve against the trust env file directory; authority-client-smoke covers bundleRoot != consumerRoot with a conflicting cwd sidecar, and build/smokes pass.",
+      "resolvedAt": "2026-06-19T01:26:45.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-491e:F-002",
       "desc": "codex-cli-audit-r2 verified high security/path-safety blocker: a server-provided trust env with LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./lattice_staging-client.env is resolved against the consumer cwd, so the CLI can read an unrelated same-named sidecar from cwd instead of the bundle sidecar. Source: authority-client.ts lines 1541-1551 keep only parsed trust env/path, and lines 1619-1623 call resolvePath(cwd, trustPath). Repro command imported dist/core/authority-client.js, wrote bundleRoot/lattice_authority_trust.env plus bundleRoot/lattice_staging-client.env and a different consumerRoot/lattice_staging-client.env, then called resolveAuthorityCustomerApiKey with cwd=consumerRoot; output was source=authority_trust_env, valueMatchesBundle=false, valueMatchesCwd=true, resolvedPathSuffix=authority-consumer-cwd-*/lattice_staging-client.env. This is a verified wrong-secret binding risk even though stdout remains clean and public generation helpers were removed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T01:14:32.973Z",
@@ -37,14 +41,18 @@
         "packages/main/src/tasks/authority-status-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-audit-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 635b9f6d7: wrong-secret binding is prevented because trust-env relative sidecars resolve beside the trust file, not consumer cwd; status smoke now places a conflicting/blank sidecar in consumer cwd and still reads the bundle sidecar.",
+      "resolvedAt": "2026-06-19T01:26:45.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-491e:F-003",
       "desc": "codex-cli-audit-r3 verified high docs/tests blocker: public CLI README still describes the old generator model. README.md line 273 says ordinary developer handoff should \"generate the bundle pair locally\" and that files \"should be regenerated on the destination machine\", contradicting this storys consumer-only contract and the docs updates in docs/guide.md and decision docs. The recorded docs evidence searched docs/guide.md and docs/requirements but did not include README.md. The recorded smoke evidence also does not cover the real server-generated relative sidecar contract: authority-client-smoke.ts lines 124-180 uses an absolute CUSTOMER_API_KEY_PATH in the fixture, and authority-status-smoke.ts lines 603-629 only covers cwd=bundleRoot. A focused repro against dist/core/authority-client.js showed server-style CUSTOMER_API_KEY_PATH=./lattice_staging-client.env fails or binds to a cwd sidecar when LATTICE_AUTHORITY_TRUST_ENV_FILE points at a bundle in another directory, so current evidence does not cover the actual handoff behavior the docs promise.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T01:15:36.070Z",
@@ -58,14 +66,18 @@
         "packages/main/src/core/authority-client.ts"
       ],
       "signatureTag": "doc-code-drift|md|codex-audit-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 635b9f6d7: README now says ordinary developers consume operator/server-provided handoff files and no longer says generate locally/regenerate on destination; smoke coverage now includes server-style relative sidecar from another cwd.",
+      "resolvedAt": "2026-06-19T01:26:45.455Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-491e:F-004",
       "desc": "claude-code-audit verified high blocker across R1/R2/R3: public CLI cleanup is still not safe/correct for the server-generated relative handoff contract. Server B-42a2 emits LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./lattice_staging-client.env, but CLI resolveAuthorityCustomerApiKey resolves trust-env paths against consumer cwd rather than the trust env file directory, so an absolute LATTICE_AUTHORITY_TRUST_ENV_FILE consumed from another cwd binds to a cwd sidecar or fails instead of using the bundle sidecar. Minimal repro against current dist/core/authority-client.js returned trustLoaded=true, urlSource=authority_trust_env, valueMatchesBundle=false, valueMatchesCwd=true. Source: authority-client.ts lines 1541-1551 read the trust env path but do not preserve its directory; lines 1619-1623 resolve CUSTOMER_API_KEY_PATH with resolvePath(cwd, trustPath). Tests miss this because authority-client-smoke uses an absolute sidecar path and authority-status-smoke only covers cwd=bundleRoot. README.md line 273 still tells ordinary developers to generate the bundle locally, contradicting the consumer-only docs.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-channel",
       "createdAt": "2026-06-19T01:18:31.098Z",
@@ -79,7 +91,11 @@
         "packages/main/src/tasks/authority-status-smoke.ts"
       ],
       "signatureTag": "adversarial|md|claude-code-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 635b9f6d7: same relative sidecar and README/test coverage blocker resolved; build, authority-client smoke, authority-status smoke, and public-generation residual search pass.",
+      "resolvedAt": "2026-06-19T01:26:46.123Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
