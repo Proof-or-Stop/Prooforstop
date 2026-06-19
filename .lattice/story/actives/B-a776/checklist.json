@@ -5,34 +5,250 @@
       "title": "Extract flag parsing and compatibility exports",
       "context": "Move parseFlags, parseFlagsTest, addValue, coerce, and related helpers into a focused module while preserving existing imports/tests.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T18:04:15.678Z",
+      "endTime": "2026-06-19T18:12:30.084Z",
+      "userSees": "`cli argument ergonomics smoke passed` and `lattice checklist_update` invalid input still prints `Argument validation failed` with the bad verificationIntent path.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/flag-parser.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parseFlags and normalizeFlagKey move into packages/main/src/cli/flag-parser.ts while cli-engine.ts keeps compatibility exports and current task imports keep compiling.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repeated array flags, JSON-array flag values, key=value shorthand, booleans, numbers, and unknown-key preservation behave exactly as before extraction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid structured CLI input still fails with the same validation path and does not get masked by phase-gate or help decoration noise.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after moving parseFlags/parseFlagsTest/coerce/addValue/normalizeFlagKey into packages/main/src/cli/flag-parser.ts and re-exporting parser compatibility APIs from cli-engine.ts.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke asserts parser compatibility for repeated array flags, JSON-array flag values, key=value shorthand, booleans, numbers, camelized flag keys, unknown-key preservation, and cli-engine parseFlags re-export behavior.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Invalid checklist_update verificationIntent input still fails with Argument validation failed, includes verificationIntent.happy.0.type and integration_test, and is not masked by phase-gate or session-brief noise.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Extract help rendering alias normalization and dry-run handling",
       "context": "Move help text, command alias normalization, and dry-run parse surfaces out of cli-engine.ts without changing command output or legacy aliases that are still intentionally supported.",
       "relatedDocs": [
-        "README.md",
-        "docs/guide.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T18:12:08.603Z",
+      "endTime": "2026-06-19T18:12:40.764Z",
+      "userSees": "`lattice story_advance --help` still prints `Dry-run: optional via --dryRun` and `Owner lease meta options`; `lattice host runtime list --json` still returns schemaVersion `lattice.host_runtime_list.v1`.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "printHelp, printToolHelp, dryRunHelpLine, and normalizeHelpText move into a focused help-renderer module while retaining Lattice branding, command sections, schema argument descriptions, owner lease meta options, and dry-run lines.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Nested space aliases including lattice host runtime list/probe, lattice config doctor, lattice codex verify, autopilot review status, and review escalation status normalize to their flat command names without changing arg consumption.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The extraction does not move story_advance lifecycle special dispatch, INIT_CHECK dry-run execution branch, recover_evidence dispatch, story_create bootstrap, hook order, reviewer-readonly gate, or owner lease gate out of cli-engine.ts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke",
+          "result": "pass",
+          "note": "Command catalog smoke passed and asserts tool help still includes Lattice branding, schema arguments, story_advance dry-run text, and owner lease meta options after moving help rendering into packages/main/src/cli/help-renderer.ts.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke passed and asserts nested space aliases for lattice host runtime list/probe, lattice config doctor, lattice review escalation status, lattice autopilot review status, the four-part capability alias normalizer, and the lattice version special path.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
+          "result": "pass",
+          "note": "Scope contract returned status pass with no violations and changed source paths limited to cli-engine.ts, package.json, the three new cli helper modules, and cli-surface-smoke.ts; reserved lifecycle dispatch and extracted root/activity/ownership/reviewer modules were not modified.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Verify help flag alias and dry-run behavior",
       "context": "Run focused CLI smoke commands plus build to prove stdout/stderr, JSON output, and compatibility exports remain stable.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/parallel-decomposition-spec.md",
+        "docs/dev/test-coverage.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T18:12:13.144Z",
+      "endTime": "2026-06-19T18:12:56.261Z",
+      "userSees": "`cli surface smoke passed`, `command catalog smoke passed: 239 commands`, and `Process fact contract verified` all appear after the extraction.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript build, process-fact contract, command-catalog smoke, cli-argument ergonomics smoke, and the new CLI surface smoke pass after extraction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dry-run help classes remain correct for optional, default-on, and always-on commands; global help still exposes Lattice branding and current host terminology.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scope contract confirms this story changed only cli-engine.ts, the three new cli helper modules, the focused smoke task, and package script metadata; lifecycle dispatch remains reserved for B-57b5.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-catalog-smoke && npm --prefix packages/main run test:cli-surface-smoke && node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js && node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
+          "result": "pass",
+          "note": "All required verification commands passed after extraction: build, process-fact contract, command-catalog smoke, new cli-surface smoke, cli-argument ergonomics smoke, and lattice-cli migration smoke.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke asserts dry-run help classes for optional/default-on/always-on commands, Lattice branding in global/tool help, current antigravity/agy host wording, JSON body compatibility, and nested alias dispatch.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
+          "result": "pass",
+          "note": "Scope contract check returned status pass with zero violations; source changes are limited to cli-engine.ts, packages/main/package.json, cli/flag-parser.ts, cli/help-renderer.ts, cli/alias-normalizer.ts, and tasks/cli-surface-smoke.ts, with only command-generated B-a776 lifecycle metadata outside source scope.",
+          "headHash": "d5dbca63a24d5e74fda0f738b0b3586a1c5f7c35",
+          "materialHash": "337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497",
+          "timestamp": "2026-06-19T18:21:47.016Z"
+        }
+      ]
     }
   ]
 }

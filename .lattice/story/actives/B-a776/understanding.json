@@ -1,0 +1,28 @@
+{
+  "task": "Extract flag parsing, help rendering, alias normalization, and dry-run CLI surface helpers from cli-engine.ts after the command-catalog and ownership/root extractions.",
+  "outcome": "cli-engine.ts delegates flag parsing/help/alias/dry-run surface logic to focused cli modules while lattice command behavior and compatibility exports remain unchanged.",
+  "facts": [
+    "B-74a0 already extracted MAIN_TOOLS and ToolDef into packages/main/src/cli/command-catalog.ts and main-tools.ts.",
+    "B-6e69 already extracted runtime-root, activity-policy, ownership-gate, and reviewer-readonly-gate helpers.",
+    "Current cli-engine.ts still owns normalizeFlagKey, parseFlags, validation/help rendering, dryRunHelpLine, printToolHelp, printHelp, and nested space alias normalization.",
+    "Existing coverage is useful but scattered: command-catalog-smoke asserts core help output, lattice-cli-migration-smoke asserts aliases/dry-run help for migration surfaces, and cli-argument-ergonomics-smoke imports parseFlags directly.",
+    "B-a776 should add or extend a focused CLI surface smoke that covers extracted flag parsing, nested aliases, help rendering, dry-run text, JSON body compatibility, and B-74a0/B-6e69 preservation."
+  ],
+  "constraints": [
+    "Do not change user-facing command semantics, --help output meaning, nested alias mappings, JSON body compatibility, or --root handling.",
+    "Keep compatibility exports from cli-engine.ts for any existing consumers until callers migrate.",
+    "Do not touch lifecycle special dispatch, INIT_CHECK metadata sync, story_create worktree bootstrap, recover_evidence dispatch, hook order, owner lease gate order, or reviewer-readonly gate order.",
+    "Use focused modules under packages/main/src/cli and keep cli-engine as the dispatch orchestrator.",
+    "Run build and smoke tests before advancing phases; high-risk CLI surface work needs review assurance floor before DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/flag-parser.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-19T17:57:33.554Z"
+}

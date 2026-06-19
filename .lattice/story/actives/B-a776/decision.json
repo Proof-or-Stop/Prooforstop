@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Preserve CLI user surface byte-for-byte where behavior matters.",
+    "Move cohesive helper groups out of cli-engine.ts without turning this story into lifecycle dispatch refactor.",
+    "Keep compatibility exports so existing task imports continue compiling.",
+    "Use executable smoke coverage for parser/help/alias/dry-run behavior, not prose-only confidence."
+  ],
+  "drivers": [
+    "cli-engine.ts still centralizes parser/help/alias surface logic after B-74a0 and B-6e69.",
+    "This work touches command invocation ergonomics, so regressions are user-visible immediately.",
+    "B-57b5 owns lifecycle dispatch and INIT_CHECK metadata handling and must not be preempted here."
+  ],
+  "options": [
+    {
+      "name": "A: Extract three focused CLI surface modules with compatibility exports",
+      "pros": [
+        "Keeps parser/help/alias responsibilities separated and easy to review.",
+        "Matches B-74a0 and B-6e69 extraction pattern.",
+        "Allows targeted smoke tests for each CLI surface."
+      ],
+      "cons": [
+        "Requires careful import wiring around ToolDef, CommandPolicy, owner lease help, and version branding.",
+        "Leaves runCli special dispatch still large until B-57b5."
+      ]
+    },
+    {
+      "name": "B: Extract only parseFlags now and defer help/aliases",
+      "pros": [
+        "Lowest immediate diff size.",
+        "Less chance of touching help text."
+      ],
+      "cons": [
+        "Leaves most of B-a776 scope in cli-engine.ts and does not materially reduce the god-file surface.",
+        "Forces another story to re-open the same help/alias/dry-run area."
+      ]
+    },
+    {
+      "name": "C: Rewrite parser/help/alias handling into a new command router",
+      "pros": [
+        "Could produce a cleaner long-term command layer.",
+        "Might reduce future lifecycle dispatch work."
+      ],
+      "cons": [
+        "Too much behavior risk for this split round.",
+        "Would overlap B-57b5 lifecycle dispatch ownership and make review harder."
+      ]
+    }
+  ],
+  "chosen": "A: Extract three focused CLI surface modules with compatibility exports",
+  "rationale": "A gives a meaningful cli-engine.ts reduction while preserving exact command behavior and avoiding the lifecycle dispatch area reserved for B-57b5.",
+  "preMortem": [
+    {
+      "scenario": "Flag parsing silently changes repeated arrays or JSON body behavior.",
+      "trigger": "parseFlags extraction loses normalizeFlagKey or Zod array handling details.",
+      "consequence": "Existing commands reject valid CLI invocations or parse them differently.",
+      "mitigation": "Keep parser implementation mechanically equivalent and run cli-argument ergonomics plus new CLI surface smoke."
+    },
+    {
+      "scenario": "Nested aliases stop resolving, especially lattice host/status/config forms.",
+      "trigger": "Alias map extraction changes aliasStart or consumed argument count behavior.",
+      "consequence": "Documented multi-word commands fail or dispatch to unknown command.",
+      "mitigation": "Add smoke coverage for flat commands and lattice-prefixed multi-word aliases."
+    },
+    {
+      "scenario": "Help/dry-run text regresses and users lose safety guidance.",
+      "trigger": "Help renderer extraction forgets dryRunHelpLine or owner lease help block ordering.",
+      "consequence": "Dangerous/preview commands become less discoverable and REVIEW catches late.",
+      "mitigation": "Smoke story_advance, story_reconcile, test_auto, host_install help output including dry-run and owner lease text."
+    },
+    {
+      "scenario": "Story accidentally drifts into lifecycle dispatch extraction.",
+      "trigger": "Worker moves story_advance/init/recover special cases while touching nearby runCli code.",
+      "consequence": "Scope overlap with B-57b5 and possible INIT_CHECK metadata regressions.",
+      "mitigation": "Scope contract explicitly protects lifecycle dispatch behavior and smoke asserts no lifecycle special dispatch files/blocks moved beyond imports."
+    }
+  ],
+  "timestamp": "2026-06-19T17:58:04.694Z"
+}

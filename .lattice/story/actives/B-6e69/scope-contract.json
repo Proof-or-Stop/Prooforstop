@@ -1,0 +1,26 @@
+{
+  "storyId": "B-6e69",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/cli/runtime-root.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/cli/reviewer-readonly-gate.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/main-write-lock-coverage.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T16:58:20.819Z",
+  "updatedAt": "2026-06-19T16:58:20.819Z"
+}
