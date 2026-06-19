@@ -8,7 +8,7 @@
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
-import { existsSync, readFileSync, realpathSync } from 'fs';
+import { existsSync, realpathSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
 import { isAbsolute, join, relative } from 'path';
@@ -18,20 +18,12 @@ import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
 import { resolveStorySignedWorkspace } from './core/story-signed-workspace-resolution.js';
-import { formatCommandLifecycleHint, type CommandPolicy } from './core/command-policy.js';
+import { formatCommandLifecycleHint, getCommandPolicy, type CommandPolicy } from './core/command-policy.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
-import { gitProbe, isGitRepository } from './core/git-probe.js';
-import {
-  acquireOrRefreshOwnerLease,
-  formatLeaseAge,
-  formatNonOwnerError,
-  getSessionId,
-  takeOverOwnerLease,
-} from './core/story-owner-lease.js';
-import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/command-policy.js';
+import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
@@ -58,6 +50,55 @@ import {
 } from './core/memory-benchmark.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
+import {
+  READ_ONLY_COMMANDS,
+  inferCodexEntrypoint,
+  isCodexActivitySource,
+  resolveActivitySource,
+  shouldWriteActivityLog,
+} from './cli/activity-policy.js';
+import {
+  ownerLeaseHelpBlock,
+  storyIdFromArgs,
+  enforceStoryOwnerLeaseGate,
+} from './cli/ownership-gate.js';
+import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
+import {
+  resolveMainRootFromWorktreeRoot,
+  resolveRoot,
+  resolveRootForCommand,
+} from './cli/runtime-root.js';
+
+export {
+  READ_ONLY_COMMANDS,
+  inferCodexEntrypoint,
+  isCodexActivitySource,
+  resolveActivitySource,
+  shouldWriteActivityLog,
+} from './cli/activity-policy.js';
+export {
+  ownerLeaseHelpBlock,
+  storyIdFromAutopilotRunId,
+  storyIdFromArgs,
+  resolveEffectiveOwnershipClass,
+  isDeliveryReviewerActor,
+  resolveTakeoverIntent,
+  enforceStoryOwnerLeaseGate,
+} from './cli/ownership-gate.js';
+export type {
+  ActiveStoryForOwnershipGate,
+  TakeoverIntent,
+} from './cli/ownership-gate.js';
+export {
+  REVIEWER_READONLY_ENV,
+  isReviewerReadOnlyModeEnabled,
+  enforceReviewerReadOnlyCommandGate,
+} from './cli/reviewer-readonly-gate.js';
+export {
+  resolveMainRootFromWorktreeRoot,
+  resolveRoot,
+  resolveRootForCommand,
+} from './cli/runtime-root.js';
 
 // ── Tool Registry ──
 
@@ -2513,37 +2554,6 @@ function dryRunHelpLine(tool: ToolDef, policy?: CommandPolicy): string | null {
   return null;
 }
 
-/**
- * Returns a multi-line help block describing the `--takeover` / `--forceTakeover`
- * meta options for owner-gated CLI commands, or `null` for commands that are
- * not owner-gated (readOnly / reviewerWrite / mainSharedMutating).
- *
- * Owner-gated means `storyScopedMutating` or `dangerousMutating` — the gate in
- * `enforceStoryOwnerLeaseGate` checks both. `validate` is statically classified
- * `storyScopedMutating` so the block is shown, with a note that it only applies
- * when `--story` is supplied (boundary rule 2 downgrades it to readOnly without
- * a story argument).
- *
- * Exported so contract tests can assert the block is present for gated commands
- * and absent for read-only / reviewer-lane commands without spawning a subprocess.
- */
-export function ownerLeaseHelpBlock(cmd: string): string | null {
-  const policy = getCommandPolicy(cmd);
-  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
-  const cls = policy.ownershipClass;
-  if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') return null;
-  // storyScopedMutating or dangerousMutating — owner-gated.
-  const note = cmd === 'validate'
-    ? ' (applies when --story is supplied; diagnostic validate without --story is always read-only)'
-    : '';
-  return [
-    ``,
-    `  Owner lease meta options${note}:`,
-    `    --takeover          recover a stale foreign lease (no heartbeat for 30+ min)`,
-    `    --forceTakeover     seize an active foreign lease (deliberate human override; also transfers stale)`,
-  ].join('\n');
-}
-
 function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const brand = detectLatticeBrand();
   const out = (line = '') => {
@@ -2829,506 +2839,6 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
     return z.object(schema).strict();
   }
   return z.object(schemaWithCliMeta);
-}
-
-// ── Resolve root ──
-
-function resolveRoot(explicit?: string): string {
-  if (explicit) return explicit;
-  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  // Walk upward to find lattice.config.json and determine the project root.
-  let dir = process.cwd();
-  for (let i = 0; i < 10; i++) {
-    if (hasProjectConfigFile(dir)) return dir;
-    const parent = join(dir, '..');
-    if (parent === dir) break;
-    dir = parent;
-  }
-  // fallback: git worktree root
-  const commonDir = gitProbe('git rev-parse --git-common-dir');
-  if (commonDir.ok) {
-    const cd = commonDir.output;
-    if (cd !== '.git' && !cd.endsWith('/.git') && !cd.endsWith('\\.git')) {
-      const wtList = gitProbe('git worktree list --porcelain');
-      if (wtList.ok) {
-        return wtList.output.split('\n')[0]?.replace('worktree ', '').trim() || process.cwd();
-      }
-    }
-  }
-  return process.cwd();
-}
-
-function resolveMainRootFromWorktreeRoot(root: string): string | null {
-  try {
-    const dotGit = join(root, '.git');
-    if (!existsSync(dotGit)) return null;
-    const content = readFileSync(dotGit, 'utf-8').trim();
-    const m = content.match(/^gitdir:\s*(.+)$/i);
-    if (!m) return null;
-    const gitdir = m[1].trim();
-    const absGitdir = gitdir.startsWith('/') ? gitdir : join(root, gitdir);
-    const marker = `${join('.git', 'worktrees')}`;
-    const normalized = absGitdir.replace(/\\/g, '/');
-    const markerNormalized = marker.replace(/\\/g, '/');
-    const idx = normalized.indexOf(`/${markerNormalized}/`);
-    if (idx === -1) return null;
-    return normalized.slice(0, idx);
-  } catch {
-    return null;
-  }
-}
-
-function resolveRootForCommand(cmd: string, explicit?: string): string {
-  const root = resolveRoot(explicit);
-  if (cmd !== 'story_discard') return root;
-  return resolveMainRootFromWorktreeRoot(root) || root;
-}
-
-// ── Activity log filter ──
-
-/**
- * Read-only commands that should NOT write activity.jsonl by default.
- * These are pure queries / status checks — logging them pollutes
- * the audit trail and can cause DONE dirty-self-block (B-c622).
- * Codex wrapper sessions opt in because session_brief is their primary
- * cross-session tracking heartbeat.
- */
-const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
-  'session_brief',
-  'next',
-  'done_closure',
-  'status',
-  'story_get',
-  'story_list',
-  'checklist_get',
-  'finding_list',
-  'bug_list',
-  'test_list',
-  'aux_doc_list',
-  'capability_list',
-  'capability_probe',
-  'agent_prompt',
-  'baseline_run',
-  'baseline_suite',
-  'baseline_suite_report',
-  'capability_claim_evaluate',
-  'capability_claim_formal_evaluate',
-  'memory_benchmark_run',
-  'memory_benchmark_compare',
-  'memory_benchmark_real_data',
-  'host_list',
-  'host_probe',
-  'host_status',
-  'host_runtime_list',
-  'host_runtime_probe',
-  'host_install',
-  'lattice_config_doctor',
-  'rollout_check',
-  'baseline_suite_report',
-  'authority_status',
-  'conduit_status',
-  'conduit_explain',
-  'story_export',
-  'story_authority_resolve',
-  'observability_snapshot',
-  'handoff_create',
-  'handoff_inspect',
-  'handoff_accept',
-  'handoff_resume',
-  'handoff_receipt_submit',
-  'handoff_worktree_create',
-  'host_dispatch',
-  'dispatch_plan',
-  'dispatch_status',
-  'dispatch_list',
-  'dispatch_review',
-  'dispatch_merge_plan',
-  'evidence_manifest',
-  'evidence_inspect',
-  'parallel_wave_create',
-  'parallel_wave_inspect',
-  'parallel_plan',
-  'parallel_dispatch',
-  'parallel_status',
-  'parallel_merge_queue',
-  'parallel_report',
-  'grill_get',
-  'reviewer_list',
-  'review_incremental_context',
-  'workflow_explain',
-  'help',
-  'authority_enforce_policy',
-  'authority_enforce_runner',
-  'dispatch_policy_get',
-  'dispatch_policy_check',
-  'dispatch_watch',
-  'autopilot_policy_get',
-  'autopilot_policy_check',
-  'autopilot_status',
-  'autopilot_watch',
-  'autopilot_review',
-  'learning_validate', // read-only Experience Layer validity instrument; writes nothing
-  'learning_effectiveness', // read-only Experience Layer effectiveness instrument; writes nothing
-]);
-
-function inferCodexEntrypoint(): string {
-  if (process.env.LATTICE_CODEX_ENTRYPOINT) return process.env.LATTICE_CODEX_ENTRYPOINT;
-  const invoked = process.argv[1] || '';
-  if (invoked.includes('lattice-codex')) return 'local-wrapper';
-  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
-  return 'cli';
-}
-
-const AUTOPILOT_RUN_OWNER_GATED_COMMANDS = new Set([
-  'autopilot_cancel',
-  'autopilot_resume',
-]);
-
-function safeAutopilotRunId(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return /^[a-zA-Z0-9_.-]{1,128}$/.test(trimmed) ? trimmed : null;
-}
-
-export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<string, unknown>): string | null {
-  const runId = safeAutopilotRunId(args.runId ?? args.autopilotId);
-  if (!runId) return null;
-  const file = [
-    join(projectRoot, LATTICE_DIR, 'autopilot-runs', runId, 'run.json'),
-  ].find((candidate) => existsSync(candidate));
-  if (!file) return null;
-  try {
-    const parsed = JSON.parse(readFileSync(file, 'utf8')) as { storyId?: unknown };
-    return typeof parsed.storyId === 'string' && parsed.storyId.trim()
-      ? parsed.storyId.trim()
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-function storyIdFromArgs(
-  args: Record<string, unknown>,
-  activeStory?: ActiveStory | null,
-  context?: { command?: string; projectRoot?: string },
-): string | null {
-  if (typeof args.storyId === 'string' && args.storyId.trim()) return args.storyId.trim();
-  if (typeof args.story === 'string' && args.story.trim()) return args.story.trim();
-  if (
-    context?.command &&
-    context.projectRoot &&
-    AUTOPILOT_RUN_OWNER_GATED_COMMANDS.has(context.command)
-  ) {
-    const runStoryId = storyIdFromAutopilotRunId(context.projectRoot, args);
-    if (runStoryId) return runStoryId;
-  }
-  return activeStory?.storyId || null;
-}
-
-/**
- * B-c55d CHK-002: resolve the EFFECTIVE ownership class of a single command
- * invocation.
- *
- * The static `CommandPolicy.ownershipClass` is the base classification; this
- * function applies the four dynamic boundary rules from
- * session-ownership-and-write-leases.md (and the story plan) that depend on the
- * actual invocation arguments:
- *
- *  1. `finding_resolve` / `finding_dismiss` — `storyScopedMutating` for a normal
- *     story, but `mainSharedMutating` when the target is a B-META story (the
- *     B-f60c main write lock serializes those; `finding.ts` already routes the
- *     write through `withMetaFindingLock`). So a B-META finding mutation must
- *     NOT be owner-lease-gated.
- *  2. `validate` — `storyScopedMutating` only when `--story` is supplied (it
- *     then writes story TEST/DONE gate evidence). A diagnostic `validate` with
- *     no `--story` mutates no story state → downgraded to `readOnly`.
- *  3. `delivery_check_set` — `reviewerWrite` only when the resolved actor is
- *     `lattice-review-delivery`; any other caller is treated as
- *     `storyScopedMutating` so a main agent cannot borrow it to bypass the
- *     owner lease.
- *  4. `dev_memory_finish --scope=global` with no explicit story target is
- *     `mainSharedMutating`: it promotes non-authoritative project memory to
- *     global memory and must not be owner-lease-gated by the active story.
- *
- * Returns `null` when the command has no policy entry OR its `ownershipClass`
- * is not a valid enum value — the gate treats `null` as FAIL-CLOSED (an
- * unclassified command is rejected, never default-allowed).
- */
-export function resolveEffectiveOwnershipClass(
-  cmd: string,
-  args: Record<string, unknown>,
-  storyId: string | null,
-): OwnershipClass | null {
-  const policy = getCommandPolicy(cmd);
-  // Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy
-  // OR a policy whose `ownershipClass` is not a valid enum value is fail-closed.
-  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
-  let cls: OwnershipClass = policy.ownershipClass;
-
-  // Boundary rule 1: a B-META finding mutation is mainSharedMutating.
-  if ((cmd === 'finding_resolve' || cmd === 'finding_dismiss') && storyId && storyId.startsWith('B-META-')) {
-    cls = 'mainSharedMutating';
-  }
-
-  // Boundary rule 2: a diagnostic `validate` without --story is readOnly.
-  if (cmd === 'validate') {
-    const hasStory =
-      (typeof args.story === 'string' && args.story.trim().length > 0) ||
-      (typeof args.storyId === 'string' && args.storyId.trim().length > 0);
-    cls = hasStory ? 'storyScopedMutating' : 'readOnly';
-  }
-
-  // Boundary rule 3: delivery_check_set is reviewerWrite ONLY for the delivery
-  // reviewer actor; any other caller is owner-gated as storyScopedMutating.
-  if (cmd === 'delivery_check_set') {
-    cls = isDeliveryReviewerActor(args) ? 'reviewerWrite' : 'storyScopedMutating';
-  }
-
-  // Boundary rule 4: global dev-memory promotion is a main shared metadata write.
-  if (cmd === 'dev_memory_finish') {
-    const hasExplicitStory =
-      (typeof args.story === 'string' && args.story.trim().length > 0) ||
-      (typeof args.storyId === 'string' && args.storyId.trim().length > 0);
-    if (!hasExplicitStory && args.scope === 'global') {
-      cls = 'mainSharedMutating';
-    }
-  }
-
-  return cls;
-}
-
-/**
- * B-c55d CHK-002: whether a `delivery_check_set` invocation is acting AS the
- * delivery reviewer (`lattice-review-delivery`).
- *
- * The actor is resolved from the explicit `agentId` argument first, then the
- * `LATTICE_AGENT` environment variable — the same precedence the
- * `delivery_check_set` handler records into `delivery-check.json`. Only the
- * exact `lattice-review-delivery` lane qualifies for the reviewerWrite exemption;
- * a main agent (or any other agent id) does NOT, so it cannot borrow
- * `delivery_check_set` to bypass the owner lease.
- *
- * NOTE: this only decides the owner-lease exemption. The delivery evidence's
- * own signature / phase rules are still enforced inside `delivery_check_set`
- * and by the TEST→DONE delivery-check gate — the exemption is never a free
- * pass to write.
- */
-export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {
-  const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
-  const env = typeof process.env.LATTICE_AGENT === 'string' ? process.env.LATTICE_AGENT.trim() : '';
-  const actor = explicit || env;
-  return actor === 'lattice-review-delivery';
-}
-
-/**
- * B-c55d CHK-003: the takeover intent of a single CLI invocation.
- *
- *  - `none`          → no takeover flag; a foreign lease stays rejected.
- *  - `takeover`      → `--takeover`; transfers a STALE foreign lease only.
- *  - `forceTakeover` → `--forceTakeover`; transfers an ACTIVE foreign lease too
- *    (deliberate human override). Implies `--takeover` semantics for a stale
- *    lease as well, so `--forceTakeover` always wins when both are present.
- */
-export type TakeoverIntent = 'none' | 'takeover' | 'forceTakeover';
-
-/**
- * Resolve the takeover intent from parsed CLI args.
- *
- * `parseFlags` records a bare `--takeover` / `--forceTakeover` as boolean
- * `true`; an `=value` form may also yield a string. Runtime re-validation (per
- * "Handler coding convention"): the flag counts as set ONLY for a real boolean `true` or
- * the literal string `"true"` — any other value (a typo'd `--takeover=maybe`)
- * is treated as NOT set, so a malformed flag can never silently authorize a
- * dangerous lease transfer. `--forceTakeover` outranks `--takeover`.
- */
-export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIntent {
-  const isSet = (v: unknown): boolean => v === true || v === 'true';
-  if (isSet(args.forceTakeover)) return 'forceTakeover';
-  if (isSet(args.takeover)) return 'takeover';
-  return 'none';
-}
-
-
-/**
- * B-c55d CHK-002: the single CLI choke-point story owner lease GATE.
- *
- * Runs once in the `run()` wrapper for every command — ownership is NEVER
- * checked inside individual handlers. Behavior by effective ownership class
- * (see `resolveEffectiveOwnershipClass`):
- *
- *  - `readOnly` / `reviewerWrite` / `mainSharedMutating` → not owner-gated. The
- *    function returns without acquiring or rejecting. (`reviewerWrite` is
- *    exempt from the owner lease but still bound by its own reviewer-run /
- *    signature gates inside the handler; `mainSharedMutating` is serialized by
- *    the B-f60c main write lock.)
- *  - `storyScopedMutating` / `dangerousMutating` → owner-gated. With a
- *    resolvable story:
- *      · no lease on disk            → this session acquires it (becomes owner);
- *      · lease owned by this session → heartbeat is refreshed;
- *      · lease owned by ANOTHER session (`foreign`) → CHK-003: if the
- *        invocation carries an explicit takeover flag the lease may be
- *        transferred (`--takeover` for a STALE lease, `--forceTakeover` for an
- *        ACTIVE one) — the transfer rewrites the lease and records a
- *        `story-owner-lease-takeover` audit event, then the command proceeds.
- *        Without a flag (or a `--takeover` on a still-active lease) the command
- *        is REJECTED fail-closed with owner guidance.
- *  - unclassified (no policy / invalid `ownershipClass`) → REJECTED fail-closed.
- *    An unclassified command is never default-allowed.
- *
- * Throws an `Error` on rejection; the `run()` catch block surfaces it as the
- * command failure. A non-owner session performs NO write (the lease primitive
- * observes a foreign lease without stealing it).
- */
-export function enforceStoryOwnerLeaseGate(
-  cmd: string,
-  args: Record<string, unknown>,
-  store: StoryStore,
-  activeStory: ActiveStory | null,
-  projectRoot: string,
-): void {
-  const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
-
-  // Fail-closed: an unclassified command (no policy entry, or a policy with an
-  // invalid `ownershipClass`) is rejected, never default-allowed.
-  if (cls === null) {
-    throw new Error(
-      `Command "${cmd}" has no valid ownershipClass in command-policy.ts and is rejected fail-closed. ` +
-      `Every registered command must declare a CommandPolicy.ownershipClass (readOnly / storyScopedMutating / ` +
-      `reviewerWrite / mainSharedMutating / dangerousMutating). Add a classified policy entry and rerun.`,
-    );
-  }
-
-  // Not owner-gated: readOnly (no story state mutated), reviewerWrite (exempt —
-  // bound by its own reviewer-run/signature gates), mainSharedMutating
-  // (serialized by the B-f60c main write lock, not the owner lease).
-  if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') {
-    return;
-  }
-
-  // Owner-gated: storyScopedMutating / dangerousMutating.
-  if (!storyId) return; // no story resolves → nothing to own (e.g. a draft).
-  const storyDir = store.storyDirPath(storyId);
-  if (!existsSync(storyDir)) return; // story dir absent → command will fail on its own.
-
-  const { lease, action } = acquireOrRefreshOwnerLease(storyDir, {
-    command: cmd,
-    cwd: process.cwd(),
-  });
-
-  // `acquired` / `refreshed` → the current session owns the lease; proceed.
-  if (action !== 'foreign') return;
-
-  // `foreign` → another session owns this story.
-  //
-  // B-c55d CHK-003: before the fail-closed rejection, check for an explicit
-  // takeover flag. A takeover is a `dangerousMutating` action — it requires
-  // explicit operator intent (`--takeover` / `--forceTakeover`) and always
-  // records an audit event. Without a flag, NOTHING is transferred and the
-  // CHK-002 fail-closed rejection stands.
-  const intent = resolveTakeoverIntent(args);
-  if (intent !== 'none') {
-    const result = takeOverOwnerLease(storyDir, {
-      kind: intent,
-      command: cmd,
-      cwd: process.cwd(),
-      projectRoot,
-    });
-    if (result.transferred) {
-      // The lease now belongs to this session — the takeover event was logged.
-      // Proceed: the owner-gated command runs as the new owner.
-      return;
-    }
-    // `--takeover` on an ACTIVE (non-stale) lease → refuse, and tell the
-    // operator the active lease needs the explicit `--forceTakeover` override.
-    if (result.reason === 'lease-active') {
-      const activeAgeMs = Date.now() - Date.parse(lease.heartbeatAt);
-      const activeAge = Number.isFinite(activeAgeMs) ? formatLeaseAge(activeAgeMs) : 'unknown';
-      throw new Error(
-        `${storyId} is owned by another Lattice session (${lease.sessionId}) whose owner lease is ` +
-        `still ACTIVE (heartbeat ${activeAge} ago). --takeover only transfers a STALE lease ` +
-        `(no heartbeat for 30+ minutes). To seize an active session's lock, rerun with ` +
-        `--forceTakeover — a deliberate human override.`,
-      );
-    }
-    // `no-lease` / `already-owned` are not expected here (a foreign lease was
-    // just observed); fall through to the standard rejection for safety.
-  }
-
-  // No takeover flag (or a takeover that did not transfer): reject fail-closed
-  // with owner guidance. The lease primitive performed NO write (no silent
-  // steal). The full multi-field rejection message — story / owner sessionId /
-  // owner cwd / heartbeat age / stale verdict / allowed next action — is built
-  // by the single `formatNonOwnerError` pure formatter so the message can never
-  // drift from the `session-ownership-and-write-leases.md` § Error UX contract.
-  throw new Error(
-    formatNonOwnerError(lease, {
-      storyId,
-      command: cmd,
-      ownershipClass: cls,
-      currentSessionId: getSessionId(),
-      currentCwd: process.cwd(),
-    }),
-  );
-}
-
-// ─── B-4f15 CHK-002: read-only reviewer command guard ───────────────────────
-
-/** Environment variable name that activates read-only reviewer mode. */
-export const REVIEWER_READONLY_ENV = 'LATTICE_REVIEWER_READONLY';
-
-/** Returns true when the process is running as a read-only reviewer. */
-export function isReviewerReadOnlyModeEnabled(): boolean {
-  return process.env[REVIEWER_READONLY_ENV] === '1';
-}
-
-/**
- * B-4f15 CHK-002: pre-hook, pre-lease gate for read-only reviewer mode.
- *
- * When LATTICE_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
- * is `readOnly` are permitted. All other classes — `reviewerWrite`,
- * `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
- * unclassified (null) — are rejected fail-closed.
- *
- * This gate must run BEFORE preCommand hooks and before enforceStoryOwnerLeaseGate
- * so a blocked command never triggers hooks or acquires/mutates lease state.
- *
- * Throws an Error on rejection; callers surface it as a command failure.
- */
-export function enforceReviewerReadOnlyCommandGate(
-  cmd: string,
-  args: Record<string, unknown>,
-  activeStory: ActiveStory | null,
-): void {
-  if (!isReviewerReadOnlyModeEnabled()) return;
-
-  const storyId = storyIdFromArgs(args, activeStory);
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
-
-  if (cls === 'readOnly') return;
-
-  const clsLabel = cls === null ? 'unclassified' : cls;
-  throw new Error(
-    `[${REVIEWER_READONLY_ENV}=1] Command "${cmd}" is not allowed in read-only reviewer mode ` +
-    `(effective ownershipClass: ${clsLabel}). ` +
-    `Advisory read-only reviewers may only run read-only Lattice commands and should return ` +
-    `structured findings to the story owner. ` +
-    `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Decide whether a CLI invocation should be recorded in activity.jsonl.
- * Returns false for read-only commands and dry-run invocations.
- */
-export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
-  if (READ_ONLY_COMMANDS.has(cmdName)) {
-    return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
-  }
-  if (args.dryRun === true) return false;
-  return true;
 }
 
 function gitCli(cwd: string, args: string[]): string {
@@ -4081,7 +3591,7 @@ export async function runCli(opts?: {
         }
       }
       const record: Record<string, unknown> = {
-        source: process.env.LATTICE_ACTIVITY_SOURCE || 'cli',
+        source: resolveActivitySource(),
         session: process.env.LATTICE_ACTIVITY_SESSION || '',
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
@@ -4117,7 +3627,7 @@ export async function runCli(opts?: {
     success: boolean;
     error?: string;
   }) {
-    if ((process.env.LATTICE_ACTIVITY_SOURCE || '') !== 'codex') return;
+    if (!isCodexActivitySource()) return;
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
