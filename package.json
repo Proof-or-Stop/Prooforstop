@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,7 @@
     "build:lab": "npm --prefix packages/lab run build",
     "package:desktop:host": "node scripts/package-desktop.mjs host",
     "package:desktop:release": "node scripts/package-desktop.mjs release",
-    "test": "npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:nested-worktree-bootstrap && npm run test:e2e",
+    "test": "npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:nested-worktree-bootstrap && npm run test:e2e",
     "test:all": "node packages/main/dist/tasks/run-all-smokes.js",
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
     "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
@@ -27,6 +27,7 @@
     "test:managed-assets-wrapper-root": "npm --prefix packages/main run test:managed-assets-wrapper-root",
     "test:evidence-quality": "node scripts/verify-evidence-quality.mjs",
     "test:done-oracle-wrapper-root": "npm --prefix packages/main run test:done-oracle-wrapper-root",
+    "test:done-premerge-mainsha-recheck": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
     "test:dispatch-checklist-doctor-wrapper-root": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
     "test:graceful-sites-gitroot-cwd": "node packages/main/dist/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.js",
     "test:usage-ledger-codex-gemini": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",

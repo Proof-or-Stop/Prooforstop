@@ -1,0 +1,24 @@
+{
+  "storyId": "B-0e53",
+  "checkedAt": "2026-06-19T21:31:06.237Z",
+  "reviewRound": "2026-06-19T21:21:11.654Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js -> 14 checks pass, exit 0; abort path verified (external advance between pre-check sync and merge -> DONE aborted resync message, phase stays TEST in both stores, no merge commit on main, worktree+branch survive) + happy path verified (main unchanged -> DONE completes with normal merge, worktree removed, branch deleted). RED/GREEN verified: disabling the re-check causes the abort assertion to fail."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm test -> ALL PASS with test:done-premerge-mainsha-recheck in the suite chain. Smoke independently verified: exit 0, 14 checks, both abort and happy paths confirmed. Full test:done-premerge-mainsha-recheck step included in the npm test chain per package.json diff."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No docs changed (docsPromises=[]). Both CHK-001 and CHK-002 are fully delivered: transition-orchestrator.ts adds the post-lock, pre-merge mainSha re-check that aborts before persist on external advance; the smoke drives a real end-to-end story_advance DONE in an isolated temp repo and passes 14 checks covering the abort path (external advance detected, phase stays TEST, no merge commit) and the happy path (unchanged main, DONE completes normally). npm test exits 0 with the new smoke in the chain. No TODOs."
+  },
+  "_hash": "71f995bcf919e1006b1b7407f04ffe1912488d18223d2937af1acffb1937e3ec"
+}

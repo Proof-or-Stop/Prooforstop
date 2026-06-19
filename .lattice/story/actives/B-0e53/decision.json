@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Close ONLY the residual external-advance window; do not re-architect the already-correct main-write-lock serialization.",
+    "Fail closed: on a detected drift, abort BEFORE any phase mutation or merge, leaving the story exactly at TEST.",
+    "Keep the merge atomic and the lock handling unchanged; the re-check is a read-only comparison plus a throw.",
+    "Minimal blast radius: one guarded comparison in transition-orchestrator.ts plus one smoke; no other files.",
+    "Behavior-preserving for the happy path (main unchanged in-lock) and for all non-DONE transitions."
+  ],
+  "drivers": [
+    "The main-write-lock already serializes concurrent Lattice DONEs (transition-orchestrator.ts ~311/319/473); the ONLY uncovered race is an external git advance between the pre-check sync and the in-lock merge.",
+    "A DONE persisted against a drifted main strands the just-re-established escalation verdicts and verification evidence (observed in B-12d7).",
+    "After-DONE auto-retry would need a partial-DONE state machine + rollback that does not exist and would lengthen lock holds toward the ~120s stale-reclaim threshold."
+  ],
+  "options": [
+    {
+      "name": "abort-before-persist-mainsha-recheck",
+      "pros": [
+        "Closes the exact residual window with a cheap read + comparison.",
+        "Fail-closed: no partial DONE, story stays at TEST, operator simply re-runs.",
+        "Zero change to the lock or the merge; smallest blast radius."
+      ],
+      "cons": [
+        "Requires the operator to re-run story_advance DONE on the rare external-advance (acceptable: fail-closed > silent drift)."
+      ]
+    },
+    {
+      "name": "after-DONE-auto-retry",
+      "pros": [
+        "No operator re-run on drift."
+      ],
+      "cons": [
+        "Needs a partial-DONE state machine + rollback that does not exist.",
+        "Lengthens lock holds toward the ~120s stale-reclaim threshold (risks a second DONE reclaiming the lock mid-merge).",
+        "Much larger blast radius for a rare race."
+      ]
+    },
+    {
+      "name": "full-merge-serialization-rework",
+      "pros": [
+        "Conceptually unifies merge ordering."
+      ],
+      "cons": [
+        "The lock ALREADY serializes Lattice DONEs — this solves a non-problem.",
+        "Large, risky rewrite of a core gate for no added coverage of the external-advance window."
+      ]
+    }
+  ],
+  "chosen": "abort-before-persist-mainsha-recheck",
+  "rationale": "The lock already serializes Lattice DONEs; only the external-advance window remains. A post-lock pre-merge mainSha re-read compared right before phase=DONE persists closes exactly that window with a fail-closed abort, no lock/merge change, and the smallest possible blast radius. Auto-retry and a full serialization rework are both disproportionate to a rare race and add risk.",
+  "preMortem": [
+    {
+      "scenario": "The re-check captures the wrong baseline sha (before autoSyncMain, or after the merge), so it false-positives on every DONE or never trips.",
+      "trigger": "Capturing main sha at the wrong point in the sequence.",
+      "consequence": "Either all DONEs abort (broken) or the window stays open (no-op).",
+      "mitigation": "Capture main current sha IMMEDIATELY AFTER autoSyncMain completes (~325, the post-sync baseline) and re-read right before store.writeStory (~431); the smoke asserts both the abort-on-external-advance and the happy-path-no-abort."
+    },
+    {
+      "scenario": "The abort runs AFTER store.writeStory persists phase=DONE, so the story is marked DONE but the merge is skipped.",
+      "trigger": "Placing the re-check after line 431.",
+      "consequence": "A worse state than the original bug: DONE with no merge.",
+      "mitigation": "Place the re-check strictly BEFORE actor.send/writeStory; the smoke asserts the persisted phase is still TEST after an aborted DONE and that no merge commit landed."
+    },
+    {
+      "scenario": "The abort throw leaves the main-write-lock held, deadlocking subsequent DONEs.",
+      "trigger": "Adding bespoke lock handling around the re-check.",
+      "consequence": "Every later DONE blocks on the held lock until stale-reclaim.",
+      "mitigation": "Throw a plain error that propagates to the EXISTING try/finally (~536) which already releases the lock; add no new lock code."
+    },
+    {
+      "scenario": "False positive when Lattice own autoSyncMain advanced main — aborting a legitimate DONE.",
+      "trigger": "Capturing the baseline before autoSyncMain.",
+      "consequence": "Legitimate DONEs that needed a sync always abort.",
+      "mitigation": "Capture the baseline AFTER autoSyncMain so Lattice own sync is already reflected; only an external advance after that baseline trips the abort."
+    }
+  ],
+  "timestamp": "2026-06-19T21:03:41.269Z"
+}
