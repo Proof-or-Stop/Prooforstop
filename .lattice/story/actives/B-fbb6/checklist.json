@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Provider runner: gemini-cli.ts -> antigravity-cli.ts (binary agy, drop usage extraction)",
+      "context": "Rename packages/main/src/providers/gemini-cli.ts to antigravity-cli.ts: GEMINI_CLI_BINARY='gemini' -> ANTIGRAVITY_CLI_BINARY='agy'; geminiCliAvailable -> antigravityCliAvailable; runBoundedGeminiProvider -> runBoundedAntigravityProvider (ProviderExecResult.provider='antigravity'). REMOVE extractGeminiUsage/isGeminiUsageObject (agy does not emit usageMetadata) so reportedUsage is never set. Keep stdout/stderr as digest+byte-count only (raw-never-surfaced). Model: best-effort parse the agy --log-file `label=\"...\"` line, else fall back to the requested --model or 'unknown'. Update the dedicated smoke (provider-gemini-smoke.ts -> provider-antigravity-smoke.ts) to probe `agy` availability + bounded spawn capture.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Dispatch + provider-name plumbing: gemini -> antigravity, agy --print argv",
+      "context": "In lattice-dispatch.ts rename runGeminiRealLeafDispatch -> runAntigravityRealLeafDispatch and build agy's argv (`--print <prompt>` + `--print-timeout`, and `--dangerously-skip-permissions` if needed for non-interactive tool steps); route --host=gemini -> --host=antigravity (and the availability gate via antigravityCliAvailable). Update BoundedProviderName 'gemini' -> 'antigravity', PROVIDER_BINARY, defaultProviderAvailable, defaultBoundedProviderExecutor, and planned-steps-executor.ts imports (geminiCliAvailable/runBoundedGeminiProvider/GEMINI_CLI_BINARY). recordDispatchFinalForProvider's provider param 'gemini' -> 'antigravity' (writes an unavailable final since antigravity has no reportedUsage).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Delete the Gemini usage adapter + assemble.ts wiring (antigravity usage = unavailable)",
+      "context": "DELETE packages/main/src/core/usage-ledger/adapters/gemini.ts and remove its use in assemble.ts: drop 'gemini' from the ProviderName union and the `case 'gemini'` in adaptUsageFor (keep anthropic/openai). buildProviderRecord is never called for antigravity (no reportedUsage), so no antigravity adapter is needed; antigravity finals go through the source=unavailable path with a clear unavailableReason (e.g. 'antigravity (agy) print mode does not surface per-call token usage'). Remove the adaptGeminiUsage cases from usage-ledger-adapter-smoke.ts. Confirm no other importer of adaptGeminiUsage / adapters/gemini remains.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Rename remaining gemini provider-semantic references + smokes; grep-clean; suite green",
+      "context": "Rename the 'gemini' provider-semantic literals / runtime-probe ids across core (e.g. capabilities.ts, command-policy.ts, dispatch-policy.ts, planner.ts, verdicts.ts, config.ts, types.ts, process-fact-levels.ts, host runtime probe ids) to 'antigravity'. Rename/rework gemini-named smokes (provider-gemini-smoke, usage-ledger-codex-gemini-smoke gemini cases) + package.json scripts + run-all-smokes discovery. Build clean (tsc, no any) and run the full smoke suite green. Acceptance: `grep -rinE '\\bgemini\\b' packages/main/src` shows no remaining PROVIDER-semantic reference (model-name strings unrelated to the provider, if any, are explicitly justified); an antigravity dispatch writes a provider.name=antigravity / source=unavailable ledger final.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
