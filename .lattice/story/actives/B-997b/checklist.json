@@ -152,6 +152,44 @@
         "test": [
           "packages/main/src/tasks/scope-contract-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid DEV or REVIEW scope acknowledgement for a necessary late expansion records affected paths/items, explicit reason, actor/session, phase, head hash, material hash when available, and structured audit evidence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After a valid acknowledgement, the same acknowledged paths are surfaced as review-visible scope expansion rather than a silent normal pass, and lifecycle progress still depends on reviewer acceptance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Acknowledgement or repair requests missing a reason, using malformed paths or evidence refs, targeting terminal phases, or violating phase policy are rejected with deterministic repair/fallback guidance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A broad or plan-invalidating scope change remains blocking and points back to PLAN or reviewer decision instead of being accepted as a local acknowledgement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The main implementation agent cannot self-sign reviewer-only scope evidence, silently expand the frozen contract, or overwrite authored scope/intent without explicit replace semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fallback behavior for missing reviewer or unsupported host is visibly lower assurance and never receives the same label or gate meaning as independent reviewer evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
