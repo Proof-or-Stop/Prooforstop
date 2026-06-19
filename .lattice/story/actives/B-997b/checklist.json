@@ -89,7 +89,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running npm --prefix packages/main run build and the focused scope smokes passes, and the docs name the new row/classifier/acknowledgement behavior without claiming later roadmap milestones are done.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/guide-scope-guard.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      }
     }
   ]
 }
