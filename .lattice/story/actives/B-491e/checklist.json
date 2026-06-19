@@ -139,9 +139,51 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T00:58:41.311Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after removing generator imports and exports.",
+          "headHash": "8fcb0a5a93e9525b5f2352bc3114063bc8ffc426",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:41.459Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Authority client smoke passed with direct consumer fixture handoff files.",
+          "headHash": "8fcb0a5a93e9525b5f2352bc3114063bc8ffc426",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:41.552Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Authority status smoke passed with direct consumer fixture handoff files.",
+          "headHash": "8fcb0a5a93e9525b5f2352bc3114063bc8ffc426",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:41.701Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\" packages/main/src docs",
+          "result": "pass",
+          "note": "No matches remained, preventing accidental public local senior bundle generation reintroduction in touched public surfaces.",
+          "headHash": "8fcb0a5a93e9525b5f2352bc3114063bc8ffc426",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:41.809Z"
+        }
+      ]
     }
   ]
 }
