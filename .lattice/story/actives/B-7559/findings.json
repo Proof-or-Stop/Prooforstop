@@ -388,7 +388,7 @@
       "desc": "CHK-002: §3.1, §3.2, §3.3 and §6 \"Persist to Lattice\" blocks show space-separated multiple values after a single array flag (e.g. --protectedFiles \"contract.ts\" \"types.ts\" \"index.ts\"). The CLI parser (cli-engine.ts parseFlags) only consumes ONE non-flag argument per flag invocation; the second and subsequent values are silently dropped as unrecognized positionals. In §3.2 (impl story) this means only contract.ts is added to protectedFiles, leaving types.ts and index.ts unprotected. In §3.1/§3.3 the allowedModify and allowedCreate lists are similarly truncated. Additionally §6 line 621 uses literal \"<same>\" as the --allowedCreate value — not a valid path. Correct form is either repeated flags (--protectedFiles f1 --protectedFiles f2) or JSON array (--protectedFiles [\"f1\",\"f2\"]).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T02:13:27.453Z",
@@ -399,7 +399,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|persist-lattice-blocks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: all array-flag examples converted to JSON-array syntax (parseFlags consumes one value/flag and JSON-parses [-prefixed values; space-separated paths were silently dropped). Added a load-bearing convention note; replaced --protectedFiles \"\" with '[]' and the <same> placeholder with explicit arrays; §5 templates use single JSON-array placeholders.",
+      "resolvedAt": "2026-06-19T02:20:29.842Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-019",
