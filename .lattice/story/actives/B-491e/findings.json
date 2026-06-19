@@ -59,6 +59,27 @@
       ],
       "signatureTag": "doc-code-drift|md|codex-audit-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-491e:F-004",
+      "desc": "claude-code-audit verified high blocker across R1/R2/R3: public CLI cleanup is still not safe/correct for the server-generated relative handoff contract. Server B-42a2 emits LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./lattice_staging-client.env, but CLI resolveAuthorityCustomerApiKey resolves trust-env paths against consumer cwd rather than the trust env file directory, so an absolute LATTICE_AUTHORITY_TRUST_ENV_FILE consumed from another cwd binds to a cwd sidecar or fails instead of using the bundle sidecar. Minimal repro against current dist/core/authority-client.js returned trustLoaded=true, urlSource=authority_trust_env, valueMatchesBundle=false, valueMatchesCwd=true. Source: authority-client.ts lines 1541-1551 read the trust env path but do not preserve its directory; lines 1619-1623 resolve CUSTOMER_API_KEY_PATH with resolvePath(cwd, trustPath). Tests miss this because authority-client-smoke uses an absolute sidecar path and authority-status-smoke only covers cwd=bundleRoot. README.md line 273 still tells ordinary developers to generate the bundle locally, contradicting the consumer-only docs.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-channel",
+      "createdAt": "2026-06-19T01:18:31.098Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-006",
+      "_hash": "d37fd7605053bd40b6a0d19c2bab36f2e13530d23d4d5b3fab2a29c76c64521d",
+      "files": [
+        "README.md",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ],
+      "signatureTag": "adversarial|md|claude-code-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
