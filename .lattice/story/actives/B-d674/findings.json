@@ -145,7 +145,7 @@
       "desc": "packages/main/src/tasks/host-guard-matrix-smoke.ts:11-12,117-153,228-267 still encodes Gemini as the wrapped-preapply guard/capability profile and never asserts the current Antigravity/agy guard semantics. This is a real failing verification path after B-d674 removed Gemini from the current capability host list: `node packages/main/dist/tasks/host-guard-matrix-smoke.js` exits with TypeError at dist/tasks/host-guard-matrix-smoke.js:139 because `buildCapabilityList()` no longer returns a gemini profile. That contradicts the concept contract for this story: current third-host semantics are Antigravity/agy, while Gemini is legacy compatibility only. Update the smoke to assert antigravity and agy wrapped-preapply behavior, keep Gemini only as explicit legacy compatibility if needed, and align the stale GuardSessionMode comment in packages/main/src/core/types.ts:1654 so guard semantics have one current model.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T15:53:42.772Z",
@@ -157,7 +157,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "stale-host-guard-matrix|ts|gemini-current-profile",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 733e079d0: host-guard-matrix-smoke now asserts Antigravity and agy wrapped-preapply only via dispatch, verifies Antigravity is the current capability_list profile, asserts Gemini is absent from current capability_list hosts, and keeps Gemini only as deprecated legacy capability_probe compatibility. packages/main/src/core/types.ts GuardSessionMode wording now names Codex, Antigravity/agy, or legacy Gemini. Verified npm --prefix packages/main run build, node packages/main/dist/tasks/host-guard-matrix-smoke.js, node packages/main/dist/tasks/capability-list-smoke.js, node packages/main/dist/tasks/dispatch-run-smoke.js, node bin/lattice.js scope_contract_check {storyId:B-d674}, and git diff --check.",
+      "resolvedAt": "2026-06-19T16:04:29.402Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d674:F-008",
