@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0e53:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 must-priority intents have concrete, item-scoped, passing logic_test/manual_transcript evidence targeting the smoke. Smoke runs clean exit 0 with 14 checks. Abort and happy paths run in same temp root; happy-path DONE acquiring the global lock after the abort proves lock release (adversarial:1 adequately evidenced). CHK-002:adversarial:0 is priority=should and has explicit RED/GREEN non-vacuity evidence. No gaps found.",
+      "createdAt": "2026-06-19T21:23:41.802Z",
+      "reviewRound": "2026-06-19T21:21:11.654Z",
+      "reviewRunId": "B-0e53:RR-003",
+      "_hash": "1e0fa284cdb8a028933916a10ce11fc4dd76e9c8153fd4869f67a7f145642acd"
+    }
+  ]
+}
