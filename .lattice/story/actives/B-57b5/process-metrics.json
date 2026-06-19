@@ -1,6 +1,6 @@
 {
   "storyId": "B-57b5",
-  "generatedAt": "2026-06-19T19:09:23.459Z",
+  "generatedAt": "2026-06-19T19:23:53.320Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -8,7 +8,7 @@
     "checklistItems": 3,
     "reviewRounds": 3,
     "findings": 0,
-    "bugs": 0,
+    "bugs": 1,
     "testRuns": 0,
     "hasEvalEvidence": false,
     "hasSummary": false
@@ -127,13 +127,12 @@
     },
     "debugging": {
       "effective": {
-        "value": "n/a",
-        "unit": "text",
-        "confidence": "high",
+        "value": null,
+        "unit": "bool",
+        "confidence": "unknown",
         "sources": [
           "bug.json"
-        ],
-        "note": "no bugs reported"
+        ]
       },
       "metrics": {
         "bugsWithEvidenceRatio": {
