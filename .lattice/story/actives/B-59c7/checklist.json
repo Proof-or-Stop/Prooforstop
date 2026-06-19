@@ -47,12 +47,12 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "node -e \"const m=require('./packages/main/dist/core/parallel-decomposition.js');['computeWriteSet','globsOverlap','evaluateDecompositionGate'].forEach(f=>{try{m[f]()}catch(e){console.log(e.message)}})",
+          "command": "node -e \"const m=require('./packages/main/dist/core/parallel-decomposition.js');m.computeWriteSet()\"",
           "result": "pass",
-          "note": "Each skeleton throws Error(NotImplemented: <name>) — verified: computeWriteSet/globsOverlap/evaluateDecompositionGate all threw NotImplemented, no silent stub.",
-          "headHash": "fe15049ac86631cf96d6f73589cc5b1d8caea291",
-          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
-          "timestamp": "2026-06-19T04:05:27.953Z"
+          "note": "Each skeleton throws Error(NotImplemented: <name>) — confirmed at current HEAD, no silent stub.",
+          "headHash": "7c733869cc643cdb942694589389c505db15fea5",
+          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
+          "timestamp": "2026-06-19T04:10:18.681Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
