@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-aa8a",
+  "checkedAt": "2026-06-19T19:25:41.433Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "8006f0104de26cceff26963b474d3dee87d8861f864714b116c39d62e5dea032",
+  "executionBoundaryHash": "16b294aa9fd2232e63bd49e89bc614f90fca6dc91aa83e21a2e1b79270b09ce3",
+  "freshnessHash": "3fe50b520307cfb86144916d7639df7ecd87273593fddd3cf7eacecc2762f158",
+  "effectiveExcludedKeywords": [
+    "package.json (bumped at RUNTIME by the feature, not edited by story code)",
+    "packages/main/package.json (runtime bump target, not edited by story code)",
+    "packages/main/src/core/lattice-brand.ts (runtime bump target, not edited by story code)",
+    "unrelated DONE-merge logic beyond the version-bump insertion point"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "package.json (bumped at RUNTIME by the feature, not edited by story code)",
+      "source": "scopeBoundary.excluded",
+      "text": "package.json (bumped at RUNTIME by the feature, not edited by story code)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/package.json (runtime bump target, not edited by story code)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/package.json (runtime bump target, not edited by story code)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/lattice-brand.ts (runtime bump target, not edited by story code)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/lattice-brand.ts (runtime bump target, not edited by story code)",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated DONE-merge logic beyond the version-bump insertion point",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated DONE-merge logic beyond the version-bump insertion point",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "14de0ca0e5ace29e23d9795f4594c2e60319709a08340a93e29b90c03dee5ba2"
+}

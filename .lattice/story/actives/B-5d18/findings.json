@@ -1,0 +1,181 @@
+{
+  "findings": [
+    {
+      "id": "B-5d18:F-001",
+      "desc": "resource-leak: validation-executor.ts:267 spawn(\"taskkill\", ...) return value has no error listener and is not .unref()d; if taskkill is not found or fails to launch, Node.js emits an unhandled error event on the returned ChildProcess, which crashes the process with an unhandled exception on Windows",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T17:46:31.593Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-005",
+      "_hash": "f71a66ac1549decb8ce5d108271280875f4eaf8d5a2982a1cedafc4316c7ef7e",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|resource-leak-validation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f968e6013: the win32 taskkill spawn in killTree() now chains .on('error', () => child.kill(signal)) so a missing/unlaunchable taskkill cannot emit an unhandled 'error' event (no process crash) and falls back to a direct kill. POSIX path unchanged. Confirmed by Claude quality round-3/4 and Codex host-2 round-3/4.",
+      "resolvedAt": "2026-06-19T18:47:30.726Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5d18:F-002",
+      "desc": "api-inconsistency: validation-executor.ts:309 executeValidationPlan calls runValidationCommand(command, projectRoot) without forwarding a defaultTimeoutMs parameter; since executeValidationPlan has no such parameter itself, the injectable-default seam added to runValidationCommand is unreachable from the plan-level entry point — callers needing plan-level timeout injection must call runValidationCommand directly",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T17:46:37.792Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-005",
+      "_hash": "79598c89c07400d190b990dfd9f40a0f53871a92e1ccd12a66165d6dcc3fd1b8",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|inconsistency-validation-executor",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f968e6013 and clarified in 7ab1e1db6: JSDoc on runValidationCommand documents defaultTimeoutMs as a test seam and accurately names all production call sites (executeValidationPlan + the direct verifier.ts callers), none of which pass it. Codex host-2 round-4 PASS confirms accuracy.",
+      "resolvedAt": "2026-06-19T18:47:45.352Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d18:F-003",
+      "desc": "All 6 verificationEvidence entries are stale (materialHash 222b118929... vs current 5e27f345...); the round-2 process-group kill + 124 contract changes landed in commit 3b3a85c14 but no evidence was re-recorded, leaving both must-priority intents (CHK-001:happy:0 and CHK-002:happy:0) uncovered. validate confirms 0/6 covered, 2 required missing. All 6 entries must be re-bound at the current HEAD before DONE can proceed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T17:48:39.435Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-006",
+      "_hash": "e13eb190d903df04278abc60ec7da38198a9a1043858e50159a431992cb840df",
+      "files": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-entries-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-007 (same uniform evidence staleness). Resolved by the round-4 re-bind of all 6 verificationEvidence entries at the frozen HEAD followed by lattice validate --story.",
+      "resolvedAt": "2026-06-19T18:47:45.777Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5d18:F-004",
+      "desc": "CHK-001:edge:0 evidence command mismatch: the logic_test evidence command is \"git show HEAD:packages/main/src/core/partial-done-recovery.ts\" which reads an unrelated recovery module; this does not demonstrate the claimed behavior (the smokes use resolveMainRepoRoot on a /tmp path which returns that path verbatim, giving isolated locks with no global main-write-lock contention). The concrete command to evidence this intent should read the smoke source or call resolveMainRepoRoot directly — not a file about partial-done recovery that shares no code path with the hang diagnosis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T17:48:46.781Z",
+      "reviewRound": "2026-06-19T17:45:11.458Z",
+      "reviewRunId": "B-5d18:RR-006",
+      "_hash": "6a470716876c367862d4239de017cd3bc8f1b3c562c50a234ffbd5867f755a8b",
+      "files": [
+        ".lattice/story/actives/B-5d18/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|edge-evidence-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-008 (same CHK-001:edge:0 command mismatch). Resolved by re-binding CHK-001:edge:0 to a command that runs resolveMainRepoRoot(os.tmpdir()) and shows it returns the tmp path.",
+      "resolvedAt": "2026-06-19T18:47:46.183Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5d18:F-005",
+      "desc": "All 6 verificationEvidence entries are stale (headHash does not match current HEAD ab3107e): CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0. Both must-priority intents (CHK-001:happy:0, CHK-002:happy:0) are therefore uncovered at this HEAD. Main agent has confirmed intent to re-bind all 6 entries at the frozen HEAD and re-run validate before TEST gate. Finding filed to satisfy gate requirements; re-bind + validate will resolve this.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:38:05.033Z",
+      "reviewRound": "2026-06-19T18:36:10.135Z",
+      "reviewRunId": "B-5d18:RR-008",
+      "_hash": "43327338fb2381d3c5194dc2c54d8c5effa4be359937a22d55ded94bcd4cab1a",
+      "files": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-entries-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-007 (same uniform staleness restated in the later round).",
+      "resolvedAt": "2026-06-19T18:47:46.586Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5d18:F-006",
+      "desc": "CHK-001:edge:0 evidence command is `git show HEAD:packages/main/src/core/partial-done-recovery.ts` — this shows the resolveMainRepoRoot source but does not concretely demonstrate the /tmp isolation behavior claimed by the intent (smokes use isolated /tmp locks, so no global main-write-lock contention). A command showing resolveMainRepoRoot called with a /tmp path (e.g., from validate-command-timeout-smoke hermetic output, or a targeted test of the function) would directly bind the claimed behavior. Main agent has acknowledged this mismatch and committed to replace the command before re-bind. Finding filed to require the fix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:38:12.953Z",
+      "reviewRound": "2026-06-19T18:36:10.135Z",
+      "reviewRunId": "B-5d18:RR-008",
+      "_hash": "0167bdb7c0da2540d3215bf5aebe4f22bdd612e96a47fda71c630c34c71f0c0e",
+      "files": [
+        "packages/main/src/core/partial-done-recovery.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-008 (same CHK-001:edge:0 command mismatch restated in the later round).",
+      "resolvedAt": "2026-06-19T18:47:47.009Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5d18:F-007",
+      "desc": "All 6 verificationEvidence entries are stale (headHash mismatch vs current HEAD deaedfb). Cause: comment-only JSDoc reword in validation-executor.ts (7ab1e1db6) advanced the material hash without re-binding evidence. Main agent has stated all 6 entries will be re-bound at the frozen HEAD before TEST. This finding is advisory; re-bind + validate --story will clear it.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:44:52.555Z",
+      "reviewRound": "2026-06-19T18:42:53.962Z",
+      "reviewRunId": "B-5d18:RR-012",
+      "_hash": "2d4dbdf43786a049a5098c10fcae605afbcb9240329952d28436fe1d340e51c2",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-entries-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 6 verificationEvidence entries re-bound at the frozen HEAD (verification_evidence_add for CHK-001:edge:0 + refresh_stale for the other 5); lattice validate --story=B-5d18 now reports covered=6/6, missingRequired=0, status=pass. Residual binding drift from later metadata commits is re-freshened at the DONE gate per standard.",
+      "resolvedAt": "2026-06-19T18:50:29.139Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d18:F-008",
+      "desc": "CHK-001:edge:0 evidence command does not bind the claimed intent. Intent states: diagnosis recorded — the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention. The registered command is `git show HEAD:packages/main/src/core/partial-done-recovery.ts`, which only displays static source code; it does not run resolveMainRepoRoot on os.tmpdir() and does not show it returns the tmp path. A logic_test evidence entry must execute the logic under test. Main agent has acknowledged this and plans to re-bind with a command that calls resolveMainRepoRoot on os.tmpdir() and observes the return value.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:44:58.248Z",
+      "reviewRound": "2026-06-19T18:42:53.962Z",
+      "reviewRunId": "B-5d18:RR-012",
+      "_hash": "cd0e3355eede60b56f5fe61885c1cbf80efc09a90c4da1e77bc4e38a43de6d1b",
+      "files": [
+        "packages/main/src/core/partial-done-recovery.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-001:edge:0 re-bound to a runtime logic_test that executes resolveMainRepoRoot(os.tmpdir()) and observes it returns the tmp path verbatim (isolated:true), replacing the prior static 'git show partial-done-recovery.ts'. Verified output {input:<tmp>,output:<tmp>,isolated:true}; validate --story confirms the intent is covered. Binds the literal behavioral claim per the evidence-must-bind-literal-intent-command rule.",
+      "resolvedAt": "2026-06-19T18:50:29.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

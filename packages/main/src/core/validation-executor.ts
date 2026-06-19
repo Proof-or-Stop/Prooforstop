@@ -20,6 +20,39 @@ import type {
 
 const MAX_OUTPUT_CHARS = 12000;
 
+/**
+ * Default hard per-command ceiling applied when a validate command sets no explicit
+ * `timeoutMs`. This is a TOTAL WALL-CLOCK ceiling per command — distinct from the
+ * cli-engine global watchdog, which fires only after ~300s of NO OUTPUT (idle). Kept
+ * strictly BELOW that global watchdog (300_000ms = 5*60*1000; overridable via the
+ * LATTICE_IDLE_TIMEOUT_MS env var) so a hung/slow command is killed and ATTRIBUTED
+ * (exit 124) here first, instead of the global watchdog silently force-exiting the whole
+ * validate (which never re-stamps test-evidence.materialHash and silently blocks DONE for
+ * every story). It is also kept ABOVE the slowest legitimate command (the tsc build,
+ * ~160s) with margin; a command that genuinely needs longer can raise
+ * `lattice.config.json` validate.commands[].timeoutMs (the build is pinned there to 290s
+ * to keep near-watchdog headroom for a cold-cache compile). NOTE: lowering
+ * LATTICE_IDLE_TIMEOUT_MS below this default would invert the invariant — an advanced,
+ * non-default override the operator owns.
+ */
+export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 240_000;
+
+/**
+ * The effective per-command timeout: an explicit positive `timeoutMs`, else `defaultMs`
+ * (the module default unless a caller injects one — the seam tests use to exercise the
+ * default-arming path with a tiny ceiling). A non-finite / zero / negative `timeoutMs`
+ * falls back to the default BY DESIGN: there is intentionally no opt-out of the per-command
+ * ceiling, since an unbounded command is exactly the hang this guards against.
+ */
+export function resolveCommandTimeoutMs(
+  command: ValidationCommand,
+  defaultMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+): number {
+  return typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
+    ? command.timeoutMs
+    : defaultMs;
+}
+
 export function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
@@ -30,10 +63,9 @@ export function formatValidationCommand(command: ValidationCommand): string {
 }
 
 function formatTimeoutDiagnostics(command: ValidationCommand): string[] {
-  const timeout =
-    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
-      ? `${command.timeoutMs}ms`
-      : 'unavailable';
+  const explicit =
+    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0;
+  const timeout = `${resolveCommandTimeoutMs(command)}ms${explicit ? '' : ' (default)'}`;
   return [
     `  timeout diagnostic: command exceeded configured timeoutMs=${timeout}.`,
     '  If this command legitimately needs longer, raise lattice.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
@@ -149,7 +181,22 @@ export function formatWorktreePollutionDetails(
   return lines;
 }
 
-export function runValidationCommand(command: ValidationCommand, projectRoot: string): Promise<ValidationCommandResult> {
+/**
+ * Run a single validation command, enforcing a per-command wall-clock timeout.
+ *
+ * `defaultTimeoutMs` is a TEST SEAM: it overrides the module-default ceiling used when the
+ * command carries no explicit `timeoutMs`, letting tests exercise the default-arming path
+ * with a tiny value instead of waiting the full default. No production caller passes it —
+ * {@link executeValidationPlan} and the direct handler callers (the legacy validate.ts and
+ * external-command paths in verifier.ts) all omit the argument, so production always resolves
+ * to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. There is deliberately no plan-level injection to
+ * expose: every production command either carries its own `timeoutMs` or wants the real default.
+ */
+export function runValidationCommand(
+  command: ValidationCommand,
+  projectRoot: string,
+  defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+): Promise<ValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   // B-75f0 CHK-002: no storyId in scope here (runValidationCommand takes only
@@ -171,11 +218,17 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
     let settled = false;
     let killTimer: NodeJS.Timeout | undefined;
 
-    const finish = (code: number) => {
+    const finish = (rawCode: number | null) => {
       if (settled) return;
       settled = true;
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
+      // A timed-out command is ALWAYS attributed exit 124, regardless of the child's own
+      // reported code. On POSIX a SIGTERM/SIGKILL gives code=null; on Windows
+      // TerminateProcess gives a numeric code (≠ null), and a child that traps SIGTERM
+      // could even exit 0 — without this normalization those would mis-report as not-124
+      // even though `timedOut` is set.
+      const code = timedOut ? 124 : (rawCode ?? 1);
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       resolveResult({
@@ -200,27 +253,59 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
       });
     };
 
+    const isWindows = process.platform === 'win32';
     const child = spawn(command.command, command.args, {
       cwd,
       env: command.env ? { ...process.env, ...command.env } : process.env,
-      shell: command.shell || process.platform === 'win32',
+      shell: command.shell || isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
+      // POSIX: give the child its own process group (it becomes group leader) so the
+      // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
+      // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
+      // open — which delays, or with an infinite grandchild prevents, the 'close' event,
+      // re-introducing the exact hang this guards against. Not unref'd: we still await it.
+      ...(isWindows ? {} : { detached: true }),
     });
 
-    const timer = command.timeoutMs && command.timeoutMs > 0
-      ? setTimeout(() => {
-          timedOut = true;
-          child.kill('SIGTERM');
-          killTimer = setTimeout(() => child.kill('SIGKILL'), 1000);
-        }, command.timeoutMs)
-      : undefined;
+    // Signal the child's whole process group (POSIX) / process tree (Windows). Best-effort:
+    // a race with natural exit (ESRCH) or a missing pid degrades to a direct child.kill().
+    const killTree = (signal: 'SIGTERM' | 'SIGKILL'): void => {
+      const pid = child.pid;
+      if (pid === undefined) return;
+      try {
+        if (isWindows) {
+          // Windows has no process groups/POSIX signals; force-kill the whole tree.
+          // Attach an 'error' handler: a missing/unlaunchable taskkill emits an async
+          // 'error' on the returned child, which would otherwise be an unhandled exception
+          // that crashes the process. Fall back to a direct child.kill() in that case.
+          spawn('taskkill', ['/pid', String(pid), '/t', '/f'], { stdio: 'ignore' })
+            .on('error', () => { try { child.kill(signal); } catch { /* already gone */ } });
+        } else {
+          process.kill(-pid, signal); // negative pid → the child's process group
+        }
+      } catch {
+        try { child.kill(signal); } catch { /* already gone */ }
+      }
+    };
+
+    // Always arm a per-command timeout: explicit timeoutMs, else the default ceiling. A
+    // hung command is then killed (whole group) + attributed (exit 124) here, instead of
+    // the global idle watchdog silently force-exiting the whole validate. unref() so a
+    // stray timer never keeps the event loop alive on its own (the awaited child does).
+    const timer = setTimeout(() => {
+      timedOut = true;
+      killTree('SIGTERM');
+      killTimer = setTimeout(() => killTree('SIGKILL'), 1000);
+      killTimer.unref?.();
+    }, resolveCommandTimeoutMs(command, defaultTimeoutMs));
+    timer.unref?.();
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
     child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });
-    child.on('close', (code) => finish(code ?? (timedOut ? 124 : 1)));
+    child.on('close', (code) => finish(code));
     child.on('error', (e) => {
       output += output ? `\n${e.message}` : e.message;
-      finish(1);
+      finish(null);
     });
   });
 }
