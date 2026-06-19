@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "id": "B-30c3:F-001",
+      "desc": "codex host-2: sanitizeNestedDetails (codex-cli.ts:122-129) copies EVERY own key of prompt_tokens_details, not only the adapter-read cached_tokens. A real payload prompt_tokens_details:{cached_tokens:1, transcript:\"secret\"} surfaces the nested non-token key transcript in reportedUsage, violating the story's token-only projection contract. This is an own-key leak (NOT prototype pollution) so it triggers on a plain provider response. The OpenAI adapter reads ONLY prompt_tokens_details.cached_tokens (adapters/openai.ts:84), so the nested projection must whitelist exactly cached_tokens.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-19T19:27:59.706Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "_hash": "eedf15a5a8ad03cf8c3e5ade6819fb58ffce9bc2efe2ab84a428e873173ac539",
+      "files": [
+        "packages/main/src/providers/codex-cli.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-sanitizenesteddetails",
+      "signatureTagSource": "auto",
+      "resolvedReason": "sanitizeNestedDetails now whitelists only the adapter-read cached_tokens (CODEX_NESTED_DETAIL_KEYS) into a null-proto object; nested non-token keys (e.g. transcript) are dropped. Fixed in 024bb0e30; smoke asserts only own cached_tokens===5, length 1, null-proto, transcript absent, cacheRead still resolves.",
+      "resolvedAt": "2026-06-19T19:33:30.081Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-30c3:F-002",
+      "desc": "codex host-2: the usage-shape predicates isCodexUsageObject (codex-cli.ts:99) and isGeminiUsageObject (gemini-cli.ts:~102) still use prototype-chain `in` reads. With Object.prototype.prompt_tokens (or promptTokenCount) polluted, an empty own {usage:{}} matches as a valid usage object, so extractCodexUsage/extractGeminiUsage select it, project an empty null-proto object, and STOP before a later real usage line. Repro (codex-verified): pollute Object.prototype.prompt_tokens, stdout \"{usage:{}}\\n{usage:{prompt_tokens:10,completion_tokens:2}}\" returns keys [] instead of the real counts. This defeats the extractCodexUsage ownProp guard at codex-cli.ts:189. Fix: the predicates must use own-property checks (ownProp) to stay consistent with the in-scope extractor hardening.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-19T19:28:00.357Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "_hash": "738144731f2f899cf458446519571ec9904e190135cd9b5e8113f4a729c766fe",
+      "files": [
+        "packages/main/src/providers/codex-cli.ts",
+        "packages/main/src/providers/gemini-cli.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-usage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "isCodexUsageObject/isGeminiUsageObject now use ownProp own-property guards instead of prototype-chain in, so a polluted Object.prototype token key cannot make an empty first usage object suppress a later real one. Fixed in 024bb0e30; smoke asserts the real later counts (10/2) are selected under pollution for codex+gemini.",
+      "resolvedAt": "2026-06-19T19:33:30.751Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-30c3:F-003",
+      "desc": "codex host-2: the smoke does not exercise (a) a nested non-token key under prompt_tokens_details being dropped from the projected reportedUsage (the bug above), nor (b) the false-positive `in`-predicate case where a polluted Object.prototype token key makes an empty first usage object suppress a later real usage line. Add both cases for codex and (for the predicate case) gemini.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-19T19:28:00.928Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "_hash": "32dd595b922a3429e690babfd9627b01fbfce60ced09c127630d1e919e23a72e",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|codex-host-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke extended (+3 checks, now 53) covering the nested non-token-key drop and the polluted-prototype empty-first-usage suppression for codex and gemini. Fixed in 024bb0e30.",
+      "resolvedAt": "2026-06-19T19:33:31.564Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

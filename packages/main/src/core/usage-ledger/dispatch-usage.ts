@@ -428,23 +428,36 @@ export function recordDispatchFinalForProvider(
       typeof reportedUsage === 'object' && reportedUsage !== null && !Array.isArray(reportedUsage);
 
     if (usable) {
-      const record = buildProviderRecord(
-        provider,
-        reportedUsage,
-        {
-          ledgerCallId: corr.ledgerCallId,
-          attemptId: corr.attemptId,
-          sequence: 2,
-          supersedesRecordIds: supersedes,
-        },
-        attributionFor(ctx),
-        finalContextForProvider(opts, provider, model),
-      );
-      appendUsageRecord(root, record, { env: opts.env });
-      return;
+      // INNER try: a malformed-but-object usage (e.g. a negative / non-integer
+      // token count) makes buildProviderRecord throw at validation. On a throw we
+      // must NOT return — we fall through to the unavailable-final branch below so
+      // the preflight estimate is STILL superseded (never left orphaned). At most
+      // ONE final is appended: the record is built first and appended only AFTER a
+      // successful build, so a build throw appends nothing here and only the single
+      // unavailable append runs.
+      try {
+        const record = buildProviderRecord(
+          provider,
+          reportedUsage,
+          {
+            ledgerCallId: corr.ledgerCallId,
+            attemptId: corr.attemptId,
+            sequence: 2,
+            supersedesRecordIds: supersedes,
+          },
+          attributionFor(ctx),
+          finalContextForProvider(opts, provider, model),
+        );
+        appendUsageRecord(root, record, { env: opts.env });
+        return;
+      } catch {
+        // Build/validation failed on a malformed usage: fall through to the
+        // unavailable-final branch (do NOT return) so the estimate is superseded.
+      }
     }
 
-    // No usable usage -> an 'unavailable' final that still supersedes the estimate.
+    // No usable usage (or a usable-but-malformed usage that failed to build) -> an
+    // 'unavailable' final that still supersedes the estimate.
     const unavailable = buildUnavailableFinalRecord(
       corr,
       supersedes,

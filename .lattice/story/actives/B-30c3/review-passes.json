@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-30c3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 10 intents (9 must + 1 should). All 7 CHK-001 must-intents and 2 CHK-002 must-intents have concrete, item-scoped logic_test/manual_transcript evidence pointing at usage-ledger-codex-gemini-smoke.ts. Smoke independently executed and confirmed 50/50 checks passed: null-proto projection (top-level + nested), extra-key drop, cacheRead preservation, prototype-pollution own-property guards (usage/usageMetadata/prompt_tokens/cached_tokens), malformed-object unavailable-final-supersedes, never-throws. No coverage gaps found.",
+      "createdAt": "2026-06-19T19:18:30.464Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-002",
+      "_hash": "e8eac2c49de99fb3a8aae30496ee5d83e02f313b4a8dae69599fb6eb7f493105"
+    },
+    {
+      "id": "B-30c3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 4 changed files (codex-cli.ts, gemini-cli.ts, dispatch-usage.ts, usage-ledger-codex-gemini-smoke.ts) against commit c47ec8359. Dead code: none — ownProp, sanitizeNestedDetails, pickCodexUsageKeys, pickGeminiUsageKeys, CODEX_USAGE_KEYS, GEMINI_USAGE_KEYS all used; OFF constant in smoke used; all imports (readFileSync, execFileSync, statSync, existsSync, aggregateByGroup, buildUsageReport, deriveRecordTotal, summarizeLedgerFile) used. Type safety: no as any; msg!/resp! non-null assertions are safe (ownProp guard ensures non-null before the assertion); as Record<string,unknown> casts follow isXxxUsageObject narrowing. I/O isolation: no usage-ledger imports in provider files. Inner catch in recordDispatchFinalForProvider correctly swallows only buildProviderRecord/appendUsageRecord throw so execution falls through to one unavailable-final; it is not a silent error sink — the outer catch is the final never-throws guard and the unavailable-final is still appended, superseding the estimate. isCodexUsageObject/isGeminiUsageObject use prototype-chain in for classification (not value reading) and were not changed by this diff. No blockers found.",
+      "createdAt": "2026-06-19T19:19:35.808Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-001",
+      "_hash": "b06f7c0418caf19fb956e08cea78675d3ab9ad7128ddb8cb19dfa3b4d1f9669e"
+    },
+    {
+      "id": "B-30c3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/deletion-completeness check passed. Verified: (1) providers/ (codex-cli.ts, gemini-cli.ts) import nothing from usage-ledger; (2) old unguarded `return obj.usage / obj.message.usage / obj.usageMetadata / obj.response.usageMetadata` patterns are fully replaced by ownProp-guarded + pickCodexUsageKeys/pickGeminiUsageKeys paths; (3) all new concepts (ownProp, pickCodexUsageKeys, pickGeminiUsageKeys, sanitizeNestedDetails, CODEX_USAGE_KEYS, GEMINI_USAGE_KEYS) are file-local and not exported or referenced elsewhere; (4) inner try in recordDispatchFinalForProvider correctly wraps buildProviderRecord+appendUsageRecord and falls through to unavailable-final on throw; outer never-throws catch preserved; (5) recordDispatchFinal (anthropic path) is byte-identical and unchanged; (6) no concept deletion/replacement residue found in any file in scope. Pre-existing isCodexUsageObject/isGeminiUsageObject `in` reads are explicitly deferred per operator decision and are out of scope for this story.",
+      "createdAt": "2026-06-19T19:20:34.444Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-003",
+      "_hash": "2071df54d5a9306258e50f710ac1c43c84f6e1442c2c575c5e22c38307a42c8f"
+    },
+    {
+      "id": "B-30c3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept/completeness check passed. Verified: (1) sanitizeNestedDetails now iterates CODEX_NESTED_DETAIL_KEYS ([cached_tokens]) not Object.keys, so only the single adapter-read nested key can ever reach reportedUsage — no nested non-token leakage path remains; (2) isCodexUsageObject and isGeminiUsageObject both switched from prototype-chain `in` to ownProp own-property guards, consistent with extractCodexUsage/extractGeminiUsage ownProp guards on the envelope reads; (3) CODEX_NESTED_DETAIL_KEYS constant is introduced and immediately consumed by sanitizeNestedDetails — not dead; (4) no half-removed concept found; old any-key-copy loop in sanitizeNestedDetails fully replaced; (5) providers/ (codex-cli.ts, gemini-cli.ts) import nothing from usage-ledger; (6) three new smoke checks cover F-001 nested-key drop, F-002 codex polluted-prototype suppression, and F-002 gemini polluted-prototype suppression, all with precondition asserts and finally cleanup. No new issues found.",
+      "createdAt": "2026-06-19T19:45:03.557Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-008",
+      "_hash": "37b7bb62398e5c33f6fcdf988ac2cb9ef86cbec7ece24e1baed3ceb741971949"
+    },
+    {
+      "id": "B-30c3:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review of 024bb0e30 (codex-cli.ts, gemini-cli.ts, usage-ledger-codex-gemini-smoke.ts). Dead code: no leftover `const u = value as ...` vars; CODEX_NESTED_DETAIL_KEYS is declared and consumed in sanitizeNestedDetails loop; sanitizeNestedDetails.src is consumed on both hasOwnProperty and index reads. Type safety: both isCodexUsageObject/isGeminiUsageObject preserve `value is Record<string,unknown>` predicate signatures; no `as any`; catch blocks handle errors properly. I/O isolation: no fn.ts imports in shell files. Smoke prototype cleanup: all three new defineProperty calls (prompt_tokens, promptTokenCount, cached_tokens) each wrapped in try/finally with configurable:true+delete, no global leakage between checks. sanitizeNestedDetails returns unknown (non-object verbatim, object->null-proto record). 0 findings.",
+      "createdAt": "2026-06-19T19:45:28.650Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-007",
+      "_hash": "b23ba53263c6579a46e31dfc1f9d3dd256bd51b9540912388eddd8bf033205f3"
+    },
+    {
+      "id": "B-30c3:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 10 verificationIntent lanes have matching verificationEvidence; the 3 new smoke checks (F-001: nested non-token key drop via sanitizeNestedDetails whitelist, F-002 codex: own-property isCodexUsageObject guard, F-002 gemini: own-property isGeminiUsageObject guard) directly exercise the fixes in commit 024bb0e30 and are confirmed passing at 53/53 checks exit 0. No blocker found.",
+      "createdAt": "2026-06-19T19:45:45.993Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-009",
+      "_hash": "4d218e33a01638ca4507de23439dcea430552aa2b1331e112f25a5e8baba4418"
+    }
+  ]
+}

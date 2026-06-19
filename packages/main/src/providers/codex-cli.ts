@@ -81,11 +81,100 @@ function extractCodexModel(stdout: string): string | undefined {
   return undefined;
 }
 
+/**
+ * OWN-property guard: true only when `o` is a non-null object that carries `k`
+ * as its OWN property (never via the prototype chain). Reading a candidate usage
+ * key (obj.usage / obj.message.usage) through the prototype chain would let a
+ * polluted Object.prototype.usage masquerade as real provider usage on a line
+ * with NO own usage key — so every read goes through this guard first.
+ */
+function ownProp(o: unknown, k: string): boolean {
+  return o != null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
+}
+
 /** A usage object is one carrying any of the OpenAI token-count fields. */
 function isCodexUsageObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
-  const u = value as Record<string, unknown>;
-  return 'prompt_tokens' in u || 'completion_tokens' in u || 'prompt_tokens_details' in u;
+  return (
+    ownProp(value, 'prompt_tokens')
+    || ownProp(value, 'completion_tokens')
+    || ownProp(value, 'prompt_tokens_details')
+  );
+}
+
+/**
+ * The ONLY keys the OpenAI adapter reads off a codex `usage` object. Everything
+ * else (an embedded transcript/text/message/role/__proto__/etc.) is dropped by
+ * the whitelist projection so a provider transcript can never ride along on the
+ * reportedUsage surface. `prompt_tokens_details` is preserved verbatim because
+ * cacheRead depends on its nested `cached_tokens`.
+ */
+const CODEX_USAGE_KEYS = ['prompt_tokens', 'completion_tokens', 'prompt_tokens_details'] as const;
+
+/** The ONLY nested key the OpenAI adapter reads off prompt_tokens_details. */
+const CODEX_NESTED_DETAIL_KEYS = ['cached_tokens'] as const;
+
+/**
+ * Whitelist-project the NESTED `prompt_tokens_details` object down to ONLY the
+ * single key the OpenAI adapter reads (`cached_tokens`). Builds a fresh
+ * null-prototype object carrying ONLY the source's OWN `cached_tokens` (via
+ * hasOwnProperty), so:
+ *   - a non-token own key (e.g. `transcript`) can NEVER ride along onto the
+ *     reportedUsage surface — the token-only projection contract holds at the
+ *     nested level just like CODEX_USAGE_KEYS holds at the top level; and
+ *   - the OpenAI adapter reads `cached_tokens` via `'cached_tokens' in details`
+ *     (a prototype-chain `in`), so a polluted Object.prototype.cached_tokens on
+ *     a details object that still carried Object.prototype would otherwise leak
+ *     into cacheReadInputTokens — the null prototype closes that read.
+ * One level is sufficient — the adapter only reads `details.cached_tokens`,
+ * never deeper. A non-object value is returned VERBATIM (the adapter rejects
+ * non-objects).
+ */
+function sanitizeNestedDetails(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null) return value;
+  const src = value as Record<string, unknown>;
+  const out = Object.create(null) as Record<string, unknown>;
+  for (const key of CODEX_NESTED_DETAIL_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(src, key)) out[key] = src[key];
+  }
+  return out;
+}
+
+/**
+ * Whitelist-project a matched usage object down to ONLY the adapter-read keys.
+ * Own-enumerable keys only (hasOwnProperty guard on the SOURCE, so an inherited /
+ * prototype-polluted key never leaks IN). Token-count values are copied VERBATIM
+ * — the adapter is the validator, so we never transform them here. A key absent
+ * on the source stays absent on the result.
+ *
+ * SECURITY: the projected object is built with a NULL prototype
+ * (Object.create(null)) so it has NO prototype chain. A normal `{}` carries
+ * Object.prototype, so a downstream adapter reading a key that was NOT projected
+ * (e.g. adaptOpenAiUsage reading `usage.prompt_tokens` when the source carried
+ * only `completion_tokens`) would resolve a POLLUTED Object.prototype.prompt_tokens
+ * via inheritance — a bogus provider-reported count. With a null-proto result
+ * such a read resolves to `undefined`, so an absent token field stays absent. The
+ * result is still a plain `Record<string, unknown>` (typeof === 'object', not
+ * null) that the adapters accept; they only read OWN keys, which remain present.
+ *
+ * NESTED-OBJECT HARDENING (B-fe1f): the top-level null-proto alone is NOT enough.
+ * The OpenAI adapter does NOT read cacheRead off the top-level usage — it reads
+ * `prompt_tokens_details.cached_tokens` via an `in`/access on the NESTED details
+ * object. Copying that details object VERBATIM preserves its Object.prototype, so
+ * a polluted Object.prototype.cached_tokens (with the source details carrying NO
+ * own cached_tokens, e.g. an empty `{}`) would leak into cacheReadInputTokens.
+ * So when `prompt_tokens_details` is a non-null object we re-copy it into a fresh
+ * null-proto object (own keys only) too — making EVERY object the adapter reads
+ * (top-level usage AND prompt_tokens_details) null-prototype, so no inherited key
+ * can leak anywhere downstream. Absent / non-object details are preserved as-is.
+ */
+function pickCodexUsageKeys(obj: Record<string, unknown>): Record<string, unknown> {
+  const out = Object.create(null) as Record<string, unknown>;
+  for (const key of CODEX_USAGE_KEYS) {
+    if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+    out[key] = key === 'prompt_tokens_details' ? sanitizeNestedDetails(obj[key]) : obj[key];
+  }
+  return out;
 }
 
 /**
@@ -94,17 +183,28 @@ function isCodexUsageObject(value: unknown): value is Record<string, unknown> {
  * skip blanks, JSON.parse each in a try/catch, and return the FIRST OpenAI-shape
  * `usage` sub-object found — checked at the top level (`obj.usage`) and nested
  * under `message` (`obj.message.usage`), mirroring extractCodexModel's
- * obj.message.model precedent. Returns ONLY the numeric usage sub-object (the
- * token-count fields), NEVER the whole line/envelope or any transcript text.
- * Never throws; returns undefined when no usage object is present.
+ * obj.message.model precedent. Returns a NEW object carrying ONLY the keys the
+ * OpenAI adapter reads (prompt_tokens / completion_tokens / prompt_tokens_details
+ * when present), NEVER the whole line/envelope, any other key, or any transcript
+ * text. Never throws; returns undefined when no usage object is present.
+ *
+ * SECURITY: every candidate read is OWN-property guarded (ownProp). A polluted
+ * Object.prototype.usage must NEVER be read off a line with no own usage key —
+ * we only consider `obj.usage` / `obj.message.usage` when they are OWN props,
+ * so prototype-chain reads can never inject bogus token counts.
  */
 function extractCodexUsage(stdout: string): Record<string, unknown> | undefined {
   for (const line of stdout.split('\n')) {
     if (!line.trim()) continue;
     try {
       const obj = JSON.parse(line) as { usage?: unknown; message?: { usage?: unknown } };
-      if (isCodexUsageObject(obj.usage)) return obj.usage;
-      if (obj.message && isCodexUsageObject(obj.message.usage)) return obj.message.usage;
+      if (ownProp(obj, 'usage') && isCodexUsageObject(obj.usage)) {
+        return pickCodexUsageKeys(obj.usage);
+      }
+      const msg = ownProp(obj, 'message') ? obj.message : undefined;
+      if (ownProp(msg, 'usage') && isCodexUsageObject(msg!.usage)) {
+        return pickCodexUsageKeys(msg!.usage as Record<string, unknown>);
+      }
     } catch { /* skip non-json lines */ }
   }
   return undefined;
