@@ -30,7 +30,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: globsOverlap detects literal-path overlap with colliding pairs; computeWriteSet unions allowedModify+allowedCreate+allowedTest deduped.",
+          "headHash": "576f131afe145466f0b94036a074dd5de28a46ac",
+          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
+          "timestamp": "2026-06-19T12:57:54.250Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
