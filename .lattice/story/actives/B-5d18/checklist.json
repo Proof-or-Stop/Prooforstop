@@ -109,6 +109,17 @@
           "headHash": "34613a06d86990bf45e29aedeac85fc3c627d3db",
           "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
           "timestamp": "2026-06-19T17:11:27.576Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Smoke PASS: resolveCommandTimeoutMs honors an explicit positive timeoutMs and falls back to DEFAULT (240s) for unset/0/negative; DEFAULT < 300000 (below global idle watchdog) and >= 200000 (above build).",
+          "headHash": "f7a75f90053d3390b24e89fc3c4310ca645c1895",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:29.068Z"
         }
       ]
     }
