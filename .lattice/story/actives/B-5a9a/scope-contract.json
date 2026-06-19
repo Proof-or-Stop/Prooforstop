@@ -1,0 +1,37 @@
+{
+  "storyId": "B-5a9a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/story-files-hash-material-drift.md"
+  ],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story",
+    "packages/main/tests/fixtures",
+    ".omx"
+  ],
+  "explicitExcludes": [
+    "Authority job/status behavior",
+    "B-0e53 DONE pre-merge mainSha race handling",
+    "Removing or replacing whole-tree materialHash",
+    "Remote push/release publishing"
+  ],
+  "scopeChangeReason": "Initialize B-5a9a scope contract from PLAN before DEV implementation; enforce storyFilesHash/materialHash freshness scope only.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T21:44:57.457Z",
+  "updatedAt": "2026-06-19T21:44:57.457Z"
+}
