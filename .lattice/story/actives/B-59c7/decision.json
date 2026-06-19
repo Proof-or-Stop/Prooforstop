@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "Contract-first: freeze the importable surface before any parallel impl starts",
+    "Pure functions only — the gate module performs no I/O",
+    "Keep the AuditConfig change type-only so Story 3 edits disjoint lines"
+  ],
+  "drivers": [
+    "Four parallel impl stories must import one stable surface",
+    "Must compile under tsc with no errors",
+    "Non-overlapping file scope vs Story 3"
+  ],
+  "options": [
+    {
+      "name": "single-file contract",
+      "pros": [
+        "Minimal stable surface; one import path",
+        "Matches a single cohesive gate module"
+      ],
+      "cons": [
+        "Less granular than the spec multi-file template"
+      ]
+    },
+    {
+      "name": "barrel + separate types file",
+      "pros": [
+        "Matches spec 3.1 general template"
+      ],
+      "cons": [
+        "Overkill for one module",
+        "Extra shared files raise scope-overlap risk"
+      ]
+    }
+  ],
+  "chosen": "single-file contract",
+  "rationale": "The gate is one cohesive module; a single parallel-decomposition.ts is the minimal stable surface and avoids extra files all four impls would share.",
+  "preMortem": [
+    {
+      "scenario": "A function signature is wrong",
+      "trigger": "impl stories import and build against it",
+      "consequence": "all four impls compile against a bad contract and need rework",
+      "mitigation": "derive signatures verbatim from spec 4.4, typed against real ScopeContractData/StoryInfo in core/types.ts"
+    },
+    {
+      "scenario": "audit-config field addition collides with Story 3",
+      "trigger": "Story 3 edits resolveAuditConfig in the same file",
+      "consequence": "merge conflict between Story 0 and Story 3",
+      "mitigation": "add only the interface field on its own line; Story 3 edits the resolveAuditConfig body — disjoint write-lines"
+    },
+    {
+      "scenario": "NotImplemented skeletons leak real logic or IO",
+      "trigger": "copying impl detail into the contract",
+      "consequence": "the frozen contract is no longer a pure skeleton",
+      "mitigation": "every body is exactly throw new Error(NotImplemented: <name>), verified by reading the diff"
+    }
+  ],
+  "timestamp": "2026-06-19T03:59:32.474Z"
+}
