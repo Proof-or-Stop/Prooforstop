@@ -68,7 +68,7 @@
       "desc": "spec-divergent: evaluateDecompositionGate return type tightened beyond spec. §4.4 specifies `block: string | null` in the function signature; code defines DecompositionGateResult with `block: ParallelDecompositionBlock | null`. TypeScript-compatible subtype refinement but diverges from the literal spec contract. Story 2 (Gate impl) will import this interface and must match; Story 5 (integration) callers written to the spec signature may need adjustment. Recommend aligning spec §4.4 signature to `block: ParallelDecompositionBlock | null` OR reverting the interface to `block: string | null`.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T04:08:25.252Z",
@@ -80,7 +80,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "edge|ts|spec-divergent-evaluatedecompositiongate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved (intentional): DecompositionGateResult.block is ParallelDecompositionBlock | null — a type-safe refinement of the spec §4.4 string | null. TypeScript-compatible and strictly safer; kept deliberately rather than widening to string. Non-blocking.",
+      "resolvedAt": "2026-06-19T04:11:22.354Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
