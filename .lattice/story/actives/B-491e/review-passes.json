@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-491e:RP-001",
+      "agent": "lattice-review-channel",
+      "note": "claude-code-audit-r1 pass: inspected main...HEAD and focused smoke. Public CLI generation helpers/write path were removed, docs/tests now use consumer handoff fixtures, and CLI still reads server-provided trust env plus raw customer-key sidecar including senior actor key metadata.",
+      "createdAt": "2026-06-19T01:15:25.452Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-002",
+      "_hash": "3ba4616c09f3beb650752f5330fae29d5a9d9cff864e11c3e980ff6815699e22"
+    },
+    {
+      "id": "B-491e:RP-002",
+      "agent": "lattice-review-channel",
+      "note": "claude-code-audit-r2 pass: build/dist smokes passed, public CLI generator helper names have no matches, status/client smokes keep production flags false and do not print secret values, and secret-pattern hits are deliberate redaction canaries or redacted placeholders, not live secrets.",
+      "createdAt": "2026-06-19T01:16:26.428Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-005",
+      "_hash": "db3e7b637d1b4ee0016c5239c9a05042a657adfaca359b13647a3bbe085f2eb8"
+    },
+    {
+      "id": "B-491e:RP-003",
+      "agent": "lattice-review-channel",
+      "note": "claude-code-audit-r3 pass: reviewed public CLI doc diff; wording is consumer-only, removed local generation claims, and productionDone/fullAuthorityDone hits are negative or pre-existing boundary text rather than new overclaims. Current build plus authority-client/status smokes passed and diff --check passed.",
+      "createdAt": "2026-06-19T01:17:29.662Z",
+      "reviewRound": "2026-06-19T01:09:45.135Z",
+      "reviewRunId": "B-491e:RR-006",
+      "_hash": "d492a7dc6e220f9c2c1faebcfd8fad8e1f6925f90ad54e9bd4b059d656f8169c"
+    },
+    {
+      "id": "B-491e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Codex targeted re-review confirms F-001..F-004 fixed: trust-env sidecar path resolves beside trust file, conflict-sidecar smokes pass, README/docs are consumer-only, generator helper absent.",
+      "createdAt": "2026-06-19T01:30:29.910Z",
+      "reviewRound": "2026-06-19T01:26:28.023Z",
+      "reviewRunId": "B-491e:RR-007",
+      "_hash": "e5f212ebbd40b9839a89c13405143c6e5698384df497983f32681da7421c87fd"
+    },
+    {
+      "id": "B-491e:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Claude targeted re-review confirms F-001..F-004 fixed: trust-env sidecar path resolves beside trust file, conflict-sidecar smokes pass, README/docs are consumer-only, generator helper absent.",
+      "createdAt": "2026-06-19T01:32:58.980Z",
+      "reviewRound": "2026-06-19T01:26:28.023Z",
+      "reviewRunId": "B-491e:RR-009",
+      "_hash": "3eed19514d4e0758ed39d001ff8c6bc14231e4b2dd2aaf2773eacfd7774da806"
+    }
+  ]
+}

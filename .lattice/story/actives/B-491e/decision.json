@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Public Lattice CLI consumes Authority credentials; it does not mint server-owned bundles.",
+    "Preserve existing authority config parsing and receipt/gate behavior unless directly tied to generation cleanup.",
+    "Documentation must make the operator/developer handoff clear without exposing private server internals.",
+    "Tests should guard against generator reintroduction rather than chasing unrelated optimizations."
+  ],
+  "drivers": [
+    "The CLI is intended to be open source.",
+    "Developers need a simple file-based handoff.",
+    "Server-side Python generation is being implemented in a separate private repo.",
+    "Existing live runner and receipt flows depend on env consumption staying stable."
+  ],
+  "options": [
+    {
+      "name": "A: Remove/de-scope CLI generation and adjust tests/docs to consumer-only",
+      "pros": [
+        "Matches the new ownership boundary",
+        "Keeps consumption behavior intact",
+        "Makes accidental senior bundle generation visible in tests/search"
+      ],
+      "cons": [
+        "Requires updating smoke tests that previously used the generator helper"
+      ]
+    },
+    {
+      "name": "B: Keep generator helper as an internal test utility only",
+      "pros": [
+        "Minimizes immediate test churn"
+      ],
+      "cons": [
+        "Leaves public source with server-owned generation semantics and invites accidental reuse"
+      ]
+    },
+    {
+      "name": "C: Port the server Python generator into CLI as a hidden command",
+      "pros": [
+        "Would make local demos easy"
+      ],
+      "cons": [
+        "Directly violates the private-server credential boundary and open-source split"
+      ]
+    }
+  ],
+  "chosen": "A: Remove/de-scope CLI generation and adjust tests/docs to consumer-only",
+  "rationale": "Option A is the smallest correctness fix that makes the public CLI boundary true: CLI tests can still create fixture env files manually, but no reusable CLI generator should remain.",
+  "preMortem": [
+    {
+      "scenario": "Consumption breaks while deleting generation",
+      "trigger": "Shared constants or parser code are removed along with the generator",
+      "consequence": "Server-provided files stop working in authority status or receipt paths",
+      "mitigation": "Keep filename constants and parser/read logic; update focused smoke tests for consumer-only fixtures"
+    },
+    {
+      "scenario": "Docs still tell users to generate bundles locally",
+      "trigger": "Only code is changed and public docs are missed",
+      "consequence": "Developers follow an impossible or insecure workflow after open source release",
+      "mitigation": "Search docs for generation wording and replace it with server/operator-provided file handoff"
+    },
+    {
+      "scenario": "Senior generation survives through a smoke helper",
+      "trigger": "Tests retain buildAuthorityTrustProfileBundle or equivalent hidden writer",
+      "consequence": "The public repo still demonstrates minting senior files",
+      "mitigation": "Search source/tests for generator names and add assertions/search evidence in checklist verification"
+    }
+  ],
+  "timestamp": "2026-06-19T00:48:54.366Z"
+}

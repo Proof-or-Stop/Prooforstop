@@ -1,0 +1,28 @@
+{
+  "task": "Remove Authority bundle generation from the public Lattice CLI while preserving bundle consumption.",
+  "outcome": "The CLI no longer creates basic or senior Authority bundle files, but existing env/trust-file parsing and receipt paths continue to work with server-provided files.",
+  "facts": [
+    "Current CLI code contains buildAuthorityTrustProfileBundle and tests that write lattice_authority_trust.env, lattice_staging-client.env, and senior filenames.",
+    "The product boundary is now server-generated files, public CLI consumer-only.",
+    "Normal developers should not need PROJECT_ID or GATE_ACTOR variables unless they enter explicit live runner or receipt/gate-consumption flows.",
+    "Server-side bundle generation is tracked in Lattice Authority Server story B-42a2."
+  ],
+  "constraints": [
+    "Do not move server generation logic into the public CLI repo.",
+    "Do not break parsing/consumption of server-provided authority_trust.env or lattice_* env files.",
+    "Only update docs and tests that currently describe or exercise local generation.",
+    "Do not optimize unrelated authority receipt or gate logic in this cleanup story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "docs/guide.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+  ],
+  "timestamp": "2026-06-19T00:48:54.367Z"
+}

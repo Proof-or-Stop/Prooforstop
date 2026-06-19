@@ -1,0 +1,57 @@
+{
+  "storyId": "B-491e",
+  "checkedAt": "2026-06-19T02:07:32.543Z",
+  "reviewRound": "2026-06-19T01:26:28.023Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Public Lattice CLI consumes server/operator-provided Authority trust env and raw API key sidecar; it does not generate Authority client bundles locally.",
+      "status": "verified",
+      "verifiedBy": "docs review + residual grep + smoke tests",
+      "evidence": "README.md documents server/operator handoff. Residual rg for buildAuthorityTrustProfileBundle/writeAuthorityTrustProfileBundle/generate bundle locally found no matches in README.md docs packages/main/src. authority-client smoke passes."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Normal developers use provided lattice_authority_trust.env plus lattice_staging-client.env and do not need PROJECT_ID or GATE_ACTOR_* for basic read/verify flows.",
+      "status": "verified",
+      "verifiedBy": "docs review + smoke tests",
+      "evidence": "docs/guide.md aligns ordinary developer handoff with server-provided files; authority-status and authority-completion smokes pass without reintroducing generator behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Live Authority integration keeps bundle generation outside the open CLI and treats senior/live runner material as operator/server-provided credentials.",
+      "status": "verified",
+      "verifiedBy": "docs review + build",
+      "evidence": "npm --prefix packages/main run build passed; docs describe server-side handoff and do not instruct CLI generation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "promise": "CLI resolves LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH sidecars relative to the trust env file location when supplied by server/operator handoff.",
+      "status": "verified",
+      "verifiedBy": "authority-client smoke",
+      "evidence": "node packages/main/dist/tasks/authority-client-smoke.js passed after adding coverage for bundleRoot != consumerRoot and conflicting/blank sidecar in consumer cwd."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build -> PASS. Public generator exports/handlers were removed while filename constants and consumer parsing remain available."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/authority-client-smoke.js -> PASS; node packages/main/dist/tasks/authority-status-smoke.js -> PASS; node packages/main/dist/tasks/authority-completion-smoke.js -> PASS. Smokes cover server-provided trust env + sidecar consumption, including trust-env-relative sidecar lookup."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate --story=B-491e --json -> PASS with 9/9 verification intents covered. review_escalation_status --storyId=B-491e --json -> ok true, assuranceLevel full-3x2, three rounds with codex-cli and claude-code local host verdicts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check accepts the scoped CLI cleanup. It removes public bundle generation and fixes the real sidecar path correctness issue without adding multitenancy, new generator behavior, or unrelated product surface."
+  },
+  "_hash": "1f9cf28ac1365e2db52841720bf7cd7e032310ab3bc862c96e17a065884e10d0"
+}
