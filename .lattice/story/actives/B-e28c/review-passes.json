@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T04:16:19.316Z",
       "reviewRunId": "B-e28c:RR-005",
       "_hash": "87f306d0390ed1a5d76425df6e2afd5c148ea563653be97e6179a2f786c1515e"
+    },
+    {
+      "id": "B-e28c:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: reviewed packages/main/src/tasks/authority-client-smoke.ts and related Authority client path. Coverage directly asserts protected /v1/jobs/{jobId}/verdicts GET sends Authorization with a configured customer API key, policy discovery GET remains keyless, missing customer key fails closed before any GET/POST fetch, authority_job_status uses the protected read path, and successful read without receipt/quorum keeps authorityDone=false and fullAuthorityDone=false. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js.",
+      "createdAt": "2026-06-19T04:19:07.764Z",
+      "reviewRound": "2026-06-19T04:16:19.316Z",
+      "reviewRunId": "B-e28c:RR-004",
+      "_hash": "6389f40e87b7cbc585cc021df693d893a3b4621672bd06b1fe1b4f28bce6b7f2"
     }
   ]
 }
