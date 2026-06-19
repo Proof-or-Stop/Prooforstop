@@ -28,7 +28,7 @@
       "desc": "misleading-test: version-bump-smoke.ts:139-141 test 12 name claims whitespace around brand literal still parses but only exercises readSyncedVersion (read path); applyPatchBump replaceOnce uses a fixed-format needle LATTICE_CLI_VERSION = (single space, no padding) which would fail to match the whitespace-padded form tested, leaving a latent write-path failure undiscovered by the test",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T19:54:33.648Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/version-bump.ts"
       ],
       "signatureTag": "edge|ts|misleading-test-version",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: applyPatchBump's brand write now uses the same anchored regex as the read (later comment-stripped), so read/write are symmetric; smoke case 13 proves the WRITE round-trip on a whitespace-padded export, not just the read.",
+      "resolvedAt": "2026-06-19T20:45:42.966Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-aa8a:F-003",
