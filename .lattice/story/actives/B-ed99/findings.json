@@ -22,6 +22,27 @@
       ],
       "signatureTag": "edge|ts|wrapper-root-false",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ed99:F-002",
+      "desc": "Accepted Review Assurance Floor says high-risk lifecycle/gate/Authority/process-fact work keeps the stronger 3x2 or explicit degraded-single-host path (docs/requirements/decisions/review-assurance-floor-execution-plan.md:10,62,70,79), but evaluateReviewAssuranceFloor only chooses one-local-round vs three-local-rounds from failureSignals and never reads story riskSignals/priority/touchpoints (packages/main/src/core/review-assurance-floor.ts:324-329). Existing review escalation only requires 3x2 after the first REVIEW round has >=2 countable problems (packages/main/src/core/review-escalation.ts:225-229), so a high-risk gate/process-fact material code change with no failure signal can satisfy DONE with one local round. That undercuts the accepted concept rather than preserving the stronger-review boundary for high-risk local non-authority evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T02:11:49.424Z",
+      "reviewRound": "2026-06-19T01:50:12.416Z",
+      "reviewRunId": "B-ed99:RR-004",
+      "_hash": "9d85f5c390744db08a997da5983900ed6301f06697fdc8cfe2e1266f047f25fe",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|accepted-review-assurance",
+      "signatureTagSource": "auto"
     }
   ]
 }
