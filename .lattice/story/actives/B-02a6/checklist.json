@@ -22,7 +22,31 @@
       "context": "story-metadata-protection.ts: the unsafe predicate must catch the allowlisted-but-uncommitted state (!ignored && !tracked) that the INIT window sits in. Update doctor scan + the warning text. Keep the existing ignored && !tracked case.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice doctor now reports an uncommitted INIT metadata leaf as \"⚠ DATA-LOSS RISK: story metadata is NOT git-tracked\" even when the leaf is allowlisted-not-ignored (the INIT window), not only when ignored.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateStoryMetadataProtection flags unsafe=true for the !ignored && !tracked (allowlisted-but-uncommitted) state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Still flags the original ignored && !tracked case; a tracked leaf remains safe (unsafe=false) regardless of ignore state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Blank/whitespace leaf path is rejected (throws), so no consumer can classify an empty path as safe; doctor surfaces the new case without false-positiving a correctly committed leaf",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
