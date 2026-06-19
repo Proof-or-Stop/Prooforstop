@@ -70,7 +70,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Local review assurance reports authorityDone=false, fullAuthorityDone=false, and productionDone=false for both one-round and 3x1 evidence",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Degraded single-host evidence is labeled degraded-single-host and never as two-host independent review",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "A forged local process event that claims Authority completion does not become Authority Server receipt-backed proof",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
