@@ -100,7 +100,17 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   },
   {
     args: ['story_advance', '--help'],
-    includes: ['Lattice CLI', 'lattice story_advance', '--phase', 'INIT_CHECK'],
+    includes: [
+      'Lattice CLI',
+      'lattice story_advance',
+      '--phase',
+      'INIT_CHECK',
+      '--dryRun',
+      'Dry-run: optional via --dryRun',
+      'Owner lease meta options',
+      '--takeover',
+      '--forceTakeover',
+    ],
   },
   {
     args: ['validate', '--help'],
