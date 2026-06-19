@@ -60,10 +60,10 @@
           "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "All assertions read file bytes (existsSync + byte-identity), never exit codes. Re-recorded at current HEAD.",
-          "headHash": "e1ecc60ea0efd085f89ed6d269c5abda6998ac53",
-          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
-          "timestamp": "2026-06-19T05:14:13.032Z"
+          "note": "Assertions read file bytes, never exit codes. Re-recorded at post-merge HEAD.",
+          "headHash": "50de7ee225065be1b1287b99e6f9bea458b528c6",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:14.675Z"
         }
       ]
     },
