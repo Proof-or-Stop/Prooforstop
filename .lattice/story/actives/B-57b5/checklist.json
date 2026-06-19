@@ -65,7 +65,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "INIT_CHECK output still reports metadata commit/merge when needed, recover_evidence still prints structured diagnostics before non-zero failures.",
+      "userSees": "INIT_CHECK reconcile smoke still observes `INIT_CHECK metadata committed` and `main merged into story/`; recover_evidence failure output still prints JSON with `status` before stderr `recover_evidence refused` or `recover_evidence: validate failed after refresh`.",
       "excludes": [
         "Do not change StoryStore persistence semantics or storyMachine guard predicates.",
         "Do not change Authority receipt classification or productionDone derivation.",
