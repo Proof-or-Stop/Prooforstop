@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T19:50:05.641Z",
       "reviewRunId": "B-aa8a:RR-002",
       "_hash": "17ee53357658200719a1a66e7e0bfd4aed119e012c2770f3522f0b64c69fa70a"
+    },
+    {
+      "id": "B-aa8a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept/residue review complete. Checks performed: (1) Old substring-based version logic: none found in version-bump.ts — all reads use JSON.parse (structural) and anchored BRAND_EXPORT_RE regex, all writes use bumpJsonVersionContent (JSON.parse/stringify) and bumpBrandContent (slice-and-replace on single anchored match). (2) GitRunner rename: BumpGitRunner correctly exported from version-bump.ts; the pre-existing GitRunner in worktree-policy.ts/planned-steps-executor.ts/smoke files is a separate unrelated type — no residue. (3) formatSemver: confirmed private (unexported function); no external references anywhere. (4) Single call site: bumpVersionOnDoneMerge called only once, in done-effects.ts line 890; no orphaned second call site. (5) Circular import: version-bump.ts imports only node:fs and node:path — no done-effects import, no cycle. (6) doneMergeChangedPaths computed once and passed to both bumpVersionOnDoneMerge (via shouldBump predicate) and runDoneMainPackageBuildAfterMerge (via changedPaths opts) — no double git-log call. (7) BRAND_EXPORT_RE with /g flag: matchAll() resets lastIndex each invocation; verified safe across multiple calls on the same regex object. (8) Whitespace-padded brand export: regex captures correctly, bumpBrandContent slice-and-replace preserves trailing whitespace and as-const suffix — verified with Node.js execution. (9) listChangedPathsBetweenMainShas and mainShaBeforeDoneMerge/mainShaAfterDoneMerge are in-scope at insertion point in done-effects.ts (lines 747-754 vs 884-900). (10) isDoneMainRuntimeBuildInput is properly exported from done-effects.ts and imported by the smoke. (11) No doc-promise-undelivered items in CLAUDE.md or docs. (12) The 51-assertion figure appears only in the user prompt description, not hardcoded in the file; the runtime log is dynamic. No concept deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-06-19T20:08:11.308Z",
+      "reviewRound": "2026-06-19T20:04:58.357Z",
+      "reviewRunId": "B-aa8a:RR-004",
+      "_hash": "9714257ccec4318aa37b310944cc56efea5e43838085606acc1201cf99e88bd7"
     }
   ]
 }
