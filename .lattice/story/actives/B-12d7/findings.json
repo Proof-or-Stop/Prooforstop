@@ -53,6 +53,25 @@
       ],
       "signatureTag": "missing|ts|edge-model-fallback",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-12d7:F-004",
+      "desc": "CHK-003:edge:3 verdict is audit_only (result=pass) but the literal intent -- providerReportedTotal equals the stub token counts -- is not satisfied. The honest note explains why: openai/gemini structurally never report cacheCreation, so summary.ts buckets every codex/gemini record as unknownCount rather than providerReportedTotal. What IS verified: per-record token counts are correct, estimateCount===0 (no double-count), and the WHY of the intent (supersede semantics eliminate the estimate) holds. The gap (cache-less-provider tokens excluded from aggregate total) is a known design limitation tracked as out-of-scope follow-up. Judged acceptable at advisory severity given the honest disclosure and follow-up tracking; not a blocker.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T03:00:14.498Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-003",
+      "_hash": "ef6356e95db26c1bf3a97abba2b377967b1962a8433f3f51af04502abf32f54c",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+        "packages/main/src/core/usage-ledger/summary.ts"
+      ],
+      "signatureTag": "missing|ts|edge-verdict-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
