@@ -37,6 +37,27 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-guide-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d674:F-003",
+      "desc": "Antigravity prewrite-guard semantics and smoke coverage are incomplete. packages/main/src/core/capabilities.ts:268 and :277 advertise Antigravity as wrapped-preapply when invoked through Lattice dispatch, but packages/main/src/core/guard-session.ts:62-65 and :111-118 only grant wrapped-preapply to codex/gemini, so resolveGuardMode(\"antigravity\", { viaDispatch: true }) still falls back to watcher-fallback. The existing smokes also still encode Gemini as the current profile/runtime list (packages/main/src/tasks/capability-list-smoke.ts:24-47, packages/main/src/tasks/dispatch-run-smoke.ts:260-280) while live capability_list/host_runtime_list now emit antigravity, so rebuilt validation will fail or miss the new agy path. Add antigravity/agy normalization to guard-session and update the smoke expectations to assert current Antigravity plus legacy Gemini compatibility separately.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T15:29:37.307Z",
+      "reviewRound": "2026-06-19T15:26:14.080Z",
+      "reviewRunId": "B-d674:RR-002",
+      "_hash": "e7f0fb5f459a61a39b74d1bbc3b978fc596b6bbf8c498b2ad3c80255eb6c5e67",
+      "files": [
+        "packages/main/src/core/guard-session.ts",
+        "packages/main/src/core/capabilities.ts",
+        "packages/main/src/tasks/capability-list-smoke.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|antigravity-prewrite-guard",
+      "signatureTagSource": "auto"
     }
   ]
 }
