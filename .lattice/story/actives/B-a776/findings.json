@@ -50,7 +50,7 @@
       "desc": "packages/main/src/tasks/cli-surface-smoke.ts:139 hard-codes B-a776 for review_escalation_status; that command fails when the story id is absent, so this package smoke depends on this review story metadata surviving after merge or archive. Use a generated temporary story/context or choose a command path that does not require story-local metadata.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T18:17:16.134Z",
@@ -61,7 +61,11 @@
         "packages/main/src/tasks/cli-surface-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by removing the hard-coded B-a776 review_escalation_status and autopilot_review_status probes from cli-surface-smoke. The story-local probe was replaced with the story-neutral nested alias lattice conduit explain --json, asserted via schemaVersion lattice.conduit_explain.v1 and authorityChanged=false. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:37.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
