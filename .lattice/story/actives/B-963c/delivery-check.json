@@ -1,0 +1,50 @@
+{
+  "storyId": "B-963c",
+  "checkedAt": "2026-06-19T21:35:24.296Z",
+  "reviewRound": "2026-06-19T21:29:56.446Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8. Host Identity, Review-Run, And 3x2 Quorum Strengthening",
+      "promise": "explicitlyConfiguredHighRiskPolicyRequires3x2 is implemented as a structured runtime process fact and no longer appears as an uncovered high-priority roadmap requirement.",
+      "status": "verified",
+      "verifiedBy": "gap_analyze plus targeted diff/process fact contract",
+      "evidence": "node packages/main/dist/cli.js gap_analyze returned healthy=true, gaps=[], coveragePercent=100, dashboard Gaps: 0 high / 0 medium; git diff shows REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE and review_escalation_policy evaluation/command/registry entries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Explicit high-risk policy evidence requires full 3x2 host quorum or an explicit degraded 3x1 fallback over fresh material, without claiming Authority production completion.",
+      "status": "verified",
+      "verifiedBy": "review-escalation smoke, review_escalation_status, process fact contract",
+      "evidence": "node packages/main/dist/tasks/review-escalation-smoke.js passed 11 checks including valid explicit high-risk policy fact requires 3x2, prose-only high-risk does not trigger, degraded fallback can be disallowed, and authorityDone/fullAuthorityDone/productionDone remain false; review_escalation_status --storyId=B-963c --json reported authorityDone=false, fullAuthorityDone=false, productionDone=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/annotation-system.md",
+      "promise": "Requirement binding and code annotations converge without high-priority gaps.",
+      "status": "verified",
+      "verifiedBy": "convergence_check",
+      "evidence": "node packages/main/dist/cli.js convergence_check reported No high-priority gaps passed, Code annotations compliant passed with All 69 annotations compliant, and Requirements coverage passed at 100%; remaining non-convergence is only unrelated unfinished stories."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reran node packages/main/dist/tasks/review-escalation-smoke.js: review-escalation smoke passed 11 checks covering explicit high-risk policy requiring 3x2 without first-round findings, policy-only failure copy, prose/path non-trigger behavior, degraded fallback disallow behavior, stale/duplicate verdict fail-closed behavior, and no authorityDone/fullAuthorityDone/productionDone overclaim."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reran node packages/main/dist/cli.js gap_analyze: healthy=true, gaps=[], coveragePercent=100, dashboard Gaps: 0 high / 0 medium. Reran node scripts/verify-process-fact-contract.mjs: Process fact contract verified and registry includes review_escalation_policy_set plus runtime:review_escalation_done_gate semantics. Reran node packages/main/dist/cli.js convergence_check: high-gap, annotation, and requirements coverage checks passed."
+    },
+    {
+      "featureId": "B-963c-validation",
+      "transcript": "Reran node packages/main/dist/cli.js validate --story=B-963c --json: allPass=true, Project validation commands passed, and Verification intent coverage 7/7 covered with 0 required missing. Verified transcript evidence at .lattice/story/actives/B-963c/evidence/transcript-diff.md matches the live rerun summaries."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted: diff implements and registers explicit review_escalation_policy process fact coverage, gap_analyze is 0 high/0 medium, convergence high-gap and annotation checks pass, validation passes, transcript evidence exists, and no unresolved delivery blocker was found."
+  },
+  "_hash": "fc230652051e5ad4c324986353f27672f469ad771ab8f542e48f75a504463a68"
+}

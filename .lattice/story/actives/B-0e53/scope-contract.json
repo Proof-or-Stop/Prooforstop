@@ -1,0 +1,37 @@
+{
+  "storyId": "B-0e53",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/done-oracle.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Only transition-orchestrator.ts gets the pre-merge mainSha re-check plus one new smoke; the main-write-lock and the merge in done-effects.ts and the sync helpers in done-oracle.ts must not change (import-only).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 requires npm wiring: adds the test:done-premerge-mainsha-recheck script and chains it into the test target so full npm test runs the new smoke. This is the planned npm wiring for the smoke, not a scope expansion.",
+      "timestamp": "2026-06-19T21:21:11.173Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a87a70ac7d6949daba42fbee1a23e1cf8c4ffc92",
+      "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e"
+    }
+  ],
+  "createdAt": "2026-06-19T21:05:22.048Z",
+  "updatedAt": "2026-06-19T21:21:11.173Z"
+}

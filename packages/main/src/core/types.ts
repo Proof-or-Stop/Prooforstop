@@ -990,6 +990,7 @@ export type ProcessEventType =
   | 'planner_story_created'
   | 'planner_job_created'
   | 'host_verdict'
+  | 'review_escalation_policy'
   | 'review_escalation_fallback'
   | 'authority_receipt'
   | 'decision_doc_proposal'

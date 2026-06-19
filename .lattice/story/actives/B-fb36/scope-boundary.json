@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fb36",
+  "mode": "feature",
+  "allowed": [
+    "Add focused smoke tests for the new command",
+    "Implement lattice done_prepare pre-DONE readiness assistant",
+    "Reuse existing validate, done_closure, stale evidence, git/worktree helpers where feasible",
+    "Update command registry/help only as needed for the new command"
+  ],
+  "excluded": [
+    "Do not implement Authority DONE or production DONE claiming",
+    "Do not implement post-DONE done_finalize unless required as a stub for guidance text only",
+    "Do not modify unrelated active stories or senior credential files",
+    "Do not mutate version files in done_prepare",
+    "Do not push remote branches"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested executing the accepted DONE prepare automation document with strong evidence flow.",
+  "createdAt": "2026-06-19T22:34:29.744Z",
+  "updatedAt": "2026-06-19T22:34:29.744Z",
+  "_hash": "ed9df34a69c9633dfa599c38fc1c9521815ebab44d7112329e3ecf0996e84017"
+}

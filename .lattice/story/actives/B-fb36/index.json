@@ -1,0 +1,48 @@
+{
+  "storyId": "B-fb36",
+  "name": "implement-done-prepare-automation",
+  "title": "Implement DONE prepare automation for pre-DONE closure readiness",
+  "description": "Implement the documented lattice done_prepare command as a conservative pre-DONE readiness assistant. It should orchestrate main sync, stale evidence classification, validation, done_closure, runtime-change reporting, and final clean-tree guidance without weakening lifecycle gates or modifying version files before DONE.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "done_prepare",
+    "done-closure",
+    "lifecycle",
+    "evidence-freshness",
+    "host-neutral"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-19T22:34:29.744Z",
+  "startedAt": "2026-06-19T22:34:29.744Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T22:34:29.754Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T22:37:52.826Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fb36",
+    "branch": "story/B-fb36",
+    "createdAt": "2026-06-19T22:37:51.965Z"
+  }
+}

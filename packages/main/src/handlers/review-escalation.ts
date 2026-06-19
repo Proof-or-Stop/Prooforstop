@@ -1,8 +1,10 @@
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
-import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
   evaluateReviewEscalation,
   formatReviewEscalationReport,
@@ -24,6 +26,21 @@ type ReviewEscalationFallbackSetArgs = {
   approvalRef?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  actor?: string;
+} & FormatArgs;
+
+type ReviewEscalationPolicySetArgs = {
+  storyId: string;
+  policyVersion: string;
+  sourcePolicyRef: string;
+  rolloutStage: string;
+  milestoneId?: string;
+  riskClass?: string;
+  degradedFallbackAllowed: boolean;
+  issuer?: string;
+  approver?: string;
+  materialHash?: string;
+  headHash?: string;
   actor?: string;
 } & FormatArgs;
 
@@ -50,6 +67,101 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         store: ctx.store,
       });
       return wantsJson(args) ? report : formatReviewEscalationReport(report);
+    },
+
+    review_escalation_policy_set(args: ReviewEscalationPolicySetArgs) {
+      assertCwdInWorktree(ctx.store, args.storyId);
+      const policyVersion = normalizeString(args.policyVersion);
+      const sourcePolicyRef = normalizeString(args.sourcePolicyRef);
+      const rolloutStage = normalizeString(args.rolloutStage);
+      const milestoneId = normalizeString(args.milestoneId);
+      const riskClass = normalizeString(args.riskClass);
+      const issuer = normalizeString(args.issuer) || normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
+      const approver = normalizeString(args.approver);
+      if (!policyVersion) throw new Error('review_escalation_policy_set: policyVersion is required');
+      if (!sourcePolicyRef) throw new Error('review_escalation_policy_set: sourcePolicyRef is required');
+      if (!rolloutStage) throw new Error('review_escalation_policy_set: rolloutStage is required');
+      if (!milestoneId && !riskClass) throw new Error('review_escalation_policy_set: provide milestoneId or riskClass');
+      if (typeof args.degradedFallbackAllowed !== 'boolean') {
+        throw new Error('review_escalation_policy_set: degradedFallbackAllowed must be boolean');
+      }
+      const freshMaterialHash = currentMaterialHash(ctx.root);
+      if (!freshMaterialHash) throw new Error('review_escalation_policy_set: cannot compute current material hash');
+      const freshHeadHash = currentGitHead(ctx.root);
+      if (!freshHeadHash) throw new Error('review_escalation_policy_set: cannot compute current git HEAD');
+      const suppliedMaterialHash = normalizeString(args.materialHash);
+      if (suppliedMaterialHash && suppliedMaterialHash !== freshMaterialHash) {
+        throw new Error('review_escalation_policy_set: supplied materialHash is stale and does not match current material hash');
+      }
+      const suppliedHeadHash = normalizeString(args.headHash);
+      if (suppliedHeadHash && suppliedHeadHash !== freshHeadHash) {
+        throw new Error('review_escalation_policy_set: supplied headHash is stale and does not match current HEAD');
+      }
+
+      const issuedAt = new Date().toISOString();
+      const policyId = `${args.storyId}:POL-${Date.now().toString(36)}`;
+      ctx.store.appendProcessEvent(args.storyId, {
+        type: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
+        storyId: args.storyId,
+        command: 'review_escalation_policy_set',
+        policyId,
+        predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+        requires3x2: true,
+        policyVersion,
+        ...(milestoneId ? { milestoneId } : {}),
+        ...(riskClass ? { riskClass } : {}),
+        sourcePolicyRef,
+        rolloutStage,
+        degradedFallbackAllowed: args.degradedFallbackAllowed,
+        issuer,
+        ...(approver ? { approver } : {}),
+        issuedAt,
+        headHash: freshHeadHash,
+        materialHash: freshMaterialHash,
+        authorityDone: false,
+        fullAuthorityDone: false,
+        productionDone: false,
+      });
+
+      const report = evaluateReviewEscalation({
+        projectRoot: ctx.root,
+        storyId: args.storyId,
+        store: ctx.store,
+      });
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'review_escalation_policy_set');
+      if (wantsJson(args)) {
+        return {
+          schemaVersion: 'lattice.review_escalation_policy_set.v1',
+          policyId,
+          predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+          requires3x2: true,
+          policyVersion,
+          sourcePolicyRef,
+          rolloutStage,
+          degradedFallbackAllowed: args.degradedFallbackAllowed,
+          headHash: freshHeadHash,
+          materialHash: freshMaterialHash,
+          authorityDone: false,
+          fullAuthorityDone: false,
+          productionDone: false,
+          report,
+        };
+      }
+      return [
+        `Review escalation policy ${policyId} recorded`,
+        `predicate: ${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE}`,
+        `requires3x2: true`,
+        `policyVersion: ${policyVersion}`,
+        `sourcePolicyRef: ${sourcePolicyRef}`,
+        `rolloutStage: ${rolloutStage}`,
+        `degradedFallbackAllowed: ${args.degradedFallbackAllowed}`,
+        `materialHash: ${freshMaterialHash}`,
+        `reviewEscalationRequired: ${report.required}`,
+        'authorityDone: false',
+        'fullAuthorityDone: false',
+        'productionDone: false',
+        commitHint.trim(),
+      ].filter(Boolean).join('\n');
     },
 
     review_escalation_fallback_set(args: ReviewEscalationFallbackSetArgs) {

@@ -93,6 +93,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   autopilot_review_submit: 'host-verdict',
   decision_doc_proposal: 'gate-evidence',
   decision_doc_save: 'gate-evidence',
+  review_escalation_policy_set: 'gate-evidence',
   review_escalation_fallback_set: 'gate-evidence',
 };
 
@@ -119,10 +120,12 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
+  review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
+  'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
   'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
@@ -422,6 +425,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'autopilot_review_submit',
     consumerGate: 'storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate',
+  },
+  review_escalation_policy_set: {
+    name: 'process-events.jsonl',
+    path: 'process-events.jsonl',
+    signed: false,
+    producerCommand: 'review_escalation_policy_set',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate',
   },
   review_escalation_fallback_set: {
     name: 'process-events.jsonl',

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fb36",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status *",
+    "lattice *",
+    "nl *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "Claude Code reviewer when available",
+    "Codex CLI",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- .",
+    "git clean -fd",
+    "git push *",
+    "git reset --hard",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "lattice_senior_actor_ed25519.key",
+    "lattice_senior_authority_trust.env",
+    "lattice_senior_staging-client.env"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Strong-evidence implementation is limited to Lattice CLI code, tests, and lifecycle metadata.",
+  "createdAt": "2026-06-19T22:34:29.744Z",
+  "updatedAt": "2026-06-19T22:34:29.744Z",
+  "_hash": "96721c2a9fa7c69e58b12e0cffad1bdbdf9605d39d673ce60dd0f3f5ac563fd1"
+}

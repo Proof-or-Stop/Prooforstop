@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 66 files
+> 67 files
 
 ## decisions
 
@@ -18,6 +18,7 @@
 - [Decision Doc Promotion Execution Plan](decisions/decision-doc-promotion-execution-plan.md)
 - [Dev Memory — Lightweight Experience Capture](decisions/dev-memory.md)
 - [DONE Closure Runbook Assistant Execution Plan](decisions/done-closure-runbook-assistant-execution-plan.md)
+- [DONE Prepare Automation Execution Plan](decisions/done-prepare-automation-execution-plan.md)
 - [F-009 gap_analyze High Gaps Execution Plan](decisions/f009-gap-analyze-high-gaps-execution-plan.md)
 - [F-009 Layer 2 Engineering Proof Gap Execution Plan](decisions/f009-layer2-engineering-proof-gap-execution-plan.md)
 - [Formal Unlock Artifact Isolation Execution Plan](decisions/formal-unlock-artifact-isolation-execution-plan.md)

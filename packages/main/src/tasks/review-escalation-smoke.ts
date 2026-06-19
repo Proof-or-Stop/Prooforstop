@@ -7,8 +7,10 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
   evaluateReviewEscalation,
+  formatReviewEscalationFailure,
   formatReviewEscalationReport,
 } from '../core/review-escalation.js';
 import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
@@ -136,6 +138,28 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
   };
 }
 
+function explicitHighRiskPolicy(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
+  return {
+    type: 'review_escalation_policy',
+    timestamp: '2026-06-13T12:15:00.000Z',
+    policyId: `${STORY_ID}:POL-001`,
+    predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+    requires3x2: true,
+    policyVersion: 'M8.explicit-high-risk-policy.v1',
+    riskClass: 'process-fact',
+    sourcePolicyRef: 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8',
+    rolloutStage: 'enforced',
+    degradedFallbackAllowed: true,
+    issuer: 'lattice-policy-smoke',
+    issuedAt: '2026-06-13T12:15:00.000Z',
+    materialHash,
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+    ...overrides,
+  };
+}
+
 let passed = 0;
 function check(name: string, fn: () => void): void {
   fn();
@@ -229,6 +253,83 @@ try {
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
     }
+  });
+
+  check('valid explicit high-risk policy fact requires 3x2 without first-round problems', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [],
+      processEvents: [explicitHighRiskPolicy(fresh), ...fullQuorum(fresh)],
+    });
+    assert.equal(report.required, true);
+    assert.equal(report.ok, true);
+    assert.equal(report.assuranceLevel, 'full-3x2');
+    assert.equal(report.trigger.countableProblems.length, 0);
+    assert.equal(report.trigger.explicitHighRiskPolicy.required, true);
+    assert.equal(report.trigger.explicitHighRiskPolicy.validPolicy?.policyVersion, 'M8.explicit-high-risk-policy.v1');
+    assert.equal(report.authorityDone, false);
+    assert.equal(report.fullAuthorityDone, false);
+    assert.equal(report.productionDone, false);
+    assert.match(formatReviewEscalationReport(report), /explicitHighRiskPolicy: required/);
+    assert.match(formatReviewEscalationReport(report), new RegExp(REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE));
+  });
+
+  check('policy-only escalation failure text names explicit high-risk policy', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [],
+      processEvents: [explicitHighRiskPolicy(fresh)],
+    });
+    assert.equal(report.required, true);
+    assert.equal(report.ok, false);
+    assert.equal(report.trigger.countableProblems.length, 0);
+    const failure = formatReviewEscalationFailure(report);
+    const firstLine = failure.split('\n')[0] ?? '';
+    assert.match(firstLine, /explicit high-risk policy/);
+    assert.doesNotMatch(firstLine, /first REVIEW round recorded multiple countable reviewer problems/);
+  });
+
+  check('high-risk prose or paths do not trigger without explicit policy fact', () => {
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: {
+        ...story(),
+        title: 'High-risk process-fact gate and decision-doc work',
+        description: 'Mentions lifecycle gate Authority and process-fact work, but has no explicit policy fact.',
+      },
+      findings: [],
+      processEvents: [],
+    });
+    assert.equal(report.ok, true);
+    assert.equal(report.required, false);
+    assert.equal(report.trigger.explicitHighRiskPolicy.required, false);
+    assert.equal(report.assuranceLevel, 'ordinary-review');
+  });
+
+  check('explicit high-risk policy can disallow degraded single-host fallback', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [],
+      processEvents: [
+        explicitHighRiskPolicy(fresh, { policyId: `${STORY_ID}:POL-NO-DEGRADED`, degradedFallbackAllowed: false }),
+        ...singleHostRounds(fresh),
+        fallback(fresh),
+      ],
+    });
+    assert.equal(report.required, true);
+    assert.equal(report.ok, false);
+    assert.equal(report.fullQuorum.ok, false);
+    assert.equal(report.degradedFallback.ok, false);
+    assert.equal(report.degradedFallback.allowed, false);
+    assert.equal(report.assuranceLevel, 'ordinary-review');
+    assert.equal(report.reasons.some(reason => reason.includes('disallows degraded single-host fallback')), true);
+    assert.equal(report.productionDone, false);
   });
 
   check('two first-round verified reviewer problems trigger and full 3x2 passes', () => {

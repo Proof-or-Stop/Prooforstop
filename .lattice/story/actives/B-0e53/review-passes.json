@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-0e53:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 must-priority intents have concrete, item-scoped, passing logic_test/manual_transcript evidence targeting the smoke. Smoke runs clean exit 0 with 14 checks. Abort and happy paths run in same temp root; happy-path DONE acquiring the global lock after the abort proves lock release (adversarial:1 adequately evidenced). CHK-002:adversarial:0 is priority=should and has explicit RED/GREEN non-vacuity evidence. No gaps found.",
+      "createdAt": "2026-06-19T21:23:41.802Z",
+      "reviewRound": "2026-06-19T21:21:11.654Z",
+      "reviewRunId": "B-0e53:RR-003",
+      "_hash": "1e0fa284cdb8a028933916a10ce11fc4dd76e9c8153fd4869f67a7f145642acd"
+    },
+    {
+      "id": "B-0e53:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness verified. (1) readMainSha helper is self-contained in transition-orchestrator.ts, no residue elsewhere. (2) syncedMainSha is captured unconditionally after autoSyncMain (covering both synced and already-up-to-date cases). (3) Re-check block is strictly before actor.send (line 438 vs 450) and before store.writeStory (483) — abort throws before any phase=DONE persists. (4) Throw propagates to the existing try/finally which releases doneMainMergeLock and stops the actor — no new lock handling needed. (5) Non-DONE paths are fully unaffected (both capture and re-check are DONE-guarded; syncedMainSha stays undefined for all other phases). (6) Fail-open is correctly implemented: only two successful reads that DIFFER abort; undefined reads do not abort. (7) Smoke test covers abort path (shim advances main during merge-tree intercept) and happy path (no shim); asserts phase stays TEST in both stores on abort, no merge commit lands, worktree and branch survive. (8) npm wiring in package.json is correct and included in the main test suite. (9) No concept deletion/replacement in this diff — pure addition. (10) No doc-promise-undelivered items.",
+      "createdAt": "2026-06-19T21:25:05.307Z",
+      "reviewRound": "2026-06-19T21:21:11.654Z",
+      "reviewRunId": "B-0e53:RR-001",
+      "_hash": "59f482a77638d5750fc64d9abc72536731383c94a00bbba3076a80ccb7b7802a"
+    },
+    {
+      "id": "B-0e53:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Checked: dead code (none), type safety (execFileSync import correct, no new as any, catch-undefined is intentional fail-open), I/O isolation (no bridge.ts, not applicable), variable scope (syncedMainSha declared at function level in runStoryTransitionInner — no loop, no iteration, no leak), lock resource safety (throw propagates to existing try/finally, doneMainMergeLock?.release() fires unconditionally), re-check guard (correctly inside args.phase===DONE, doneGitCwd always set when guard runs), smoke quality (temp git root per test, git-root-relative locks = no global contention, both paths cleaned up in finally/try-finally, shimDir cleanup in finally, deterministic injection via marker file). Doc comment says temp HOME but runLatticeFromCwd does not set a temp HOME — the lock is git-root-relative so no HOME bleed occurs; doc inaccuracy is non-functional. No functional bugs found. 0 findings.",
+      "createdAt": "2026-06-19T21:25:55.085Z",
+      "reviewRound": "2026-06-19T21:21:11.654Z",
+      "reviewRunId": "B-0e53:RR-002",
+      "_hash": "16d07600067158631b439f0f6d8f96910659515c75bb9439ad12a747818338d9"
+    }
+  ]
+}
