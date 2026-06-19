@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-b1f4:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. Story is purely ADDITIVE: new symbols primaryReportedTotal, primaryReportedCount, primaryTotal (summary.ts), PrimaryTokenDimensions, asPrimaryDimensions, primaryKnown, primaryKnownCount (diagnostics.ts), and renderHuman primary column (usage-ledger-report.ts). Grep across all .ts/.md/.json sources confirms all new symbols are fully defined and consistently used with zero orphaned residuals. No old concept was removed or renamed. CLAUDE.md/README/docs/ unchanged — no doc-promise-undelivered items. Concept residue check: clean, no blocker.",
+      "createdAt": "2026-06-19T13:17:59.214Z",
+      "reviewRound": "2026-06-19T13:15:28.077Z",
+      "reviewRunId": "B-b1f4:RR-001",
+      "_hash": "943ca095de14ea3b6e6d187e1beab8f0bd293d9a749e79cc8d95db253950db00"
+    }
+  ]
+}
