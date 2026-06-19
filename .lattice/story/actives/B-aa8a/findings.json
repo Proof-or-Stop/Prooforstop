@@ -106,6 +106,24 @@
       ],
       "signatureTag": "missing|ts|edge-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-aa8a:F-007",
+      "desc": "quality-cleanup: version-bump-smoke.ts:215 test-group comment says \"// 14.\" but this is the second test labelled 14 (the first is at line 184); the actual sequential number should be 16 (after 15 at line 196); misleads navigation when reading/debugging the test list",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T20:35:29.210Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-010",
+      "_hash": "f68ff05f5aa3abd6badce77ac52bae749ad929ac7b4fbdf78572d1605b671dad",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-version",
+      "signatureTagSource": "auto"
     }
   ]
 }
