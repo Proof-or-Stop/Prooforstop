@@ -88,6 +88,24 @@
       "_hash": "3682da8a0132198df1d17eb80aa4fceaf6cc06ecbccab4087f7bc3f246a94dcd",
       "signatureTag": "edge|unknown|rollback-version-bump",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-aa8a:F-006",
+      "desc": "CHK-001:edge:3 intent claims the drift error names each value (root=X, packages/main=Y, lattice-brand=Z) but the smoke only asserts throws() without validating error message content. The source code does produce the named-value message, but the smoke assertion does not verify it. The intent-specified claim is partially unverified. Advisory: add a try/catch that asserts the error message contains each value name.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T20:18:48.281Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-009",
+      "_hash": "deca769b94234f9482b68e88704afb56d14ea6f43428cbdba5a2c7c5ae112049",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
