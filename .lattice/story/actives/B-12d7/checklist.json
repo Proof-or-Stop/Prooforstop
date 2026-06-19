@@ -180,7 +180,71 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke: codex bounded run through injected stub runner emitting OpenAI usage JSONL with ledger ON -> ledger contains a provider-reported final record with correct codex token counts (prompt_tokens and completion_tokens match stub); WHY: end-to-end codex usage capture main path",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: gemini bounded run through injected stub runner emitting Gemini usageMetadata JSONL with ledger ON -> ledger contains a provider-reported final record with correct gemini token counts; WHY: end-to-end gemini usage capture main path",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: preflight estimate record is written before the bounded run and the final record supersedes it (supersedesRecordIds contains the estimate recordId); WHY: proves the preflight+final supersede flow works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: npm test:usage-ledger-codex-gemini script runs and exits 0; WHY: smoke is wired into the test suite",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: claude real-leaf path unchanged assertion passes (recordDispatchFinal with anthropic usage still behaves as before); WHY: regression guard",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke: ledger OFF -> no preflight no final no files written; dispatch completes normally; WHY: OFF path must be byte-identical to pre-change (no ledger I/O)",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: stub runner returns no usage (reportedUsage absent) with ledger ON -> final record is unavailable type (still supersedes estimate); WHY: provider may not report usage",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: provider mapping codex->openai and gemini->gemini is correct in the wiring (hostKind=codex passes provider=openai to recordDispatchFinalForProvider); WHY: provider name mapping is load-bearing for adapter selection",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: ledger summary provider-reported total equals the stub token counts (no double-counting with estimate); WHY: supersede semantics must eliminate the estimate from totals",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke: recordDispatchPreflight throws (simulated ledger write error) -> dispatch proceeds normally without crashing returns provider result; WHY: fail-open on preflight error",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: recordDispatchFinalForProvider throws (simulated ledger write error) -> dispatch proceeds normally returns provider result; WHY: fail-open on final error must never break dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: static import boundary assertion - providers/codex-cli.ts and gemini-cli.ts have zero imports from core/usage-ledger/ (grep source files); WHY: architecture boundary enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: concurrent dispatches (two codex runs in rapid succession with ledger ON) -> both write distinct records with distinct correlations no file corruption; WHY: concurrent ledger appends must not interleave or corrupt",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke: stub runner emits usage with extraneous transcript keys alongside token counts -> final record contains only numeric token fields no transcript text; WHY: security invariant at integration boundary",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
