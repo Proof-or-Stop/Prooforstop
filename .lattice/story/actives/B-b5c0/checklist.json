@@ -168,8 +168,8 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T01:26:31.460Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -237,6 +237,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-002 verified against rg checks, diff check, and build."
+    },
+    {
+      "timestamp": "2026-06-19T01:26:31.460Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin auditor verification for rollout crosswalk and recovery controls."
     }
   ]
 }
