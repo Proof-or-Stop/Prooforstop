@@ -127,25 +127,67 @@ void (async () => {
     throws('parseSemver rejects non-numeric abc', () => parseSemver('abc'));
     throws('parseSemver rejects empty string', () => parseSemver(''));
 
-    // 11. Adversarial: a duplicate LATTICE_CLI_VERSION line (same value) resolves to the first, no crash.
+    // 11. Adversarial: a DUPLICATE exported LATTICE_CLI_VERSION is ambiguous and must THROW —
+    //     never silently pick one (the old "reads first" behavior could bump nothing real).
     const fdup = fixture('0.9.9');
     writeFileSync(
       join(fdup, VERSION_SYNC_FILES.brand),
-      `export const LATTICE_CLI_VERSION = '0.9.9' as const;\n// legacy mirror line\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
+      `export const LATTICE_CLI_VERSION = '0.9.9' as const;\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
     );
-    check('duplicate LATTICE_CLI_VERSION line still resolves (reads first)', readSyncedVersion(fdup) === '0.9.9');
+    throws('duplicate exported LATTICE_CLI_VERSION -> readSyncedVersion throws', () => readSyncedVersion(fdup));
+    throws('duplicate exported LATTICE_CLI_VERSION -> applyPatchBump refuses', () => applyPatchBump(fdup));
 
-    // 12. Adversarial: extra whitespace around the brand literal still parses.
+    // 12. Adversarial: a COMMENT mentioning LATTICE_CLI_VERSION must NOT be mistaken for the
+    //     export. Read + bump target the real `export const`; the comment is left untouched.
+    const fcomment = fixture('0.9.9');
+    writeFileSync(
+      join(fcomment, VERSION_SYNC_FILES.brand),
+      `// historical: LATTICE_CLI_VERSION = '9.9.9'\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
+    );
+    check('comment ignored; reads the real export (0.9.9)', readSyncedVersion(fcomment) === '0.9.9');
+    applyPatchBump(fcomment);
+    const commentBrand = readFileSync(join(fcomment, VERSION_SYNC_FILES.brand), 'utf-8');
+    check('bump targeted the export -> 0.9.10', readSyncedVersion(fcomment) === '0.9.10');
+    check('the comment line stayed at 9.9.9 (untouched)', commentBrand.includes("// historical: LATTICE_CLI_VERSION = '9.9.9'"));
+
+    // 13. Adversarial: extra whitespace around the export survives a full WRITE round-trip
+    //     (read AND applyPatchBump), not just the read path.
     const fws = fixture('0.9.9');
-    writeFileSync(join(fws, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION =   '0.9.9'   as const;   \n`);
-    check('extra whitespace around the brand literal still parses', readSyncedVersion(fws) === '0.9.9');
+    writeFileSync(join(fws, VERSION_SYNC_FILES.brand), `export const   LATTICE_CLI_VERSION  =  '0.9.9'  as const;\n`);
+    check('whitespace-padded export reads correctly', readSyncedVersion(fws) === '0.9.9');
+    check('whitespace-padded export bumps correctly (write round-trip)', applyPatchBump(fws).to === '0.9.10');
+    check('whitespace-padded export now 0.9.10', readSyncedVersion(fws) === '0.9.10');
 
-    // 13. Adversarial: a read-only sync file makes applyPatchBump throw AND roll back (no partial corruption).
-    const fro = fixture('0.9.9');
-    chmodSync(join(fro, VERSION_SYNC_FILES.brand), 0o444);
-    throws('applyPatchBump on a read-only brand file throws', () => applyPatchBump(fro));
-    chmodSync(join(fro, VERSION_SYNC_FILES.brand), 0o644);
-    check('read-only write failure rolled back: all 3 still 0.9.9', readSyncedVersion(fro) === '0.9.9');
+    // 14. Adversarial: STRUCTURAL top-level bump — a nested "version" equal to `from` placed
+    //     BEFORE the top-level field is NOT touched; only the package version moves.
+    const fnest = fixture('0.9.9');
+    writeFileSync(
+      join(fnest, VERSION_SYNC_FILES.rootPackageJson),
+      `{\n  "name": "lattice",\n  "engines": { "version": "0.9.9" },\n  "version": "0.9.9"\n}\n`,
+    );
+    applyPatchBump(fnest);
+    const nestPkg = JSON.parse(readFileSync(join(fnest, VERSION_SYNC_FILES.rootPackageJson), 'utf-8'));
+    check('top-level version bumped to 0.9.10', nestPkg.version === '0.9.10');
+    check('nested version left at 0.9.9 (structural, not first-substring)', nestPkg.engines.version === '0.9.9');
+
+    // 15. Adversarial: a read-only sync file makes applyPatchBump throw AND roll back to `from`
+    //     with no partial corruption — covered for the FIRST written file (root) and the LAST
+    //     (brand, after the other two were already written). Skipped under root (0444 ignored).
+    if (typeof process.getuid === 'function' && process.getuid() !== 0) {
+      const froRoot = fixture('0.9.9');
+      chmodSync(join(froRoot, VERSION_SYNC_FILES.rootPackageJson), 0o444);
+      throws('read-only ROOT package.json (first write) -> applyPatchBump throws', () => applyPatchBump(froRoot));
+      chmodSync(join(froRoot, VERSION_SYNC_FILES.rootPackageJson), 0o644);
+      check('first-file read-only failure rolled back: all 3 still 0.9.9', readSyncedVersion(froRoot) === '0.9.9');
+
+      const froBrand = fixture('0.9.9');
+      chmodSync(join(froBrand, VERSION_SYNC_FILES.brand), 0o444);
+      throws('read-only BRAND (last write) -> applyPatchBump throws', () => applyPatchBump(froBrand));
+      chmodSync(join(froBrand, VERSION_SYNC_FILES.brand), 0o644);
+      check('last-file read-only failure rolled back: all 3 reverted to 0.9.9', readSyncedVersion(froBrand) === '0.9.9');
+    } else {
+      check('read-only rollback cases skipped under root (0444 does not block root writes)', true);
+    }
 
     // 14. Adversarial: a git failure AFTER the files are written propagates with an actionable recovery message.
     const fcommit = fixture('0.9.9');

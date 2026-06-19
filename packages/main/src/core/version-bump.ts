@@ -4,14 +4,17 @@
  * The CLI version lives in THREE sync points that rollout-check enforces identical:
  *   1. <root>/package.json                              "version"
  *   2. <root>/packages/main/package.json                "version"
- *   3. <root>/packages/main/src/core/lattice-brand.ts   LATTICE_CLI_VERSION = '...'
+ *   3. <root>/packages/main/src/core/lattice-brand.ts   export const LATTICE_CLI_VERSION
  *
  * This module is PURE (no git, no done-effects import — avoids a circular dependency;
  * done-effects passes in the `shouldBump` decision and a `runGit` runner). It reads all
- * three, asserts they are in sync, and patch-bumps them atomically, failing loud on any
- * drift rather than silently picking one. done-effects.ts calls bumpVersionOnDoneMerge
- * after the DONE merge and before the dist rebuild, so the rebuilt dist reports the new
- * version with no extra build step.
+ * three STRUCTURALLY (package.json via JSON parse of the top-level `version`; the brand
+ * via a regex anchored to the `export const` declaration so comments/duplicates can never
+ * be mistaken for the real constant), asserts they are in sync, and patch-bumps them
+ * atomically — rolling back on any write OR post-write-verification failure rather than
+ * leaving the three points drifted. done-effects.ts calls bumpVersionOnDoneMerge after the
+ * DONE merge and before the dist rebuild, so the rebuilt dist reports the new version with
+ * no extra build step.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -32,8 +35,12 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 ];
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
-/** Matches the LATTICE_CLI_VERSION literal in lattice-brand.ts. */
-const BRAND_VERSION_RE = /LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/;
+/**
+ * Matches the EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to
+ * `export const` so a `// LATTICE_CLI_VERSION = '...'` comment (or any other mention) is
+ * NOT matched. Global so callers can count occurrences and reject an ambiguous duplicate.
+ */
+const BRAND_EXPORT_RE = /export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/g;
 
 export interface Semver {
   major: number;
@@ -48,7 +55,7 @@ export function parseSemver(version: string): Semver {
   return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) };
 }
 
-export function formatSemver(v: Semver): string {
+function formatSemver(v: Semver): string {
   return `${v.major}.${v.minor}.${v.patch}`;
 }
 
@@ -58,20 +65,46 @@ export function nextPatch(version: string): string {
   return formatSemver({ major: v.major, minor: v.minor, patch: v.patch + 1 });
 }
 
+/** Read the structural top-level `version` from a package.json. */
 function readJsonVersion(absPath: string): string {
-  const raw = readFileSync(absPath, 'utf-8');
-  const parsed = JSON.parse(raw) as { version?: unknown };
+  const parsed = JSON.parse(readFileSync(absPath, 'utf-8')) as { version?: unknown };
   if (typeof parsed.version !== 'string') {
-    throw new Error(`version-bump: ${absPath} has no string "version" field`);
+    throw new Error(`version-bump: ${absPath} has no string top-level "version" field`);
   }
   return parsed.version;
 }
 
+/** Return a package.json content string with ONLY the top-level `version` set to `to`. */
+function bumpJsonVersionContent(content: string, from: string, to: string, label: string): string {
+  const parsed = JSON.parse(content) as { version?: unknown };
+  if (parsed.version !== from) {
+    throw new Error(`version-bump: ${label} top-level version is "${String(parsed.version)}", expected "${from}"`);
+  }
+  parsed.version = to;
+  return `${JSON.stringify(parsed, null, 2)}\n`;
+}
+
+/**
+ * Read the EXPORTED LATTICE_CLI_VERSION. Throws if there is no exported constant, or if
+ * there is more than one (an ambiguous duplicate export — refuse rather than guess).
+ */
 function readBrandVersion(absPath: string): string {
-  const raw = readFileSync(absPath, 'utf-8');
-  const m = BRAND_VERSION_RE.exec(raw);
-  if (!m) throw new Error(`version-bump: ${absPath} has no LATTICE_CLI_VERSION = '...' literal`);
-  return m[1];
+  const matches = [...readFileSync(absPath, 'utf-8').matchAll(BRAND_EXPORT_RE)];
+  if (matches.length === 0) throw new Error(`version-bump: ${absPath} has no exported LATTICE_CLI_VERSION constant`);
+  if (matches.length > 1) throw new Error(`version-bump: ${absPath} has ${matches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
+  return matches[0][1];
+}
+
+/** Return a brand-file content string with the single exported LATTICE_CLI_VERSION set to `to`. */
+function bumpBrandContent(content: string, from: string, to: string): string {
+  const matches = [...content.matchAll(BRAND_EXPORT_RE)];
+  if (matches.length === 0) throw new Error('version-bump: no exported LATTICE_CLI_VERSION constant to replace');
+  if (matches.length > 1) throw new Error(`version-bump: ${matches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
+  const m = matches[0];
+  if (m[1] !== from) throw new Error(`version-bump: brand version "${m[1]}" != expected "${from}"`);
+  const replaced = m[0].replace(`'${from}'`, `'${to}'`);
+  const at = m.index ?? content.indexOf(m[0]);
+  return content.slice(0, at) + replaced + content.slice(at + m[0].length);
 }
 
 /**
@@ -90,15 +123,8 @@ export function readSyncedVersion(root: string): string {
       `refusing to bump. Reconcile all three to the same X.Y.Z first.`,
     );
   }
-  // Validate it parses (catches a synced-but-malformed value early).
-  parseSemver(rootV);
+  parseSemver(rootV); // catch a synced-but-malformed value early
   return rootV;
-}
-
-function replaceOnce(content: string, needle: string, replacement: string, label: string): string {
-  const idx = content.indexOf(needle);
-  if (idx === -1) throw new Error(`version-bump: could not find ${label} to replace ("${needle}")`);
-  return content.slice(0, idx) + replacement + content.slice(idx + needle.length);
 }
 
 export interface PatchBumpResult {
@@ -109,10 +135,11 @@ export interface PatchBumpResult {
 
 /**
  * Patch-bump all three sync points in `root`. Pure filesystem (no git), so it is
- * hermetically testable against a temp fixture dir. Reads the in-sync current version,
- * computes the next patch, rewrites each file with a single targeted substitution
- * (preserving surrounding formatting), then re-reads to verify all three landed on the
- * same new version. Throws on drift or a missing substitution target.
+ * hermetically testable against a temp fixture dir. Computes every replacement in memory
+ * first (structural JSON for the two package.json, anchored single-match regex for the
+ * brand) so any ambiguity/missing target throws BEFORE any write; then writes all three
+ * and re-reads to verify. On ANY write failure OR a failed post-write verification it
+ * rolls every file back to `from`, so the three points are never left drifted.
  */
 export function applyPatchBump(root: string): PatchBumpResult {
   const from = readSyncedVersion(root);
@@ -122,34 +149,37 @@ export function applyPatchBump(root: string): PatchBumpResult {
   const mainPkgPath = join(root, VERSION_SYNC_FILES.mainPackageJson);
   const brandPath = join(root, VERSION_SYNC_FILES.brand);
 
-  // Compute ALL three replacements in memory first, so a missing substitution target
-  // throws BEFORE any file is touched (no partial write from a bad-content failure).
+  // Compute all three new contents in memory first; a structural problem throws here,
+  // before a single byte is written.
   const plan = [
-    { path: rootPkgPath, next: replaceOnce(readFileSync(rootPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'root package.json version') },
-    { path: mainPkgPath, next: replaceOnce(readFileSync(mainPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'packages/main package.json version') },
-    { path: brandPath, next: replaceOnce(readFileSync(brandPath, 'utf-8'), `LATTICE_CLI_VERSION = '${from}'`, `LATTICE_CLI_VERSION = '${to}'`, 'lattice-brand LATTICE_CLI_VERSION') },
+    { path: rootPkgPath, next: bumpJsonVersionContent(readFileSync(rootPkgPath, 'utf-8'), from, to, 'root package.json') },
+    { path: mainPkgPath, next: bumpJsonVersionContent(readFileSync(mainPkgPath, 'utf-8'), from, to, 'packages/main package.json') },
+    { path: brandPath, next: bumpBrandContent(readFileSync(brandPath, 'utf-8'), from, to) },
   ];
 
-  // Snapshot originals so a mid-write filesystem failure (e.g. a read-only file) rolls
-  // back instead of leaving the 3 sync points drifted (preMortem #1: never corrupt).
   const originals = plan.map((p) => ({ path: p.path, content: readFileSync(p.path, 'utf-8') }));
-  try {
-    for (const p of plan) writeFileSync(p.path, p.next);
-  } catch (e: any) {
+  const rollback = (): void => {
     for (const o of originals) {
       try { writeFileSync(o.path, o.content); } catch { /* best-effort rollback */ }
     }
+  };
+
+  try {
+    for (const p of plan) writeFileSync(p.path, p.next);
+  } catch (e: any) {
+    rollback();
     throw new Error(`version-bump: write failed and was rolled back to ${from}: ${e?.message ?? e}`);
   }
 
   const after = readSyncedVersion(root);
   if (after !== to) {
-    throw new Error(`version-bump: post-write verification failed (expected ${to}, read ${after})`);
+    rollback();
+    throw new Error(`version-bump: post-write verification failed (expected ${to}, read ${after}); rolled back to ${from}`);
   }
   return { from, to, files: VERSION_SYNC_PATHS };
 }
 
-export type GitRunner = (args: string[], cwd: string) => string;
+export type BumpGitRunner = (args: string[], cwd: string) => string;
 
 export interface BumpOnDoneMergeOptions {
   /** The main checkout root where the bump commit lands. */
@@ -157,7 +187,7 @@ export interface BumpOnDoneMergeOptions {
   /** True only when the DONE merge changed material code (done-effects computes this). */
   shouldBump: boolean;
   /** Git runner (done-effects passes its runGitArgs; tests inject a spy). */
-  runGit: GitRunner;
+  runGit: BumpGitRunner;
 }
 
 /** Report line when a merge does not qualify for a version bump. */
