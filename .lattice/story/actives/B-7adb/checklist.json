@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T13:25:30.456Z",
-      "endTime": null,
+      "endTime": "2026-06-19T13:33:35.833Z",
       "files": {
         "modify": [
           "packages/main/src/core/verdicts.ts",
@@ -44,7 +44,39 @@
           }
         ]
       },
-      "userSees": "User sees \"runs: default-run, round-1, round-2, round-3\" and \"latestRuns\" in autopilot_review_status output instead of only an empty default-run summary."
+      "userSees": "User sees \"runs: default-run, round-1, round-2, round-3\" and \"latestRuns\" in autopilot_review_status output instead of only an empty default-run summary.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "planner unattended smoke asserts autopilot_review_status without runId preserves default-run top-level fields while exposing allRunIds/allRuns/latestRuns for custom run ids.",
+          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:33:36.055Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "smoke uses summarizeVerdictRuns with a fresh material anchor and verifies stale, duplicate-identity, and failing custom runs remain blocked in per-run summaries.",
+          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:33:36.223Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "build and smoke verify added diagnostics remain local-only with authorityDone/fullAuthorityDone/multiHostVerified false for local status.",
+          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:33:36.401Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
