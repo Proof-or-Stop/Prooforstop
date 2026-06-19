@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "lifecycle dispatch smoke passed; story_create and story_advance INIT_CHECK user-facing text remains recognizable after extraction.",
+      "userSees": "Focused smoke output includes `lifecycle dispatch smoke passed`; INIT_CHECK dry-run output still includes `[DRY-RUN] INIT_CHECK bootstrap plan` and `no phase, branch, commit, or worktree changes were made`.",
       "excludes": [
         "Do not move business handlers or storyMachine transition guards.",
         "Do not rewrite generic parse/validate/run wrapper order beyond calling extracted lifecycle helper functions.",
