@@ -35,9 +35,6 @@ export const VALID_PARALLEL_MODES: ReadonlySet<ParallelGateMode> = new Set<Paral
   'off',
 ]);
 
-/** Fallback when a configured parallelGate.mode value is invalid. */
-export const PARALLEL_MODE_FALLBACK: ParallelGateMode = 'advise';
-
 /**
  * Hard-block reasons the gate can return (§4.3). `null` (in the gate result) means no block.
  * Each is a provable scope contradiction — never a should-have-parallelized judgement.
