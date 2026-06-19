@@ -48,6 +48,8 @@
     "test:lifecycle-registry-contract": "node dist/tasks/lifecycle-registry-contract.js",
     "test:main-write-lock-coverage": "node dist/tasks/main-write-lock-coverage.js",
     "test:command-ownership-contract": "node dist/tasks/command-ownership-contract.js",
+    "test:unattended-dispatch-smoke": "node dist/tasks/unattended-dispatch-smoke.js",
+    "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
     "test:review-convergence-smoke": "node dist/tasks/review-convergence-smoke.js",
     "test:review-incremental-context-smoke": "node dist/tasks/review-incremental-context-smoke.js",
