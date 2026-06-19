@@ -4,7 +4,7 @@
   "title": "Improve review assurance diagnostics and stale-closure runbook",
   "description": "Fix the CLI diagnostic UX discovered during B-997b closure. Current problems: autopilot_review_status defaults to default-run and hides custom 3x2 rounds; review_escalation_status does not show voluntarily submitted local 3x2 rounds when escalation is not required; DONE pre-check stale material guidance lists stale host verdicts but does not provide a concise operator runbook for refreshing validation evidence and re-submitting host verdicts. Scope is local non-authoritative diagnostics and runbook clarity only. Non-goals: no future roadmap implementation, no server-backed verification workflow, no external host execution, no unattended orchestration, and no lifecycle gate semantic changes.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -52,6 +52,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-19T13:37:52.726Z",
+      "branch": "story/B-7adb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:47:28.421Z",
       "branch": "story/B-7adb",
       "user": "Harmonygo",
       "agent": "main"
