@@ -98,7 +98,7 @@
       "desc": "docs/requirements/decisions/host-overflow.md:231-239 now claims the full unattended-dispatch smoke covers host_runtime_probe for claude-code and antigravity/agy and shows npm --prefix packages/main run test:unattended-dispatch-smoke, but packages/main/src/tasks/unattended-dispatch-smoke.ts:299-304 only probes claude-code, packages/main/src/tasks/unattended-dispatch-smoke.ts:498-536 still uses gemini for the real-host refusal path, and packages/main/src/tasks/unattended-dispatch-smoke.ts:995 still summarizes the smoke as claude-code capability probe. Antigravity coverage exists in dispatch-run-smoke/targeted checks, so the doc should either name that smoke or the unattended smoke should be updated before claiming this coverage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T15:43:21.964Z",
@@ -111,7 +111,11 @@
         "packages/main/package.json"
       ],
       "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d8ad967c8: docs/requirements/decisions/host-overflow.md no longer claims unattended-dispatch-smoke covers Antigravity/agy. It now states unattended-dispatch-smoke covers claude-code and legacy Gemini real-host refusal where applicable, while Antigravity/agy coverage lives in dispatch-run-smoke plus targeted host runtime and guard checks. Verified by source rg for dispatch-run-smoke/unattended-dispatch-smoke, doc rg for the corrected coverage text, negative old-overclaim rg, git diff --check, and node bin/lattice.js scope_contract_check pass.",
+      "resolvedAt": "2026-06-19T15:50:11.747Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
