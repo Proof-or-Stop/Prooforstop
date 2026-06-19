@@ -117,7 +117,9 @@ This roadmap story does not:
   prewrite hooks;
 - alter `verificationIntent`, `verificationEvidence`, review-run, finding,
   delivery, validation, summary, or DONE semantics;
-- edit story JSON, runtime metadata, fixture files, or generated test assets;
+- directly edit story JSON by hand, or change product/runtime metadata outside
+  the Lattice workflow (story-scoped provenance under
+  `.lattice/story/actives/B-b5c0/*` is allowed);
 - claim that any future baseline has passed;
 - claim `authorityDone`, `fullAuthorityDone`, `productionDone`,
   `receiptVerified`, or formal capability unlock;
