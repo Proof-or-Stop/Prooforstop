@@ -52,9 +52,9 @@
           "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
           "result": "pass",
           "note": "planner unattended smoke asserts autopilot_review_status without runId preserves default-run top-level fields while exposing allRunIds/allRuns/latestRuns for custom run ids.",
-          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:36.055Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "node packages/main/dist/tasks/planner-unattended-smoke.js",
           "result": "pass",
           "note": "smoke uses summarizeVerdictRuns with a fresh material anchor and verifies stale, duplicate-identity, and failing custom runs remain blocked in per-run summaries.",
-          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:36.223Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/planner-unattended-smoke.js",
           "result": "pass",
           "note": "build and smoke verify added diagnostics remain local-only with authorityDone/fullAuthorityDone/multiHostVerified false for local status.",
-          "headHash": "201c4e17e4dc29a6ac18d62ec6327f97cfdd12e6",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:36.401Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         }
       ]
     },
@@ -130,9 +130,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "review escalation smoke asserts required=false output includes voluntaryLocalRounds 3/3 when local 3x2 verdict rounds were submitted.",
-          "headHash": "304f88aa2bf1de1909cb286ae429ce2ebfc05b25",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:46.870Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "smoke asserts required=false with no host verdicts keeps ok=true and renders voluntaryLocalRounds 0/3 without implying missing required work.",
-          "headHash": "304f88aa2bf1de1909cb286ae429ce2ebfc05b25",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:47.060Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "build and smoke verify voluntaryLocalRounds is diagnostic-only and does not alter ok, required, assuranceLevel, or authority completion flags.",
-          "headHash": "304f88aa2bf1de1909cb286ae429ce2ebfc05b25",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:33:47.267Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         }
       ]
     },
@@ -208,9 +208,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "Smoke passed and asserts DONE failure text names stale host verdicts plus validate, verification_evidence_refresh_stale, and autopilot_review_submit recovery commands.",
-          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:38.940Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,9 +219,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "Smoke passed and asserts many stale ignored verdicts are truncated while the Stale material recovery runbook remains visible.",
-          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:39.133Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -230,9 +230,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "Build and smoke passed; assertions keep stale verdicts non-counting and ensure the runbook does not suggest skip, force DONE, override stale material, or Authority completion.",
-          "headHash": "2a38696e49c09b5d4a9eaeda24785b44154ed6d0",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:39.309Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         }
       ]
     },
@@ -291,9 +291,9 @@
           "command": "rg -n \"Local diagnostic UX|Local Diagnostic UX|Stale material recovery|voluntaryLocalRounds|all-runs/latest-runs|remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Docs grep found the local diagnostic UX sections, stale-material recovery guidance, all-runs/latest-runs and voluntaryLocalRounds wording, plus explicit non-remote-proof and non-completion boundaries.",
-          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:58.180Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -301,9 +301,9 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node packages/main/dist/tasks/planner-unattended-smoke.js",
           "result": "pass",
           "note": "Focused smokes passed in the current worktree: stale recovery guidance, voluntary local 3x2 visibility, and planner/autopilot multi-host verdict diagnostics remained observable.",
-          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:58.371Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -312,9 +312,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js && rg -n \"remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Build, stale recovery smoke, and docs grep passed; docs and tests keep local diagnostic assurance separate from future remote proof, Authority receipt evidence, and completion claims.",
-          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
-          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
-          "timestamp": "2026-06-19T13:34:58.546Z"
+          "headHash": "a4968e58557e7038172dd9bd90604fab93f10c39",
+          "materialHash": "898d76b47e3d4deb8545804af16453d4005c1d9c91bf3665c2e561f5315d35d7",
+          "timestamp": "2026-06-19T13:56:25.726Z"
         }
       ]
     }
