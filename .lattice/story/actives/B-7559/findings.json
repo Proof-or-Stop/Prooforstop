@@ -560,7 +560,7 @@
       "desc": "doc-code-drift: §3.1/3.2/3.3 template cards still show lane, parallelSafe, blockingFor, sharedHotspots under **story_create** headings without any inline caveat that these are NOT story_create CLI fields. The F-024 fix added a NOTE only at §5.1 (line 467-470), but §3.x cards appear ~300 lines earlier with no warning. An implementer reading §3 and copy-pasting the template block will silently discard lane/parallelSafe/blockingFor/sharedHotspots (Zod strips unknown keys: non-strict schema, 0 occurrences in cli-engine.ts schema). The resolvedReason for F-024 overstated the fix: only the §5.1 field list was corrected; the §3.x card presentation was not. Bar stated: zero silent-discard surprises for an implementer — §3.x cards violate this.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T02:49:02.097Z",
@@ -573,7 +573,11 @@
         "packages/main/src/handlers/story-create.ts"
       ],
       "signatureTag": "missing|md|code-drift-template",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in HEAD: the §3.1/§3.2/§3.3 story_create example cards now annotate lane/parallelSafe/blockingFor/sharedHotspots in-place as DERIVED (not story_create flags), so a reader of §3 alone is no longer led to pass silently-discarded flags. Real fields shown: name,title,type,priority,depends,keywords.",
+      "resolvedAt": "2026-06-19T02:52:07.764Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-027",
