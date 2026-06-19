@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T04:55:53.568Z",
       "reviewRunId": "B-02a6:RR-004",
       "_hash": "13558ffcd55d907d0740216873cb252cbdc66e45a7a43b229e94710194bab2e5"
+    },
+    {
+      "id": "B-02a6:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review: no dead code, no type safety issues, no I/O shell isolation violations found. New assertPurgeTombstonesBuriedSafeInitCommit in review-pass-discard-smoke.ts has real assertions covering the buried-init-commit tombstone path end-to-end (commit existence, ancestry, metadata dir removal, clean working tree). validate.commands wiring adds two smoke runs sequentially — no double-run concern since they target different scenarios. safe-init-commit.ts, story-create.ts, worktree.ts, story-metadata-protection.ts all clean: no unused imports, no as-any, no empty catch swallowing errors (all catch blocks return structured results or throw), no shell importing fn.ts.",
+      "createdAt": "2026-06-19T05:09:02.618Z",
+      "reviewRound": "2026-06-19T05:07:35.197Z",
+      "reviewRunId": "B-02a6:RR-006",
+      "_hash": "0fef8ff3c7969f31ce649a512c26f4e089e7fae7a3addd004d179d04b24a9100"
     }
   ]
 }
