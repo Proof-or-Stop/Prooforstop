@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T04:16:19.316Z",
       "reviewRunId": "B-e28c:RR-003",
       "_hash": "1fb790360515d82334333a8d65b1c0dc3b8a8dbbb9efa880c1f2df277ded4eb2"
+    },
+    {
+      "id": "B-e28c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: protected verdict/job-status GETs fail closed without a configured customer key, send Authorization only on the authenticated verdict GET path when configured, policy discovery remains keyless, mutating POST auth behavior is unchanged, and comments now match behavior. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js.",
+      "createdAt": "2026-06-19T04:19:04.494Z",
+      "reviewRound": "2026-06-19T04:16:19.316Z",
+      "reviewRunId": "B-e28c:RR-005",
+      "_hash": "87f306d0390ed1a5d76425df6e2afd5c148ea563653be97e6179a2f786c1515e"
     }
   ]
 }
