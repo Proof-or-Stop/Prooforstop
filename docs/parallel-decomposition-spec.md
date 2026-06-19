@@ -144,8 +144,10 @@ Accepted iff: `G` acyclic, independence invariant holds for every no-path pair (
 
 Three archetypes. Story 0 and Story N+1 are **serial** (`lane: mainline`, `parallelSafe: no`); Stories 1..N are **parallel** (`lane: supporting`, `parallelSafe: yes`). Non-overlap is guaranteed *mechanically* by `scope_contract_set`'s `protectedFiles`/`explicitExcludes` — **not** by `scope_boundary_set`, which carries only the semantic `allowed/excluded` directions consumed by the INIT_CHECK anti-expansion gate. **Both commands are required per story; they write different artifacts.**
 
-- `scope_boundary_set --storyId <id> --allowedScope <semantic dirs>` → `ScopeBoundaryData.allowed/excluded` (INIT_CHECK boundary).
-- `scope_contract_set --storyId <id> --allowedModify … --allowedCreate … --allowedTest … --protectedFiles … --explicitExcludes …` → `ScopeContractData` (the post-diff scope gate; this is where the read-only-contract guarantee actually lives).
+- `scope_boundary_set --storyId <id> --allowedScope <semantic dirs> --userConfirmed=true` → `ScopeBoundaryData.allowed/excluded` (INIT_CHECK boundary).
+- `scope_contract_set --storyId <id> --mode=enforce --allowedModify … --allowedCreate … --allowedTest … --protectedFiles … --explicitExcludes …` → `ScopeContractData` (the post-diff scope gate; this is where the read-only-contract guarantee actually lives).
+
+> **Array-flag syntax (load-bearing).** Every list-valued flag — `--allowedScope`, `--allowedModify`, `--allowedCreate`, `--allowedTest`, `--protectedFiles`, `--explicitExcludes` — takes a **single JSON-array string**, e.g. `--allowedModify '["a.ts","b.ts"]'`. The CLI's `parseFlags` consumes exactly one value per flag and JSON-parses any value beginning with `[`; **space-separated paths after one flag are silently dropped**, and `--protectedFiles ""` is the one-element array `[""]`, *not* empty — use `'[]'` for none. Every command example below follows this convention.
 
 ### 3.0 — The barrel/index ordering decision (load-bearing; read first)
 
@@ -181,13 +183,11 @@ scope_boundary_set --storyId contract-<feature> \
   --allowedScope "<feature> shared interface & skeletons" --userConfirmed=true
 
 scope_contract_set --storyId contract-<feature> --mode=enforce \
-  --allowedModify  "src/<feature>/contract.ts" "src/<feature>/types.ts" \
-                   "src/<feature>/index.ts" "src/<feature>/impl/*.ts" \
-  --allowedCreate  "src/<feature>/contract.ts" "src/<feature>/types.ts" \
-                   "src/<feature>/index.ts" "src/<feature>/impl/*.ts" \
-  --allowedTest    "src/<feature>/contract.test.ts" \
-  --protectedFiles "" \
-  --explicitExcludes "src/<feature>/integration/*"
+  --allowedModify  '["src/<feature>/contract.ts","src/<feature>/types.ts","src/<feature>/index.ts","src/<feature>/impl/*.ts"]' \
+  --allowedCreate  '["src/<feature>/contract.ts","src/<feature>/types.ts","src/<feature>/index.ts","src/<feature>/impl/*.ts"]' \
+  --allowedTest    '["src/<feature>/contract.test.ts"]' \
+  --protectedFiles '[]' \
+  --explicitExcludes '["src/<feature>/integration/*"]'
 ```
 
 **CONTRACT-FREEZE rule + ADDITIVE-amendment lane (the load-bearing invariant):**
@@ -223,11 +223,11 @@ sharedHotspots: []                   # MUST be empty; non-empty ⇒ the split is
 scope_boundary_set --storyId impl-<modK> --allowedScope "implement <modK> module only" --userConfirmed=true
 
 scope_contract_set --storyId impl-<modK> --mode=enforce \
-  --allowedModify  "src/<feature>/impl/<modK>.ts" \
-  --allowedCreate  "src/<feature>/impl/<modK>.test.ts" \
-  --allowedTest    "src/<feature>/impl/<modK>.test.ts" \
-  --protectedFiles "src/<feature>/contract.ts" "src/<feature>/types.ts" "src/<feature>/index.ts" \
-  --explicitExcludes "src/<feature>/integration/*"
+  --allowedModify  '["src/<feature>/impl/<modK>.ts"]' \
+  --allowedCreate  '["src/<feature>/impl/<modK>.test.ts"]' \
+  --allowedTest    '["src/<feature>/impl/<modK>.test.ts"]' \
+  --protectedFiles '["src/<feature>/contract.ts","src/<feature>/types.ts","src/<feature>/index.ts"]' \
+  --explicitExcludes '["src/<feature>/integration/*"]'
 ```
 Note `<modK>.ts` is **modify-only** (Story 0 already created it); the impl story creates only its own test file. Other modules' files are excluded *by omission* from `allowedModify` and enforced by the disjointness of the static check (§4.2); the runtime probe is the backstop.
 
@@ -256,12 +256,11 @@ keywords: [<feature>, integration, wiring, e2e]
 scope_boundary_set --storyId integration-<feature> --allowedScope "wire & e2e-test <feature>" --userConfirmed=true
 
 scope_contract_set --storyId integration-<feature> --mode=enforce \
-  --allowedModify  "src/<feature>/integration/*" \
-  --allowedCreate  "src/<feature>/integration/*" "src/<feature>/integration.e2e.test.ts" \
-  --allowedTest    "src/<feature>/integration.e2e.test.ts" \
-  --protectedFiles "src/<feature>/contract.ts" "src/<feature>/types.ts" \
-                   "src/<feature>/index.ts" "src/<feature>/impl/*.ts" \
-  --explicitExcludes ""
+  --allowedModify  '["src/<feature>/integration/*"]' \
+  --allowedCreate  '["src/<feature>/integration/*","src/<feature>/integration.e2e.test.ts"]' \
+  --allowedTest    '["src/<feature>/integration.e2e.test.ts"]' \
+  --protectedFiles '["src/<feature>/contract.ts","src/<feature>/types.ts","src/<feature>/index.ts","src/<feature>/impl/*.ts"]' \
+  --explicitExcludes '[]'
 ```
 Note the barrel `index.ts` is **protected** here too — it was finalized by Story 0; integration imports through it but does not edit it. If the public entry point genuinely needs a new export, that is an additive Story-0 amendment.
 
@@ -330,14 +329,14 @@ Conditions 1–2 are facts. Condition 3 is a hard block only on the *falsifiable
 The critical correction: **`getGuardFailureReason` is NOT the decision oracle.** `transition-orchestrator.ts:156` warns explicitly: *"Do not use getGuardFailureReason as a decision oracle: it renders human hints and can intentionally fall through to null after config/read failures."* The real PLAN→DEV decision is the XState predicate **`canStartDevGuard`** (`machine.ts`), wired as guard `canStartDev` on the PLAN→DEV transition and consulted via `actor.can()`. Returning a reason from `getGuardFailureReason` would be a **no-op block**.
 
 So enforcement requires **two coordinated edits sharing one predicate** (the established `canEnterInitCheckGuard` + `getGuardFailureReason` pattern):
-1. **DECISION — `canStartDevGuard` (`machine.ts`).** After the existing review-blocker check, call `evaluateDecompositionGate(story, peers, contracts, cfg)`. If it returns a non-null `block` AND `cfg.parallelGate.mode === 'block'`, return `false`. This is what actually aborts the transition through `actor.can()`. Wrap this additive check in its own try/catch returning `true` (**fail-open**, §4.8) — deliberately the *opposite* of the surrounding guard's fail-closed `catch { return false }`, so that a config/read error in the new gate never DoSes an otherwise-legitimate transition. (The guard stays fail-closed overall; only this added sub-check fails open.)
+1. **DECISION — `canStartDevGuard` (`machine.ts`).** After the existing review-blocker check, call `evaluateDecompositionGate(story, peers, contracts, cfg)` where `cfg = resolveAuditConfig(...).parallelGate` (a `ParallelGateConfig`). If it returns a non-null `block` AND `cfg.mode === 'block'`, return `false`. This is what actually aborts the transition through `actor.can()`. Wrap this additive check in its own try/catch returning `true` (**fail-open**, §4.8) — deliberately the *opposite* of the surrounding guard's fail-closed `catch { return false }`, so that a config/read error in the new gate never DoSes an otherwise-legitimate transition. (The guard stays fail-closed overall; only this added sub-check fails open.)
 2. **MESSAGE — `getGuardFailureReason` (`machine.ts`, DEV branch).** Add the matching human-readable branch so the rejection is *explained*. This renders the reason; it does not decide.
 
 Both call the **same** `evaluateDecompositionGate` so decision and message never diverge.
 
 **Detector module — new file** `packages/main/src/core/parallel-decomposition.ts` (pure functions, like `parallel-policy.ts`):
 - `computeWriteSet(contract: ScopeContractData): string[]`
-- `globsOverlap(a: string[], b: string[]): { overlap: boolean; pairs: [string,string][]; broadSide: 'a' | 'b' | 'both' | null }` — `broadSide` names *which* operand carried the broad glob, so §4.8 block messages can cite the offending story (tiers from §4.2)
+- `globsOverlap(a: string[], b: string[]): { overlap: boolean; pairs: [string,string][]; broadSide: 'a' | 'b' | 'both' | null }` — `broadSide` names *which* operand carried the broad glob, so the §4.3 `broad_glob_unprovable_parallel` block message can cite the offending story (tiers from §4.2)
 - `evaluateDecompositionGate(story: StoryInfo, peers: StoryInfo[], contracts: Map<string, ScopeContractData>, cfg: ParallelGateConfig): { advisories: string[]; block: string | null }`
 
 Because `canStartDevGuard(context)` receives only the machine context, the guard must first load the active `peers` (the same `terminalPhases`-filtered set `summarizeParallelPolicy` uses) and their `ScopeContractData` into `contracts`, then pass both in — the gate function itself stays pure.
@@ -386,7 +385,7 @@ Resolution priority inherited from `resolveAuditConfig`: (1) per-field override 
 
 - **Config-load failure ⇒ fail-OPEN (allow).** Any throw in `evaluateDecompositionGate` or config resolution → treat as `mode: 'off'`, allow the transition. A scope analyzer must never DoS legitimate transitions.
 - **"Cannot read MY OWN contract" ⇒ fail-OPEN.** If S's own scope contract is unreadable, allow (can't fairly block a story on its own unreadable data).
-- **"Cannot read a PEER's contract" ⇒ fail-CLOSED toward refusing the *parallel assertion* — NOT silently allow.** The original draft's "unreadable peer ⇒ overlap unprovable ⇒ ADVISE" is a **bypass**: an operator could make one peer contract unreadable to dodge `overlap_declared_parallel`. Corrected behavior: an unreadable peer means independence is **unprovable**, so a `parallelSafe: 'yes'` assertion **cannot be honored** — emit a high-severity advisory and, under `mode: 'block'`, **refuse the parallel assertion** (block with `peer_contract_unreadable_parallel`, remediation: repair the peer contract). This closes the corrupt-peer bypass while still failing open on the gate's *own* infrastructure errors.
+- **"Cannot read a PEER's contract" ⇒ fail-CLOSED toward refusing the *parallel assertion* — NOT silently allow.** The original draft's "unreadable peer ⇒ overlap unprovable ⇒ ADVISE" is a **bypass**: an operator could make one peer contract unreadable to dodge `overlap_declared_parallel`. Corrected behavior: an unreadable peer means independence is **unprovable**, so a `parallelSafe: 'yes'` assertion **cannot be honored** — emit a high-severity advisory and return `peer_contract_unreadable_parallel` as the block reason, which §4.4's caller enforces only under `mode: 'block'` (remediation: repair the peer contract). The gate stays pure — it computes the block reason from scope facts; the `mode` check lives solely in the §4.4 caller, never inside the gate. This closes the corrupt-peer bypass while still failing open on the gate's *own* infrastructure errors.
 - **No active peers ⇒ no-op.** A lone story is trivially parallel-safe (mirrors `summarizeParallelPolicy`).
 - **Block reasons are actionable** — every block string names the colliding storyId, the specific path/glob pair, and the exact remediation command (`scope_contract_set` to narrow `allowedModify`, or `story_create` to split a fake `depends` chain), matching the INIT_CHECK/review remediation convention.
 
@@ -503,9 +502,11 @@ SHARED TYPES / DOMAIN OBJECTS: {{SHARED_TYPES_OR_INFER}}
 
 ## Persist to Lattice
 scope_contract_set --storyId {{S0_ID}} --mode=enforce \
-  --allowedModify {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} {{IMPL_SKELETON_PATHS}} \
-  --allowedCreate {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} {{IMPL_SKELETON_PATHS}} \
-  --protectedFiles "" --explicitExcludes "src/{{FEATURE}}/integration/*"
+  --allowedModify {{S0_WRITESET_JSON}} \
+  --allowedCreate {{S0_WRITESET_JSON}} \
+  --protectedFiles '[]' --explicitExcludes '["src/{{FEATURE}}/integration/*"]'
+# {{S0_WRITESET_JSON}} = one JSON array of contract file(s) + barrel + impl skeletons,
+#   e.g. '["src/<f>/contract.ts","src/<f>/types.ts","src/<f>/index.ts","src/<f>/impl/*.ts"]'
 Do not write behavioral tests — compile/type check only.
 ````
 
@@ -544,8 +545,9 @@ SCOPE: allowedModify={{IMPL_FILE}} allowedCreate={{TEST_FILE}}
 
 ## Persist to Lattice
 scope_contract_set --storyId {{STORY_ID}} --mode=enforce \
-  --allowedModify {{IMPL_FILE}} --allowedCreate {{TEST_FILE}} --allowedTest {{ALLOWED_TEST_GLOBS}} \
-  --protectedFiles {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} --explicitExcludes {{EXPLICIT_EXCLUDES}}
+  --allowedModify {{IMPL_FILE_JSON}} --allowedCreate {{TEST_FILE_JSON}} --allowedTest {{ALLOWED_TEST_GLOBS_JSON}} \
+  --protectedFiles {{CONTRACT_AND_BARREL_JSON}} --explicitExcludes {{EXPLICIT_EXCLUDES_JSON}}
+# every {{..._JSON}} placeholder is a single JSON array string, e.g. '["src/<f>/impl/parser.ts"]'
 (The real scope enforcement is the reviewer's scope_check_save + the PLAN→DEV gate, not this self-check.)
 ````
 
@@ -578,9 +580,10 @@ ENTRYPOINT/WIRING FILE(S): {{ENTRYPOINT_FILES}}    E2E BEHAVIORS: {{ACCEPTANCE_S
 
 ## Persist to Lattice
 scope_contract_set --storyId {{INTEGRATION_STORY_ID}} --mode=enforce \
-  --allowedModify {{INTEGRATION_ALLOWED_MODIFY}} --allowedCreate {{INTEGRATION_ALLOWED_CREATE}} \
-  --allowedTest {{INTEGRATION_ALLOWED_TEST}} \
-  --protectedFiles {{CONTRACT_FILE_PATHS}} {{BARREL_FILE}} "src/{{FEATURE}}/impl/*.ts"
+  --allowedModify {{INTEGRATION_ALLOWED_MODIFY_JSON}} --allowedCreate {{INTEGRATION_ALLOWED_CREATE_JSON}} \
+  --allowedTest {{INTEGRATION_ALLOWED_TEST_JSON}} \
+  --protectedFiles {{INTEGRATION_PROTECTED_JSON}}
+# {{INTEGRATION_PROTECTED_JSON}} = one JSON array of contract file(s) + barrel + "src/{{FEATURE}}/impl/*.ts"
 ````
 
 > 注：四个 prompt 是"流水线相连"而非各自独立——D.1 的输出喂给 D.2–D.4；每个都带"Persist to Lattice"说明哪些字段进 `story_create`、哪些进 `scope_boundary_set`、哪些进 `scope_contract_set`；prompt 里的 self-check 只是文字断言，真正的门是 reviewer 的 `scope_check_save` 加 §4 的 PLAN→DEV gate。
@@ -618,7 +621,7 @@ export interface Writer    { write(rows: Iterable<string>, sink: NodeJS.Writable
 // each impl/<mod>.ts: class declared, methods throw new Error("NotImplemented: …")
 // src/csv/index.ts: re-exports CsvParser, CsvFormatter, CsvWriter from ./impl/*
 ```
-`scope_contract_set --storyId contract-csv --mode=enforce --allowedModify src/csv/contract.ts src/csv/index.ts "src/csv/impl/*.ts" --allowedCreate <same> --protectedFiles "" --explicitExcludes "src/csv/integration/*"`
+`scope_contract_set --storyId contract-csv --mode=enforce --allowedModify '["src/csv/contract.ts","src/csv/index.ts","src/csv/impl/*.ts"]' --allowedCreate '["src/csv/contract.ts","src/csv/index.ts","src/csv/impl/*.ts"]' --protectedFiles '[]' --explicitExcludes '["src/csv/integration/*"]'`
 
 **Step 4 — dependency graph:**
 ```
@@ -701,7 +704,7 @@ Build the gate itself **through the Lattice story workflow** (every code change 
 ### Suggested story breakdown (itself contract-first)
 
 **Story 0 — Contract (SERIAL, first).** Create `packages/main/src/core/parallel-decomposition.ts` with the pure-function **signatures + skeletons** (`computeWriteSet`, `globsOverlap`, `evaluateDecompositionGate` all throwing NotImplemented), the `ParallelGateConfig` type, the new `VALID_PARALLEL_MODES` constant, and the `ParallelDecompositionBlock` reason enum. Also add the `parallelGate` field to the `AuditConfig` interface in `audit-config.ts` (type only, no resolution logic). This freezes the interface every other story imports.
-`scope_contract_set --storyId <S0> --mode=enforce --allowedModify "packages/main/src/core/parallel-decomposition.ts" --allowedCreate <same>` plus a narrowly-scoped touch of `audit-config.ts` for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
+`scope_contract_set --storyId <S0> --mode=enforce --allowedModify '["packages/main/src/core/parallel-decomposition.ts"]' --allowedCreate '["packages/main/src/core/parallel-decomposition.ts"]'` plus a narrowly-scoped touch of `audit-config.ts` for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
 
 **Story 1 — Static overlap engine (PARALLEL).** Implement `computeWriteSet` + `globsOverlap` (literal-path intersection + shared-dir-prefix heuristic + broadness classifier over the defined grammar), and the `scope_contract_set` grammar validator that rejects mid-path `**` / bare `*`. `allowedModify: parallel-decomposition.ts` impl region + a new `parallel-decomposition.test.ts`. depends:[S0] cites `globsOverlap` signature.
 
