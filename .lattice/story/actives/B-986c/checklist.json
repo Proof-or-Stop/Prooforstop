@@ -6,7 +6,16 @@
       "context": "new file core/parallel-decomposition-gate.ts; import computeWriteSet/globsOverlap/classifyBroadness from parallel-decomposition-overlap.js plus types from parallel-decomposition.js; filter active peers via terminalPhases = {DONE, DISCARDED} (reuse parallel-policy.ts); the four block reasons with tier-1 vs tier-2 (advisory) split, broadGlobBlocks config-gating, fake_dependency_chain falsifiable-only, peer_contract_unreadable_parallel",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/parallel-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/parallel-decomposition-gate.ts"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
