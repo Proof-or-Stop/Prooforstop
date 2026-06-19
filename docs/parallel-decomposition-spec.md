@@ -167,9 +167,9 @@ Contains: type/interface/DTO definitions; class names + fully-typed public metho
 ```
 name: contract-<feature>
 title: "Story 0 — Contract: <feature> interfaces, skeletons & barrel"
-type: feature   priority: high   lane: mainline   parallelSafe: no
+type: feature   priority: high          # priority=high ⇒ lane:mainline (DERIVED); parallelSafe:no is COMPUTED — neither is a story_create flag (see §5.1)
 depends: []
-blockingFor: [impl-<mod1>, …, impl-<modN>, integration-<feature>]
+# blockingFor (≈ impl-<mod1>…impl-<modN>, integration-<feature>) is DERIVED — no CLI setter; it is the converse of those stories' depends:[contract-<feature>]
 keywords: [<feature>, contract, interface, skeleton]
 ```
 
@@ -207,11 +207,10 @@ Implements ONE module by filling its skeleton bodies, importing every shared sym
 ```
 name: impl-<modK>
 title: "Story K — Implement <modK> against frozen contract"
-type: feature   priority: medium   lane: supporting   parallelSafe: yes
+type: feature   priority: medium        # priority=medium ⇒ lane:supporting (DERIVED); parallelSafe:yes is COMPUTED once contract-<feature> is DONE — neither is a flag (see §5.1)
 depends: [contract-<feature>]        # justification: imports <Symbols> from contract-<feature>.allowedCreate
-blockingFor: [integration-<feature>]
 keywords: [<feature>, <modK>, impl]
-sharedHotspots: []                   # MUST be empty; non-empty ⇒ the split is wrong
+# blockingFor (≈ integration-<feature>) and sharedHotspots ([], MUST stay empty) are DERIVED, not story_create flags — non-empty sharedHotspots ⇒ the split is wrong
 ```
 
 **background.md:** Context — contract frozen (Story 0 DONE); implement ONLY `<ModKClass>` by filling its skeleton bodies; all shared symbols imported read-only. Goal — implement `<ModKClass>.<methods>` exactly matching frozen signatures; add unit tests in own test file. Non-Goals — do NOT edit `contract.ts`/`types.ts`/`index.ts` (FROZEN); do NOT touch any other module's file; do NOT write integration code; if a signature is wrong, STOP and request a Story-0 amendment (additive) or reopen (breaking) — never work around it locally. Done When — `<ModKClass>` fully implements its frozen signatures, no NotImplemented remains, unit tests pass, `git diff` of frozen files is empty.
@@ -241,9 +240,9 @@ Wires the real modules together; owns end-to-end tests. Cannot start until all o
 ```
 name: integration-<feature>
 title: "Story N+1 — Integrate & integration-test <feature>"
-type: feature   priority: high   lane: mainline   parallelSafe: no
+type: feature   priority: high          # priority=high ⇒ lane:mainline (DERIVED); parallelSafe:no is COMPUTED while impls active — neither is a flag (see §5.1)
 depends: [impl-<mod1>, …, impl-<modN>]   # justification: composes real impls of each module
-blockingFor: []
+# blockingFor: [] — DERIVED (nothing depends on integration); not a story_create flag
 keywords: [<feature>, integration, wiring, e2e]
 ```
 
@@ -318,7 +317,7 @@ Policy:
 
 Evaluated against all **active** peers (reusing the `terminalPhases = {DONE, DISCARDED}` filter from `parallel-policy.ts`):
 
-1. **`overlap_declared_parallel`** — S asserts parallel AND tier-1 literal-path intersection (or tier-2 prefix flag at `block` confidence) with an active peer P also asserting parallel. Names the colliding path pair and peer storyId. *Pure scope fact — safe to hard-block.*
+1. **`overlap_declared_parallel`** — S asserts parallel AND **tier-1 literal-path intersection** (the zero-false-positive tier from §4.2) with an active peer P also asserting parallel. Names the colliding path pair and peer storyId. *Pure scope fact — safe to hard-block.* (A tier-2 shared-prefix match may over-flag, so it is emitted as an **advisory**, never this hard block.)
 2. **`broad_glob_unprovable_parallel`** — S asserts parallel but its write-set contains a BROAD glob. *Pure scope fact, but config-gated (the enforcement path for `broadGlobBlocks`, §4.7):* the gate returns this as a hard block **only when `cfg.broadGlobBlocks` is true** (the `strict` profile); under `light`/`balanced` (`broadGlobBlocks: false`) the same broad glob is emitted as an **advisory**, never a hard block.
 3. **`fake_dependency_chain`** — S declares `depends: [P]` whose cited symbol (§1.3) is **absent** from P's `allowedCreate` contract surface, AND S does not overlap P. This catches a fabricated dependency citing a non-existent symbol. *Fires as a hard block only when the cited symbol is provably absent;* a plausible-but-false citation to a real symbol degrades to ADVISE (semantics undecidable — §1.3 residual).
 
@@ -465,7 +464,7 @@ G. Self-audit (REJECT gate), YES/NO + justification:
 ## Persist to Lattice (for each story your plan emits)
 - story_create  → name,title,description,type,priority,depends,keywords,checklist,background
   (NOTE: `lane`, `parallelSafe`, `blockingFor`, `sharedHotspots` are **NOT** `story_create` flags — they are DERIVED, not set:
-   `lane` ← `priority` via `resolveStoryLane` (high→mainline, medium→supporting, low/else→exploratory) — choose `priority` to get the lane you want;
+   `lane` ← `priority` via `resolveStoryLane` (critical/high→mainline, medium→supporting, low/else→exploratory) — choose `priority` to get the lane you want;
    `parallelSafe` ← computed by `resolveParallelSafety` from `depends`/`blockingFor`/`sharedHotspots` — never set directly;
    `blockingFor` has no CLI setter — it is the converse of another story's `depends`; `sharedHotspots` defaults to `[]`. Passing `--lane`/`--parallelSafe`/`--blockingFor` to `story_create` is silently discarded.)
 - scope_boundary_set --storyId <id> --allowedScope "<semantic direction>" --userConfirmed=true   (INIT_CHECK boundary)
