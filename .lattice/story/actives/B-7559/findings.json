@@ -93,7 +93,7 @@
       "desc": "dangling-cross-ref: §4.4 says \"fail-open, §4.7\" but the fail-open/fail-closed policy is actually in §4.8 — line 333 in §4.4 writes \"Wrap in try/catch returning true (fail-open, §4.7)\" but §4.7 is the Config validation set section; the failure-mode guardrails including the fail-open rule are defined in §4.8. The §4.7 reference sends readers to the wrong section for the cited behavior.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T01:53:16.953Z",
@@ -104,7 +104,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|dangling-cross-says",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: §4.4 fail-open reference corrected from §4.7 to §4.8 (failure-mode guardrails).",
+      "resolvedAt": "2026-06-19T02:05:04.008Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-006",
