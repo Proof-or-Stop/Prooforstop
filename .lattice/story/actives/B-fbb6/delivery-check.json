@@ -1,0 +1,91 @@
+{
+  "storyId": "B-fbb6",
+  "checkedAt": "2026-06-19T18:37:00.137Z",
+  "reviewRound": "2026-06-19T18:28:46.199Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md#real-subprocess-contract",
+      "promise": "F-004: host-overflow.md updated to reflect antigravity supervised real-leaf agy dispatch path and unattended-refused posture; gemini references replaced",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows both paragraph updates: old 'Gemini is retained only for deprecated legacy compatibility' replaced with antigravity supervised real-leaf agy dispatch path text; dispatch_auto refusal for antigravity documented; not-does section updated to scope-qualified wording that exempts supervised dispatch_run"
+    },
+    {
+      "docPath": "package.json#scripts",
+      "promise": "F-001: package.json script renamed from test:usage-ledger-codex-gemini to test:usage-ledger-codex-antigravity",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff package.json shows line change from test:usage-ledger-codex-gemini to test:usage-ledger-codex-antigravity pointing to usage-ledger-codex-antigravity-smoke.js"
+    },
+    {
+      "docPath": "packages/main/src/providers/antigravity-cli.ts",
+      "promise": "Provider renamed: gemini-cli.ts -> antigravity-cli.ts; binary agy; print mode; reportedUsage never set (agy exposes no per-call usage metadata)",
+      "verifiedBy": "diff/grep",
+      "evidence": "New file antigravity-cli.ts with ANTIGRAVITY_CLI_BINARY='agy', antigravityCliAvailable, runBoundedAntigravityProvider. Comment states reportedUsage intentionally never set. providers/ listing confirms gemini-cli.ts absent. grep for geminiCliAvailable/runBoundedGeminiProvider/GEMINI_CLI_BINARY in packages/main/src returns zero matches"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/adapters/gemini.ts (deleted)",
+      "promise": "Gemini-API usage adapter deleted; assemble.ts ProviderName trimmed to anthropic|openai; no antigravity adapter needed",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows gemini.ts deleted. assemble.ts diff removes adaptGeminiUsage import and drops gemini from ProviderName union. adapters/ listing: only anthropic.ts, openai.ts, shared.ts remain. grep adaptGeminiUsage in packages/main/src = zero matches"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/streaming.ts",
+      "promise": "Dead stream function extractGeminiStreamUsage and GeminiStreamChunk interface deleted",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff streaming.ts shows 46-line deletion of GeminiStreamChunk and extractGeminiStreamUsage. Import of adaptGeminiUsage/GEMINI_PROVIDER_UNITS also removed"
+    },
+    {
+      "docPath": "packages/main/src/core/capabilities.ts",
+      "promise": "Legacy gemini host retired: buildLegacyGeminiProfile deleted; capability_probe no longer falls back to gemini",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff capabilities.ts shows buildLegacyGeminiProfile (22 lines) deleted and the gemini fallback line in buildCapabilityProbe removed. Tests assert retiredGeminiProbe resolves to unknown/fallback"
+    },
+    {
+      "docPath": "packages/main/src/core/dispatch-policy.ts + lattice-dispatch.ts",
+      "promise": "Legacy gemini host retired: LEGACY_KNOWN_HOSTS emptied; HostRuntimeId drops gemini; host_runtime_probe rejects gemini",
+      "verifiedBy": "diff/grep",
+      "evidence": "dispatch-policy.ts: LEGACY_KNOWN_HOSTS=[] was ['gemini']; normalizeDispatchHostId drops gemini branch. lattice-dispatch.ts: HostRuntimeId drops 'gemini'; REAL_HOST_CLI loses gemini; probeGeminiCapabilities deleted (50 lines); supportsLiveDispatch no longer includes gemini. dispatch-run-smoke tests assert host_runtime_probe throws on 'gemini'"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+      "promise": "recordDispatchFinalForProvider provider param changed to openai|antigravity; antigravity always writes source=unavailable with clear reason",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff dispatch-usage.ts: provider type changed to 'openai'|'antigravity'. New early-return block for provider==='antigravity' calls buildUnavailableFinalRecord with reason 'antigravity (agy) print mode does not surface per-call token usage' before reaching buildProviderRecord"
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json",
+      "promise": "Smoke manifest entry renamed from provider-gemini to provider-antigravity",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff smoke-manifest.json shows name changed from provider-gemini to provider-antigravity"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "provider-antigravity-smoke.ts (153 lines): exercises antigravityCliAvailable true/false/no-PATH, real spawn digest+bytes capture, raw-never-surfaced leakage invariant, label= stderr model parse, stdin-closed, non-zero exit, missing binary spawnError, timeout; reportedUsage asserted undefined in all cases. Suite: 176/180 pass per transcript-diff.md"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "dispatch-run-smoke.ts: runAntigravityRealLeafDispatch routing, agy argv (--print/--print-timeout), host_runtime_probe throws on gemini (retired), receipt binds host=antigravity, pack does not use codex wording. unattended-dispatch-smoke.ts CHK-008: uses antigravity, asserts unattended-refused. Suite: 176/180 pass"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "usage-ledger-adapter-smoke.ts: 7 gemini adapter cases removed; anthropic+openai cases pass. usage-ledger-codex-antigravity-smoke.ts (893 lines): recordDispatchFinalForProvider(antigravity) always source=unavailable with antigravity-specific reason; runBoundedAntigravityProvider never sets reportedUsage; static import boundary asserted. Suite: 176/180 pass"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "capability-list-smoke.ts: retiredGeminiProbe resolves unknown/fallback, absent from host list. host-guard-matrix-smoke.ts: gemini->watcher-fallback even with viaDispatch=true; GUARD_WRAPPED_PREAPPLY_PROVIDERS excludes gemini; capability_probe(gemini)=unknown/fallback. Suite: 176/180 pass"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Cross-coverage from dispatch-run-smoke and unattended-dispatch-smoke: antigravity stays refused for dispatch_auto (unattended-refused posture preserved), supervised real-leaf agy path exercised under dispatch_run. Suite: 176/180 pass"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises verified from diff: provider renamed (gemini-cli.ts->antigravity-cli.ts, binary agy, no usage extraction), Gemini API adapter deleted (adapters/gemini.ts, streaming dead fn, assemble.ts wiring), legacy gemini host retired (buildLegacyGeminiProfile deleted, LEGACY_KNOWN_HOSTS emptied, host_runtime_probe rejects gemini), host-overflow.md updated for supervised real-leaf path and unattended-refused posture, package.json script renamed. 5 feature items all covered with happy+edge+adversarial cases; 176/180 suite pass. Usage-ledger invariants preserved: antigravity always source=unavailable, reportedUsage never set, zero-cross-module-import maintained. No unresolved TODOs in non-test code."
+  },
+  "_hash": "b19d6f92e36a36e08464ef9b2e1682e3344943e4541dc89948c51c50c1ecd26b"
+}
