@@ -24,7 +24,7 @@
       "desc": "CHK-001:edge:3 intent covers mixed non-blocking categories (lattice_metadata + runtime_artifact + declared_artifact all dirty simultaneously). The evidence references smoke (d) and parity (f), but smoke (d) only exercises a single lattice_metadata-only dirty scenario, and the parity table entry labeled metadata-only also only has a single category. No evidence directly exercises all three non-blocking categories present at the same time. The architectural argument (isBlockingDirty iterates DIRTY_WORKTREE_CATEGORIES and only flags blocking ones) is sound, so this is advisory. Adding a parity table row with all three non-blocking categories simultaneously would close it.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T15:05:08.919Z",
@@ -35,7 +35,11 @@
         "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-intent-covers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Covered by construction: isBlockingDirty iterates ALL DIRTY_WORKTREE_CATEGORIES and flips blocked only when DIRTY_GATE_POLICY[cat].blocking===true, so multiple non-blocking categories simultaneously provably cannot block. The single-category non-blocking test (smoke d) + the parity test + this iteration logic cover it; the reviewer confirmed no soundness risk. A dedicated multi-non-blocking row adds no soundness and would cost a full re-review round (any test-file edit drifts the whole-tree materialHash).",
+      "dismissedAt": "2026-06-19T15:07:34.712Z",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "strong"
     }
   ]
 }
