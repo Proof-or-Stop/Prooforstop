@@ -35,6 +35,24 @@
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-003",
+      "desc": "dangling-cross-ref: §4.5 reference misleading — line 65 in Step 2 (Section 2) says \"see §4.5 / §7-F4\" for the point that actualFileOverlapsByStory() cannot produce meaningful results pre-DEV, but §4.5 (The one new schema field) covers schema field placement for depends/dependsMeta and says nothing about pre-DEV probe semantics. The only relevant material on this topic is in §4.2 and the F4 row in Section 7.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T01:53:10.791Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-003",
+      "_hash": "26a82af4699bd3901d4b89b530f7d7ddab47c7881baed035f570c4c9b8551f33",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|dangling-cross-reference",
+      "signatureTagSource": "auto"
     }
   ]
 }
