@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-57b5:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: cli-engine now delegates story_create, INIT_CHECK story_advance, and recover_evidence to extracted dispatch modules while preserving the prior lifecycle order. INIT_CHECK still runs the full guard before dev_start, persists phase after successful bootstrap, commits bounded metadata on main, and merges main into the story worktree; recover_evidence still prints structured refused/fail output before throwing. No Authority Server production-completion claim or unrelated lifecycle/gate semantic drift found.",
+      "createdAt": "2026-06-19T19:06:58.193Z",
+      "reviewRound": "2026-06-19T19:03:54.687Z",
+      "reviewRunId": "B-57b5:RR-002",
+      "_hash": "2d2465c63ccc98c38096931801a4b962528f909ae80f424b3fcd5cb4aeb29274"
+    }
+  ]
+}
