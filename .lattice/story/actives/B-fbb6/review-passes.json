@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T18:22:07.640Z",
       "reviewRunId": "B-fbb6:RR-006",
       "_hash": "20bcceaee594e43807fdd64a4875314039df344993f9d26c3838b9939f245e0b"
+    },
+    {
+      "id": "B-fbb6:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 re-verification complete. F-004 fix confirmed: host-overflow.md now correctly describes antigravity as carrying the supervised real-leaf agy dispatch path (dispatch_run + allowRealHostSubprocess) while staying refused for unattended dispatch_auto; non-goals section scoped to the unattended dispatch_auto path; zero gemini references remain. F-005 fix confirmed: dispatch-policy.ts lines 258-260 and 408-410 now read scoped wording noting that antigravity has a supervised real-leaf agy path via dispatch_run but stays refused for unattended dispatch_auto; zero gemini references remain. Functional correctness re-verified: dispatch-run-smoke (chk006 antigravity refusal), unattended-dispatch-smoke (chk008 antigravity refusal), provider-antigravity-smoke, and usage-ledger-codex-antigravity-smoke all pass. No new blockers found.",
+      "createdAt": "2026-06-19T18:24:20.906Z",
+      "reviewRound": "2026-06-19T18:22:07.640Z",
+      "reviewRunId": "B-fbb6:RR-008",
+      "_hash": "722c624ce5c8c2df35ddd8ddb0f7b420c742ffb85af3383bce9f9170ef0f6c1a"
     }
   ]
 }
