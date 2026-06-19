@@ -23,6 +23,10 @@ import {
   formatReviewEscalationFailure,
 } from './review-escalation.js';
 import {
+  evaluateReviewAssuranceFloor,
+  formatReviewAssuranceFloorFailure,
+} from './review-assurance-floor.js';
+import {
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
   storedScopeFreezeDiscardMitigations,
@@ -423,6 +427,13 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
     store: context.store,
   });
   if (!reviewEscalation.ok) return false;
+
+  const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
+    projectRoot: context.projectRoot,
+    storyId: context.storyId,
+    store: context.store,
+  });
+  if (!reviewAssuranceFloor.ok) return false;
 
   return true;
 }
@@ -854,6 +865,15 @@ export function getGuardFailureReason(
     });
     if (!reviewEscalation.ok) {
       return formatReviewEscalationFailure(reviewEscalation);
+    }
+
+    const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
+      projectRoot: projectRoot ?? process.cwd(),
+      storyId,
+      store,
+    });
+    if (!reviewAssuranceFloor.ok) {
+      return formatReviewAssuranceFloorFailure(reviewAssuranceFloor);
     }
   }
 

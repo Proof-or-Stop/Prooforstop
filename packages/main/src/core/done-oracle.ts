@@ -43,6 +43,10 @@ import {
   evaluateReviewEscalation,
   formatReviewEscalationFailure,
 } from './review-escalation.js';
+import {
+  evaluateReviewAssuranceFloor,
+  formatReviewAssuranceFloorFailure,
+} from './review-assurance-floor.js';
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
@@ -730,6 +734,30 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       hint: escalation.ok ? 'review escalation satisfied or not required' : formatReviewEscalationFailure(escalation),
       source: 'findings.json + process-events.jsonl:host_verdict',
       blocking: escalation.required && !escalation.ok,
+    }));
+  }
+
+  // 6e. review assurance floor. This is intentionally separate from the
+  // first-round finding escalation predicate above: ordinary material code
+  // diffs need at least one fresh local review round, while failure-signal code
+  // diffs need the sticky 3x1 local floor.
+  {
+    const floor = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      gitCwd,
+      storyId,
+      store,
+    });
+    rows.push(doneCheckRow({
+      id: 'review-assurance-floor',
+      status: floor.ok ? 'pass' : 'fail',
+      label: 'Review assurance floor',
+      detail: floor.required
+        ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}`
+        : `not required; material code paths ${floor.materialCodePaths.length}`,
+      hint: floor.ok ? 'review assurance floor satisfied or not required' : formatReviewAssuranceFloorFailure(floor),
+      source: 'git diff main...HEAD + process-events.jsonl:host_verdict',
+      blocking: floor.required && !floor.ok,
     }));
   }
 

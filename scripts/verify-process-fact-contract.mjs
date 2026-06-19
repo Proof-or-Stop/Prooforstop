@@ -265,6 +265,12 @@ const requiredRuntimeEntries = [
     owner: 'core/review-escalation',
     line: '- runtime:review_escalation_done_gate [L4] owner=core/review-escalation gate=storyMachine.canFinish DONE review escalation gate',
   },
+  {
+    name: 'runtime:review_assurance_floor_done_gate',
+    level: 'L4',
+    owner: 'core/review-assurance-floor',
+    line: '- runtime:review_assurance_floor_done_gate [L4] owner=core/review-assurance-floor gate=storyMachine.canFinish DONE review assurance floor gate',
+  },
 ];
 const requiredFlowFactPolicies = [
   {
@@ -1621,7 +1627,10 @@ function processFactKindForCommand(name, level, kindByCommand) {
 
 function processFactSemanticsForCommand(name, level, semanticsByCommand) {
   const semantics = new Set(semanticsByCommand.get(name) || []);
-  if (name.startsWith('runtime:')) semantics.add('runtime-behavior');
+  if (name.startsWith('runtime:')) {
+    semantics.add('runtime-behavior');
+    if (name === 'runtime:review_assurance_floor_done_gate') semantics.add('host-verdict');
+  }
   if (level === 'L4') semantics.add('gate-evidence');
   if (semantics.size === 0) semantics.add('command');
   return [...semantics].sort();
@@ -1634,6 +1643,7 @@ function parseProcessFactRegistry() {
   for (const token of [
     'PROCESS_FACT_REGISTRY',
     'PROCESS_FACT_REQUIRED_SEMANTICS',
+    'PROCESS_FACT_RUNTIME_SEMANTICS',
     'PROCESS_FACT_FLOW_POLICIES',
     'PROCESS_FACT_SIGNED_ARTIFACTS',
     'PROCESS_FACT_REQUIRED_ARTIFACTS',
@@ -2070,6 +2080,63 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
       assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
     }
     assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+  }
+}
+
+function assertReviewAssuranceFloorContract(registry, levelRegistry) {
+  const runtimeName = 'runtime:review_assurance_floor_done_gate';
+  const levelEntry = levelRegistry.get(runtimeName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required review assurance floor runtime fact missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(levelEntry.owner === 'core/review-assurance-floor', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
+    assert(levelEntry.gateConsumer === 'storyMachine.canFinish DONE review assurance floor gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
+    assert(/material code diffs|3x1|authorityDone|productionDone/i.test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name material floor, 3x1, and no-overclaim boundary`);
+  }
+
+  const registryEntry = registry.get(runtimeName);
+  assert(registryEntry, `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${runtimeName}`);
+  if (registryEntry) {
+    assert(registryEntry.kind === 'runtime-behavior', `${processFactRegistryPath}: ${runtimeName} kind must stay runtime-behavior`);
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${runtimeName} must stay L4`);
+    assert(registryEntry.semantics.includes('runtime-behavior'), `${processFactRegistryPath}: ${runtimeName} missing runtime-behavior semantic`);
+    assert(registryEntry.semantics.includes('host-verdict'), `${processFactRegistryPath}: ${runtimeName} missing host-verdict semantic`);
+    assert(registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${runtimeName} missing gate-evidence semantic`);
+    assert(registryEntry.consumerGate === 'storyMachine.canFinish DONE review assurance floor gate', `${processFactRegistryPath}: ${runtimeName} consumerGate drifted`);
+  }
+
+  const evaluatorText = read('packages/main/src/core/review-assurance-floor.ts');
+  for (const token of [
+    'evaluateReviewAssuranceFloor',
+    'formatReviewAssuranceFloorFailure',
+    'REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS = 3',
+    'authorityDone: false',
+    'fullAuthorityDone: false',
+    'productionDone: false',
+    'markdown documentation',
+    'evaluateHostVerdictRounds',
+  ]) {
+    assert(evaluatorText.includes(token), `packages/main/src/core/review-assurance-floor.ts: required review assurance floor token missing: ${token}`);
+  }
+
+  const doneOracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(doneOracleText.includes("id: 'review-assurance-floor'"), 'packages/main/src/core/done-oracle.ts: DONE checklist must contain separate review-assurance-floor row');
+  assert(doneOracleText.includes('evaluateReviewAssuranceFloor'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume review assurance floor evaluator');
+
+  const machineText = read('packages/main/src/core/machine.ts');
+  assert(machineText.includes('evaluateReviewAssuranceFloor'), 'packages/main/src/core/machine.ts: canFinish guard must consume review assurance floor evaluator');
+  assert(machineText.includes('formatReviewAssuranceFloorFailure'), 'packages/main/src/core/machine.ts: DONE guard failure reason must render review assurance floor diagnostics');
+
+  const smokeText = read('packages/main/src/tasks/review-assurance-floor-smoke.ts');
+  for (const token of [
+    'zero-review material code is blocked',
+    'one fresh local review round passes clean material code',
+    'docs-only markdown is not overblocked',
+    'failure signals require sticky 3x1 local rounds',
+    'authorityDone',
+    'productionDone',
+  ]) {
+    assert(smokeText.includes(token), `packages/main/src/tasks/review-assurance-floor-smoke.ts: required smoke assertion text missing: ${token}`);
   }
 }
 
@@ -3119,6 +3186,7 @@ function assertProcessFactCommandInventory() {
       `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
     );
   }
+  assertReviewAssuranceFloorContract(registry, levelRegistry);
 
   for (const expected of requiredControlledMutationEntries) {
     const actual = levelRegistry.get(expected.name);
