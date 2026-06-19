@@ -268,9 +268,9 @@
         "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T04:14:11.707Z",
-      "endTime": null,
+      "endTime": "2026-06-19T04:29:59.129Z",
       "userSees": "Expected acknowledgement output includes \"headHash:\", \"materialHash:\", \"assurance: acknowledged-expansion\", and the next scope check keeps the path under \"acknowledgedPaths\" with status \"warn\".",
       "files": {
         "modify": [
@@ -535,6 +535,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Lifecycle artifact/path classification hardening implemented, tested, and evidenced."
+    },
+    {
+      "timestamp": "2026-06-19T04:29:59.129Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Structured scope drift acknowledgement and fallback behavior implemented, tested, and evidenced."
     }
   ]
 }
