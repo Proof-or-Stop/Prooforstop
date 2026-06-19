@@ -1,0 +1,29 @@
+{
+  "storyId": "B-5a9a",
+  "name": "per-story-files-hash-material-drift",
+  "title": "Add a secondary storyFilesHash so unrelated main merges stop staling a story's bindings",
+  "description": "Root-cause fix for the recurring re-establish-after-unrelated-merge churn: keep the whole-tree materialHash, but ADD a secondary storyFilesHash (story's own changed files vs merge-base main). Bindings stay valid while storyFilesHash is unchanged; whole-tree drift downgrades from instant-reject to a re-attestation-REQUIRED warning (never silent rebind, never story-diff-only). Load-bearing soundness work; decision-doc first.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "materialhash",
+    "escalation",
+    "evidence-freshness",
+    "review",
+    "soundness"
+  ],
+  "createdAt": "2026-06-19T20:24:47.529Z",
+  "startedAt": "2026-06-19T20:24:47.529Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T20:24:47.529Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

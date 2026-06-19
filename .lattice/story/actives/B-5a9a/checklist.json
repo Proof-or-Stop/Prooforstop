@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decision-doc: design the secondary storyFilesHash + whole-tree-drift downgrade semantics",
+      "context": "Via the decision-doc flow: (a) storyFilesHash = sha over the storys own changed files vs merge-base main (reuse changedFilesBetween / scope-contract diff); (b) new validity rule -- bindings stay valid while storyFilesHash unchanged; (c) whole-tree drift downgraded from instant-reject to a re-attestation-REQUIRED warning (NOT silent rebind, NOT story-diff-only); (d) soundness rationale (why story-diff-only misses transitive deps) + which bindings adopt the secondary signal (review-run, escalation verdicts/fallback, verification evidence).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement storyFilesHash computation + thread it as a secondary binding signal",
+      "context": "Compute storyFilesHash from the storys changed files vs merge-base main and record it ALONGSIDE materialHash on review runs, escalation verdicts/fallback, and verification evidence. Keep the whole-tree materialHash byte-unchanged and continue recording it (no inference, no removal). Preserve the usage-ledger/host-independence zero-cross-module-import invariants.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Gate semantics: valid while storyFilesHash unchanged; whole-tree drift -> re-attestation warning + smoke",
+      "context": "Change the freshness/escalation evaluators so a binding is VALID when storyFilesHash matches even if the whole-tree materialHash drifted; surface whole-tree drift as a re-attestation-REQUIRED warning (never silent rebind). Smoke: an unrelated main merge leaving the storys own files unchanged keeps bindings valid (warning only); a change to the storys own files still invalidates and requires re-attestation; existing strict whole-tree behavior remains available.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
