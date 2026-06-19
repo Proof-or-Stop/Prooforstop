@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 51 个文件
+> 52 个文件
 
 ## decisions
 
@@ -47,6 +47,7 @@
 - [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)
 - [Review Run Start Workspace Diagnostics Execution Plan](decisions/review-run-start-workspace-diagnostics-execution-plan.md)
 - [Review Run Start Signed Workspace Resolution Execution Plan](decisions/review-run-start-signed-workspace-resolution-execution-plan.md)
+- [Review Assurance Floor Execution Plan](decisions/review-assurance-floor-execution-plan.md)
 - [Missing Scope Check Guidance Execution Plan](decisions/scope-check-missing-guidance-execution-plan.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)
 - [testIntent 对抗审查体系](decisions/test-intent-review.md)
