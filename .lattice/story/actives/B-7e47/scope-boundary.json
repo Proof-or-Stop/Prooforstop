@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7e47",
+  "mode": "custom",
+  "allowed": [
+    "Authority gate request type/schema for materialOverlapAudit",
+    "authority-live-python-e2e-smoke DONE preflight request shape",
+    "Generated packages/main/dist output and package version/build artifacts if required by CLI behavior change",
+    "Signed gate evaluate DONE/enforce envelope construction",
+    "Targeted regression tests for schema/envelope/live-smoke request preservation"
+  ],
+  "excluded": [
+    "Broad lifecycle state machine rewrite",
+    "Changing receipt verification or local gate consumption semantics beyond this materialOverlapAudit precondition",
+    "Multi-tenant API key or identity administration",
+    "New checks or commands material-overlap submission contracts",
+    "Server endpoint changes"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Refined scope boundary after INIT_CHECK freeze rejected the broad excluded keyword Authority. Authority CLI work is in-scope; server endpoint changes and new checks/commands are excluded.",
+  "createdAt": "2026-06-19T18:45:58.267Z",
+  "updatedAt": "2026-06-19T18:45:58.267Z",
+  "_hash": "7d8af40e9875eb408463901812ff9a1d4d77e473ad75f065e63d8a39b0fb49a9"
+}

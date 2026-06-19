@@ -27,6 +27,7 @@ import {
   type PlannedStepsExecutionResult,
 } from './planned-steps-executor.js';
 import type { AuthorityGateDecision } from './authority-client.js';
+import type { MaterialOverlapAuditContract } from './authority-contracts.js';
 import {
   evaluateAuthorityCompletion,
   completionToFinalizeInput,
@@ -702,6 +703,8 @@ export interface ConsumeClaimedAuthorityJobOptions {
   authorityGate?: AuthorityGateEvaluator;
   /** Resolved gate decision paired with authorityGate, for completion receipt refs. */
   gateDecision?: AuthorityGateDecision;
+  /** Material-overlap audit paired with authorityGate so the executor gate digest matches the signed gate request. */
+  materialOverlapAudit?: MaterialOverlapAuditContract;
 }
 
 export interface ConsumeClaimedAuthorityJobResult {
@@ -874,6 +877,7 @@ export function consumeClaimedAuthorityJob(
     maxSteps: options.maxSteps,
     ...(options.authorityGate ? { authorityGate: options.authorityGate } : {}),
     ...(options.authorityGate ? { gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan) } : {}),
+    ...(options.materialOverlapAudit ? { materialOverlapAudit: options.materialOverlapAudit } : {}),
   });
 
   let finalPhase: string | null = null;

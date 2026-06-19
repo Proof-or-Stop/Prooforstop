@@ -1,0 +1,73 @@
+{
+  "storyId": "B-7e47",
+  "checkedAt": "2026-06-19T18:50:33.795Z",
+  "features": [
+    {
+      "feature": "Add materialOverlapAudit to CLI gate request contract/schema with changedFiles and actualFileOverlaps",
+      "covered_by": "plan_get CHK-001 steps 1-3; checklist_get CHK-001 context; understanding_get task/outcome",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Include materialOverlapAudit in the signed DONE gate envelope before signing, preserving non-empty actualFileOverlaps",
+      "covered_by": "plan_get CHK-002 steps/verify; checklist_get CHK-002 context; decision_get chosen option A and preMortem scenarios 1-3",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Update live Python E2E smoke request shape with minimal no-overlap materialOverlapAudit",
+      "covered_by": "plan_get CHK-003 steps/verify; checklist_get CHK-003 context; understanding_get facts minimal no-overlap payload",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Add targeted regression tests/build/validation evidence for schema, envelope, smoke request shape, and overlap preservation",
+      "covered_by": "plan_get CHK-004 and CHK-005; checklist_get CHK-004 and CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Server endpoint changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get constraints keep POST /v1/gates/evaluate; understanding_get constraints do not add server endpoints; decision_get option B rejected",
+      "source": "PLAN exclusions"
+    },
+    {
+      "feature": "New /v1/checks or /v1/commands material-overlap contracts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get constraints do not add /v1/checks or /v1/commands paths; checklist_get CHK-001 context; decision_get preMortem scenario 4",
+      "source": "PLAN exclusions"
+    },
+    {
+      "feature": "Multi-tenant admin work",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding_get constraints implement only the real correctness gap; plan_get goal/constraints narrow Authority DONE audit submission fix",
+      "source": "PLAN exclusions"
+    },
+    {
+      "feature": "Broad lifecycle rewrite or receipt/gate consumption redesign",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get constraints preserve receipt verification and lifecycle gate consumption semantics; understanding_get constraints no broader lifecycle rewrite; decision_get principles fix only observed DONE gate gap",
+      "source": "PLAN exclusions"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8fb5072b76e9141b0af1bb8f40ddc989220fa9dfbce5ae6358f9fd724ef63889",
+  "openQuestions": []
+}

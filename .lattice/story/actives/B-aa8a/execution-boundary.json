@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-aa8a",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "lattice validate --story=B-aa8a",
+    "node packages/main/dist/tasks/version-bump-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/dist",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story code touches done-effects.ts + new core/version-bump.ts + new smoke + config registration. The 3 version files are RUNTIME bump targets, not story-code edits (blocked here).",
+  "createdAt": "2026-06-19T19:25:28.379Z",
+  "updatedAt": "2026-06-19T19:25:28.379Z",
+  "_hash": "16b294aa9fd2232e63bd49e89bc614f90fca6dc91aa83e21a2e1b79270b09ce3"
+}

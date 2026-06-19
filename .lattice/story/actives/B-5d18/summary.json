@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5d18",
+  "changes": "validation-executor.ts: runValidationCommand always arms a per-command wall-clock timeout (resolveCommandTimeoutMs = explicit timeoutMs else DEFAULT 240000) and on timeout kills the whole process group (POSIX detached + process.kill(-pid) SIGTERM->SIGKILL; Windows taskkill /t /f guarded by .on('error')->child.kill), attributing exit 124 whenever timedOut. lattice.config.json: build pinned to timeoutMs=290000, two slow smokes to 180000, and validate-command-timeout-smoke registered. New 18-assertion smoke proves kill/fast-pass/default-arming/process-group-reap.",
+  "usage": "Run 'lattice validate'. A hung validate command now fails loud (exit 124, attributed to that command) at its per-command ceiling instead of the cli-engine ~300s global idle watchdog silently force-exiting the whole suite. Override per command via lattice.config.json validate.commands[].timeoutMs.",
+  "expectedOutcome": "lattice validate passes all 6 commands; a hung command is killed at its ceiling with code 124 and timedOut=true in roughly timeoutMs wall-clock, not left to the 300s global watchdog.",
+  "actualTranscript": "lattice validate -> 6/6 green (incl. validate-command-timeout smoke: 18 assertions). Live demo-hung {code:124,timedOut:true,wallMs:550} at timeoutMs=500; default-arming {code:124,timedOut:true} with no explicit timeoutMs; resolveMainRepoRoot(os.tmpdir()) returns the tmp path (isolated:true). validate --story coverage 6/6, missingRequired=0.",
+  "outcomeDiff": "None — actual matches expected on every point.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Windows process-tree kill uses taskkill /t /f (best-effort, guarded against an unhandled-error crash; not runtime-exercised on this darwin host). POSIX process-group path fully exercised. Otherwise none — fully covered.",
+  "pitfalls": "Genuine dual-host review was essential: Codex (host 2) round-1 caught the process-group MAJOR (direct-child-only kill let npm/sh grandchildren survive and hang 'close'); Claude caught the win32 124-contract MAJOR and the taskkill unhandled-error crash (F-001). 4 review rounds to converge. Tooling: perl 'alarm' does NOT survive exec() on macOS, so wrap 'codex exec' in perl fork+alarm (or the Bash timeout) to actually bound it; never pipe codex through '| tail' (buffers until EOF, hides progress/hangs). Evidence freshness drifts after every metadata commit — re-bind + 'validate --story' right before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 7312068
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1424
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 191225
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 841249
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 5522201
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 379779
+    }
+  },
+  "totalDurationMs": 14248690,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T18:57:31.551Z",
+  "updatedAt": "2026-06-19T18:57:31.551Z"
+}

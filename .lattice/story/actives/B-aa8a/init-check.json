@@ -1,0 +1,37 @@
+{
+  "storyId": "B-aa8a",
+  "checkedAt": "2026-06-19T19:23:46.039Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json has priority=high but neither the title (\"Auto-bump patch version on DONE merge to local main (sync 3 version points)\") nor the description contains any of the canonical riskSignals keywords (auth/password/token/migration/destructive/state machine/guard/gate/git restore/reset/production/incident/hotfix/PII/GDPR/breaking change), and no riskSignals field exists in index.json. The description mentions \"main write-lock\" and \"DONE post-merge effect\" which carry gate-adjacent semantics, but no literal keyword match is present. Advisory: consider adding riskSignals or confirming this is a user-explicit high priority."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T19:23:19.100Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Consider adding a user-visible log line during DONE merge that confirms the auto-bump happened (e.g. Auto-bumped version 0.3.9 -> 0.3.10 across 3 sync points). Without this, the bump is silent and the operator must check git log or lattice --version to confirm. Not blocking since the existing dist-rebuild is also silent and the operator primarily cares that it happens, not that it announces itself."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T19:23:46.039Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json has priority=high but neither the title (\"Auto-bump patch version on DONE merge to local main (sync 3 version points)\") nor the description contains any of the canonical riskSignals keywords (auth/password/token/migration/destructive/state machine/guard/gate/git restore/reset/production/incident/hotfix/PII/GDPR/breaking change), and no riskSignals field exists in index.json. The description mentions \"main write-lock\" and \"DONE post-merge effect\" which carry gate-adjacent semantics, but no literal keyword match is present. Advisory: consider adding riskSignals or confirming this is a user-explicit high priority."
+        }
+      ]
+    }
+  ],
+  "_hash": "cc6cea782b78227d1a4a5a77c8e87b653f5f1a748fb8b8cc422da86ca2b1d905"
+}
