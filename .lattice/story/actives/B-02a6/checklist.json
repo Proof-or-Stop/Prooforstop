@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce the INIT-window data-loss in a regression smoke (create story in INIT, simulate a concurrent git clean -fd / wrong-branch checkout on the shared checkout, assert metadata is currently lost)",
+      "context": "Lock the bug before fixing (systematic-debugging Phase 1/4). The smoke must fail on current main (metadata gone) so the fix is provably what closes it. Use a temp git repo fixture with the real .gitignore allowlist.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Create the safe-init-commit at story_create so INIT metadata is a durable clean-proof git object from birth",
+      "context": "Extract/reuse the bootstrap safe-init-commit (force-add + commit-tree/update-ref) and invoke it at the end of story_create under the already-held main-write-lock. Decide commit target (story branch ref vs main) in PLAN; ensure INIT_CHECK bootstrap is idempotent when the ref/commit already exists, and story_discard --purge still reverses it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the B-854c protection predicate so any !tracked metadata leaf is flagged (not only ignored && !tracked), and surface it in doctor",
+      "context": "story-metadata-protection.ts: the unsafe predicate must catch the allowlisted-but-uncommitted state (!ignored && !tracked) that the INIT window sits in. Update doctor scan + the warning text. Keep the existing ignored && !tracked case.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

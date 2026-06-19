@@ -117,6 +117,8 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **远端写入纪律**：Lattice 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
+**版本递增纪律**：每个会改变 Lattice CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `LATTICE_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `lattice --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
+
 **Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.lattice-codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.lattice-codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
 
 **Codex adapter 验证**：改动 `.lattice-codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/lattice.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.lattice-codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/lattice.js doctor`。

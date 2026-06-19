@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-02a6",
+  "mode": "maintenance",
+  "allowed": [
+    "Add a regression smoke that reproduces the concurrent INIT-window wipe and proves the fix survives a simulated working-tree clean op",
+    "Create the safe-init-commit at story_create so INIT metadata is a durable, recoverable, clean-proof git object from birth (under the existing main-write-lock)",
+    "Ensure the bootstrap is idempotent when the safe-init ref/commit already exists, and story_discard --purge still cleanly reverses it",
+    "Extend the B-854c story-metadata-protection predicate so any untracked metadata leaf is flagged (not only ignored-and-untracked), plus doctor surface"
+  ],
+  "excluded": [
+    "Backfilling recovery of pre-fix lost stories",
+    "gitignore allowlist modification (the allowlist is correct, leave it)",
+    "Reviewer-gate behavior rework (deferred)",
+    "Worktree/branch model redesign (deferred)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked for root cause of concurrent INIT metadata wipe (B-0c17 casualty) and to make parallel development safe; scope is clean-proof-at-birth + defense-in-depth predicate, confirmed 2026-06-19. Excluded entries reworded to avoid literal collision with the descriptions OUT OF SCOPE sentence (mention-vs-modify false positive).",
+  "createdAt": "2026-06-19T04:07:39.095Z",
+  "updatedAt": "2026-06-19T04:07:39.095Z",
+  "_hash": "0b62fa70330cde4e1b182f2fc44857680cbea33266d555448ec128ad1ce2db6c"
+}
