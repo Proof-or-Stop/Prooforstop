@@ -100,7 +100,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "DONE/review assurance failure text names stale host verdicts and shows a concise recovery sequence with validation refresh and verdict resubmission commands.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Failure text remains concise when there are many invalid rounds or ignored verdicts by truncating detailed rows and preserving the actionable runbook.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Runbook text must not suggest bypassing stale material checks or changing DONE gate semantics.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
