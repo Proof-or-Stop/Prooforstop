@@ -16,7 +16,7 @@ const hasNumbers = ['-0.55', '62', '656', '0.659', '0.971'].every((n) => txt.inc
 const hasHonesty = /observational/i.test(txt) && /(deferred|forward.*RCT|RCT)/i.test(txt) && /saturation/i.test(txt);
 const refsPaper = /lattice-Paper/.test(txt);
 const noEmbeddedCsv = !/\n[\w./|-]+,[\w./|-]+,[\w./|-]+,[\w./|-]+,/.test(txt); // no raw 4+ column CSV rows embedded
-const hasAlternatives = /alternativ/i.test(txt) && (txt.match(/Baseline A|cross-project|without/gi) || []).length >= 2;
+const hasAlternatives = /(Options Considered|Alternativ)/i.test(txt) && (txt.match(/^### /gm) || []).length >= 2 && /Pros:/i.test(txt) && /Cons:/i.test(txt);
 const noCausalOverclaim = !/(proves|proven|demonstrates) that (showing )?hints (improve|cause)/i.test(txt);
 
 const chk = {
