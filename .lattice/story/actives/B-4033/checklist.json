@@ -38,10 +38,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
           "result": "pass",
-          "note": "Smoke PASS: globsOverlap detects literal-path overlap with colliding pairs; computeWriteSet unions allowedModify+allowedCreate+allowedTest deduped.",
-          "headHash": "576f131afe145466f0b94036a074dd5de28a46ac",
-          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
-          "timestamp": "2026-06-19T12:57:54.250Z"
+          "note": "Smoke PASS (32 assertions): globsOverlap literal overlap + computeWriteSet union (modify+create) at current HEAD.",
+          "headHash": "18d5754c7fb56837ee5b202272a0f24bb2d4329f",
+          "materialHash": "76782d1908134329f892fb4b4f8d41abe5be78d911b6f196efcab1378ea21f90",
+          "timestamp": "2026-06-19T13:12:29.792Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
