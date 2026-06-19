@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|json|happy-evidence-note",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbb6:F-002",
+      "desc": "--dangerously-skip-permissions hardcoded in agy argv without story-scope annotation. In runBoundedRealLeafDispatch (line 2003), the antigravity argv includes --dangerously-skip-permissions. This flag is borrowed from the claude-cli.ts path but is not referenced in CHK-001 or the story plan as a confirmed agy CLI flag. If agy does not recognize this flag it receives an unknown argument which may cause unexpected behavior. The path is supervised-only so this is not blocking, but the flag should be annotated with a reference confirming agy supports it.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "agy CLI flag support not verified in this review; the flag may be valid for agy or may cause silent failure on unknown flag",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T18:12:29.231Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-002",
+      "_hash": "b445cc44387a6067f703e1925036d4b7225050d797362712793f54baf8876ce3",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|dangerously-skip-permissions",
+      "signatureTagSource": "auto"
     }
   ]
 }
