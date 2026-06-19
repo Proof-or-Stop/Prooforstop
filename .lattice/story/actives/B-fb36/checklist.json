@@ -148,21 +148,14 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees \"DONE prepare: PASS\" or \"DONE prepare: BLOCKED\", \"Authority completion:\", \"localDoneReady: true\", \"reviewAssurance: degraded-single-host\" when applicable, \"authorityDone: false\", \"fullAuthorityDone: false\", \"productionDone: false\", and for metadata writes \"blockedAt: cleanTree\" with exact files and \"git add <files> && git commit -m\" guidance.",
+      "userSees": "\"localDoneReady: true\", \"authorityDone: false\", \"fullAuthorityDone: false\", \"productionDone: false\", and \"blockedAt: cleanTree\" when prepare-created metadata must be committed.",
       "files": {
         "modify": [
-          "packages/main/src/handlers/done-prepare.ts",
-          "packages/main/src/handlers/done-closure.ts",
-          "packages/main/src/handlers/review-escalation.ts",
-          "packages/main/src/core/review-assurance-floor.ts",
-          "packages/main/src/core/authority-boundary.ts",
-          "packages/main/src/core/authority-completion.ts"
+          "packages/main/src/handlers/done-prepare.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/done-prepare-smoke.ts",
-          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
-          "packages/main/src/tasks/authority-boundary-smoke.ts"
+          "packages/main/src/tasks/done-prepare-smoke.ts"
         ]
       },
       "verificationIntent": {
