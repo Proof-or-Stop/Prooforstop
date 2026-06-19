@@ -1,0 +1,36 @@
+{
+  "storyId": "B-5a9a",
+  "checkedAt": "2026-06-19T21:09:57.827Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-06-19T21:09:57.827Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-19T21:09:57.827Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "This Codex turn cannot spawn independent init reviewer subagents because the available multi-agent tool requires explicit user delegation; manually checked B-5a9a story title/type/priority, all three checklist items and contexts via lattice story_get/checklist_get, CLAUDE.md lifecycle constraints, product-reviewer INIT expectations, and scope/execution boundaries before proceeding.",
+    "evidenceRefs": [
+      "lattice story_get {storyId:B-5a9a, slim:true, fields:[story,checklist,review]} showed feature/medium INIT story with 3 pending checklist items",
+      "lattice checklist_get {storyId:B-5a9a} showed CHK-001..CHK-003 each has non-empty title and context matching storyFilesHash/materialHash scope",
+      "CLAUDE.md confirms INIT->INIT_CHECK lifecycle and no direct docs/story edits",
+      ".lattice-codex/agents/product-reviewer.md confirms product-reviewer INIT compatibility requirements",
+      "scope_boundary_set and execution_boundary_set outputs saved hashes for the narrowed B-5a9a scope"
+    ],
+    "actor": "codex-main-agent",
+    "session": "sess-5409b611e2fc3bd5",
+    "attestedAt": "2026-06-19T21:09:57.827Z",
+    "headHash": "6ba48537a83361394e2de7c9f0af1026eaedc5a7",
+    "materialHash": "7865a8694313d96c496b43a92dd02b1d9baaa700830fb77060f00061516574ca"
+  },
+  "_hash": "85c967fa804c074c142b4c4f788ce34d65868c0a899c7bf050cd4cbd5ea2f8e6"
+}
