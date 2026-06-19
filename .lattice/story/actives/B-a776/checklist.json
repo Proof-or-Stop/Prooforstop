@@ -9,9 +9,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T18:04:15.678Z",
-      "endTime": null,
+      "endTime": "2026-06-19T18:12:30.084Z",
       "userSees": "`cli argument ergonomics smoke passed` and `lattice checklist_update` invalid input still prints `Argument validation failed` with the bad verificationIntent path.",
       "files": {
         "modify": [
@@ -47,7 +47,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after moving parseFlags/parseFlagsTest/coerce/addValue/normalizeFlagKey into packages/main/src/cli/flag-parser.ts and re-exporting parser compatibility APIs from cli-engine.ts.",
+          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:30.172Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke asserts parser compatibility for repeated array flags, JSON-array flag values, key=value shorthand, booleans, numbers, camelized flag keys, unknown-key preservation, and cli-engine parseFlags re-export behavior.",
+          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:30.254Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Invalid checklist_update verificationIntent input still fails with Argument validation failed, includes verificationIntent.happy.0.type and integration_test, and is not masked by phase-gate or session-brief noise.",
+          "headHash": "e6e1ecce46f91f57b61473c7d7577fddf23c689a",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:30.336Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
