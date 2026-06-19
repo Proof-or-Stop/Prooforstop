@@ -97,7 +97,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "AuditConfig includes parallelGate field with type imported from parallel-decomposition.js; tsc passes with no errors.",
+          "headHash": "75ced964feccafe9ad4dd3056fa4677e1c33b6bd",
+          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
+          "timestamp": "2026-06-19T04:05:28.911Z"
+        }
+      ]
     }
   ]
 }
