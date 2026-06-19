@@ -138,12 +138,50 @@
       "title": "Add regression coverage and rebuild CLI",
       "context": "Cover schema acceptance, envelope inclusion before signing, live smoke request shape, and preservation of non-empty overlaps. Rebuild packages/main/dist after source changes.",
       "relatedDocs": [
-        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
-        "docs/dev/test-coverage.md"
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Targeted regression coverage fails if schema acceptance, signed envelope inclusion, live smoke request shape, or non-empty overlap preservation regresses, and npm --prefix packages/main run build regenerates the CLI output.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+          "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+        ],
+        "create": [
+          "packages/main/dist"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+          "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run targeted regression tasks plus npm --prefix packages/main run build -> tests cover schema acceptance, signed envelope inclusion, live smoke request shape, non-empty overlap preservation, and TypeScript emits CLI output; WHY: proves the fix is guarded and buildable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression tests exercise both empty audit arrays and a non-empty actualFileOverlaps case -> empty no-overlap smoke succeeds while non-empty overlap data remains visible for rejection; WHY: both safe acceptance and fail-closed preservation are required.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Deliberately omit materialOverlapAudit, add it after signing, or clear actualFileOverlaps in the implementation -> at least one targeted regression or the TypeScript build fails; WHY: tests must catch each known regression vector from the decision doc.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
