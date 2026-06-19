@@ -264,7 +264,9 @@ Required tests or checks:
 
 Expected evidence:
 
-- Commit diff containing only this document for B-b5c0.
+- Material/product diff changes only this document for B-b5c0.
+  B-b5c0 lifecycle metadata may be present as story-scoped provenance and is
+  not product/runtime material.
 - Expected row/artifact ids for future validation: `M0.scope-source-freeze`,
   `M0.current-implementation-status`, `M0.source-mapping-authority-receipt`,
   `M0.source-mapping-lifecycle-receipt`, and
@@ -734,9 +736,10 @@ must be registry-backed or otherwise machine-verifiable and must bind:
 
 Transcript text, reviewer prose, decision-doc prose, or a changed file path by
 itself cannot set this boolean. A policy change introduced after a story has
-already passed PLAN follows the in-flight story rules in M11: it may be
-advisory, require explicit opt-in/replan, or require an audited emergency
-operator decision, but it must not silently mutate the DONE requirement.
+already passed PLAN follows the in-flight story rules in M11, as staged by
+`Rollout Strategy` / `Milestone-To-Rollout Stage Crosswalk`: it may be advisory,
+require explicit opt-in/replan, or require an audited emergency operator
+decision, but it must not silently mutate the DONE requirement.
 
 Deliverables:
 
@@ -750,9 +753,10 @@ Deliverables:
 - Degraded single-host fallback fields: eligibility, reason, evidence refs or
   approval ref, fresh material binding, and lower-assurance labels.
 - Local counted verdict predicate requiring host/session/key/material/
-  validation/prompt binding plus either a valid signature over the canonical
-  payload or a registry-backed identity binding that supplies equivalent
-  signer/key provenance.
+  validation/prompt binding and a valid canonical payload signature over the
+  canonical verdict payload. Registry-backed identity/key material may verify
+  signer/key provenance for that signature, but it cannot substitute for the
+  signature or the signed material binding.
 
 Gate placement:
 
@@ -766,7 +770,8 @@ Required tests:
 - Duplicate host id in a round is rejected.
 - Shared session id is rejected.
 - Shared key/identity digest is rejected.
-- Missing signed material binding is rejected.
+- Missing signed material binding is rejected even when registry-backed
+  identity/key material is present.
 - Stale validation digest is rejected after TEST changes material.
 - Degraded fallback cannot be reported as full two-host independence.
 - Local host verdict cannot set Authority facts.
@@ -1198,8 +1203,9 @@ Host independence minimum for counted full 3x2 verdicts:
 - distinct host id;
 - distinct session id;
 - distinct key id or identity digest;
-- signed canonical verdict payload, or a registry-backed identity binding that
-  supplies equivalent signer/key provenance;
+- signed canonical verdict payload with a verified canonical payload signature;
+- registry-backed identity/key material may verify signer/key provenance for
+  that signature, but cannot replace the signature or signed material binding;
 - same current head, material, validation, and prompt binding;
 - PASS decision;
 - no duplicate verdict id.
@@ -1489,8 +1495,10 @@ Acceptance for this B-b5c0 audit repair specifically:
 
 ```text
 The roadmap document is repaired in place.
-No runtime code, NAV, story metadata, fixtures, hooks, or source files are
-changed by the B-b5c0 commit.
+No runtime code, NAV, fixtures, hooks, or source files are changed by the
+B-b5c0 commit.
+The material/product diff changes only this roadmap document.
+B-b5c0 lifecycle metadata may be present as story-scoped provenance.
 The document is explicit that it is a plan, not implemented runtime behavior.
 It maps source documents to roadmap decisions, including the Authority receipt
 contract and lifecycle gate receipt consumption documents as primary sources.
