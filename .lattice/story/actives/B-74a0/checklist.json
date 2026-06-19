@@ -97,11 +97,46 @@
       "title": "Verify command catalog behavior and contracts",
       "context": "Run build and focused command contract checks proving command registration, JSON stdout behavior, and public compatibility exports did not drift.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules",
+        "docs/dev/test-coverage.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused command catalog smoke passes and proves representative commands remain visible through MAIN_TOOLS and help output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Project build and process fact contract still pass after catalog extraction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if representative help output loses command names, required markers, dry-run/owner lease guidance, or Lattice branding due to catalog extraction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
