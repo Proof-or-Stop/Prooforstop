@@ -4,7 +4,7 @@
   "title": "Audit and harden the contract-first parallel-decomposition spec under 3x2 review escalation",
   "description": "The spec at docs/parallel-decomposition-spec.md was drafted by a multi-agent workflow and makes many concrete claims about real Lattice internals (canStartDevGuard vs getGuardFailureReason, pathMatchesPattern, resolveParallelSafety, audit-config resolution). Before it drives a build program it must pass adversarial review for code-claim accuracy, internal consistency, completeness, and prompt usability, fixing findings across rounds until clean.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "documentation",
@@ -47,11 +47,20 @@
       "branch": "story/B-7559",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:50:01.500Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-7559",
     "branch": "story/B-7559",
     "createdAt": "2026-06-19T01:38:02.262Z"
-  }
+  },
+  "currentReviewRound": "2026-06-19T01:50:01.500Z"
 }
