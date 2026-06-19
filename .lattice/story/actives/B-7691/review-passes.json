@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7691:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. (1) readGitStatusLines and classifierOptionsForCheck have zero private definitions remaining in done-oracle.ts; done-oracle imports them from dirty-worktree-gate.ts. (2) recover-evidence.ts has its own pre-existing private readGitStatusLines (different signature: returns string[], fail-open to [], not the {ok,lines|error} union); this file was NOT modified in this story — it is pre-existing and not a residue of the B-7691 extraction. (3) Naming is consistent: dirty-worktree.ts (classifier), dirty-gate-policy.ts (blocking table), dirty-worktree-gate.ts (new shared read+options); all three co-exist without naming collision. (4) isBlockingDirty is defined only in dirty-worktree-gate.ts, consumed only in review-run.ts and the smoke test. (5) evaluateDirtyGitStatus remains private in done-oracle.ts with zero external references. (6) classifyGitStatusRows re-exported from dirty-worktree-gate.ts is consumed correctly by review-run.ts and the smoke test via that re-export path. No concept deletion, replacement, or orphaned residue found.",
+      "createdAt": "2026-06-19T14:58:48.758Z",
+      "reviewRound": "2026-06-19T14:51:48.175Z",
+      "reviewRunId": "B-7691:RR-001",
+      "_hash": "49e67478590ad7a6bd16c90dfab05603e7deab200644f5672ebb9669888577c0"
+    }
+  ]
+}
