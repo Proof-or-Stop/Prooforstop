@@ -5,7 +5,7 @@
       "desc": "computeWriteSet includes allowedTest but plan.md, checklist context, and userSees declare only allowedModify+allowedCreate: plan.md says dedupe(allowedModify++allowedCreate); scope-check feature says unions allowedModify+allowedCreate paths; userSees says unions a contract allowedModify+allowedCreate — none mention allowedTest. The implementation unions all three. Behavior is conservative (aligns with never-under-flag philosophy) and the verificationEvidence note acknowledges it, but the declared spec surface and implementation are inconsistent. If Story 2 callers rely on the plan-stated contract (allowedModify+allowedCreate only), the underdeclaration may cause confusion or test-file paths being unexpectedly included in overlap verdicts.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T13:02:46.504Z",
@@ -18,7 +18,11 @@
         ".lattice/story/actives/B-4033/checklist.json"
       ],
       "signatureTag": "edge|ts|computewriteset-includes-allowedtest",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: computeWriteSet now unions only allowedModify + allowedCreate (allowedTest excluded — it is an allowed-to-touch permission, not a declared write target), matching plan.md and avoiding over-flagging test globs.",
+      "resolvedAt": "2026-06-19T13:12:01.095Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4033:F-002",
