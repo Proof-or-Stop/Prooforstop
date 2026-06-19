@@ -71,7 +71,7 @@
       "desc": "quality-cleanup: docs/parallel-decomposition-spec.md §4.4 line ~333 — self-contradictory catch-branch description for the new decomposition check inside canStartDevGuard. The text says the try/catch is \"consistent with the guard's existing catch { return false } shape but inverted to fail-open\". These two clauses contradict each other: the existing guard is fail-closed (return false); the new code must be fail-open (return true). An implementer following the first clause writes a fail-closed catch; following the second writes fail-open. Both cannot be true simultaneously. The correct intent (fail-open) must be stated unambiguously without the \"consistent with\" hedging, or the spec will produce incorrect implementations.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T01:53:14.547Z",
@@ -82,7 +82,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "edge|md|quality-cleanup-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: reworded to state the new sub-check fails OPEN (returns true) — explicitly the opposite of the surrounding guard's fail-closed catch; removed the contradictory 'consistent with' hedging.",
+      "resolvedAt": "2026-06-19T02:05:03.509Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-005",
