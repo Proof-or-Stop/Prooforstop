@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-5a9a:F-001",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-files-hash-material-drift.md:20-45 says storyFilesHash is recorded alongside materialHash and applies to review escalation host verdicts plus degraded fallback records, but the producer commands still do not record or accept storyFilesHash. review_escalation_fallback_set only imports/currentMaterialHash and writes materialHash in packages/main/src/handlers/review-escalation.ts:4,68-89,103-118; autopilot_review_submit has no storyFilesHash schema field in packages/main/src/cli/command-catalog.ts:1983-1998 and appends host_verdict without storyFilesHash in packages/main/src/handlers/verdict.ts:190-203. Command-produced escalation records therefore cannot satisfy the documented adopted binding; only manually/synthetically seeded events with storyFilesHash can get the downgrade.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T22:15:57.321Z",
+      "reviewRound": "2026-06-19T22:12:48.433Z",
+      "reviewRunId": "B-5a9a:RR-003",
+      "_hash": "6e96d31b2a70b4a1dd10ff88bced25525f8ced6f2b6281edb2b5f507bf9e5cd8",
+      "files": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/verdict.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
