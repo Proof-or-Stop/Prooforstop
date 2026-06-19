@@ -1,6 +1,6 @@
 {
   "principles": [
-    "Use the existing gate-consumed evaluator instead of a parallel policy path.",
+    "Use one gate-consumed predicate per distinct lifecycle claim.",
     "Fail closed on missing, stale, or self-claimed review evidence.",
     "Keep local Non-authority evidence visibly separate from Authority Server receipts.",
     "Scope the change to real correctness gaps and avoid arbitrary workflow expansion."
@@ -8,7 +8,7 @@
   "drivers": [
     "DONE must block material code diffs with zero current-material review assurance.",
     "Failure signals must make 3x1 local review sticky without confusing it with 3x2 independence.",
-    "Machine.canFinish and done-oracle output must remain logically consistent."
+    "Machine.canFinish, done-oracle output, and guard failure messages must remain logically consistent."
   ],
   "options": [
     {
@@ -19,18 +19,19 @@
         "Keeps existing host verdict material/session/key binding semantics"
       ],
       "cons": [
-        "Requires careful naming/output updates because the old evaluator name says escalation even when enforcing the floor"
+        "Mixes two distinct claims: minimum review floor versus first-round problem escalation",
+        "Makes diagnostics harder because required=false currently means escalation not required, not floor satisfied"
       ]
     },
     {
-      "name": "B: Add a separate review_assurance_floor evaluator and DONE row",
+      "name": "B: Add a separate review_assurance_floor evaluator and DONE row while reusing existing primitives",
       "pros": [
-        "Cleaner conceptual naming for the new floor",
-        "Avoids changing existing review_escalation_status shape"
+        "Keeps the floor and escalation predicates mechanically separate",
+        "Preserves existing review_escalation_status behavior for first-round escalation",
+        "Lets done-oracle and machine.canFinish consume a clear floor report without duplicating host-verdict logic"
       ],
       "cons": [
-        "Creates two review gates with overlapping host verdict logic",
-        "Raises risk of canFinish and done-oracle divergence"
+        "Adds one small new core module and one new DONE row"
       ]
     },
     {
@@ -45,14 +46,14 @@
       ]
     }
   ],
-  "chosen": "A: Extend existing review escalation evaluator into a review assurance evaluator",
-  "rationale": "Option A fixes the actual correctness gap by extending the existing gate-consumed path, while preserving current 3x2 escalation semantics and the local Non-authority boundary.",
+  "chosen": "B: Add a separate review_assurance_floor evaluator and DONE row while reusing existing primitives",
+  "rationale": "Option B fixes a real correctness risk found during PLAN audit: floor and escalation are different lifecycle claims. A separate evaluator keeps diagnostics and gate semantics consistent while reusing existing review-run, host-verdict, and fallback primitives.",
   "preMortem": [
     {
       "scenario": "Docs-only tasks are overblocked as code diffs",
       "trigger": "Diff classification treats any docs/requirements change as material code",
       "consequence": "Low-risk typo or annotation stories pay unnecessary review cost and contradict the policy",
-      "mitigation": "Classify material code by source/runtime/test/script paths and explicitly exclude docs/markdown-only changes unless stronger high-risk policy already applies"
+      "mitigation": "Classify material code by source/runtime/test/script/package paths and explicitly exclude markdown-only docs changes unless stronger high-risk policy already applies"
     },
     {
       "scenario": "Local 3x1 is reported as Authority completion",
@@ -62,9 +63,9 @@
     },
     {
       "scenario": "DONE checklist and machine guard diverge",
-      "trigger": "Only done-oracle rows are updated while canFinish still reads old evaluateReviewEscalation semantics",
+      "trigger": "Only done-oracle rows are updated while canFinish or guard failure reason still read old semantics",
       "consequence": "session_brief or story_advance can disagree about whether DONE is allowed",
-      "mitigation": "Keep both consumers on one evaluator and add smoke coverage for failure/pass outcomes"
+      "mitigation": "Keep done-oracle, machine.canFinish, and guard failure reason on the same floor evaluator and add smoke coverage"
     },
     {
       "scenario": "Failure-triggered escalation is not sticky",
@@ -73,5 +74,5 @@
       "mitigation": "Derive sticky signals from durable story artifacts/process events where available and add synthetic smoke cases for validation fail, bug, and verified finding"
     }
   ],
-  "timestamp": "2026-06-19T01:32:31.512Z"
+  "timestamp": "2026-06-19T01:36:01.787Z"
 }
