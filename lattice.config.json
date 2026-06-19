@@ -13,7 +13,8 @@
       "node packages/main/dist/tasks/authority-completion-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
-      "node packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "node packages/main/dist/tasks/version-bump-smoke.js"
     ]
   },
   "baselineRiskAcceptedLocalPaths": [
