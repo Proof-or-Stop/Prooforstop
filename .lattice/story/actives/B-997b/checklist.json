@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Build passed and scope-contract smoke passed; core types now expose ScopePathClassification/ScopeCheckRow and checkScopeContract consumes classifier data for allowed/protected/excluded rows.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.300Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -80,9 +80,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke asserts stable rows such as scope.out_of_scope:src/other.ts with status/source/blocking/action fields and registered lifecycle/runtime pass rows.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.396Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -90,9 +90,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke covers fail-closed unknown paths including unregistered story evidence, unknown metadata, undeclared source, and fixture paths.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.534Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -100,9 +100,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Runtime and lifecycle registry categories are first-class classifier rows, while unregistered metadata and fixture paths remain out_of_scope rather than prose-only exceptions.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.680Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -110,9 +110,9 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Smoke verifies registered lifecycle/runtime artifacts pass and arbitrary metadata/source/fixture paths block when undeclared.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.822Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -120,9 +120,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "scope-contract.ts now imports classifyScopePath from the shared classifier; guard-session core consumes checkScopeContract violations from the same path-level decision path.",
-          "headHash": "555017af49aa639f5ebd696f19363f3ae0ad1152",
-          "materialHash": "1e642483fab27ff13f11097b94146e4348c94e7940cb0e7e237f8ae9271d7c12",
-          "timestamp": "2026-06-19T04:21:49.929Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         }
       ]
     },
@@ -260,9 +260,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "Temp-repo transcript passed: scope_contract_acknowledge output includes assurance=acknowledged-expansion, phase, headHash, materialHash, affectedPaths, and persisted acknowledged expansion metadata.",
-          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
-          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
-          "timestamp": "2026-06-19T04:22:45.345Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -270,9 +270,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "Temp-repo transcript passed: follow-up scope_contract_check returns status=warn and acknowledgedPaths includes src/other.ts, keeping the acknowledged expansion visible instead of a silent pass.",
-          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
-          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
-          "timestamp": "2026-06-19T04:22:45.622Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -280,9 +280,9 @@
           "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge negative transcript>",
           "result": "pass",
           "note": "Negative transcript passed: short reason, unsafe relative path, and TEST-phase acknowledgement attempts are rejected with deterministic CLI/policy guidance.",
-          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
-          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
-          "timestamp": "2026-06-19T04:22:45.917Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -290,9 +290,9 @@
           "command": "node packages/main/dist/tasks/prewrite-guard-smoke.js && node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
           "result": "pass",
           "note": "prewrite guard smoke passed, and acknowledgement transcript uses the lower-assurance acknowledged-expansion label rather than reviewer/independent-review wording.",
-          "headHash": "59143b858a2e1e517dc809154d6cee5a15abf39e",
-          "materialHash": "15b8b0b187794e0205a41c7c562443779270fbedda32c2f5c420094ccdb923c0",
-          "timestamp": "2026-06-19T04:22:46.109Z"
+          "headHash": "f714745add2e62d9f3bd225e5b60337027d2af7a",
+          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
+          "timestamp": "2026-06-19T04:28:37.176Z"
         }
       ]
     },
