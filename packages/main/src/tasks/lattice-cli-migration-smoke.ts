@@ -90,14 +90,14 @@ assert.match(runCli(['--version']), new RegExp(`Lattice CLI ${LATTICE_CLI_VERSIO
 assert.match(runCli(['version']), /Lattice CLI/);
 const rootPackage = readJson(join(repoRoot, 'package.json'));
 const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'));
-assert.equal(rootPackage.version, LATTICE_CLI_VERSION, 'root package version is 0.3.5');
-assert.equal(mainPackage.version, LATTICE_CLI_VERSION, 'packages/main version is 0.3.5');
+assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
+assert.equal(mainPackage.version, LATTICE_CLI_VERSION, `packages/main version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'lattice package bin points at CLI');
 assert.equal(mainPackage.bin.koala, undefined, 'legacy koala package bin is removed');
 
 // Help exposes first-class Lattice identity and the new command set.
 const help = runCli(['help']);
-assert.match(help, /Lattice CLI 0\.3\.5/);
+assert.match(help, new RegExp(`Lattice CLI ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
 assert.match(help, /(?:^|\n)\s+Entrypoint:\s+lattice/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
