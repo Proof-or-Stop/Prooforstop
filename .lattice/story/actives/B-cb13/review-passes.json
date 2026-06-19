@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-cb13:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Doc-only additive change: docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md. No concept deletions or replacements detected in the diff. All 9 referenced story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9, B-2a8d, B-1480, B-cb13) confirmed to exist in .lattice/story/actives/. All 4 lattice commands named in Operational Rules (learning_scan, learning_validate, learning_effectiveness, signature_backfill) confirmed registered in cli-engine.ts and handled in source. Execution-plan doc referenced (lattice-experience-layer-execution-plan.md, B-1480) confirmed present in docs/requirements/decisions/. Commit 2750aadef (signature_backfill --apply) confirmed real in git log. lattice-Paper/ workspace directory confirmed to exist. B-2a8d confirmed as cross-project aggregation removal story, consistent with the doc statement. No doc-promise-undelivered items found (no ENV vars, CLI commands, schema fields, or behavior paragraphs added to CLAUDE.md or README). Zero residue findings. Concept residue check complete — no blocker.",
+      "createdAt": "2026-06-19T01:37:42.661Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-001",
+      "_hash": "f051699dcda7b281a7bed8c2cba15a81cbbc07e5762a30a3d4dae667fe599d24"
+    }
+  ]
+}
