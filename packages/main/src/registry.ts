@@ -62,6 +62,7 @@ import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
+import { createSignatureBackfillHandlers } from './handlers/signature-backfill.js';
 import { createPlaybookHandlers } from './handlers/playbook.js';
 import { createRecallHandlers } from './handlers/recall.js';
 import { createLearningScanHandlers } from './handlers/learning-scan.js';
@@ -231,6 +232,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-4f46 CHK-003: signature_registry_list / signature_registry_set — audit-only
   // catalog of finding signatureTags (Experience Layer Phase 1b). No gate reads it.
   registry.registerBatch(createSignatureRegistryHandlers(ctx));
+  // B-17a9 (Experience Layer): signature_backfill — WRITING command that fills empty
+  // finding signatureTags from a committed map (source='backfill'); dry-run default.
+  // Writes audit-only fields after _hash; never recomputes _hash; no gate reads it.
+  registry.registerBatch(createSignatureBackfillHandlers(ctx));
   // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle
   // (playbook_propose/diff/approve/reject). Never files findings / touches gates;
   // writes only under .lattice/learning/. Approve fails closed on a stale digest.

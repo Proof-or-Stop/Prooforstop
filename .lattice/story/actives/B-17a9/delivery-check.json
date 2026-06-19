@@ -1,0 +1,59 @@
+{
+  "storyId": "B-17a9",
+  "checkedAt": "2026-06-19T00:42:12.806Z",
+  "reviewRound": "2026-06-19T00:32:20.925Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-17a9/plan.md#CHK-001",
+      "promise": "Extend SignatureTagSource in core/experience-layer-types.ts to include backfill literal",
+      "verifiedBy": "diff",
+      "evidence": "experience-layer-types.ts diff shows SignatureTagSource changed from auto|confirmed to auto|confirmed|backfill"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-17a9/plan.md#CHK-001",
+      "promise": "New pure leaf core/signature-backfill.ts imports only types (no I/O); exports decideBackfill with fill/skip-* actions; never mutates input",
+      "verifiedBy": "diff/grep",
+      "evidence": "signature-backfill.ts has single type-only import (import type { SignatureTagSource }); no fs/store/network imports; deterministic leaf; confirmed by grep of imports"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-17a9/plan.md#CHK-002",
+      "promise": "New handlers/signature-backfill.ts: reads committed map JSON, iterates stories via store, applies decideBackfill, attaches signatureTag+signatureTagSource AFTER existing _hash without recomputing _hash; dry-run default",
+      "verifiedBy": "diff/grep",
+      "evidence": "handler imports only readFileSync from fs and decideBackfill from core leaf; never imports signFinding or finding-verify (grep confirmed); mutates audit-only fields in-place on already-stored object; apply defaults false"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-17a9/plan.md#CHK-002",
+      "promise": "signature_backfill registered across all 5 surfaces: registry.ts registerBatch, cli-engine.ts command schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts writing ownershipClass, process-fact-levels.ts L2 experience-layer; NOT in READ_ONLY_COMMANDS",
+      "verifiedBy": "diff/grep",
+      "evidence": "All 5 surfaces confirmed in diff; READ_ONLY_COMMANDS block scanned via awk and grep — signature_backfill absent"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-17a9/plan.md#CHK-003",
+      "promise": "Hermetic smoke test with dry-run/apply/overwriteAuto/idempotency/_hash-invariance checks; npm script test:experience-layer-signature-backfill added; verifier verify-b-17a9.mjs committed",
+      "verifiedBy": "diff + live execution",
+      "evidence": "smoke file present in diff (375 lines); package.json script added; verify-b-17a9.mjs at evidence/; independent live run: TOTAL 12 | PASS 12 | FAIL 0"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "12/12 smoke checks pass independently: decideBackfill fill path (empty tag), skip-confirmed sacrosanct, skip-has-auto (auto preserved without overwriteAuto), overwriteAuto fill, skip-no-mapping, _hash byte-invariance via real signFinding, idempotency, no mutation of input object."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "12/12 smoke checks cover all handler paths: dry-run writes nothing, --apply fills empty tag source=backfill, confirmed untouched, auto untouched without overwriteAuto, overwriteAuto fills auto, missing map throws clear error, malformed JSON throws, no --map throws required-arg error, empty map skips all, second --apply idempotent. Handler never imports signFinding (grep confirmed)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm script test:experience-layer-signature-backfill registered and executed to completion; verify-b-17a9.mjs committed; live smoke execution: TOTAL 12 | PASS 12 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 plan promises verified independently from diff and live test execution. Smoke covers happy path, strong negative invariants (confirmed sacrosanct even with overwriteAuto), _hash byte-invariance via real signFinding, edge cases (empty map, absent findingId, empty-findings story, malformed/missing map), and idempotency. Leaf imports only types; handler never imports signFinding. All 5 registration surfaces present; signature_backfill absent from READ_ONLY_COMMANDS."
+  },
+  "_hash": "e25285eba5cae82fa01355c1ac77f87bf73e59929e8dfe3a64ae666bb13a93d7"
+}

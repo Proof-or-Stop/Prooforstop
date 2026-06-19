@@ -1735,6 +1735,16 @@ Behavior:
     storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
   }},
 
+  // B-17a9 (Experience Layer): signature_backfill — WRITING command. Fills empty finding
+  // signatureTags from a committed map (source='backfill'); dry-run default (--apply to write).
+  // Audit-only fields attached AFTER _hash; never recomputes _hash; NOT in READ_ONLY_COMMANDS.
+  { name: 'signature_backfill', description: 'Backfill empty finding signatureTags from a committed { findingId -> signature } map (source=backfill); dry-run by default, --apply to write; audit-only, never changes any finding _hash or gate', schema: {
+    map: z.string().optional().describe('Path to the committed signature map JSON ({ findingId -> "area|failureMode" }). Required; no implicit default.'),
+    apply: z.boolean().optional().describe('Persist the fills via store.writeFindings. Default false (dry-run reports what would change and writes nothing).'),
+    overwriteAuto: z.boolean().optional().describe('Also replace existing auto-sourced tags with the mapped signature. Never overwrites confirmed tags. Default false.'),
+    json: z.boolean().optional().describe('Emit the structured tally (scanned/filled/actions/by-source) as JSON.'),
+  }},
+
   // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
   // resolved finding into a human-approved candidate playbook. NEVER files findings
   // or touches gates; writes only under .lattice/learning/. Approve fails closed on

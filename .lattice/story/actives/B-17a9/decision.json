@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "_hash invariance above all: a mass write to ~190 findings.json must change ZERO finding _hash.",
+    "Audit-only provenance: signatureTag + signatureTagSource never touch signFinding/_hash/any gate.",
+    "Deterministic + auditable: consume a committed signature map, no LLM at runtime.",
+    "Safe by default: dry-run default, --apply explicit, idempotent, only-empty-filled, never overwrite confirmed.",
+    "Pure decision leaf + thin store-adapter handler."
+  ],
+  "drivers": [
+    "Persist the 3.5-proven signatures into the live base so learning_scan/hints/learning_effectiveness use real data.",
+    "Never perturb the finding _hash or the REVIEW->TEST findings gate across the touched stories.",
+    "Keep the reviewed diff small: build+test the command; mass-apply is a post-DONE operation."
+  ],
+  "options": [
+    {
+      "name": "Command consuming a committed map, dry-run default, _hash-safe attach (chosen)",
+      "pros": [
+        "Reuses the proven _hash-excluded attach pattern; zero _hash change",
+        "deterministic/auditable (committed map, no LLM)",
+        "dry-run default + idempotent = safe mass write",
+        "small reviewed diff; mass-apply is a separate operation"
+      ],
+      "cons": [
+        "Requires the map to be generated separately (already done in 3.5)"
+      ]
+    },
+    {
+      "name": "Command re-runs the LLM per finding",
+      "pros": [
+        "Self-contained"
+      ],
+      "cons": [
+        "Non-deterministic, non-auditable, slow, network-dependent; cannot be hermetically tested"
+      ]
+    },
+    {
+      "name": "Direct one-off script writing findings.json",
+      "pros": [
+        "No command to build"
+      ],
+      "cons": [
+        "Bypasses the Lattice audit/review; risky un-reviewed mass write; no reusable/idempotent tool"
+      ]
+    }
+  ],
+  "chosen": "Command consuming a committed map, dry-run default, _hash-safe attach (chosen)",
+  "rationale": "A reviewed, deterministic command that consumes the committed 3.5 map and reuses the existing _hash-excluded attach pattern is the only safe way to mass-write signatures into ~190 findings without perturbing any finding _hash or gate; dry-run default + idempotency make the operation safe and repeatable, and keeping the actual apply as a post-DONE operation keeps the reviewed diff small. Re-running the LLM or a raw script would be non-deterministic/un-auditable or un-reviewed.",
+  "preMortem": [
+    {
+      "scenario": "The mass write changes finding _hash and breaks the findings gate.",
+      "trigger": "signatureTag/signatureTagSource get included in the object signFinding hashes, or writeFindings reserializes in a way that perturbs _hash.",
+      "consequence": "Every touched finding's signature changes; the REVIEW->TEST findings gate breaks across ~190 stories.",
+      "mitigation": "Attach the two fields AFTER _hash exactly as finding.ts does; recompute nothing hashed; the smoke asserts the finding _hash is byte-identical before/after via real signFinding for every touched finding (THE critical check)."
+    },
+    {
+      "scenario": "Confirmed reviewer tags get clobbered.",
+      "trigger": "decideBackfill overwrites a non-empty/confirmed signatureTag.",
+      "consequence": "Human-confirmed signatures lost.",
+      "mitigation": "Fill only when current tag is empty (or 'auto' with --overwriteAuto); never 'confirmed'; the smoke asserts confirmed=untouched."
+    },
+    {
+      "scenario": "An accidental apply corrupts live data.",
+      "trigger": "The command writes by default without --apply, or is non-idempotent.",
+      "consequence": "Unintended/duplicated writes to live findings.",
+      "mitigation": "Dry-run is the DEFAULT (writes nothing); --apply required; idempotent (second apply = no change); the smoke asserts dry-run writes nothing + idempotency."
+    },
+    {
+      "scenario": "Process-fact contract breaks.",
+      "trigger": "signature_backfill missing from PROCESS_FACT_LEVELS.",
+      "consequence": "Full npm test fails at DONE.",
+      "mitigation": "Add the L2 experience-layer entry; verifier runs full npm test; run npm test before REVIEW."
+    }
+  ],
+  "timestamp": "2026-06-19T00:12:25.425Z"
+}

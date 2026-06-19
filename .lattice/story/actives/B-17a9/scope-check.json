@@ -1,0 +1,220 @@
+{
+  "storyId": "B-17a9",
+  "checkedAt": "2026-06-19T00:14:50.862Z",
+  "features": [
+    {
+      "feature": "Extend SignatureTagSource type to include backfill provenance value (distinct from auto/confirmed)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "New pure leaf decideBackfill function (no I/O, deterministic) in core/signature-backfill.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "decideBackfill fills only empty signatureTags (never overwrites confirmed tags)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "decideBackfill optionally replaces auto tags via overwriteAuto option",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "New signature_backfill handler (handlers/signature-backfill.ts) that reads committed map file and applies decideBackfill per finding",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "dry-run flag (default true): report what would change, write nothing",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "--apply flag: perform the actual writes to findings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "--overwriteAuto flag (optional, default false): also replace auto-tagged findings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "--json flag for machine-readable output",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Output: counts (scanned/filled/skipped-by-reason) + per-source breakdown",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "signatureTag+signatureTagSource attached AFTER existing _hash (never recomputed in hashed domain, _hash byte-identical)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Register command across 6 surfaces: cli-engine, registry, config, command-policy (writing, NOT readOnly), process-fact-levels (L2 experience-layer); NOT in READ_ONLY_COMMANDS",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Validate mapping file shape; tolerate findings absent from map (skip them)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: empty signatureTag => filled with source=backfill",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: confirmed signatureTag => untouched",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: auto signatureTag => untouched unless --overwriteAuto",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: finding _hash byte-identical before/after for every touched finding (via real signFinding)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: dry-run writes nothing",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Hermetic smoke: second --apply run is idempotent (no change)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Full npm test green including process-fact-contract",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Committed verifier mapping every verificationIntent; prints TOTAL/PASS/FAIL",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "npm script for the smoke test",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "No LLM call at runtime (command consumes already-done committed mapping artifact)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: No LLM call at runtime",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "No change to finding _hash/signFinding/any gate (pure audit-only field append)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: No change to finding _hash/signFinding",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "No overwriting of confirmed signatureTags",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: No overwrite of confirmed tags",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Mass-apply against live findings (post-DONE operation, not part of this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope section 7: OUT — the actual mass-apply against live findings is a post-DONE operation",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Weighting confirmed-vs-backfill in finding-signals",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope section 7: OUT — weighting backfill-vs-confirmed in finding-signals",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "Post-apply integration validation: learning_scan derives real signals; learning_effectiveness reports non-zero",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope section 4: post-apply integration is described as after-the-story validation, not part of DONE gate for this story",
+      "source": "decisions:signature-backfill-execution-plan (lattice-Paper)"
+    },
+    {
+      "feature": "SignatureTagSource field in experience-layer-types.ts annotated as audit-only, must not enter gate reads",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "covered": 22,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "26a2c29ff39e64cc601c49c790eb8b2d73ff8411dd161bca6a4630093ae8d8a7",
+  "openQuestions": []
+}

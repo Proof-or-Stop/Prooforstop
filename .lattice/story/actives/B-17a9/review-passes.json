@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-17a9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed: (1) backfill enum value consistently added to SignatureTagSource in experience-layer-types.ts (3-value union auto|confirmed|backfill, single definition, no old 2-value residue). (2) signature_backfill command fully wired across all 6 surfaces: cli-engine.ts schema, registry.ts import+registerBatch, command-policy.ts COMMAND_POLICIES, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts PROCESS_FACT_LEVELS, and package.json test script. (3) core/signature-backfill.ts (pure leaf) and handlers/signature-backfill.ts both exist; types BackfillAction/BackfillDecision/BackfillOptions used consistently between them. (4) signature_backfill is NOT in READ_ONLY_COMMANDS (correct for a writing command). (5) Other uses of the word backfill in the codebase (verification_intent_repair, gap-log, test-story, cli-prompts) are all pre-existing unrelated usages, not residue of any deleted/replaced concept. No concept deletion/replacement this round; no blocker found.",
+      "createdAt": "2026-06-19T00:34:00.316Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-001",
+      "_hash": "0dd6928e09b8553eddd4212a4c09b06115418ca5ac02bd8947744282bb16431c"
+    },
+    {
+      "id": "B-17a9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 9 changed source files. (1) Dead code: all imports are used — SignatureTagSource used in Extract<>, all 4 type imports in smoke test verified; no commented-out dead blocks. (2) Type safety: two catch blocks in handler both re-throw with enriched messages; one empty catch in smoke cleanup is intentional best-effort with comment; no as-any casts in changed files. (3) I/O shell isolation: no shells/ directory in this project; handler correctly routes through registry.ts -> HandlerContext bridge; core leaf imports only types (pure). Critical invariants confirmed: handler has zero imports of finding-verify.ts or signFinding; ownershipClass=mainSharedMutating (not readOnly, not in READ_ONLY_COMMANDS); dry-run is the default (apply===true gate); only empty/auto tags filled, confirmed never overwritten; process-fact-levels L2; SignatureTagSource union extended correctly. Missing smoke-manifest.json entry for experience-layer-signature-backfill is the pre-existing pattern for this category (signature-capture, revalidation etc also absent from manifest) — not introduced by this PR.",
+      "createdAt": "2026-06-19T00:35:44.652Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-002",
+      "_hash": "30b934494b51a9a93f5a5a4d992c03ab024439c14477b03db41eab1ff2e6fc19"
+    },
+    {
+      "id": "B-17a9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed. Verified 66/66 intents across CHK-001/002/003. CRITICAL checks confirmed in live execution: (1) smoke 12/12 pass including CRITICAL _hash byte-invariance via real signFinding import (not mocked), mutation guard, idempotency (second --apply filled=0, byte-identical store); (2) verifier 66/66 pass with all static checks true: leafPure, handlerNoSignFinding, handlerNoFindingVerify, handlerNoNetwork, handlerMutatesAfterHash, allSurfaces, notReadOnly, findingVerifyUntouched; (3) command bindings correct per intent category: leaf/behavioral intents -> logic_test evidence using npm --prefix packages/main run test:experience-layer-signature-backfill; static/registration intents -> integration_test evidence using node .lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs. No mismatch. No must-gap. No waiver abuse. Coverage is genuine.",
+      "createdAt": "2026-06-19T00:36:26.698Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-003",
+      "_hash": "9b7591931847e563610ddda16377010ff21e44cec98d2996f89068bd2c85f463"
+    },
+    {
+      "id": "B-17a9:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 checklist items verified against code. CHK-001: decideBackfill is pure, deterministic, imports only types, all 5 precedence rules correctly implemented (confirmed sacrosanct even under overwriteAuto; empty-tag fill; auto skip/fill; skip-nonempty; skip-no-mapping/empty-sig); backfill added to SignatureTagSource. CHK-002: handler reads findings through ctx.store.readFindings (not raw JSON.parse); writes via ctx.store.writeFindings only when changed=true and apply=true; dry-run is default; imports only fs+context+decideBackfill (no signFinding, no finding-verify, no network/LLM); registered in all 5 surfaces (cli-engine/registry/config/command-policy=mainSharedMutating/process-fact-levels=L2); NOT in READ_ONLY_COMMANDS; --map required with clear error; map file missing and malformed both give readable errors before any write. CHK-003: hermetic smoke 12/12 pass (verified by re-running); verifier 66/66 pass; _hash invariance confirmed by real signFinding recomputation in smoke; idempotency proven (second --apply fills=0, store byte-identical); dry-run leaves findings.json byte-identical (confirmed via before/after comparison); finding-verify.ts and types.ts untouched. Safety design: dry-run-default is correct; --apply only-empty-filled (confirmed guard is strongest); _hash field never assigned in handler; handler never calls signFinding. Spec-boundary alignment: spec requires audit-only fields excluded from gate reads (no gate logic in handler), findings read through stable accessor (confirmed), no LLM/network at runtime (imports clean), finding-verify.ts passthrough unchanged (confirmed). Honest framing: code doc correctly states this enriches the substrate, not causal proof. Real repo dry-run confirms git status stays clean.",
+      "createdAt": "2026-06-19T00:37:58.241Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-004",
+      "_hash": "27fba44c1ad54f2626524145248bcd89bef81b85f67af94e303e4977f260fe4c"
+    }
+  ]
+}

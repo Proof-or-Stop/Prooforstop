@@ -1,0 +1,34 @@
+{
+  "task": "Add a signature_backfill CLI that writes committed real semantic signatures into live findings (filling empty signatureTags with signatureTagSource='backfill'), keeping every finding _hash byte-identical.",
+  "outcome": "Running `node bin/lattice.js signature_backfill --map <file>` dry-runs by default and prints a report, e.g.:\n  signature_backfill (DRY-RUN): scanned 695, would fill 660, skip 22 (confirmed), skip 13 (no mapping)\n    by-source after apply: backfill 660, confirmed 22, auto 13\n  (dry-run -- nothing written; pass --apply to persist)\nWith --apply it writes signatureTag + signatureTagSource='backfill' onto the empty-tag findings via store.writeFindings; re-running is a no-op (idempotent); confirmed tags are never overwritten; every touched finding's _hash is unchanged. Afterwards (post-DONE operation) learning_scan derives real signals and learning_effectiveness reports non-zero predictive value.",
+  "facts": [
+    "finding_add attaches signatureTag + signatureTagSource AFTER the finding _hash (finding.ts ~line 312); both are EXCLUDED from signFinding / the _hash (B-4f46 + 3.2). This story must reuse that exact attach pattern so writes never change any _hash.",
+    "SignatureTagSource = 'auto' | 'confirmed' (experience-layer-types.ts:81); this story adds 'backfill' (used on core/types.ts Finding.signatureTagSource).",
+    "store.writeFindings(storyId, data) is the findings write port; store.readFindings + listStoryIds enumerate.",
+    "The signature map is the committed 3.5 artifact (lattice-Paper/backfill_signatures.json, { findingId -> 'area|failureMode' }); the command consumes it via --map and never calls an LLM at runtime (deterministic, auditable).",
+    "Adding a new command requires a PROCESS_FACT_LEVELS entry or the process-fact-contract suite fails; this is a WRITING L2 command (not read-only, not in READ_ONLY_COMMANDS), like signature_registry_set."
+  ],
+  "constraints": [
+    "Every touched finding's _hash MUST be byte-identical after the write (the single most important safety property; verifier-enforced).",
+    "Only fill EMPTY signatureTags; never overwrite 'confirmed'; overwrite 'auto' only with --overwriteAuto.",
+    "Dry-run is the DEFAULT; --apply required to write; idempotent.",
+    "The pure decision leaf does no I/O; the handler does the store reads/writes.",
+    "No LLM at runtime; no change to signFinding/_hash/any gate; mass-apply against live findings is a post-DONE operation, not part of this story's diff."
+  ],
+  "unknowns": [
+    "Default --map path -- resolved: require explicit --map (no silent default writing to live data); the smoke uses a temp map.",
+    "Whether to also persist the map into the repo -- resolved: out of scope; the map lives in lattice-Paper and is passed via --map at apply time."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/signature-backfill.ts",
+    "packages/main/src/handlers/signature-backfill.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T00:11:51.142Z"
+}
