@@ -54,6 +54,25 @@
       ],
       "signatureTag": "edge|ts|prompt-text-embedded",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbb6:F-004",
+      "desc": "spec-boundary: host-overflow.md lines 28-29, 190-191, and 219 still say antigravity is a refused/scaffolded real-subprocess target and list it as a non-goal (\"Claim Codex or Antigravity real-subprocess support in v1.0.1\"), but B-fbb6 promotes antigravity to have a real-leaf agy path in dispatch_run. The decision doc was not updated in this diff (git diff main...HEAD -- docs/ produces no output). A spec that directly contradicts the delivered behavior is a doc-promise-undelivered in reverse: the doc promises non-delivery of something that was delivered. Fix: update host-overflow.md to reflect that B-fbb6 promotes antigravity from scaffolded to supervised real-leaf (dispatch_run with allowRealHostSubprocess), while keeping it refused for unattended dispatch_auto.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-19T18:12:55.886Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-003",
+      "_hash": "98c31584927218ef7eb9dcb092f6bb70ef5645cb25ce774cec931655a3808ebc",
+      "files": [
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "missing|md|spec-boundary-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
