@@ -51,7 +51,7 @@
       "desc": "dead-export: version-bump.ts:51 formatSemver is exported but never imported by any external caller; it is only used internally by nextPatch on line 58. Exporting an internal helper unnecessarily widens the module API surface.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T19:54:38.638Z",
@@ -62,7 +62,11 @@
         "packages/main/src/core/version-bump.ts"
       ],
       "signatureTag": "missing|ts|dead-export-version",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: formatSemver is now module-private (no export); nextPatch is its only caller.",
+      "resolvedAt": "2026-06-19T20:45:43.382Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-aa8a:F-004",
