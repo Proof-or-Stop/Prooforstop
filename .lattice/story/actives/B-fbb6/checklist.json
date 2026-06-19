@@ -217,9 +217,9 @@
       "id": "CHK-004",
       "title": "Rename remaining gemini provider-semantic references + smokes; grep-clean; suite green",
       "context": "Rename the 'gemini' provider-semantic literals / runtime-probe ids across core (e.g. capabilities.ts, command-policy.ts, dispatch-policy.ts, planner.ts, verdicts.ts, config.ts, types.ts, process-fact-levels.ts, host runtime probe ids) to 'antigravity'. Rename/rework gemini-named smokes (provider-gemini-smoke, usage-ledger-codex-gemini-smoke gemini cases) + package.json scripts + run-all-smokes discovery. Build clean (tsc, no any) and run the full smoke suite green. Acceptance: `grep -rinE '\\bgemini\\b' packages/main/src` shows no remaining PROVIDER-semantic reference (model-name strings unrelated to the provider, if any, are explicitly justified); an antigravity dispatch writes a provider.name=antigravity / source=unavailable ledger final.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T17:57:25.516Z",
       "verificationIntent": {
         "happy": [
           {
