@@ -39,6 +39,24 @@
       ],
       "signatureTag": "missing|ts|prepare-registered-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb36:F-003",
+      "desc": "Dry-run no-mutation coverage is overclaimed. CHK-005:adversarial:2 requires dryRun=true against a scenario that would otherwise merge main, refresh stale evidence, or write metadata, but the smoke at packages/main/src/tasks/done-prepare-smoke.ts:402 builds an already-ready repo with no main divergence, no stale evidence, and no build output path. It only proves git status is unchanged in a mostly no-op dryRun path. A regression that accidentally merges main or refreshes stale evidence under dryRun would not be exercised by this case. Add a dryRun smoke with main ahead and/or stale safe-refresh evidence, assert the same files/evidence/version/build state before and after, and assert the output reports the skipped planned mutation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:20:13.797Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-002",
+      "_hash": "147ce702762fd8a565c940c7424bb0d9bab3fd3bd2180bd1afef9d99e740bb3f",
+      "files": [
+        "packages/main/src/tasks/done-prepare-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|mutation-coverage-overclaimed",
+      "signatureTagSource": "auto"
     }
   ]
 }
