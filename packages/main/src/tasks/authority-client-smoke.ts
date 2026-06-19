@@ -60,21 +60,70 @@ import {
   buildAuthorityRunEventsEnvelope,
   buildFinalHostReviewPromptDigestInput,
   buildGateEvaluateRequest,
+  buildNoOverlapMaterialOverlapAuditDefault,
   computeGateInputDigest,
+  GateEvaluateRequestContractSchema,
   FINAL_HOST_REVIEW_PROMPT_PROFILE,
   isAuthorityBatchFullyAccepted,
   type EvidenceEnvelopeContract,
 } from '../core/authority-contracts.js';
-import { canonicalDigest, generateEd25519KeyPair, signCanonical, stripSignature } from '../core/authority-signing.js';
+import { runAuthorityCompletionLoop } from '../core/authority-completion.js';
+import { canonicalDigest, generateEd25519KeyPair, signCanonical, stripSignature, verifyCanonical } from '../core/authority-signing.js';
 import { verifyLatticeAuthorityReceipt } from '../core/lattice-authority-native.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
-import { executePlannedSteps, type AuthorityGateOutcome } from '../core/planned-steps-executor.js';
+import { buildAuthorityGateInput, executePlannedSteps, type AuthorityGateOutcome } from '../core/planned-steps-executor.js';
 import type { JobPlan, PlannedStep, PlannerStoreLike } from '../core/planner.js';
 import type { StoryInfo } from '../core/types.js';
+import { signedGateRequest, type LiveContext } from './authority-live-python-e2e-smoke.js';
 
 const GATE_ACTOR_KEYPAIR = generateEd25519KeyPair();
 const VERDICT_ACTOR_KEYPAIR = generateEd25519KeyPair();
 const TEST_AUTH = { customerApiKey: 'test-customer-key' };
+
+function assertEnvelopeSignedBy(envelope: Record<string, unknown>, publicKey: string): void {
+  const signature = envelope.signature;
+  assert.equal(typeof signature, 'string', 'signed gate envelope carries a signature');
+  if (typeof signature !== 'string') {
+    throw new Error('signed gate envelope carries a signature');
+  }
+  assert.equal(
+    verifyCanonical(stripSignature(envelope), signature, publicKey),
+    true,
+    'materialOverlapAudit must be present before signing so the envelope signature verifies',
+  );
+}
+
+function liveContextFixture(extraEvidenceRefs: string[] = []): LiveContext {
+  return {
+    liveURL: 'https://authority.test',
+    expectedServerKeyHex: '00'.repeat(32),
+    serverKeyId: 'server-key-1',
+    commandCatalogDigest: 'command-catalog-digest-1',
+    evidenceSchemaDigest: 'evidence-schema-digest-1',
+    customerApiKey: 'customer-key-canary',
+    projectId: 'project-live-shape',
+    storyId: 'B-live-shape',
+    sessionId: 'session-live-shape',
+    runnerId: 'runner-live-shape',
+    deviceId: 'device-live-shape',
+    mainActorId: 'main-live-shape',
+    reviewerActorId: 'reviewer-live-shape',
+    verifierActorId: 'verifier-live-shape',
+    secondVerifierActorId: 'verifier2-live-shape',
+    runnerActorId: 'runner-actor-live-shape',
+    extraEvidenceRefs,
+    repo: {
+      headHash: 'head-live-shape',
+      materialHash: 'material-live-shape',
+      dirty: false,
+    },
+    main: generateEd25519KeyPair(),
+    reviewer: generateEd25519KeyPair(),
+    verifier: generateEd25519KeyPair(),
+    secondVerifier: generateEd25519KeyPair(),
+    runner: generateEd25519KeyPair(),
+  };
+}
 
 function testAuthorityClient(
   baseURL: string,
@@ -265,6 +314,79 @@ assert.equal(normalizeAuthorityTimeout(undefined), DEFAULT_AUTHORITY_TIMEOUT_MS)
     false,
   );
 }
+
+// --- GateEvaluateRequestContract materialOverlapAudit schema ------------------
+{
+  const emptyAuditRequest = buildGateEvaluateRequest({
+    projectId: 'project-1',
+    storyId: 'B-auth',
+    targetPhase: 'DONE',
+    until: 'DONE',
+    materialOverlapAudit: {
+      changedFiles: [],
+      actualFileOverlaps: [],
+    },
+  });
+  const parsedEmpty = GateEvaluateRequestContractSchema.parse(emptyAuditRequest);
+  assert.deepEqual(parsedEmpty.materialOverlapAudit, {
+    changedFiles: [],
+    actualFileOverlaps: [],
+  });
+
+  const changedFilesOnlyRequest = buildGateEvaluateRequest({
+    projectId: 'project-1',
+    storyId: 'B-auth',
+    targetPhase: 'DONE',
+    until: 'DONE',
+    materialOverlapAudit: {
+      changedFiles: ['packages/main/src/core/authority-client.ts'],
+      actualFileOverlaps: [],
+    },
+  });
+  const parsedChangedFilesOnly = GateEvaluateRequestContractSchema.parse(changedFilesOnlyRequest);
+  assert.deepEqual(parsedChangedFilesOnly.materialOverlapAudit?.changedFiles, ['packages/main/src/core/authority-client.ts']);
+  assert.deepEqual(parsedChangedFilesOnly.materialOverlapAudit?.actualFileOverlaps, []);
+
+  assert.equal(
+    GateEvaluateRequestContractSchema.safeParse({
+      ...emptyAuditRequest,
+      materialOverlapAudit: { changedFiles: [] },
+    }).success,
+    false,
+    'materialOverlapAudit missing actualFileOverlaps is rejected',
+  );
+  assert.equal(
+    GateEvaluateRequestContractSchema.safeParse({
+      ...emptyAuditRequest,
+      materialOverlapAudit: { changedFiles: 'packages/main/src/core/authority-client.ts', actualFileOverlaps: [] },
+    }).success,
+    false,
+    'materialOverlapAudit changedFiles must be an array',
+  );
+  assert.equal(
+    GateEvaluateRequestContractSchema.safeParse({
+      ...emptyAuditRequest,
+      materialOverlapAudit: { changedFiles: [], actualFileOverlaps: [], ignoredPayload: true },
+    }).success,
+    false,
+    'materialOverlapAudit rejects unrelated nested payload keys',
+  );
+  console.log('GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]');
+}
+
+// --- authority-live-python-e2e DONE preflight request shape --------------------
+for (const refs of [[], ['EV-one'], ['EV-one', 'EV-two']]) {
+  const ctx = liveContextFixture(refs);
+  const body = signedGateRequest(ctx, `decision-live-shape-${refs.length}`);
+  const decision = body.decision as Record<string, unknown>;
+  assert.deepEqual(decision.materialOverlapAudit, {
+    changedFiles: [],
+    actualFileOverlaps: [],
+  });
+  assert.equal((decision.evidenceHashes as unknown[]).length, refs.length);
+  assertEnvelopeSignedBy(body, ctx.main.publicKey);
+}
+console.log('materialOverlapAudit.present=true overlapCount=0');
 
 // --- joinURL ------------------------------------------------------------------
 assert.equal(joinURL('https://a.test/', '/v1/evidence'), 'https://a.test/v1/evidence');
@@ -509,6 +631,20 @@ const gateRequest = buildGateEvaluateRequest({
   until: 'DONE',
   evidenceRefs: ['B-auth:step-fake', 'B-auth:step-validate'],
 });
+
+{
+  const audit = {
+    changedFiles: ['packages/main/src/core/planned-steps-executor.ts'],
+    actualFileOverlaps: ['packages/main/src/shared.ts'],
+  };
+  const carried = buildAuthorityGateInput(authorityJobPlan(), [], undefined, 'project-1', audit);
+  assert.deepEqual(carried.materialOverlapAudit, audit, 'AuthorityGateInput carries supplied materialOverlapAudit unchanged');
+  assert.equal(
+    buildAuthorityGateInput(authorityJobPlan(), [], undefined, 'project-1').materialOverlapAudit,
+    undefined,
+    'AuthorityGateInput does not invent materialOverlapAudit when callers omit it',
+  );
+}
 
 function signedGateReceipt(
   overrides: Partial<NativeGateReceipt> = {},
@@ -1007,7 +1143,11 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
 {
   const approve = dynamicApproveForGateRequest();
   const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
-  const capture: { evidenceBatchBody?: string } = {};
+  const capture: { evidenceBatchBody?: string; gateEvaluateBody?: string } = {};
+  const materialOverlapAudit = {
+    changedFiles: [],
+    actualFileOverlaps: [],
+  };
   const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
     env: authorityEnv({
       LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: approve.serverPublicKeyHex,
@@ -1020,6 +1160,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
       counts,
       capture,
     }),
+    materialOverlapAudit,
   });
   assert.equal(resolution.configured, true, 'fully configured authority job runs a live gate round-trip');
   assert.equal(resolution.decision?.status, 'verified', `decision should verify: ${JSON.stringify(resolution.decision)}`);
@@ -1033,6 +1174,10 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(evidenceBatch.evidences?.[0]?.deviceId, 'device-live-1', 'live evidence binds to the configured device id when present');
   assert.match(evidenceBatch.evidences?.[0]?.commandDigest, /^[0-9a-f]{64}$/, 'live evidence carries server-required commandDigest');
   assert.match(evidenceBatch.evidences?.[0]?.transcriptHash, /^[0-9a-f]{64}$/, 'live evidence carries server-required transcriptHash');
+  const gateEnvelope = JSON.parse(capture.gateEvaluateBody ?? '{}') as Record<string, unknown>;
+  assert.deepEqual((gateEnvelope.decision as Record<string, unknown>)?.materialOverlapAudit, materialOverlapAudit);
+  assertEnvelopeSignedBy(gateEnvelope, GATE_ACTOR_KEYPAIR.publicKey);
+  console.log('signed DONE gate envelope contains decision.materialOverlapAudit before signature');
   assert(resolution.evaluator, 'a verified approve hands the executor an evaluator');
   // Drive the executor with the resolved evaluator: authority DONE only on the verified receipt.
   const jobPlan = authorityJobPlan();
@@ -1043,6 +1188,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     now: () => new Date('2026-06-06T00:00:00Z'),
     authorityGate: resolution.evaluator,
     gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan),
+    materialOverlapAudit,
   });
   const gateStep = exec.steps.find(step => step.type === 'gate.evaluate');
   assert.equal(
@@ -1054,6 +1200,97 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(exec.authorityDone, true, 'per-run authorityDone projected only on the verified native receipt');
   assert.equal(exec.fullAuthorityDone, false, 'executor never claims fullAuthorityDone (multi-host owned elsewhere)');
   assert.equal(exec.localDone, false, 'an authority job never claims local lifecycle DONE');
+}
+
+// --- materialOverlapAudit: non-empty overlaps are preserved for server rejection -
+{
+  const { serverPublicKeyHex } = signedGateReceipt();
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const capture: { gateEvaluateBody?: string } = {};
+  const materialOverlapAudit = {
+    changedFiles: ['packages/main/src/core/authority-client.ts'],
+    actualFileOverlaps: ['packages/main/src/shared.ts'],
+  };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: serverPublicKeyHex,
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_ENCODING: 'hex',
+    }),
+    fetchImpl: wiringRouterFetch({
+      counts,
+      capture,
+      evaluate: {
+        status: 200,
+        body: (requestBody: any) => {
+          assert.deepEqual(requestBody.decision?.materialOverlapAudit, materialOverlapAudit);
+          return { decision: 'reject', reason: 'material overlap detected' };
+        },
+      },
+    }),
+    materialOverlapAudit,
+  });
+  assert.equal(resolution.configured, true, 'configured gate still sends the request with non-empty overlap evidence');
+  assert.equal(resolution.decision?.status, 'rejected', 'server rejection for non-empty overlaps stays fail-closed');
+  assert.equal(counts.evaluate, 1, 'non-empty overlap request reaches the server instead of being locally cleared');
+  const gateEnvelope = JSON.parse(capture.gateEvaluateBody ?? '{}') as Record<string, unknown>;
+  assert.deepEqual((gateEnvelope.decision as Record<string, unknown>)?.materialOverlapAudit, materialOverlapAudit);
+  assertEnvelopeSignedBy(gateEnvelope, GATE_ACTOR_KEYPAIR.publicKey);
+  console.log('actualFileOverlaps preserved count=1');
+}
+
+// --- authority completion loop: no-overlap audit default on real caller path ----
+{
+  const keypair = generateEd25519KeyPair();
+  const serverPublicKeyHex = Buffer.from(keypair.publicKey, 'base64').toString('hex');
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const capture: { gateEvaluateBody?: string } = {};
+  const expectedNoOverlapAudit = buildNoOverlapMaterialOverlapAuditDefault();
+  const result = await runAuthorityCompletionLoop({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan: authorityJobPlan(),
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    env: authorityEnv({
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: serverPublicKeyHex,
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_ENCODING: 'hex',
+    }) as NodeJS.ProcessEnv,
+    fetchImpl: wiringRouterFetch({
+      counts,
+      capture,
+      evaluate: {
+        status: 200,
+        body: (requestBody: any) => {
+          assert.deepEqual(
+            requestBody.decision?.materialOverlapAudit,
+            expectedNoOverlapAudit,
+            'completion loop signed DONE gate request uses the no-overlap material audit default',
+          );
+          const { receipt } = signedGateReceipt(
+            {
+              inputDigest: pythonGateDecisionInputDigestFromEvaluateBody(requestBody),
+              issuedAt: '2026-06-06T00:00:00.000Z',
+            },
+            keypair,
+          );
+          return { decision: 'approve', decisionDigest: receipt.decisionDigest, receipt };
+        },
+      },
+    }),
+    multiHost: {
+      independentHostVerdictCount: 0,
+      satisfied: false,
+      hostVerdictRefs: [],
+    },
+  });
+  assert.equal(result.resolution.configured, true, 'completion loop performs the gate round-trip');
+  assert.equal(result.resolution.decision?.status, 'verified', `completion loop gate should verify: ${JSON.stringify(result.resolution.decision)}`);
+  assert.equal(result.execution.receiptVerified, true, 'completion loop executor consumes the same audited gate input');
+  assert.equal(result.completion.authorityDone, true, 'completion loop still projects per-run authorityDone after the verified receipt');
+  assert.equal(counts.evaluate, 1, 'completion loop reached exactly one gate evaluate call');
+  const gateEnvelope = JSON.parse(capture.gateEvaluateBody ?? '{}') as Record<string, unknown>;
+  assert.deepEqual((gateEnvelope.decision as Record<string, unknown>)?.materialOverlapAudit, expectedNoOverlapAudit);
+  assertEnvelopeSignedBy(gateEnvelope, GATE_ACTOR_KEYPAIR.publicKey);
+  console.log('authority completion loop no-overlap audit default PASS');
 }
 
 // --- claimed live job: server runId wins over ambient SESSION_ID for uploads ---

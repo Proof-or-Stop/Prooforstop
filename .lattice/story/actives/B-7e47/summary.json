@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7e47",
+  "changes": "Added materialOverlapAudit as a typed Authority gate request contract, threaded it into signed DONE /v1/gates/evaluate decisions across live preflight, planner, completion loop, and claimed-job paths, preserved non-empty overlaps for fail-closed server rejection, and added regression smoke coverage.",
+  "usage": "Run npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js. For live staging, run node packages/main/dist/tasks/authority-live-python-e2e-smoke.js only with the required LATTICE_AUTHORITY_LIVE_* environment variables set.",
+  "expectedOutcome": "The user sees Authority DONE gate request evidence with materialOverlapAudit.present=true overlapCount=0, signed DONE gate envelope contains decision.materialOverlapAudit before signature, and no DONE enforce missing-audit error is produced by the local request-shape path.",
+  "actualTranscript": "lattice validate --story=B-7e47 --json passed. authority-client-smoke printed GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[], materialOverlapAudit.present=true overlapCount=0, signed DONE gate envelope contains decision.materialOverlapAudit before signature, actualFileOverlaps preserved count=1, authority completion loop no-overlap audit default PASS.",
+  "outcomeDiff": "No local request-shape difference. Deployed staging live smoke was not executed because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were not set.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Live staging validation remains classified skipped in this worktree due missing LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY; no production DONE claim was made.",
+  "pitfalls": "Initial implementation fixed direct live preflight only; main review caught that real queued/completion DONE callers still omitted the audit, so scope was expanded and those caller paths were patched and tested.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 216943
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19379
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 499881
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1379583
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 449957
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 367068
+    }
+  },
+  "totalDurationMs": 2932812,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T19:31:32.396Z",
+  "updatedAt": "2026-06-19T19:31:32.396Z"
+}

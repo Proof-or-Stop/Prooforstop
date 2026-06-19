@@ -20,6 +20,7 @@ import { resolveAuthorityGateEvaluator } from '../core/authority-client.js';
 import { evaluateAuthorityCompletion } from '../core/authority-completion.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { canonicalDigest } from '../core/authority-signing.js';
+import { buildNoOverlapMaterialOverlapAuditDefault } from '../core/authority-contracts.js';
 import { LATTICE_DIR } from '../core/lattice-paths.js';
 
 /**
@@ -370,9 +371,15 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       // and returns a synchronous evaluator; when authority mode/url/server-key are
       // unconfigured it returns no evaluator and the executor fails closed at the
       // gate. Local/non-DONE jobs resolve to no evaluator with zero network.
+      const materialOverlapAudit =
+        ctx.authorityGateOptions?.materialOverlapAudit ?? buildNoOverlapMaterialOverlapAuditDefault();
       const authorityGate = await resolveAuthorityGateEvaluator(
         jobPlan as ReturnType<typeof buildJobPlan>,
-        { ...(ctx.authorityGateOptions ?? {}), cwd: ctx.authorityGateOptions?.cwd ?? ctx.root },
+        {
+          ...(ctx.authorityGateOptions ?? {}),
+          cwd: ctx.authorityGateOptions?.cwd ?? ctx.root,
+          materialOverlapAudit,
+        },
       );
       const execution = executePlannedSteps({
         root: ctx.root,
@@ -381,6 +388,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         maxSteps: args.maxExecuteSteps,
         authorityGate: authorityGate.evaluator,
         ...(authorityGate.evaluator ? { gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan as ReturnType<typeof buildJobPlan>) } : {}),
+        materialOverlapAudit,
       });
       // The single fail-closed completion gate. authorityDone/fullAuthorityDone are
       // derived ONLY from the executor's verified native gate_decision receipt plus

@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Fix only the observed DONE gate correctness gap.",
+    "Keep materialOverlapAudit inside the signed gate decision input before signing.",
+    "Preserve fail-closed behavior for real overlaps.",
+    "Do not create new server or command submission surfaces."
+  ],
+  "drivers": [
+    "Staging live DONE preflight blocks with materialOverlapAudit.present=false.",
+    "Server already has a clear /v1/gates/evaluate signed decision contract.",
+    "CLI must remain host-neutral and receipt-driven."
+  ],
+  "options": [
+    {
+      "name": "A: Add materialOverlapAudit to CLI gate request contract and signed envelope",
+      "pros": [
+        "Matches current Server contract exactly.",
+        "Smallest code and test surface.",
+        "Keeps receipt proof input digest semantics correct."
+      ],
+      "cons": [
+        "Requires touching both general gate path and live smoke path.",
+        "Real changedFiles source remains a later parallel-flow integration concern."
+      ]
+    },
+    {
+      "name": "B: Add a separate CLI command/check submission path for material overlap audit",
+      "pros": [
+        "Could feel explicit from a user-flow perspective."
+      ],
+      "cons": [
+        "Contradicts current Server gate consumption logic.",
+        "Would duplicate or invent an unsupported API contract.",
+        "Would not fix present=false unless Server behavior also changed."
+      ]
+    },
+    {
+      "name": "C: Disable or bypass DONE materialOverlapAudit in the smoke",
+      "pros": [
+        "Fastest way to make the smoke move past preflight."
+      ],
+      "cons": [
+        "Masks the production correctness requirement.",
+        "Would allow claiming DONE without satisfying the Server policy.",
+        "Violates fail-closed Authority semantics."
+      ]
+    }
+  ],
+  "chosen": "A: Add materialOverlapAudit to CLI gate request contract and signed envelope",
+  "rationale": "Option A directly fixes the actual mismatch: the Server expects materialOverlapAudit inside the signed /v1/gates/evaluate decision input, while the CLI currently omits it. It is the smallest consistent change and preserves Authority receipt semantics.",
+  "preMortem": [
+    {
+      "scenario": "The CLI adds materialOverlapAudit after signing or outside decision.",
+      "trigger": "Envelope construction appends the field in a wrapper object instead of the canonical decision payload.",
+      "consequence": "Server still reports present=false or signature/digest verification diverges.",
+      "mitigation": "Add envelope regression coverage that inspects signed request decision.materialOverlapAudit before verification/build output."
+    },
+    {
+      "scenario": "The smoke passes by clearing real overlaps.",
+      "trigger": "Implementation normalizes any actualFileOverlaps value to an empty array for DONE.",
+      "consequence": "A real material conflict could be hidden and Authority DONE would no longer fail closed.",
+      "mitigation": "Add negative coverage proving non-empty actualFileOverlaps is preserved in the request/envelope."
+    },
+    {
+      "scenario": "Only the live smoke is fixed, but the general Authority gate path still omits the audit.",
+      "trigger": "Patch touches authority-live-python-e2e-smoke.ts but not authority-client.ts or gate contract types.",
+      "consequence": "Manual smoke succeeds while real CLI Authority job flows still fail DONE preflight.",
+      "mitigation": "Update GateEvaluateRequestContract and buildGateEvaluateEnvelope, then test the general request/envelope builder path."
+    },
+    {
+      "scenario": "The story expands into Server endpoint or lifecycle redesign work.",
+      "trigger": "Implementation follows failed /v1/checks or /v1/commands attempts instead of the signed gate contract.",
+      "consequence": "Scope grows and may create a second unsupported contract that conflicts with Server policy.",
+      "mitigation": "Use the scope boundary and handoff doc as source of truth; reject new endpoint/command surfaces in review."
+    }
+  ],
+  "timestamp": "2026-06-19T18:47:13.735Z"
+}

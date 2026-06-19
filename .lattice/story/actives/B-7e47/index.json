@@ -4,7 +4,7 @@
   "title": "Fix Authority DONE material overlap audit submission",
   "description": "Lattice Authority Server DONE/enforce gate requires decision.materialOverlapAudit in the signed /v1/gates/evaluate envelope. Current Lattice CLI live smoke and Authority gate envelope omit the field, causing staging DONE preflight to fail with materialOverlapAudit.present=false. Fix only this correctness gap: carry the audit through CLI gate request contracts, include it before signing, preserve non-empty overlaps fail-closed, rebuild, and verify the targeted path.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-19T18:42:39.584Z",
   "startedAt": "2026-06-19T18:42:39.584Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T19:43:22.254Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T18:46:35.907Z",
+      "branch": "story/B-7e47",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T18:54:55.788Z",
+      "branch": "story/B-7e47",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T19:17:55.371Z",
+      "branch": "story/B-7e47",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T19:25:25.328Z",
+      "branch": "story/B-7e47",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T19:43:22.254Z",
+      "branch": "story/B-7e47",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7e47",
-    "branch": "story/B-7e47",
-    "createdAt": "2026-06-19T18:46:15.754Z"
-  }
+  "currentReviewRound": "2026-06-19T19:17:55.371Z"
 }

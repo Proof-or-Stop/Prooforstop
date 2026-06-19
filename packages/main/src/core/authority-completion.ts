@@ -18,7 +18,10 @@ import {
   type DisagreementBehavior,
 } from './verdicts.js';
 import { buildGateEvidenceRefResolver } from './evidence-uploader.js';
-import type { AuthorityVerdictReceipt } from './authority-contracts.js';
+import {
+  buildNoOverlapMaterialOverlapAuditDefault,
+  type AuthorityVerdictReceipt,
+} from './authority-contracts.js';
 import type { BoundedProviderExecutor } from '../providers/types.js';
 
 const REQUIRED_FINAL_HOST_CHECK_WAVES = 3;
@@ -526,6 +529,8 @@ export interface AuthorityCompletionLoopOptions {
   providerExecutor?: BoundedProviderExecutor;
   /** Injectable fetch for the authority gate round-trip (tests inject a fake server). */
   fetchImpl?: AuthorityGateEvaluatorOptions['fetchImpl'];
+  /** Caller-owned material overlap audit; defaults to the no-overlap CLI audit when no detector exists. */
+  materialOverlapAudit?: AuthorityGateEvaluatorOptions['materialOverlapAudit'];
   /**
    * Multi-host reconciliation result, when a final verification wave already ran.
    * When supplied it is consumed verbatim and TAKES PRECEDENCE over any server query.
@@ -744,12 +749,14 @@ export async function runAuthorityCompletionLoop(
   options: AuthorityCompletionLoopOptions,
 ): Promise<AuthorityCompletionLoopResult> {
   const { now } = options;
+  const materialOverlapAudit = options.materialOverlapAudit ?? buildNoOverlapMaterialOverlapAuditDefault();
 
   const resolution = await resolveAuthorityGateEvaluator(options.jobPlan, {
     ...(options.env ? { env: options.env } : {}),
     ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
     ...(now ? { now } : {}),
     cwd: options.root,
+    materialOverlapAudit,
   });
 
   const execution = executePlannedSteps({
@@ -762,6 +769,7 @@ export async function runAuthorityCompletionLoop(
     ...(now ? { now } : {}),
     authorityGate: resolution.evaluator,
     ...(resolution.evaluator ? { gateEvidenceRefResolver: buildGateEvidenceRefResolver(options.jobPlan) } : {}),
+    materialOverlapAudit,
   });
 
   let finalPhase: string | null = null;
