@@ -4,7 +4,7 @@
   "title": "Surface cache-less-provider (codex/gemini) tokens in usage-ledger aggregates via an additive primaryReportedTotal",
   "description": "Provider-reported codex/gemini token records are captured on disk (B-12d7) but never appear in any usage-ledger aggregate, because the strict four-field identity buckets every record with a null cache dimension as unknown. Add a NEW additive primary (input+output) aggregate to summary.ts and diagnostics.ts so these tokens become visible, without inferring any value the provider did not report and without changing the strict four-field providerReportedTotal semantics.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "usage-ledger",
@@ -57,6 +57,14 @@
       "branch": "story/B-b1f4",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T13:15:28.077Z",
+      "branch": "story/B-b1f4",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -70,5 +78,6 @@
     "path": ".worktrees/B-b1f4",
     "branch": "story/B-b1f4",
     "createdAt": "2026-06-19T12:34:53.678Z"
-  }
+  },
+  "currentReviewRound": "2026-06-19T13:15:28.077Z"
 }
