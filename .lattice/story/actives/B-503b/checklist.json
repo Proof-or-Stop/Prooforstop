@@ -13,7 +13,7 @@
       "userSees": "User sees a new execution plan under docs/requirements/decisions/ that names the mandatory review floor and escalation policy.",
       "status": "done",
       "startTime": "2026-06-19T00:22:33.113Z",
-      "endTime": "2026-06-19T00:23:49.630Z",
+      "endTime": "2026-06-19T00:37:23.686Z",
       "files": {
         "modify": [
           "docs/requirements/NAV.md"
@@ -50,19 +50,19 @@
           "command": "rg -n \"zero-review|three rounds x one|3x1|3x2\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
           "result": "pass",
           "note": "The document defines zero-review code DONE as invalid, one review round for clean ordinary code, failure-triggered 3x1 local single-host audit, and high-risk 3x2/degraded fallback boundaries.",
-          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:23:49.943Z"
+          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
+          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
+          "timestamp": "2026-06-19T00:37:23.827Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "rg -n \"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "command": "rg -n \"no material code diff|one-round low-risk|Do not force every code-changing story into three rounds\" docs/requirements/decisions/review-assurance-floor-execution-plan.md && rg -n \"Review Assurance Floor Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The document preserves the docs-only low-risk path and explicitly rejects forcing every code-changing story into three rounds by default.",
-          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:23:50.531Z"
+          "note": "The document preserves the docs-only low-risk path, rejects forcing every code-changing story into three rounds by default, and is discoverable from docs/requirements/NAV.md.",
+          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
+          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
+          "timestamp": "2026-06-19T00:37:23.975Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "rg -n \"two-host independent|authorityDone|fullAuthorityDone|productionDone|Authority Server\" docs/requirements/decisions/review-assurance-floor-execution-plan.md",
           "result": "pass",
           "note": "The document explicitly forbids treating local 3x1 as two-host independent review and forbids local evidence from claiming Authority Server completion or authorityDone/fullAuthorityDone/productionDone.",
-          "headHash": "0921847713ff70af5a3c8515fe44924b595d73ca",
-          "materialHash": "2af9eb1daea856b8e2b9f87ea0bbf5bf9732af39570861a8516b632ff208e5d5",
-          "timestamp": "2026-06-19T00:23:50.758Z"
+          "headHash": "1535d4f3390694fb618bfb9001c21316d30b8d0b",
+          "materialHash": "5c455b54bf4396623b0aaa0349dfed0d5cb10d77150b96bb27f07fff7241c604",
+          "timestamp": "2026-06-19T00:37:24.136Z"
         }
       ]
     },

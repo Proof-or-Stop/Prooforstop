@@ -2,7 +2,8 @@
   "storyId": "B-503b",
   "mode": "enforce",
   "allowedModify": [
-    "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/NAV.md"
   ],
   "allowedCreate": [
     "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
@@ -14,8 +15,8 @@
     "packages/main/dist",
     "authority_trust.env"
   ],
-  "scopeChangeReason": "Initialize enforce scope from PLAN checklist for documentation-only execution-plan story.",
+  "scopeChangeReason": "Include docs/requirements/NAV.md because durable decision docs should be discoverable from the requirements navigation.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T00:21:28.098Z",
-  "updatedAt": "2026-06-19T00:21:28.098Z"
+  "updatedAt": "2026-06-19T00:37:03.430Z"
 }
