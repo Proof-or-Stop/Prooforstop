@@ -47,7 +47,64 @@
         "create": [],
         "test": []
       },
-      "userSees": "On an external main advance mid-DONE, `lattice story_advance --phase=DONE` prints \"DONE aborted: main advanced (<old7> -> <new7>) after the pre-check sync; nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.\" and the story phase is still TEST (no partial merge). With main unchanged in-lock, DONE merges normally."
+      "userSees": "On an external main advance mid-DONE, `lattice story_advance --phase=DONE` prints \"DONE aborted: main advanced (<old7> -> <new7>) after the pre-check sync; nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.\" and the story phase is still TEST (no partial merge). With main unchanged in-lock, DONE merges normally.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "Smoke happy path: with main unchanged inside the lock, story_advance DONE reaches DONE, the merge lands, and the worktree/branch are cleaned — the happy path is unaffected by the re-check. Passed (14 checks).",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "Smoke abort path: an external advance to main after the pre-check sync makes story_advance DONE fail with the DONE-aborted resync message and the persisted phase stays TEST (both worktree and main stores). Passed.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "Smoke abort path asserts no partial DONE: phase=TEST in both stores, main tip is the external commit (NOT a DONE merge of the story branch), and no merge commit from the story branch landed on main. Passed.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "The baseline syncedMainSha is captured AFTER autoSyncMain (transition-orchestrator.ts ~358), so a normal DONE (the smoke happy path, which may sync) does NOT false-abort — only an external advance after the baseline trips the abort. Passed.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "The abort throws to the EXISTING try/finally that releases the main-write-lock (no new lock code). Proven in-smoke: abort and happy run in the SAME temp root, and the happy-path DONE later acquires the same global main-write-lock and succeeds — so the aborted DONE released the lock (no deadlock). The abort also leaves the worktree+branch recoverable. Passed.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,7 +143,41 @@
         ],
         "test": []
       },
-      "userSees": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js prints its checks and exits 0; full npm test exits 0 with the new smoke included."
+      "userSees": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js prints its checks and exits 0; full npm test exits 0 with the new smoke included.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke directly: exits 0 and prints \"done-premerge-mainsha-recheck-smoke passed (14 checks)\".",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with the new test:done-premerge-mainsha-recheck step in the chain.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js",
+          "result": "pass",
+          "note": "The smoke is non-vacuous (RED/GREEN verified): disabling the re-check in dist made the abort assertion fail (\"story_advance should have failed but succeeded\"); restoring made it pass — the smoke is load-bearing on the fix. Passed.",
+          "headHash": "2e500cc5dae0037cacbf41468c428bc0adde7b53",
+          "materialHash": "103723b20fd46aad74dde10378bd19d12d05f8bcc0f1902f622c9341253aa54e",
+          "timestamp": "2026-06-19T21:20:39.390Z"
+        }
+      ]
     }
   ]
 }
