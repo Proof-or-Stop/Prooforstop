@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Export/extract readGitStatusLines + add the clean-tree preflight to review_run_start",
       "context": "(1) In done-oracle.ts, readGitStatusLines is private (line ~75) -- export it OR extract the git status --porcelain read + the classify/evaluate path into a small shared helper, WITHOUT changing the DONE gate verdict logic. (2) In the review_run_start handler (handlers/review-run.ts / core/review-run.ts), after the REVIEW phase check and BEFORE capturing the review-run snapshot, evaluate the working tree via that shared path (classifyGitStatusRows with dirtyWorktreeClassifierOptionsForStory + evaluateDirtyGate over DIRTY_GATE_POLICY). Refuse when the evaluation reports ANY BLOCKING category (material_source or fixture changes) with a clear actionable message (commit/revert code/config, then rerun review_run_start); the non-blocking categories (lattice_metadata / runtime_artifact / declared_artifact) pass. Do NOT change the DONE gate verdict, materialHash/currentMaterialHash computation, or the evidence-write-time freshness guard.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T14:15:25.522Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
