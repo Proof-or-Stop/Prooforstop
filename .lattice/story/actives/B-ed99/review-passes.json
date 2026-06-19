@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T02:45:00.736Z",
       "reviewRunId": "B-ed99:RR-008",
       "_hash": "4f379bbe2b305c4d08d83f9fbe3242fdaba44ffeb2bd12c80491804bf05fde66"
+    },
+    {
+      "id": "B-ed99:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS at HEAD 0ee22b43a: lattice validate --story=B-ed99 --json reports 12/12 verification intents covered with no warnings; node packages/main/dist/tasks/review-assurance-floor-smoke.js passes 9 checks covering docs-only non-overblock, zero-review block, one-round clean material pass, stale material rejection, sticky 3x1 failure signal, high-risk 3x2 plus degraded-single-host fallback, no Authority overclaim, material diff classification, and wrapper-root machine guard; node scripts/verify-process-fact-contract.mjs passes and now requires F-003/F-004 process-fact consumers autopilot_review_submit and review_escalation_fallback_set to include the review assurance floor while preserving authorityDone/fullAuthorityDone/productionDone false semantics.",
+      "createdAt": "2026-06-19T03:00:30.275Z",
+      "reviewRound": "2026-06-19T02:45:00.736Z",
+      "reviewRunId": "B-ed99:RR-010",
+      "_hash": "9f3b30fbbdbcfe7d08610256d39db9d4defd5face3b03bf348e4aed4a6b6b085"
     }
   ]
 }
