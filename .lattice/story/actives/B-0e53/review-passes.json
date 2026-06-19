@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T21:21:11.654Z",
       "reviewRunId": "B-0e53:RR-003",
       "_hash": "1e0fa284cdb8a028933916a10ce11fc4dd76e9c8153fd4869f67a7f145642acd"
+    },
+    {
+      "id": "B-0e53:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness verified. (1) readMainSha helper is self-contained in transition-orchestrator.ts, no residue elsewhere. (2) syncedMainSha is captured unconditionally after autoSyncMain (covering both synced and already-up-to-date cases). (3) Re-check block is strictly before actor.send (line 438 vs 450) and before store.writeStory (483) — abort throws before any phase=DONE persists. (4) Throw propagates to the existing try/finally which releases doneMainMergeLock and stops the actor — no new lock handling needed. (5) Non-DONE paths are fully unaffected (both capture and re-check are DONE-guarded; syncedMainSha stays undefined for all other phases). (6) Fail-open is correctly implemented: only two successful reads that DIFFER abort; undefined reads do not abort. (7) Smoke test covers abort path (shim advances main during merge-tree intercept) and happy path (no shim); asserts phase stays TEST in both stores on abort, no merge commit lands, worktree and branch survive. (8) npm wiring in package.json is correct and included in the main test suite. (9) No concept deletion/replacement in this diff — pure addition. (10) No doc-promise-undelivered items.",
+      "createdAt": "2026-06-19T21:25:05.307Z",
+      "reviewRound": "2026-06-19T21:21:11.654Z",
+      "reviewRunId": "B-0e53:RR-001",
+      "_hash": "59f482a77638d5750fc64d9abc72536731383c94a00bbba3076a80ccb7b7802a"
     }
   ]
 }
