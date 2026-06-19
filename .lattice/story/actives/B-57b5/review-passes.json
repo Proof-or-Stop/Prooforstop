@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T19:03:54.687Z",
       "reviewRunId": "B-57b5:RR-001",
       "_hash": "711a1de2ef662a727169ae97221e8c595169b8e5bb0561ecac593aa81c59f9e7"
+    },
+    {
+      "id": "B-57b5:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after BUG-001 fix: extraction preserves story_create, story_advance INIT_CHECK, and recover_evidence dispatch behavior. INIT_CHECK metadata helper refuses pre-staged out-of-bounds paths before staging story metadata and commits only the bounded story metadata path, so the index isolation fix is conceptually correct. No Authority production claim or scope drift found.",
+      "createdAt": "2026-06-19T19:31:39.472Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-004",
+      "_hash": "d8c7fc52f44ad0625294a81b8faaf92bb1c230377e58276e0e812df57b4745a7"
     }
   ]
 }
