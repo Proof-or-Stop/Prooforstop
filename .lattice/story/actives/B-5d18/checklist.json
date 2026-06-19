@@ -97,7 +97,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "validate-command-timeout-smoke PASS: a hung command (setInterval) with the per-command timer is killed and finishes with code 124, timedOut=true; default ceiling applied when timeoutMs unset.",
+          "headHash": "34613a06d86990bf45e29aedeac85fc3c627d3db",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:27.576Z"
+        }
+      ]
     }
   ]
 }
