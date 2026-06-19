@@ -23,7 +23,16 @@
       "context": "new task smoke under packages/main/src/tasks/; build StoryInfo/ScopeContractData fixtures in-memory; assert overlap_declared_parallel (tier-1) vs advisory (tier-2), broad block only when broadGlobBlocks, fake_dependency_chain only when symbol absent, peer_contract_unreadable, and a clean parallel set returning block null; register in lattice.config.json",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+        ],
+        "test": []
+      }
     }
   ]
 }
