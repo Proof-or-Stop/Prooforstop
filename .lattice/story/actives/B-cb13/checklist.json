@@ -18,6 +18,62 @@
           "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File exists at docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md after decision_doc_save -> stat returns 0; WHY: canonical path correctness is the primary deliverable",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains all six story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9) -> grep finds each ID at least once; WHY: the record must enumerate every component story",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc renders the evidence arc numbers: rho=-0.55, held-out 62%, 656 signatures, recall 0.659, valid-rate 0.971 -> grep finds each metric; WHY: these are the core quantitative claims",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains honesty guards: saturation not claimed, observational != causal, forward RCT pending -> grep finds phrases for each guard; WHY: the record must not overclaim",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains all required decision_doc structured sections (decision, context, scope, nonGoals, chosenApproach, alternatives, operationalRules, verificationRequirements, risks) -> heading grep finds each; WHY: decision_doc_proposal schema compliance",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Doc does not duplicate raw lattice-Paper CSV or figure files into the repo -> find docs/requirements/decisions/ for .csv/.png/.svg returns only the .md file; WHY: excludes clause forbids raw-data duplication",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc alternatives section lists at least 2 alternatives (degraded-signatures-only, cross-project aggregation, or persist-without-evidence) -> parse heading/bullet count >= 2; WHY: decision_doc_proposal requires alternatives>=2",
+            "type": "cli"
+          },
+          {
+            "desc": "File is valid UTF-8 Markdown with no binary content -> file(1) reports text/markdown; WHY: ensures the doc is renderable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc contains no CJK/non-ASCII characters -> grep -P \"[^\\x00-\\x7F]\" returns empty; WHY: english-artifacts gate requires ASCII-only content",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc does not claim causal proof (phrases like \"causally proven\", \"causal evidence\", \"proves that\") -> grep returns empty for causal-claim patterns; WHY: the causal result is deferred to the forward RCT, overclaiming is a factual error",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc does not claim saturation curve is real signal (phrases like \"saturation proves\", \"rising curve demonstrates\") -> grep returns empty; WHY: saturation is a known confound and must not be claimed",
+            "type": "cli"
+          },
+          {
+            "desc": "No source/CLI/handler/gate code files modified in the commit -> git diff --name-only against base shows only the .md file under docs/; WHY: excludes clause forbids code changes in this story",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
