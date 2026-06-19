@@ -57,7 +57,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/story-files-hash-material-drift.md:45 says review escalation host verdicts and degraded fallback records adopt storyFilesHash, and packages/main/src/core/review-escalation.ts:193 plus :299 only downgrade stale materialHash when event.storyFilesHash is present. The real writers packages/main/src/handlers/verdict.ts:190-203 and packages/main/src/handlers/review-escalation.ts:79-89 never persist storyFilesHash, so autopilot_review_submit/review_escalation_fallback_set records remain legacy strict-materialHash records; unrelated main merges still stale real escalation evidence while the new smoke only tests synthetic events. WHY: adopted binding behavior is promised but not delivered for production command output. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T22:18:22.435Z",
@@ -72,7 +72,11 @@
         "packages/main/src/tasks/review-escalation-smoke.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 19a543165: real autopilot_review_submit and review_escalation_fallback_set writers now produce records with storyFilesHash so review-escalation downgrade logic is usable by command-produced events, not only synthetic events. Review-escalation smoke includes producer command coverage. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-19T22:35:42.014Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a9a:F-004",
