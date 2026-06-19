@@ -94,9 +94,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T18:55:05.713Z",
       "userSees": "INIT_CHECK reconcile smoke still observes `INIT_CHECK metadata committed` and `main merged into story/`; recover_evidence failure output still prints JSON with `status` before stderr `recover_evidence refused` or `recover_evidence: validate failed after refresh`.",
       "excludes": [
         "Do not change StoryStore persistence semantics or storyMachine guard predicates.",
@@ -140,7 +140,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lifecycle-dispatch-smoke",
+          "result": "pass",
+          "note": "Focused smoke passed and verified INIT_CHECK dry-run text, recover_evidence refused/fail structured stdout before throw, success passthrough, and cli-engine compatibility export.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:05.805Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js",
+          "result": "pass",
+          "note": "INIT_CHECK metadata sync still resolves metadata merge conflicts without markers after moving helper code to cli/init-check-metadata-sync.ts.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:05.886Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Worktree authority smoke passed after metadata reconcile forced no-ff base merges to preserve DONE-equivalent merge topology.",
+          "headHash": "2839def41b6a6bf589508ba9fb28038fe0553660",
+          "materialHash": "80ec471c204630766933b73625b2a71492c3d9b9ba683e34796337eac9c0e18a",
+          "timestamp": "2026-06-19T18:55:05.968Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -212,6 +244,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented lifecycle dispatch extraction in commit 2839def41."
+    },
+    {
+      "timestamp": "2026-06-19T18:55:05.713Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented INIT_CHECK metadata sync and recover_evidence dispatch extraction in commit 2839def41."
     }
   ]
 }
