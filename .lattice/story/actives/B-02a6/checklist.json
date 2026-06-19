@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Reproduce the INIT-window data-loss in a regression smoke (create story in INIT, simulate a concurrent git clean -fd / wrong-branch checkout on the shared checkout, assert metadata is currently lost)",
       "context": "Lock the bug before fixing (systematic-debugging Phase 1/4). The smoke must fail on current main (metadata gone) so the fix is provably what closes it. Use a temp git repo fixture with the real .gitignore allowlist.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T04:22:27.339Z",
       "userSees": "Running lattice validate shows the new smoke: it FAILS on current main (the simulated concurrent git clean -fd wipes the INIT metadata) and PASSES after the fix, printing \"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\".",
       "verificationIntent": {
         "happy": [
