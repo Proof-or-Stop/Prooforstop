@@ -73,6 +73,24 @@
       ],
       "signatureTag": "missing|md|spec-boundary-host",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbb6:F-005",
+      "desc": "dispatch-policy.ts lines 258-260 and 408-410 still read \"antigravity ... remain scaffolded/refused real-host subprocess targets\" in the error message emitted when allowRealHostSubprocess=true is combined with allowedHosts:[antigravity]. This message is now factually wrong: antigravity gained a supervised real-leaf agy path in dispatch_run. The validate-policy error is emitted for dispatch_auto only (where antigravity IS still refused), but the wording misleads operators into thinking dispatch_run is also blocked. Fix: update the error text to distinguish dispatch_auto refusal (correct) from dispatch_run supervised path (newly added).",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-19T18:13:03.003Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-003",
+      "_hash": "ccb4941d6e4049b2dfcb6349deb2d855c5ed1ef4d9cb734d2339ba8c1b8ab945",
+      "files": [
+        "packages/main/src/core/dispatch-policy.ts"
+      ],
+      "signatureTag": "happy|ts|dispatch-policy-lines",
+      "signatureTagSource": "auto"
     }
   ]
 }
