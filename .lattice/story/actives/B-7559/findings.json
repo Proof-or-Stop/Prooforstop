@@ -137,7 +137,7 @@
       "desc": "quality-cleanup: docs/parallel-decomposition-spec.md §4.7 — parallelGate nested object in AuditConfig is not type-safe under the existing readUserConfig pattern. The current code does `return parsed as Partial<AuditConfig>` and then validates each scalar field individually (e.g., VALID_MODES.has(userOverrides.mode as AuditMode)). Adding a nested `parallelGate: { mode, maxConcurrentReview, broadGlobBlocks }` object is NOT handled by this pattern: an implementer following the existing scalar approach would likely write `merged.parallelGate = userOverrides.parallelGate ?? profileDefaults.parallelGate` — which bypasses all per-field validation and allows invalid mode strings through without the promised console.warn+fallback. The spec says validation is \"copied from deprecatedGcThreshold\" but those are top-level scalars; no code sketch is given for validating the nested struct. This is a doc-promise-undelivered gap: the spec promises per-field validation semantics for the nested object but gives no implementation path that achieves it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T01:53:36.099Z",
@@ -148,7 +148,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: added a dedicated resolveParallelGate(raw?: unknown) nested-object validation helper; documented that the per-scalar readUserConfig path does not recurse.",
+      "resolvedAt": "2026-06-19T02:05:05.058Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-008",
