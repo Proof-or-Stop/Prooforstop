@@ -1,0 +1,39 @@
+{
+  "storyId": "B-fb36",
+  "checkedAt": "2026-06-19T22:37:16.252Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-005 smoke coverage omits several required failure-mode smokes from docs/requirements/decisions/done-prepare-automation-execution-plan.md: merge-main conflict blocks at mergeMain, refreshStale=false blocks stale evidence, stale evidence that requires command rerun prints rerun commands, and prepare-generated metadata blocks at cleanTree until committed. The linked decision doc covers these, so this is non-blocking, but PLAN/verificationIntent should make them explicit for this high-risk lifecycle command."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T22:36:49.416Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "The referenced done-prepare execution plan still says Status: proposed while the story background says the plan was accepted; reconcile that source-of-truth status so implementation agents know the product scope is authorized, not just drafted."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-005 is framed as smoke coverage rather than a user-observable outcome. The behaviors it covers are valuable, but the checklist would be more product-coherent if the item names the reliability/readiness outcome and leaves smoke coverage as verification detail."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T22:37:16.252Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-005 smoke coverage omits several required failure-mode smokes from docs/requirements/decisions/done-prepare-automation-execution-plan.md: merge-main conflict blocks at mergeMain, refreshStale=false blocks stale evidence, stale evidence that requires command rerun prints rerun commands, and prepare-generated metadata blocks at cleanTree until committed. The linked decision doc covers these, so this is non-blocking, but PLAN/verificationIntent should make them explicit for this high-risk lifecycle command."
+        }
+      ]
+    }
+  ],
+  "_hash": "64df663c913d44f44808565c0cda5ad86cc99773a5c86e5c6739f0e661cc6a5b"
+}
