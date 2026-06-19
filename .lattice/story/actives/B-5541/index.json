@@ -4,7 +4,7 @@
   "title": "Regenerate the stale docs/requirements/NAV.md (English header + current titles) and rebrand 3 koala decision-doc H1 titles to Lattice",
   "description": "docs/requirements/NAV.md is a STALE generated artifact: the current generator (packages/main/src/tasks/truth.ts:205) emits an English header ('# Source of Truth Navigation' / '> N files') and pulls each entry's title from the target file's H1 (:216-217), but the committed NAV.md still carries an OLD generator snapshot — a Chinese header ('# 真相源导航' / '> 52 个文件'), stale Chinese display titles whose source H1 are now English, stale Koala display titles (e.g. 'Koala CLI Authority Client Role' while the file H1 is now 'Lattice CLI Authority Client Role'), and a stale file count (52 vs the current 65+ decision docs). Root cause: NAV.md was not regenerated after the decision docs were translated/rebranded. Fix: (1) rebrand the koala H1 TITLES in three decision docs whose source heading still says koala — docs/requirements/decisions/cc-learnings.md (\"koala's Refactor Plan for Learning from Claude Code\" -> \"Lattice's ...\"), role-separation.md (\"koala Multi-Role Separation Refactor Plan\" -> \"Lattice ...\"), stack-layering.md (\"... × Koala Layering Notes (draft)\" -> \"... × Lattice ...\"); KEEP docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md's title as-is (its 'Koala-to-Lattice' is the inherent subject of the rename plan, a legitimate contextual mention, per user decision). (2) Regenerate NAV.md via the current generator (`lattice truth`) so it reflects the English header, current English H1 titles, correct file count, and the rebranded titles. Verify the regenerated NAV.md contains zero Chinese and no koala except the single kept contextual koala-to-lattice title. OUT OF SCOPE (user-confirmed): the 2 docs whose BODY contains Chinese (cli-engine-english-open-source-execution-plan.md, cli-engine-english-translation-manifest.md) — they are translation-manifest source data (intentional Chinese, English H1, do NOT affect NAV) and must NOT be touched; the koala in the BODY of the 3 rebranded docs (gate-exempt historical decision-doc content) — only the H1 title is in scope; the truth generator code itself (already correct/English).",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "low",
   "keywords": [
     "NAV.md",
@@ -31,6 +31,15 @@
       "action": "advance",
       "timestamp": "2026-06-19T03:36:32.509Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-navfix",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:41:20.195Z",
+      "branch": "story/B-5541",
       "user": "Harmonygo",
       "sessionId": "lattice-navfix",
       "agent": "main"
