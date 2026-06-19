@@ -125,6 +125,25 @@
       ],
       "signatureTag": "missing|md|quality-cleanup-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-008",
+      "desc": "doc-code-drift: spec §4.7 states VALID_MODES is typed to Set<AuditMode> but actual code in audit-config.ts declares it as ReadonlySet<AuditMode>. The logical conclusion (cannot be reused for parallelGate validation) is correct but the stated type annotation is factually wrong.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T01:57:12.522Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-001",
+      "_hash": "4b57905e34387686d1dfeb39a449619a3b2529dd14be077e612726cbb53d0334",
+      "files": [
+        "docs/parallel-decomposition-spec.md",
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-spec",
+      "signatureTagSource": "auto"
     }
   ]
 }
