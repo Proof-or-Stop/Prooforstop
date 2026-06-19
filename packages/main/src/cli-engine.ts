@@ -8,16 +8,15 @@
  */
 
 import { z, type ZodType } from 'zod';
-import { existsSync, realpathSync } from 'fs';
+import { existsSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
-import { isAbsolute, join, relative } from 'path';
+import { isAbsolute, join } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
-import { resolveStorySignedWorkspace } from './core/story-signed-workspace-resolution.js';
 import { formatCommandLifecycleHint } from './core/command-policy.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
@@ -57,6 +56,12 @@ import {
   printValidationFailure,
 } from './cli/help-renderer.js';
 import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
+import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
+import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
+import {
+  runStoryAdvanceInitCheckLifecycleDispatch,
+  runStoryCreateLifecycleDispatch,
+} from './cli/lifecycle-dispatch.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -95,6 +100,7 @@ export {
   parseFlags,
   parseFlagsTest,
 } from './cli/flag-parser.js';
+export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
 export { MAIN_TOOLS };
 export type { ToolDef };
@@ -557,284 +563,6 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   }, { label: 'from-draft metadata commit+merge' });
 }
 
-/**
- * B-f60c CHK-002 — close F-008 partial-DONE at the INIT_CHECK write side.
- *
- * Root cause (verified, B-6974 / B-ad12 real-machine repros): `story_advance
- * INIT_CHECK` runs `story_advance` (writes phase) then `dev_start` (writes
- * `story.worktree` into the MAIN repo's `.lattice/story/actives/<id>/index.json`).
- * `dev_start.createScopedStoryBootstrapCommit` commits the story dir onto the
- * `story/<id>` branch via a TEMPORARY git index — it never touches the main
- * repo's working tree or index. So the main checkout is left with an
- * UNCOMMITTED story-metadata mirror (the story dir is untracked, since
- * `story_create` only wrote files without committing them).
- *
- * At DONE, `applyDoneMergeEffects` Step 3 runs `git merge story/<id>` from the
- * main repo root. The story branch carries a committed
- * `.lattice/story/actives/<id>/index.json`; the main working tree has the SAME
- * path untracked → git aborts the merge ("untracked working tree files would
- * be overwritten by merge") → partial-DONE (story marked DONE, branch never
- * merged).
- *
- * Fix: commit that mirror on the current (main) branch right after `dev_start`,
- * exactly mirroring what `commitFromDraftMetadataAndMergeMain` already does for
- * the from-draft path, then merge the base branch into the story worktree so
- * the story branch still contains all of main. After this the DONE merge has
- * nothing uncommitted to collide with. Just serializing the DONE critical
- * section (CHK-001's lock) cannot close F-008 — the stale mirror must be
- * removed from the main working tree at its INIT_CHECK source.
- *
- * Idempotent: a retry where the story dir is already committed stages nothing
- * and returns '' (no-op) instead of throwing.
- */
-/**
- * B-4e06 CHK-003: resolve the git "main checkout" root for INIT_CHECK metadata
- * reconciliation. With a configured gitRoot (wrapper-root project), the main
- * checkout IS the resolved git root, not the metadata wrapper. Reuses the shared
- * signed-workspace resolver — no second resolver. Falls back to the metadata
- * root for plain repos (byte-for-byte unchanged).
- */
-function resolveInitCheckGitMainRoot(root: string, store: StoryStore, storyId: string): string {
-  const configuredGitRoot = loadConfig(root).gitRoot?.trim();
-  if (!configuredGitRoot) return root;
-  const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: root });
-  if (resolution.resolved && resolution.repoRoot) return resolution.repoRoot;
-  throw new Error(
-    `INIT_CHECK metadata reconcile: configured gitRoot is unusable (${resolution.unresolvedReason || 'unresolved'}).`,
-  );
-}
-
-export function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
-  const gitMainRoot = resolveInitCheckGitMainRoot(root, store, storyId);
-  const currentBranch = gitCli(gitMainRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
-  if (currentBranch.startsWith('story/')) {
-    // INIT_CHECK is the standard worktree-creation entry and must run from the
-    // main checkout. If we are already on a story branch, dev_start would not
-    // have created a main-side mirror to reconcile — leave it untouched.
-    return '';
-  }
-
-  // storyRel must be relative to the git main root so `git add` works whether or
-  // not the metadata root is the git root. Canonicalize both sides (realpath) so
-  // a /var → /private/var symlink does not corrupt the relative path. When
-  // gitMainRoot === root this equals the legacy bounded storyDirRel/storyId path.
-  const storyAbs = join(root, store.storyDirRel(), storyId);
-  const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
-  const canonicalGitMainRoot = existsSync(gitMainRoot) ? realpathSync(gitMainRoot) : gitMainRoot;
-  const storyRelRaw = relative(canonicalGitMainRoot, canonicalStoryAbs).replace(/\\/g, '/');
-  if (!storyRelRaw || isAbsolute(storyRelRaw) || storyRelRaw.split('/').includes('..')) {
-    throw new Error(
-      `INIT_CHECK metadata reconcile: story metadata path ${storyAbs} is not inside the git root ${gitMainRoot}; ` +
-      `configure storyDir so story metadata lives inside the gitRoot.`,
-    );
-  }
-  const storyRel = storyRelRaw;
-  stageBoundedMetadataPath(gitMainRoot, storyRel);
-  const staged = gitCli(gitMainRoot, ['diff', '--cached', '--name-only']);
-  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (stagedPaths.length === 0) {
-    // Story metadata already committed (retry / already-tracked) — nothing to
-    // reconcile, the DONE merge will not collide.
-    return '';
-  }
-  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, [storyRel]));
-  if (outOfBounds.length > 0) {
-    throw new Error(
-      `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
-    );
-  }
-
-  const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
-  const story = store.readStory(storyId);
-  const worktreePath = story.worktree?.path;
-  const storyBranch = story.worktree?.branch || `story/${storyId}`;
-  if (!worktreePath) {
-    throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
-  }
-  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(gitMainRoot, worktreePath);
-
-  // B-7365: serialize the commit-on-main + merge-into-story-worktree critical
-  // section under the unified main write lock. A concurrent session committing
-  // to main between our commit and our merge is exactly what produces a
-  // divergent `index.json` and the merge conflict this function must survive;
-  // holding the lock across BOTH steps closes that race. Reentrant variant:
-  // INIT_CHECK can run inside an already-locked context (the lock is released
-  // in the helper's finally even when the critical section throws).
-  return withReentrantMainWriteLock(gitMainRoot, () => {
-    gitCli(gitMainRoot, [
-      '-c', 'commit.gpgsign=false',
-      'commit',
-      '-m', commitMessage,
-    ]);
-    const mainHead = gitCli(gitMainRoot, ['rev-parse', '--short', 'HEAD']);
-    const boundedStatus = gitCli(gitMainRoot, ['status', '--porcelain', '--', storyRel]);
-    if (boundedStatus) {
-      throw new Error(
-        `INIT_CHECK metadata committed, but bounded story path is still dirty (${storyRel}):\n${boundedStatus}`,
-      );
-    }
-
-    mergeBaseBranchIntoStoryWorktreeResolvingMetadata({
-      worktreeAbs,
-      baseBranch: currentBranch,
-      storyRel,
-    });
-    gitCli(worktreeAbs, ['merge-base', '--is-ancestor', currentBranch, storyBranch]);
-
-    return [
-      `✓ INIT_CHECK metadata committed on ${currentBranch}: ${mainHead} (${commitMessage})`,
-      `✓ ${currentBranch} merged into ${storyBranch}`,
-    ].join('\n');
-  }, { label: 'INIT_CHECK reconcile' });
-}
-
-/**
- * B-7365: merge `baseBranch` (main) into the story worktree's branch, resolving
- * any conflict on the machine-generated story metadata deterministically to the
- * post-advance (base/main-committed) version — NEVER leaving or committing
- * `<<<<<<< / ======= / >>>>>>>` conflict markers in `index.json` (or any other
- * file under `storyRel`).
- *
- * Rationale: the story metadata under `storyRel` is machine-owned and
- * authoritative on the base branch right after INIT_CHECK advanced it; the
- * story branch's copy is the pre-advance bootstrap snapshot. So on a conflict
- * the correct, deterministic resolution is "take base/main's version" for every
- * conflicted path under `storyRel`. Anything conflicting OUTSIDE `storyRel` is
- * not machine-owned and cannot be silently auto-resolved — we abort the merge
- * and throw a clear recovery error rather than guess.
- *
- * The clean (no-conflict) path is byte-identical to the legacy bare
- * `git merge <base> --no-edit`: `git merge` returns 0, we return immediately.
- */
-function mergeBaseBranchIntoStoryWorktreeResolvingMetadata(args: {
-  worktreeAbs: string;
-  baseBranch: string;
-  storyRel: string;
-}): void {
-  const { worktreeAbs, baseBranch, storyRel } = args;
-
-  // Run the merge WITHOUT throwing on a non-zero exit so a conflict can be
-  // inspected + resolved rather than surfacing as an opaque marker corruption.
-  const merge = runGitNoThrow(worktreeAbs, [
-    '-c', 'commit.gpgsign=false',
-    'merge', baseBranch, '--no-edit',
-  ]);
-  if (merge.code === 0) {
-    // Clean (no-conflict) path: byte-identical to the legacy bare merge — git
-    // has already created the merge commit. Return immediately.
-    return;
-  }
-
-  // Non-zero exit: determine whether this is a resolvable metadata conflict.
-  // `git diff --name-only --diff-filter=U` lists exactly the unmerged
-  // (conflicted) paths, repo-relative with forward slashes.
-  const conflicted = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
-    .stdout
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (conflicted.length === 0) {
-    // Non-zero with no unmerged paths is NOT a content conflict (e.g. the base
-    // branch is unknown, a dirty worktree blocked the merge, a hook failed).
-    // Do not pretend to resolve it: abort any half-started merge and surface the
-    // real git error for recovery.
-    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
-    throw new Error(
-      `INIT_CHECK reconcile: git merge ${baseBranch} into the story worktree failed and is not a ` +
-      `metadata conflict (no unmerged paths). git said:\n${(merge.stderr || merge.stdout).trim()}`,
-    );
-  }
-
-  // Any conflicted path OUTSIDE the machine-owned story dir cannot be safely
-  // auto-resolved (it is not machine-generated metadata we own a canonical
-  // version of). Abort the merge cleanly and throw a clear recovery error —
-  // never leave/commit markers.
-  const outOfBounds = conflicted.filter((path) => !isPathUnderAny(path, [storyRel]));
-  if (outOfBounds.length > 0) {
-    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
-    throw new Error(
-      `INIT_CHECK reconcile: merge of ${baseBranch} conflicted on non-metadata paths that cannot be ` +
-      `auto-resolved:\n${outOfBounds.join('\n')}\n` +
-      `Aborted the merge to avoid committing conflict markers. Resolve manually in the worktree ` +
-      `(git merge ${baseBranch}) and retry.`,
-    );
-  }
-
-  // Every conflicted path is under the machine-owned story dir. Resolve each to
-  // the post-advance (base/main) version. We merged `baseBranch` INTO the story
-  // branch, so `--theirs` is the incoming base branch's version. Stage the
-  // resolved content so no markers remain, then complete the merge commit.
-  //
-  // The throwing gitCli calls below (stage / rm / commit) can fail for reasons
-  // outside our control (locked index, hook failure, disk error). If any of
-  // them throws, the exception must NOT escape with the worktree left mid-merge
-  // (MERGE_HEAD present) — that would require manual `git merge --abort`
-  // recovery. Wrap the resolution + commit in try/catch so ANY throw aborts the
-  // half-started merge before rethrowing, mirroring the out-of-bounds and
-  // still-unmerged abort+throw handling above.
-  try {
-    for (const path of conflicted) {
-      // `git checkout --theirs` takes the base/main version for content (and
-      // add/add) conflicts. For a modify/delete conflict where base DELETED the
-      // path there is no "theirs" stage and checkout errors — in that case the
-      // deterministic "take base" resolution is to delete the path too.
-      const tookTheirs = runGitNoThrow(worktreeAbs, ['checkout', '--theirs', '--', path]);
-      if (tookTheirs.code === 0) {
-        gitCli(worktreeAbs, ['add', '--', path]);
-      } else {
-        gitCli(worktreeAbs, ['rm', '-f', '--', path]);
-      }
-    }
-
-    // Defensive: confirm no unmerged paths remain before committing so a marker
-    // can never reach a commit object. (Re-check the same invariant rather than
-    // trusting the loop above blindly — Handler coding convention.)
-    const stillUnmerged = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
-      .stdout
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean);
-    if (stillUnmerged.length > 0) {
-      runGitNoThrow(worktreeAbs, ['merge', '--abort']);
-      throw new Error(
-        `INIT_CHECK reconcile: failed to fully resolve metadata conflict; unmerged paths remain:\n` +
-        `${stillUnmerged.join('\n')}\nAborted the merge to avoid committing conflict markers.`,
-      );
-    }
-
-    gitCli(worktreeAbs, ['-c', 'commit.gpgsign=false', 'commit', '--no-edit']);
-  } catch (e) {
-    // Any failure while resolving/committing the metadata conflict must leave
-    // the worktree clean rather than mid-merge. Abort the half-started merge
-    // (best-effort, no-throw) before surfacing the original error.
-    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
-    throw e;
-  }
-}
-
-/**
- * Run a git command capturing stdout/stderr/exit code WITHOUT throwing on a
- * non-zero exit. Needed for `git merge`, whose conflict exit code (1) must be
- * inspected and resolved rather than surfacing as an opaque thrown error.
- */
-function runGitNoThrow(cwd: string, gitArgs: string[]): { code: number; stdout: string; stderr: string } {
-  try {
-    const stdout = execFileSync('git', gitArgs, {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { code: 0, stdout: stdout ?? '', stderr: '' };
-  } catch (e: any) {
-    return {
-      code: typeof e?.status === 'number' ? e.status : 1,
-      stdout: e?.stdout ? String(e.stdout) : '',
-      stderr: e?.stderr ? String(e.stderr) : String(e?.message ?? e),
-    };
-  }
-}
-
 // ── Main ──
 
 /**
@@ -1267,42 +995,16 @@ export async function runCli(opts?: {
 
   // story_create: append next-step hint when stopping in INIT.
   if (cmd === 'story_create') {
-    await run(() => {
-      const fromDraftName = typeof (v.data as any).fromDraft === 'string' ? (v.data as any).fromDraft : '';
-      if (fromDraftName && gitReady) {
-        preflightFromDraftMetadataBootstrap(root);
-      }
-      const result = handlers.story_create(v.data);
-      if (result.includes('created from draft') && result.includes('(phase=INIT_CHECK)')) {
-        const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
-        if (!storyId) return result;
-        if (!gitReady) {
-          return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
-        }
-        try {
-          const wtResult = handlers.dev_start({ storyId });
-          const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, fromDraftName);
-          return `${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
-        } catch (e: any) {
-          throw new Error(
-            `from-draft worktree bootstrap failed for ${storyId}: ${e.message}\n` +
-            `Next: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'`,
-          );
-        }
-      }
-      if (!result.includes('(INIT)')) return result;
-      const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
-      if (!storyId) return result;
-      if (result.includes('当前目录不是 git 仓库')) return result;
-      let fromDraftMetadataSegment = '';
-      if (fromDraftName && result.includes('created from draft') && gitReady) {
-        fromDraftMetadataSegment = commitFromDraftMetadataOnMain(root, store, storyId, fromDraftName);
-      }
-      if (!gitReady) {
-        return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
-      }
-      const metadataLine = fromDraftMetadataSegment ? `\n${fromDraftMetadataSegment}` : '';
-      return `${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)`;
+    await runStoryCreateLifecycleDispatch({
+      data: v.data as Record<string, unknown>,
+      gitReady,
+      handlers,
+      root,
+      run,
+      store,
+      preflightFromDraftMetadataBootstrap,
+      commitFromDraftMetadataOnMain,
+      commitFromDraftMetadataAndMergeMain,
     });
     return;
   }
@@ -1312,117 +1014,15 @@ export async function runCli(opts?: {
   // "Cannot transition INIT_CHECK->INIT_CHECK". This lets an agent retry after the first worktree creation failure.
   // can call story_advance INIT_CHECK again to retry without using the hidden manual dev_start path.
   if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
-    await run(async () => {
-      const storyId = (v.data as any).storyId;
-      if ((v.data as any).dryRun === true) {
-        const story: any = handlers.story_get({ storyId, detail: true });
-        const currentPhase = story?.index?.phase || 'unknown';
-        return [
-          `[DRY-RUN] INIT_CHECK bootstrap plan for ${storyId}`,
-          `- current phase: ${currentPhase}`,
-          `- would verify init-check gate without mutating story metadata`,
-          `- would create/update branch story/${storyId} with scoped story bootstrap files`,
-          `- would create worktree under configured worktreeDir`,
-          `- no phase, branch, commit, or worktree changes were made`,
-        ].join('\n');
-      }
-      // B-804c CHK-001: make the INIT_CHECK phase write ATOMIC with the worktree
-      // bootstrap (Option A — defer the write). The old order persisted
-      // phase=INIT_CHECK FIRST and only then ran dev_start; a failed bootstrap
-      // left phase=INIT_CHECK with no worktree and no INIT_CHECK->INIT back-edge
-      // (unrecoverable). New order: bootstrap FIRST against the still-INIT story,
-      // and persist phase=INIT_CHECK ONLY after dev_start succeeds. On bootstrap
-      // failure we do NOT advance, so the story stays at its prior phase (INIT).
-      //
-      // Detect the current phase to choose the branch:
-      //   - currentPhase === INIT_CHECK (B-5246 legacy victim retry): the phase is
-      //     ALREADY persisted, so we never re-advance (no INIT_CHECK->INIT_CHECK);
-      //     just (re)run dev_start to bootstrap the missing worktree.
-      //   - currentPhase === INIT (the normal case): run dev_start against the
-      //     still-INIT story; only advance the phase AFTER bootstrap succeeds.
-      // story_get returns {checklist, review} by default; phase requires
-      // detail:true to appear at result.index.phase.
-      let alreadyInitCheck = false;
-      try {
-        const story: any = handlers.story_get({ storyId, detail: true });
-        alreadyInitCheck = story?.index?.phase === 'INIT_CHECK';
-      } catch {
-        // story_get failed: we cannot prove the phase is INIT_CHECK, so
-        // alreadyInitCheck stays false and the normal path (guard pre-check +
-        // bootstrap + advance) runs — the safe behavior.
-      }
-
-      // B-804c CHK-001: validate the FULL INIT→INIT_CHECK transition guard BEFORE
-      // bootstrapping. Deferring the phase write must not also defer (or weaken)
-      // the gate: dev_start only enforces the scope-anti-expansion freeze gate,
-      // which is a STRICT SUBSET of the INIT_CHECK transition gate (it also
-      // requires a valid init-check.json — the lattice-review-story-init evidence).
-      // If we bootstrapped on dev_start's subset gate alone, a story with passing
-      // scope-freeze but missing init-check could create a worktree (and the exact
-      // failure diagnostic would regress from [missing_init_check] to a scope
-      // message). getGuardFailureReason returns null for a non-INIT story, so this
-      // is a no-op for the already-INIT_CHECK retry path. The gate runs whenever
-      // the story is not already INIT_CHECK — including the case where story_get
-      // threw and alreadyInitCheck stayed false (closing B-804c:F-002): without
-      // this pre-check that path ran dev_start FIRST with no gate, so a succeeding
-      // bootstrap followed by a story_advance that failed its own gate could leave
-      // a worktree on disk while the phase stayed INIT — a partial bootstrap.
-      // Running the full INIT_CHECK transition guard here means dev_start never
-      // bootstraps ahead of the INIT_CHECK gate, so there is no path that creates a
-      // worktree without the phase advancing.
-      if (!alreadyInitCheck) {
-        const guardFailure = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
-        if (guardFailure) {
-          throw new Error(
-            `${guardFailure}\n\n` +
-            `INIT_CHECK aborted: Story ${storyId} stays at INIT (phase not advanced; no worktree created).`,
-          );
-        }
-      }
-
-      // Gate passed. Bootstrap FIRST (against the still-INIT story for the normal
-      // case, or the already-INIT_CHECK story for the retry case). If this throws,
-      // the phase is NOT advanced and the story stays put — no partial advance. We
-      // RE-THROW the abort (rather than returning a warning string) so the command
-      // exits non-zero: a failed bootstrap is a real failure, and the old exit-0
-      // "advanced + ⚠ warning" output is exactly what masked this bug.
-      let wtResult: string;
-      try {
-        wtResult = handlers.dev_start({ storyId });
-      } catch (e: any) {
-        throw new Error(
-          `INIT_CHECK aborted: ${e.message}\n` +
-          `Story ${storyId} stays at ${alreadyInitCheck ? 'INIT_CHECK' : 'INIT'} (phase not advanced; no worktree created).\n` +
-          `Next: fix the cause, then re-run lattice story_advance --phase=INIT_CHECK, ` +
-          `or run lattice dev_start '{"storyId":"${storyId}"}' to bootstrap directly.`,
-        );
-      }
-
-      // Bootstrap succeeded. Persist phase=INIT_CHECK now (only when the story is
-      // not already INIT_CHECK; an already-INIT_CHECK retry must never re-advance).
-      // There is no separate fallback branch: if story_get failed above,
-      // alreadyInitCheck is false and we take the normal advance path here.
-      let advanceResult: string;
-      if (alreadyInitCheck) {
-        advanceResult = `Story ${storyId} is already in INIT_CHECK; bootstrapped worktree`;
-      } else {
-        // Normal case: persist the phase via the real story_advance handler,
-        // which re-runs the same guard.
-        advanceResult = await handlers.story_advance(v.data);
-      }
-
-      // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
-      // story-metadata mirror in the main checkout that blocks the DONE
-      // `git merge story/<id>`. Commit it on the base branch (mirroring the
-      // metadata-commit part of the from-draft path) so DONE has nothing
-      // uncommitted to collide with. Final order (B-804c): dev_start (success)
-      // -> story_advance (persist phase) -> commitInitCheckMetadata.
-      let syncResult = '';
-      if (gitReady) {
-        syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
-      }
-      const syncSegment = syncResult ? `\n\n${syncResult}` : '';
-      return `${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
+    await runStoryAdvanceInitCheckLifecycleDispatch({
+      data: v.data as Record<string, unknown>,
+      gitReady,
+      handlers,
+      root,
+      run,
+      store,
+      getGuardFailureReason,
+      commitInitCheckMetadataAndMergeMain,
     });
     return;
   }
@@ -1435,17 +1035,10 @@ export async function runCli(opts?: {
     const handler = handlers[cmd];
     if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
     await run(async () => {
-      const r = await handler(v.data);
-      if (r && typeof r === 'object' && (r.status === 'refused' || r.status === 'fail')) {
-        // Print structured result first so the user sees the refused/fail diagnosis,
-        // then throw a one-line error message that runCli renders on stderr.
-        process.stdout.write(`${JSON.stringify(r, null, 2)}\n`);
-        const msg = r.status === 'refused'
-          ? (r.refused?.reason || 'recover_evidence refused')
-          : 'recover_evidence: validate failed after refresh; inspect validateTranscript for details';
-        throw new Error(msg);
-      }
-      return r;
+      return dispatchRecoverEvidenceWithStructuredFailure({
+        handler: handler as (args: Record<string, unknown>) => unknown | Promise<unknown>,
+        data: v.data as Record<string, unknown>,
+      });
     });
     return;
   }
