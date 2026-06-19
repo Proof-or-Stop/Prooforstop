@@ -261,9 +261,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/dev/test-coverage.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T01:48:51.094Z",
       "files": {
         "modify": [
           "packages/main/src/core/done-oracle.ts",
@@ -300,7 +300,39 @@
           }
         ]
       },
-      "userSees": "Running the review-assurance-floor smoke command prints PASS for zero-review block, one-round pass, failure-triggered 3x1, stale verdict rejection, docs-only non-overblock, and Authority flags false."
+      "userSees": "Running the review-assurance-floor smoke command prints PASS for zero-review block, one-round pass, failure-triggered 3x1, stale verdict rejection, docs-only non-overblock, and Authority flags false.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed 7 checks: zero-review block, one-round pass, failure-triggered 3x1, stale rejection, docs-only non-overblock, and Authority flags false.",
+          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:51.245Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke asserted formatted DONE failure text names the material code review assurance floor and autopilot_review_submit next action.",
+          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:51.351Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process-fact contract verified runtime:review_assurance_floor_done_gate is L4 gate evidence, is consumed by storyMachine.canFinish, and is present in done-oracle/machine/smoke sources.",
+          "headHash": "be327c04f7716fcfd40594cad9af97864ea34813",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:51.443Z"
+        }
+      ]
     }
   ]
 }
