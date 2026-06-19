@@ -152,7 +152,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-discard-digest.json', path: 'scope-discard-digest.json', signed: false },
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
-  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; workspaceBinding\.bindingHash/ },
+  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
@@ -262,6 +262,16 @@ const requiredRuntimeEntries = [
   },
   {
     // B-5a9a: storyFilesHash is a gate-consumed secondary freshness signal.
+    // review_run_start persists and signs the top-level ReviewRun.storyFilesHash
+    // so REVIEW evidence can survive unrelated main drift without falling back
+    // to unsigned nested workspaceBinding data.
+    name: 'runtime:review_run_story_files_hash_gate',
+    level: 'L4',
+    owner: 'core/review-run',
+    line: '- runtime:review_run_story_files_hash_gate [L4] owner=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  {
+    // B-5a9a: storyFilesHash is a generic gate-consumed secondary freshness signal.
     // It may downgrade unrelated whole-tree materialHash drift to an explicit
     // re-attestation advisory, but story-owned file changes and legacy records
     // without storyFilesHash stay on strict materialHash behavior.
@@ -1590,6 +1600,19 @@ function parseProcessFactRequiredSemanticsFromSource(text) {
   return semantics;
 }
 
+function parseProcessFactRuntimeSemanticsFromSource(text) {
+  const body = extractExportedObjectBody(text, 'PROCESS_FACT_RUNTIME_SEMANTICS', processFactRegistryPath);
+  const semantics = new Map();
+  const keyPattern = /^\s*['"`]([^'"`]+)['"`]:\s*\[/gm;
+  for (const match of body.matchAll(keyPattern)) {
+    const name = match[1];
+    const openIndex = match.index + match[0].lastIndexOf('[');
+    const block = extractBalancedBlock(body, openIndex, '[', ']', `${processFactRegistryPath} runtime semantics ${name}`);
+    semantics.set(name, [...block.matchAll(/['"`]([^'"`]+)['"`]/g)].map(([, value]) => value));
+  }
+  return semantics;
+}
+
 let cachedFlowFactPolicyEntries = null;
 
 function parseFlowFactPolicies() {
@@ -1636,8 +1659,10 @@ function processFactKindForCommand(name, level, kindByCommand) {
   return level === 'L4' ? 'gate-evidence' : 'command';
 }
 
-function processFactSemanticsForCommand(name, level, semanticsByCommand) {
-  const semantics = new Set(semanticsByCommand.get(name) || []);
+function processFactSemanticsForCommand(name, level, semanticsByCommand, runtimeSemanticsByCommand = new Map()) {
+  const semantics = new Set(name.startsWith('runtime:')
+    ? runtimeSemanticsByCommand.get(name) || []
+    : semanticsByCommand.get(name) || []);
   if (name.startsWith('runtime:')) {
     semantics.add('runtime-behavior');
     if (name === 'runtime:review_escalation_done_gate') semantics.add('host-verdict');
@@ -1712,10 +1737,11 @@ function parseProcessFactRegistry() {
   const policyByName = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
   const kindByCommand = parseProcessFactKindByCommandFromSource(sourceText);
   const semanticsByCommand = parseProcessFactRequiredSemanticsFromSource(sourceText);
+  const runtimeSemanticsByCommand = parseProcessFactRuntimeSemanticsFromSource(sourceText);
   const artifactByCommand = parseProcessFactArtifactByCommandFromSource(sourceText);
   const commandEntries = parseProcessFactLevelRegistry().filter(entry => !entry.name.startsWith('flow-policy:')).map(entry => {
     const policy = policyByName.get(entry.name);
-    const semantics = processFactSemanticsForCommand(entry.name, entry.level, semanticsByCommand);
+    const semantics = processFactSemanticsForCommand(entry.name, entry.level, semanticsByCommand, runtimeSemanticsByCommand);
     const inferredRootOnly = Boolean(policy) && (policy.rootOnly || policy.status === 'rootOnly');
     const inferredGateEvidence = Boolean(policy?.gateEvidence) || policy?.status === 'gateEvidence';
     return {
@@ -2240,6 +2266,66 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'productionDone',
   ]) {
     assert(smokeText.includes(token), `packages/main/src/tasks/review-assurance-floor-smoke.ts: required smoke assertion text missing: ${token}`);
+  }
+}
+
+function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
+  const runtimeName = 'runtime:review_run_story_files_hash_gate';
+  const levelEntry = levelRegistry.get(runtimeName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required review run storyFilesHash runtime fact missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(levelEntry.owner === 'core/review-run', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
+    assert(levelEntry.gateConsumer === 'storyMachine.canPassReview REVIEW to TEST gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
+    for (const token of ['ReviewRun.storyFilesHash', 'review_run_start', 'signature', 'durable persistence', 'unrelated whole-tree main drift']) {
+      assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
+    }
+  }
+
+  const registryEntry = registry.get(runtimeName);
+  assert(registryEntry, `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${runtimeName}`);
+  if (registryEntry) {
+    assert(registryEntry.kind === 'runtime-behavior', `${processFactRegistryPath}: ${runtimeName} kind must stay runtime-behavior`);
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${runtimeName} must stay L4`);
+    for (const semantic of ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${runtimeName} missing ${semantic} semantic`);
+    }
+    assert(registryEntry.consumerGate === 'storyMachine.canPassReview REVIEW to TEST gate', `${processFactRegistryPath}: ${runtimeName} consumerGate drifted`);
+  }
+
+  const reviewRunsArtifact = registry.get('artifact:review-runs.json');
+  assert(reviewRunsArtifact, `${processFactRegistryPath}: artifact:review-runs.json missing`);
+  if (reviewRunsArtifact) {
+    assert(/ReviewRun\.storyFilesHash/.test(reviewRunsArtifact.artifact?.signature || ''), `${processFactRegistryPath}: review-runs.json signature must mention ReviewRun.storyFilesHash`);
+    assert(/workspaceBinding\.bindingHash/.test(reviewRunsArtifact.artifact?.signature || ''), `${processFactRegistryPath}: review-runs.json signature must preserve workspaceBinding.bindingHash`);
+    assert(reviewRunsArtifact.semantics.includes('freshness-policy'), `${processFactRegistryPath}: artifact:review-runs.json missing freshness-policy semantic`);
+  }
+
+  const handlerText = read('packages/main/src/handlers/review-run.ts');
+  for (const token of [
+    'const { headHash, materialHash, storyFilesHash } = captureReviewRunSnapshot',
+    'persisted.storyFilesHash !== storyFilesHash',
+  ]) {
+    assert(handlerText.includes(token), `packages/main/src/handlers/review-run.ts: required storyFilesHash token missing: ${token}`);
+  }
+  assert(
+    /buildReviewRunWorkspaceBinding\([\s\S]*storyFilesHash/.test(handlerText),
+    'packages/main/src/handlers/review-run.ts: review_run_start must pass storyFilesHash into buildReviewRunWorkspaceBinding',
+  );
+  assert(
+    /signReviewRun\([\s\S]*scopeBinding\?\.bindingHash,[\s\S]*workspaceBinding\.bindingHash,[\s\S]*storyFilesHash/.test(handlerText),
+    'packages/main/src/handlers/review-run.ts: review_run_start must fold storyFilesHash into signReviewRun after workspaceBindingHash',
+  );
+
+  const smokeText = read('packages/main/src/tasks/field-regression-cli-smoke.ts');
+  for (const token of [
+    'assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift',
+    'review_run_start should persist top-level storyFilesHash',
+    'main unrelated material drift',
+    'review_pass_set',
+    'whole-tree materialHash drift',
+  ]) {
+    assert(smokeText.includes(token), `packages/main/src/tasks/field-regression-cli-smoke.ts: required storyFilesHash smoke token missing: ${token}`);
   }
 }
 
@@ -3388,6 +3474,7 @@ function assertProcessFactCommandInventory() {
       `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
     );
   }
+  assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
 
   for (const expected of requiredControlledMutationEntries) {

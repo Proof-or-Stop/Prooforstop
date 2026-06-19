@@ -99,7 +99,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
-      const { headHash, materialHash } = captureReviewRunSnapshot(signedWorkspaceRoot, {
+      const { headHash, materialHash, storyFilesHash } = captureReviewRunSnapshot(signedWorkspaceRoot, {
         storyId: args.storyId,
         storyPhase: preflightStory.phase,
         currentReviewRound: preflightStory.currentReviewRound,
@@ -114,6 +114,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
         headHash,
         materialHash,
+        storyFilesHash,
       });
       const story = ensureCurrentReviewRound(store, args.storyId, 'review_run_start');
 
@@ -149,6 +150,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           startedAt,
           headHash,
           materialHash,
+          ...(storyFilesHash ? { storyFilesHash } : {}),
           promptHash,
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
@@ -164,6 +166,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             promptHash,
             scopeBinding?.bindingHash,
             workspaceBinding.bindingHash,
+            storyFilesHash,
           ),
         };
         data.runs.push(run);
@@ -171,6 +174,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const persisted = store.readReviewRuns(args.storyId).runs.find((candidate) => candidate.reviewRunId === reviewRunId);
         if (
           !persisted || persisted._hash !== run._hash || persisted.materialHash !== materialHash
+          || persisted.storyFilesHash !== storyFilesHash
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
         ) {
@@ -179,7 +183,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const scopeNote = scopeBinding
           ? `, scope ${scopeBinding.scopeContractHash?.slice(0, 7)}/${scopeBinding.diffPackHash?.slice(0, 7)}`
           : '';
-        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${scopeNote})`;
+        const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
+        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote})`;
       });
     },
   };
