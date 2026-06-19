@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-12d7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive change (622 insertions, 0 deletions). No concept was deleted or renamed; no orphaned residue found. New symbols are consistently named: extractCodexUsage/extractGeminiUsage mirror extractCodexModel/extractGeminiModel (module-private, same JSONL iteration pattern); reportedUsage on ProviderExecResult is provider-neutral; recordDispatchFinalForProvider/finalContextForProvider are correctly named provider-parametric siblings of recordDispatchFinal/finalContext. Import boundary holds (providers/ has zero imports from core/usage-ledger/). One medium finding filed (B-12d7:F-001): DISPATCH_LEDGER_ESTIMATE_MODEL=claude-code reused as ledgerCtx.model for codex/gemini preflight estimates — semantically wrong model label in preflight records. No critical or high findings.",
+      "createdAt": "2026-06-19T02:57:42.136Z",
+      "reviewRound": "2026-06-19T02:53:56.869Z",
+      "reviewRunId": "B-12d7:RR-002",
+      "_hash": "f988608a76192efcd9d1855a5944bdcbc1fa7ff41f099a13fed17af7476518da"
+    }
+  ]
+}
