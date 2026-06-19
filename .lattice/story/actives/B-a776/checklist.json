@@ -105,11 +105,54 @@
       "title": "Verify help flag alias and dry-run behavior",
       "context": "Run focused CLI smoke commands plus build to prove stdout/stderr, JSON output, and compatibility exports remain stable.",
       "relatedDocs": [
-        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-flags-help-aliases-and-dry-run",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/parallel-decomposition-spec.md",
+        "docs/dev/test-coverage.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the CLI smoke suite confirms parser, help, alias, dry-run, command catalog, and ownership surfaces still behave after the split.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript build, process-fact contract, command-catalog smoke, cli-argument ergonomics smoke, and the new CLI surface smoke pass after extraction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dry-run help classes remain correct for optional, default-on, and always-on commands; global help still exposes Lattice branding and current host terminology.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scope contract confirms this story changed only cli-engine.ts, the three new cli helper modules, the focused smoke task, and package script metadata; lifecycle dispatch remains reserved for B-57b5.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
