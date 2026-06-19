@@ -108,6 +108,74 @@
           "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke task runs to completion (exit 0) with all assertions passing when evaluateDecompositionGate is correctly implemented; WHY: proves the smoke harness itself works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts clean disjoint parallel set (two parallel stories with non-overlapping paths, all contracts present) -> block=null and no overlap advisory; WHY: baseline happy-path fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts tier-1 literal overlap (both parallel, same file) -> block=overlap_declared_parallel citing path+peer; WHY: core provable-collision fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts peer_contract_unreadable_parallel when active parallel peer contract is absent from Map; WHY: proves unreadable-peer detection fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts broad_glob_unprovable_parallel fires when broadGlobBlocks=true; WHY: proves strict-profile broad-glob blocking fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke is registered in lattice.config.json validate.commands so it runs during lattice validate; WHY: proves CI integration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke asserts tier-2 shared-prefix only (dir/* vs dir/literal, no literal collision) -> block=null plus a shared-prefix advisory; WHY: proves tier-2 advisory-only fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts broad glob with broadGlobBlocks=false -> block=null plus advisory; WHY: proves config-downgrade fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts fake_dependency_chain with depends citing non-existent peer -> advisory only, never a block; WHY: proves advise-only nature per spec 4.5",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts DONE peer is ignored (not counted as active) even with overlapping path; WHY: proves terminal-phase exclusion fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts non-parallel story (parallelSafe=no) yields no parallel block even on overlap; WHY: proves gate skips blocks for non-parallel stories",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts TERMINAL_PHASES imported from parallel-policy.ts (not redefined locally); WHY: proves single-source reuse",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts precedence: story simultaneously overlapping AND broad -> block=overlap_declared_parallel (not broad_glob); WHY: proves precedence ordering per plan step 9",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts precedence: overlap > peer_contract_unreadable > broad_glob when multiple conditions fire simultaneously; WHY: proves full three-way precedence chain",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke fixtures use in-memory StoryInfo/ScopeContractData only (no file I/O, no network, no disk reads) -> hermetic; WHY: proves the smoke is truly hermetic and cannot flake on filesystem state",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
