@@ -1,0 +1,11 @@
+## Trigger Event
+The Experience Layer effectiveness-proof track completed on 2026-06-19: six merged stories (B-a2e3 referential re-validation; B-4eb6 phase 3.1 learning_scan; B-5d48 phase 3.2 signatureTag capture; B-06b3 phase 3.3 A/B shadow-gate; B-c06a phase 3.4 learning_effectiveness; B-17a9 signature_backfill) plus a live backfill apply (main commit 2750aadef). docs/requirements/decisions/ holds only the original PLAN (lattice-experience-layer-execution-plan.md, B-1480) and no record of the OUTCOME. The operator asked for an in-repo development record.
+
+## Key Insights
+Orchestrate lands decision records via decision_doc_proposal + decision_doc_save into docs/requirements/decisions/<slug>.md (B-1480 used this; decision-doc edits are classification-only unless review_escalation_status requires quorum). The record is best framed as a decision-record (the design decisions made + the evidence + the explicit non-claims). Raw evidence (baseline_C_results.json, fig-experience-learnability.svg, backfill_signatures.json, the analysis scripts, the design/plan drafts) lives in Work/lattice-Paper/ and is referenced, not copied, to avoid duplication and keep the repo doc self-contained-yet-pointered.
+
+## Solution Tradeoffs
+Manual sourceDecision (this is a backward development record, not a forward decision derived from a story decision.json). Documentation-only: the only repo change is the new decision-doc file. The recorded facts (story IDs, the main commit, and the live numbers learning_scan 320 signals / learning_effectiveness recall 0.659 / learning_validate valid-rate 0.971) must be accurate and reproducible on main. English-only (english-artifacts gate). No code touched, so no smoke/verifier beyond docs accuracy + the docs reviewer.
+
+## Conversational Texture
+The operator noted the built work + evidence live in Work/lattice-Paper/ and asked whether a development record should also go into the repo's docs/requirements/ -- yes: the repo should carry its own auditable record of what was built, not just an external paper folder. The record must keep the same honesty as the work: it states what is proven (a learnable real-signature substrate) and what is NOT (the causal hints-improve-outcomes claim, deferred to the forward RCT).
