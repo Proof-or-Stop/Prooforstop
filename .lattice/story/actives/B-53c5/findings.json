@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|smoke-coverage-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-53c5:F-002",
+      "desc": "smoke-coverage-gap: adversarial-review-contract-smoke.ts does not import or construct ReviewModeRound — the interface is exported (adversarial-review.ts:182-184) but never referenced in the smoke, so CHK-003:edge evidence note claim \"ReviewModeRound exported\" is only backed by tsc, not a runtime assertion",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T12:20:04.759Z",
+      "reviewRound": "2026-06-20T12:18:01.371Z",
+      "reviewRunId": "B-53c5:RR-002",
+      "_hash": "2d9cce7893284e2b66266d992b9d4c658b38216158129979a7f9216e2c820ca0",
+      "files": [
+        "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+        "packages/main/src/core/adversarial-review.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-coverage-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
