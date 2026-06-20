@@ -106,9 +106,9 @@
       "id": "CHK-003",
       "title": "verifyFinding (M skeptics, refute-by-default counting, threshold-confirm T=1-of-2) + verifyFindings + confirmedFindings",
       "context": "DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1. verifyFinding(finding, change, runSkeptic:(finding:Finding,change:string)=>Verdict, opts?:{skeptics?:number, threshold?:number}) runs runSkeptic M times, collects Verdict[], confirms=count(v.isReal===true), confirmed=(confirms>=T). Returns VerifiedFinding={finding, verdicts:Verdict[], confirms:number, confirmed:boolean}. runSkeptic is the injected seam (the real skeptic agent at MVP); refute-by-default lives in the skeptic role, the module just counts isReal and thresholds. verifyFindings(findings, change, runSkeptic, opts) maps over the array. confirmedFindings(verified):Finding[] returns survivors (confirmed===true). A confirms=0 finding is dropped (confirmed false).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T14:59:08.781Z",
       "verificationIntent": {
         "happy": [
           {
