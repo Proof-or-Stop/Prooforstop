@@ -83,7 +83,35 @@
       "context": "core/machine.ts getGuardFailureReason targetPhase==='DEV' branch (~lines 653-719) must render a human-readable reason for the same block canStartDevGuard enforces, keeping the two in sync. Add (mirroring the same mode==='block' + peers/contracts + evaluateDecompositionGate computation) a branch that, when gateResult.block!==null, returns 'Cannot enter DEV: <actionable message per block reason>' naming the colliding peer/path where available. Wrap in try/catch that on error returns null/falls through (do not fabricate a block message on a gate error). The block-reason->message mapping should be a small shared helper so canStartDevGuard's decision and this message derive from the same predicate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for the same blocked config (overlap, mode=block, clean review) getGuardFailureReason(storyId,store,DEV,root) returns a non-null string containing the actionable block reason naming the colliding peer/path; WHY: the operator sees WHY DEV was refused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "for a clean/allowed wave getGuardFailureReason returns null for the parallel sub-check (no phantom message); WHY: a message must appear only when the guard actually blocks",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "decision/message PARITY: whenever canStartDevGuard returns false due to the parallel block, getGuardFailureReason returns a non-null parallel message, and when the guard allows, no parallel message is produced — both derived from the one shared helper; WHY: decision and reason must not drift",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "getGuardFailureReason FAILS OPEN on a gate sub-check error: when the parallel sub-check throws, it returns null (no fabricated block message) rather than throwing; WHY: a gate infra error must not produce a phantom refusal message or crash the reason renderer",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
