@@ -161,9 +161,9 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:02:37.174Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:03:33.794Z",
       "excludes": [
         "Changing story_advance implementation",
         "Changing done_prepare implementation",
@@ -200,7 +200,31 @@
           }
         ]
       },
-      "userSees": "The contract section lists exact rollback commands, separate delivery blocker categories, dry-run default options, pre/post-merge done_prepare reuse rules, and one-pass refresh escalation."
+      "userSees": "The contract section lists exact rollback commands, separate delivery blocker categories, dry-run default options, pre/post-merge done_prepare reuse rules, and one-pass refresh escalation.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Exact Rollback Commands|lattice story_advance .*phase.*DEV|missing_delivery_check|delivery_check_blocking|preMergeHead|postMergeHead|refresh-only path|metadata-only waiver waives only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The plan now documents exact REVIEW/TEST to DEV rollback, delivery blocker categories, done_prepare HEAD binding, one-pass refresh-only escalation, and metadata-only waiver scope.",
+          "headHash": "2093f0f06466c58224789ab5406de76ebb44cf5c",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:33.971Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "xmllint --noout docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "result": "pass",
+          "note": "Updated lifecycle readiness SVG is well-formed XML.",
+          "headHash": "2093f0f06466c58224789ab5406de76ebb44cf5c",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:34.124Z"
+        }
+      ]
     }
   ]
 }
