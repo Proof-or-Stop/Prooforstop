@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-086b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope PASS over final code (4f36f5c1e): the gate is wired into machine.ts and enforced on ALL FOUR START->DEV doors (PLAN/INIT_CHECK-express/REVIEW-rollback/TEST-rollback) via the shared fail-open parallelDevEntryBlock; contract re-export done; the hard block fires only under mode=block; no scope creep (frozen Stories 1-4 + out-of-scope lifecycle-registry/process-fact untouched). 3-round dual-host; round-3 Claude clean incl completeness-critic, no 5th door.",
+      "createdAt": "2026-06-20T09:37:25.235Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "reviewRunId": "B-086b:RR-001",
+      "_hash": "4d0caedef617a64483ec53a1443e62848554e147e24b54d5077cee2d7d17bf56"
+    },
+    {
+      "id": "B-086b:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS over final code: clean shared-helper structure (parallelDecompositionEnforcedBlock + parallelDevEntryBlock + canReenterDevGuard), fail-open on every door, strict !==0 review-count, formatter tier-1 literal logic mirrors the gate, no dead code/type holes, re-export non-breaking. Round-3 clean.",
+      "createdAt": "2026-06-20T09:37:26.329Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "reviewRunId": "B-086b:RR-002",
+      "_hash": "36d7d8bfaf7b1d796ad385ae9b19f311d9e356bee29d5c3d8d2379cb1645f2eb"
+    },
+    {
+      "id": "B-086b:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS over final code: 50 hermetic assertions cover all 17 verificationIntent items + all four DEV doors enforce/disjoint/fail-open + strict-!==0 (signed blockerCount=-1) + terminal-peer-not-named + wrong-peer-not-named. 0 open findings (the 2 metadata MAJORs are out-of-scope, deferred to a follow-up story per operator decision).",
+      "createdAt": "2026-06-20T09:37:27.419Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "reviewRunId": "B-086b:RR-003",
+      "_hash": "bd66574d9dbea37b99fa9bae3290301697bd84fa176c96c508119eeb5c31e6a3"
+    }
+  ]
+}

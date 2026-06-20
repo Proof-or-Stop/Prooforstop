@@ -1,0 +1,31 @@
+{
+  "task": "Turn the parallel-decomposition gate into a real PLAN->DEV hard block in machine.ts (canStartDevGuard + getGuardFailureReason), enforced only under mode=block and FAIL-OPEN on infra errors, and reconcile the frozen contract to re-export the real impls.",
+  "outcome": "With parallelGate.mode='block' set and a story B-X that asserts parallelSafe='yes' whose write-set literally overlaps an active parallel peer B-Y, running 'lattice story_advance --storyId=B-X --phase=DEV' is REFUSED with: 'Cannot enter DEV:\\n  - parallel-decomposition gate: B-X declares parallelSafe=yes but its write-set overlaps active parallel peer B-Y (e.g. core/foo.ts), so independence is not provable'. Under mode='advise' or 'off', or for a disjoint wave, the same command proceeds to DEV. If the gate sub-check throws (bad config / unreadable own data), DEV is still ALLOWED (fail-open) — the gate never strands a story on its own infra error. Importing computeWriteSet/globsOverlap/evaluateDecompositionGate from core/parallel-decomposition.ts now returns the real functions (no NotImplemented throw).",
+  "facts": [
+    "canStartDevGuard(context) (machine.ts ~299-317) is the boolean PLAN->DEV oracle; outer try/catch is FAIL-CLOSED (returns false on any error / unclean review). It has context.store + context.projectRoot; loads config + policy via loadConfig + resolveWorkflowPolicy; does NOT currently load peers/contracts or resolveAuditConfig.",
+    "getGuardFailureReason(storyId, store, targetPhase, projectRoot?, gitCwd?) (~606+, DEV branch ~653-719) renders the reason and DUPLICATES the guard logic (no shared predicate).",
+    "parallel-decomposition.ts THROWS NotImplemented for computeWriteSet (~68-71), globsOverlap (~77-81), evaluateDecompositionGate (~88-99); real impls in parallel-decomposition-overlap.ts + parallel-decomposition-gate.ts. NO caller imports these functions from the contract today (they import from the impl modules), so a re-export is non-breaking; types stay defined in the contract (type-only import by impls => no runtime cycle).",
+    "evaluateDecompositionGate(story, peers, contracts, cfg) returns {advisories, block}; NEVER reads cfg.mode (the §4.4 caller enforces mode).",
+    "safeReadScopeContract(store, id) (lattice-parallel-wave.ts, B-fa7c) try/catch->null is the crash-safe contract reader to reuse for peer loading.",
+    "resolveAuditConfig(profile, projectRoot).parallelGate gives {mode, maxConcurrentReview, broadGlobBlocks}; use policy.profile (from resolveWorkflowPolicy) for the profile, consistent with story-review."
+  ],
+  "constraints": [
+    "The new sub-check MUST be FAIL-OPEN: its own nested try/catch that falls through to ALLOW on any error — NEVER returns false (spec §4.8). It sits inside but is independent of the outer fail-closed review guard.",
+    "Enforce gateResult.block as a hard refusal ONLY when cfg.mode===block. mode advise/off => never hard-block here (advise is Story 4 advisory surfaces).",
+    "canStartDevGuard (boolean) and getGuardFailureReason (message) must derive the block from ONE shared predicate/helper so the decision and the message cannot drift.",
+    "Only touch parallel-decomposition.ts, machine.ts, the new smoke, lattice.config.json. Do NOT touch the overlap engine / gate verdict / audit-config / Story-4 wave+review files.",
+    "Preserve the existing review-gate fail-closed semantics of canStartDevGuard unchanged."
+  ],
+  "unknowns": [
+    "Exact wording of the block->message mapping per ParallelDecompositionBlock value (overlap_declared_parallel / broad_glob_unprovable_parallel / peer_contract_unreadable_parallel / fake_dependency_chain) — finalize during DEV with actionable text naming the peer/path.",
+    "Whether to also migrate the existing importers (gate.ts/wave.ts) to the contract path after re-export, or leave them importing from impls (decide on circular-import cleanliness during DEV; default leave-as-is to minimize churn).",
+    "Best hermetic test seam for canStartDevGuard: a temp-git-repo store (evidence-state-gate-smoke pattern) vs a synthetic mock StoryStore — pick whichever cleanly drives a signed clean review + parallelGate config + overlapping peer contracts."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/parallel-decomposition.ts (re-export real impls)",
+    "packages/main/src/core/machine.ts (canStartDevGuard fail-open sub-check + getGuardFailureReason mirror + shared block->message helper)",
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts (new hermetic end-to-end smoke)",
+    "lattice.config.json (register the smoke)"
+  ],
+  "timestamp": "2026-06-20T08:17:28.929Z"
+}

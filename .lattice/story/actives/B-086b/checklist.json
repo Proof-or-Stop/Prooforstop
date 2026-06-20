@@ -4,33 +4,417 @@
       "id": "CHK-001",
       "title": "Reconcile the frozen contract parallel-decomposition.ts to re-export the REAL impls (replace the 3 NotImplemented skeletons computeWriteSet/globsOverlap/evaluateDecompositionGate)",
       "context": "core/parallel-decomposition.ts currently THROWS 'NotImplemented' for computeWriteSet (lines ~68-71), globsOverlap (~77-81), evaluateDecompositionGate (~88-99). Replace each with a re-export of the real impl: `export { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js'` and `export { evaluateDecompositionGate } from './parallel-decomposition-gate.js'`. The contract's TYPES (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) stay defined here and are still imported (type-only) by the impl modules — type-only imports are erased at runtime so there is no runtime cycle. No current caller imports the functions from the contract (they import directly from -overlap.js/-gate.js), so the re-export is non-breaking; optionally migrate those importers to the contract path IF it stays clean (no circular-import breakage), else leave them.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T08:24:47.771Z",
+      "endTime": "2026-06-20T08:25:33.735Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "importing computeWriteSet/globsOverlap/evaluateDecompositionGate from core/parallel-decomposition.js returns the REAL functions (computeWriteSet on a contract returns its write-set; globsOverlap detects an overlap; evaluateDecompositionGate returns {advisories,block}) — NOT a NotImplemented throw; WHY: the frozen contract now re-exports the real impls",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the contract still EXPORTS the types (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) and the tsc build is clean (no circular-import runtime break); WHY: type-only imports by the impl modules must not create a runtime cycle",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no caller is broken by the re-export: full lattice validate (all configured smokes + build) stays green; WHY: re-export must be non-breaking for every existing importer",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/parallel-decomposition.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "the integration smoke + machine.ts import evaluateDecompositionGate/computeWriteSet/globsOverlap via the contract core/parallel-decomposition.js and get the REAL functions (the gate actually computes blocks) — not a NotImplemented throw; tsc build green proves the re-export resolves.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "tsc build is clean with the re-export (no duplicate-export, no runtime cycle); the contract still exports the types (machine.ts imports ParallelDecompositionBlock from it).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "lattice validate runs all 11 commands green incl. build — no importer broken by the re-export.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Wire evaluateDecompositionGate into canStartDevGuard (machine.ts) as a FAIL-OPEN hard-block sub-check, enforcing the block ONLY under parallelGate.mode==='block'",
       "context": "core/machine.ts canStartDevGuard (~lines 299-317) is the REAL PLAN->DEV decision oracle (returns boolean; the outer try/catch is fail-CLOSED for the review gate). After the existing review-clean check, add the parallel-decomposition sub-check in its OWN nested try/catch that is FAIL-OPEN (on ANY error, fall through to allow — do NOT return false; spec §4.8: a gate/config infra error must never block PLAN->DEV). Inside: resolve cfg = resolveAuditConfig(policy.profile, projectRoot).parallelGate; only when cfg.mode==='block' load peers (store.listStoryIds().filter(!==self).map(readStory)) + contracts (safeReadScopeContract per id, non-null only), call evaluateDecompositionGate(story, peers, contracts, cfg), and return false ONLY if gateResult.block!==null. mode 'advise'/'off' => never blocks here (advisory is Story 4's surface). Use policy.profile (from resolveWorkflowPolicy) for the profile, consistent with story-review.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T08:25:34.182Z",
+      "endTime": "2026-06-20T08:26:42.837Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "canStartDevGuard returns FALSE for a story asserting parallelSafe=yes whose write-set tier-1 overlaps an active parallel peer, when parallelGate.mode=block and the review is otherwise clean; WHY: the hard block fires under mode=block on a provable overlap",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "canStartDevGuard returns TRUE for a clean disjoint wave (no overlap) with mode=block and a clean review; WHY: the gate must not block provably-independent work",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the SAME overlapping configuration returns TRUE (allowed) under mode=advise AND under mode=off; WHY: advise/off never hard-block — only mode=block enforces",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "canStartDevGuard still returns FALSE when the review is unclean/missing (existing fail-closed review gate unchanged), independent of the parallel sub-check; WHY: no regression of the existing guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "FAIL-OPEN: when the parallel sub-check throws (e.g. a parallelGate config that makes resolveAuditConfig/peer-load throw) and the review is clean, canStartDevGuard returns TRUE (allows DEV); WHY: a gate/config infra error must never strand PLAN->DEV (spec 4.8)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "an unreadable peer scope-contract under mode=block yields the gate block (peer_contract_unreadable_parallel) -> guard returns false (refuse the parallel assertion per 4.8 corrupt-peer fail-closed), NOT a crash; WHY: the corrupt-peer bypass is closed without crashing",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: overlap (tier-1 literal) + parallelGate.mode=block + signed-clean review -> canStartDevGuard returns false.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: clean disjoint write-sets + mode=block -> canStartDevGuard returns true.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: the SAME overlap under mode=advise and mode=off -> canStartDevGuard returns true (allowed).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: missing/unclean review -> canStartDevGuard returns false via the existing fail-closed review gate, independent of the parallel sub-check.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke FAIL-OPEN: a corrupt peer index.json makes readStory throw inside the helper while the review is clean -> canStartDevGuard returns true (allows DEV); a gate/store infra error never blocks.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: an unreadable peer scope-contract under mode=block -> gate block peer_contract_unreadable_parallel -> guard returns false (refuse the parallel assertion), not a crash.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Mirror the block reason in getGuardFailureReason (machine.ts) so the PLAN->DEV failure message explains the parallel-decomposition block",
       "context": "core/machine.ts getGuardFailureReason targetPhase==='DEV' branch (~lines 653-719) must render a human-readable reason for the same block canStartDevGuard enforces, keeping the two in sync. Add (mirroring the same mode==='block' + peers/contracts + evaluateDecompositionGate computation) a branch that, when gateResult.block!==null, returns 'Cannot enter DEV: <actionable message per block reason>' naming the colliding peer/path where available. Wrap in try/catch that on error returns null/falls through (do not fabricate a block message on a gate error). The block-reason->message mapping should be a small shared helper so canStartDevGuard's decision and this message derive from the same predicate.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T08:26:43.291Z",
+      "endTime": "2026-06-20T08:27:06.675Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for the same blocked config (overlap, mode=block, clean review) getGuardFailureReason(storyId,store,DEV,root) returns a non-null string containing the actionable block reason naming the colliding peer/path; WHY: the operator sees WHY DEV was refused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "for a clean/allowed wave getGuardFailureReason returns null for the parallel sub-check (no phantom message); WHY: a message must appear only when the guard actually blocks",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "decision/message PARITY: whenever canStartDevGuard returns false due to the parallel block, getGuardFailureReason returns a non-null parallel message, and when the guard allows, no parallel message is produced — both derived from the one shared helper; WHY: decision and reason must not drift",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "getGuardFailureReason FAILS OPEN on a gate sub-check error: when the parallel sub-check throws, it returns null (no fabricated block message) rather than throwing; WHY: a gate infra error must not produce a phantom refusal message or crash the reason renderer",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: for the blocked config getGuardFailureReason(storyId,store,DEV,root) returns a non-null string containing the block reason naming the colliding peer.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: for a clean/allowed wave getGuardFailureReason returns no parallel block message (null/unrelated).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke decision/message parity: when canStartDevGuard is false for the parallel block, getGuardFailureReason returns a non-null parallel message; when allowed, no parallel message — both via the shared parallelDecompositionEnforcedBlock helper.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke: getGuardFailureReason fails OPEN on a gate sub-check error (corrupt peer) -> returns null (no fabricated block message), not a throw.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Hermetic smoke proving the hard gate end-to-end: parallel overlap BLOCKS under mode=block, broad glob blocks (strict), clean disjoint passes, mode=off/advise do NOT block, config/gate-infra failure FAILS OPEN, unreadable peer contract under block refuses the parallel assertion",
       "context": "New packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts (follow the evidence-state-gate-smoke.ts temp-repo pattern OR a hermetic mock-store pattern). Assert canStartDevGuard returns false for a tier-1 declared-parallel overlap under mode=block; returns true for the same under mode=advise and mode=off; returns true for a clean disjoint wave; FAILS OPEN (returns true) when the gate sub-check throws (e.g. a config that makes resolveAuditConfig/peer-load throw); and getGuardFailureReason returns a message naming the block for the blocked case and null for the clean case. Register in lattice.config.json.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T08:27:07.084Z",
+      "endTime": "2026-06-20T08:30:37.368Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the integration smoke runs green proving: overlap+mode=block -> canStartDevGuard false + getGuardFailureReason non-null naming the block; clean disjoint -> true + null; WHY: end-to-end proof the hard gate works and the message matches",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke asserts mode=advise and mode=off both allow the same overlap (guard true), and a missing/unclean review still blocks via the existing gate; WHY: mode semantics + no regression proven end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke asserts FAIL-OPEN: a parallelGate config that makes the sub-check throw -> canStartDevGuard true and getGuardFailureReason null (with the review otherwise clean); WHY: the single most important property (infra error never blocks) is proven, not just asserted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke is registered in lattice.config.json validate.commands and lattice validate stays all-green; WHY: the gate test runs in CI on every validate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "the integration smoke runs green proving overlap+mode=block -> guard false + reason non-null naming the block; disjoint -> true + null.",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts mode=advise and mode=off allow the same overlap, and a missing/unclean review still blocks via the existing gate (no regression).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts FAIL-OPEN: a config/store error makes the sub-check throw -> canStartDevGuard true and getGuardFailureReason null (review otherwise clean).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke registered as lattice.config.json validate.commands[10]; lattice validate stays all-green (11 commands).",
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
+        }
+      ]
     }
   ]
 }
