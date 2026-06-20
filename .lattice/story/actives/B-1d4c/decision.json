@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Truth-first handoff must use live lifecycle facts first",
+    "Preflight evidence must be machine-verifiable and bound to current HEAD/story lineage",
+    "Host behaviors should be deterministic across host types",
+    "Claims about completion must include proof provenance"
+  ],
+  "drivers": [
+    "Prevent stale-doc regressions across multi-host work",
+    "Reduce repeated human rework prompts",
+    "Enable 3x2/2-host verification to be auditable"
+  ],
+  "options": [
+    {
+      "name": "Shared preflight via handoff projection",
+      "pros": [
+        "Consistent contract across hosts",
+        "Lowest runtime duplication",
+        "Easy machine-verification"
+      ],
+      "cons": [
+        "Requires schema changes in core",
+        "Longer validation path"
+      ]
+    },
+    {
+      "name": "Per-host wrapper preflight fetch",
+      "pros": [
+        "Minimal disruption to core flow",
+        "Can be host-specific"
+      ],
+      "cons": [
+        "Divergent behavior risk",
+        "Harder to audit cross-host consistency"
+      ]
+    }
+  ],
+  "chosen": "Shared preflight via handoff projection",
+  "rationale": "We need one evidence contract to avoid host drift and stale-doc misclassification, and to keep 3x2/2-host verification auditable.",
+  "preMortem": [
+    {
+      "scenario": "Host claims pending while story is DONE",
+      "trigger": "Handoff reads outdated docs only",
+      "consequence": "Users rerun already-finished work",
+      "mitigation": "Gate always resolves host claims against story_get/story_done facts before any pending suggestion"
+    },
+    {
+      "scenario": "Host outputs proof for stale memory evidence",
+      "trigger": "Session memory overrides canonical story facts",
+      "consequence": "Wrongly skipped or duplicated work",
+      "mitigation": "Memory evidence marked advisory only; strict host-preflight required"
+    },
+    {
+      "scenario": "Hosts accept missing/partial preflight as proof",
+      "trigger": "Wrapper failure returns fallback text",
+      "consequence": "Silent false confidence and incomplete coverage",
+      "mitigation": "Explicit preflight verdict schema with blocked/no-block/uncertain and explicit winSignal"
+    }
+  ],
+  "timestamp": "2026-06-20T18:55:01.738Z"
+}

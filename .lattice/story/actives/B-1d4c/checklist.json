@@ -10,7 +10,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ CHK-001 complete: host handoff preflight payload now includes session, memory, story, gap, and learning-stale signals.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "hosting `lattice handoff_create` now returns preflight manifest including session_brief + devMemory + active story + gap + learning signals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "when one input call fails, preflight summary still includes a deterministic stale verdict and winSignal when possible",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host handoff is called with missing or stale artifacts and does not claim pending work without evidence",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
