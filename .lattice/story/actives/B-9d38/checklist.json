@@ -55,8 +55,8 @@
       "id": "CHK-002",
       "title": "COMPLETENESS_CRITIC_DESC_TAG + CRITIC_PROVENANCE_RECOMMENDED_LANES constants (§4.3)",
       "context": "COMPLETENESS_CRITIC_DESC_TAG='[completeness-critic]' (the provenance prefix carried in --desc, NOT --agent). CRITIC_PROVENANCE_RECOMMENDED_LANES=['lattice-review-quality','lattice-review-behavior'] as const (the §4.3 recommended real lanes for critic findings; a confirmed critic finding must be recorded under a real lattice-review-* lane because reviewer-evidence only counts when agent.startsWith('lattice-review-') and there is no lattice-review-completeness lane). Document WHY the tag goes in desc not agent.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T15:36:52.743Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
