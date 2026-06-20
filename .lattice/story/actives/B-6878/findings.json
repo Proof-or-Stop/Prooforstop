@@ -77,6 +77,24 @@
       ],
       "signatureTag": "adversarial|ts|dispatch-usage-streaming",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-005",
+      "desc": "assemble.ts:76 (sanitizeRawUsage) — BILLING/DIGEST REGRESSION for legitimate data: the projected whitelist-only object REPLACES the raw payload that flows to the adapter, and buildProviderReportedUsage computes raw.payloadDigest = sha256(canonicalJson(rawUsage)) over THAT projected object. So a normal un-polluted provider payload carrying legitimate extra fields the adapter does not read (openai total_tokens, gemini totalTokenCount, service_tier, nested non-read details) now produces a DIFFERENT payloadDigest than pre-hardening — a silent change to persisted records. Note canonicalJson uses Object.keys (own-only), so digesting the ORIGINAL raw payload is already pollution-safe AND preserves extra fields. Fix: compute payloadDigest from the ORIGINAL raw payload; use the projected/guarded object ONLY for the token-field READS (do not let projection feed the digest). Add a smoke: a legitimate payload WITH extra fields (total_tokens etc.) yields a payloadDigest byte-identical to pre-hardening.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:13:08.029Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "_hash": "34f1a0e1e531ef5b112bd76e0e23b12f61a1cd9db79c9bd46b777a1ed9a2f21e",
+      "files": [
+        "packages/main/src/core/usage-ledger/assemble.ts",
+        "packages/main/src/core/usage-ledger/adapters/shared.ts"
+      ],
+      "signatureTag": "adversarial|ts|assemble-sanitizerawusage-billing",
+      "signatureTagSource": "auto"
     }
   ]
 }
