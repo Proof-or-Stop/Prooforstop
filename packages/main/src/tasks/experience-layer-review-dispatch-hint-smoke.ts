@@ -492,6 +492,65 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
   assert.equal(surfacedEvents(root).length, 0, 'corrupt cache: no partial experience_hint_surfaced event');
 });
 
+// ─── ADVERSARIAL (transition layer): an APPEND/track failure driven THROUGH ────
+// buildNextSteps never blocks the REVIEW transition ─────────────────────────────
+//
+// CHK-002 adversarial:0. The sibling check above exercises the corrupt-cache
+// route (loadExperienceHints yields no hints → the leaf never reaches the append).
+// This one exercises the TRANSITION-EFFECTS layer with the SAME failure injection
+// as CHK-001 adversarial:0 (the leaf-level direct check): seed VALID finding
+// signals on an ON-arm REVIEW story so the leaf REACHES the failing track step,
+// then occupy the runtime activity-log path .lattice/activity.jsonl with a
+// DIRECTORY so appendActivityLog's appendFileSync throws EISDIR INSIDE
+// surfaceExperienceHints. Crucially we drive it through buildNextSteps (the REVIEW
+// branch), NOT the leaf directly, to prove the transition guidance + reviewer-
+// launch lines survive a hint-path failure. The leaf's try/catch swallows the
+// EISDIR (renderedSection='') and the buildNextSteps hint block's own try/catch
+// appends nothing — so the REVIEW guidance keeps its Agent({ subagent_type:
+// "lattice-review-* }) launch lines (active-reviewer set unchanged, transition not
+// blocked) and no rendered hints section is appended for that failed call.
+
+check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never blocks the REVIEW transition (guidance returned, reviewer-launch lines intact)', () => {
+  const onId = findStoryIdForArm('on');
+  assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (the leaf reaches the failing track step)');
+
+  const root = mkTempRoot();
+  writeLatticeConfig(root);
+  seedStory(new StoryStore(root), onId, 'REVIEW');
+  seedSignals(root, hintYieldingSignals()); // valid hints => the leaf reaches the append/track step
+
+  // SAME failure injection as CHK-001 adversarial:0: occupy the runtime
+  // activity-log path with a DIRECTORY so appendActivityLog throws EISDIR from
+  // inside surfaceExperienceHints. (readActivityLogTail's dedup scan swallows the
+  // directory gracefully; it is the append that throws, INSIDE the leaf try.)
+  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+
+  // Drive the failure THROUGH buildNextSteps (the REVIEW branch), NOT the leaf.
+  let threw = false;
+  let text: string | undefined;
+  try {
+    text = reviewNextSteps(root, onId);
+  } catch {
+    threw = true;
+  }
+  assert.equal(threw, false, 'buildNextSteps must NOT throw when the hint path fails (hint failure never blocks the transition)');
+  assert.ok(text, 'buildNextSteps returns its REVIEW guidance despite the hint-path failure');
+
+  // The reviewer-launch lines are intact => active-reviewer set unchanged /
+  // transition not blocked or garbled by the hint failure.
+  assert.ok(text!.includes('Active reviewers:'),
+    'REVIEW guidance still renders the active-reviewer set after the hint-path failure');
+  assert.ok(text!.includes('Agent({ subagent_type: "lattice-review-'),
+    'REVIEW guidance still contains the reviewer-launch Agent({ subagent_type: "lattice-review-* }) lines');
+
+  // Because the leaf swallowed the failure, no rendered hints section was appended
+  // for that failed call (and the run did not crash).
+  assert.ok(!text!.includes(SECTION_LABEL),
+    'no rendered hints section appended for the failed call (the leaf swallowed the failure)');
+  assert.equal(surfacedEvents(root).length, 0,
+    'the failed append wrote no partial experience_hint_surfaced event');
+});
+
 // ─── summary ──────────────────────────────────────────────────────────────────
 
 try {
