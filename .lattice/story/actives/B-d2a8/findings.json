@@ -18,6 +18,24 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-002",
+      "desc": "CHK-001:happy:0: intent claims resolveParallelGate is called with lightDefault as the profileDefault, but the smoke (line 60-63 of parallel-gate-config-smoke.ts) uses PD which is the balanced default (advise/3/false). The evidence note repeats the intent wording verbatim without reflecting what the code actually does. The intent is covered by a real assertion but with a different profileDefault than stated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:34:14.571Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "ff62b38a934e19ac3ff94f71d3bc83aee8fc5d5d1ebc96a912bc0c72713d50df",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
