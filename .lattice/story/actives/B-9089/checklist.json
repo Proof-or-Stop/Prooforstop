@@ -51,7 +51,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Owner-lease diagnostics and session_brief show a canonical Lattice session source for stable env/adapter paths, while ppid-only fallback is visibly degraded instead of silently posing as a durable host session."
+      "userSees": "`lattice session_brief` shows \"owner session: <id> [explicit-env]\" for canonical env and \"owner session: <id> [derived-ppid]\" only for degraded fallback.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/story-owner-lease-doctor.ts"
+        ],
+        "create": [
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical LATTICE_SESSION_ID resolves through the shared facade with stable id/source and owner-lease refresh recognizes the same session across ppid changes.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Blank or whitespace-only LATTICE_SESSION_ID is ignored and falls through to adapter or fallback resolution without producing an empty owner id.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The resolver result is labeled local coordination only and cannot be consumed as Authority/reviewer proof.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
