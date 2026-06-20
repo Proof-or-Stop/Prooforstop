@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T11:23:51.740Z",
       "reviewRunId": "B-9089:RR-008",
       "_hash": "51a5dce19dfd5873a585b3806f38e12d6b46118d94ae300035b3c92e82b8f286"
+    },
+    {
+      "id": "B-9089:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "PASS: owner-session canonical runtime contract still holds after B-9089:F-001 fix. Verified resolver priority remains LATTICE_SESSION_ID explicit-env -> host-adapter -> generated-token -> derived-ppid; generated tokens are scoped by project root, host provider, and adapter boundary; generic owner-lease/lifecycle callers consume getSessionId/getSessionIdentity instead of host-specific env branches; bounded codex/gemini dispatch passes canonical LATTICE_SESSION_ID into provider env; token storage is registered as volatile/material-excluded runtime state. Commands: npm --prefix packages/main run test:owner-session-guardrail (pass); npm --prefix packages/main run test:story-owner-lease-smoke (pass). Non-concept hygiene observed: git diff --check main...HEAD reports blank EOF lines in owner-session-token-store.ts and owner-session.ts.",
+      "createdAt": "2026-06-20T11:27:17.970Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-005",
+      "_hash": "39c36fa494384be5b7601e41c8eccc301632591879ec5d5750be605f93e2c965"
     }
   ]
 }
