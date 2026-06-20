@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-bd45:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified B-bd45:F-003 is resolved: packages/main/src/tasks/lifecycle-check-smoke.ts:212 snapshots story metadata and git status before both JSON calls; lines 215-223 invoke json:true and format:\"json\" and compare top-level report shape; lines 258-259 assert no story metadata or git status mutation. npm --prefix packages/main run test:lifecycle-check-smoke passed.",
+      "createdAt": "2026-06-20T21:15:20.797Z",
+      "reviewRound": "2026-06-20T21:13:23.156Z",
+      "reviewRunId": "B-bd45:RR-006",
+      "_hash": "ce948d3d5c811bfc5098079b3d85011aad414413782074a3770c71df4cee0ebd"
+    }
+  ]
+}
