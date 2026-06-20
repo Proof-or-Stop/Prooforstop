@@ -1,0 +1,32 @@
+{
+  "task": "Stop unrelated main merges from making story evidence/reviewer bindings stale when the story-owned files did not change.",
+  "outcome": "Terminal transcript after an unrelated main merge: `lattice validate --story=B-5a9a --json` reports the affected verification/review bindings as valid, includes a warning like `whole-tree materialHash drifted; storyFilesHash unchanged; re-attestation recommended`, and does not ask the user to run recover_evidence just because unrelated files changed. If a story-owned file changes, the transcript still says the binding is stale and instructs re-attestation.",
+  "facts": [
+    "Existing freshness uses headHash/materialHash and currently treats whole-tree materialHash drift as stale.",
+    "Story lifecycle docs say stale evidence cannot be overridden by prose and verificationEvidence must be mechanically fresh.",
+    "review_run_start records signed reviewer runs with headHash/materialHash and workspace/scope bindings.",
+    "verification_evidence_refresh_stale exists as a recovery command, but this story targets avoiding unnecessary stale status when only unrelated files changed.",
+    "Scope is frozen to secondary storyFilesHash, not replacing whole-tree materialHash."
+  ],
+  "constraints": [
+    "Do not remove or silently rebind whole-tree materialHash; keep it recorded for provenance and strict compatibility.",
+    "Do not make story-diff-only the sole source of truth because transitive dependency changes still matter.",
+    "Gate-consumed facts must be represented in runtime code and process-fact registry/contract checks when applicable.",
+    "Do not touch Authority job/status or B-0e53 DONE mainSha race behavior.",
+    "All story metadata and evidence changes must go through Lattice commands, not direct docs/story edits."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/story-files-hash-material-drift.md"
+  ],
+  "timestamp": "2026-06-19T21:11:50.588Z"
+}

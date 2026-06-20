@@ -40,7 +40,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -50,6 +50,7 @@ import {
   consumeAuthorityGateReceiptDocument,
   type AuthorityGateReceiptDocumentConsumption,
 } from '../core/authority-gate-receipts.js';
+import type { ChecklistData, VerificationEvidence } from '../core/types.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -336,6 +337,25 @@ function currentHead(gitCwd: string): string | undefined {
   }
 }
 
+function evidenceFreshness(gitCwd: string, metadataRoot: string, headHash: string, evidence?: VerificationEvidence) {
+  return checkEvidenceFreshnessForGit(gitCwd, headHash, evidence?.materialHash, metadataRoot, evidence?.storyFilesHash);
+}
+
+function collectStoryFilesHashAdvisories(cl: ChecklistData, gitCwd: string, metadataRoot: string): string[] {
+  const advisories: string[] = [];
+  for (const item of cl.items) {
+    for (const evidence of item.verificationEvidence || []) {
+      if (!evidence.headHash) continue;
+      const freshness = evidenceFreshness(gitCwd, metadataRoot, evidence.headHash, evidence);
+      if (!freshness.fresh || !freshness.warnings?.length) continue;
+      for (const warning of freshness.warnings) {
+        advisories.push(`Re-attestation advisory: ${item.id} ${evidence.intentRef}: ${warning}`);
+      }
+    }
+  }
+  return [...new Set(advisories)];
+}
+
 function decorateStoryVerification(ctx: HandlerContext, storyId: string, result: any): any {
   let coverage;
   let verificationPolicy;
@@ -355,7 +375,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
     coverage = buildVerificationCoverage(
       cl,
       head,
-      (headHash, evidence) => checkEvidenceFreshnessForGit(ctx.root, headHash, evidence?.materialHash).fresh,
+      (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
       { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
     );
     authorityGateConsumption = evaluateValidationAuthorityGate(ctx, storyId, effectivePolicy.profile, result);
@@ -366,6 +386,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   const rendered = renderVerificationCoverage(coverage, verificationPolicy);
   const details = Array.isArray(result.details) ? [...result.details] : [];
   details.push(...rendered.split('\n'));
+  details.push(...collectStoryFilesHashAdvisories(ctx.store.readChecklist(storyId), resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }), ctx.root));
   if (authorityGateLine) details.push(authorityGateLine);
   // B-4e06 CHK-002: surface legacy evidence-without-intent as an informational
   // hint naming the repair command. Additive only — never alters coverage math
@@ -521,7 +542,8 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
-  const materialHash = currentMaterialHash(ctx.root);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
   ctx.store.writeTestEvidence(storyId, {
     command,
     output: JSON.stringify(result),
@@ -529,6 +551,7 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
     timestamp: new Date().toISOString(),
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
   });
 }
@@ -849,11 +872,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const coverage = buildVerificationCoverage(
             cl,
             head,
-            (headHash, evidence) => checkEvidenceFreshnessForGit(projectRoot, headHash, evidence?.materialHash).fresh,
+            (headHash, evidence) => evidenceFreshness(handlerGitCwd, projectRoot, headHash, evidence).fresh,
             { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
           );
           const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
-          return output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
+          const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
+          return output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
         } catch {
           // If story metadata cannot be read, fall back to raw verifier output.
         }

@@ -191,6 +191,8 @@ export interface VerificationEvidence {
   headHash?: string;
   /** Hash of tracked non-story-metadata files captured when evidence was recorded. */
   materialHash?: string;
+  /** Hash of story-owned material files vs merge-base main captured when evidence was recorded. */
+  storyFilesHash?: string;
   timestamp?: string;
   /** Structured CI/human attestation metadata. All fields optional for legacy compatibility. */
   attestation?: AttestationMetadata;
@@ -643,6 +645,7 @@ export interface ReviewRun {
   startedAt: string;
   headHash: string;
   materialHash: string;
+  storyFilesHash?: string;
   promptHash: string;
   /**
    * B-6bfd CHK-005: scope/diff/hunk binding for scope-protected stories. Present
@@ -699,6 +702,8 @@ export interface TestEvidenceData {
   headHash?: string;
   /** non-Lattice metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
+  /** Hash of story-owned material files vs merge-base main captured at test time. */
+  storyFilesHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;
@@ -1729,6 +1734,7 @@ export interface ReviewRunWorkspaceBinding {
   workspaceMode: string;
   headHash: string;
   materialHash: string;
+  storyFilesHash?: string;
   /** sha256 over all fields above + salt; folded into the review run signature. */
   bindingHash: string;
 }

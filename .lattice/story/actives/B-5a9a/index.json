@@ -4,7 +4,7 @@
   "title": "Add a secondary storyFilesHash so unrelated main merges stop staling a story's bindings",
   "description": "Root-cause fix for the recurring re-establish-after-unrelated-merge churn: keep the whole-tree materialHash, but ADD a secondary storyFilesHash (story's own changed files vs merge-base main). Bindings stay valid while storyFilesHash is unchanged; whole-tree drift downgrades from instant-reject to a re-attestation-REQUIRED warning (never silent rebind, never story-diff-only). Load-bearing soundness work; decision-doc first.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "materialhash",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-19T20:24:47.529Z",
   "startedAt": "2026-06-19T20:24:47.529Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T23:27:59.637Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,87 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T21:10:15.492Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T21:44:30.110Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T22:12:48.433Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T22:19:14.162Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T22:35:13.478Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T22:44:10.065Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:01:06.019Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:11:19.016Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:20:14.212Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:27:59.637Z",
+      "branch": "story/B-5a9a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5a9a",
-    "branch": "story/B-5a9a",
-    "createdAt": "2026-06-19T21:10:01.721Z"
-  }
+  "currentReviewRound": "2026-06-19T23:11:19.016Z"
 }

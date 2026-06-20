@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-986c",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/core/parallel-decomposition-gate.ts",
+    "packages/main/src/core/parallel-policy.ts",
+    "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+  ],
+  "excluded": [
+    "packages/main/src/core/audit-config.ts (Story 3)",
+    "packages/main/src/core/lattice-parallel-wave.ts + handlers/story-review.ts (Story 4)",
+    "packages/main/src/core/machine.ts (Story 5 integration)",
+    "packages/main/src/core/parallel-decomposition.ts (frozen contract; reconciled by Story 5, not S2)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Program Story 2 (B-986c): new gate-verdict file + export terminalPhases from parallel-policy.ts (single-source fix for INIT-001) + smoke; disjoint from S3/S4. Operator approved the S2-S5 program 2026-06-20.",
+  "createdAt": "2026-06-19T23:18:48.514Z",
+  "updatedAt": "2026-06-19T23:18:48.514Z",
+  "_hash": "4bfb11820f0fda6f5627c8295b5d9fb2f484c6085842eb0230fc34c71024daf5"
+}

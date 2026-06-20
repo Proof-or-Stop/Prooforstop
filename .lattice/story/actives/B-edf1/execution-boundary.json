@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-edf1",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-19T23:46:21.185Z",
+  "updatedAt": "2026-06-19T23:46:21.185Z",
+  "_hash": "8112a2c2eb9e1c2100e57af882826acee7b87d6adb729ef616868bcf00348a33"
+}

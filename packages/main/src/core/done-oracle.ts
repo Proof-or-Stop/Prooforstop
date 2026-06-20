@@ -184,8 +184,9 @@ function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: stri
   if (phase === 'DONE') {
     return checkCompletedEvidenceSnapshotFreshness(gitCwd, evidence, metadataRoot);
   }
-  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash, metadataRoot);
-  return { fresh: freshness.fresh, message: freshness.reason };
+  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash, metadataRoot, evidence.storyFilesHash);
+  const warningSuffix = freshness.warnings?.length ? `; ${freshness.warnings.join('; ')}` : '';
+  return { fresh: freshness.fresh, message: `${freshness.reason}${warningSuffix}` };
 }
 
 /**

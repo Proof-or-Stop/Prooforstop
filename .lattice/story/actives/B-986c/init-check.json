@@ -1,0 +1,36 @@
+{
+  "storyId": "B-986c",
+  "checkedAt": "2026-06-19T23:17:41.215Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "background.md lacks an explicit Done-When / user-observable outcome section. The operator cannot tell from the background alone what they should see when this story is complete. CHK-002 partially covers this (run smoke, see each block reason), but the background should state something like: Done When the operator can run the smoke task and see each of the four block reasons fire on its provable case and degrade to advisory on the non-provable case, with a clean disjoint decomposition returning no block. This is advisory because CHK-002 does describe the verification, and this is a mid-program building block (Story 2/6) whose user-facing wiring is in Story 5."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T23:17:29.199Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Solution Tradeoffs claims terminalPhases from parallel-policy.ts is reusable as a single source, but parallel-policy.ts does NOT export terminalPhases — it is a local const inside resolveParallelSafety (line 53) and summarizeParallelPolicy (line 94). Implementer cannot import it; they must re-define the set or refactor parallel-policy.ts to export it. The single-source claim is factually inaccurate."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T23:17:41.215Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "background.md lacks an explicit Done-When / user-observable outcome section. The operator cannot tell from the background alone what they should see when this story is complete. CHK-002 partially covers this (run smoke, see each block reason), but the background should state something like: Done When the operator can run the smoke task and see each of the four block reasons fire on its provable case and degrade to advisory on the non-provable case, with a clean disjoint decomposition returning no block. This is advisory because CHK-002 does describe the verification, and this is a mid-program building block (Story 2/6) whose user-facing wiring is in Story 5."
+        }
+      ]
+    }
+  ],
+  "_hash": "9ac49f332d9ce826fe357f866709c3492ec210d03a2396084f3acc3d4caa5194"
+}

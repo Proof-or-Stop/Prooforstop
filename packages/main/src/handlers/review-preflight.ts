@@ -180,7 +180,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'koala-residue';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'koala-residue' | 'reviewer-evidence';
   ok: boolean;
   status: string;
   summary: string;
@@ -198,6 +198,24 @@ export interface PreflightResult {
   lint?: LintResult;
   docsDrift?: DocsDriftGateResult;
   gates: PreflightGateEntry[];
+}
+
+function reviewerEvidenceAdvisoryGate(
+  store: StoryStore,
+  storyId: string,
+  projectRoot: string,
+): PreflightGateEntry | null {
+  const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot);
+  const advisories = evidenceState.advisories ?? [];
+  if (advisories.length === 0) return null;
+  return {
+    name: 'reviewer-evidence',
+    ok: true,
+    status: 'warn',
+    summary: `${advisories.length} reviewer evidence material drift advisory${advisories.length === 1 ? '' : 'ies'}`,
+    details: advisories.map(issue => issue.message),
+    commandLabel: 'reviewer-evidence freshness',
+  };
 }
 
 /**
@@ -360,6 +378,8 @@ export function runReviewCliGates(
         commandLabel: resolvedLabel,
       });
     }
+    const reviewerAdvisory = reviewerEvidenceAdvisoryGate(deps.store, storyId, deps.projectRoot);
+    if (reviewerAdvisory) gates.push(reviewerAdvisory);
     return { ok: gates.every((g) => g.ok), fastChannel, gates };
   }
 
@@ -589,6 +609,8 @@ export function runReviewCliGates(
       commandLabel: resolvedLabel,
     });
   }
+  const reviewerAdvisory = reviewerEvidenceAdvisoryGate(deps.store, storyId, deps.projectRoot);
+  if (reviewerAdvisory) gates.push(reviewerAdvisory);
 
   const ok = gates.every((g) => g.ok);
   return { ok, fastChannel, channel, concept, lint, docsDrift, gates };
@@ -601,14 +623,14 @@ export function renderPreflight(result: PreflightResult): string {
   const lines: string[] = [];
   lines.push(
     result.fastChannel
-      ? 'REVIEW→TEST CLI gate preflight (express channel, all skipped):'
+      ? 'REVIEW→TEST CLI gate preflight (express channel, CLI gates skipped):'
       : 'REVIEW→TEST CLI gate preflight:',
   );
   for (const g of result.gates) {
-    const icon = g.ok ? '✓' : '✗';
+    const icon = g.ok ? (g.status === 'warn' ? '!' : '✓') : '✗';
     const commandLabel = g.commandLabel ?? (g.name === 'codex-adapter' ? LOCAL_CODEX_VERIFY_COMMAND : `validate --${g.name}`);
     lines.push(`  [${icon}] ${commandLabel}: ${g.status} — ${g.summary}`);
-    if (!g.ok && g.details.length > 0) {
+    if (g.details.length > 0 && (!g.ok || g.status === 'warn')) {
       for (const d of g.details.slice(0, 20)) {
         lines.push(`        ${d}`);
       }

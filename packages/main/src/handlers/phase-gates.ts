@@ -32,7 +32,7 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, 
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -267,7 +267,11 @@ export async function runReviewToTestPreflightGate(
         `→ 单独复跑: lattice validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
       );
     }
-    ctx.log?.('CLI gate preflight: all pass');
+    if (preflight.gates.some(g => g.status === 'warn')) {
+      ctx.log?.(renderPreflight(preflight));
+    } else {
+      ctx.log?.('CLI gate preflight: all pass');
+    }
   } catch (e: any) {
     if (e?.message?.startsWith('Cannot enter TEST')) throw e;
     // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
@@ -548,6 +552,7 @@ export async function runValidateGate(
     // what the DONE-path freshness recompute does — instead of resolving config
     // from the gitCwd. Plain repos pass root==gitCwd (byte-identical).
     const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
+    const evidenceStoryFilesHash = currentStoryFilesHash(evidenceGitCwd, 'HEAD', ctx.root);
     store.writeTestEvidence(storyId, {
       command: `lattice validate --story=${storyId} --json`,
       output: String(jsonResult),
@@ -555,6 +560,7 @@ export async function runValidateGate(
       timestamp: new Date().toISOString(),
       ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
       ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
+      ...(evidenceStoryFilesHash ? { storyFilesHash: evidenceStoryFilesHash } : {}),
       ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
     });
 

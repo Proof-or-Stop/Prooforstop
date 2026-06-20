@@ -1,0 +1,41 @@
+{
+  "storyId": "B-edf1",
+  "name": "surface-storyfileshash-drift-advisory-at-done",
+  "title": "Surface the storyFilesHash whole-tree-drift re-attestation advisory on the DONE Review-escalation pass path",
+  "description": "B-5a9a downgrade-accepts a drifted host verdict when storyFilesHash matches and records a mandatory re-attestation advisory, but the DONE gate drops it on the escalation pass path (done-oracle.ts:710 generic hint, renderDoneChecklist skips pass-row hint, machine.ts:882 falls through), so whole-tree drift can pass DONE silently. Surface escalation.advisories on the DONE pass path (always-printed detail), keep it a pass, add a smoke.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-06-19T23:45:45.004Z",
+  "startedAt": "2026-06-19T23:45:45.004Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T23:45:45.005Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T23:48:39.111Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-edf1",
+    "branch": "story/B-edf1",
+    "createdAt": "2026-06-19T23:48:38.164Z"
+  }
+}

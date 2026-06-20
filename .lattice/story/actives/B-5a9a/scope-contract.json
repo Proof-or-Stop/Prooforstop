@@ -1,0 +1,115 @@
+{
+  "storyId": "B-5a9a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/story-files-hash-material-drift.md"
+  ],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story",
+    "packages/main/tests/fixtures",
+    ".omx"
+  ],
+  "explicitExcludes": [
+    "Authority job/status behavior",
+    "B-0e53 DONE pre-merge mainSha race handling",
+    "Removing or replacing whole-tree materialHash",
+    "Remote push/release publishing"
+  ],
+  "scopeChangeReason": "Initialize B-5a9a scope contract from PLAN before DEV implementation; enforce storyFilesHash/materialHash freshness scope only.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These consumers must preserve and evaluate storyFilesHash so session stale hints and portable evidence inspection do not keep using the old materialHash-only freshness path.",
+      "timestamp": "2026-06-19T22:09:40.812Z",
+      "paths": [
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/core/lattice-evidence.ts",
+        "packages/main/src/tasks/lattice-evidence-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/core/lattice-evidence.ts",
+        "packages/main/src/tasks/lattice-evidence-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "3d96dd845b3b4e426386c8e1525c90e5ea885ae3",
+      "materialHash": "aacebd9c547beaec23e41d96dced14088a7ac30243c9e7bb3dd24209bed18600",
+      "anchors": [
+        "verification_evidence_freshness",
+        "storyFilesHash_consumers",
+        "portable_evidence_inspection"
+      ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "B-5a9a F-001 F-002 F-003 F-004 require command schemas/producers, DONE evidence freshness, and REVIEW preflight advisory rendering outside the original narrow path set.",
+      "timestamp": "2026-06-19T22:35:00.038Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/verdicts.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/verdicts.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "affectedPathCount": 8,
+      "phase": "DEV",
+      "headHash": "19a5431656ba0477fa7355351009afcd4b04af22",
+      "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c"
+    },
+    {
+      "actor": "codex",
+      "reason": "review_run_start is the producer that must persist top-level storyFilesHash into signed review runs, and field-regression-cli-smoke proves unrelated main merge drift no longer stales that reviewRunId.",
+      "timestamp": "2026-06-19T23:11:09.484Z",
+      "paths": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "be37e659b3c1758f733454db67efb3d99f12db45",
+      "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+      "anchors": [
+        "review_run_start.storyFilesHash",
+        "field_regression_cli_smoke.review_run_unrelated_main_merge"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-19T21:44:57.457Z",
+  "updatedAt": "2026-06-19T23:11:09.484Z"
+}
