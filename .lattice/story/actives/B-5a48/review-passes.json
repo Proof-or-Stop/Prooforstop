@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T12:47:41.244Z",
       "reviewRunId": "B-5a48:RR-002",
       "_hash": "d3e67c23cf3db230c7636cec2d1fb7c5e832123625979d0a38d3d827be7f63d0"
+    },
+    {
+      "id": "B-5a48:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check passed. (a) Single firing site confirmed: story-review.ts has zero residual inline imports (loadExperienceHints, resolveHintMode, appendActivityLog, readActivityLogTail all removed from the handler; only surfaceExperienceHints remains). (b) Leaf imports only 3 pre-existing core leaves: experience-hint-loader, activity-log, hint-mode — zero new cross-layer edges. (c) hintRoundKey formula in transition-effects.ts line 317 is byte-identical to story-review.ts line 601 (`story.currentReviewRound || plan:${story.phase}`); the BYTE-IDENTICAL comment and the ordering-dependency comment (writeStory before buildNextSteps confirmed at transition-orchestrator.ts lines 482-509) are accurate. (d) No dangling references to the removed code path. The `~lines 610-649` in the leaf module comment is a historical provenance note (tilde-prefixed, not a live pointer). renderedHintsSection is correctly placed in the _reviewPrompt assembly string and confirmed not passed to resolveReviewPromptHash. Only 3 callers of experience-hint-surface: the two production handlers and the new smoke test. No doc-promise-undelivered items found. 0 findings.",
+      "createdAt": "2026-06-20T12:51:19.677Z",
+      "reviewRound": "2026-06-20T12:47:41.244Z",
+      "reviewRunId": "B-5a48:RR-001",
+      "_hash": "a97df9eac31474d6dd079bad82c11fdf214f4214a23739d1a8e267a4cc220726"
     }
   ]
 }
