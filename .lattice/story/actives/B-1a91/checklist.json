@@ -42,7 +42,57 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "Smoke: a real DONE merge runs applyDoneMergeEffects which re-derives+persists the cache and appends an advisory \"experience cache refreshed (N signals)\" line. 15 checks pass.",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "The refresh runs on every DONE merge (unconditional, not gated on material-code).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "Forced derive failure control: the refresh is wrapped in try/catch -> advisory skip line, the DONE merge still SUCCEEDS (never blocked/thrown).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "Cache written to canonical MAIN: refresh uses new StoryStore(mainMergeRoot) + resolveLearningRoot (worktree already removed by post-merge effects — real bug the implementer caught + fixed).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -81,7 +131,44 @@
           "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "node done-merge-experience-refresh-smoke.js exits 0 (15 checks).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with both new smokes in the chain; existing experience smokes green.",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
+          "result": "pass",
+          "note": "The smoke drives the real applyDoneMergeEffects path incl. the forced-failure-never-blocks control (RED/GREEN verified).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -133,7 +220,57 @@
           "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
+          "result": "pass",
+          "note": "Cache carries watermark (coveredFindingCount/coveredStoryCount/coveredThrough); learning_validate/computeCoverageGap reports gap=0 right after a scan. 15 checks pass.",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
+          "result": "pass",
+          "note": "After adding a finding without re-scan, the gap is non-zero (delta findings/stories); after learning_scan, gap=0.",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
+          "result": "pass",
+          "note": "A watermark-less/absent cache degrades to known:false -> \"coverage: unknown — run learning_scan\"; learning_validate never crashes (back-compat).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
+          "result": "pass",
+          "note": "coveredFindingCount counted with the same method as deriveFindingSignalsFromStore so gap=0 immediately after a scan (no false positive).",
+          "headHash": "c6cd4ab9f67ee3cfad534f13bb1c2fdc0c75ff1f",
+          "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966",
+          "storyFilesHash": "d74c9765f458a54fd6ae77d2baa6a31e6ecf7128d8f07332e6ae43be110a0cb8",
+          "timestamp": "2026-06-20T09:11:06.701Z"
+        }
+      ]
     }
   ]
 }
