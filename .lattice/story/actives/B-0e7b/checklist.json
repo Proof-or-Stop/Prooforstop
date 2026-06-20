@@ -44,7 +44,37 @@
       "context": "Section 2/3: define LENS (a facet review returning structured findings), FINDING (severity/file/line/issue/fix), VERDICT (isReal/agreedSeverity/reasoning), the per-finding adversarial verification rule (M skeptics, default-refute, majority-confirm threshold), the completeness-critic contract (what it inspects, reopen semantics), and the convergence criterion (a round is clean when all lenses pass, all surfaced findings are adversarially refuted-or-fixed, and the critic finds nothing new). Reference the Workflow patterns this generalizes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/adversarial-review-spec.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "§2/§3 define the data shapes: lens, finding{severity,file,line,issue,fix}, verdict{isReal,agreedSeverity,reasoning}; WHY: a builder needs concrete schemas",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the per-finding adversarial-verification rule is precise (M skeptics, default-refute, the majority-confirm threshold) and the completeness-critic contract + convergence criterion are stated unambiguously; WHY: these are the core novel mechanics",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the methodology is defined as a Lattice review MODE, NOT as a dependency on the harness Workflow tool; WHY: must be implementable inside Lattice",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
