@@ -315,6 +315,18 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:13.103Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Docs state generated tokens are local coordination only and not Authority/review proof; whitespace check passed after the documentation update.",
+          "headHash": "59bd4cc0c3621c3d7e391ae2bf70640ba89c8580",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:13.699Z"
         }
       ]
     },
