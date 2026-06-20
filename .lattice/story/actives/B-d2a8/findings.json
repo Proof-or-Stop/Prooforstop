@@ -367,7 +367,7 @@
       "desc": "F-018: the resolveAuditConfig config-file integration invalid cases (lines 172/180/184) assert the fallback VALUE but not warn emission; a silent-fallback regression in the I/O path would pass. Fix: wrap in captureWarn and assert the warn key.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-test-coverage",
       "createdAt": "2026-06-20T06:05:48.944Z",
@@ -377,7 +377,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "edge|ts|resolveauditconfig-config-file",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "parallel-gate-config-smoke.ts: integration cases 13/13c/13d now wrap resolveAuditConfig in captureWarn and assert the warn key (mode/maxConcurrentReview/broadGlobBlocks); 13b asserts valid mode 'off' does NOT warn. Integration-path silent-fallback regression is now caught. 72 assertions, validate green.",
+      "resolvedAt": "2026-06-20T06:09:21.717Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
