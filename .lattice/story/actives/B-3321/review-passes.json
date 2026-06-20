@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T06:58:54.090Z",
       "reviewRunId": "B-3321:RR-003",
       "_hash": "70d4c1bfb3c7d9e77f554b38ee3eb8e315053c468acf3bc66ca8494e66dcc378"
+    },
+    {
+      "id": "B-3321:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS re-review: final document resolves B-3321:F-001/F-002/F-003 conceptually. It now states the current pre-push boundary accurately, including no root npm test and no current self-host build+tsc assurance until the @koala-agent/core/@lattice-agent/core boundary is fixed; requires process-fact-registry.ts, process-fact-levels.ts, and verify-process-fact-contract.mjs registration for the new DONE-required gate evidence; and requires same-material packages/main build proof before root npm test or equivalent pretest/build receipt. Reviewed docs/requirements/decisions/done-full-test-gate-execution-plan.md lines 16-18, 70, 160-168, 178, 201-202, 242-248, 252-259, 293-301, 320-345.",
+      "createdAt": "2026-06-20T07:10:53.722Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-006",
+      "_hash": "268d1db02f086518e9633444fb920739aab5926c59d89f54be6b765cdd3a400b"
     }
   ]
 }
