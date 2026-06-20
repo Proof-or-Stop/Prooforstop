@@ -138,7 +138,7 @@
       "desc": "streaming.ts:231 (openai) + :285 (gemini) — STREAMING digest regression (same class as F-005, on the streaming path FIX A missed): the streaming extractor pre-projects the terminal stream usage via sanitizeOpenAiStreamUsage / toOwnPropsNullProto BEFORE calling adaptOpenAiUsage/adaptGeminiUsage, so the adapter digests the PROJECTION → legitimate extra fields (openai total_tokens / nested audio_tokens, gemini totalTokenCount) are dropped from raw.payloadDigest vs the original terminal usage payload. The pre-projection was added by THIS story (CHK-002), so it is a regression. Fix: digest the ORIGINAL terminal stream usage (own-prop-guarded container), project ONLY for the token reads — mirror FIX A. Add a streaming DIGEST-PRESERVED smoke (legit stream terminal usage WITH extra fields → payloadDigest === original).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-20T15:31:05.933Z",
@@ -148,7 +148,10 @@
         "packages/main/src/core/usage-ledger/streaming.ts"
       ],
       "signatureTag": "adversarial|ts|streaming-openai-gemini",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812): streaming openai/gemini digest the ORIGINAL terminal usage (pass original to adapter), project only for reads. Streaming DIGEST-PRESERVED smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:53.893Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-008",
