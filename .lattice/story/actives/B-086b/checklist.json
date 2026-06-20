@@ -48,10 +48,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "the integration smoke + machine.ts import evaluateDecompositionGate/computeWriteSet/globsOverlap via the contract core/parallel-decomposition.js and get the REAL functions (the gate actually computes blocks) — not a NotImplemented throw; tsc build green proves the re-export resolves.",
-          "headHash": "729388d9d8e883b2847e7462f88e06aea15ade84",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:07.332Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "tsc build is clean with the re-export (no duplicate-export, no runtime cycle); the contract still exports the types (machine.ts imports ParallelDecompositionBlock from it).",
-          "headHash": "ed091e0114dfb208f7fb60109f5e33c11b90a59c",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:07.928Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "lattice validate runs all 11 commands green incl. build — no importer broken by the re-export.",
-          "headHash": "07115c2672c0e2fe96ac36ab6871d3bd60488424",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:08.442Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         }
       ]
     },
@@ -144,10 +144,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: overlap (tier-1 literal) + parallelGate.mode=block + signed-clean review -> canStartDevGuard returns false.",
-          "headHash": "d11c0e6067fa1e76b50752dc44e94e2021d9ba27",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:08.965Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -157,10 +157,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: clean disjoint write-sets + mode=block -> canStartDevGuard returns true.",
-          "headHash": "21dd7c8996e0ade2158f0e1ec1cd45951fe05769",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:09.487Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -170,10 +170,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: the SAME overlap under mode=advise and mode=off -> canStartDevGuard returns true (allowed).",
-          "headHash": "243033d116c759ef64509828b8488172bbe67989",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:10.003Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -183,10 +183,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: missing/unclean review -> canStartDevGuard returns false via the existing fail-closed review gate, independent of the parallel sub-check.",
-          "headHash": "d0d16f32fb33d240c8aafdb13c4aaf6b54c18720",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:10.521Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -196,10 +196,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke FAIL-OPEN: a corrupt peer index.json makes readStory throw inside the helper while the review is clean -> canStartDevGuard returns true (allows DEV); a gate/store infra error never blocks.",
-          "headHash": "2f25c4549dcf568ca78762be8825ed2344f5f02e",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:11.034Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -209,10 +209,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: an unreadable peer scope-contract under mode=block -> gate block peer_contract_unreadable_parallel -> guard returns false (refuse the parallel assertion), not a crash.",
-          "headHash": "6a85fa134bca924ef55ee52ddcb24aec57656e38",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:11.562Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         }
       ]
     },
@@ -269,10 +269,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: for the blocked config getGuardFailureReason(storyId,store,DEV,root) returns a non-null string containing the block reason naming the colliding peer.",
-          "headHash": "9ed1b5445eef32d18499ef5c72ba889222e6cf33",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:26.843Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -282,10 +282,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: for a clean/allowed wave getGuardFailureReason returns no parallel block message (null/unrelated).",
-          "headHash": "ff0bf926e52874289d6a6ead8112b09b5b00adab",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:27.421Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -295,10 +295,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke decision/message parity: when canStartDevGuard is false for the parallel block, getGuardFailureReason returns a non-null parallel message; when allowed, no parallel message — both via the shared parallelDecompositionEnforcedBlock helper.",
-          "headHash": "e6cb4e973aff5099c67186c8d71552c9d61e9b93",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:27.939Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -308,10 +308,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke: getGuardFailureReason fails OPEN on a gate sub-check error (corrupt peer) -> returns null (no fabricated block message), not a throw.",
-          "headHash": "48440913e6c277ce3e51b4d660de79bf2c97db92",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:28.462Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         }
       ]
     },
@@ -370,10 +370,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "the integration smoke runs green proving overlap+mode=block -> guard false + reason non-null naming the block; disjoint -> true + null.",
-          "headHash": "61660bc77d682b05646b1f8c4638a2c421c69452",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:28.973Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -383,10 +383,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke asserts mode=advise and mode=off allow the same overlap, and a missing/unclean review still blocks via the existing gate (no regression).",
-          "headHash": "39c4553def04aead236ffed82f5acb3e6f39381e",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:29.495Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -396,10 +396,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke asserts FAIL-OPEN: a config/store error makes the sub-check throw -> canStartDevGuard true and getGuardFailureReason null (review otherwise clean).",
-          "headHash": "3853d76936dcb7cdfd9312157c27e4a86cee6266",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:30.005Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -409,10 +409,10 @@
           "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
           "result": "pass",
           "note": "smoke registered as lattice.config.json validate.commands[10]; lattice validate stays all-green (11 commands).",
-          "headHash": "14dd516f38efbb14d874c797475ebfbf2be8d7d8",
-          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
-          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
-          "timestamp": "2026-06-20T08:33:30.519Z"
+          "headHash": "554b2bd9055b82dd57b38b0a68acac1411c6b4e5",
+          "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+          "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+          "timestamp": "2026-06-20T09:37:29.278Z"
         }
       ]
     }
