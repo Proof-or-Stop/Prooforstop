@@ -144,6 +144,23 @@
       ],
       "signatureTag": "edge|ts|mode-escape-hatch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa7c:F-008",
+      "desc": "MINOR: the safeReadScopeContract smoke proves the helper returns null on a throwing store, but does not exercise the createParallelWave -> contractsByStoryId -> storyRef end-to-end crash site. Fix: add a minimal end-to-end assertion (if feasible without heavy fakes) that createParallelWave completes when one story's readScopeContract throws, preserving readable peers; otherwise document that the helper-level coverage + source-verified usage is sufficient.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:50:21.197Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "a947cb3cebd9d4b5f0b97b82dc44c46ba104334eca3467fca8361509b2e92783",
+      "files": [
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|minor-safereadscopecontract-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
