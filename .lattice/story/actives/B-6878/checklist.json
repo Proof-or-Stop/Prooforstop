@@ -7,7 +7,30 @@
       "userSees": "A single shared chokepoint helper exists and is applied at extractRawUsage (assemble.ts) and the anthropic extract (dispatch-usage.ts); downstream adapter/streaming reads see a null-prototype, whitelist-only object. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The chokepoint helper toOwnPropsNullProto(obj, whitelist) returns an Object.create(null) object (Object.getPrototypeOf === null) carrying ONLY whitelisted own keys; applied at extractRawUsage (assemble.ts) + anthropic extract (dispatch-usage.ts), a normal provider response yields a record byte-identical to pre-change (legitimate own-property data preserved) for anthropic/openai/gemini.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With Object.prototype polluted by each token key (try/finally), the chokepoint-projected object exposes NONE of the inherited values; a downstream adapter read sees only own whitelisted keys.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The whitelist does not silently drop a legitimate own-property token field (incl. nested cached_tokens for openai); per-provider un-polluted record is unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

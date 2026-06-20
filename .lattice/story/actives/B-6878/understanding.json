@@ -1,0 +1,30 @@
+{
+  "task": "Systematically harden the usage ledger against Object.prototype pollution by adding ONE null-prototype whitelist chokepoint helper applied at the two entry points (extractRawUsage in assemble.ts; the anthropic extract in dispatch-usage.ts) so all downstream adapter/streaming reads operate on a null-proto, whitelist-only object (safe by construction), PLUS converting the residual prototype-chain `in` operators (record.ts validator, openai/shared adapters, streaming.ts merge) to Object.prototype.hasOwnProperty.call. Generalizes B-30c3 own-prop/null-proto hardening from the codex/gemini provider extractors to the rest of the ledger. Defense-in-depth + consistency, NOT a live vuln.",
+  "outcome": "A grep shows NO remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/dispatch/adapters/streaming/record (own-property checks or routed through the chokepoint). A new smoke node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js prints e.g. \"✓ usage-ledger-prototype-pollution smoke passed (N checks)\" and exits 0: for anthropic/openai/gemini + streaming + estimate it pollutes Object.prototype with each token key (input_tokens/output_tokens/prompt_tokens/cached_tokens/promptTokenCount/...) inside try/finally and asserts NO inherited value reaches a persisted ledger record; and it asserts the chokepoint helper returns a null-prototype object (Object.getPrototypeOf===null) carrying only whitelisted own keys. The pollution assertions FAIL against pre-hardening code. Full npm test exits 0; legitimate own-property usage records are byte-unchanged.",
+  "facts": [
+    "extractRawUsage(providerResponse: unknown, key) is in core/usage-ledger/assemble.ts (~line 120), called at ~101/103/105 with key \"usage\"/\"usageMetadata\" — the single most load-bearing entry surface (providerResponse cast from unknown = raw provider object or JSON.parse result).",
+    "extractAnthropicUsage(usage: unknown) is in core/usage-ledger/dispatch-usage.ts (~line 106); it reads u.input_tokens/output_tokens (~112) + cache_* on a value cast from unknown — the anthropic extract entry surface for the chokepoint.",
+    "Residual `in` operators on externally-derived objects: core/usage-ledger/adapters/openai.ts (~84 `cached_tokens in details`), core/usage-ledger/record.ts (~493 `field in usage`; ~546 `field in canonical`), core/usage-ledger/adapters/shared.ts (shared cached_tokens helper), core/usage-ledger/streaming.ts (start/delta usage merge — re-locate all by symbol; the 2026-06-19 count ~10 may have changed).",
+    "B-30c3 pattern to MIRROR is in providers/codex-cli.ts (~line 91 ownProp = hasOwnProperty helper) + a null-proto Object.create(null) whitelist projection. The new chokepoint helper generalizes exactly this. providers/codex-cli.ts + providers/gemini-cli.ts are ALREADY hardened — EXCLUDED, do NOT redo.",
+    "Per-provider token-key whitelist (from the adapters): anthropic = input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens; openai = prompt_tokens/completion_tokens/prompt_tokens_details(+nested cached_tokens); gemini = promptTokenCount/candidatesTokenCount/cachedContentTokenCount."
+  ],
+  "constraints": [
+    "Defense-in-depth + consistency only — NOT a live vuln. Honest framing must hold (JSON.parse does not mutate Object.prototype; no in-repo code writes it). Do not write code/comments as if closing a live exploit.",
+    "NON-GOALS (must not touch): the B-253e validator RULES (reject non-numeric/negative; accept any valid number), the strict four-field accounting, the anthropic/openai/gemini record shapes, primaryReportedTotal visibility. Converting record.ts:493/546 `in` to own-prop is allowed (mechanism), but the validation logic/rules stay identical.",
+    "EXCLUDED (already done): providers/codex-cli.ts, providers/gemini-cli.ts — do NOT redo.",
+    "The chokepoint helper is a leaf (no cross-module imports beyond node builtins). Behavior for legitimate OWN-property usage data must be byte-identical — only INHERITED values change behavior.",
+    "diagnostics.ts internal-table bracket lookups are OPTIONAL/lower priority (internal enums/model ids, not external parsed data) — harden only if trivial."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/sanitize.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/shared.ts",
+    "packages/main/src/core/usage-ledger/streaming.ts",
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+  ],
+  "timestamp": "2026-06-20T14:41:11.704Z"
+}

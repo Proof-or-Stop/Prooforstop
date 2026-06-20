@@ -4,7 +4,7 @@
   "title": "Systematically harden the usage ledger against Object.prototype pollution via a single null-proto whitelist chokepoint (+ residual in-operator belt)",
   "description": "Generalize B-30c3 own-prop/null-proto hardening from the codex/gemini provider extractors to the rest of the usage ledger. Add one null-prototype whitelist chokepoint helper applied at extractRawUsage (assemble.ts) + the anthropic extract (dispatch-usage.ts) so downstream adapter/streaming reads are safe by construction, plus convert residual in-operators (record.ts, openai/shared adapters, streaming.ts) to own-property checks. Defense-in-depth + consistency (NO live vuln). Spec: docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md. + prototype-pollution smoke. NON-GOALS: B-253e validator, four-field accounting, record shapes, codex/gemini extractors (already done).",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -31,6 +31,15 @@
       "action": "advance",
       "timestamp": "2026-06-20T14:39:34.292Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T14:39:40.966Z",
+      "branch": "story/B-6878",
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
