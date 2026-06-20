@@ -39,6 +39,23 @@
       ],
       "signatureTag": "missing|md|code-drift-verdict",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0e7b:F-003",
+      "desc": "Codex MAJOR (lane list wrong): the spec names lattice-review-scope/test/delivery as REVIEW lanes, but review_run_start supports concept/quality/test-coverage/behavior/docs/channel; scope-plan + delivery are PLAN/DONE artifacts not review_run lanes. Fix §4.1/§5: use the actual supported REVIEW lanes, map each lens to one, describe scope-plan/delivery as separate PLAN/DONE artifacts (or mark a new completeness lane as FUTURE).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:14.906Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "9282d19d6c71c1e5f926ad1866af2849412347baa90e6136a3dde4cc2da235aa",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-lane",
+      "signatureTagSource": "auto"
     }
   ]
 }
