@@ -1,0 +1,40 @@
+{
+  "storyId": "B-1d4c",
+  "checkedAt": "2026-06-20T19:38:47.759Z",
+  "reviewRound": "2026-06-20T19:28:53.673Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/handlers/lattice-handoff.ts",
+      "promise": "Lattice handoff preflight supersession detection should use git-root-resolved commit checks and never treat invalid commits as completion truth.",
+      "status": "met",
+      "verifiedBy": "logic path via host-overflow tests",
+      "evidence": "npm --prefix packages/main run build && node packages/main/dist/tasks/host-overflow-smoke.js"
+    },
+    {
+      "docPath": "docs/requirements/design/host-handoff.md",
+      "promise": "Host handoff preflight should load owner facts and session brief before claiming pending work.",
+      "status": "waived",
+      "verifiedBy": "lattice-handoff smoke coverage",
+      "waiverReason": "This doc describes adjacent host handoff behavior and does not define commit validation specifics directly referenced by this story."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "✅ npm run build and node packages/main/dist/tasks/host-overflow-smoke.js complete; no regression in preflight behavior",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "✅ lattice validate --story=B-1d4c --json passes; host-overflow and handoff smoke suite executed and covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "delivery reviewer confirms checklist claims, verification evidence, and smoke coverage; docs and runtime checks align with implementation behavior."
+  },
+  "_hash": "2419cf726a9d4ac2c0932491804ff9a5f3e840e95ad0225e0a5fab7d028387a7"
+}
