@@ -108,7 +108,75 @@
       "context": "DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1. verifyFinding(finding, change, runSkeptic:(finding:Finding,change:string)=>Verdict, opts?:{skeptics?:number, threshold?:number}) runs runSkeptic M times, collects Verdict[], confirms=count(v.isReal===true), confirmed=(confirms>=T). Returns VerifiedFinding={finding, verdicts:Verdict[], confirms:number, confirmed:boolean}. runSkeptic is the injected seam (the real skeptic agent at MVP); refute-by-default lives in the skeptic role, the module just counts isReal and thresholds. verifyFindings(findings, change, runSkeptic, opts) maps over the array. confirmedFindings(verified):Finding[] returns survivors (confirmed===true). A confirms=0 finding is dropped (confirmed false).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=true, isReal=false] (1-of-2 confirms) at default T=1 -> confirmed=true, confirms=1; WHY: validates the default threshold-confirm rule (T=1-of-2 keeps a 1-confirm finding)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=true, isReal=true] (2-of-2 confirms) -> confirmed=true, confirms=2; WHY: validates unanimous confirmation",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFindings over a list of 3 findings with mixed confirm/drop results -> returns 3 VerifiedFinding objects, each with correct per-finding verdicts/confirms/confirmed; WHY: validates the map-over-array behavior preserves per-finding independence",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "confirmedFindings filters a VerifiedFinding[] to only those with confirmed===true -> returns Finding[] of survivors only; WHY: validates the filter that feeds the downstream ledger mapping",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verifyFinding with T=2-of-2 and skepticResults [isReal=true, isReal=false] (1-of-2 confirms) -> confirmed=false, confirms=1; WHY: validates strict threshold — 1 confirm is insufficient when T=2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with M=1 skeptic and T=1 -> single isReal=true confirms the finding; WHY: boundary case with minimum skeptic count",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with M=3, T=2, and skepticResults [true,false,true] -> confirmed=true, confirms=2; WHY: validates threshold counting with odd M and non-default T",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "confirmedFindings on an empty VerifiedFinding[] -> returns empty Finding[]; WHY: boundary — no findings to filter",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=false, isReal=false] (0-of-2 confirms) -> confirmed=false, confirms=0; WHY: the refute-by-default inversion risk — all-false must be DROPPED, confirms=0 must never satisfy any threshold T>=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding counts isReal===true STRICTLY (not truthy) — a skeptic returning isReal=1 or isReal=\"true\" must NOT be counted as a confirm; WHY: JavaScript truthiness could inflate confirms if the check is not === true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with T=0 (adversarial threshold) -> even a confirms=0 finding is confirmed (0>=0); WHY: degenerate threshold must not crash or produce undefined behavior; documents the edge of the threshold parameter space",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runSkeptic called exactly M times (not M-1 or M+1) regardless of early confirm/refute results -> verdicts array length === M; WHY: short-circuiting on first confirm would break the M-skeptic contract and produce incomplete verdict records",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
