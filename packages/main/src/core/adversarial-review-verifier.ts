@@ -29,12 +29,14 @@ export type FindingAddSeverity = 'critical' | 'high' | 'medium' | 'low';
  * Typed as `Record<FindingSeverity, FindingAddSeverity>` so the compiler forces a
  * mapping for EVERY abstract severity and rejects any non-FindingSeverity key.
  * `low` is reserved for cosmetic MINOR; the default map sends MINOR → medium.
+ * Object.frozen — an immutable shared map; prevents accidental mutation of the
+ * ledger mapping at runtime (every emitted finding_add severity reads from here).
  */
-export const SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = {
+export const SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = Object.freeze({
   BLOCKER: 'critical',
   MAJOR: 'high',
   MINOR: 'medium',
-};
+});
 
 /**
  * Compose the finding_add `desc` from a finding (§4.2 compose form:

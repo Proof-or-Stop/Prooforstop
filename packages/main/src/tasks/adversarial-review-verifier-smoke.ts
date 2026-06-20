@@ -23,7 +23,7 @@ import {
   DEFAULT_CONFIRM_THRESHOLD,
   type FindingAddSeverity,
 } from '../core/adversarial-review-verifier.js';
-import { type Finding, type Verdict } from '../core/adversarial-review.js';
+import { FINDING_SEVERITIES, type Finding, type Verdict } from '../core/adversarial-review.js';
 
 let passed = 0;
 const check = (name: string, cond: boolean): void => {
@@ -75,6 +75,18 @@ check(
   'ledger map has EXACTLY the 3 abstract-severity keys (no extra key)',
   Object.keys(SEVERITY_TO_FINDING_KIND).sort().join(',') === 'BLOCKER,MAJOR,MINOR',
 );
+// CHK-001:edge:1 — keys are pinned to the S0 FINDING_SEVERITIES tuple, not just a hardcoded string.
+check(
+  'ledger map keys === FINDING_SEVERITIES (S0 tuple)',
+  Object.keys(SEVERITY_TO_FINDING_KIND).sort().join(',') === [...FINDING_SEVERITIES].sort().join(','),
+);
+// CHK-001:adversarial:0 — indexing with a non-severity key yields undefined (no phantom mapping).
+check(
+  'ledger map invalid key NOPE -> undefined',
+  (SEVERITY_TO_FINDING_KIND as Record<string, unknown>)['NOPE'] === undefined,
+);
+// CHK-001:adversarial:1 — the shared map is frozen (immutable at runtime).
+check('ledger map is Object.frozen', Object.isFrozen(SEVERITY_TO_FINDING_KIND) === true);
 
 // ── 2. composeDesc (exact literal incl. the em dash " — ") ────────────────────
 const descFinding: Finding = {
@@ -89,6 +101,29 @@ check(
   'composeDesc exact literal with em dash',
   composeDesc(descFinding) === 'Null deref — x can be undefined Fix: guard x (line 42)',
 );
+// CHK-002:edge:0 — special chars (quotes, &, <tag>, em dash, %, backslash-n, backticks) pass through verbatim.
+const specialFinding: Finding = {
+  severity: 'MINOR',
+  title: 'A "quoted" & <tag>',
+  file: 'x.ts',
+  line: 9,
+  issue: 'has — dash, % and \\n',
+  fix: 'do `that`',
+};
+check(
+  'composeDesc special chars pass through verbatim',
+  composeDesc(specialFinding) === 'A "quoted" & <tag> — has — dash, % and \\n Fix: do `that` (line 9)',
+);
+// CHK-002:edge:2 — line=0 boundary is still cited, not dropped as falsy.
+const line0Finding: Finding = {
+  severity: 'MAJOR',
+  title: 'Zeroth line',
+  file: 'z.ts',
+  line: 0,
+  issue: 'header missing',
+  fix: 'add header',
+};
+check('composeDesc line=0 still cited (ends with "(line 0)")', composeDesc(line0Finding).endsWith('(line 0)'));
 
 // ── 3. toFindingAddArgs — shape + no-abstract-leak ───────────────────────────
 const majorArgs = toFindingAddArgs(majorFinding, {
@@ -129,6 +164,35 @@ const minorArgs = toFindingAddArgs(minorFinding, {
 check('toFindingAddArgs(MINOR).severity === medium', minorArgs.severity === 'medium');
 check('MINOR args.severity is a ledger kind', LEDGER_KINDS.includes(minorArgs.severity));
 check('MINOR args.severity is NOT an abstract severity', !ABSTRACT_SEVERITIES.includes(minorArgs.severity as string));
+
+// CHK-002:edge:1 — a file with spaces / path separators is preserved verbatim as a single-element array.
+const spacedFileFinding: Finding = {
+  severity: 'MAJOR',
+  title: 'Spaced path',
+  file: 'src/a b/c.ts',
+  line: 5,
+  issue: 'path has a space',
+  fix: 'keep verbatim',
+};
+const spacedArgs = toFindingAddArgs(spacedFileFinding, {
+  reviewRunId: 'R',
+  agent: 'lattice-review-quality',
+  category: 'happy',
+});
+check(
+  'toFindingAddArgs file with spaces/separators preserved verbatim',
+  spacedArgs.files.length === 1 && spacedArgs.files[0] === 'src/a b/c.ts',
+);
+// CHK-002:adversarial:1 — pure: shapes a plain object synchronously, no awaited finding_add call.
+const pureResult: unknown = toFindingAddArgs(majorFinding, {
+  reviewRunId: 'RR-pure',
+  agent: 'lattice-review-behavior',
+  category: 'happy',
+});
+check(
+  'toFindingAddArgs returns a plain (non-Promise) object synchronously',
+  typeof pureResult === 'object' && pureResult !== null && !(pureResult instanceof Promise),
+);
 
 // ── 4. defaults ───────────────────────────────────────────────────────────────
 check('DEFAULT_SKEPTICS === 2', DEFAULT_SKEPTICS === 2);
@@ -173,6 +237,37 @@ check('default (M=2,T=1) 1-of-2 confirmed === true', vDefault.confirmed === true
 check('default verdicts.length === DEFAULT_SKEPTICS (2)', vDefault.verdicts.length === DEFAULT_SKEPTICS);
 check('default confirms === 1', vDefault.confirms === 1);
 
+// A fake that returns a fixed SEQUENCE of isReal values across successive calls.
+const fakeSeq = (seq: boolean[]) => {
+  let i = 0;
+  return (_finding: Finding, _change: string): Verdict => {
+    const isReal = seq[i] === true;
+    i++;
+    return { isReal, agreedSeverity: isReal ? 'MAJOR' : 'NOT_A_DEFECT', reasoning: 'fake-seq' };
+  };
+};
+
+// CHK-003:edge:1 — M=1, T=1, single confirm.
+const vM1T1 = verifyFinding(majorFinding, 'CHG', fakeFixed(1), { skeptics: 1, threshold: 1 });
+check('M=1,T=1 verdicts.length === 1', vM1T1.verdicts.length === 1);
+check('M=1,T=1 confirms === 1', vM1T1.confirms === 1);
+check('M=1,T=1 confirmed === true', vM1T1.confirmed === true);
+
+// CHK-003:edge:2 — M=3, T=2, sequence [true,false,true] -> 2 confirms -> confirmed.
+const vSeqTFT = verifyFinding(majorFinding, 'CHG', fakeSeq([true, false, true]), { skeptics: 3, threshold: 2 });
+check('M=3,T=2 [true,false,true] verdicts.length === 3', vSeqTFT.verdicts.length === 3);
+check('M=3,T=2 [true,false,true] confirms === 2', vSeqTFT.confirms === 2);
+check('M=3,T=2 [true,false,true] confirmed === true', vSeqTFT.confirmed === true);
+// and the [true,false,false] variant -> 1 confirm -> NOT confirmed at T=2.
+const vSeqTFF = verifyFinding(majorFinding, 'CHG', fakeSeq([true, false, false]), { skeptics: 3, threshold: 2 });
+check('M=3,T=2 [true,false,false] confirms === 1', vSeqTFF.confirms === 1);
+check('M=3,T=2 [true,false,false] confirmed === false', vSeqTFF.confirmed === false);
+
+// CHK-003:adversarial:2 — T=0 boundary: confirms===0 but confirmed===true (confirms >= 0 always true).
+const vT0 = verifyFinding(majorFinding, 'CHG', fakeFixed(0), { skeptics: 2, threshold: 0 });
+check('T=0 boundary confirms === 0', vT0.confirms === 0);
+check('T=0 boundary confirmed === true (confirms >= 0 always)', vT0.confirmed === true);
+
 // ── 6. refute-by-default strictness ──────────────────────────────────────────
 // A Verdict with isReal=false but a non-NOT_A_DEFECT agreedSeverity must NOT count.
 const fakeFalseButSevere = (_finding: Finding, _change: string): Verdict => ({
@@ -201,5 +296,7 @@ check('verifyFindings preserves finding refs in order', verifiedList[0].finding 
 const confirmed = confirmedFindings(verifiedList);
 check('confirmedFindings returns exactly 1 finding', confirmed.length === 1);
 check('confirmedFindings returns exactly [f2]', confirmed[0] === f2);
+// CHK-003:edge:3 — empty input projects to an empty list (length 0).
+check('confirmedFindings([]) deep-equals [] (length 0)', confirmedFindings([]).length === 0);
 
 console.log('adversarial-review-verifier smoke passed: ' + passed + ' assertions');
