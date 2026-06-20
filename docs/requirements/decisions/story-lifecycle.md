@@ -1,6 +1,6 @@
 # Story Lifecycle
 
-> The current primary flow uses the second-generation Koala flow:
+> The current primary flow uses the second-generation Lattice flow:
 >
 > `INIT -> INIT_CHECK -> PLAN/express skip -> DEV -> REVIEW -> TEST -> DONE`
 >
@@ -19,7 +19,7 @@ The express channel may skip some planning material when the gate allows it, but
 
 ## Phase Numbering and Health Checks
 
-Koala assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
+Lattice assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
 
 | Number | Phase | Description |
 |---:|---|---|

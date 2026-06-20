@@ -242,14 +242,14 @@ Inside the relevant lock:
 - finding mutations reject duplicate active findings unless explicitly linked as `duplicate-of`.
 - DONE recovery detects already-merged branches and already-removed worktrees.
 
-## Read-Only Reviewer Mode (`KOALA_REVIEWER_READONLY=1`)
+## Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
 
 The command classes above describe ownership coordination between *owner sessions*. A separate
 concern is **advisory external reviewers**: external Claude/Codex/Gemini processes delegated
 to inspect artifacts and return structured findings as text — they are not Lattice gate
 reviewers and must not write lifecycle evidence directly.
 
-`KOALA_REVIEWER_READONLY=1` is an opt-in guard for these advisory reviewer processes. It
+`LATTICE_REVIEWER_READONLY=1` is an opt-in guard for these advisory reviewer processes. It
 layers on top of the `CommandPolicy` / owner-lease architecture:
 
 - The guard runs **before** `enforceStoryOwnerLeaseGate` and before preCommand hooks, so a
@@ -258,7 +258,7 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
 - Only `ownershipClass === 'readOnly'` commands (e.g. `session_brief`, `story_get`,
   `checklist_get`, `finding_list`) proceed. All other classes fail closed.
 - This mode does **not** change how normal Lattice gate reviewers (`lattice-review-*`) work.
-  Those reviewers operate without `KOALA_REVIEWER_READONLY=1` set and must be able to call
+  Those reviewers operate without `LATTICE_REVIEWER_READONLY=1` set and must be able to call
   `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
 
 The full usage contract — including which reviewer roles should and should not use this mode —
