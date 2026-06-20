@@ -6,7 +6,50 @@
       "context": "New module importing S0 (core/adversarial-review.js: LensId, CANONICAL_LENS_SET, Finding). LENS_TO_LANE: Record<LensId, lane> exactly per §4.2 (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs). The lane type must be the six real review_run_start lanes; pin correctness by cross-checking against review-run.ts REVIEW_RUN_LANES (import it, or assert in the smoke). Every mapped lane must be a real lane.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "LENS_TO_LANE has exactly 6 entries, one per LENS_IDS member, with mapped lanes matching spec section 4.2 table (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs) -> all 6 mappings present and correct; WHY: covers the fundamental mapping correctness that every downstream function depends on",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every value in LENS_TO_LANE is a member of REVIEW_RUN_LANES (imported from core/review-run.ts) -> subset assertion passes; WHY: pins the mapping to reality so a lane rename or removal in review-run.ts is immediately caught",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The lane type exported from the module is the union of exactly the six real review_run_start lanes (matches ReviewRunLane from review-run.ts) -> type-level and runtime agreement; WHY: ensures no seventh/phantom lane can be assigned",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LENS_TO_LANE has two lenses (behavior/correctness and crash-safety/edge) both mapping to lattice-review-behavior -> both entries present, distinct keys, same value, no collision or overwrite; WHY: the two-to-one mapping is the trickiest part of the table and a naive Set-based uniqueness check would wrongly reject it",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LENS_IDS contains slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) used as object keys -> Record lookup by slash-form string succeeds without encoding/escaping; WHY: slash in key is an unusual pattern that could break naive property access",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a hypothetical 7th lane were added to REVIEW_RUN_LANES but NOT to LENS_TO_LANE, the subset assertion still passes (LENS_TO_LANE values are a subset, not an exact match) -> no false failure; WHY: verifies the assertion direction is subset-of not equals, which is the correct contract (lattice-review-channel exists in REVIEW_RUN_LANES but is not used by any lens)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If REVIEW_RUN_LANES were to remove lattice-review-behavior, the subset assertion fails because two lenses (behavior/correctness + crash-safety/edge) map to it -> immediate detection of lane drift; WHY: this is the highest-risk drift scenario since two lenses share the lane",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

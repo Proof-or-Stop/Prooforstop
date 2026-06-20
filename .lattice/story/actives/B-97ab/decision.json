@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Single source of truth: the lens->lane mapping lives in one exported table cross-checked against the real lanes.",
+    "Independence is structural, not conventional: a lens can never receive another lens output.",
+    "Hermetic + injected: the runner takes a (req)=>Finding[] seam so it is fully testable with a fake, no live review agent.",
+    "Stay inside S1: pure plan+run+aggregate data; no verification, ledger, critic, or escalation.",
+    "Fail-closed on drift: mapping correctness is asserted against REVIEW_RUN_LANES so future drift breaks the smoke."
+  ],
+  "drivers": [
+    "The six real lanes are fixed in core/review-run.ts REVIEW_RUN_LANES and must not be modified.",
+    "S0 contract (LensId/CANONICAL_LENS_SET/Finding) is frozen and imported verbatim.",
+    "Scope is frozen by the parallel decomposition: S2/S3/S4 concerns are excluded."
+  ],
+  "options": [
+    {
+      "name": "Injected-seam runner with static LENS_TO_LANE table",
+      "pros": [
+        "Pure data + injected (req)=>Finding[] executor keeps the module hermetic and unit-testable with a fake runLens (no real review agent at MVP)",
+        "Independence is structurally enforced: each request carries only {lensId,lane,change}, runLens is applied per-request so it can never see another lens output",
+        "LENS_TO_LANE values are asserted a subset of REVIEW_RUN_LANES (imported read-only) so drift from the real lanes fails the smoke hermetically"
+      ],
+      "cons": [
+        "The real review agent is not wired here (deferred to S4 escalation flow) so MVP value is a library seam, not an end-to-end CLI"
+      ]
+    },
+    {
+      "name": "Hard-code lane strings inline at each call site",
+      "pros": [
+        "Fewer exported symbols"
+      ],
+      "cons": [
+        "No single source of truth for the mapping; drift from review-run.ts REVIEW_RUN_LANES goes undetected",
+        "Cannot prove independence or subset-coverage in a hermetic smoke",
+        "S2/S3/S4 would each re-derive the mapping instead of importing it"
+      ]
+    },
+    {
+      "name": "Couple the runner directly to review_run_start / finding_add",
+      "pros": [
+        "Closer to an end-to-end flow"
+      ],
+      "cons": [
+        "Crosses scope into S2 (ledger mapping) and S4 (escalation) — violates the frozen parallel decomposition",
+        "Not hermetically testable; needs a live story + lanes",
+        "Breaks the independence contract by entangling I/O with plan construction"
+      ]
+    }
+  ],
+  "chosen": "Injected-seam runner with static LENS_TO_LANE table",
+  "rationale": "It is the only option that satisfies all five principles at once: one mapping table cross-checked against REVIEW_RUN_LANES (single source of truth + fail-closed), a request shape that structurally cannot carry cross-lens data (independence), and an injected runLens seam that makes the whole module hermetically testable with a fake — while staying strictly inside S1 (no S2 ledger, no S3 critic, no S4 escalation). The inline and directly-coupled alternatives each break independence-provability or cross the frozen scope boundary.",
+  "preMortem": [
+    {
+      "scenario": "LENS_TO_LANE maps a lens to a lane that is not a real review_run_start lane (typo or a 7th invented lane)",
+      "trigger": "Author hand-writes the mapping without cross-checking REVIEW_RUN_LANES",
+      "consequence": "S4 escalation later calls review_run_start with an unknown lane and the verdict is silently rejected (no reviewer-evidence recorded)",
+      "mitigation": "Import REVIEW_RUN_LANES read-only and assert every LENS_TO_LANE value is a member; the hermetic smoke pins this with an explicit subset check so any drift fails CI"
+    },
+    {
+      "scenario": "A lens request leaks another lens findings/output, breaking independence",
+      "trigger": "buildLensRunPlan threads accumulated results into each request, or runLenses passes prior results into the next runLens call",
+      "consequence": "Lenses are no longer independent reviewers; a later lens is biased by an earlier one, defeating the whole multi-lens premise",
+      "mitigation": "LensRunRequest is exactly {lensId,lane,change} with no findings field; runLenses applies runLens to each request in isolation; the smoke asserts requests carry no cross-lens data and a fake runLens that records its input sees only a single lens request"
+    },
+    {
+      "scenario": "crash-safety/edge and behavior/correctness both map to lattice-review-behavior and the aggregator collapses or mis-attributes their findings",
+      "trigger": "collectRawFindings keys by lane instead of preserving per-lens results, or de-dupes across the two behavior-mapped lenses",
+      "consequence": "Edge findings get merged into behavior findings and a real crash-safety defect is lost or double-counted",
+      "mitigation": "LensRunResult preserves lensId AND lane; collectRawFindings flattens without de-dup; the smoke plants a finding on one behavior-mapped lens and asserts both lens results survive distinctly"
+    }
+  ],
+  "timestamp": "2026-06-20T13:29:51.457Z"
+}
