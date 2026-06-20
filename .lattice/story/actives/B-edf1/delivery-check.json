@@ -1,0 +1,24 @@
+{
+  "storyId": "B-edf1",
+  "checkedAt": "2026-06-20T05:38:04.213Z",
+  "reviewRound": "2026-06-20T05:31:18.963Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "done-escalation-drift-advisory-smoke.js: 4 checks all pass. (A) downgrade-accepted verdict with whole-tree materialHash drift + storyFilesHash match: Review-escalation row status=pass, non-blocking, and row detail contains re-attestation advisory text visible in rendered operator output. (B) control no-drift case: Review-escalation row status=pass, no advisory text in detail or rendered output. exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run covers CHK-002 directly: the smoke IS the regression test for the advisory surfacing on the pass path. (A) advisory-visible + (B) no-advisory-control cases both verified at node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No user-facing doc changes; docsPromises is correctly empty. The single code commit adds advisory-append logic to done-oracle.ts and a 4-check smoke covering both the happy case (advisory surfaced on pass path for downgrade-accepted verdict) and the control case (clean no-drift DONE stays advisory-free). All 4 smoke checks pass at exit 0. No unresolved TODOs in the changed source files."
+  },
+  "_hash": "4e6b8852f96ead573cc57cdcb0015ec0f90b33f882b4fe45403746872913ae72"
+}
