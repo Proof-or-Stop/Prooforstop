@@ -60,7 +60,18 @@
         "create": [
           "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
         ],
-        "test": []
+        "test": [
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/done-oracle.ts",
+          ".githooks/pre-push"
+        ]
       },
       "verificationIntent": {
         "happy": [
