@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3321",
+  "changes": "Added docs/requirements/decisions/done-full-test-gate-execution-plan.md, a documentation-only execution plan for closing the DONE gate full npm test coverage gap in a future implementation story.",
+  "usage": "Use the new decision document as the requirements source for the future runtime story that adds DONE-required validation evidence and root full-suite gate consumption.",
+  "expectedOutcome": "The repository contains a precise execution plan that explains the current gate coverage gap and defines future implementation requirements without changing runtime behavior in this story.",
+  "actualTranscript": "lattice validate --story=B-3321 passed all 8 configured validation commands and reported verification intent coverage 9/9 covered; review_escalation_status reported ok true and assuranceLevel full-3x2.",
+  "outcomeDiff": "No difference: the expected documentation-only plan exists, validation passed, and required 3x2 review evidence is recorded.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Runtime DONE gate behavior is not changed by B-3321; implementation is intentionally deferred to a future code-changing story.",
+  "pitfalls": "Initial TEST preflight failed because the worktree lacked fresh packages/main/dist output for packages/utils TypeScript references; running npm --prefix packages/main run build fixed the environment.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 146004
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5876
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 285682
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 607909
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1306096
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 167971
+    }
+  },
+  "totalDurationMs": 2519555,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T07:28:25.677Z",
+  "updatedAt": "2026-06-20T07:28:25.677Z"
+}
