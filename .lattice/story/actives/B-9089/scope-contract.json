@@ -1,0 +1,46 @@
+{
+  "storyId": "B-9089",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-9089/checklist.json",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/story-owner-lease-doctor.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "packages/main/src/tasks/owner-session-guardrail.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/owner-session-guardrail.ts"
+  ],
+  "protectedFiles": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "remote git push",
+    "Authority Server completion claims",
+    "Gemini-to-Antigravity provider migration outside owner-session env bridging"
+  ],
+  "scopeChangeReason": "Initialize formal enforce scope contract after PLAN scope reviewer OQ-002; allowed files come from plan.md checklist file sets.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T10:42:13.921Z",
+  "updatedAt": "2026-06-20T10:42:13.921Z"
+}

@@ -3,13 +3,20 @@
 ## Execution Order
 
 1. Finish pre-code evidence: two-host plan review evidence (CHK-001) and parent-PID transcript evidence (CHK-007).
-2. Implement the resolver facade and preserve existing behavior through the facade (CHK-002).
-3. Move host-specific session signals into adapter-boundary code and add the guardrail (CHK-003).
-4. Add generated-token fallback and runtime artifact hygiene (CHK-004).
-5. Replace lifecycle and DEV-claim ad hoc session reads (CHK-005).
-6. Run focused smoke, guardrail, build, and Lattice validation evidence (CHK-006).
+2. Initialize an enforce-mode scope contract from this plan before DEV.
+3. Implement the resolver facade and preserve existing behavior through the facade (CHK-002).
+4. Move host-specific session signals into adapter-boundary code and the dispatch/provider launch env boundary (CHK-003).
+5. Add generated-token fallback and runtime artifact hygiene (CHK-004).
+6. Replace lifecycle and DEV-claim ad hoc session reads (CHK-005).
+7. Run focused smoke, guardrail, runtime two-host matrix evidence, build, and Lattice validation evidence (CHK-006).
 
-This is a single-owner integration story. The touched files are tightly coupled owner-lease/lifecycle paths, so parallel host execution is used for review evidence and verdicts, not simultaneous edits to the same core files.
+This is a single-owner integration story. The touched files are tightly coupled owner-lease/lifecycle paths, so parallel host execution is used for plan review evidence and runtime/review verdicts, not simultaneous edits to the same core files.
+
+## Scope Decisions
+
+- Actual launch/dispatch/pre-apply integration is in scope only at the owner-session adapter/env boundary: dispatch/provider launch paths may preserve or set `LATTICE_SESSION_ID` for Codex, Claude Code, Antigravity/agy, and fake future-host coverage.
+- Broader dispatch redesign, Gemini-to-Antigravity provider migration, and unrelated provider behavior are excluded. Active story B-fbb6 owns the Gemini-to-Antigravity semantic migration.
+- `runtime-fact-registry.ts` and `command-ownership-contract.ts` are not planned touchpoints unless a later scoped replan proves they are needed.
 
 ## CHK-001
 
@@ -58,24 +65,27 @@ This is a single-owner integration story. The touched files are tightly coupled 
 
 **Owner**: main-agent
 
-**Goal**: Move Claude/Codex/Antigravity/future-host session signals to adapter-boundary code.
+**Goal**: Move Claude/Codex/Antigravity/future-host session signals to adapter-boundary code and route dispatch/provider launch env through that bridge.
 
 **Files**:
 - Modify: `packages/main/src/core/story-owner-lease.ts`
 - Modify: `packages/main/src/handlers/context.ts`
 - Modify: `packages/main/src/handlers/transition-orchestrator.ts`
+- Modify: `packages/main/src/core/lattice-dispatch.ts`
 - Create: `packages/main/src/core/owner-session-adapters.ts`
 - Test: `packages/main/src/tasks/story-owner-lease-smoke.ts`
 
 **Steps**:
 - Implement adapter functions for Claude Code, Codex, Antigravity/agy, and a fake future host fixture.
 - Adapter code may read host-native stable signals and convert them to canonical owner-session identity metadata.
+- Dispatch/provider launch code may call the adapter bridge to preserve or set `LATTICE_SESSION_ID` in child/dispatch env summaries.
 - Generic owner-lease, lifecycle, gate, and cli-engine code must not read host-native session env names directly.
-- Add a guardrail check that fails if forbidden host-native env names appear outside allowed adapter/test/docs paths.
+- Add a guardrail check that fails if forbidden host-native env names appear outside allowed adapter/test/docs and dispatch-boundary paths.
 
 **Verify**:
 - Guardrail output contains `PASS owner-session host-native env guardrail: no generic core host-session env reads`.
 - Diagnostics may still display provider labels such as `claude-code`, `codex`, `antigravity`, and `agy`, but gates key on canonical `sessionId`.
+- This does not rename or migrate legacy Gemini provider behavior; that remains outside this story.
 
 ## CHK-004
 
@@ -125,7 +135,7 @@ This is a single-owner integration story. The touched files are tightly coupled 
 
 **Owner**: main-agent
 
-**Goal**: Add guardrail tests and complete multi-host verification matrix coverage.
+**Goal**: Add guardrail tests and complete multi-host runtime verification matrix coverage.
 
 **Files**:
 - Modify: `packages/main/src/tasks/story-owner-lease-smoke.ts`
@@ -137,10 +147,12 @@ This is a single-owner integration story. The touched files are tightly coupled 
 **Steps**:
 - Extend story-owner lease smoke for canonical env, blank env, adapter bridge, generated token, ppid fallback/degradation, owner gate, lifecycle events, and material hygiene.
 - Add a focused guardrail task/script for host-native env names in generic core paths.
+- Record runtime matrix evidence using Codex plus Claude Code when Claude is available; if Claude cannot run, record the unavailability and use Antigravity/agy as the second host.
+- Keep matrix evidence local/non-Authority and bind it to HEAD/material hash.
 - Run build and focused smokes before entering REVIEW.
 
 **Verify**:
-- Terminal output contains `✓ story-owner-lease smoke passed` and `PASS owner-session host-native env guardrail` after `npm --prefix packages/main run build` succeeds.
+- Terminal output contains `✓ story-owner-lease smoke passed`, `PASS owner-session host-native env guardrail`, and `PASS owner-session runtime matrix: codex + claude-code/agy evidence recorded` after `npm --prefix packages/main run build` succeeds.
 
 ## CHK-007
 
