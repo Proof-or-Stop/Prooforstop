@@ -6,7 +6,45 @@
       "context": "New module importing S0 (core/adversarial-review.js: Finding, FindingSeverity, Verdict). FindingAddSeverity = 'critical'|'high'|'medium'|'low' (finding_add's enum). SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = {BLOCKER:'critical', MAJOR:'high', MINOR:'medium'} per §4.2 table (low is reserved for cosmetic MINOR; the default map uses medium). The point is that the abstract methodology severities NEVER reach finding_add (which would be a Zod error).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "SEVERITY_TO_FINDING_KIND[BLOCKER] === critical, [MAJOR] === high, [MINOR] === medium -> all three abstract severities map to their ledger equivalents; WHY: covers the complete mapping table from spec §4.2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "FindingAddSeverity type accepts critical|high|medium|low -> type-level union includes the reserved low value; WHY: ensures the type is wider than the map (low is reserved for cosmetic MINOR per §4.2)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Object.values(SEVERITY_TO_FINDING_KIND) are all members of {critical,high,medium,low} -> no abstract BLOCKER/MAJOR/MINOR appears in any value position; WHY: guards against the Zod-error failure mode where an abstract severity leaks to finding_add",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Object.keys(SEVERITY_TO_FINDING_KIND) exactly equals FINDING_SEVERITIES (the S0 frozen enum) -> map covers every FindingSeverity with no extras; WHY: if S0 adds a severity the map must not silently miss it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to index SEVERITY_TO_FINDING_KIND with a string not in FindingSeverity (e.g. HIGH, Critical, blocker) -> returns undefined (no accidental match via case-insensitive or partial key); WHY: adversarial input that could leak an unmapped abstract value",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Assert SEVERITY_TO_FINDING_KIND is frozen/readonly (Object.isFrozen or const assertion) -> mutation attempt throws or is a TS error; WHY: prevents runtime tampering that could inject an abstract severity into the map",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
