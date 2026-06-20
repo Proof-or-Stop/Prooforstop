@@ -38,6 +38,7 @@ import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assessReviewConvergenceAtEntry } from '../core/review-convergence.js';
 import { resolveReviewRoundCount } from '../core/advisory.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -283,6 +284,39 @@ ${agentLines}
           );
           base += `\n${advisoryLines.join('\n')}`;
         }
+      } catch { /* advisory-only: never block the transition */ }
+      // B-5a48 CHK-002: surface the A/B-gated advisory Experience-Layer hints in
+      // the REVIEW reviewer-launch guidance, right AFTER the Agent({
+      // subagent_type: "lattice-review-*" }) launch lines + the round-2 advisory,
+      // so the hints physically follow the reviewer-launch text the main agent
+      // reads when it pastes lane prompts.
+      //
+      // ADVISORY-ONLY: renderedSection is appended ONLY to this guidance STRING.
+      // It is NEVER fed to resolveReviewPromptHash (core/review-run.ts) and no
+      // gate reads it — it cannot block or alter the transition.
+      //
+      // A/B HONESTY: surfaceExperienceHints fires the experience_hint_surfaced
+      // event on BOTH arms (the hintMode field records which), but only the ON
+      // arm's renderedSection is non-empty. The OFF arm appends NOTHING, so the
+      // OFF-arm REVIEW guidance is BYTE-IDENTICAL to today.
+      //
+      // CROSS-SITE DEDUP: the shared leaf (also used by story-review.ts) dedups
+      // per (storyId, hintRoundKey). The hintRoundKey formula here is
+      // BYTE-IDENTICAL to story-review.ts (~line 603) so PLAN (plan:<phase>) and
+      // REVIEW (the ISO currentReviewRound) live in DISJOINT namespaces — no
+      // cross-phase double-count — while a repeated buildNextSteps in the same
+      // REVIEW round collapses to the single existing event.
+      //
+      // ORDERING DEPENDENCY: this reuses story.currentReviewRound, which
+      // transition-orchestrator.ts persists via writeStory (~line 482-484) BEFORE
+      // it calls buildNextSteps (~line 509). If a future refactor moves that
+      // writeStory AFTER buildNextSteps, hintRoundKey would fall back to
+      // plan:<phase> and collide with the PLAN event (CHK-003 smoke guards this).
+      try {
+        const story = store.readStory(storyId);
+        const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`; // BYTE-IDENTICAL to story-review.ts
+        const { renderedSection } = surfaceExperienceHints(root, { storyId, hintRoundKey });
+        if (renderedSection) base += `\n${renderedSection}`;
       } catch { /* advisory-only: never block the transition */ }
       return base;
     })(),
