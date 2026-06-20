@@ -48,7 +48,7 @@
       "desc": "MAJOR (express-channel bypass): the parallel hard-block is enforced ONLY by canStartDevGuard on PLAN->DEV. The INIT_CHECK->DEV express channel is guarded by canSkipPlanGuard (machine.ts ~433-446) which NEVER calls parallelDecompositionEnforcedBlock. So a quickPath story (small checklist, no risk signals) reaches DEV with a provable overlap/broad-glob/unreadable-peer block under mode=block WITHOUT refusal — the gate's core property (a provable contradiction blocks DEV entry) is violated on the express door. Also a phantom-message site (getGuardFailureReason renders a parallel message the express guard never enforced). Fix: add the same fail-open parallel sub-check to canSkipPlanGuard; add an express (INIT_CHECK phase) + mode=block + overlap smoke asserting the guard refuses + the reason renders.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-completeness-critic",
       "createdAt": "2026-06-20T08:46:07.370Z",
@@ -59,7 +59,11 @@
         "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|major-express-channel",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "added the same fail-open parallel sub-check to canSkipPlanGuard (INIT_CHECK->DEV express door); getGuardFailureReason tracks tookExpressChannel and skips the inapplicable review-record reason for an express story so it surfaces the real parallel-decomposition reason. The gate is now enforced on BOTH doors. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:04.840Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-086b:F-004",
