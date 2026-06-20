@@ -207,7 +207,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke coverage proves ordinary validate.commands can pass while DONE-required failure still blocks DONE for required policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke coverage proves missing artifact, stale material/policy/command-set, and missing build receipt are each rejected with explicit reasons.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke coverage proves an external project without doneRequiredCommands gets only advisory/non-blocking DONE-required status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
