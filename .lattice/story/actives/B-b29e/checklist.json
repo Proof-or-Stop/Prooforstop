@@ -52,6 +52,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:12:47.784Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "git show",
+          "result": "pass",
+          "note": "the two legacy TEST_CASE->DEV / TEST_CASE_REVIEW->DEV entries (gates:[]) were left untouched — only the 4 runtime doors registered.",
+          "headHash": "12f9c0b3880aee0766cd81b6506a1d3f60d67fb4",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:48.322Z"
         }
       ]
     },
