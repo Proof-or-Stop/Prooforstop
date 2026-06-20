@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-1127:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept lane found no blocking findings; scope and invariants align with docs and checklist intent.",
+      "createdAt": "2026-06-20T19:45:56.058Z",
+      "reviewRound": "2026-06-20T18:09:24.551Z",
+      "reviewRunId": "B-1127:RR-001",
+      "_hash": "2a05fb5a1be7df4a120d3ee8a5a039ac1dd6615474e37acbf0d29e49fbddf60d"
+    },
+    {
+      "id": "B-1127:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality lane found no blocking findings; protocol and payload-shaping changes are implemented without risky regressions.",
+      "createdAt": "2026-06-20T19:45:56.739Z",
+      "reviewRound": "2026-06-20T18:09:24.551Z",
+      "reviewRunId": "B-1127:RR-002",
+      "_hash": "9fcf56177e68a03a190d059fd39f538d2319cff8653544cb8e50a845eae12113"
+    },
+    {
+      "id": "B-1127:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage lane found no blocking gaps; tests/execution paths confirm escalation path and reopen behavior across fake seams.",
+      "createdAt": "2026-06-20T19:45:57.404Z",
+      "reviewRound": "2026-06-20T18:09:24.551Z",
+      "reviewRunId": "B-1127:RR-003",
+      "_hash": "a8b27cdba84c1c8c3fb032a36f2c6ff9f86f365636aa971217ef89e9327a81ec"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "task": "Implement the adversarial-review S4 CAPSTONE: compose S1 (lens runner) + S2 (verifier+ledger) + S3 (critic) into the frozen 5-phase canonical round, the loop-until-dry reopen loop, the ledger-op derivation, and the 3x2 host-verdict payload shaper — all pure data with injected seams.",
+  "outcome": "A developer runs: node packages/main/dist/tasks/adversarial-review-round-smoke.js and sees: [round-smoke] REVIEW_MODE_PHASES order OK | clean round (all skeptics refute) -> converged=true reopen=false criticFindings=[] OK | critic confirms a finding -> reopen=true converged=false OK | critic received the VERIFIED lens set not raw OK | runReopenLoop B-086b trace: round1 reopen -> applyFix -> round2 converged; rounds.length=2 result.converged=true OK | maxRounds bound -> converged=false OK | deriveRoundLedgerOps: finding_add ops (lens under its real lane, critic desc starts [completeness-critic], severity critical|high|medium|low never abstract) + review_pass_set only on converge OK | buildHostVerdictPayloads: 2 payloads distinct hostId/keyId/sessionId same materialDigest+validationDigest decision=pass OK => N checks passed, exit 0. In code: import {runReopenLoop, deriveRoundLedgerOps, buildHostVerdictPayloads} from core/adversarial-review-round.js; const {rounds, converged} = runReopenLoop(diff, seams, applyFix); — drives the whole adversarial-review MODE (lenses->verify->critic->verify->converge/reopen) to a dry round, then a caller binds the derived ledger ops + 3x2 payloads to the real Lattice CLI.",
+  "facts": [
+    "S1 (core/adversarial-review-lens-runner.ts) exports runLenses, collectRawFindings, LENS_TO_LANE, LensLane, LensRunRequest, LensRunResult.",
+    "S2 (core/adversarial-review-verifier.ts) exports verifyFindings, confirmedFindings, toFindingAddArgs, FindingAddArgs.",
+    "S3 (core/adversarial-review-critic.ts) exports runCompletenessCritic, toCriticFindingAddArgs.",
+    "S0 (core/adversarial-review.ts) exports RoundResult{lensFindings,confirmedFindings,criticFindings,reopen,converged}, REVIEW_MODE_PHASES (the canonical 5-step order), Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict; review-run.ts exports ReviewRunLane.",
+    "Canonical order (§3.2): lenses -> verify lens -> critic on {change,CONFIRMED lens} -> verify critic -> converge(no confirmed)/reopen(fix->new material->new round); §4.1 ledger: review_run_start->finding_add->review_pass_set; full-3x2 = 3 rounds x 2 independent hosts via autopilot_review_submit; local-only, no Authority receipt (§4.5)."
+  ],
+  "constraints": [
+    "Pure module: NO CLI/finding_add/review_run_start/autopilot call, NO Authority receipt; S4 only DERIVES ledger ops + payloads as data. The three agent seams (runLens, runSkeptic, runCritic) are injected; the harness/main-agent does the real calls at MVP.",
+    "The flat RoundResult loses lane attribution; runAdversarialRound must additionally expose confirmedByLane (verify per lens keeping its lane) so deriveRoundLedgerOps can bind each lens finding to its real lane reviewRunId.",
+    "The critic MUST receive the VERIFIED (confirmed) lens set, never raw (the §2.4/§3.2 frozen order); the 5 phases run in REVIEW_MODE_PHASES order.",
+    "reopen -> applyFix -> new change (new material) -> NEW round (models new reviewRunId + re-bind to fresh materialHash); the loop is bounded by maxRounds.",
+    "No re-implementation of S1/S2/S3 (imported read-only); no abstract BLOCKER/MAJOR/MINOR in any derived op (S2/S3 own the mapping). All artifacts English-only."
+  ],
+  "unknowns": [
+    "None blocking — the round order, ledger primitives, and 3x2 binding are fully specified; the three modules are DONE and their exports fixed."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/adversarial-review-round.ts",
+    "packages/main/src/tasks/adversarial-review-round-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-20T16:03:54.594Z"
+}

@@ -1,0 +1,27 @@
+{
+  "storyId": "B-1127",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/adversarial-review-round.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-lens-runner.ts",
+    "packages/main/src/core/adversarial-review-verifier.ts",
+    "packages/main/src/core/adversarial-review-critic.ts",
+    "packages/main/src/core/review-run.ts"
+  ],
+  "explicitExcludes": [
+    "docs/adversarial-review-spec.md"
+  ],
+  "scopeChangeReason": "S4 capstone: create the round/reopen orchestration module + smoke, register the smoke. S0+S1+S2+S3+review-run imported read-only (protected). Actual CLI execution + Authority receipt out of scope (local-only).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T16:09:29.136Z",
+  "updatedAt": "2026-06-20T16:09:29.136Z"
+}

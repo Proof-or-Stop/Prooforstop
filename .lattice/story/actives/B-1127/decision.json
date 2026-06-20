@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Compose, do not re-implement: drive S1/S2/S3 through their public exports; one source of truth per concern.",
+    "Pure + injected: runLens/runSkeptic/runCritic are seams; ledger ops + 3x2 payloads are DERIVED as data (the real CLI calls are the harness job, §4.5 local-only) so the whole mode is hermetically testable.",
+    "Honor the frozen order: the 5 phases run in REVIEW_MODE_PHASES order; the critic always sees the VERIFIED lens set, never raw.",
+    "Preserve lane attribution: AdversarialRoundResult adds confirmedByLane so each lens finding binds to its real lane reviewRunId (the flat RoundResult loses it).",
+    "Bounded, faithful loop: reopen->applyFix->new material->new round, converged only when no confirmed finding remains, bounded by maxRounds."
+  ],
+  "drivers": [
+    "The three modules (S1/S2/S3) are DONE+frozen and imported verbatim; S4 must not modify them.",
+    "§3.2 canonical order + §3.1 convergence + §4.1 ledger primitives + §4.5 local-only are fixed by the spec.",
+    "The flat S0 RoundResult carries no lane; the ledger needs agent=the real lane per §4.2."
+  ],
+  "options": [
+    {
+      "name": "Pure orchestration over injected seams + injected ledger; derive ops as data",
+      "pros": [
+        "Composes the three DONE modules (S1 runLenses, S2 verifyFindings/toFindingAddArgs, S3 runCompletenessCritic/toCriticFindingAddArgs) without re-implementing any of them — single source of truth per concern",
+        "runLens/runSkeptic/runCritic are injected seams and the ledger ops are DERIVED as pure data, so the whole 5-phase round + reopen loop + 3x2 binding is hermetically testable with fakes (the real CLI calls stay the harness job at MVP, §4.5 local-only)",
+        "AdversarialRoundResult extends S0 RoundResult and adds confirmedByLane so the ledger can bind each lens finding to its real lane without the flat RoundResult losing attribution"
+      ],
+      "cons": [
+        "The caller still has to execute the derived ops against the real CLI (MVP boundary) — S4 proves the orchestration, not an end-to-end CLI run"
+      ]
+    },
+    {
+      "name": "Make runAdversarialRound directly call review_run_start/finding_add/review_pass_set",
+      "pros": [
+        "Closer to an end-to-end flow"
+      ],
+      "cons": [
+        "Not hermetically testable — needs a live story + lanes + a fresh materialHash for every assertion",
+        "Couples the orchestration to I/O and to the Authority/escalation machinery, far beyond the MVP local-only boundary (§4.5)",
+        "Mixes pure round logic with side effects, making the reopen loop impossible to unit-test"
+      ]
+    },
+    {
+      "name": "Flatten everything to S0 RoundResult and let the caller re-derive lanes",
+      "pros": [
+        "No new result type"
+      ],
+      "cons": [
+        "The flat RoundResult does not carry which lens produced each finding, so the caller cannot bind a finding to its real lane reviewRunId — the §4.2 agent=lane requirement breaks",
+        "Re-deriving lanes outside S4 duplicates the S1 LENS_TO_LANE mapping and risks drift",
+        "deriveRoundLedgerOps could not produce correct per-lane finding_add ops"
+      ]
+    }
+  ],
+  "chosen": "Pure orchestration over injected seams + injected ledger; derive ops as data",
+  "rationale": "Only this option composes the three DONE modules without re-implementation, keeps the whole 5-phase round + reopen loop + 3x2 binding hermetically testable via injected seams + derived ops (matching the MVP local-only boundary and the operator-driven DONE dance), and preserves lane attribution via confirmedByLane so the ledger can bind each lens finding to its real lane. Directly calling the CLI loses hermetic testability and crosses the local-only boundary; flattening to RoundResult breaks per-lane finding_add.",
+  "preMortem": [
+    {
+      "scenario": "The completeness critic is run on RAW (unverified) lens findings instead of the CONFIRMED set, breaking the §2.4/§3.2 canonical order",
+      "trigger": "runAdversarialRound passes collectRawFindings output to the critic instead of the post-verification confirmed set, or runs the critic before lens verification",
+      "consequence": "The critic reasons over unverified noise, contradicting the frozen order; the whole round is non-conformant and the capstone misrepresents the methodology",
+      "mitigation": "runAdversarialRound executes the explicit 5-phase order and passes {change, confirmedFindings: the flattened CONFIRMED lens set} to runCompletenessCritic; the smoke uses a fake runCritic that captures its input and asserts it received the VERIFIED set (e.g. the lens findings that survived the skeptic), never the raw set; REVIEW_MODE_PHASES order is asserted"
+    },
+    {
+      "scenario": "deriveRoundLedgerOps lets an abstract severity into a finding_add op, or records a critic finding under a non-lattice-review- agent",
+      "trigger": "deriveRoundLedgerOps re-derives args instead of composing S2 toFindingAddArgs / S3 toCriticFindingAddArgs, or sets agent to something other than the real lane",
+      "consequence": "A finding_add op carries BLOCKER/MAJOR/MINOR (Zod error) or a critic finding does not count as lane evidence (the §4.3 failure mode); the ledger derivation is unusable",
+      "mitigation": "deriveRoundLedgerOps ONLY calls S2 toFindingAddArgs (lens, agent=the real lane) and S3 toCriticFindingAddArgs (critic, agent=a real lane, [completeness-critic] in desc); the smoke asserts every op severity is in {critical,high,medium,low} (never abstract), every lens op agent === its real lane, and every critic op desc starts with the tag + a real lane agent"
+    },
+    {
+      "scenario": "The reopen loop never terminates (or terminates falsely converged) — an infinite loop or a wrong convergence flag",
+      "trigger": "runReopenLoop has no maxRounds bound, or computes converged before verifying the critic findings, or applyFix does not change the material so the same findings recur forever",
+      "consequence": "The capstone hangs or reports convergence on a still-dirty round; the loop-until-dry semantics (§3.2) are violated",
+      "mitigation": "runReopenLoop is bounded by maxRounds (default 10) and returns converged:false when exhausted; converged is computed only after BOTH lens and critic verification (no confirmed finding remains); the smoke proves a B-086b trace (round1 reopen -> applyFix removes the finding -> round2 converged, rounds.length===2) AND that a never-fixed change hits the maxRounds bound with converged===false"
+    }
+  ],
+  "timestamp": "2026-06-20T16:04:29.414Z"
+}

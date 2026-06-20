@@ -4,33 +4,777 @@
       "id": "CHK-001",
       "title": "runAdversarialRound(change, seams, config?) — the frozen 5-phase canonical round; AdversarialRoundResult extends RoundResult + confirmedByLane, in core/adversarial-review-round.ts",
       "context": "New module importing S0 (RoundResult, REVIEW_MODE_PHASES, Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict), S1 (runLenses, collectRawFindings, LensLane, LensRunRequest), S2 (verifyFindings, confirmedFindings), S3 (runCompletenessCritic). RoundSeams={runLens:(req:LensRunRequest)=>Finding[], runSkeptic:(f:Finding,change:string)=>Verdict, runCritic:(input:CompletenessCriticInput)=>Finding[]}. RoundConfig={lensSet?:readonly LensDef[] (default CANONICAL_LENS_SET), skeptics?:number, threshold?:number}. runAdversarialRound runs the §3.2 FROZEN order: runLenses (S1) -> verify each lens findings keeping its lane (S2 verifyFindings+confirmedFindings PER LENS so confirmedByLane preserves {lane,lensId,findings}) -> runCompletenessCritic (S3) on {change, confirmedFindings: the flattened confirmed lens set} -> verify critic raw (S2) -> converged (no confirmed lens AND no confirmed critic), reopen=!converged. Returns AdversarialRoundResult extends RoundResult {lensFindings:rawLens, confirmedFindings:confirmedLensFlat, criticFindings:confirmedCritic, reopen, converged} with confirmedByLane added. The critic MUST receive the VERIFIED (confirmed) lens set, never raw (proves §2.4 order).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T17:38:51.535Z",
+      "endTime": "2026-06-20T17:40:12.543Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runAdversarialRound with all-refuting skeptics (isReal:false) -> converged===true, reopen===false, confirmedFindings===[], criticFindings===[] (the clean-round path); WHY: proves the happy path where no finding survives verification",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with one lens producing a BLOCKER finding and skeptic confirming (isReal:true) -> confirmedFindings contains it, reopen===true, converged===false; confirmedByLane maps the finding to the correct LensLane; WHY: proves single confirmed finding triggers reopen and per-lane attribution is preserved",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The completeness critic seam receives {change, confirmedFindings} where confirmedFindings is the VERIFIED (post-skeptic) lens set, NOT the raw lens findings; a capturing fake runCritic asserts its input.confirmedFindings matches exactly the post-verification confirmed set; WHY: the load-bearing invariant from spec section 2.4 — critic must never see raw findings",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound executes phases in exactly REVIEW_MODE_PHASES order: lenses -> verify-lens-findings -> critic -> verify-critic-findings -> converge-or-reopen; a phase-recording wrapper around each seam proves the call order; WHY: the canonical frozen order is the spec contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runAdversarialRound with an empty lens set (no lenses to run) -> no lens findings, critic receives empty confirmedFindings, converged depends only on critic output; WHY: boundary — zero lenses is a valid config (task-tunable)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with custom lensSet subset (2 of 6 lenses) -> only those 2 are run, lane attribution reflects only those 2; WHY: proves task-tunable lens selection works with a non-default subset",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with threshold=2 (strict mode) and only 1-of-2 skeptics confirming -> finding is NOT confirmed (confirms < T=2); WHY: proves threshold-confirm is respected, not hardcoded to T=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where critic produces a finding that skeptic confirms -> criticFindings is non-empty, reopen===true even if all lens findings were refuted; converged requires BOTH lens AND critic to be empty; WHY: converged is computed after both verification passes, not just lens verification",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runAdversarialRound where the critic seam returns findings that reference the RAW (unverified) lens findings instead of confirmed — but the function passes the CONFIRMED set to the critic seam, so even a malicious critic cannot influence the input it actually receives; a capturing fake proves the critic seam was called with only confirmed findings regardless of what the critic returns; WHY: adversarial — ensure the function structurally prevents the critic from seeing unverified data",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where runLens seam throws an exception mid-run -> the round propagates the error (does not silently swallow or return a partial result); WHY: adversarial — a broken lens must not produce a false converged=true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where two lenses map to the same lane (behavior/correctness + crash-safety/edge both map to lattice-review-behavior) each produce findings -> confirmedByLane preserves BOTH lenses distinctly under their respective lensId, not merged; WHY: adversarial — same-lane lenses must not have their findings merged or de-duplicated",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "deriveRoundLedgerOps(round, opts) -> LedgerOp[]: finding_add per confirmed finding (lens via S2, critic via S3) + review_pass_set per lane on converge",
       "context": "LedgerOp = {kind:'finding_add', lane:ReviewRunLane, source:'lens'|'critic', args:FindingAddArgs} | {kind:'review_pass_set', lane:ReviewRunLane, reviewRunId:string}. deriveRoundLedgerOps(round:AdversarialRoundResult, opts:{reviewRunIdByLane:Partial<Record<ReviewRunLane,string>>, criticLane:ReviewRunLane, criticReviewRunId:string, category?:'happy'|'edge'|'adversarial'|'missing'}): for each confirmedByLane group, one finding_add op via S2 toFindingAddArgs(f,{reviewRunId:reviewRunIdByLane[lane], agent:lane, category}) (agent=the real lane); for each round.criticFindings, one finding_add op via S3 toCriticFindingAddArgs(f,{reviewRunId:criticReviewRunId, agent:criticLane, category}) (tagged desc + real lane); if round.converged, a review_pass_set op per lane that ran. PURE — derives op descriptors, performs NO finding_add call. No abstract severity in any op (S2/S3 own the mapping).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T17:40:12.940Z",
+      "endTime": "2026-06-20T17:40:13.338Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveRoundLedgerOps on a converged round with 1 confirmed lens finding (BLOCKER) + 1 confirmed critic finding (MAJOR) -> yields 1 finding_add op with severity=critical, agent=the real lane from confirmedByLane, source=lens + 1 finding_add op with severity=high, desc prefixed with [completeness-critic], agent=criticLane, source=critic + review_pass_set ops for each lane that ran; WHY: proves the full happy path with both lens and critic ops and pass ops on converge",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps on a converged round with zero confirmed findings (all refuted) -> yields ONLY review_pass_set ops (one per lane), zero finding_add ops; WHY: proves clean converged round produces only pass ops",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every finding_add op produced by deriveRoundLedgerOps has severity in {critical,high,medium,low} (the ledger enum), NEVER abstract BLOCKER/MAJOR/MINOR; WHY: the load-bearing spec invariant from section 4.2 — abstract severity must never reach finding_add",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveRoundLedgerOps on a NON-converged (reopen) round with confirmed findings -> yields finding_add ops but NO review_pass_set ops; WHY: review_pass_set is only emitted on converge, never on reopen",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps where confirmedByLane has multiple lanes (e.g. lattice-review-concept + lattice-review-quality) each with findings -> each finding_add op uses the correct lane-specific reviewRunId from reviewRunIdByLane and agent=that lane; WHY: proves per-lane reviewRunId binding is correct, not a single shared runId",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps with critic finding of severity MINOR -> finding_add op has severity=medium (the S2 mapping), desc starts with [completeness-critic], agent=criticLane (a real lattice-review-* lane); WHY: proves MINOR->medium mapping and critic provenance tag for all severity levels",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps with category=adversarial -> every finding_add op carries category=adversarial; WHY: proves the category passthrough",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveRoundLedgerOps where a confirmedByLane entry has a lane not present in reviewRunIdByLane (missing mapping) -> the function either throws or produces the op with undefined reviewRunId (caller bug), but NEVER silently drops the finding; WHY: adversarial — a misconfigured opts must not swallow confirmed findings",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps given a round with a BLOCKER finding -> the emitted finding_add op severity is critical (from SEVERITY_TO_FINDING_KIND), never the string BLOCKER; similarly MAJOR->high, MINOR->medium; assert that no op.args.severity value is in the set {BLOCKER,MAJOR,MINOR}; WHY: adversarial — directly check the abstract-severity-leak invariant by string matching",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps where critic finding agent is set to criticLane (a real lattice-review-* lane) and desc includes [completeness-critic] tag -> verify agent is NOT completeness-critic (the non-lane string); WHY: adversarial — critic provenance must be in desc not agent, putting it in agent would break reviewer-evidence recognition",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "runReopenLoop(initialChange, seams, applyFix, config?) loop-until-dry + buildHostVerdictPayloads 3x2 shaper",
       "context": "runReopenLoop(initialChange:string, seams:RoundSeams, applyFix:(change:string, confirmed:Finding[], roundIndex:number)=>string, config?:RoundConfig & {maxRounds?:number}): {rounds:AdversarialRoundResult[], converged:boolean, finalChange:string}. Runs runAdversarialRound; if converged return; else apply applyFix(change, [...confirmedFindings,...criticFindings], i) -> new change (new material) and re-run a NEW round (models reopen->new reviewRunId+re-bind to fresh materialHash); bound by maxRounds (default 10), converged:false if exhausted. buildHostVerdictPayloads(opts:{storyId, runId, materialDigest, validationDigest, hosts:Array<{hostId,provider,sessionId,keyId,promptDigest, decision?:'pass'|'fail'|'blocked'}>}): HostVerdictPayload[] shaping the §4.1 full-3x2 autopilot_review_submit args (two INDEPENDENT hosts, distinct hostId/sessionId/keyId, each bound to the SAME materialDigest+validationDigest, decision default 'pass'). Pure: no CLI call, no Authority receipt (local-only §4.5).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T17:40:13.734Z",
+      "endTime": "2026-06-20T17:40:14.128Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runReopenLoop B-086b trace: round 1 produces a confirmed critic finding -> applyFix is called with change + confirmed findings + roundIndex=0 -> round 2 is clean (all refuted) -> result has rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true, finalChange is the post-fix change; WHY: the canonical reopen trace proving loop-until-dry terminates on the second round",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with a clean first round (no confirmed findings) -> returns immediately with rounds.length===1, converged===true, finalChange===initialChange, applyFix never called; WHY: proves the no-reopen happy path terminates in one round",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with 2 hosts -> yields 2 HostVerdictPayload objects with distinct hostId, sessionId, keyId; both share the same materialDigest and validationDigest; decision defaults to pass; WHY: proves the 3x2 payload shape with independent host identities bound to the same digests",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runReopenLoop with maxRounds=1 and a non-converging round -> returns rounds.length===1, converged===false; applyFix is never called (no second round possible); WHY: boundary — maxRounds=1 means only one attempt, no loop",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with maxRounds=3 and a change that never converges (every round produces confirmed findings) -> returns rounds.length===3, converged===false; applyFix called exactly 2 times (after rounds 1 and 2, not after the last); WHY: proves the maxRounds bound terminates an infinite-reopen scenario",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with explicit decision=fail on one host -> that payload carries decision=fail while the other defaults to pass; WHY: proves per-host decision override works",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with maxRounds=0 or negative -> returns immediately with rounds.length===0 or 1, converged computed correctly; WHY: boundary — degenerate maxRounds values do not cause infinite loop or crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runReopenLoop where applyFix returns the SAME change (no actual fix) -> the loop still re-runs a new round on the unchanged material (does not detect identity and short-circuit); eventually hits maxRounds with converged===false; WHY: adversarial — a no-op fix must not cause infinite loop; the maxRounds bound is the safety net",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop where applyFix throws on round 2 -> the error propagates (does not silently converge or return partial rounds); WHY: adversarial — a broken fix seam must not produce a false converged=true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with two hosts having the SAME hostId (duplicate) -> the function either rejects the duplicate or returns 2 payloads that are distinguishable by sessionId/keyId; WHY: adversarial — the 3x2 contract requires INDEPENDENT hosts; duplicate hostIds violate the independence proof",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop where round 1 has confirmed LENS findings (no critic findings) -> applyFix receives the lens confirmed findings; round 2 is clean -> converged===true; WHY: adversarial — reopen is not only triggered by critic findings; confirmed lens findings also trigger reopen (converged requires BOTH lens AND critic empty)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Hermetic smoke with FAKE seams proving the B-086b reopen trace + ledger ops + 3x2 payloads; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals). Assert: REVIEW_MODE_PHASES === the canonical 5 ['lenses','verify-lens-findings','critic','verify-critic-findings','converge-or-reopen']; a fake runCritic captures its input and asserts it received the CONFIRMED (verified) lens set not raw (§2.4 order); a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[]; a round where the critic confirms -> reopen===true, converged===false; runReopenLoop with a fake confirming a critic finding on round 1 and an applyFix making round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true (loop-until-dry); maxRounds bound -> converged===false when never clean; deriveRoundLedgerOps yields finding_add ops for confirmed lens (agent===the real lane, severity a ledger kind not abstract) + critic (desc starts with '[completeness-critic] ', agent a real lane) + review_pass_set ops ONLY when converged; buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision 'pass'. Register node packages/main/dist/tasks/adversarial-review-round-smoke.js in lattice.config.json validate.commands.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T17:40:17.592Z",
+      "endTime": "2026-06-20T17:42:16.820Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke asserts REVIEW_MODE_PHASES === the canonical 5 phases [lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen] with explicit string literals; WHY: proves the frozen phase order has not drifted from the spec",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke with a capturing fake runCritic proves the critic seam received the CONFIRMED (verified) lens set, NOT the raw lens findings; WHY: the load-bearing section 2.4 invariant — if this assertion fails the entire methodology is broken",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[] (explicit literals); WHY: the happy clean-round path",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves a round where the critic confirms a finding -> reopen===true, converged===false; WHY: proves critic-driven reopen",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves the B-086b reopen trace via runReopenLoop: fake confirming a critic finding on round 1, applyFix makes round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true; WHY: the canonical loop-until-dry trace",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent===the real lane, severity is a ledger kind not abstract) + critic findings (desc starts with [completeness-critic], agent is a real lane) + review_pass_set ops ONLY when converged; WHY: proves the ledger mapping pipeline end to end",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision pass; WHY: proves the 3x2 payload shape",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke file is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-round-smoke.js; WHY: unregistered tests do not run in CI",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke proves maxRounds bound: runReopenLoop with a never-clean change hits maxRounds with converged===false; WHY: boundary — the safety valve must work",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves that a converged round with zero confirmed findings produces ONLY review_pass_set ops (no finding_add ops); WHY: edge — clean round must not emit phantom findings",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves no finding_add op produced by deriveRoundLedgerOps has severity in {BLOCKER,MAJOR,MINOR} — all severities are ledger kinds {critical,high,medium,low}; WHY: adversarial — the abstract-severity-leak check must be an explicit string assertion, not implicit via type system",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves the critic finding agent field is a real lattice-review-* lane (NOT the string completeness-critic), and provenance is carried in desc via [completeness-critic] prefix; WHY: adversarial — wrong agent would break reviewer-evidence recognition in review-run.ts",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:6",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:7",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "d8e003b86aed7ced64b29ba71f8c6c707ca3864a",
+          "materialHash": "ec28c306e58e4e6505621f05f522442460c4541c1f58f81fcce47a5ef5636172",
+          "storyFilesHash": "92cb62611020931f9db41655a10ed2a737b1b41b9e49824239a85bfd1e1a6d26",
+          "timestamp": "2026-06-20T19:47:10.769Z"
+        }
+      ]
     }
   ]
 }
