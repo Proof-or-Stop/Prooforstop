@@ -28,7 +28,7 @@
       "desc": "lifecycle_check review readiness does not enforce required reviewer lanes. In buildReviewGateRows, once any finding/pass exists it validates bindings and only checks for open blocking findings, then emits no_open_blocking_review_findings. It never computes active reviewers or missing lanes. The live REVIEW->TEST gate requires round-1 evidence from every active reviewer via computeActiveReviewers, and baseline reviewers are concept, quality, and test-coverage. The V1 spec also says review pass condition is required lanes have current pass and no blocking verified finding. Result: after a single reviewer pass, lifecycle_check can report TEST/DONE review readiness while story_advance REVIEW->TEST still blocks missing reviewer lanes, creating a competing readiness truth source.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T21:06:27.240Z",
@@ -43,7 +43,11 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:237"
       ],
       "signatureTag": "missing|ts:285|lifecycle-check-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: missing required concept/quality/test-coverage lanes now produce blocking readiness rows with exact review_run_start commands; no competing review truth source remains.",
+      "resolvedAt": "2026-06-20T21:13:34.843Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bd45:F-003",
