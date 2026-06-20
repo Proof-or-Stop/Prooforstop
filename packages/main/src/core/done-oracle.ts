@@ -46,6 +46,7 @@ import {
   evaluateReviewAssuranceFloor,
   formatReviewAssuranceFloorFailure,
 } from './review-assurance-floor.js';
+import { evaluateDoneRequiredEvidence } from './done-required-validation.js';
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
@@ -321,6 +322,27 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       label: 'Evidence freshness',
       detail: freshness.message,
       source: 'test-evidence.json',
+    }));
+  }
+
+  // 1c. DONE-required validation (opt-in). Ordinary lattice validate remains
+  // TEST evidence; projects that configure doneRequiredCommands get a separate
+  // blocking row backed by done-required-evidence.json.
+  {
+    const doneRequired = evaluateDoneRequiredEvidence({
+      projectRoot: root,
+      storyId,
+      store,
+      gitCwd,
+    });
+    rows.push(doneCheckRow({
+      id: 'done-required-validation',
+      status: doneRequired.status,
+      label: 'DONE-required validation',
+      detail: doneRequired.detail,
+      hint: doneRequired.hint,
+      source: doneRequired.required ? 'done-required-evidence.json' : 'lattice.config.json.doneRequiredCommands',
+      blocking: doneRequired.blocking,
     }));
   }
 

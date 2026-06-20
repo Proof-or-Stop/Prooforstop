@@ -1,0 +1,29 @@
+{
+  "task": "Sync the descriptive lifecycle + process-fact contract metadata (and the drift check) to record the parallel-decomposition DEV gate that B-086b wired into machine.ts at runtime — metadata only, no behavior change.",
+  "outcome": "Inspecting core/lifecycle-registry.ts, the gates arrays for the DEV-entry transitions that correspond to the four runtime START->DEV doors (INIT_CHECK/PLAN/REVIEW/TEST) now include a 'parallel-decomposition' gate id alongside the existing ones (quick-path / plan-review,scope-check,cwd-worktree / cwd-worktree / cwd-worktree). process-fact-levels.ts lists the parallel DEV-entry gate as a consumer of scope-contract facts. Running 'npm --prefix . run test:process-fact-contract' prints its pass line WITH a new assertion confirming the parallel DEV-entry guard surface (canSkipPlan/canReenterDev/parallelDevEntryBlock) is registered, and 'lattice validate' stays all-green. The descriptive contract now matches the live machine.ts gate.",
+  "facts": [
+    "B-086b (merged 2481cbbc4) wired the runtime gate: parallelDecompositionEnforcedBlock + parallelDevEntryBlock consumed by canStartDevGuard (PLAN), canSkipPlanGuard (INIT_CHECK express), canReenterDevGuard (REVIEW/TEST rollback) under parallelGate.mode===block. This is the source of truth.",
+    "lifecycle-registry.ts LIFECYCLE_TRANSITIONS DEV-entry gate arrays: INIT_CHECK->DEV (~156) gates [quick-path]; PLAN->DEV (~166) gates [plan-review,scope-check,cwd-worktree]; REVIEW->DEV (~206) gates [cwd-worktree]; TEST->DEV (~226) gates [cwd-worktree]. Gate ids are kebab-case strings. NOTE: there are also other to:DEV entries (~247, ~269) with gates [] — must verify which lifecycle transitions correspond to the 4 RUNTIME START->DEV doors before registering.",
+    "process-fact-levels.ts: scope_contract_set / scope_contract_init_from_plan fact consumers are described as REVIEW/TEST/DONE changed-file gates, missing the DEV-entry consumer.",
+    "scripts/verify-process-fact-contract.mjs runs via npm --prefix . run test:process-fact-contract (NOT in lattice validate; currently passes) and does not assert the parallel guard surface.",
+    "The .gates arrays are descriptive (read by audits/projections + the drift check), NOT read for DEV-entry enforcement — machine.ts xstate guards enforce."
+  ],
+  "constraints": [
+    "Metadata-only: MUST NOT change machine.ts runtime gating, the gate impl, or fail-open/mode semantics (all frozen/DONE).",
+    "Register the gate on exactly the lifecycle DEV-entry transitions that correspond to the 4 runtime START->DEV doors — match the runtime, do not invent doors.",
+    "Only touch lifecycle-registry.ts, process-fact-levels.ts, verify-process-fact-contract.mjs, docs/parallel-decomposition-spec.md.",
+    "The extended verify-process-fact-contract check must PASS after the changes; lattice validate stays green."
+  ],
+  "unknowns": [
+    "Exact mapping of the 6+ to:DEV lifecycle-registry transitions to the 4 runtime START->DEV doors (which entries at ~247/269 are real runtime doors vs legacy/other-event) — resolve in DEV by reading the transition source phases + events.",
+    "The exact consumer-registration shape in process-fact-levels.ts (how an L4 consumer is declared).",
+    "Whether verify-process-fact-contract.mjs reads the gate registration from lifecycle-registry or needs a separately-authored assertion."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/parallel-decomposition-spec.md"
+  ],
+  "timestamp": "2026-06-20T09:58:10.161Z"
+}

@@ -1,0 +1,40 @@
+{
+  "task": "Implement an opt-in DONE-required full-test validation gate from B-3321.",
+  "outcome": "When a self-host story reaches DONE without fresh DONE-required build-plus-root-test evidence, the terminal shows a failing done-required-validation row with a direct done_required_validate command hint; after running that command, DONE shows the row passing separately from ordinary test-evidence.",
+  "facts": [
+    "B-3321 accepted docs/requirements/decisions/done-full-test-gate-execution-plan.md as the requirements source.",
+    "Current lattice validate reads validate.commands first and writes ordinary test-evidence.json.",
+    "DONE currently consumes test-evidence.json in packages/main/src/core/done-oracle.ts.",
+    "Decision chose top-level doneRequiredCommands, a separate done-required-evidence.json artifact, and a new done_required_validate command.",
+    "Self-host config will opt in with packages/main build before root npm test.",
+    "External projects without doneRequiredCommands stay advisory and do not block DONE."
+  ],
+  "constraints": [
+    "Do not append root npm test to ordinary validate.commands as the solution.",
+    "Do not force external projects to run root npm test by default.",
+    "Do not change release_approve_push or .githooks/pre-push behavior in this story.",
+    "Evidence must bind to headHash, materialHash, storyFilesHash, policyHash, and commandSetHash.",
+    "Gate-consumed facts must be registered in process-fact registry, levels, and contract verifier.",
+    "Future implementation review requires 3 rounds x 2 hosts over final material hash."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "lattice.config.json",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "timestamp": "2026-06-20T09:53:14.878Z"
+}

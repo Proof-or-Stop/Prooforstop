@@ -7,7 +7,9 @@
 > fixture-only validation, or `test_auto` are legacy background. The current
 > replacement is `verificationIntent` on checklist items, `verificationEvidence`
 > recorded during DEV/REVIEW/TEST, coverage reviewer lane in REVIEW, and
-> `lattice validate` in TEST.
+> routine `lattice validate` in TEST. When a project explicitly configures
+> `doneRequiredCommands` / a DONE-required policy, DONE also requires a fresh
+> `lattice done_required_validate --storyId=<id>` evidence artifact.
 
 ## 行为准则
 
@@ -83,8 +85,8 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 | **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
 | **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
 | **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
-| **TEST** | CLI / 主 agent | 跑 `lattice validate`，写 validation evidence / bug / stale evidence 结果 |
-| **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
+| **TEST** | CLI / 主 agent | 跑 routine `lattice validate`，写 validation evidence / bug / stale evidence 结果 |
+| **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过；若配置了 DONE-required policy，还必须有当前 HEAD 的 `done-required-evidence.json`），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
 
 `TEST_CASE` / `TEST_CASE_REVIEW` 是 legacy 兼容 phase，只用于旧 story 可读性、迁移或维护；新 story 不应主动进入。
 
@@ -106,7 +108,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 3. **`cd .worktrees/B-xxx`**（必须切，否则下一步会被 cwd 门禁拒绝）
 4. `story_advance PLAN` → cwd 门禁通过，正式进入开发流程
 5. PLAN/DEV/REVIEW/TEST 全部在 worktree 里完成
-6. `story_advance --phase=TEST` → 进入 TEST，按 hint 运行 `lattice validate`
+6. `story_advance --phase=TEST` → 进入 TEST，按 hint 运行 routine `lattice validate`；若配置了 `doneRequiredCommands` / DONE-required policy，DONE 前再运行 `lattice done_required_validate --storyId=<id>`
 7. `story_advance --phase=DONE` → 内部自动合并回本地 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）；如果需要远端发布，只在本地 main 干净且已验证后，由人类显式运行 `lattice release_approve_push --confirm` 创建短 TTL 一次性 approval，再手动 `git push origin main`
 
 **cwd 门禁**：PLAN 起所有 phase 的 `story_advance` 都会校验当前 cwd 是 story 的 worktree。不在 worktree 时报错并提示 cd。
@@ -137,6 +139,8 @@ lattice validate 执行
   ├─ validation FAIL → 写 bug/evidence，hint 回 DEV 修复
   └─ verification coverage missing/stale → allPass:false，提示补 `verificationEvidence`
 → validate PASS + bug fixed + DONE pre-check 全绿 → DONE
+→ 若项目配置 `doneRequiredCommands` / DONE-required policy：DONE 前必须运行 `lattice done_required_validate --storyId=<id>`，生成 `.lattice/story/actives/<storyId>/done-required-evidence.json`；该证据必须绑定当前 HEAD/materialHash/storyFilesHash，过期则阻塞
+→ 无 DONE-required policy：该路径仅 advisory，表示没有 full-suite DONE assurance，不应夸大为已跑全量套件
 → 有 FAIL / stale / missing evidence → 回 DEV 或补对应证据后重跑 `lattice validate`
 ```
 
@@ -251,7 +255,8 @@ lattice aux_doc_list                          # text 格式，按目录分组 + 
 lattice aux_doc_list '{"format":"json"}'      # json 格式
 
 # 验证
-lattice validate --story=B-xxx          # 当前标准验证入口，写 validation evidence / bug / stale evidence 结果
+lattice validate --story=B-xxx                 # routine TEST 验证入口，写 validation evidence / bug / stale evidence 结果
+lattice done_required_validate --storyId=B-xxx # 仅当配置 doneRequiredCommands / DONE-required policy 时，DONE 前生成 blocking done-required-evidence.json；无 policy 时仅 advisory
 
 # 框架 gap 手动归档（不需要 worktree / reviewer / review round，任意目录可跑）
 lattice gap_log '{"category":"missing","severity":"medium","evidence":"<框架 gap 描述>","sourceRefs":["packages/main/src/...:行号"]}'
@@ -558,7 +563,8 @@ Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/next
 ## 规则
 
 - 所有 Story/fixture 操作通过 Lattice CLI 完成，禁止直接读写 JSON
-- 当前验证统一通过 `lattice validate` 执行；DEV 阶段用 `checklist_update` 记录 `verificationEvidence`
+- routine TEST 验证通过 `lattice validate` 执行；DEV 阶段用 `checklist_update` 记录 `verificationEvidence`
+- 若项目配置 `doneRequiredCommands` / DONE-required policy，DONE 前还必须运行 `lattice done_required_validate --storyId=<id>` 生成当前 HEAD 绑定的 `done-required-evidence.json`；无 policy 时该检查只是 advisory / no full-suite assurance
 - `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是 legacy/compat/maintenance 入口，不作为新 story 的默认流程
 - 所有环境统一用 CLI
 

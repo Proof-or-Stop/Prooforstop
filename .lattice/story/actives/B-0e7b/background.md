@@ -1,0 +1,15 @@
+## Trigger Event
+
+During the 6-story parallel-decomposition gate program (B-59c7..B-086b) and its metadata-sync follow-up (B-b29e), the operator ran each REVIEW as a genuine Claude+Codex dual-host full-3x2, and on the Claude side used a multi-agent Workflow (dimensional lenses + per-finding adversarial verification + a completeness-critic stage). That Workflow REPEATEDLY found BLOCKER/MAJOR-class defects that a single-pass host (Codex on its own; or any single dimensional lane) missed: S4 — a corrupt scope-contract.json crashing the entire wave projection; S5 — the parallel hard gate bypassable via the express channel (round 1) and via the REVIEW/TEST rework-rollback doors (round 2); B-b29e — over-registering a read-only command as a gate producer. The operator asked to codify this 'adversarial multi-lens' capability as a first-class Lattice story.
+
+## Key Insight
+
+The capability is not one prompt — it is an ORCHESTRATION SHAPE: fan out N dimensional lenses, then for EACH finding fan out M skeptics that default to refute (majority-confirm to count), then run a completeness critic that hunts for what every lens missed and can reopen the round. Its power is structural: independent lenses each blind to the others surface a wider defect surface; adversarial verification filters plausible-but-wrong findings without a human; the completeness critic is the part that finds the integration-level gaps (the unguarded door, the missing consumer) that no single dimensional lens is looking for. Lattice already has the substrate (lattice-review-* lanes, review_run/pass/finding, the full-3x2 escalation quorum) — the new capability is a defined tier/mode that composes these with the adversarial-verify + critic stages and a precise convergence rule.
+
+## Tradeoff
+
+Spec-first (this story) vs build-first: the methodology has real design decisions (data shapes, convergence/quorum rules, how a critic-reopened round interacts with the full-3x2 ledger, MVP surface) that must be frozen before parallel implementation — exactly the contract-first lesson from the parallel-decomposition program. So this story produces the SPEC + the implementation-program breakdown; the build is a follow-on. Methodology-doc vs CLI-feature scope: the spec must distinguish the MVP (a documented, reusable orchestration + the minimal Lattice hooks) from the full future (a CLI review mode / escalation tier), so the build is bounded and the operator can choose how deep to go.
+
+## Conversation Texture
+
+The operator explicitly observed that the 5-lens Workflow + completeness critic was materially stronger than single-pass lanes, and asked to both flag it and build it as a story, with documentation, to completion. They confirmed the concept = dimensional lenses + adversarial verification (+ the completeness critic). This spec story is the documentation deliverable; it must be standalone-readable, cite the concrete S4/S5/B-b29e evidence, and define the build program so implementation can proceed contract-first.

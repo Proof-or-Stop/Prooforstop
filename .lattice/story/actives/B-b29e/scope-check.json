@@ -1,0 +1,101 @@
+{
+  "storyId": "B-b29e",
+  "checkedAt": "2026-06-20T10:04:24.569Z",
+  "features": [
+    {
+      "feature": "Register the parallel-decomposition gate id on the INIT_CHECK->DEV transition (canSkipPlanGuard) in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register the parallel-decomposition gate id on the PLAN->DEV transition (canStartDevGuard) in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register the parallel-decomposition gate id on the REVIEW->DEV rollback transition (canReenterDevGuard) in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register the parallel-decomposition gate id on the TEST->DEV rollback transition (canReenterDevGuard) in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Map and verify that the 4 registered lifecycle to:DEV transitions correspond exactly to the runtime guard coverage before registering — not inventing or omitting doors",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add the parallel-decomposition DEV-entry gate as a consumer of scope-contract facts in process-fact-levels.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Extend verify-process-fact-contract.mjs to assert the parallel DEV-entry gate surface (canSkipPlan / canReenterDev / parallelDevEntryBlock) as a scope-contract-fact consumer",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Non-vacuous drift check: removing the CHK-001/002 registration must cause the CHK-003 assertion to fail",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add a doc note in docs/parallel-decomposition-spec.md §8 recording that the parallel-decomposition DEV gate is registered in lifecycle-registry + process-fact-levels and asserted by verify-process-fact-contract.mjs",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-parallel-wave.md"
+    },
+    {
+      "feature": "scope_contract allowedModify limited to 4 files: lifecycle-registry.ts, process-fact-levels.ts, verify-process-fact-contract.mjs, parallel-decomposition-spec.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No runtime change: machine.ts guards and gate impl files (parallel-decomposition*.ts, audit-config.ts) must not be modified",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: any change to machine.ts runtime guards or the gate enforcement behavior (B-086b, DONE/frozen); the gate impl files parallel-decomposition*.ts / audit-config.ts (frozen)",
+      "source": "description"
+    },
+    {
+      "feature": "Legacy TEST_CASE->DEV and TEST_CASE_REVIEW->DEV transitions (legacy=true) do not receive parallel-decomposition gate registration",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 10,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ec401c8fd7b9690e885016a669b4040c829e6d531269b1777710c30ca355a5c0",
+  "openQuestions": []
+}

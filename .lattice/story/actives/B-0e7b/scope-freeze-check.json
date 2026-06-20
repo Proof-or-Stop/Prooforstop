@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0e7b",
+  "checkedAt": "2026-06-20T10:46:51.455Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "8eb5f48a83e5a4a1ef9f1c6175b37911156fbc08639a2d7449825a00dc6d7111",
+  "executionBoundaryHash": "e9db5654e451bcf5bd6ef7d9720a623c2ccd3c4e0c833b9cdaa9f28566f48f0a",
+  "freshnessHash": "6253e922557d355ff6e4a73208c12bd627a9d17942f6fbdea74d50c03b38cdf5",
+  "effectiveExcludedKeywords": [
+    "any code implementation of the capability (this is the SPEC story only; the build is a follow-on program the spec defines)",
+    "changing any existing Lattice review code (lattice-review-* lanes, machine.ts, escalation) — spec only",
+    "changing the parallel-decomposition program code (DONE/frozen)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any code implementation of the capability (this is the SPEC story only; the build is a follow-on program the spec defines)",
+      "source": "scopeBoundary.excluded",
+      "text": "any code implementation of the capability (this is the SPEC story only; the build is a follow-on program the spec defines)",
+      "excluded": true
+    },
+    {
+      "keyword": "changing any existing Lattice review code (lattice-review-* lanes, machine.ts, escalation) — spec only",
+      "source": "scopeBoundary.excluded",
+      "text": "changing any existing Lattice review code (lattice-review-* lanes, machine.ts, escalation) — spec only",
+      "excluded": true
+    },
+    {
+      "keyword": "changing the parallel-decomposition program code (DONE/frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "changing the parallel-decomposition program code (DONE/frozen)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "cbcf3c6039032c08e606ac917d130fda1a1690d7ec4e5b9ae720cd0ff7c39ff6"
+}

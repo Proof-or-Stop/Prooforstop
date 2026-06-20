@@ -1,0 +1,166 @@
+{
+  "passes": [
+    {
+      "id": "B-ac25:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: all 7 live checklist items have happy/edge/adversarial verificationIntent entries with matching passing verificationEvidence. Smoke source asserts ordinary validate pass while DONE-required missing artifact blocks, failing required command, stale material, policy drift, command-set drift, missing build proof, successful same-material build proof, and external no-policy advisory/non-blocking behavior; node packages/main/dist/tasks/done-required-validation-smoke.js and node scripts/verify-process-fact-contract.mjs both pass in review.",
+      "createdAt": "2026-06-20T10:19:20.902Z",
+      "reviewRound": "2026-06-20T10:16:31.865Z",
+      "reviewRunId": "B-ac25:RR-005",
+      "_hash": "9d4783f37f4b21c48c933b00b9e0602faec12f065575b49eac226c1382c60f08"
+    },
+    {
+      "id": "B-ac25:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs accuracy review: docs/requirements/decisions/done-full-test-gate-execution-plan.md, story-lifecycle.md, and testing-infra.md distinguish routine lattice validate from done_required_validate, keep external projects without policy advisory/no full-suite claim, state the self-host build-before-root-npm-test requirement, and do not claim B-ac25 implements release_approve_push, pre-push, Authority, or production receipt behavior.",
+      "createdAt": "2026-06-20T10:19:29.446Z",
+      "reviewRound": "2026-06-20T10:16:31.865Z",
+      "reviewRunId": "B-ac25:RR-006",
+      "_hash": "6c5982e99c00c15900e18e030ad71bc55ccd98a3a8ffd30c2127e16bcec6b7d0"
+    },
+    {
+      "id": "B-ac25:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected done-required runner/evidence evaluator, DONE oracle integration, handler/store boundaries, malformed opt-in config fail-closed behavior, build-before-root-test proof, and process-fact registration. Verified npm --prefix packages/main run build, done-required-validation smoke, process-fact contract, and targeted malformed-config fail-closed repro; no blocker found.",
+      "createdAt": "2026-06-20T10:22:17.986Z",
+      "reviewRound": "2026-06-20T10:16:31.865Z",
+      "reviewRunId": "B-ac25:RR-008",
+      "_hash": "f5a758ecbc6310e1cef2668108a8635bc4b5e1141bac1d3be576f65c677e2329"
+    },
+    {
+      "id": "B-ac25:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs re-review PASS. Verified docs state build proof is an explicit self-host policy via requiresBuildProof, external projects with plain root npm test do not inherit packages/main proof, missing policy remains advisory/no full-suite claim, and done_required_validate is not release approval, pre-push, Authority receipt, or production receipt completion. References: docs/requirements/decisions/done-full-test-gate-execution-plan.md:32,72,179,299; docs/requirements/decisions/story-lifecycle.md:191,275; docs/requirements/decisions/testing-infra.md:53-57.",
+      "createdAt": "2026-06-20T10:37:49.126Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-013",
+      "_hash": "fb91b40a44d915366be7540c6bedd400bee600466361711c1d9c9b8b45720b05"
+    },
+    {
+      "id": "B-ac25:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review PASS. Verified F-001 resolved: external opt-in root npm test no longer inherits packages/main build proof; self-host policy now uses explicit providesBuildProof/requiresBuildProof in lattice.config.json and gate logic only checks commands declaring requiresBuildProof. Scope extension is limited to scripts/verify-nested-worktree-bootstrap.mjs harness session env and does not change runtime owner-lease behavior. Commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs; node scripts/verify-nested-worktree-bootstrap.mjs; npm test.",
+      "createdAt": "2026-06-20T10:38:41.808Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-009",
+      "_hash": "88f9028622ba01c67fda213690fa42c681e85670dd8d5366a90eaf88517987c9"
+    },
+    {
+      "id": "B-ac25:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage re-review PASS. Verified the refreshed checklist has 21/21 passing verificationEvidence entries; smoke source covers external opt-in root npm test PASS without missing-build-proof, explicit self-host missing build proof blocking, and same-material packages/main build proof passing; commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/done-required-validation-smoke.js; npm test.",
+      "createdAt": "2026-06-20T10:38:55.569Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-011",
+      "_hash": "12ebb4c1cffc61ceccc1fedcccb87bc469b12a42016b7e3e814e2fcdb1f97afb"
+    },
+    {
+      "id": "B-ac25:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "quality pass: no blocker found. F-002 verified in packages/main/src/core/done-required-validation.ts:316 receipt coverage rechecks count/order plus command,args,cwd,shell,status,exitCode,timedOut; lines 523-541 fail closed on schema/story/status/policyHash/commandSetHash/materialHash/storyFilesHash and self-host build proof. Runner records receipts and hashes at lines 392-470. DONE oracle consumes a separate done-required-validation row at packages/main/src/core/done-oracle.ts:328. Self-host proof is explicit-only via requiresBuildProof/providesBuildProof in packages/main/src/core/done-required-validation.ts:368 and lattice.config.json:25. Smoke coverage in packages/main/src/tasks/done-required-validation-smoke.ts:196 covers forged receipts, drift, and external no-inheritance. Verified with node scripts/verify-process-fact-contract.mjs and node packages/main/dist/tasks/done-required-validation-smoke.js.",
+      "createdAt": "2026-06-20T10:53:50.659Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-018",
+      "_hash": "646dd373e39f7a7b4f6ee8dd7eae2623489c0e5f284f558e1dae1288fcfe86bb"
+    },
+    {
+      "id": "B-ac25:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review. F-005 is resolved: AGENTS.md distinguishes routine lattice validate from opt-in done_required_validate and states no-policy is advisory/no full-suite assurance (AGENTS.md:10-12, 88-89, 142-143, 258-259, 566-567). Requirements docs also preserve the boundary: testing-infra.md:53-57 and story-lifecycle.md:7,93,191,275 describe opt-in/advisory behavior; done-full-test-gate-execution-plan.md:32,76-83,186-188,300 states no-policy is non-blocking/no full-suite claim and B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override. Targeted searches found no M9-M12 or M4-M8 implemented claims, and Authority/Layer4/customerKeyRef references are exclusions or non-Authority disclaimers, not completed implementation claims.",
+      "createdAt": "2026-06-20T11:04:06.569Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-019",
+      "_hash": "beb8af7e1a500a14eacc40d442f549ceaf12b571a7d7cd32804d0bc7b65eb268"
+    },
+    {
+      "id": "B-ac25:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: rechecked B-ac25 after F-003/F-004 fixes. F-004 is covered by packages/main/src/tasks/done-required-validation-smoke.ts lines 310-323: it rewrites only storyFilesHash on otherwise current PASS evidence, asserts stale-storyFilesHash blocks, and asserts stale-material and stale-headHash are absent. F-003 is covered by lines 293-304 plus core evaluator lines 533-541: stale top-level headHash now blocks. Process contract coverage is mechanical in scripts/verify-process-fact-contract.mjs lines 1995-2047 and registries/policy keep done_required_validate plus artifact:done-required-evidence.json as L4 DONE gate evidence. verification_evidence_refresh_stale --dryRun reports no stale verification evidence for B-ac25. Full npm test/build/process-contract execution is recorded in resolved finding evidence as strong; TEST/DONE still must create normal test-evidence and done-required evidence, but no REVIEW coverage blocker remains.",
+      "createdAt": "2026-06-20T11:04:38.590Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-022",
+      "_hash": "ecd7626e2499bf055d87513ab0447de27c2faa94aa09f27c8e3c28a7246d6419"
+    },
+    {
+      "id": "B-ac25:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass. Rechecked done-required-validation.ts: evaluateDoneRequiredEvidence now compares evidence.headHash to currentHead, checks materialHash/storyFilesHash freshness, rejects policyHash/commandSetHash drift, validates receipt count/order/command/args/cwd/shell/status, and enforces explicit requiresBuildProof only when configured. DONE oracle consumes this as a separate done-required-validation row. AGENTS.md changes only clarify routine TEST lattice validate vs opt-in DONE-required evidence/no-full-suite-assurance. Verified locally: node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs. No blocker found.",
+      "createdAt": "2026-06-20T11:05:17.485Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-021",
+      "_hash": "aeea75c33623e4d8469adc59bf7026a50c57dd495998beebac37714461829b5f"
+    },
+    {
+      "id": "B-ac25:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: F-003 is fixed at DONE gate time because evaluateDoneRequiredEvidence compares done-required-evidence.json headHash to currentGitHead and smoke asserts stale-headHash with material/story hashes unchanged. F-001 remains fixed because packages-main build proof is only enforced for commands with explicit requiresBuildProof, so external root npm test policy is not overblocked. F-002 remains fixed because receipt count/order/command/args/cwd/shell/status/exit/timedOut are rechecked against policy commands before PASS. No changed implementation path adds release_approve_push, pre-push, Authority, customerKeyRef, or M4-M12/Layer4 production capability; done_required_validate is local DONE gate evidence only. Verified with node packages/main/dist/tasks/done-required-validation-smoke.js and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-20T11:06:25.634Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-020",
+      "_hash": "7280c45ca87ee8d287d5591d2a343757b8fa172fa5dc959d0c44634a701bab55"
+    },
+    {
+      "id": "B-ac25:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: scripts/verify-process-fact-contract.mjs:3300 accepts .lattice/story/actives/B-scope/done-required-evidence.json as a lifecycle artifact, and scripts/verify-process-fact-contract.mjs:3329 asserts the stable scope.lifecycle_artifact:B-scope:done-required-evidence.json row source/status/blocking contract. Verified commands PASS: npm --prefix packages/main run build; npm run test:process-fact-contract; npm run test:done-required-validation-smoke.",
+      "createdAt": "2026-06-20T11:28:17.245Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-025",
+      "_hash": "0efab2dea6a86d59257f167317deaa96ea1848a40afc8231919d322d3f37cf33"
+    },
+    {
+      "id": "B-ac25:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: latest classifier repair keeps done-required-evidence.json as a narrow lifecycle_artifact and DONE-required gate artifact. Source review: packages/main/src/core/lifecycle-registry.ts:312 registers it in LIFECYCLE_ARTIFACTS, packages/main/src/core/lifecycle-registry.ts:393 marks TEST produces, packages/main/src/core/lifecycle-registry.ts:398 marks DONE consumes, and packages/main/src/core/lifecycle-registry.ts:432 maps done-required-validation to done-required-evidence.json. The classifier remains closed-set/storyId-aware at packages/main/src/core/lifecycle-registry.ts:655 and scope-path-classifier only emits lifecycle_artifact from that registry at packages/main/src/core/scope-path-classifier.ts:76. DONE-required concept remains local opt-in: missing config is advisory and malformed opted-in config fail-closes in packages/main/src/core/done-required-validation.ts:212 and packages/main/src/core/done-required-validation.ts:480; done-oracle consumes a separate DONE-required row at packages/main/src/core/done-oracle.ts:328. Boundary not expanded: command-policy explicitly says done_required_validate never claims Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, release approval, or remote publish readiness at packages/main/src/core/command-policy.ts:203. Verification: node scripts/verify-process-fact-contract.mjs PASS and includes artifact:done-required-evidence.json as L4 artifact consumed by story_advance DONE done-required-validation gate. Current open F-006 is quality lane, not concept.",
+      "createdAt": "2026-06-20T11:30:01.208Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-027",
+      "_hash": "0af4c2543f880744b06354fe1aed3db6b39c920149d609347352e1770f94e042"
+    },
+    {
+      "id": "B-ac25:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs lane. Reviewed AGENTS.md, docs/requirements/decisions/done-full-test-gate-execution-plan.md, story-lifecycle.md, testing-infra.md, lifecycle-artifact-scope.md, and lifecycle/process-fact registry touchpoints. Docs distinguish routine lattice validate TEST evidence from opt-in done_required_validate DONE-required evidence: AGENTS.md:10-12,88-89,141-143; story-lifecycle.md:191,262,274-275; testing-infra.md:51-57,59-64; done-full-test-gate-execution-plan.md:32,74-89,336-345. No docs blocker: release/pre-push/Authority boundaries are explicit and not overclaimed: done-full-test-gate-execution-plan.md:295-300; story-lifecycle.md:192,275. M4-M12 are not described as implemented; lifecycle-artifact-scope.md:22-27 keeps them follow-up. Latest lifecycle artifact fix does not require additional docs: lifecycle-artifact-scope.md:18-27 and 31-47 define a registry-backed closed-set policy rather than an exhaustive filename list, while the new done-required-evidence.json artifact is already documented in the DONE-required flow docs and registered mechanically.",
+      "createdAt": "2026-06-20T11:31:26.152Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-028",
+      "_hash": "89991d8e259c8d9e02c6ac7b4a0b4878dd2c66cda3c2e1fb4950e3f14b775c56"
+    },
+    {
+      "id": "B-ac25:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "PASS. Current scope remains the DONE-required full-test validation gate, not future Layer4/M4-M12 work. F-001/F-003/F-006 are resolved: external project policy is explicit, stale headHash is blocked, and lifecycle registry facts for done-required-evidence are now mechanically asserted. Verified with npm --prefix packages/main run build, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/done-required-validation-smoke.js.",
+      "createdAt": "2026-06-20T11:38:29.399Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-029",
+      "_hash": "f1a962de00fea8de57172e6a6824a57cd0cbd74ff10f46df094414901f890d11"
+    },
+    {
+      "id": "B-ac25:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "PASS. The F-006 regression hole is closed in scripts/verify-process-fact-contract.mjs: it now asserts lifecycle artifact registration, TEST produces, DONE consumes, and the done-required-validation oracle artifact ref. Source inspection plus node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run build, and done-required smoke passed.",
+      "createdAt": "2026-06-20T11:38:38.962Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-030",
+      "_hash": "c37c2a736a24db10f697598abd7c6953caf6c937ec110e03dc95241580841f93"
+    },
+    {
+      "id": "B-ac25:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS. Coverage includes the new F-006 lifecycle-registry contract assertions plus DONE-required smoke cases for receipt coverage/identity/status, build-proof policy, stale headHash, stale storyFilesHash, stale materialHash, policy drift, and command-set drift. Verified with node scripts/verify-process-fact-contract.mjs and node packages/main/dist/tasks/done-required-validation-smoke.js after rebuilding packages/main.",
+      "createdAt": "2026-06-20T11:38:52.879Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-031",
+      "_hash": "be0c1346e509c019f49203512924e4d7652c8d10aea7b817e0775924bbe472ab"
+    },
+    {
+      "id": "B-ac25:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "PASS. Docs now distinguish routine TEST lattice validate from configured DONE-required validation and document the done-required-evidence lifecycle artifact. AGENTS.md, testing-infra.md, story-lifecycle.md, and the execution plan align with the implemented command, evidence artifact, advisory no-policy behavior, and self-host build/full-test boundary.",
+      "createdAt": "2026-06-20T11:39:01.936Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-032",
+      "_hash": "d74b5fde25229a4db9b19683adbc9cbba005bc328ac3c0d227d36a3294164f65"
+    }
+  ]
+}

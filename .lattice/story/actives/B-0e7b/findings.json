@@ -1,0 +1,199 @@
+{
+  "findings": [
+    {
+      "id": "B-0e7b:F-001",
+      "desc": "doc-code-drift: §2.2 FINDING schema declares severity as BLOCKER|MAJOR|MINOR, but §4.2 flow feeds confirmed Findings into finding_add, which only accepts severity critical|high|medium|low (cli/command-catalog.ts:1451, core/types.ts:532 Finding interface). BLOCKER/MAJOR/MINOR are not valid Lattice Finding severity values and would cause a Zod validation error at finding_add call time. The spec schema should either (a) use the actual Lattice severity enum critical|high|medium|low, or (b) explicitly state this is a methodological label layer that maps to Lattice severity before finding_add is called.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T11:04:38.953Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-002",
+      "_hash": "e6c78cd73ddbb8badde7e90d60e7407fa7b3652b57204c3736ea70a2c3db2be4",
+      "files": [
+        "docs/adversarial-review-spec.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-finding",
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.2 LEDGER-MAPPING subsection added: BLOCKER->critical/MAJOR->high/MINOR->medium; abstract methodology severity never reaches finding_add. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:45.621Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-002",
+      "desc": "doc-code-drift: §2.3 Verdict schema declares agreedSeverity as BLOCKER|MAJOR|MINOR|NOT_A_DEFECT. This is the same severity-label mismatch as §2.2: Lattice finding_add uses critical|high|medium|low, not BLOCKER/MAJOR/MINOR. Additionally, NOT_A_DEFECT is introduced in §2.3 without being part of the Finding severity enum. If Verdict.agreedSeverity is ever stored or mapped to a finding_add call, the BLOCKER/MAJOR/MINOR values cannot be passed directly. The spec needs to either use the Lattice severity vocabulary or explicitly define the translation layer between its methodological labels and Lattice severity values.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T11:04:45.777Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-002",
+      "_hash": "23a3b25c228e4c1b92526d81a8e80b449cf346913c31aa0f3bcbc12a74a39710",
+      "files": [
+        "docs/adversarial-review-spec.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-verdict",
+      "signatureTagSource": "auto",
+      "resolvedReason": "same mapping covers VERDICT.agreedSeverity. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:46.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-003",
+      "desc": "Codex MAJOR (lane list wrong): the spec names lattice-review-scope/test/delivery as REVIEW lanes, but review_run_start supports concept/quality/test-coverage/behavior/docs/channel; scope-plan + delivery are PLAN/DONE artifacts not review_run lanes. Fix §4.1/§5: use the actual supported REVIEW lanes, map each lens to one, describe scope-plan/delivery as separate PLAN/DONE artifacts (or mark a new completeness lane as FUTURE).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:14.906Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "9282d19d6c71c1e5f926ad1866af2849412347baa90e6136a3dde4cc2da235aa",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-lane",
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.1 lists the 6 real review_run_start lanes; §4.2 lens->lane table; scope-plan/delivery described as PLAN/DONE artifacts not REVIEW lanes. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:46.511Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-004",
+      "desc": "Codex MAJOR (critic data-flow contradiction): §2.4 says critic input={change,confirmedFindings} but §3.2 runs the critic BEFORE verifying raw lens findings and §4.2 shows verify/finding_add before the critic — contradictory, loop unbuildable. Fix: one canonical order (run lenses -> verify lens raw findings -> pass confirmed to critic -> verify critic findings -> converge/reopen) and make §2.4/§3.2/§4.2 consistent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:15.443Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "af0ba370cc9aee8943a5814d93fe925d493b9052188933bbc6ead9df5a34c457",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-critic",
+      "signatureTagSource": "auto",
+      "resolvedReason": "one canonical loop order frozen + made identical in §2.4/§3.2/§4.2: lenses->verify lens findings->critic on confirmed->verify critic findings->converge/reopen. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:46.925Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-005",
+      "desc": "Codex MAJOR (verifier rule not majority): M=2 with >=1 confirm is NOT a majority, conflicting with the default-refute/majority-confirm contract. Fix: define majority mechanically (confirmations >= floor(M/2)+1) OR rename to 'threshold/one-confirm' and make all language + S2 acceptance consistent with the chosen quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:15.908Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "515851e81b934f5ad6b0d550af0cf64e55907c7c319c83ba1fabfe3ae5aa9cd2",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-verifier",
+      "signatureTagSource": "auto",
+      "resolvedReason": "ledger mapping incl. {title,issue,fix}->desc + file->files[] + category + reviewRunId + agent. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:47.334Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-006",
+      "desc": "Codex MAJOR (full-3x2 over-specified): stated as claude-code host + codex host, but the protocol is '3 rounds x 2 INDEPENDENT PASS hosts' with identity/material/session/key bindings; provider names are diagnostic/example. Fix §4: define full-3x2 abstractly (3 rounds x 2 independent hosts + the binding requirements); use Claude+Codex only as THIS review's example.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:16.396Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "5db395fd7266e419067330e5896f5d11c609afba0c33baee6b2893a809045dcd",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-full",
+      "signatureTagSource": "auto",
+      "resolvedReason": "renamed to threshold-confirm (NOT majority), default T=1-of-2, consistent in §2.3/§4.4/§5 S2. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:47.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-007",
+      "desc": "Codex+docs MAJOR (Finding schema not wired to finding_add): §2.2/§2.3 use severity BLOCKER|MAJOR|MINOR and fields file/line/issue/fix, but finding_add expects critical|high|medium|low + desc + category + optional files + reviewRunId. §4/S4 says confirmed findings flow to finding_add but defines no mapping. Fix §2.2/§4.2: add an explicit ledger mapping (BLOCKER->critical/MAJOR->high/MINOR->medium-or-low; file+line+issue+fix -> desc + files; category selection; reviewRunId/agent attribution) — keep the abstract methodology severity but document the conversion at the integration boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:16.849Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "a77cada1037171259d8b00d41a893629ded07099889e1764cc42850d5626a96f",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-docs-major",
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.3 MVP critic provenance: main agent runs the critic, records confirmed findings via finding_add under an existing lane with --agent completeness-critic; reopen=normal DEV->REVIEW; dedicated lane FUTURE. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:48.162Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-008",
+      "desc": "Codex MAJOR (MVP critic has no ledger provenance): the critic is 'always present' and can reopen rounds, but the dedicated lattice-review-completeness lane is FUTURE and no MVP agent/lane/artifact is defined for confirmed critic findings (reviewer-evidence logic only counts supported lattice-review-* lanes). Fix §4.3/§4.4: define MVP critic provenance — either make a completeness lane MVP, OR map critic findings to a supported lane with clear attribution, OR a separate local reopen-signal/artifact; mark anything not available today as FUTURE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:17.290Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "a9843fce4bcf6c1d5f9035a58501b6f3489934891cc772771dff975458744ff4",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-critic",
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.1/§4.3/§5 S4 define full-3x2 abstractly (3 rounds x 2 independent PASS hosts + identity/material bindings); Claude+Codex as example only. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:48.567Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-009",
+      "desc": "MAJOR: §4.3 MVP critic provenance is incoherent with the ledger mechanics. It says record critic findings under an existing lane with --agent completeness-critic, but reviewer-evidence is keyed on agent.startsWith('lattice-review-') (review-run.ts); with agent='completeness-critic' the finding is stored as non-reviewer/main provenance, the lane/reviewRunId binding is NOT validated, and it won't count as reviewer-lane evidence under the six lanes. Fix: for MVP, record critic findings with the ACTUAL existing lane as --agent (e.g. lattice-review-quality or lattice-review-behavior) and put 'completeness-critic' in --desc (e.g. '[completeness-critic] ...') / signature metadata — NOT the agent field; a real structured provenance field / dedicated lattice-review-completeness lane stays FUTURE. Do not claim --agent completeness-critic counts as an existing REVIEW lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:17:13.452Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "2bbf9325f3d8e3a713678162c2b2fcaf93f16fc88360009ee446d53b092c967f",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|major-critic-provenance",
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.2/§4.3/§4.4/§5 S3 corrected: MVP critic findings are recorded with --agent set to a REAL lattice-review-* lane (quality/behavior) bound to that lane's reviewRunId, with [completeness-critic] provenance in --desc/signatureTag (NEVER --agent), since reviewer-evidence requires agent.startsWith('lattice-review-') (review-run.ts:83). Dedicated lattice-review-completeness lane + structured provenance = FUTURE. commit c710947c7.",
+      "resolvedAt": "2026-06-20T11:20:05.556Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "storyId": "B-ac25",
+  "checkedAt": "2026-06-20T11:14:55.211Z",
+  "reviewRound": "2026-06-20T11:01:07.967Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Routine TEST validation remains lattice validate, while opted-in DONE-required validation is a separate done_required_validate evidence path; missing policy is advisory, malformed opted-in config fails closed, and self-host root npm test requires an explicit packages-main-build proof.",
+      "status": "verified",
+      "verifiedBy": "rg + checklist/test evidence + docs review pass",
+      "evidence": "rg found testing-infra DONE-Required Validation section lines covering routine validate vs done_required_validate, advisory no-policy, receipt identity, and self-host build proof. checklist CHK-007/CHK-008 evidence passed; docs review pass notes testing-infra.md:53-57 verified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE requires routine validate PASS plus fresh opted-in DONE-required evidence when a project has doneRequiredCommands; done_required_validate is not release approval, pre-push, or Authority receipt completion.",
+      "status": "verified",
+      "verifiedBy": "rg + local DONE oracle projection",
+      "evidence": "rg found story-lifecycle entries for DONE-required validation fail path and separate evidence row. node bin/lattice.js done_closure --storyId=B-ac25 --json renders a separate done-required-validation row sourced from done-required-evidence.json with nextCommand lattice done_required_validate --storyId=B-ac25."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "B-ac25 implements doneRequiredCommands / validationProfiles.done plus separate done-required-evidence.json, configures self-host packages/main build before root npm test, and excludes release/pre-push/Authority production behavior.",
+      "status": "verified",
+      "verifiedBy": "git diff + lattice.config.json + test_list + review pass",
+      "evidence": "git diff shows the implementation boundary and exclusions in the execution plan. lattice.config.json has doneRequiredCommands: packages/main build providesBuildProof then root full test suite requiresBuildProof. test_list shows configured validate.commands[6] done-required-validation smoke passed and CHK-004/CHK-008 evidence covered."
+    },
+    {
+      "docPath": "AGENTS.md",
+      "promise": "Project instructions now distinguish routine lattice validate from opt-in DONE-required done_required_validate evidence and state no-policy is advisory/no full-suite assurance.",
+      "status": "verified",
+      "verifiedBy": "git diff + docs reviewer finding resolution",
+      "evidence": "git diff shows AGENTS.md lifecycle, TEST flow, command quick reference, and rules updated for routine validate vs done_required_validate. finding_list shows F-005 resolved as fixed with strong evidence; docs review pass cites AGENTS.md:10-12, 88-89, 142-143, 258-259, 566-567."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-008:configured-validation",
+      "transcript": "lattice test_list reports latest command lattice validate --story=B-ac25 --json with status pass/allPass true, timestamp 2026-06-20T11:08:25.955Z. All 12 configured validate.commands passed, including packages/main build and done-required-validation-smoke. Verification intent coverage is 21/21 covered, 0 required missing, covering CHK-001, CHK-002, CHK-003, CHK-004, CHK-006, CHK-007, and CHK-008; CHK-005 was deleted in INIT as overlap and split into CHK-007/CHK-008."
+    },
+    {
+      "featureId": "CHK-001..CHK-004,CHK-006:DONE-required-smoke",
+      "transcript": "done-required-validation-smoke passed in configured validate.commands[6] and checklist evidence. It covers doneRequiredCommands normalization, no-policy advisory behavior, malformed opted-in fail-closed config, PASS and FAIL evidence artifacts, receipt identity/count/order/status validation, stale head/material/storyFilesHash/policy/command-set rejection, missing-build-proof rejection, and external root npm test no-inheritance."
+    },
+    {
+      "featureId": "CHK-007..CHK-008:claim-boundary-docs-and-config",
+      "transcript": "Docs and config checks passed. CHK-007 evidence uses rg to verify routine validation evidence vs DONE-required evidence, advisory/non-blocking/no full-suite claim, and no release/pre-push/Authority implementation file changes. CHK-008 evidence confirms lattice.config.json has packages/main build first and root npm test second, and root npm test did not leak into ordinary validate.commands."
+    },
+    {
+      "featureId": "B-ac25:root-full-suite",
+      "transcript": "Root npm test PASS is recorded in REVIEW/finding evidence: review-passes notes for concept/test-coverage rounds list npm test among commands run, and finding_list F-001..F-005 resolvedReason entries cite npm test as part of strong verification. Delivery reviewer did not rerun npm test because the role is write-limited to delivery_check_set only."
+    },
+    {
+      "featureId": "B-ac25:done-required-gate-projection",
+      "transcript": "node bin/lattice.js done_closure --storyId=B-ac25 --json shows the new separate DONE-required row: id done-required-validation, source done-required-evidence.json, blocking true when missing, nextCommand lattice done_required_validate --storyId=B-ac25. This confirms DONE-required evidence is opt-in and separate, not a substitute for routine validate. The current artifact is missing, so this remains a DONE operational blocker, not delivery-check evidence."
+    },
+    {
+      "featureId": "B-ac25:3x2-review-assurance",
+      "transcript": "autopilot_review_status --runId=B-ac25-final-r1/r2/r3 --json reports status pass for each round with totalVerdicts=2, requiredHosts=2, independentHosts=2, passingIndependentHosts=2, failingIndependentHosts=0, staleVerdicts=0, duplicateVerdicts=0; hostIds are codex-cli and claude-code-cli. review_escalation_status --json reports voluntaryLocalRounds complete=true with validRoundCount=3 and the same two passing hosts per round. session_brief reports review assurance floor full-3x2."
+    },
+    {
+      "featureId": "B-ac25:findings-and-review-lanes",
+      "transcript": "finding_list --storyId=B-ac25 --json shows F-001 through F-005 all status resolved, evidenceState verified, resolutionType fixed, resolveEvidenceStrength strong. review-passes contain PASS notes for docs, quality, concept, and test-coverage lanes, including the final checks that no release/pre-push/Authority/Layer4/customerKeyRef scope overreach was added."
+    },
+    {
+      "featureId": "B-ac25:scope-warning-acknowledgement",
+      "transcript": "scope_contract_check --storyId=B-ac25 --json reports warn with acknowledged out_of_scope paths packages/main/package.json, packages/main/src/cli-engine.ts, and packages/main/src/core/config.ts. scope_contract_show records acknowledgement scope-ack:1: package.json exposes the smoke script, cli-engine.ts aligns static CLI inventory, and core/config.ts adds doneRequiredCommands schema/default availability; anchors state these are not release, pre-push, Authority, or external-project blocking behavior."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified docs promises, routine validate PASS, root npm test PASS evidence, DONE-required smoke coverage, 3x2 review assurance, resolved findings, and acknowledged scope warnings. Residual operational blockers remain visible outside this artifact: local done_closure says done-required-evidence.json is currently missing, story branch is behind main, story summary is missing, and PATH lattice 0.3.25 does not expose done_required_validate while node bin/lattice.js does."
+  },
+  "_hash": "a25ae767bd866645b5de4f6dc26cda23ec29d48a8ef39468c471b5f902d17efe"
+}

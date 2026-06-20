@@ -39,6 +39,7 @@ const requiredReviewerRunIdPromptFiles = new Set([
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
+const lifecycleRegistryPath = 'packages/main/src/core/lifecycle-registry.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -159,6 +160,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
+  { name: 'artifact:done-required-evidence.json', path: 'done-required-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
@@ -184,6 +186,24 @@ const requiredDecisionDocPromotionCommands = [
   'decision_doc_preview',
   'decision_doc_save',
 ];
+// B-b29e CHK-003 (F-001): the durable scope-contract.json the parallel-decomposition
+// hard gate reads at every DEV entry (machine.ts parallelDevEntryBlock →
+// parallelDecompositionEnforcedBlock → resolveAuditConfig().parallelGate +
+// safeReadScopeContract → computeWriteSet, consumed by canStartDevGuard/
+// canSkipPlanGuard/canReenterDevGuard) is WRITTEN only by the three producer
+// facts below (all call writeScopeContract). These L4 producers must therefore
+// name the parallel-decomposition DEV-entry gate in their gateConsumer — an L4
+// fact is a command that WRITES a gate-consumed fact. scope_contract_check is a
+// PURE READ (readScopeContract + buildScopeDiffPack, no writeScopeContract) and
+// produces nothing the gate consumes, so it is intentionally excluded. This
+// assertion is non-vacuous: dropping the registration from any of the three
+// producers in process-fact-levels.ts fails it.
+const scopeContractParallelDevEntryConsumerCommands = [
+  'scope_contract_set',
+  'scope_contract_acknowledge',
+  'scope_contract_init_from_plan',
+];
+const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV-entry gate/;
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
@@ -1247,6 +1267,28 @@ function assertInitializerPattern(initializer, label, pattern, message) {
   assert(pattern.test(initializer), `${processFactRegistryPath}: ${label} ${message}`);
 }
 
+function extractObjectPropertyBlock(objectText, propertyName, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\{`).exec(objectText);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return '';
+
+  const openIndex = match.index + match[0].lastIndexOf('{');
+  return extractBalancedBlock(objectText, openIndex, '{', '}', `${label} ${propertyName}`);
+}
+
+function assertArrayPropertyIncludesValue(block, propertyName, value, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\[`).exec(block);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return;
+
+  const openIndex = match.index + match[0].lastIndexOf('[');
+  const arrayBody = extractBalancedBlock(block, openIndex, '[', ']', `${label} ${propertyName}`);
+  assert(
+    new RegExp(`['"]${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(arrayBody),
+    `${label} ${propertyName} must include '${value}'`,
+  );
+}
+
 function assertProcessFactMappedSourceContracts(sourceText) {
   const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
   assertInitializerPattern(
@@ -1990,6 +2032,80 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
       assert(!registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${commandName} must not gain gate-evidence semantic`);
     }
   }
+}
+
+function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const commandName = 'done_required_validate';
+  assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
+
+  const policy = policyByName.get(commandName);
+  assert(policy, `${commandPolicyPath}: required DONE-required validation command missing lifecycle policy`);
+  if (policy) {
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must remain gateEvidence`);
+    assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(policy, 'storyScopedMutating'), `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`);
+    assert(/done-required-evidence\.json/.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name done-required-evidence.json`);
+    assert(/Missing policy is advisory\/non-blocking|advisory\/non-blocking/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep missing config advisory/non-blocking`);
+    assert(/malformed opted-in policy.*fail/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep malformed opted-in config fail-closed`);
+    assert(/never claims Authority receipt completion.*productionDone.*release approval/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep no-Authority/no-release boundary`);
+  }
+
+  const levelEntry = levelRegistry.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required DONE-required validation command missing level entry`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'validation', `${processFactLevelRegistryPath}: ${commandName} category must stay validation`);
+    assert(levelEntry.owner === 'handlers/done-required-validation', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(/DONE.*done-required-validation/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gate consumer must name DONE done-required-validation`);
+  }
+
+  const registryEntry = registry.get(commandName);
+  assert(registryEntry, `${processFactRegistryPath}: required DONE-required validation command missing registry entry`);
+  if (registryEntry) {
+    for (const semantic of ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing semantic ${semantic}`);
+    }
+    assert(registryEntry.artifact?.path === 'done-required-evidence.json', `${processFactRegistryPath}: ${commandName} must produce done-required-evidence.json`);
+    assert(registryEntry.artifact?.signed === false, `${processFactRegistryPath}: ${commandName} artifact must remain unsigned local evidence`);
+  }
+
+  const artifactEntry = registry.get('artifact:done-required-evidence.json');
+  assert(artifactEntry, `${processFactRegistryPath}: artifact:done-required-evidence.json registry entry missing`);
+  if (artifactEntry) {
+    assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: done-required artifact must stay L4`);
+    for (const semantic of ['artifact', 'validation-result', 'execution-evidence', 'schema-contract', 'gate-evidence']) {
+      assert(artifactEntry.semantics.includes(semantic), `${processFactRegistryPath}: done-required artifact missing semantic ${semantic}`);
+    }
+  }
+
+  const doneRequiredArtifact = 'done-required-evidence.json';
+  const lifecycleRegistryText = read(lifecycleRegistryPath);
+  const lifecycleArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ARTIFACTS', lifecycleRegistryPath);
+  assert(
+    new RegExp(`['"]${doneRequiredArtifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(lifecycleArtifactsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ARTIFACTS must include '${doneRequiredArtifact}'`,
+  );
+
+  const phaseArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_PHASE_ARTIFACTS', lifecycleRegistryPath);
+  const testPhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'TEST', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(testPhaseArtifacts, 'produces', doneRequiredArtifact, `${lifecycleRegistryPath}: TEST phase`);
+  const donePhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'DONE', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(donePhaseArtifacts, 'consumes', doneRequiredArtifact, `${lifecycleRegistryPath}: DONE phase`);
+
+  const oracleArtifactRefsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ORACLE_ARTIFACT_REFS', lifecycleRegistryPath);
+  assert(
+    /['"]done-required-validation['"]\s*:\s*['"]done-required-evidence\.json['"]/.test(oracleArtifactRefsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ORACLE_ARTIFACT_REFS must map 'done-required-validation' to '${doneRequiredArtifact}'`,
+  );
+
+  const coreText = read('packages/main/src/core/done-required-validation.ts');
+  for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'requiresBuildProof', 'providesBuildProof', 'materialHash', 'storyFilesHash', 'validateRequiredReceiptCoverage', 'receipt-count-mismatch', 'receipt-command-mismatch', 'receipt-status-fail']) {
+    assert(coreText.includes(token), `packages/main/src/core/done-required-validation.ts: required token missing: ${token}`);
+  }
+  const oracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(oracleText.includes("id: 'done-required-validation'"), 'packages/main/src/core/done-oracle.ts: DONE checklist must contain separate done-required-validation row');
+  assert(oracleText.includes('evaluateDoneRequiredEvidence'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume done-required evaluator');
 }
 
 function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
@@ -3235,6 +3351,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.lattice/story/actives/B-scope/decision-doc-proposals.json',
     '.lattice/story/actives/B-scope/scope-discard-digest.json',
     '.lattice/story/actives/B-scope/process-events.jsonl',
+    '.lattice/story/actives/B-scope/done-required-evidence.json',
     transcriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
@@ -3249,6 +3366,14 @@ async function assertLifecycleArtifactScopePolicy() {
     'B-997b lifecycle artifact row',
     row => row.id === 'scope.lifecycle_artifact:B-scope:summary.json'
       && row.source === '.lattice/story/actives/B-scope/summary.json'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
+  expectRow(
+    probe(['.lattice/story/actives/B-scope/done-required-evidence.json']),
+    'B-ac25 done-required lifecycle artifact row',
+    row => row.id === 'scope.lifecycle_artifact:B-scope:done-required-evidence.json'
+      && row.source === '.lattice/story/actives/B-scope/done-required-evidence.json'
       && row.status === 'pass'
       && row.blocking === false,
   );
@@ -3391,6 +3516,7 @@ function assertProcessFactCommandInventory() {
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
@@ -3449,6 +3575,42 @@ function assertProcessFactCommandInventory() {
     l4WithoutGate.length === 0,
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
+
+  // B-b29e CHK-003: the parallel-decomposition DEV-entry hard gate (machine.ts)
+  // reads each story's scope contract before every door into DEV, so the
+  // scope-contract L4 facts must register it as a gateConsumer. Reads the actual
+  // registration, so removing it from process-fact-levels.ts fails this check.
+  for (const commandName of scopeContractParallelDevEntryConsumerCommands) {
+    const entry = levelRegistry.get(commandName);
+    assert(
+      Boolean(entry),
+      `${processFactLevelRegistryPath}: scope-contract fact ${commandName} missing from registry`,
+    );
+    if (!entry) continue;
+    assert(
+      scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''),
+      `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name the parallel-decomposition DEV-entry gate (machine.ts parallelDevEntryBlock reads the scope contract before every DEV entry)`,
+    );
+  }
+
+  // B-b29e F-002: EXCLUSIVITY — only the three scope-contract producer facts may
+  // name the parallel-decomposition DEV-entry gate. The presence loop above
+  // guards that each producer still names the gate, but does NOT stop a
+  // non-producer (e.g. the pure-read scope_contract_check, the Round-1
+  // over-registration) from re-adding the edge. Scan EVERY process-fact entry and
+  // assert the set that names the gate equals exactly the producer set, so the
+  // drift check guards against the very regression it fixed.
+  const actualParallelDevEntryConsumers = levelRegistryEntries
+    .filter(entry => scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''))
+    .map(entry => entry.name)
+    .sort();
+  const expectedParallelDevEntryConsumers = [...scopeContractParallelDevEntryConsumerCommands].sort();
+  assert(
+    actualParallelDevEntryConsumers.length === expectedParallelDevEntryConsumers.length &&
+      actualParallelDevEntryConsumers.every((name, index) => name === expectedParallelDevEntryConsumers[index]),
+    `${processFactLevelRegistryPath}: ONLY the scope-contract producer facts (${expectedParallelDevEntryConsumers.join(', ')}) may name the parallel-decomposition DEV-entry gate, but got [${actualParallelDevEntryConsumers.join(', ')}] — a pure-read or unrelated fact must not claim a producer→gate edge the runtime does not have (offending: ${actualParallelDevEntryConsumers.filter(name => !expectedParallelDevEntryConsumers.includes(name)).join(', ') || '(none extra)'}; missing: ${expectedParallelDevEntryConsumers.filter(name => !actualParallelDevEntryConsumers.includes(name)).join(', ') || '(none)'})`,
+  );
+
   assertL4ProducerOrReplacement(levelRegistryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0e7b",
+  "mode": "feature",
+  "allowed": [
+    "docs/adversarial-review-spec.md: the full design spec (motivation+evidence, methodology+data-shapes, Lattice integration contract + MVP/future, implementation-program breakdown)"
+  ],
+  "excluded": [
+    "any code implementation of the capability (this is the SPEC story only; the build is a follow-on program the spec defines)",
+    "changing any existing Lattice review code (lattice-review-* lanes, machine.ts, escalation) — spec only",
+    "changing the parallel-decomposition program code (DONE/frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-requested: codify the adversarial multi-lens review capability; this story is the design-spec (doc) deliverable.",
+  "createdAt": "2026-06-20T10:46:50.933Z",
+  "updatedAt": "2026-06-20T10:46:50.933Z",
+  "_hash": "8eb5f48a83e5a4a1ef9f1c6175b37911156fbc08639a2d7449825a00dc6d7111"
+}

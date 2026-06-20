@@ -8,9 +8,83 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T09:59:27.912Z",
+      "endTime": "2026-06-20T10:11:15.347Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A project with doneRequiredCommands normalizes required command entries without changing ordinary validate.commands behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project without doneRequiredCommands remains valid and exposes no blocking DONE-required policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed opted-in doneRequiredCommands fail closed with a precise configuration error rather than silently becoming advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Config schema and normalization implemented in core/config.ts and core/done-required-validation.ts; smoke proves configured policy normalizes separately from ordinary validate.commands.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves projects without doneRequiredCommands render advisory/non-blocking DONE-required status.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact verifier pins malformed opted-in policy fail-closed semantics through done_required_validate policy/contract tokens.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +93,83 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:11:24.897Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_required_validate executes the configured required commands and writes done-required-evidence.json with PASS receipts, output digests, and bounded output tails.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A failing required command writes a FAIL artifact with command identity, exit code, digest/tail, and does not look like PASS evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Root npm test cannot satisfy self-host full assurance unless a preceding same-material packages/main build receipt or equivalent build proof exists.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke exercises done_required_validate runner writing done-required-evidence.json with PASS receipts for configured required commands.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke runs a failing required command and asserts a FAIL artifact with exit code and blocking evaluation.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves root npm test receipt without preceding same-material packages/main build proof is rejected with missing-build-proof.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +179,80 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:11:36.391Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/artifact-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE checklist renders a separate done-required-validation row that passes when fresh required evidence matches current material and policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Projects without a required DONE policy render an advisory/non-blocking row and do not block DONE solely for missing done-required evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Self-host required policy blocks DONE on missing, failing, stale material, stale storyFilesHash, or changed command/policy evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies a fresh PASS done-required-evidence.json makes the dedicated DONE-required row pass.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies projects without a required policy render advisory/non-blocking DONE-required status.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies required policy blocks on missing artifact, failing artifact, stale material, policy drift, command-set drift, and missing build proof.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -43,9 +262,80 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:11:45.723Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "process-fact registry, levels, and verifier include done_required_validate and done-required-evidence.json as L4 DONE gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The contract verifier fails if the DONE-required artifact or command policy is removed or downgraded from gate evidence semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The new fact registration must not claim Authority receipt completion, productionDone, or release approval semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Verifier confirms done_required_validate and artifact:done-required-evidence.json are registered as L4 gate evidence with required semantics.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Verifier has targeted assertions for command policy, registry artifact path, semantic facts, and oracle row tokens so removal/downgrade fails the contract.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Verifier and command policy assert no Authority receipt completion, productionDone, release approval, or remote publish claim for done_required_validate.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -55,9 +345,80 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:11:54.180Z",
+      "files": {
+        "modify": [
+          "package.json",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke coverage proves ordinary validate.commands can pass while DONE-required failure still blocks DONE for required policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke coverage proves missing artifact, stale material/policy/command-set, and missing build receipt are each rejected with explicit reasons.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke coverage proves an external project without doneRequiredCommands gets only advisory/non-blocking DONE-required status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves ordinary test-evidence PASS can coexist with missing DONE-required artifact that blocks required policy.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers missing artifact, stale material, policy drift, command-set drift, and missing build receipt rejection.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers fixture project without doneRequiredCommands and asserts advisory/non-blocking DONE-required row.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -74,9 +435,78 @@
         "Authority production receipts",
         "emergency override implementation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:14:56.430Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Lifecycle/testing docs clearly distinguish ordinary lattice validate evidence from DONE-required full-suite evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs state external projects without doneRequiredCommands are advisory/non-blocking by default.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply release_approve_push, pre-push, Authority, or production receipt behavior was implemented in this story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"routine validation evidence|DONE-required evidence|done_required_validate\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
+          "result": "pass",
+          "note": "Docs distinguish lattice validate as routine TEST evidence from done_required_validate as separate DONE-required evidence.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"advisory/non-blocking|advisory and non-blocking|no full-suite claim\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
+          "result": "pass",
+          "note": "Docs state external projects without doneRequiredCommands are advisory/non-blocking and must not claim full-suite assurance.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
+          "result": "pass",
+          "note": "Changed docs explicitly say this story does not implement release approval, pre-push, Authority, or production receipt behavior; changed-file check confirms those implementation surfaces were not touched.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -92,9 +522,77 @@
         "external project default blocking behavior",
         "Authority production receipts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T10:15:27.216Z",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The self-host repository config opts into a required DONE policy with packages/main build before root npm test or equivalent same-material build proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Self-host policy configuration does not alter ordinary validate.commands and does not make external projects blocking by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The self-host config item does not modify release_approve_push, .githooks/pre-push, or Authority production receipt behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); if(!Array.isArray(cfg.doneRequiredCommands)||cfg.doneRequiredCommands.length!==2) throw new Error(\\\"doneRequiredCommands missing\\\"); const a=cfg.doneRequiredCommands[0], b=cfg.doneRequiredCommands[1]; if(a.command!==\\\"npm\\\"||a.args.join(\\\" \\\")!==\\\"--prefix packages/main run build\\\") throw new Error(\\\"missing packages/main build first\\\"); if(b.command!==\\\"npm\\\"||b.args.join(\\\" \\\")!==\\\"test\\\") throw new Error(\\\"missing root npm test second\\\"); console.log(\\\"self-host doneRequiredCommands config ok\\\");\"",
+          "result": "pass",
+          "note": "Self-host lattice.config.json opts into DONE-required policy with packages/main build before root npm test.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); const validate=(cfg.validate&&cfg.validate.commands)||[]; if(validate.some(x=>typeof x===\\\"string\\\"?x===\\\"npm test\\\":x.command===\\\"npm\\\"&&Array.isArray(x.args)&&x.args.join(\\\" \\\")===\\\"test\\\")) throw new Error(\\\"root npm test leaked into validate.commands\\\"); console.log(\\\"validate.commands unchanged by full-suite requirement\\\");\" && node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Root npm test is not in ordinary validate.commands; smoke proves external projects without policy remain advisory/non-blocking.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
+          "result": "pass",
+          "note": "Self-host config change did not touch release_approve_push, pre-push hook, or Authority production receipt implementation files.",
+          "headHash": "3c81a6f5956aa02adedfed67dbc9d7d89ec579da",
+          "materialHash": "162f295d42e1f00bed0bedcd3a7432de16a9817ee6b4e5a05671908364f87465",
+          "storyFilesHash": "c958e44c94d698bca61d9501a5988c82bfd4e1060dac9132fbe8a6146c76dbac",
+          "timestamp": "2026-06-20T11:36:02.346Z"
+        }
+      ]
     }
   ],
   "auditLog": [
