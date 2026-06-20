@@ -1,0 +1,281 @@
+{
+  "command": "lattice validate --story=B-0e7b --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.25 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — docs/adversarial-review-spec.md §1 motivates the capability and cites the S4(B-fa7c)/S5(B-086b)/B-b29e defects with story IDs; WHY: the evidence grounds the methodology\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — each cited defect is attributed to the component that actually filed it (S4 crash=quality/crashsafe lens; S5 express+rollback doors=completeness critic; B-b29e over-registration=critic), verifiable against findings.json; WHY: mis-attribution destroys credibility (INIT-003)\",\"  ✓ CHK-001:adversarial:0 [adversarial/should/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — the section does NOT overclaim that single-pass review is useless — it argues single-pass MISSES integration-level defects, which the cited evidence supports; WHY: honest framing\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — §2/§3 define the data shapes: lens, finding{severity,file,line,issue,fix}, verdict{isReal,agreedSeverity,reasoning}; WHY: a builder needs concrete schemas\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — the per-finding adversarial-verification rule is precise (M skeptics, default-refute, the majority-confirm threshold) and the completeness-critic contract + convergence criterion are stated unambiguously; WHY: these are the core novel mechanics\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — the methodology is defined as a Lattice review MODE, NOT as a dependency on the harness Workflow tool; WHY: must be implementable inside Lattice\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — §4 defines how the capability composes the existing lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation; WHY: compose, do not reinvent\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — §4 has an explicit MVP-vs-future split with every future surface labeled not-yet-implemented; and states how a critic-reopened round binds to the escalation ledger + materialHash freshness; WHY: honesty + the trickiest integration detail\",\"  ✓ CHK-003:adversarial:0 [adversarial/should/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — full-3x2 is defined inline (3 rounds x 2 independent PASS hosts); WHY: standalone-readable\",\"  ✓ CHK-004:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — §5 gives the contract-first implementation-program breakdown — each build story with a scope, dependencies, and acceptance, mirroring the parallel-decomposition §8 shape; WHY: enables parallel contract-first implementation\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — §5 freezes enough (schemas from §2/§3 + the story deps) that the follow-on B-impl program can proceed WITHOUT re-designing the contract; WHY: the spec must settle the design decisions\",\"  ✓ CHK-004:adversarial:0 [adversarial/should/docs] covered via docs_check verdict=success (docs/adversarial-review-spec.md) — the breakdown distinguishes the MVP stories from optional/future ones; WHY: bounded build\"],\"warnings\":[],\"timestamp\":\"2026-06-20T11:01:45.061Z\",\"headSha\":\"3b80d93f0bbeb8b0024265a0cfe9ba8a9cfadf69\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.25 build\\n> tsc\\n\\n\",\"durationMs\":5829},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":197},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":185},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12472},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":541},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4101},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":164},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":104},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":112},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":112},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1256}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":9,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"docs/adversarial-review-spec.md §1 motivates the capability and cites the S4(B-fa7c)/S5(B-086b)/B-b29e defects with story IDs; WHY: the evidence grounds the methodology\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§1 motivates + cites S4/B-fa7c, S5/B-086b, B-b29e defects with story IDs.\",\"headHash\":\"a138466f869b3033166ee873ec9e0e4d1cf978c3\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:13.898Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"each cited defect is attributed to the component that actually filed it (S4 crash=quality/crashsafe lens; S5 express+rollback doors=completeness critic; B-b29e over-registration=critic), verifiable against findings.json; WHY: mis-attribution destroys credibility (INIT-003)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§1.2 attributes each defect to its filing component (S4 crash=claude-quality lens; S5 doors=completeness critic; B-b29e=critic), verified by the implementer against findings.json.\",\"headHash\":\"508c5d6d00c41e439818f04ce684480582c991cf\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:14.358Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"the section does NOT overclaim that single-pass review is useless — it argues single-pass MISSES integration-level defects, which the cited evidence supports; WHY: honest framing\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§1.3 frames honestly — single-pass misses integration-level defects, not 'useless'.\",\"headHash\":\"76c1dd42c2cd9420c8d9c24e53499a07b488fd5f\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:14.809Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"§2/§3 define the data shapes: lens, finding{severity,file,line,issue,fix}, verdict{isReal,agreedSeverity,reasoning}; WHY: a builder needs concrete schemas\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§2 defines LENS, FINDING{severity,file,line,issue,fix}, VERDICT{isReal,agreedSeverity,reasoning}.\",\"headHash\":\"87c02ea0fb5c741697665f957f924813f17927f1\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:15.266Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"the per-finding adversarial-verification rule is precise (M skeptics, default-refute, the majority-confirm threshold) and the completeness-critic contract + convergence criterion are stated unambiguously; WHY: these are the core novel mechanics\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§2.3/§2.4 define the M-skeptic default-refute majority-confirm rule + completeness-critic contract + §3 convergence criterion.\",\"headHash\":\"c4b7a341223d6f13dcde5588a1fd57a8f79b1998\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:15.720Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"the methodology is defined as a Lattice review MODE, NOT as a dependency on the harness Workflow tool; WHY: must be implementable inside Lattice\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§3.3 defines the methodology as a Lattice review MODE, harness-independent (not a Workflow-tool dependency).\",\"headHash\":\"7e1c748777ad4c27c65f567f22d9074922685f46\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:16.218Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"§4 defines how the capability composes the existing lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation; WHY: compose, do not reinvent\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§4 composes lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation.\",\"headHash\":\"243b4d046cba635aabf3cd8537355a294bf14431\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:16.729Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"§4 has an explicit MVP-vs-future split with every future surface labeled not-yet-implemented; and states how a critic-reopened round binds to the escalation ledger + materialHash freshness; WHY: honesty + the trickiest integration detail\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§4.4 MVP-vs-future table (future labeled not-yet-implemented) + §4.3 critic-reopen->ledger/materialHash binding + §4.5 local-verdicts-not-Authority note.\",\"headHash\":\"e62c989c2c05837331245b1e95817802e8b2980e\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:17.196Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"full-3x2 is defined inline (3 rounds x 2 independent PASS hosts); WHY: standalone-readable\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"full-3x2 defined inline (3 rounds x 2 independent PASS hosts claude-code+codex).\",\"headHash\":\"ee47833bec7a6ff1526b5134d1700df829af8d94\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:17.653Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"§5 gives the contract-first implementation-program breakdown — each build story with a scope, dependencies, and acceptance, mirroring the parallel-decomposition §8 shape; WHY: enables parallel contract-first implementation\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§5 implementation-program breakdown S0..S4 each with scope/deps/acceptance, mirroring parallel-decomposition §8.\",\"headHash\":\"b3997d7b36fd52aef3ff6ce42aff3a9650857d4b\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:18.112Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"§5 freezes enough (schemas from §2/§3 + the story deps) that the follow-on B-impl program can proceed WITHOUT re-designing the contract; WHY: the spec must settle the design decisions\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§5 freezes §2/§3 schemas as the contract so the follow-on build proceeds without re-design.\",\"headHash\":\"50a61fb7dca3548a8fe608fa899e22a921c2e5c5\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:18.580Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"the breakdown distinguishes the MVP stories from optional/future ones; WHY: bounded build\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/adversarial-review-spec.md\",\"command\":\"grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md\",\"result\":\"pass\",\"note\":\"§5 marks MVP vs optional/future stories.\",\"headHash\":\"b769a36c6773d6777e74b79ddf97d87365e658bd\",\"materialHash\":\"644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193\",\"storyFilesHash\":\"2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb\",\"timestamp\":\"2026-06-20T11:01:19.385Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T11:01:45.993Z",
+  "headHash": "3b80d93f0bbeb8b0024265a0cfe9ba8a9cfadf69",
+  "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+  "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 9,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "docs/adversarial-review-spec.md §1 motivates the capability and cites the S4(B-fa7c)/S5(B-086b)/B-b29e defects with story IDs; WHY: the evidence grounds the methodology",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§1 motivates + cites S4/B-fa7c, S5/B-086b, B-b29e defects with story IDs.",
+          "headHash": "a138466f869b3033166ee873ec9e0e4d1cf978c3",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:13.898Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "each cited defect is attributed to the component that actually filed it (S4 crash=quality/crashsafe lens; S5 express+rollback doors=completeness critic; B-b29e over-registration=critic), verifiable against findings.json; WHY: mis-attribution destroys credibility (INIT-003)",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§1.2 attributes each defect to its filing component (S4 crash=claude-quality lens; S5 doors=completeness critic; B-b29e=critic), verified by the implementer against findings.json.",
+          "headHash": "508c5d6d00c41e439818f04ce684480582c991cf",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:14.358Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "the section does NOT overclaim that single-pass review is useless — it argues single-pass MISSES integration-level defects, which the cited evidence supports; WHY: honest framing",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§1.3 frames honestly — single-pass misses integration-level defects, not 'useless'.",
+          "headHash": "76c1dd42c2cd9420c8d9c24e53499a07b488fd5f",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:14.809Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "§2/§3 define the data shapes: lens, finding{severity,file,line,issue,fix}, verdict{isReal,agreedSeverity,reasoning}; WHY: a builder needs concrete schemas",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§2 defines LENS, FINDING{severity,file,line,issue,fix}, VERDICT{isReal,agreedSeverity,reasoning}.",
+          "headHash": "87c02ea0fb5c741697665f957f924813f17927f1",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:15.266Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "the per-finding adversarial-verification rule is precise (M skeptics, default-refute, the majority-confirm threshold) and the completeness-critic contract + convergence criterion are stated unambiguously; WHY: these are the core novel mechanics",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§2.3/§2.4 define the M-skeptic default-refute majority-confirm rule + completeness-critic contract + §3 convergence criterion.",
+          "headHash": "c4b7a341223d6f13dcde5588a1fd57a8f79b1998",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:15.720Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "the methodology is defined as a Lattice review MODE, NOT as a dependency on the harness Workflow tool; WHY: must be implementable inside Lattice",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§3.3 defines the methodology as a Lattice review MODE, harness-independent (not a Workflow-tool dependency).",
+          "headHash": "7e1c748777ad4c27c65f567f22d9074922685f46",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:16.218Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "§4 defines how the capability composes the existing lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation; WHY: compose, do not reinvent",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§4 composes lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation.",
+          "headHash": "243b4d046cba635aabf3cd8537355a294bf14431",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:16.729Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "§4 has an explicit MVP-vs-future split with every future surface labeled not-yet-implemented; and states how a critic-reopened round binds to the escalation ledger + materialHash freshness; WHY: honesty + the trickiest integration detail",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§4.4 MVP-vs-future table (future labeled not-yet-implemented) + §4.3 critic-reopen->ledger/materialHash binding + §4.5 local-verdicts-not-Authority note.",
+          "headHash": "e62c989c2c05837331245b1e95817802e8b2980e",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:17.196Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "full-3x2 is defined inline (3 rounds x 2 independent PASS hosts); WHY: standalone-readable",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "full-3x2 defined inline (3 rounds x 2 independent PASS hosts claude-code+codex).",
+          "headHash": "ee47833bec7a6ff1526b5134d1700df829af8d94",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:17.653Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "§5 gives the contract-first implementation-program breakdown — each build story with a scope, dependencies, and acceptance, mirroring the parallel-decomposition §8 shape; WHY: enables parallel contract-first implementation",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§5 implementation-program breakdown S0..S4 each with scope/deps/acceptance, mirroring parallel-decomposition §8.",
+          "headHash": "b3997d7b36fd52aef3ff6ce42aff3a9650857d4b",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:18.112Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "§5 freezes enough (schemas from §2/§3 + the story deps) that the follow-on B-impl program can proceed WITHOUT re-designing the contract; WHY: the spec must settle the design decisions",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§5 freezes §2/§3 schemas as the contract so the follow-on build proceeds without re-design.",
+          "headHash": "50a61fb7dca3548a8fe608fa899e22a921c2e5c5",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:18.580Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "the breakdown distinguishes the MVP stories from optional/future ones; WHY: bounded build",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§5 marks MVP vs optional/future stories.",
+          "headHash": "b769a36c6773d6777e74b79ddf97d87365e658bd",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:19.385Z"
+        }
+      }
+    ]
+  }
+}
