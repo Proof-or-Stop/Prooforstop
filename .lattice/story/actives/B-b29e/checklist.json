@@ -48,10 +48,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "lifecycle-registry.ts gates arrays for INIT_CHECK/PLAN/REVIEW/TEST->DEV now include 'parallel-decomposition'; the extended drift check asserts the registration (passes).",
-          "headHash": "5861409cc02710db54b6560f22fb0e30f3757114",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:47.784Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "git show",
           "result": "pass",
           "note": "the two legacy TEST_CASE->DEV / TEST_CASE_REVIEW->DEV entries (gates:[]) were left untouched — only the 4 runtime doors registered.",
-          "headHash": "12f9c0b3880aee0766cd81b6506a1d3f60d67fb4",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:48.322Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/cli.js validate",
           "result": "pass",
           "note": "lattice validate all green incl. the unchanged 50-assertion integration smoke -> runtime behavior provably unchanged by the metadata edit.",
-          "headHash": "ea2fab56339584d2b623be42f0d0dad477590ee5",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:48.811Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "process-fact-levels.ts gateConsumer of the scope_contract L4 facts now names the parallel-decomposition DEV-entry gate; drift check passes.",
-          "headHash": "96f80849851d2a3f050f77d35648f7b27ce20090",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:49.311Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,10 +142,10 @@
           "command": "git show",
           "result": "pass",
           "note": "additive gateConsumer string extension matching the existing free-text shape; other fact consumers unchanged.",
-          "headHash": "03c28eb2b96000d7eb6adda09366d9993fd02fdb",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:49.804Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "the existing process-fact contract assertions still pass (no existing fact broken).",
-          "headHash": "8beaf4913b606d72f8f780719ed96d26b32c0b1a",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:50.302Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         }
       ]
     },
@@ -210,10 +210,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "npm run test:process-fact-contract passes with the new assertion that scope_contract_set gateConsumer names the parallel DEV-entry gate.",
-          "headHash": "6a659d8c49252a92e4fa27e433ffbf9dc6eebfdc",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:50.805Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,10 +223,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "the assertion reads the ACTUAL gateConsumer registration (regex), not a constant.",
-          "headHash": "b3cc9090e9716fd85bb9c507daf62f202c5f8e20",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:51.296Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,10 +236,10 @@
           "command": "npm --prefix . run test:process-fact-contract",
           "result": "pass",
           "note": "NON-VACUITY PROVEN by the implementer: reverting the gateConsumer to original -> drift check FAILS exit=1; restoring -> exit=0 PASS.",
-          "headHash": "b0aa44c0221546f2b5fb54a6d938c72dc50f1b72",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:12:51.813Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         }
       ]
     },
@@ -291,10 +291,10 @@
           "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
           "result": "pass",
           "note": "spec section 8.1 notes the gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs (grep confirms the note present).",
-          "headHash": "070b50e170fd973825545991029ac6a84d059e61",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:13:41.229Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -304,10 +304,10 @@
           "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
           "result": "pass",
           "note": "the note names the 4 runtime doors (INIT_CHECK/PLAN/REVIEW/TEST) and explicitly excludes the 2 legacy TEST_CASE to:DEV entries.",
-          "headHash": "25fe152ee0ccb4b6d0d717481b653c44da3d55c1",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:13:41.737Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -317,10 +317,10 @@
           "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
           "result": "pass",
           "note": "the note is accurate vs the actual registrations: 4 doors in lifecycle-registry + the scope-contract gateConsumer + the drift-check assertion.",
-          "headHash": "6c07fba66bc5729f23430d37078d9067f0be8e67",
-          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
-          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
-          "timestamp": "2026-06-20T10:13:42.228Z"
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
         }
       ]
     }
