@@ -39,7 +39,30 @@
       "userSees": "A grep shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/record/adapters/streaming (own-property checks or routed via the chokepoint). Behavior for legitimate own-property usage data is unchanged. npm test exits 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A grep over assemble/dispatch/adapters/streaming/record shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects — each is Object.prototype.hasOwnProperty.call or routed through the chokepoint.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "record.ts validator `in`-conversion (493/546) preserves identical validation behavior for legitimate own-property usage data (B-253e rules unchanged); full npm test (which exercises the validator) green.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator, streaming merge) do NOT treat an inherited key as present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
