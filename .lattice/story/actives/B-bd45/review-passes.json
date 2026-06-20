@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T21:30:05.830Z",
       "reviewRunId": "B-bd45:RR-009",
       "_hash": "1d3359ada75c56485dc3ebf2968774bca9c3cd01247e66e1c24a1e10b90e17a1"
+    },
+    {
+      "id": "B-bd45:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review PASS. Scope changed since prior pass only in packages/main/src/core/process-fact-levels.ts and scripts/verify-process-fact-contract.mjs. lifecycle_check is registered as L0/readiness-read in process-fact levels and remains readOnly in command policy; handler rejects runCommands/writeEvidence before store reads. Contract verifier now reads the actual MAIN_TOOLS source packages/main/src/cli/command-catalog.ts while preserving command-policy, phase, process-fact registry, and required command assertions. Verified with node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:lifecycle-check-smoke.",
+      "createdAt": "2026-06-20T21:33:01.870Z",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "reviewRunId": "B-bd45:RR-010",
+      "_hash": "8070324e601ed640396114dc20ac2c0d32cd9ae98ff50df115f927f429381b35"
     }
   ]
 }
