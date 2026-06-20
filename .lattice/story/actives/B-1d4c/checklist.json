@@ -66,9 +66,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T19:27:01.728Z",
       "userSees": "✓ CHK-002 complete: supersession detection is exposed in handoff pack for completed/superseded plans.",
       "files": {
         "modify": [
@@ -100,7 +100,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Host preflight bundle computes supersession metadata and signal states.",
+          "headHash": "917059d95d71b616e16f68870f33e8a91a510f39",
+          "materialHash": "a78ccddb59536d22059f7cf38456419d1ad3a4bdc27009803f5979fb9907abfc",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T19:27:01.835Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
