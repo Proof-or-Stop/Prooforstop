@@ -90,6 +90,23 @@
       ],
       "signatureTag": "doc-code-drift|md|codex-major-verifier",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0e7b:F-006",
+      "desc": "Codex MAJOR (full-3x2 over-specified): stated as claude-code host + codex host, but the protocol is '3 rounds x 2 INDEPENDENT PASS hosts' with identity/material/session/key bindings; provider names are diagnostic/example. Fix §4: define full-3x2 abstractly (3 rounds x 2 independent hosts + the binding requirements); use Claude+Codex only as THIS review's example.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:16.396Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "5db395fd7266e419067330e5896f5d11c609afba0c33baee6b2893a809045dcd",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-full",
+      "signatureTagSource": "auto"
     }
   ]
 }
