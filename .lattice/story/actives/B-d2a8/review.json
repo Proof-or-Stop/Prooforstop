@@ -1,0 +1,74 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-20T05:24:15.735Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Populate AuditConfig.parallelGate in resolveAuditConfig: per-profile defaults + a resolveParallelGate(raw, profileDefault) helper validating the nested object field-by-field (mode/maxConcurrentReview/broadGlobBlocks) with guards and fallbacks per spec 4.7 + Hermetic smoke: per-profile defaults resolve correctly, each sub-field override is honored, and each malformed sub-field warns and falls back (config never crashes) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: resolveParallelGate signature: spec 4.7 illustrates one param (raw?), but a two-param form resolveParallelGate(raw, profileDefault) keeps the helper pure and decoupled from the profile-default table (INIT-001). Decided: use the two-param form and document the deliberate improvement."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "2206cf2ba9c09ad1edfba92ddfd1efbd9e7c7cd41c7b88b94bbe5d5703e16a70"
+    },
+    {
+      "timestamp": "2026-06-20T05:24:36.590Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Populate AuditConfig.parallelGate in resolveAuditConfig: per-profile defaults + a resolveParallelGate(raw, profileDefault) helper validating the nested object field-by-field (mode/maxConcurrentReview/broadGlobBlocks) with guards and fallbacks per spec 4.7 + Hermetic smoke: per-profile defaults resolve correctly, each sub-field override is honored, and each malformed sub-field warns and falls back (config never crashes) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: resolveParallelGate signature: spec 4.7 illustrates one param (raw?), but a two-param form resolveParallelGate(raw, profileDefault) keeps the helper pure and decoupled from the profile-default table (INIT-001). Decided: use the two-param form and document the deliberate improvement."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "a92525dd610f6f4d50a607c581896bb42f9937c59d2e7ddb8629749965cffb5e"
+    }
+  ]
+}

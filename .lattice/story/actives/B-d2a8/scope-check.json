@@ -1,0 +1,154 @@
+{
+  "storyId": "B-d2a8",
+  "checkedAt": "2026-06-20T05:27:25.159Z",
+  "features": [
+    {
+      "feature": "parallelGate field added to AuditConfig with sub-fields mode/maxConcurrentReview/broadGlobBlocks",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "VALID_PARALLEL_MODES constant (advise/block/off) defined for mode validation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "mode field validated against VALID_PARALLEL_MODES; invalid -> console.warn + fallback advise",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "maxConcurrentReview integer->=1 guard; invalid -> warn + profile default",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "broadGlobBlocks boolean guard; invalid -> profile default",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "dedicated resolveParallelGate helper for nested-object validation (not flat-scalar verbatim copy)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "missing or non-object raw input yields all profile defaults (no crash)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "per-profile defaults table: light=advise/2/false, balanced=advise/3/false, strict=block/4/true",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "resolution priority: per-field override in .lattice/audit-config.json, then profile default, then hardcoded fallback",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "mode:off disables both behaviors (reversible escape hatch)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "no-user-config early-return path in resolveAuditConfig still carries a populated parallelGate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "hermetic smoke test exercising per-profile defaults, valid override, invalid-mode fallback, non-integer maxConcurrentReview fallback, non-boolean broadGlobBlocks fallback, non-object parallelGate fallback",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "smoke registered in lattice.config.json validate.commands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "S3 scope disjoint from S4 (lattice-parallel-wave.ts, story-review.ts) and S5 (machine.ts, parallel-decomposition.ts wiring) - enforced by CHK-001 modify-only audit-config.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "evaluateDecompositionGate and canStartDevGuard wiring (S5 scope, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description states disjoint from S5 (machine.ts, parallel-decomposition.ts); S5 owns the gate wiring",
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "resolveWaveSafety scope_glob_overlap degradation and story-review.ts advisory injection (S4 scope, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description states disjoint from S4 (lattice-parallel-wave.ts, story-review.ts)",
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "computeWriteSet and globsOverlap static overlap engine (S1 scope, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "S1 owns parallel-decomposition.ts impl region for overlap engine; B-d2a8 is S3 (config resolution only)",
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "evaluateDecompositionGate implementation (S2 scope, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "S2 owns evaluateDecompositionGate implementation; B-d2a8 is S3 (config resolution only)",
+      "source": "decisions:decisions/../parallel-decomposition-spec.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 14,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "946eb35ffa5bcce5b6aee72a4fe1966fdc02ae38cf39f55e2e6058297779277f",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "resolveParallelGate signature mismatch: spec section 4.7 line 372 defines the helper as resolveParallelGate(raw?: unknown): ParallelGateConfig (one parameter), but CHK-001 title and verificationIntent both call a two-parameter form resolveParallelGate(raw, profileDefault). INIT-001 flagged this and the story understanding recorded a deliberate decision to use the two-param form to keep the helper pure/decoupled. The decided deviation is noted as an improvement but the signature must be consistently documented so S5 integration (canStartDevGuard wiring) knows the actual public API.",
+      "evidence": "spec section 4.7 line 372: resolveParallelGate(raw?: unknown): ParallelGateConfig; CHK-001 title: resolveParallelGate(raw, profileDefault); INIT-001 decision: use two-param form as deliberate improvement",
+      "sourcePointers": [
+        "docs/parallel-decomposition-spec.md:372",
+        "B-d2a8 CHK-001 title",
+        "B-d2a8 init-check.json INIT-001"
+      ]
+    }
+  ]
+}
