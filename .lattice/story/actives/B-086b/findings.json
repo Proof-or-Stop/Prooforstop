@@ -134,7 +134,7 @@
       "desc": "MINOR: formatParallelDecompositionBlock's overlap recompute (~369-372) uses globsOverlap(...).pairs.find(([a,b])=>a===b), but globsOverlap.pairs includes tier-2 shared-prefix/wildcard matches, so two identical WILDCARD entries (e.g. 'src/x/*'==='src/x/*') match and the message cites a wildcard as a 'literal' collision and can name the WRONG peer (not the tier-1 literal-collision peer the gate actually blocked on). Parity + the block itself stay correct; message actionability only. Fix: mirror the gate's tier-1 literalCollisions logic in the formatter (only entries with no trailing /* or /** that are literally equal in both write-sets) so the named peer/path is the literal collision that drove the block.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-message-matrix",
       "createdAt": "2026-06-20T09:07:20.784Z",
@@ -144,7 +144,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "cleanup|ts|minor-formatparalleldecompositionblock-overlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "formatParallelDecompositionBlock overlap recompute replaced globsOverlap pairs a===b (which matched tier-2 wildcards) with firstLiteralCollision/isLiteralWriteSetEntry mirroring the gate's literalCollisions/isLiteralPath (literal iff no trailing /* or /**); the message now names only a peer with a genuine tier-1 literal collision. Smoke asserts a wildcard-only peer sorting earlier is NOT named. commit 4f36f5c1e.",
+      "resolvedAt": "2026-06-20T09:13:53.825Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-086b:F-008",
