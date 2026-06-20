@@ -91,6 +91,24 @@
       ],
       "signatureTag": "missing|ts|storyids-filter-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1a91:F-006",
+      "desc": "quality-cleanup: done-merge-experience-refresh-smoke.ts:172,241 use m![1] non-null assertion inside `!!m &&` — TypeScript already narrows m to RegExpMatchArray when !!m is truthy, so the `!` is superfluous (same assertion class as original F-001). Replace with m[1] to remove the unnecessary non-null assertion.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T09:29:51.234Z",
+      "reviewRound": "2026-06-20T09:27:43.338Z",
+      "reviewRunId": "B-1a91:RR-004",
+      "_hash": "699401ad294bbd59fd10ab3a783673439b6685442e13dfa7a50b244dcca1f810",
+      "files": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|quality-cleanup-merge",
+      "signatureTagSource": "auto"
     }
   ]
 }
