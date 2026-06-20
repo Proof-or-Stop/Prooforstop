@@ -7,7 +7,40 @@
       "userSees": "Running story_review inside a worktree (.worktrees/B-xxxx) now loads the main checkout’s finding-signals cache: hints surface in the _reviewPrompt section and an experience_hint_surfaced event is recorded (previously zero). learning_scan run from a worktree writes/updates the single main-checkout cache.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review / loadExperienceHints inside a worktree resolves and reads the main-checkout finding-signals cache (non-empty hints).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A non-git temp dir (or git failure) falls back to the passed root unchanged — no throw, empty when the cache is absent.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Read and write both use resolveLearningRoot so learning_scan write + later read agree on one canonical main cache (no split-brain).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git rev-parse --git-common-dir is run with cwd=root and resolved to an absolute parent, so the main root is correct from a worktree; the smoke asserts the worktree reads the MAIN cache path.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A cache-path resolution error never breaks story_review/learning_* (try/catch + fallback); advisory-only.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
