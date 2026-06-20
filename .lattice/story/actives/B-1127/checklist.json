@@ -214,7 +214,75 @@
       "context": "New packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals). Assert: REVIEW_MODE_PHASES === the canonical 5 ['lenses','verify-lens-findings','critic','verify-critic-findings','converge-or-reopen']; a fake runCritic captures its input and asserts it received the CONFIRMED (verified) lens set not raw (§2.4 order); a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[]; a round where the critic confirms -> reopen===true, converged===false; runReopenLoop with a fake confirming a critic finding on round 1 and an applyFix making round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true (loop-until-dry); maxRounds bound -> converged===false when never clean; deriveRoundLedgerOps yields finding_add ops for confirmed lens (agent===the real lane, severity a ledger kind not abstract) + critic (desc starts with '[completeness-critic] ', agent a real lane) + review_pass_set ops ONLY when converged; buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision 'pass'. Register node packages/main/dist/tasks/adversarial-review-round-smoke.js in lattice.config.json validate.commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke asserts REVIEW_MODE_PHASES === the canonical 5 phases [lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen] with explicit string literals; WHY: proves the frozen phase order has not drifted from the spec",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke with a capturing fake runCritic proves the critic seam received the CONFIRMED (verified) lens set, NOT the raw lens findings; WHY: the load-bearing section 2.4 invariant — if this assertion fails the entire methodology is broken",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[] (explicit literals); WHY: the happy clean-round path",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves a round where the critic confirms a finding -> reopen===true, converged===false; WHY: proves critic-driven reopen",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves the B-086b reopen trace via runReopenLoop: fake confirming a critic finding on round 1, applyFix makes round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true; WHY: the canonical loop-until-dry trace",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent===the real lane, severity is a ledger kind not abstract) + critic findings (desc starts with [completeness-critic], agent is a real lane) + review_pass_set ops ONLY when converged; WHY: proves the ledger mapping pipeline end to end",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision pass; WHY: proves the 3x2 payload shape",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke file is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-round-smoke.js; WHY: unregistered tests do not run in CI",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke proves maxRounds bound: runReopenLoop with a never-clean change hits maxRounds with converged===false; WHY: boundary — the safety valve must work",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves that a converged round with zero confirmed findings produces ONLY review_pass_set ops (no finding_add ops); WHY: edge — clean round must not emit phantom findings",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves no finding_add op produced by deriveRoundLedgerOps has severity in {BLOCKER,MAJOR,MINOR} — all severities are ledger kinds {critical,high,medium,low}; WHY: adversarial — the abstract-severity-leak check must be an explicit string assertion, not implicit via type system",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke proves the critic finding agent field is a real lattice-review-* lane (NOT the string completeness-critic), and provenance is carried in desc via [completeness-critic] prefix; WHY: adversarial — wrong agent would break reviewer-evidence recognition in review-run.ts",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
