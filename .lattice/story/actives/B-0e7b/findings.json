@@ -124,6 +124,23 @@
       ],
       "signatureTag": "doc-code-drift|md|codex-docs-major",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0e7b:F-008",
+      "desc": "Codex MAJOR (MVP critic has no ledger provenance): the critic is 'always present' and can reopen rounds, but the dedicated lattice-review-completeness lane is FUTURE and no MVP agent/lane/artifact is defined for confirmed critic findings (reviewer-evidence logic only counts supported lattice-review-* lanes). Fix §4.3/§4.4: define MVP critic provenance — either make a completeness lane MVP, OR map critic findings to a supported lane with clear attribution, OR a separate local reopen-signal/artifact; mark anything not available today as FUTURE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:17.290Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "a9843fce4bcf6c1d5f9035a58501b6f3489934891cc772771dff975458744ff4",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
