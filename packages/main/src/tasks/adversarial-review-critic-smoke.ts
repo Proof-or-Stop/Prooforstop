@@ -216,6 +216,14 @@ check(
   'CHK-002:adversarial:0 — desc tag is NOT in REVIEW_RUN_LANES',
   !(REVIEW_RUN_LANES as readonly string[]).includes(COMPLETENESS_CRITIC_DESC_TAG),
 );
+check(
+  "REVIEW_RUN_LANES does NOT include the bare 'completeness-critic' (§4.3 — provenance can never be an agent/lane)",
+  !(REVIEW_RUN_LANES as readonly string[]).includes('completeness-critic'),
+);
+check(
+  "REVIEW_RUN_LANES does NOT include 'lattice-review-completeness' (FUTURE — no dedicated critic lane today)",
+  !(REVIEW_RUN_LANES as readonly string[]).includes('lattice-review-completeness'),
+);
 // CHK-002:adversarial:1 — recommended lanes exclude completeness-critic; both are real lanes.
 check(
   "CHK-002:adversarial:1 — recommended lanes do NOT include 'completeness-critic'",
