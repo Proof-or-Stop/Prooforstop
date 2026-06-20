@@ -184,6 +184,20 @@ const requiredDecisionDocPromotionCommands = [
   'decision_doc_preview',
   'decision_doc_save',
 ];
+// B-b29e CHK-003: scope-contract facts are read at every DEV entry by the
+// parallel-decomposition hard gate (machine.ts parallelDevEntryBlock →
+// parallelDecompositionEnforcedBlock → resolveAuditConfig().parallelGate +
+// safeReadScopeContract, consumed by canStartDevGuard/canSkipPlanGuard/
+// canReenterDevGuard). These scope-contract L4 facts must therefore name the
+// parallel-decomposition DEV-entry gate in their gateConsumer — this assertion
+// is non-vacuous: dropping the registration from process-fact-levels.ts fails it.
+const scopeContractParallelDevEntryConsumerCommands = [
+  'scope_contract_set',
+  'scope_contract_check',
+  'scope_contract_acknowledge',
+  'scope_contract_init_from_plan',
+];
+const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV-entry gate/;
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
@@ -3449,6 +3463,24 @@ function assertProcessFactCommandInventory() {
     l4WithoutGate.length === 0,
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
+
+  // B-b29e CHK-003: the parallel-decomposition DEV-entry hard gate (machine.ts)
+  // reads each story's scope contract before every door into DEV, so the
+  // scope-contract L4 facts must register it as a gateConsumer. Reads the actual
+  // registration, so removing it from process-fact-levels.ts fails this check.
+  for (const commandName of scopeContractParallelDevEntryConsumerCommands) {
+    const entry = levelRegistry.get(commandName);
+    assert(
+      Boolean(entry),
+      `${processFactLevelRegistryPath}: scope-contract fact ${commandName} missing from registry`,
+    );
+    if (!entry) continue;
+    assert(
+      scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''),
+      `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name the parallel-decomposition DEV-entry gate (machine.ts parallelDevEntryBlock reads the scope contract before every DEV entry)`,
+    );
+  }
+
   assertL4ProducerOrReplacement(levelRegistryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries
