@@ -103,9 +103,9 @@
       "title": "Wire surfaceExperienceHints into buildNextSteps REVIEW branch (transition-effects.ts) so hints surface in the reviewer-launch text + fire the A/B event",
       "context": "In packages/main/src/handlers/transition-effects.ts, in the REVIEW branch of buildNextSteps, AFTER the round-2 advisory block (after ~line 286, before `return base`), add an append-only try/catch block: const story = store.readStory(storyId); const hintRoundKey = story.currentReviewRound || `plan:${story.phase}` (BYTE-IDENTICAL formula to story-review.ts ~line 603); const { renderedSection } = surfaceExperienceHints(root, { storyId, hintRoundKey }); if (renderedSection) base += `\\n${renderedSection}`. The leaf fires experience_hint_surfaced on BOTH arms; only the ON-arm renderedSection is non-empty, so the OFF arm appends NOTHING (byte-identical to today). Place the block AFTER the Agent({lattice-review-*}) launch lines so the hints physically follow the reviewer-launch text the agent reads. Wrap the WHOLE block in try { } catch { /* advisory-only: never block the transition */ } (same safety posture as the existing round-2 advisory). Add import { surfaceExperienceHints } from '../core/experience-hint-surface.js'. Add a code comment documenting: ADVISORY-ONLY (never fed to resolveReviewPromptHash, no gate reads it); OFF arm appends nothing → byte-identical; cross-site dedup with story_review via shared hintRoundKey; ordering dependency on transition-orchestrator persisting currentReviewRound BEFORE buildNextSteps.",
       "userSees": "After story_advance --phase=REVIEW on an ON-arm story that has finding-signals, the reviewer-launch guidance text now contains the rendered \"Project experience hints (advisory only)\" section right after the Agent({lattice-review-*}) lines, and exactly one experience_hint_surfaced event (hintMode:on) is recorded for that review round. On an OFF-arm story the guidance text is byte-identical to today and exactly one event (hintMode:off) is recorded. The transition never fails due to hint surfacing.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:17:59.085Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:19:35.842Z",
       "verificationIntent": {
         "happy": [
           {
@@ -137,7 +137,45 @@
         "test": [
           "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "ON-arm story with finding-signals: buildNextSteps REVIEW guidance contains the rendered hints section after the Agent({lattice-review-*}) lines + exactly one experience_hint_surfaced(hintMode on) recorded for the round — asserted in the dispatch-hint smoke.",
+          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
+          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
+          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
+          "timestamp": "2026-06-20T12:19:36.011Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "OFF-arm story: buildNextSteps REVIEW guidance byte-identical to the no-hints baseline (no section) + one event(hintMode off) with full hintIds (lossless).",
+          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
+          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
+          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
+          "timestamp": "2026-06-20T12:19:36.165Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/transition-effects.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "Whole hint block wrapped in try/catch (advisory-only) so a thrown error never blocks/alters the REVIEW transition; active-reviewer set computed before the block, unchanged by hints.",
+          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
+          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
+          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
+          "timestamp": "2026-06-20T12:19:36.361Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
