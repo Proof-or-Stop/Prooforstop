@@ -64,7 +64,50 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "0 koala in CHANGELOG; npm run build exit 0; lattice validate all-green"
+      "userSees": "0 koala in CHANGELOG; npm run build exit 0; lattice validate all-green",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run build exits 0 after CHANGELOG.md rebrand -> build unaffected by docs-only change; WHY: confirms no build regression from the substitution",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice validate returns all-green after CHANGELOG.md rebrand -> validation suite still passes; WHY: confirms no validation regression",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala CHANGELOG.md returns empty (exit code 1) -> zero residual koala strings; WHY: the primary acceptance criterion stated in the story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG.md has no broken markdown headers (every line starting with # has valid header syntax) and no orphaned code fences after substitution -> structural integrity preserved; WHY: edge case where replacement inside markdown formatting could corrupt document structure",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff --stat shows only CHANGELOG.md modified (no other files touched) -> scope confined to single file; WHY: ensures the change did not leak outside the declared scope",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "run the koala-residue gate (if it exists) and confirm CHANGELOG.md is still excluded from it -> gate exclusion unchanged; WHY: if someone accidentally removed the CHANGELOG exclusion from the gate, this change could trigger a false positive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "after the rebrand, run git grep -i koala across the entire repo and confirm CHANGELOG.md does NOT appear in results -> proves CHANGELOG is now fully clean even if the gate does not check it; WHY: adversarial completeness check beyond the gate exclusion",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
