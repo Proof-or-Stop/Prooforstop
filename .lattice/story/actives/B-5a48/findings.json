@@ -5,7 +5,7 @@
       "desc": "transition-effects.ts:196-322 — the REVIEW value in buildNextSteps' returned object is an IIFE, so the object literal EAGERLY evaluates it on EVERY buildNextSteps call (transition-orchestrator.ts:509 calls it for every phase transition, then selects nextSteps[phase]). The new surfaceExperienceHints block runs appendActivityLog inside that eager IIFE, so a NON-REVIEW transition (e.g. entering DEV) writes a spurious hidden experience_hint_surfaced event (reviewRound=plan:DEV) even though no REVIEW hint guidance is shown — polluting the A/B measurement. Fix: gate the surfaceExperienceHints firing on story.phase==='REVIEW' so the side-effecting event only fires when the REVIEW guidance is actually delivered. Add a regression smoke: buildNextSteps for a non-REVIEW phase (DEV) with signals+ON arm fires NO experience_hint_surfaced event.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-20T12:57:01.063Z",
@@ -16,7 +16,10 @@
         "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|transition-effects-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 09813f970: gated the surfaceExperienceHints firing on if(story.phase==='REVIEW') so the eagerly-evaluated REVIEW IIFE no longer fires the experience_hint_surfaced event on non-REVIEW transitions. Added regression smoke CHK-002 adversarial:1 (non-REVIEW buildNextSteps fires zero events; load-bearing — fails without the guard). Codex host-2 round-2 VERDICT=PASS; all 3 claude lanes round-2 0 findings.",
+      "resolvedAt": "2026-06-20T13:05:56.495Z",
+      "resolutionType": "fixed"
     }
   ]
 }
