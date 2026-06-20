@@ -203,7 +203,21 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Focused smoke verifies JSON report shape and text output for lifecycle_check.",
+          "headHash": "8abcd47d58cb2bcc65c76691f31852375ac74889",
+          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
+          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
+          "timestamp": "2026-06-20T21:02:27.551Z"
+        }
+      ]
     }
   ]
 }
