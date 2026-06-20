@@ -247,7 +247,8 @@ story or rewrite stale proof into fresh proof.
 | 3. Validation, transcript, and delivery context preparation | validation command set, expected user outcome, story-specific smoke commands, relatedDocs, decision promises, current material binding | validation result, transcript-diff artifact or metadata-only waiver, delivery-review context pack | command transcript with exit code/digest; HEAD/material/storyFilesHash binding; context pack artifact; signed metadata-only waiver when applicable | block before reviewer pass; print validation, smoke, waiver, or context-pack next action | validation runner, live smoke owner, delivery reviewer |
 | 4. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence, validation, transcript, and delivery-context snapshot | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per review-run lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence/artifact bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings; rerun stale lanes when artifacts change | independent reviewer lanes and REVIEW gate |
 | 5. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
-| 6. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure`, `story_advance --phase=DONE` |
+| 6. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure` |
+| 7. Phase advance handoff | target phase, prior stage pass report, explicit execute flag | exact `story_advance` command or execution transcript | printed command when dry-run/manual; `story_advance` result when explicitly executed; no push or Authority claim | if execute is not explicit, print only; if lifecycle gate fails, preserve its blocker and next command | lifecycle handler |
 
 ## Evidence Failure Policy
 
@@ -656,7 +657,7 @@ Internally:
 12. Run REVIEW/TEST gate preflight.
 13. If target is DONE and the story is in TEST, delegate readiness to
     `lattice done_prepare`.
-14. If all gates pass, print the exact `story_advance --phase=DONE` command or
+14. Hand off to Step 7: print the exact `story_advance --phase=DONE` command or
     execute it when explicitly requested.
 
 The pipeline should prefer stopping with precise blockers over making risky
@@ -706,7 +707,7 @@ START
   |-- missing/blocking delivery check --> run delivery reviewer and STOP
   v
 {Target is DONE and story is in TEST?}
-  | no --> [Ready for requested non-DONE phase]
+  | no --> [7 Phase advance handoff for requested non-DONE phase]
   |         |
   |         +--> print/execute allowed story_advance command
   | yes
@@ -716,7 +717,10 @@ START
   v
 [DONE readiness PASS]
   |
-  +--> print/execute story_advance --phase=DONE when explicitly requested
+  v
+[7 Phase advance handoff]
+  |
+  +--> print/execute story_advance when explicitly requested
 ```
 
 ### Image Flowchart
@@ -753,11 +757,11 @@ flowchart TD
   L --> M{"Gate blocked?"}
   M -- yes --> Z
   M -- no --> R{"Target DONE and story in TEST?"}
-  R -- no --> S["Ready for requested non-DONE phase"]
+  R -- no --> S["7 Phase advance handoff for requested non-DONE phase"]
   R -- yes --> T["6 Delegate to lattice done_prepare"]
   T --> U{"done_prepare PASS?"}
   U -- no --> Z
-  U -- yes --> V["Print or execute story_advance --phase=DONE"]
+  U -- yes --> V["7 Phase advance handoff: print or execute story_advance"]
 ```
 
 ## Parallel Development Plan
