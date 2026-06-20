@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-37b3:F-001",
+      "desc": "codex host-2: resolveLearningRoot (learning-store.ts:~85) uses dirname(resolve(searchOrigin, git rev-parse --git-common-dir)), which assumes the git common dir lives inside the main checkout (<main>/.git). True for normal checkout + linked worktrees (Orchestrate normal usage), but FALSE for .git-file layouts: git init --separate-git-dir and bare-backed worktrees point --git-common-dir at external git storage, so the resolver returns <storage-parent>/.lattice/learning instead of the checkout root — a correctness regression for those valid git layouts (changes plain-checkout behavior). Fix: resolve the MAIN worktree root via git worktree list --porcelain (first worktree entry), fallback to searchOrigin; that reports actual checkout paths in all layouts.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:09:06.070Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "_hash": "64b232b4573fcea9731b1da69cac4b5afc4eb206540c463c12959841f77378a6",
+      "files": [
+        "packages/main/src/core/learning-store.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-resolvelearningroot",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
