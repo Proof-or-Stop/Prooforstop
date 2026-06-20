@@ -1,0 +1,20 @@
+{
+  "storyId": "B-1127",
+  "checkedAt": "2026-06-20T19:49:14.615Z",
+  "reviewRound": "2026-06-20T18:09:24.551Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran node packages/main/dist/tasks/adversarial-review-round-smoke.js in TEST phase: exit 0, 71 assertions, all pass; verifies canonical 5-phase, reopen trace, and 3x2 payload invariants for B-086b loop trace."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery-ready: adversarial review-round refactor completed; canonical order/confirmation/layered ledger semantics and 3x2 payloads validated in real-machine smoke run with no open blocker findings."
+  },
+  "_hash": "682ff8e0d4dff5dd8c16c72d19af84ef6b30d826a302e6103e15f29b17316d73"
+}
