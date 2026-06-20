@@ -8,7 +8,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import {
   upsertAuthorityGateReceiptRef,
@@ -26,6 +26,7 @@ interface RepoOptions {
   validateCommand?: string;
   changedFile?: { path: string; content: string };
   staleEvidence?: 'safe' | 'command';
+  storyHashCommandEvidence?: boolean;
   hostVerdict?: boolean;
   staleHostVerdict?: boolean;
   baseConflictFile?: boolean;
@@ -77,6 +78,7 @@ function status(root: string): string {
 
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-19T12:00:00.000Z';
+  const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
   store.writeTestEvidence(storyId, {
     command: 'done-prepare-smoke',
     output: JSON.stringify({ allPass: true, summary: 'done prepare smoke ready' }),
@@ -84,6 +86,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     timestamp: now,
     headHash: currentGitHead(root),
     materialHash: currentMaterialHash(root),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     verificationCoverage: {
       total: 0,
       required: 0,
@@ -215,6 +218,41 @@ function writeStaleChecklistEvidence(store: StoryStore, root: string, storyId: s
   store.writeChecklist(storyId, checklist);
 }
 
+function writeStoryHashCommandChecklistEvidence(store: StoryStore, root: string, storyId: string): void {
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+  assert.ok(headHash, 'smoke repo must have head for storyFilesHash evidence');
+  assert.ok(materialHash, 'smoke repo must have material hash for storyFilesHash evidence');
+  assert.ok(storyFilesHash, 'smoke repo must have storyFilesHash for storyFilesHash evidence');
+  const checklist: ChecklistData = {
+    items: [{
+      id: 'CHK-001',
+      title: 'Synthetic item',
+      context: 'Synthetic context',
+      status: 'done',
+      startTime: null,
+      endTime: null,
+      verificationIntent: {
+        happy: [{ desc: 'storyFilesHash evidence smoke intent', type: 'cli', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      verificationEvidence: [{
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        command: 'npm run test:done-prepare-smoke-rerun',
+        result: 'pass',
+        note: 'storyFilesHash command evidence smoke record',
+        headHash,
+        materialHash,
+        storyFilesHash,
+      }],
+    }],
+  };
+  store.writeChecklist(storyId, checklist);
+}
+
 function buildRepo(options: RepoOptions): { root: string; worktreePath: string } {
   const root = mkdtempSync(join(tmpdir(), `lattice-done-prepare-${options.storyId}-`));
   const validate = options.validateCommand
@@ -295,6 +333,9 @@ function buildRepo(options: RepoOptions): { root: string; worktreePath: string }
   }
   if (options.hostVerdict) {
     appendHostVerdict(worktreeStore, worktreePath, options.storyId);
+  }
+  if (options.storyHashCommandEvidence) {
+    writeStoryHashCommandChecklistEvidence(worktreeStore, worktreePath, options.storyId);
   }
   writeDoneGateEvidence(worktreeStore, worktreePath, options.storyId);
   git(worktreePath, ['add', '.']);
@@ -491,6 +532,22 @@ withRepo('command-backed stale evidence requires rerun', {
   assertBlocked(output, 'evidenceFreshness');
   assert.match(output, /npm run test:done-prepare-smoke-rerun/);
   assert.match(output, /will not freshen it by rewriting hashes/);
+});
+
+withRepo('matching storyFilesHash command evidence survives unrelated main material drift', {
+  storyId: 'B-dp-story-hash',
+  storyHashCommandEvidence: true,
+  changedFile: { path: 'docs/requirements/decisions/story-hash-evidence.md', content: '# story hash evidence\n' },
+}, ({ root, worktreePath }) => {
+  write(root, 'README.md', 'done_prepare smoke B-dp-story-hash\n\nmain-only drift\n');
+  git(root, ['add', 'README.md']);
+  git(root, [...COMMIT_ENV, 'commit', '-m', 'main material drift']);
+
+  const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-story-hash', validate: false });
+  assert.match(output, /DONE prepare: PASS/);
+  assert.match(output, /staleEvidenceRefresh: PASS/);
+  assert.doesNotMatch(output, /stale command-backed evidence must be rerun/);
+  assert.doesNotMatch(output, /npm run test:done-prepare-smoke-rerun/);
 });
 
 withRepo('stale review material blocks without verdict rebind', {

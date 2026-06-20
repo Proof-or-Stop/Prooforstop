@@ -241,7 +241,7 @@ function classifyStaleEvidence(ctx: HandlerContext, storyId: string, gitCwd: str
   const coverage = buildVerificationCoverage(
     cl,
     headHash,
-    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root).fresh,
+    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root, evidence?.storyFilesHash).fresh,
     { deferredGateEvidence: 'missing' },
   );
   const stale = coverage.entries.filter((entry) => entry.status === 'stale' && entry.evidence);
