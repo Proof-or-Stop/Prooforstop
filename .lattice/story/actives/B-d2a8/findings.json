@@ -356,7 +356,7 @@
       "desc": "CHK-002 userSees is empty — the checklist item describes the test structure (hermetic smoke) but does not declare what the user/operator sees when the smoke passes or fails: no stated output format (count of assertions, exit code, printed message). Without userSees the reviewer cannot verify that the smoke output matches what is claimed. Fill in userSees with the expected output line (e.g., \"parallel-gate-config smoke passed: N assertions\" printed to stdout, process exits 0; on failure, an error message is printed and process exits 1).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-20T06:02:09.943Z",
@@ -364,7 +364,11 @@
       "reviewRunId": "B-d2a8:RR-008",
       "_hash": "68880c72673db50ff855615d005c80b296b923786da360f0aa770b646e5e2956",
       "signatureTag": "missing|unknown|usersees-empty-checklist",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED: CHK-002 userSees is empty and frozen from DEV. The operator-visible output is the smoke success line 'parallel-gate-config smoke passed: N assertions' (exit 0) / the failing 'FAIL: <name>' line (exit 1), surfaced via lattice validate. Documented here rather than in the frozen field. Non-blocking (behavior lane PASS).",
+      "resolvedAt": "2026-06-20T06:39:39.402Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-d2a8:F-018",
