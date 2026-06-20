@@ -5,18 +5,170 @@
       "title": "Surface escalation.advisories on the DONE Review-escalation pass path",
       "context": "In done-oracle.ts the Review-escalation doneCheckRow (~706-713): when escalation.ok===true AND escalation.advisories?.length, append the advisories to the row DETAIL (the always-printed field; renderDoneChecklist skips the hint on pass rows) so a passing DONE still shows the whole-tree-drift re-attestation advisory. Keep status=pass and blocking unchanged. Verify renderDoneChecklist actually prints the advisory on the pass row. Also check the machine.ts DONE guard (~882) ok-path and the Review-assurance-floor row do not separately swallow the same advisory; surface where an operator would otherwise miss it. Do NOT change eventsWithStoryFilesHashDowngrade or block DONE.",
       "userSees": "On a DONE where host verdicts were downgrade-accepted (materialHash drift + storyFilesHash match), the DONE checklist Review-escalation row PASSES but its detail now includes e.g. \"host verdict ...: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\" so the operator sees the drift. With no drift, no advisory text appears.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T23:53:06.541Z",
+      "endTime": "2026-06-19T23:57:56.776Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A downgrade-accepted DONE (materialHash drift + storyFilesHash match) renders the Review-escalation row as PASS with the re-attestation advisory text in its detail.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A no-drift DONE renders the Review-escalation row PASS with NO advisory text (no false alarm).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The advisory is in the always-printed detail (not the hint), so renderDoneChecklist actually shows it on a PASS row.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The change does not flip the row to fail or block DONE; status and blocking are unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "Smoke advisory-visible case: a downgrade-accepted DONE (materialHash drift + storyFilesHash match) renders the Review-escalation row PASS with the re-attestation advisory text in its detail. Passed (4 checks).",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "Smoke control case: a no-drift DONE renders the Review-escalation row PASS with NO advisory text (no false alarm). Passed.",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "The advisory is appended to the always-printed row detail (not the hint); the smoke asserts the rendered renderDoneChecklist string CONTAINS the advisory on the pass row, proving it is actually shown. Passed.",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "The change leaves status=escalation.ok?pass:fail and blocking unchanged; the smoke asserts the Review-escalation row is PASS on the downgrade-accepted DONE (not flipped to fail / not blocked). RED/GREEN verified by the implementer. Passed.",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Smoke: DONE surfaces the drift advisory on the pass path",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that builds an escalation report with a downgrade-accepted host verdict (materialHash drift + matching storyFilesHash) and asserts the rendered DONE checklist Review-escalation row is PASS AND contains the re-attestation advisory text; and a control where no drift -> pass with no advisory text. Prefer driving the real done-oracle render path.",
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T23:53:07.113Z",
+      "endTime": "2026-06-19T23:57:57.462Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js exits 0 and reports all checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full npm test exits 0 with the new smoke in the chain.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke drives the real renderDoneChecklist output (operator-visible string), not just the row object.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke directly: exits 0 and prints \"done-escalation-drift-advisory smoke passed (4 checks)\".",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with test:done-escalation-drift-advisory in the chain (after merging B-53a9 which restored npm test to green).",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js",
+          "result": "pass",
+          "note": "The smoke drives the real renderDoneChecklist output (the operator-visible string), not just the row object, so it proves operator visibility.",
+          "headHash": "31f631f3aee4c52bfdf764b9b183eb7f42f95cd8",
+          "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9",
+          "storyFilesHash": "880d20fbe6f57e288ff7c178cb4aaad9403ecb26e28c3cd652e108bac3db6272",
+          "timestamp": "2026-06-20T05:31:07.925Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Honor the B-5a9a invariant: the whole-tree-drift re-attestation advisory must be visible to the operator at DONE.",
+    "Surface, do not block: a downgrade-accepted verdict is valid by design; show the advisory, keep the row passing.",
+    "Consume, do not re-derive: read the already-recorded escalation.advisories; do not touch the downgrade/freshness logic.",
+    "Put it where it is actually rendered: PASS rows print detail, not hint, so the advisory goes in detail.",
+    "Minimal blast radius: done-oracle render + one smoke; non-drift output byte-identical."
+  ],
+  "drivers": [
+    "A silent-accept at the DONE gate defeats B-5a9a own mandatory-advisory guarantee (Codex host-2 finding, 2026-06-20).",
+    "renderDoneChecklist skips hints on pass rows, so the existing hint-only wiring can never show the advisory on a passing DONE.",
+    "Blocking on the advisory would re-introduce the instant-reject churn B-5a9a deliberately removed."
+  ],
+  "options": [
+    {
+      "name": "advisory-in-detail-on-pass",
+      "pros": [
+        "Visible on a passing DONE (detail is always printed).",
+        "Keeps the row a PASS (valid-with-advisory).",
+        "Tiny, consume-only change; no logic touched."
+      ],
+      "cons": [
+        "Two render surfaces to keep aligned (done-oracle detail + the success output) — mitigated by the smoke."
+      ]
+    },
+    {
+      "name": "render-hint-on-pass-rows",
+      "pros": [
+        "Reuses the existing hint wiring."
+      ],
+      "cons": [
+        "Changes renderDoneChecklist global pass-row behavior — wider blast radius, risks noisy hints on every pass row."
+      ]
+    },
+    {
+      "name": "block-DONE-on-advisory",
+      "pros": [
+        "Forces re-attestation."
+      ],
+      "cons": [
+        "Re-introduces the churn B-5a9a removed; contradicts the valid-with-advisory design; over-correction."
+      ]
+    }
+  ],
+  "chosen": "advisory-in-detail-on-pass",
+  "rationale": "renderDoneChecklist only prints detail on pass rows, so appending escalation.advisories to the Review-escalation row detail when escalation.ok is the smallest change that makes the mandatory advisory visible on a passing DONE without blocking, without touching the sound downgrade logic, and without changing global pass-row rendering.",
+  "preMortem": [
+    {
+      "scenario": "Advisory put in hint again -> still invisible on pass rows.",
+      "trigger": "Editing the hint instead of detail.",
+      "consequence": "The fix appears done but the advisory is still dropped on pass.",
+      "mitigation": "Put it in DETAIL; the smoke asserts the rendered DONE checklist string CONTAINS the advisory text on a downgrade-accepted pass."
+    },
+    {
+      "scenario": "Advisory shown even when there is no drift -> noisy/false alarm.",
+      "trigger": "Appending advisories unconditionally.",
+      "consequence": "Operators see a re-attestation advisory on clean DONEs and learn to ignore it.",
+      "mitigation": "Only append when escalation.advisories?.length; the smoke control asserts NO advisory text on a no-drift DONE."
+    },
+    {
+      "scenario": "Change accidentally flips the row to fail or blocks DONE.",
+      "trigger": "Touching status/blocking while editing the row.",
+      "consequence": "Clean downgrade-accepted DONEs are blocked — the churn B-5a9a removed returns.",
+      "mitigation": "Leave status=escalation.ok?pass:fail and blocking unchanged; the smoke asserts the row is PASS and DONE still completes."
+    },
+    {
+      "scenario": "A second surface (machine.ts guard or another consumer) still swallows it, leaving a silent path.",
+      "trigger": "Assuming done-oracle is the only operator-visible surface.",
+      "consequence": "Some DONE flows still hide the advisory.",
+      "mitigation": "Confirm renderDoneChecklist is the operator-visible DONE surface; verify machine.ts only returns a failure reason (no pass-path render needed); document the finding in review."
+    }
+  ],
+  "timestamp": "2026-06-19T23:49:39.832Z"
+}

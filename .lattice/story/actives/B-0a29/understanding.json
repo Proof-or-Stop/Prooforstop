@@ -1,0 +1,21 @@
+{
+  "task": "Audit the standard evidence pipeline execution plan and flowcharts for complete proof-or-stop contracts.",
+  "outcome": "A Lattice story_review result identifies whether the document checklist is complete enough to proceed or which gaps must be fixed.",
+  "facts": [
+    "The execution plan document now defines Step Contract Matrix, Evidence Failure Policy, text flowchart, Mermaid source, and SVG flowchart.",
+    "B-fb36 done_prepare is the canonical TEST-to-DONE readiness assistant and must not be reimplemented by story_pipeline.",
+    "The review story is documentation-only and should not enter implementation worktree or modify runtime behavior."
+  ],
+  "constraints": [
+    "Do not directly edit docs/story or tests/fixtures files.",
+    "Do not create a second DONE readiness truth source; delegate TEST-to-DONE readiness to done_prepare.",
+    "Use Lattice CLI commands for review evidence rather than manual story JSON edits.",
+    "Keep Authority DONE, fullAuthorityDone, and productionDone out of local pipeline claims."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+    "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+  ],
+  "timestamp": "2026-06-20T06:04:49.384Z"
+}

@@ -1,0 +1,94 @@
+{
+  "storyId": "B-edf1",
+  "checkedAt": "2026-06-19T23:51:51.472Z",
+  "features": [
+    {
+      "feature": "Mandatory whole-tree-drift re-attestation advisory must be visible to the operator on a passing DONE",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Advisory must be placed in the always-printed detail field (not the hint), so renderDoneChecklist shows it on a PASS row",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "DONE Review-escalation row stays PASS (valid-with-advisory, not blocked) when advisory is surfaced",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Advisory is absent (no false alarm) on a no-drift DONE",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Surface escalation.advisories on the DONE Review-escalation pass path in done-oracle.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: downgrade-accepted DONE shows advisory in rendered PASS row; clean no-drift DONE shows no advisory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Alternative: render-hint-on-pass-rows globally (reuse hint wiring on all PASS rows)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected alternative in decision.json: wider blast radius, risks noisy hints on every pass row",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Alternative: block DONE on advisory (force re-attestation by failing the gate)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected alternative in decision.json: re-introduces the churn B-5a9a removed; contradicts valid-with-advisory design",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Changing the downgrade-accept or freshness logic (eventsWithStoryFilesHashDowngrade)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in story description, plan.md, and scope-boundary.json",
+      "source": "description"
+    },
+    {
+      "feature": "Changing the review-assurance floor evaluator",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in story description and plan.md",
+      "source": "description"
+    },
+    {
+      "feature": "Changing the storyFilesHash computation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in story description and plan.md",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 6,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "365404cc9c55c1b68d0b24bf3f25e0683cec6139b47b32537d0428b035870dda",
+  "openQuestions": []
+}

@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Fix the test fixture, not the production gate: the gate correctly calls readReviewRuns; the stub was incomplete.",
+    "Mirror the existing correct stub (review-incremental-context-smoke) for consistency.",
+    "Minimal blast radius: one stub method; the rest of the smoke unchanged.",
+    "Verification is restoration: full npm test returns to green."
+  ],
+  "drivers": [
+    "A RED full npm test on main blocks every story honest full-test claim and CI.",
+    "Only docs-drift-wrapper-root-smoke hits the gate without the method (siblings audited).",
+    "The production gate is correct and must not be weakened to accommodate an incomplete stub."
+  ],
+  "options": [
+    {
+      "name": "add-stub-method",
+      "pros": [
+        "Matches the real StoryStore contract the gate expects.",
+        "One-line, test-only, zero production risk.",
+        "Consistent with review-incremental-context-smoke."
+      ],
+      "cons": [
+        "Must keep stub stores in sync with future gate reads (inherent to hand-rolled stubs)."
+      ]
+    },
+    {
+      "name": "make-readReviewRuns-optional-in-gate",
+      "pros": [
+        "Tolerates incomplete stores."
+      ],
+      "cons": [
+        "Production change to accommodate a test stub; weakens the gate; wrong layer."
+      ]
+    },
+    {
+      "name": "remove-smoke-from-npm-test-chain",
+      "pros": [
+        "Unblocks npm test immediately."
+      ],
+      "cons": [
+        "Hides real docs-drift wrapper-root coverage; regression masked, not fixed."
+      ]
+    }
+  ],
+  "chosen": "add-stub-method",
+  "rationale": "The production preflight gate correctly reads store.readReviewRuns; the docs-drift stub simply omits it. Adding readReviewRuns: () => ({ runs: [] }) (mirroring review-incremental-context-smoke) is the minimal, test-only fix that restores npm test to green without weakening the gate or hiding coverage.",
+  "preMortem": [
+    {
+      "scenario": "readReviewRuns returns the wrong shape and the gate still throws/misbehaves.",
+      "trigger": "Returning [] instead of { runs: [] }.",
+      "consequence": "docs-drift smoke still fails.",
+      "mitigation": "Return { runs: [] } to match collectReviewerEvidenceState reading .runs; mirror review-incremental-context-smoke; verify by running the smoke + full npm test."
+    },
+    {
+      "scenario": "Another stub store has the same gap and full npm test still fails elsewhere.",
+      "trigger": "Only fixing docs-drift while a sibling also hits the gate.",
+      "consequence": "npm test red at a different step.",
+      "mitigation": "Siblings already audited (review-incremental-context has it; review-convergence/authority-enforce-matrix do not hit the gate); the verification is full npm test green end-to-end."
+    },
+    {
+      "scenario": "The edit accidentally changes other stub behavior and perturbs the docs-drift assertions.",
+      "trigger": "Editing beyond the single added method.",
+      "consequence": "docs-drift smoke fails on an unrelated assertion.",
+      "mitigation": "Add ONLY the readReviewRuns property; leave every other stub field byte-identical; run the smoke to confirm its own checks still pass."
+    }
+  ],
+  "timestamp": "2026-06-20T05:17:32.782Z"
+}

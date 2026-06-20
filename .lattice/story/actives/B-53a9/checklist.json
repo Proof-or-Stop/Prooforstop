@@ -5,18 +5,152 @@
       "title": "Add readReviewRuns to the docs-drift-wrapper-root-smoke stub store",
       "context": "In packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts makeStubStore (~159-190), add `readReviewRuns: () => ({ runs: [] })` to the returned stub object so collectReviewerEvidenceState (review-run.ts:868) no longer throws when the docs-drift preflight runs reviewerEvidenceAdvisoryGate. Mirror the shape used by review-incremental-context-smoke.ts. Do NOT change the production review-preflight gate or review-run.ts. Sibling stubs were audited: review-incremental-context already has it; review-convergence + authority-enforce-matrix do not hit the gate. Only this stub needs the method.",
       "userSees": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the docs-drift preflight without TypeError and exits 0 (no \"store.readReviewRuns is not a function\").",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T05:19:44.487Z",
+      "endTime": "2026-06-20T05:21:43.537Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the preflight without TypeError and exits 0.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The stub readReviewRuns returns { runs: [] } so collectReviewerEvidenceState reads .runs without throwing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Only the readReviewRuns method is added; every other stub field and the smoke own docs-drift assertions stay byte-identical (no perturbation).",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke standalone: runs the docs-drift preflight without TypeError, prints \"docs-drift wrapper-root smoke passed\", exit 0.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "makeStubStore now returns readReviewRuns: () => ({ runs: [] }) (plus readFindings/readReviewPasses/readScopeContract that collectReviewerEvidenceState transitively reads), so the gate reads .runs without throwing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Only the reviewer-evidence stub methods were added; the rest of makeStubStore and the smoke own docs-drift assertions are byte-identical and still pass.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Full npm test returns to green",
       "context": "After the stub fix, full `npm test` must complete and exit 0 (the docs-drift-wrapper-root step passes and the chain runs to ALL PASS). This is the regression-resolution verification.",
       "userSees": "npm test exits 0 (ALL PASS), with test:docs-drift-wrapper-root passing instead of throwing TypeError: store.readReviewRuns is not a function.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T05:19:45.155Z",
+      "endTime": "2026-06-20T05:21:44.174Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:docs-drift-wrapper-root no longer throws TypeError: store.readReviewRuns is not a function.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No production file (review-preflight/review-run) changed; the fix is test-fixture only.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:docs-drift-wrapper-root",
+          "result": "pass",
+          "note": "test:docs-drift-wrapper-root passes (\"docs-drift wrapper-root smoke passed\") instead of throwing TypeError: store.readReviewRuns is not a function.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "git show --stat ca27d579",
+          "result": "pass",
+          "note": "git show --stat confirms exactly one changed file (the smoke); no production file (review-preflight.ts / review-run.ts) changed.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      ]
     }
   ]
 }

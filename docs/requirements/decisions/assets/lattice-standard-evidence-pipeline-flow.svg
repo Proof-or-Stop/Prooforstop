@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1500" viewBox="0 0 1280 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Lattice Standard Evidence Pipeline Flow</title>
+  <desc id="desc">Lifecycle orchestration flow showing evidence-producing stages, stop conditions, and delegation to done_prepare for TEST-to-DONE readiness.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="55%" stop-color="#eef6f1"/>
+      <stop offset="100%" stop-color="#fff8ea"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#1b2a38" flood-opacity="0.16"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#35506a"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Georgia, serif; fill: #203246; }
+      .subtitle { font: 400 18px Georgia, serif; fill: #4d6275; }
+      .box-title { font: 700 17px Georgia, serif; fill: #16283a; }
+      .box-text { font: 400 14px Georgia, serif; fill: #30485d; }
+      .small { font: 400 13px Georgia, serif; fill: #51687b; }
+      .label { font: 700 12px Georgia, serif; fill: #36506a; letter-spacing: 0.04em; }
+      .flow { stroke: #35506a; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .flow-soft { stroke: #7b8fa3; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+      .stop { fill: #fff0ee; stroke: #cb5548; stroke-width: 2; }
+      .stage { fill: #ffffff; stroke: #8fb0cb; stroke-width: 2; }
+      .decision { fill: #fffaf0; stroke: #c99a3d; stroke-width: 2; }
+      .done { fill: #edf8f0; stroke: #4b9b69; stroke-width: 2; }
+      .delegated { fill: #eef4ff; stroke: #557eb8; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="1500" fill="url(#bg)"/>
+  <text x="80" y="70" class="title">Lattice Standard Evidence Pipeline</text>
+  <text x="80" y="102" class="subtitle">Proof-or-stop lifecycle orchestration; TEST-to-DONE readiness is delegated to B-fb36 done_prepare.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="350" y="140" width="580" height="78" rx="18" class="stage"/>
+    <text x="380" y="174" class="box-title">0. State intake + phase preflight</text>
+    <text x="380" y="199" class="box-text">session_brief, cwd, phase, worktree, git status, target</text>
+  </g>
+
+  <path d="M640 218 L640 260" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <path d="M640 260 L890 332 L640 404 L390 332 Z" class="decision"/>
+    <text x="535" y="326" class="box-title">Any blocker, manual</text>
+    <text x="553" y="351" class="box-title">decision, or external wait?</text>
+  </g>
+
+  <path d="M890 332 C1000 332 1040 372 1040 442" class="flow"/>
+  <text x="930" y="316" class="label">YES</text>
+
+  <g filter="url(#shadow)">
+    <rect x="910" y="442" width="260" height="86" rx="16" class="stop"/>
+    <text x="940" y="477" class="box-title">STOP</text>
+    <text x="940" y="502" class="box-text">print exact next action</text>
+  </g>
+
+  <path d="M640 404 L640 446" class="flow"/>
+  <text x="655" y="429" class="label">NO</text>
+
+  <g filter="url(#shadow)">
+    <path d="M640 446 L850 512 L640 578 L430 512 Z" class="decision"/>
+    <text x="556" y="507" class="box-title">Story still in PLAN?</text>
+    <text x="541" y="532" class="box-text">Need skeleton + story_review?</text>
+  </g>
+
+  <path d="M430 512 C255 512 220 586 220 646" class="flow"/>
+  <text x="310" y="496" class="label">YES</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="646" width="360" height="106" rx="18" class="stage"/>
+    <text x="120" y="681" class="box-title">1. PLAN skeleton</text>
+    <text x="120" y="706" class="box-text">checklist, understanding, decision,</text>
+    <text x="120" y="729" class="box-text">verificationIntent, scope proposal</text>
+  </g>
+
+  <path d="M450 700 C505 700 520 660 560 620" class="flow-soft"/>
+  <text x="470" y="684" class="small">story_review blockers loop back</text>
+
+  <path d="M640 578 L640 646" class="flow"/>
+  <text x="655" y="615" class="label">NO / ACCEPTED</text>
+
+  <g filter="url(#shadow)">
+    <rect x="500" y="646" width="430" height="92" rx="18" class="stage"/>
+    <text x="530" y="681" class="box-title">DEV implementation</text>
+    <text x="530" y="706" class="box-text">Code changes happen outside the pipeline command.</text>
+  </g>
+
+  <path d="M640 738 L640 780" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <rect x="350" y="780" width="580" height="106" rx="18" class="stage"/>
+    <text x="380" y="815" class="box-title">2. Evidence plan + generation / refresh</text>
+    <text x="380" y="840" class="box-text">Map verificationIntent to commands and evidence refs.</text>
+    <text x="380" y="863" class="box-text">Refresh only through existing evidence writers.</text>
+  </g>
+
+  <path d="M640 886 L640 928" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <path d="M640 928 L860 988 L640 1048 L420 988 Z" class="decision"/>
+    <text x="536" y="983" class="box-title">Evidence missing or stale?</text>
+    <text x="560" y="1008" class="box-text">Rerun or refresh before review.</text>
+  </g>
+
+  <path d="M860 988 C1005 988 1040 840 1040 528" class="flow-soft"/>
+  <text x="890" y="970" class="label">YES</text>
+  <path d="M640 1048 L640 1090" class="flow"/>
+  <text x="655" y="1075" class="label">NO</text>
+
+  <g filter="url(#shadow)">
+    <rect x="350" y="1090" width="580" height="116" rx="18" class="stage"/>
+    <text x="380" y="1125" class="box-title">3. Validation/transcript/context</text>
+    <text x="380" y="1150" class="box-text">Validation, smoke/waiver, delivery context.</text>
+    <text x="380" y="1173" class="box-text">Artifacts are current before reviewers.</text>
+  </g>
+
+  <path d="M640 1206 L640 1248" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <rect x="350" y="1248" width="580" height="92" rx="18" class="stage"/>
+    <text x="380" y="1283" class="box-title">4. Final reviewer lanes</text>
+    <text x="380" y="1308" class="box-text">Review current evidence/artifact snapshot.</text>
+  </g>
+
+  <path d="M930 1294 C1035 1294 1040 1115 1040 528" class="flow-soft"/>
+  <text x="960" y="1274" class="label">GATE BLOCKED</text>
+
+  <path d="M640 1340 L640 1382" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <rect x="350" y="1382" width="580" height="86" rx="18" class="stage"/>
+    <text x="380" y="1417" class="box-title">5. Preflight + delivery check</text>
+    <text x="380" y="1442" class="box-text">Gate or delivery fail stops; pass can reach done_prepare.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="1220" width="250" height="132" rx="18" class="delegated"/>
+    <text x="110" y="1254" class="box-title">Proof missing?</text>
+    <text x="110" y="1280" class="box-text">Do not advance.</text>
+    <text x="110" y="1303" class="box-text">Print command, owner,</text>
+    <text x="110" y="1326" class="box-text">and verifier.</text>
+  </g>
+  <path d="M350 1268 C300 1268 285 1284 330 1286" class="flow-soft"/>
+
+  <g filter="url(#shadow)">
+    <rect x="960" y="1220" width="250" height="132" rx="18" class="delegated"/>
+    <text x="990" y="1254" class="box-title">DONE target?</text>
+    <text x="990" y="1280" class="box-text">After delivery PASS,</text>
+    <text x="990" y="1303" class="box-text">delegate readiness to</text>
+    <text x="990" y="1326" class="box-text">lattice done_prepare.</text>
+  </g>
+
+  <path d="M930 1425 C1042 1425 1085 1380 1085 1352" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <rect x="960" y="1368" width="250" height="86" rx="18" class="done"/>
+    <text x="990" y="1403" class="box-title">6. done_prepare PASS</text>
+    <text x="990" y="1428" class="box-text">Then print/execute DONE.</text>
+  </g>
+
+  <path d="M1085 1368 C1085 1280 1068 910 1040 528" class="flow-soft"/>
+  <text x="1094" y="1205" class="label">BLOCKED</text>
+</svg>

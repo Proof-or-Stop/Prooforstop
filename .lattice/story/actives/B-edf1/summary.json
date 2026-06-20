@@ -1,0 +1,52 @@
+{
+  "storyId": "B-edf1",
+  "changes": "done-oracle.ts: the DONE Review-escalation row now appends escalation.advisories to its always-printed detail when escalation.ok && advisories.length, so the mandatory storyFilesHash whole-tree-drift re-attestation advisory (recorded by B-5a9a when a host verdict is downgrade-accepted) is visible on a PASSING DONE. status/blocking unchanged (valid-with-advisory, not a block). renderDoneChecklist prints detail (not hint) on pass rows, so detail is the correct surface. + smoke. No change to review-escalation/evidence-freshness.",
+  "usage": "No new command; transparent. Verify: node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js (4 checks).",
+  "expectedOutcome": "On a DONE where a host verdict was downgrade-accepted (materialHash drift + storyFilesHash match), the DONE checklist Review-escalation row is PASS and its detail contains e.g. \"host verdict ...: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\". With no drift, the row is PASS with no advisory text.",
+  "actualTranscript": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js -> \"done-escalation-drift-advisory smoke passed (4 checks)\", exit 0 (advisory-visible case asserts the rendered renderDoneChecklist line contains the advisory; control asserts none). npm test -> ALL PASS (after merging B-53a9 which restored npm test). recover_evidence validate: 6/6 intents covered.",
+  "outcomeDiff": "none — expected and actual match (4/4 smoke checks; full npm test green; 6/6 intents covered).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Surfacing only (the downgrade-accept logic and the floor are unchanged). machine.ts needed no change: on escalation.ok it returns nothing (gate-decision, not an operator render); the operator sees the rendered DONE checklist this fixes.",
+  "pitfalls": "renderDoneChecklist only expands the hint on warn-status rows and the user-value-summary row, so the advisory had to go in the always-printed detail, NOT the hint (the original B-5a9a wiring put it in the hint-equivalent path and it was invisible on pass). Append only when escalation.advisories is non-empty to avoid false-alarm advisories on clean DONEs. Found by a genuine Codex host-2 review of merged B-5a9a; a sibling B-5a9a regression (npm-test stub gap) was fixed separately as B-53a9. The DONE merge auto-bumps the version + auto-rebuilds dist; do NOT do those manually.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 174106
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 620
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 220769
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 20338463
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 282685
+    }
+  },
+  "totalDurationMs": 21016644,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T05:36:01.649Z",
+  "updatedAt": "2026-06-20T05:36:01.649Z"
+}

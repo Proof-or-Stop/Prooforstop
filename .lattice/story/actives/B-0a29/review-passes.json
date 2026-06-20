@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-0a29:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs reviewer checked NAV inclusion, done_prepare boundary, Authority/local claims, related lifecycle/review-assurance docs, and SVG flow. No blocking documentation issues found.",
+      "createdAt": "2026-06-20T06:24:03.235Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-004",
+      "_hash": "95458dfffc09a80ef31c6f2525923bc3f4957f5ea7af546346db96c500f5f197"
+    },
+    {
+      "id": "B-0a29:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality reviewer found no blocking quality issues. Advisory concerns were noted separately: metadata-only waiver policy needs concretization and SVG layout has visual ambiguity.",
+      "createdAt": "2026-06-20T06:24:08.947Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-002",
+      "_hash": "bcc82d361d4a7ab661b75e1135cc64be602d9dfa48f414108be59311dbd44434"
+    },
+    {
+      "id": "B-0a29:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review passed. Verified evidence generation now precedes reviewer orchestration, final reviewers bind to evidence snapshots, coverage lane depends on evidence snapshot, and SVG shows delivery PASS and done_prepare PASS before DONE.",
+      "createdAt": "2026-06-20T06:33:44.434Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-005",
+      "_hash": "bc299ad76b89b375df886a2542499ced89c2d91fbad2b1656cc7facfb32a6e35"
+    },
+    {
+      "id": "B-0a29:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage re-review passed. Verified CHK-002 edge semantic SVG evidence, replayed recorded rg commands without command-substitution stderr, and confirmed xmllint passes.",
+      "createdAt": "2026-06-20T06:33:50.762Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-007",
+      "_hash": "8c3a2253a34f9f673e2a906b65e6ee608bf6e7899b6e24c7b51b5084961321ee"
+    },
+    {
+      "id": "B-0a29:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs re-review passed. Verified NAV inclusion, done_prepare boundary, markdown/SVG agreement, no unsupported Authority or DONE claims, and no related-doc contradiction.",
+      "createdAt": "2026-06-20T06:34:08.649Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-008",
+      "_hash": "4c7a7c1ae36ad904f948c9eed0b036a9ad41fb7940213e6ae1cdf5d03d1ea324"
+    }
+  ]
+}

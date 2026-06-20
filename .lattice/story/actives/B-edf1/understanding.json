@@ -1,0 +1,23 @@
+{
+  "task": "Surface the existing escalation.advisories (the storyFilesHash whole-tree-drift re-attestation advisory recorded when a host verdict is downgrade-accepted) on the DONE Review-escalation PASS path, via the always-printed row detail, so a passing DONE still shows the drift. Plus a smoke.",
+  "outcome": "On a DONE where a host verdict was downgrade-accepted (materialHash drifted but storyFilesHash matched), the DONE checklist Review-escalation row PASSES and its detail now reads e.g. \"...; host verdict <id>: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\". With no drift, the row passes with no advisory text. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
+  "facts": [
+    "done-oracle.ts:710 sets the Review-escalation row hint to the generic \"review escalation satisfied or not required\" when escalation.ok===true; escalation.advisories is never read on the pass path.",
+    "renderDoneChecklist (done-oracle.ts:~868) only expands hint for warn-status rows and the user-value-summary row; PASS rows print only detail. So the advisory MUST be added to the row DETAIL, not the hint, to be visible on a passing DONE.",
+    "The escalation report carries escalation.advisories (review-escalation.ts:67/121, spread at ~466) populated by eventsWithStoryFilesHashDowngrade (~422) and the freshness path (~251).",
+    "machine.ts:882 returns formatReviewEscalationFailure only when !reviewEscalation.ok and falls through on ok===true; it is the gate-decision function, not an operator-facing renderer, so the operator-visible surfacing belongs in done-oracle renderDoneChecklist.",
+    "B-5a9a design doc (story-files-hash-material-drift.md) states the advisory is MANDATORY: operators and reviewers must see that unrelated whole-tree material drift occurred."
+  ],
+  "constraints": [
+    "Keep the Review-escalation row a PASS when escalation.ok (valid-with-advisory per the B-5a9a design); do NOT block DONE on the advisory (blocking re-introduces the churn B-5a9a removed).",
+    "Do NOT change eventsWithStoryFilesHashDowngrade or any downgrade-accept / freshness logic; only consume the already-recorded escalation.advisories.",
+    "Only done-oracle.ts (the render) changes, plus ONE new smoke; machine.ts only if an operator-visible path genuinely needs it (likely not).",
+    "Non-drift DONEs and all other rows stay byte-identical; the advisory appears only when escalation.advisories is non-empty."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T23:49:39.476Z"
+}

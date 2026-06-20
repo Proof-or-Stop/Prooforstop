@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a781",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node packages/main/dist/tasks/story-owner-lease-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1.spawn_agent",
+    "multi_agent_v1.wait_agent"
+  ],
+  "allowedPaths": [
+    "docs/guide-scope-guard.md",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only execution plan story. No runtime implementation changes are authorized here; implementation requires follow-up story after review.",
+  "createdAt": "2026-06-20T06:33:13.044Z",
+  "updatedAt": "2026-06-20T06:33:13.044Z",
+  "_hash": "b4f8663e6cf5e3abc70ba4bf2d14d2116e0dca2c8e95bb3c44158a7a58ede04d"
+}

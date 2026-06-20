@@ -1,0 +1,270 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit the step contract matrix for complete inputs, outputs, evidence, missing-evidence handling, and verifier ownership",
+      "context": "Review docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md Step Contract Matrix and Evidence Failure Policy for missing responsibilities or ambiguous proof sources.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T06:19:04.137Z",
+      "userSees": "User sees the heading \"Step Contract Matrix\" followed by rows for Step 0 through Step 7 and columns for inputs, outputs, required evidence, missing/stale handling, and verifier.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Step Contract Matrix has rows for state intake, PLAN skeleton, reviewer lanes, evidence, preflight, live smoke, delivery, and done_prepare delegation.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows distinguish upstream evidence refresh from TEST-to-DONE stale refresh owned by done_prepare.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No row allows stale proof to become fresh by direct hash rewrite or main-agent self-signing.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Step Contract Matrix|Evidence Failure Policy|TEST-to-DONE readiness delegation|done_prepare' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Command found the Step Contract Matrix, Evidence Failure Policy, and done_prepare delegation rows covering Step 0 through Step 7.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'TEST-to-DONE readiness delegation|owned by done_prepare|done_prepare --dryRun' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Document distinguishes upstream evidence planning from TEST-to-DONE stale refresh owned by done_prepare.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'never rewrite hashes directly|main agent must not self-sign|not a second implementation of DONE readiness' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Document explicitly blocks hash rewriting, main-agent delivery self-signing, and a second DONE readiness implementation.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Audit the text and image flowcharts for alignment with the step contract and B-fb36 done_prepare boundary",
+      "context": "Confirm both flowcharts show proof-or-stop behavior and delegate TEST-to-DONE readiness to done_prepare instead of duplicating DONE closure logic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T06:19:09.042Z",
+      "userSees": "User sees the heading \"Flowcharts\", a text flowchart block, and the image link \"Lattice standard evidence pipeline flow\" pointing at the SVG asset.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The text flowchart lists the full state intake through DONE delegation path with explicit stop points.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The image/SVG flowchart visually distinguishes ordinary preflight from TEST-to-DONE done_prepare delegation.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Neither flowchart depicts story_pipeline as independently running main merge, stale TEST evidence refresh, validation, or done_closure for DONE readiness.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Text Flowchart|State intake|Delegate to lattice done_prepare|DONE readiness PASS' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Text flowchart includes full state intake through done_prepare delegation and DONE readiness pass path.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "command": "rg -n 'Evidence plan \\+ generation|Validation/transcript/context|Final reviewer lanes|Gate or delivery fail stops|After delivery PASS|lattice done_prepare|done_prepare PASS' docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg && xmllint --noout docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "result": "pass",
+          "note": "SVG evidence now checks evidence generation, validation/transcript/context, final reviewer lanes, delivery fail stop, delivery PASS before done_prepare, and XML validity.",
+          "headHash": "a8a9ef0cf670db784105471a78c0c4a512844f8a",
+          "materialHash": "2c55e1dfe067ddf5493fd071d253db8a412cdfb00a6b17ab15c67ab562036f7e",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:36:48.682Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Delegate to lattice done_prepare|duplicating .*done_closure.*main-sync.*evidence-refresh.*version-bump|not a second implementation of DONE readiness' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Flow and boundary text show story_pipeline delegates DONE readiness rather than independently running merge, refresh, validation, or done_closure.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Audit the implementation split for safe parallel development without duplicate gate truth sources",
+      "context": "Review the parallel tracks and suggested story breakdown for clear ownership, safe dependencies, and no second implementation of lifecycle gates, delivery review, or done_prepare behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T06:19:13.461Z",
+      "userSees": "User sees Track A through Track G and P1 through P7 explicitly say DONE readiness is delegated to \"done_prepare\" where applicable.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "P1-P7 identify owners, deliverables, dependencies, and parallel-safety notes.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tracks that touch delivery, evidence refresh, review gates, or DONE readiness name their dependency on existing gates or done_prepare.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No track claims permission to replace reviewer lanes, delivery reviewer signatures, Authority receipts, or done_prepare TEST-to-DONE readiness behavior.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Track A|Track G|P1 \\| Add story pipeline preflight report|P7 \\| Integrate top-level .*story_pipeline.* command' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Parallel development plan identifies Track A through Track G and P1/P7 integration ownership.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'owned by done_prepare|reviewer lanes|delivery reviewer|done_prepare report import/delegation|coverage reviewers never pass before|evidence snapshot' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Tracks touching delivery, evidence refresh, reviewer lanes, and DONE readiness name the existing gate or done_prepare owner, and coverage lanes depend on evidence snapshots.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'replace reviewer lanes with a single host self-review|delivery-check.json only through the delivery reviewer lane|no push, no Authority DONE claim|not by replacing it' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "result": "pass",
+          "note": "Document rejects replacing reviewer lanes, delivery reviewer signatures, Authority claims, or done_prepare behavior.",
+          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
+          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T06:29:00.482Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-20T06:19:04.137Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Step contract matrix and evidence failure policy documented and covered by docs_check evidence."
+    },
+    {
+      "timestamp": "2026-06-20T06:19:09.042Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Text flowchart, Mermaid source, and SVG flowchart documented and covered by docs_check evidence."
+    },
+    {
+      "timestamp": "2026-06-20T06:19:13.461Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Parallel development split documented and covered by docs_check evidence for done_prepare and gate truth-source boundaries."
+    }
+  ]
+}

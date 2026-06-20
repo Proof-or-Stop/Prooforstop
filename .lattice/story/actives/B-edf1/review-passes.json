@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-edf1:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 7 verificationIntent entries (6 must + 1 should) have valid, non-vacuous verificationEvidence. CHK-001 happy:0 / edge:0 / adversarial:0 / adversarial:1 all covered by logic_test driving real buildDoneChecklist+renderDoneChecklist with genuine disk fixtures. CHK-002 happy:0 covered by manual_transcript (smoke exits 0, 4 checks printed), edge:0 covered by manual_transcript (npm test green), adversarial:0 covered by logic_test (smoke asserts rendered operator-visible string, not only row object). Smoke verified live: 4 checks, exit 0. done-oracle.ts detail-append confirmed at lines 713-715. Evidence is specific and non-vacuous: check (A) would fail if the advisory were dropped from the detail field.",
+      "createdAt": "2026-06-20T05:33:05.544Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-003",
+      "_hash": "67e217f66d35e9b7239f71564acf0e8373b6aedd160542b99f24d2aecdbd7245"
+    },
+    {
+      "id": "B-edf1:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked all 3 changed code files (done-oracle.ts, done-escalation-drift-advisory-smoke.ts, package.json). (1) No dead code — all imports in the smoke are used, no commented-out blocks. (2) Type safety clean — no `as any`, no empty catch; advisories read is null-safe via optional chaining `escalation.advisories?.length`; detail string composition via template literal is clean; TSC --noEmit passes with 0 errors. (3) No I/O shell isolation concern — both changed files are core/tasks, not shells/ui/main. Status and blocking fields in the review-escalation row are unchanged (escalation.ok ? pass : fail, blocking: escalation.required && !escalation.ok). review-escalation.ts and evidence-freshness.ts are untouched. Smoke uses `finally` blocks with rmSync+resetConfigCache for both cases A and B — cleanup is deterministic. Advisory-visible (A) and clean no-advisory (B) are independent temp-repo instances. 0 findings.",
+      "createdAt": "2026-06-20T05:33:19.977Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-002",
+      "_hash": "3816e9f2433a086f0aeff956da82c83d325dfc0b58102f76229b3de4b2410b35"
+    },
+    {
+      "id": "B-edf1:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/completeness check passed. Checked: (1) patch is live in worktree — escalationBaseDetail extracted, escalationDetail appends advisories only when escalation.ok && advisories?.length, row stays pass, blocking unchanged; (2) advisory strings in review-escalation.ts both contain re-attestation advisory required matching smoke ADVISORY_RE; (3) no concept word deleted/replaced en masse — only the inline detail ternary was extracted to a variable; (4) no residue of old inline ternary outside the new escalationBaseDetail assignment; (5) no doc-promise-undelivered — smoke imports are all real exports (buildDoneChecklist, renderDoneChecklist, currentMaterialHash, currentStoryFilesHash, resetConfigCache, DoneCheckRow); (6) smoke wired to package.json test:done-escalation-drift-advisory and the test chain. 0 findings.",
+      "createdAt": "2026-06-20T05:34:14.993Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-001",
+      "_hash": "4cdb6170203e42655b6699adc02dc842520e6bea15cb0902fb60cfa3a047bde9"
+    }
+  ]
+}

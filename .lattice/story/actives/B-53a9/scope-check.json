@@ -1,0 +1,45 @@
+{
+  "storyId": "B-53a9",
+  "checkedAt": "2026-06-20T05:18:57.169Z",
+  "features": [
+    {
+      "feature": "Add readReviewRuns: () => ({ runs: [] }) to the docs-drift-wrapper-root-smoke stub StoryStore so the preflight gate stops throwing TypeError",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full npm test returns to green (regression resolution verification)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Make readReviewRuns optional in the production gate (rejected alternative)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json chosen: add-stub-method; option make-readReviewRuns-optional-in-gate rejected as production change that weakens the gate",
+      "source": "description"
+    },
+    {
+      "feature": "Remove docs-drift-wrapper-root smoke from the npm test chain (rejected alternative)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json chosen: add-stub-method; option remove-smoke-from-npm-test-chain rejected as hiding coverage",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 2,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a43d90c4dc43579336e95c2c0518958b19f143a2ff1a37fbb30c439002aaa703",
+  "openQuestions": []
+}
