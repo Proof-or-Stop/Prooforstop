@@ -11,8 +11,9 @@
  * `node:crypto`). NO other outward imports (no `../`, no `../../`).
  */
 
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
 import type { FindingSignalsCache, Playbook, PlaybookProposal } from './experience-layer-types.js';
@@ -42,9 +43,59 @@ export const PLAYBOOKS_FILENAME = 'playbooks.json';
 /** B-8387: directory holding one staged proposal file per `<id>.json`. */
 export const PROPOSALS_DIRNAME = 'proposals';
 
-/** Absolute learning directory under a project root. */
+/**
+ * Resolve the canonical MAIN-repo root that OWNS `.lattice/learning/`, even when
+ * called from a linked git worktree.
+ *
+ * The Experience Layer's derived caches (finding-signals, signature-registry,
+ * playbooks, proposals) are gitignored and live ONLY in the main checkout, but
+ * story DEV/REVIEW runs in linked worktrees where those files are absent. If the
+ * learning dir were resolved relative to the worktree root, every read would miss
+ * the single shared cache and the Experience Layer would stay dormant (hints never
+ * surface). Routing through the git common dir's parent points every worktree at
+ * the one main-checkout cache so reads and writes always agree.
+ *
+ * `git rev-parse --git-common-dir` returns the shared `.git` directory:
+ *   - main checkout  => `.git` (relative)  => dirname(resolve(root, '.git')) === root  (byte-identical, no behavior change)
+ *   - linked worktree => `<main>/.git` (absolute) => dirname(...) === the main worktree root
+ *
+ * NEVER throws: any failure (non-git temp dir, missing git, empty output) falls
+ * back to the passed origin unchanged, so the existing experience-layer smokes
+ * (which use non-git temp roots) keep working.
+ *
+ * GIT-CWD CONTRACT NOTE: this is a self-bootstrap, NO-STORY-CONTEXT git probe —
+ * the cwd `searchOrigin` IS the discovery origin (the same shape as
+ * `worktree.ts` getRepoRoot / `rollout-check.ts` isGitRepo), so it intentionally
+ * does NOT route through the story-keyed `resolveGitCwd` (there is no store /
+ * storyId here, and threading one would be circular). The parameter is named
+ * `searchOrigin` (not a bare `root`/`projectRoot`/`metadataRoot`) so the
+ * gitroot-cwd-contract reads it as a resolved search origin, not a laundered
+ * metadataRoot. Leaf-isolation is preserved: node builtins only.
+ */
+function resolveLearningRoot(searchOrigin: string): string {
+  try {
+    const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: searchOrigin,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!commonDir) return searchOrigin;
+    // commonDir may be relative (e.g. `.git`) or absolute (`<main>/.git`); resolve
+    // it against the origin, then take its parent — the main worktree root.
+    return dirname(resolve(searchOrigin, commonDir));
+  } catch {
+    return searchOrigin;
+  }
+}
+
+/**
+ * Absolute learning directory under a project root. The root is first resolved to
+ * the canonical main-repo root (see {@link resolveLearningRoot}) so a linked
+ * worktree reaches the single shared `.lattice/learning/` cache. Every read and
+ * write path funnels through this one function, so they can never disagree.
+ */
 export function resolveLearningDir(projectRoot: string): string {
-  return join(projectRoot, LEARNING_DIR);
+  return join(resolveLearningRoot(projectRoot), LEARNING_DIR);
 }
 
 /** Absolute path of the approved-playbooks store under a project root. */
