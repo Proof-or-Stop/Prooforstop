@@ -35,8 +35,24 @@
       "phase": "DEV",
       "headHash": "811a71f39507dc12468bb49a47c9262f140851d0",
       "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round-3 F-008 fix: extended the existing CLI revalidation smoke with a load-bearing assertion (coverage.filtered===true, no numeric gap fields) to protect the F-002/F-005 filtered-view fix from regression. Test-only file; in-spirit with the story watermark/gap scope.",
+      "timestamp": "2026-06-20T09:37:16.893Z",
+      "paths": [
+        "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e5304bf359447ce07557ee6d6a8e86c661100d4e",
+      "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b"
     }
   ],
   "createdAt": "2026-06-20T08:55:00.064Z",
-  "updatedAt": "2026-06-20T09:11:07.226Z"
+  "updatedAt": "2026-06-20T09:37:16.893Z"
 }
