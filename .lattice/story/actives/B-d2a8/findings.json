@@ -50,7 +50,7 @@
       "desc": "CHK-001:happy:4: intent claims the smoke verifies a full return {mode:\"off\",maxConcurrentReview:3,broadGlobBlocks:false} but the smoke (line 66) only checks that the returned mode field equals \"off\". The maxConcurrentReview and broadGlobBlocks values of the return are never asserted. The intent’s concrete return-value claim is only partially covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:34:17.283Z",
@@ -61,7 +61,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: case 'mode off accepted (full return)' asserts eq(resolveParallelGate({mode:'off'},BALANCED), {mode:'off',maxConcurrentReview:3,broadGlobBlocks:false}) — full return value, not just .mode.",
+      "resolvedAt": "2026-06-20T06:39:07.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-004",
