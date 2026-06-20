@@ -114,15 +114,26 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
+          "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
-          "note": "Host preflight bundle computes supersession metadata and signal states.",
-          "headHash": "917059d95d71b616e16f68870f33e8a91a510f39",
-          "materialHash": "a78ccddb59536d22059f7cf38456419d1ad3a4bdc27009803f5979fb9907abfc",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T19:27:01.835Z"
+          "note": "Supersession parsing is exercised with historical markers and validates stale/winner mapping without treating historical markers as primary proof.",
+          "headHash": "e91c53e8d770289ce7d2b718511fc757e65ce5f4",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:28:07.513Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Superseded chains with missing/invalid commit references are treated as stale and force requires_revalidation path.",
+          "headHash": "e91c53e8d770289ce7d2b718511fc757e65ce5f4",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:28:07.647Z"
         }
       ]
     },
