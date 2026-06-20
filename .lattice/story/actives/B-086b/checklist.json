@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Reconcile the frozen contract parallel-decomposition.ts to re-export the REAL impls (replace the 3 NotImplemented skeletons computeWriteSet/globsOverlap/evaluateDecompositionGate)",
       "context": "core/parallel-decomposition.ts currently THROWS 'NotImplemented' for computeWriteSet (lines ~68-71), globsOverlap (~77-81), evaluateDecompositionGate (~88-99). Replace each with a re-export of the real impl: `export { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js'` and `export { evaluateDecompositionGate } from './parallel-decomposition-gate.js'`. The contract's TYPES (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) stay defined here and are still imported (type-only) by the impl modules — type-only imports are erased at runtime so there is no runtime cycle. No current caller imports the functions from the contract (they import directly from -overlap.js/-gate.js), so the re-export is non-breaking; optionally migrate those importers to the contract path IF it stays clean (no circular-import breakage), else leave them.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T08:24:47.771Z",
-      "endTime": null,
+      "endTime": "2026-06-20T08:25:33.735Z",
       "verificationIntent": {
         "happy": [
           {
