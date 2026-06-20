@@ -1,0 +1,38 @@
+{
+  "storyId": "B-4620",
+  "name": "experiment-protocol-prereg",
+  "title": "Land the pre-registered loop-ablation and recovery experiment protocol as a decision doc",
+  "description": "Land the rev2 pre-registered experiment protocol (section-5 reflection-loop ablation + section-6 recovery injection) into docs/requirements/decisions/ and harden it via genuine Claude+Codex multi-host review before freeze. Design-doc only; no harness, no agent runs, no production code.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "experiment-protocol",
+    "pre-registration",
+    "paper",
+    "multi-host-review",
+    "ablation",
+    "recovery"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-20T18:16:46.385Z",
+  "startedAt": "2026-06-20T18:16:46.385Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T18:16:46.385Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    }
+  ]
+}
