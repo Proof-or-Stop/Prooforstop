@@ -337,7 +337,7 @@
       "desc": "CHK-001 userSees is empty — the checklist item defines what the implementer builds but does not describe the observable outcome (the user-visible contract): what does a caller of resolveParallelGate or resolveAuditConfig actually see? Missing userSees means behavioral correctness cannot be formally verified against a stated claim. Fill in userSees describing the resolved ParallelGateConfig values returned for each scenario (correct profile defaults, fallback to advise on bad mode, fallback to profile default on bad maxConcurrentReview/broadGlobBlocks, copy not reference on null input).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-20T06:02:03.646Z",
@@ -345,7 +345,11 @@
       "reviewRunId": "B-d2a8:RR-008",
       "_hash": "b241cec4801d62d4e27d1f8e7f4e3783c4e94bd8a7be721a38c705a5d51a03f5",
       "signatureTag": "missing|unknown|usersees-empty-checklist",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED: CHK-001 userSees is empty, but userSees is frozen from DEV (we are in REVIEW) so it cannot be edited now. The observable contract IS captured elsewhere: each verificationIntent item carries a 'WHY' clause stating the observable outcome, and the spec §4.7 documents the resolved-config behavior. Non-blocking (behavior lane returned PASS).",
+      "resolvedAt": "2026-06-20T06:39:38.907Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-d2a8:F-017",
