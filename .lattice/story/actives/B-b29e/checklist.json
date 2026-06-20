@@ -144,10 +144,16 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "desc": "the doc note names the 4 runtime DEV doors (INIT_CHECK/PLAN/REVIEW/TEST) and does NOT claim the 2 legacy TEST_CASE to:DEV entries carry the gate; WHY: the doc must match the actual registration (4 doors, not 6)",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
         "adversarial": [
           {
-            "desc": "the doc note is accurate vs the actual registrations (cites the 4 doors + the drift check); WHY: docs must match the code",
+            "desc": "the doc note is accurate vs the actual registrations (cites the 4 doors + the drift check + the process-fact consumer); WHY: docs must match the code",
             "type": "docs",
             "priority": "should"
           }
