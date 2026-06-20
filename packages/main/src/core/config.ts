@@ -56,6 +56,40 @@ export interface LatticeConfig {
       optional?: boolean;
     }>;
   };
+  /**
+   * Opt-in DONE-required validation commands. Missing config is advisory only;
+   * malformed opted-in config is consumed by the DONE gate as fail-closed.
+   */
+  doneRequiredCommands?: Array<string | {
+    label?: string;
+    command: string;
+    args?: string[];
+    shell?: boolean;
+    cwd?: string;
+    env?: Record<string, string>;
+    timeoutMs?: number;
+  }>;
+  validationProfiles?: {
+    done?: Array<string | {
+      label?: string;
+      command: string;
+      args?: string[];
+      shell?: boolean;
+      cwd?: string;
+      env?: Record<string, string>;
+      timeoutMs?: number;
+    }> | {
+      commands?: Array<string | {
+        label?: string;
+        command: string;
+        args?: string[];
+        shell?: boolean;
+        cwd?: string;
+        env?: Record<string, string>;
+        timeoutMs?: number;
+      }>;
+    };
+  };
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */
@@ -110,6 +144,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'next',          // read-only single next action, shares session_brief authority rules
     'done_closure',  // read-only DONE closure projection; local readiness only, no Authority claim
     'done_prepare',  // pre-DONE readiness assistant; handler fail-closes outside TEST before mutation
+    'done_required_validate', // opt-in DONE-required validation evidence writer; advisory when no policy exists
     'story_get', 'story_list', 'story_reconcile', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',

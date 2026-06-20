@@ -80,6 +80,7 @@ export interface ProcessFactRegistryEntry {
 
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   validate: 'validation-status',
+  done_required_validate: 'validation-status',
   test_add: 'execution-status',
   test_story: 'execution-status',
   verification_evidence_add: 'execution-status',
@@ -99,6 +100,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
+  done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
@@ -405,6 +407,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'validate',
     consumerGate: 'story_advance TEST and DONE validation gate',
+  },
+  done_required_validate: {
+    name: 'done-required-evidence.json',
+    path: 'done-required-evidence.json',
+    signed: false,
+    producerCommand: 'done_required_validate',
+    consumerGate: 'story_advance DONE done-required-validation gate',
   },
   evaluate_save: {
     name: 'eval-evidence.json',
@@ -836,6 +845,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
     rationale: 'Validation status artifact is required before DONE.',
+  },
+  {
+    name: 'artifact:done-required-evidence.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'validation-result', 'execution-evidence', 'schema-contract', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/done-required-validation',
+    consumerGate: 'story_advance DONE done-required-validation gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.done_required_validate,
+    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence.',
   },
   {
     name: 'artifact:declared-artifacts.json',

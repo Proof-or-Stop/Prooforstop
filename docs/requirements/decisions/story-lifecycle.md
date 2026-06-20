@@ -4,7 +4,7 @@
 >
 > `INIT -> INIT_CHECK -> PLAN/express skip -> DEV -> REVIEW -> TEST -> DONE`
 >
-> The legacy `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` are retained only as legacy compatibility data. The currently active model is the `verificationIntent` on a checklist item, the `verificationEvidence` recorded during the DEV/REVIEW/TEST phases, the reviewer agent/lane in the REVIEW phase (including the `lattice-review-test-coverage` coverage-review lane), and `lattice validate` in the TEST phase.
+> The legacy `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` are retained only as legacy compatibility data. The currently active model is the `verificationIntent` on a checklist item, the `verificationEvidence` recorded during the DEV/REVIEW/TEST phases, the reviewer agent/lane in the REVIEW phase (including the `lattice-review-test-coverage` coverage-review lane), and `lattice validate` in the TEST phase. Projects may opt into a separate DONE-required validation policy with `done_required_validate`; missing policy is advisory and must not be described as full-suite assurance.
 
 ## Phase Transitions
 
@@ -60,7 +60,7 @@ The numbering is used only for observable state, not to judge whether something 
 | DEV | Implement and record evidence | PLAN/review gate allows it | code, checklist status, verificationEvidence |
 | REVIEW | Independent review | DEV checklist complete, changes committed | reviewer findings, coverage reviewer result / review pass |
 | TEST | Automatic validation | REVIEW blockers resolved, preflight gate passes | `lattice validate` evidence, bug/test runs |
-| DONE | Wrap-up | validate PASS, bug fixed, evidence fresh, summary/delivery gate passes, branch contains main | merge main, clean up worktree, summary |
+| DONE | Wrap-up | validate PASS, bug fixed, evidence fresh, summary/delivery gate passes, any opted-in DONE-required validation passes, branch contains main | merge main, clean up worktree, summary |
 | DISCARDED | Discarded | `story_discard` | discard event, cleanup result |
 
 ### INIT_CHECK Controlled Fallback Without Subagent (B-95d8)
@@ -90,6 +90,7 @@ By default the `correctness_fix` future denylist contains only `repair UX`, `Aut
 - **REVIEW fail**: return to DEV when a finding or the coverage reviewer lane finds a problem.
 - **TEST fail**: after `lattice validate` fails, write a bug/evidence, and the fix path returns to DEV.
 - **DONE gate fail**: stay in TEST and, per the failed items in the DONE checklist, fill in evidence, summary, delivery check, main sync, or git clean.
+- **DONE-required validation fail**: stay in TEST and run `done_required_validate --storyId=<id>` when the project has `doneRequiredCommands`; without such policy the row is advisory and no full-suite claim is made.
 
 After a rollback, the main agent should first read the failure evidence, then decide whether to change code, add evidence, add documentation, or adjust the checklist. Do not substitute explanation for a fix.
 
@@ -187,6 +188,7 @@ Once a story has a recorded `worktree.path`, a linked git worktree branch, or ha
 - **Grill only clarifies intent**: `grill_start` / `grill_record` / `grill_close` write the `grill.json` planning artifact of the PLAN phase, and `grill_get` can read it in all phases. Grill clarifies intent; evidence proves behavior. A grill transcript cannot replace `verificationEvidence`, a review pass, a delivery check, or `lattice validate` validation evidence.
 - **evidence kind allows natural aliases**: the persisted kind is still a canonical value such as `logic_test` / `manual_transcript`; the CLI accepts `logic`→`logic_test` and `cli`→`manual_transcript`, to avoid plan.md and the command surface fighting over wording.
 - **DONE evidence must be fresh**: `lattice validate --story` writes the git HEAD/material hash at the time of the test run. The DONE gate compares against the current story branch, and a change to a verification-semantics-relevant file makes the old evidence stale.
+- **DONE-required evidence is separate**: `done_required_validate --storyId=<id>` writes `done-required-evidence.json` only for opted-in projects. The DONE oracle has a separate `done-required-validation` row; it blocks on missing/failing/stale/policy-drift/command-drift/missing-build-proof only when a required policy exists. External projects without policy get an advisory row and no full-suite claim.
 - **Review escalation is threshold-triggered, not documentation-triggered**: documentation and decision-doc audit changes follow ordinary REVIEW by default. Direct edits under `docs/requirements/decisions/*.md` that are only annotation-compliance, pure typo, or wording-only clarifications are low-risk one-round cases: one two-host audit round is enough, and they do not by themselves require 3 rounds x 2 hosts at DONE. High-risk lifecycle, gate, Authority, or process-fact changes still use the 3-round path. DONE requires review escalation only when the first lifecycle REVIEW round records at least two countable reviewer problems: `lattice-review-*` findings with severity `critical`, `high`, or `medium`, and `evidenceState=verified` or legacy missing. Suspected, disproven, low-severity, non-reviewer, and later-round findings do not trigger it. When triggered, DONE requires 3 distinct `runId` rounds, each with 2 independent PASS `host_verdict` events over the current material hash. Missing binding fields, stale material, duplicate host/session/key identity, and FAIL/BLOCKED decisions fail closed. An explicit degraded fallback may pass only as `assuranceLevel=degraded-single-host`: allowed eligibility/reason, evidence or approval, fresh material binding, and 3 rounds with at least 1 PASS host. Local host verdicts and degraded fallback evidence are not Authority Server receipts and cannot imply `authorityDone`, `fullAuthorityDone`, or `productionDone`.
 - **stale evidence cannot be overridden by "tests passed"**: if `lattice validate` finds verification coverage missing/stale, the JSON must be `allPass:false`, and the prompt must point to adding evidence rather than saying "validation passed." You can use `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` to view the items needing refresh; after re-running the corresponding verification command, drop `dryRun` to refresh the metadata.
 - **Gate oracle and renderer are separate**: gate output such as the DONE pre-check must first form a stable row contract (`id/status/detail/hint/source/blocking`), and `status` / `session_brief` / `next` only render these rows. The presentation layer must not duplicate a copy of the gate rules using phase or label wording.
@@ -257,6 +259,7 @@ The CLI layer filters the available commands by the current story phase. When th
 | Tool | Behavior |
 |---|---|
 | `lattice validate` | Standard validation, writes validation evidence |
+| `done_required_validate` | Opt-in DONE-required validation, writes `done-required-evidence.json` for the separate DONE-required row |
 | `verification_evidence_refresh_stale` | Refresh the HEAD/material hash of stale evidence based on the coverage report |
 | `bug_report` / `bug_update` / `bug_list` | Manage bugs produced by validation failures |
 | `summary_set` | Write the pre-DONE user value, actual transcript, diff, outcomeKind, and usage notes |
@@ -268,7 +271,8 @@ The CLI layer filters the available commands by the current story phase. When th
 
 ### Key Behavioral Differences
 
-- `lattice validate`: the TEST gate consumes its result as validation evidence.
+- `lattice validate`: the TEST gate consumes its result as routine validation evidence.
+- `done_required_validate`: the DONE gate consumes its result only when `doneRequiredCommands` / `validationProfiles.done` is configured; it is not a release approval, pre-push hook, or Authority receipt.
 - `verification_evidence_refresh_stale`: it only refreshes an intentRef that is already stale and whose original evidence still exists; it does not prove for you that the test actually ran, so the command in the dry-run output should be re-run first.
 - `fixture_*`: legacy/compat maintenance entry; DEV can use it if it needs to migrate old fixtures, but a new story should not treat it as the standard validation flow. REVIEW/TEST mainly read `verificationEvidence`, and should not bypass review to change behavior.
 - `checklist_update`: PLAN fills in intent, DEV fills in status/evidence, use cautiously in other phases.

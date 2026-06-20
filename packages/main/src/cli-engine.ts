@@ -202,6 +202,7 @@ export type { ToolDef };
  * name: 'done_closure'
  * name: 'done_prepare'
  * name: 'done_recover'
+ * name: 'done_required_validate'
  * name: 'draft_check_set'
  * name: 'draft_issue_resolve'
  * name: 'evaluate'

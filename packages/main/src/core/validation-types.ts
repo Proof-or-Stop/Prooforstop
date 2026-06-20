@@ -54,3 +54,41 @@ export interface ValidationResult {
   headSha?: string;
   commands: ValidationCommandResult[];
 }
+
+export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';
+
+export interface DoneRequiredCommandReceipt {
+  label: string;
+  command: string;
+  args: string[];
+  cwd: string;
+  status: DoneRequiredEvidenceStatus;
+  exitCode: number;
+  durationMs: number;
+  outputDigest: string;
+  outputTail: string;
+  startedAt: string;
+  endedAt: string;
+  timedOut?: boolean;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+}
+
+export interface DoneRequiredEvidenceData {
+  schema: 'lattice.done-required-evidence';
+  version: 1;
+  storyId: string;
+  status: DoneRequiredEvidenceStatus;
+  startedAt: string;
+  endedAt: string;
+  durationMs: number;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  policyHash: string;
+  commandSetHash: string;
+  receipts: DoneRequiredCommandReceipt[];
+  reasons: string[];
+  configErrors?: string[];
+}

@@ -14,6 +14,7 @@
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
       "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "node packages/main/dist/tasks/done-required-validation-smoke.js",
       "node packages/main/dist/tasks/version-bump-smoke.js",
       "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
       "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
@@ -21,6 +22,10 @@
       "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
     ]
   },
+  "doneRequiredCommands": [
+    { "label": "packages/main build", "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000 },
+    { "label": "root full test suite", "command": "npm", "args": ["test"], "timeoutMs": 1200000 }
+  ],
   "baselineRiskAcceptedLocalPaths": [
     "AGENTS.md",
     "CLAUDE.md",

@@ -8,6 +8,7 @@ The current test contract is centered on the story checklist:
 2. The DEV phase implements the code and records the `verificationEvidence` (command, summary, intentRef, hash, etc.) via `checklist_update`.
 3. The REVIEW phase has the reviewer agent/lane (including the `lattice-review-test-coverage` coverage-review lane) check the implementation and evidence coverage.
 4. The TEST phase runs `lattice validate`, writing validation evidence, bugs, and stale/missing-evidence results.
+5. The DONE phase may additionally require `done_required_validate --storyId=<id>` when a project opts into `doneRequiredCommands` / `validationProfiles.done`; this writes separate DONE-required evidence and does not change ordinary `lattice validate`.
 
 ### Project-Native Validation
 
@@ -47,10 +48,17 @@ after the TEST phase passes, the prompt is to view the DONE pre-check, and per t
 
 The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` import/runtime exception, a `lattice validate` handler execution exception, or a JSON parse exception are all gate infrastructure failures, and must block entry into TEST and output `Cannot enter TEST` plus a re-runnable command; these exceptions must not be downgraded to a warning. A `warn/skip` that is explicitly returned by the validate policy when no validation entry is found is still handled per the validate JSON semantics, distinct from the runner itself crashing.
 
+## DONE-Required Validation
+
+`lattice validate` is routine TEST evidence. `done_required_validate --storyId=<id>` is the separate DONE-required evidence writer for projects that explicitly configure `doneRequiredCommands` or `validationProfiles.done` in `lattice.config.json`.
+
+Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`.
+
+For this self-host repository, the required policy includes `npm --prefix packages/main run build` before root `npm test`. A root `npm test` receipt without a preceding same-material packages/main build receipt, or equivalent packages/main build proof, cannot satisfy DONE-required full assurance.
+
 The validation-related process facts must be registered in `packages/main/src/core/process-fact-registry.ts`:
 `validate` represents `validation-status`, `verification_evidence_*` represents
-`verification-evidence` / `execution-evidence`, and `test-evidence.json` is the validation-result artifact consumed by the DONE
-gate. `scripts/verify-process-fact-contract.mjs`
+`verification-evidence` / `execution-evidence`, `test-evidence.json` is the routine validation-result artifact consumed by TEST/DONE, and `done-required-evidence.json` is the opt-in DONE-required artifact consumed by the separate DONE-required row. `scripts/verify-process-fact-contract.mjs`
 is responsible for validating that these registry facts are consistent with `COMMAND_POLICIES`, `PROCESS_FACT_LEVELS`,
 `DEFAULT_PHASE_TOOLS`, reviewer lanes, and signed artifacts; the project config can only add
 a local validation command or narrow the available commands, and cannot relax the legacy/rootOnly/gateEvidence semantics.
@@ -145,13 +153,14 @@ Process facts must be protected by two layers of code policy and gate, not only 
 - DEV: after implementing, run project-native commands or the browser flow, and write the `verificationEvidence` with `checklist_update`.
 - REVIEW: the reviewer lane `lattice-review-test-coverage` checks whether every `verificationIntent` has traceable evidence; it first does `review_run_start` to get the `reviewRunId`, and when there are no blockers it records a pass via `review_pass_set` + `reviewRunId`. The internal coverage validation consumes `verificationIntent` / `verificationEvidence`, and is not a separate CLI command.
 - TEST: `lattice validate` runs the project-level validation and records validation evidence; when evidence is missing or stale, it returns `allPass:false`.
-- DONE: only accepts a result where PASS, bug fixed, evidence fresh, and the summary/delivery gate are all satisfied.
+- DONE: only accepts a result where PASS, bug fixed, evidence fresh, summary/delivery gate are satisfied, and any opted-in DONE-required policy has fresh PASS evidence.
 
 ## CLI Tools
 
 | Tool | Purpose |
 |---|---|
 | `lattice validate` | The current standard project-level validation entry point, writes validation evidence / bug / stale-evidence results |
+| `done_required_validate` | Opt-in DONE-required validation entry point, writes `done-required-evidence.json`; advisory when no policy exists |
 | `checklist_update` | Records the checklist status, `verificationIntent`, and `verificationEvidence` in the DEV phase |
 | `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context; not gateEvidence, produces no validation evidence |
 | `verification_evidence_refresh_stale` | Refreshes the HEAD/material hash of stale evidence after re-running real validation |

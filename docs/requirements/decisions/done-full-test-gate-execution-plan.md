@@ -29,6 +29,8 @@ No runtime implementation is in scope for B-3321. Do not change runtime code, co
 
 Add a dedicated DONE/release-required validation profile, or an equivalent `doneRequiredCommands` configuration surface, with fresh hash-bound evidence consumed by DONE. Do not simply append `npm test` to ordinary `validate.commands`.
 
+Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.lattice/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
+
 Reasons:
 
 - Normal `lattice validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.
@@ -90,10 +92,9 @@ This avoids imposing Orchestrate-specific cost on every Lattice user while fixin
 
 ## Evidence Data Model
 
-The future implementation should persist a separate evidence artifact from ordinary `test-evidence.json`, or extend the evidence model with a distinct DONE-required section. The artifact name is intentionally left to implementation, but examples are:
+The implementation persists a separate evidence artifact from ordinary `test-evidence.json`:
 
 - `.lattice/story/actives/<storyId>/done-required-evidence.json`
-- `.lattice/story/actives/<storyId>/test-evidence.json` with `doneRequired` as a top-level field
 
 Each required command receipt should include:
 
@@ -295,6 +296,7 @@ Exit criteria:
 - Decide whether `release_approve_push --confirm` requires fresh DONE-required evidence.
 - Decide whether `.githooks/pre-push` should merely check for the artifact, rerun the profile, fix/scope its self-host build+tsc boundary, or remain narrower.
 - If pre-push stays narrower, document that the remote push hook is not a root full-suite gate and does not currently provide build+tsc assurance for this repo until the `@koala-agent/core` / `@lattice-agent/core` self-host boundary is resolved.
+- B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override behavior.
 
 Exit criteria:
 
@@ -302,7 +304,7 @@ Exit criteria:
 
 ## In-Flight Story Migration
 
-When the future implementation lands:
+When the implementation is present:
 
 - Stories in INIT, INIT_CHECK, PLAN, DEV, or REVIEW do not need full-suite evidence until they approach TEST/DONE.
 - Stories in TEST must run the DONE-required profile before advancing to DONE when the self-host policy is required.
@@ -319,10 +321,12 @@ Rollback/de-escalation policy:
 
 ## Implementation Validation Commands
 
-Future implementation should run at least:
+Implementation validation should run at least:
 
 ```bash
 npm --prefix packages/main run build
+node packages/main/dist/tasks/done-required-validation-smoke.js
+node scripts/verify-process-fact-contract.mjs
 npm test
 lattice validate --story=<storyId> --json
 lattice story_advance '{"storyId":"<storyId>","phase":"DONE"}'
@@ -331,7 +335,7 @@ lattice story_advance '{"storyId":"<storyId>","phase":"DONE"}'
 Expected artifacts:
 
 - Ordinary validation still writes `test-evidence.json` from `lattice validate`.
-- DONE-required validation writes a separate full-suite artifact or a distinct `doneRequired` evidence section.
+- DONE-required validation writes the separate `done-required-evidence.json` artifact.
 - DONE-required validation records `npm --prefix packages/main run build` before root `npm test`, or records a root `pretest` / equivalent receipt proving same-material `packages/main/dist`.
 - The DONE checklist renders both ordinary validation and full-suite rows.
 - A material change after full-suite PASS makes the full-suite row stale.

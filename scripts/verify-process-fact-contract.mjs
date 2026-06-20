@@ -1992,6 +1992,60 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
   }
 }
 
+function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const commandName = 'done_required_validate';
+  assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
+
+  const policy = policyByName.get(commandName);
+  assert(policy, `${commandPolicyPath}: required DONE-required validation command missing lifecycle policy`);
+  if (policy) {
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must remain gateEvidence`);
+    assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(policy, 'storyScopedMutating'), `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`);
+    assert(/done-required-evidence\.json/.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name done-required-evidence.json`);
+    assert(/Missing policy is advisory\/non-blocking|advisory\/non-blocking/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep missing config advisory/non-blocking`);
+    assert(/malformed opted-in policy.*fail/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep malformed opted-in config fail-closed`);
+    assert(/never claims Authority receipt completion.*productionDone.*release approval/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep no-Authority/no-release boundary`);
+  }
+
+  const levelEntry = levelRegistry.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required DONE-required validation command missing level entry`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'validation', `${processFactLevelRegistryPath}: ${commandName} category must stay validation`);
+    assert(levelEntry.owner === 'handlers/done-required-validation', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(/DONE.*done-required-validation/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gate consumer must name DONE done-required-validation`);
+  }
+
+  const registryEntry = registry.get(commandName);
+  assert(registryEntry, `${processFactRegistryPath}: required DONE-required validation command missing registry entry`);
+  if (registryEntry) {
+    for (const semantic of ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing semantic ${semantic}`);
+    }
+    assert(registryEntry.artifact?.path === 'done-required-evidence.json', `${processFactRegistryPath}: ${commandName} must produce done-required-evidence.json`);
+    assert(registryEntry.artifact?.signed === false, `${processFactRegistryPath}: ${commandName} artifact must remain unsigned local evidence`);
+  }
+
+  const artifactEntry = registry.get('artifact:done-required-evidence.json');
+  assert(artifactEntry, `${processFactRegistryPath}: artifact:done-required-evidence.json registry entry missing`);
+  if (artifactEntry) {
+    assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: done-required artifact must stay L4`);
+    for (const semantic of ['artifact', 'validation-result', 'execution-evidence', 'schema-contract', 'gate-evidence']) {
+      assert(artifactEntry.semantics.includes(semantic), `${processFactRegistryPath}: done-required artifact missing semantic ${semantic}`);
+    }
+  }
+
+  const coreText = read('packages/main/src/core/done-required-validation.ts');
+  for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'materialHash', 'storyFilesHash']) {
+    assert(coreText.includes(token), `packages/main/src/core/done-required-validation.ts: required token missing: ${token}`);
+  }
+  const oracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(oracleText.includes("id: 'done-required-validation'"), 'packages/main/src/core/done-oracle.ts: DONE checklist must contain separate done-required-validation row');
+  assert(oracleText.includes('evaluateDoneRequiredEvidence'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume done-required evaluator');
+}
+
 function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   for (const commandName of requiredDecisionDocQuorumReadOnlyCommands) {
     assert(cliToolNameSet.has(commandName), `CLI schema: required decision-doc quorum read command missing from MAIN_TOOLS: ${commandName}`);
@@ -3391,6 +3445,7 @@ function assertProcessFactCommandInventory() {
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 

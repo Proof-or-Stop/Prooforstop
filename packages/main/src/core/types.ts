@@ -5,6 +5,9 @@ export type {
   ValidationPlan,
   ValidationResult,
   ValidationStatus,
+  DoneRequiredCommandReceipt,
+  DoneRequiredEvidenceData,
+  DoneRequiredEvidenceStatus,
 } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
 
