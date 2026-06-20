@@ -28,7 +28,7 @@
       "desc": "CHK-001:happy:0: intent claims resolveParallelGate is called with lightDefault as the profileDefault, but the smoke (line 60-63 of parallel-gate-config-smoke.ts) uses PD which is the balanced default (advise/3/false). The evidence note repeats the intent wording verbatim without reflecting what the code actually does. The intent is covered by a real assertion but with a different profileDefault than stated.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:34:14.571Z",
@@ -39,7 +39,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: smoke rewritten to LIGHT/BALANCED/STRICT consts (no shared 'PD'); CHK-001:happy:0 covered by 'valid full override applied' + per-profile default cases 1, each binding the named profile default.",
+      "resolvedAt": "2026-06-20T06:39:06.846Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-003",
