@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Block ONLY on provable scope contradictions; degrade everything heuristic to advisory",
+    "Pure function, no I/O; reuse the Story-1 overlap engine and a single TERMINAL_PHASES source",
+    "Compute the tier-1 literal intersection inside the gate (the hard-block tier) because globsOverlap does not label tiers",
+    "Faithful to spec 4.5 (add no new field): fake_dependency_chain stays advise-only without a cited symbol"
+  ],
+  "drivers": [
+    "globsOverlap does not distinguish tier-1 (block) from tier-2 (advise), so the gate must compute tier-1 itself",
+    "StoryInfo.depends is string[] with no cited symbol, so the fake_dependency_chain hard block is not evaluable in-model",
+    "The frozen signature plus purity means the caller (Story 5) loads peers/contracts and enforces cfg.mode"
+  ],
+  "options": [
+    {
+      "name": "tier1-in-gate-advise-rest",
+      "pros": [
+        "Hard-blocks only on provable tier-1 literal intersection",
+        "Reuses Story-1 computeWriteSet/globsOverlap/classifyBroadness with no edits to a DONE story",
+        "Spec-faithful: provable-only blocks, advise-only fake_dependency_chain"
+      ],
+      "cons": [
+        "A small literal set-intersection is computed in the gate (not delegated to globsOverlap)"
+      ]
+    },
+    {
+      "name": "extend-globsOverlap-to-label-tiers",
+      "pros": [
+        "One overlap function would return tier info"
+      ],
+      "cons": [
+        "Requires editing parallel-decomposition-overlap.ts which is Story 1 (out of S2 scope) and re-opens a DONE story"
+      ]
+    },
+    {
+      "name": "block-on-any-globsOverlap",
+      "pros": [
+        "Simplest"
+      ],
+      "cons": [
+        "Hard-blocks on tier-2 shared-prefix over-flags, violating the provable-only invariant (DoS on legitimate parallel stories)"
+      ]
+    }
+  ],
+  "chosen": "tier1-in-gate-advise-rest",
+  "rationale": "Provable-only blocking is the spec invariant; globsOverlap cannot be the block oracle because it mixes tier-1 and tier-2, and editing the Story-1 engine is out of scope; computing a cheap literal exact-path set-intersection in the gate is the minimal correct path, with globsOverlap reused for the tier-2 advisory and classifyBroadness for broadness.",
+  "preMortem": [
+    {
+      "scenario": "False hard block on a tier-2 shared-prefix overlap",
+      "trigger": "using globsOverlap.overlap directly for the block",
+      "consequence": "legitimate parallel stories blocked from DEV (a DoS)",
+      "mitigation": "the block uses ONLY a literal exact-path set-intersection (tier-1); tier-2 pairs from globsOverlap are emitted as advisories; the smoke asserts a tier-2-only case returns block=null plus an advisory"
+    },
+    {
+      "scenario": "Broad-glob block fires under the wrong profile",
+      "trigger": "blocking broad globs unconditionally",
+      "consequence": "light/balanced profiles wrongly block legitimate broad contracts",
+      "mitigation": "broad maps to block ONLY when cfg.broadGlobBlocks is true, else an advisory; the smoke asserts both broadGlobBlocks true and false"
+    },
+    {
+      "scenario": "Fabricated fake_dependency_chain block",
+      "trigger": "inventing a symbol-absent check with no cited-symbol input",
+      "consequence": "a false hard block on a legitimate depends edge",
+      "mitigation": "with depends string[] and no symbol the falsifiable case is not evaluable, so the gate never hard-blocks fake_dependency_chain in-model (advise-only), documented per spec 4.5; the smoke asserts a depends edge does NOT produce this block"
+    },
+    {
+      "scenario": "terminalPhases drift between gate and policy",
+      "trigger": "re-defining the DONE/DISCARDED set locally in the gate",
+      "consequence": "the gate and parallel-policy disagree on which peers are active",
+      "mitigation": "hoist and export TERMINAL_PHASES from parallel-policy.ts and import it in the gate (single source); parallel-policy keeps using the same const"
+    },
+    {
+      "scenario": "Gate mistakenly enforces mode",
+      "trigger": "reading cfg.mode to abort inside the gate",
+      "consequence": "violates purity/separation; Story 5 double-enforces or diverges from the message",
+      "mitigation": "the gate returns block plus advisories only and never reads cfg.mode (only cfg.broadGlobBlocks); the caller decides; smoke and review confirm no cfg.mode reference"
+    }
+  ],
+  "timestamp": "2026-06-19T23:22:03.982Z"
+}

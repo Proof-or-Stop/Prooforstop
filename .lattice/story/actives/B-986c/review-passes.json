@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-986c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Verified: (1) Both local terminalPhases definitions inside parallel-policy.ts are removed and replaced with TERMINAL_PHASES (the new export) — zero residue in the diff scope. (2) evaluateDecompositionGate is implemented only in the new parallel-decomposition-gate.ts, not in the frozen-contract parallel-decomposition.ts (which remains NotImplemented, as intended for Story 5). (3) TERMINAL_PHASES is exported from parallel-policy.ts as a ReadonlySet and both parallel-policy uses (resolveParallelSafety, summarizeParallelPolicy) now reference it — single-source claim fully delivered within scope. (4) S3 (audit-config.ts), S4 (lattice-parallel-wave.ts, story-review.ts) untouched — gate stays disjoint. (5) lattice-parallel-wave.ts:310 and story-authority-resolver.ts:59 have their own local const TERMINAL_PHASES but these are pre-existing, out-of-scope for S2, and not a residue of any concept deleted/replaced by this diff. (6) No orphan exports: the new gate file exports only evaluateDecompositionGate, consumed only by the smoke file. (7) No CLAUDE.md changes, no doc-promise-undelivered. No blockers found.",
+      "createdAt": "2026-06-19T23:38:49.003Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-001",
+      "_hash": "c97434294397bd6d58598c75bacdae1eca50712c417c67150735e7ed4ab032bc"
+    },
+    {
+      "id": "B-986c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 7 correctness points verified: isLiteralPath/literalCollisions exclude dir/* and dir/** (tier-1 only); BLOCK_PRECEDENCE.find gives peer-order-independent severity; broadGlobBlocks gates the broad block; peer_contract_unreadable fires on missing contract; fake_dependency_chain absent from BLOCK_PRECEDENCE (never a hard block); cfg.mode never read by gate; gate is pure (no I/O). TERMINAL_PHASES hoist is behavior-preserving. Two low findings filed: orphaned JSDoc in parallel-policy.ts (F-005) and unnecessary async modifier in smoke (F-006). No blockers.",
+      "createdAt": "2026-06-19T23:39:25.307Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-002",
+      "_hash": "28fa656b29154a205182d1c82cca231c9e779843ae625752dced745a516c87a4"
+    },
+    {
+      "id": "B-986c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept/residue check complete. No deleted or replaced concepts this round. TERMINAL_PHASES: the two remaining local re-declarations (story-authority-resolver.ts, lattice-parallel-wave.ts) pre-exist on main, are private module-level consts, and were never in scope per plan INIT-001 which explicitly limits the single-source consolidation to parallel-policy.ts only. The parallel-policy.ts JSDoc accurately describes its three consumers. Contract skeleton (parallel-decomposition.ts) untouched. Gate disjoint from S3/S4/S5 (machine.ts does not import the gate). Block reason symbols single-sourced in parallel-decomposition.ts. Smoke is synchronous IIFE (not async), 30 assertions. No orphaned JSDoc; TERMINAL_PHASES export sits above resolveParallelSafety JSDoc at line 39 vs line 53. No doc-promise-undelivered items found. Zero findings.",
+      "createdAt": "2026-06-19T23:50:32.188Z",
+      "reviewRound": "2026-06-19T23:48:31.012Z",
+      "reviewRunId": "B-986c:RR-004",
+      "_hash": "9216d7f211b95324f2774bebc7fc624691a4c4671bfe8d81e350036583b8e077"
+    },
+    {
+      "id": "B-986c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: zero findings. (1) Control-flow correctness confirmed — the if(assertsParallel && activePeers>0) / else-if(broad) branches are mutually exclusive, no double-advise and no missed block path. (2) Depends advisory computed first and correctly survives the early fail-open return (verified against test 8). (3) Fail-open (own contract) vs fail-closed (peer contract) asymmetry is correctly implemented per §4.8. (4) BLOCK_PRECEDENCE.find() across a Set correctly handles multi-trigger precedence (test 15). (5) Tier-2 dedup guard x===y&&tier1Set.has(x) correctly suppresses only same-path literal pairs without suppressing genuine wildcard-vs-literal tier-2 pairs. (6) F-005 confirmed resolved: TERMINAL_PHASES exported at line 39 before resolveParallelSafety at line 53; JSDoc intact. (7) F-006 confirmed resolved: IIFE is void(()=>{...})() — synchronous, not async. (8) All imports used in both new files; no dead code. (9) lattice.config.json correctly adds the smoke to the test suite. No type-safety issues, no shell-isolation violations, no empty catch blocks.",
+      "createdAt": "2026-06-19T23:51:11.154Z",
+      "reviewRound": "2026-06-19T23:48:31.012Z",
+      "reviewRunId": "B-986c:RR-005",
+      "_hash": "296b7735647085ece9c201ee621649dd728b8826cad0d67a8095867f5b0af43e"
+    },
+    {
+      "id": "B-986c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check completed. The only code change is an additive guard (activePeers.length > 0) added to the else-if branch in packages/main/src/core/parallel-decomposition-gate.ts, plus two new/extended smoke assertions (#5 + #5b). No concept word was deleted or replaced en masse. The pre-existing 18-assertion strings in test-evidence.json and checklist.json are unchanged from round 1 and were not introduced by this round-3 commit (confirmed via git show d08c12fc1). No residue blocker.",
+      "createdAt": "2026-06-19T23:58:59.808Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-007",
+      "_hash": "6dd5e87c82171c8b69245376c764ca0972f11f7dae9cf81e051ebce692b9dddb"
+    },
+    {
+      "id": "B-986c:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review: branch logic correct — parallel+activePeers>0 goes into the block/advise branch; non-parallel WITH activePeers>0 goes into the else-if advise-only branch; parallel with no active peers (or all-terminal peers) falls through both branches, producing truly empty advisories (F-007 resolved). No dead code: TERMINAL_PHASES extraction replaces both inline local Sets in parallel-policy.ts cleanly, all imports in gate and smoke files are used. No as-any or empty-catch. No shell importing gate directly (smoke is a task, not a shell). Smoke #5 and #5b exercise the new else-if guard and assert zero advisories; assertions match stated intent.",
+      "createdAt": "2026-06-19T23:59:16.857Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-008",
+      "_hash": "7322b1406888e497ad9b9a119f803a1215cb742dde0032334b85c3c4a6e1300d"
+    },
+    {
+      "id": "B-986c:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 32 verificationIntent entries (CHK-001: 5 happy + 7 edge + 5 adversarial; CHK-002: 6 happy + 6 edge + 3 adversarial) have concrete matching evidence pointing to node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js (or lattice validate for CHK-002:happy:0,5). CHK-001:adversarial:4 (all-terminal peers + broad -> block null AND empty advisories, former F-007) is now directly covered by smoke block 5b (lines 109-119, 2 assertions: all-terminal peers + broad -> block null; all-terminal peers + broad -> empty advisories). The 18-assertion note annotation in stored evidence is a stale count (smoke grew from 18 to 32 assertions) but the command field is correct and the behavioral description is specific. No command-to-intent mismatches found. Evidence staleness (materialHash drift) is a pre-TEST refresh concern, not a coverage gap — the main agent refreshes before TEST.",
+      "createdAt": "2026-06-20T00:00:27.638Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-009",
+      "_hash": "aa7f94174cb733009671d3a5641db9972eba0e6ea288f1505e375881b3dee670"
+    }
+  ]
+}

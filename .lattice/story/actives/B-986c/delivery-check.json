@@ -1,0 +1,55 @@
+{
+  "storyId": "B-986c",
+  "checkedAt": "2026-06-20T00:07:52.930Z",
+  "reviewRound": "2026-06-19T23:57:53.346Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition-gate.ts#header-comment",
+      "promise": "evaluateDecompositionGate is pure (no I/O), does not read cfg.mode, blocks only on provable contradictions (overlap_declared_parallel via tier-1 literal collisions computed in-gate, broad_glob_unprovable_parallel only with active peers+cfg.broadGlobBlocks, peer_contract_unreadable_parallel on active parallel peer with absent contract); fake_dependency_chain is advise-only; §4.8 fail-OPEN on own unreadable contract (early return block:null), fail-CLOSED on peer (block), no-active-peers is a true no-op (empty advisories)",
+      "verifiedBy": "direct file read",
+      "evidence": "gate.ts lines 7-8 state no cfg.mode; lines 79-82 return {advisories,block:null} on absent own contract (fail-open); lines 86-88 filter activePeers via TERMINAL_PHASES; lines 95-134 gated on assertsParallel(story)&&activePeers.length>0 so zero peers emits nothing; lines 99-106 add peer_contract_unreadable_parallel on absent peer contract (fail-closed); lines 111-115 compute tier-1 via literalCollisions; lines 142-143 pick first BLOCK_PRECEDENCE hit"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition-gate.ts#literalCollisions",
+      "promise": "Tier-1 collision computed in-gate via literalCollisions (literal exact-path intersection) not delegating to globsOverlap which mixes tiers",
+      "verifiedBy": "direct file read",
+      "evidence": "literalCollisions() at lines 34-37 filters both sides to isLiteralPath() then intersects; globsOverlap used separately at line 119 for tier-2 advisory pairs only"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-policy.ts#TERMINAL_PHASES",
+      "promise": "TERMINAL_PHASES (DONE/DISCARDED) hoisted to a single exported const reused by resolveParallelSafety, summarizeParallelPolicy, and the new gate — single source, behavior-preserving",
+      "verifiedBy": "direct file read",
+      "evidence": "parallel-policy.ts line 39: export const TERMINAL_PHASES: ReadonlySet<string> = new Set([DONE,DISCARDED]); used at line 61 in resolveParallelSafety, line 100 in summarizeParallelPolicy; imported at parallel-decomposition-gate.ts line 21"
+    },
+    {
+      "docPath": "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts#header-comment",
+      "promise": "32-assertion hermetic in-memory smoke covering all block reasons, tier-1 vs tier-2 split, fail-open/fail-closed/no-op, terminal-phase filtering, precedence, and cfg.mode ignorance",
+      "verifiedBy": "direct file read + grep count",
+      "evidence": "smoke.ts has 32 check() assertion calls (33 grep hits minus function definition line); all fixtures in-memory (no fs/git/network imports); test 5 verifies no-op with zero peers (block null, advisories.length===0); test 5b verifies all-terminal peers are true no-op; test 8 verifies fail-open on own missing contract; test 7 verifies fail-closed on peer missing contract; test 19 verifies cfg.mode=off does not suppress block"
+    },
+    {
+      "docPath": "lattice.config.json#validate.commands",
+      "promise": "Smoke registered in lattice.config.json validate.commands so it runs during lattice validate",
+      "verifiedBy": "grep lattice.config.json",
+      "evidence": "lattice.config.json line 18: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "hermetic smoke (32 assertions) covers: clean disjoint -> block null + no overlap advisory; tier-1 literal collision -> overlap_declared_parallel citing path+peer; DONE peer ignored with colliding path -> block null; DISCARDED peer ignored -> block null; non-parallel story overlapping parallel peer -> block null; peer with missing contract -> peer_contract_unreadable_parallel; own contract missing -> fail-open block null with advisory; depends citing ghost peer -> advisory only never block; known depends peer -> no stale-edge advisory; cfg.mode=off still reports provable block; duplicate paths do not crash; self-as-peer filtered; precedence 2-way (overlap beats broad) and 3-way (overlap > peer_unreadable > broad) confirmed; multi-peer mixed terminal+active"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "same smoke binary registered in lattice.config.json validate.commands[7]; lattice validate runs it and reports 32 assertions passed; smoke is hermetic (all fixtures in-memory, no I/O imports); fixtures cover tier-2 shared-prefix advisory, broad+lenient advisory, broad+strict block, no-peers true no-op, all-terminal no-op, and full precedence chain"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified directly in source: the gate implements the exact semantics described (fail-open on own unreadable, fail-closed on peer unreadable, true no-op with no active peers, tier-1 computed in-gate via literalCollisions, cfg.mode never accessed); TERMINAL_PHASES is a single exported const reused across all three consumers; the smoke has 32 assertions covering happy, edge, and adversarial cases including the full §4.8 triad, 3-way precedence, and cfg.mode ignorance; it is registered in lattice.config.json; no TODO/FIXME in any changed production file."
+  },
+  "_hash": "f894a343fc6cbfcd9db0af7632b24519e0633647fbe2d745d27386af3c6e5a94"
+}
