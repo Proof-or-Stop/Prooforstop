@@ -455,7 +455,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "Updated story-owner-lease smoke covers codex, claude-code, antigravity, agy, fake future host, generated-token, and degraded ppid matrix cases.",
+          "headHash": "98f26a756eaf047995e32609b01ed22d744bd445",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:16.093Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
