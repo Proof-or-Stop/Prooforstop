@@ -1,0 +1,27 @@
+{
+  "storyId": "B-76f5",
+  "updatedAt": "2026-06-20T18:54:13.120Z",
+  "entries": [
+    {
+      "digest": "da8a422f4d24d697426830c00b698371662fffd12309cd3165bfe14e8d3094e0",
+      "terms": [
+        "## Conversational Texture Users want this to work regardless of host and avoid asking the same issue repeatedly. Implementing it now should make handoff outcomes deterministic, auditable, and easier to review under high-risk conditions.",
+        "## Key Insights Different hosts currently read different context sources and can continue work on already-completed or superseded docs. The handoff payload does not consistently include the same authoritative fact bundle, so hosts may make duplicate or incorrect recommendations.",
+        "## Solution Tradeoffs We can enforce a host-agnostic preflight contract with a compact payload and explicit stale-doc checks in handoff accept/dispatch flows. This adds some validation latency but prevents recurring rework and improves 3x2/2-host review reliability versus leaving verification to local habits.",
+        "## Trigger Event On 2026-06-20, story B-0607 captured a truth-first host handoff stale-doc guard execution plan after recurring failures when hosts resumed work from stale plan docs and lacked fresh evidence summaries.",
+        "## Trigger Event On 2026-06-20, story B-0607 captured a truth-first host handoff stale-doc guard execution plan after recurring failures when hosts resumed work from stale plan docs and lacked fresh evidence summaries. ## Key Insights Different hosts currently read different context sources and can continue work on already-completed or superseded docs. The handoff payload does not consistently include the same authoritative fact bundle, so hosts may make duplicate or incorrect recommendations. ## Solution Tradeoffs We can enforce a host-agnostic preflight contract with a compact payload and explicit stale-doc checks in handoff accept/dispatch flows. This adds some validation latency but prevents recurring rework and improves 3x2/2-host review reliability versus leaving verification to local habits. ## Conversational Texture Users want this to work regardless of host and avoid asking the same issue repeatedly. Implementing it now should make handoff outcomes deterministic, auditable, and easier to review under high-risk conditions.",
+        "host-handoff",
+        "Implement truth-first host handoff fact preflight and stale-doc supersession guard",
+        "multi-host",
+        "preflight",
+        "review-evidence",
+        "session-memory",
+        "stale-docs",
+        "The previous work wrote an execution plan for truth-first host handoff and stale-doc handling, but there is still no implementation that automatically injects stable fact payloads across Codex/Claude/Antigravity handoffs."
+      ],
+      "reason": "Replaced by B-1d4c with explicit checklist in story_create",
+      "discardedAt": "2026-06-20T18:54:13.120Z",
+      "storyId": "B-76f5"
+    }
+  ]
+}
