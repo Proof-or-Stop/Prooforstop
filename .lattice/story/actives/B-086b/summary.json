@@ -1,0 +1,55 @@
+{
+  "storyId": "B-086b",
+  "changes": "Story 5 (final, serial integration) of the parallel-decomposition gate program: turned the gate into a REAL hard block on EVERY door into DEV. core/parallel-decomposition.ts now re-exports the real impls (replacing the Story-0 NotImplemented skeletons). core/machine.ts: a shared parallelDecompositionEnforcedBlock (mode==='block' only; peers+contracts via safeReadScopeContract incl self; returns evaluateDecompositionGate().block) wrapped by a fail-open parallelDevEntryBlock (null on any error), enforced on ALL FOUR START->DEV doors — canStartDevGuard (PLAN), canSkipPlanGuard (INIT_CHECK express), and a new canReenterDevGuard on the REVIEW->DEV + TEST->DEV rollback transitions (mirrored in canSendStoryEventWithoutSnapshotCan). getGuardFailureReason renders the parallel block message on all four doors via tookExpressChannel + isRollbackDoor. formatParallelDecompositionBlock names only a genuine tier-1 literal-collision active (non-terminal) peer. Strict !==0 review-count restored. 50-assertion hermetic integration smoke (temp-git-repo + StoryStore + signed clean review).",
+  "usage": "Set parallelGate.mode='block' in .lattice/audit-config.json. A story asserting parallelSafe='yes' whose write-set literally overlaps an active parallel peer is then REFUSED entry to DEV on every door (PLAN->DEV, INIT_CHECK->DEV express, and REVIEW/TEST->DEV rework rollbacks) with 'Cannot enter DEV: ... parallel-decomposition ...'. mode='advise'/'off' never hard-block (advisory is Story 4). A gate/config/store error never blocks (fail-open).",
+  "expectedOutcome": "lattice validate runs all 11 commands green incl. 'parallel-decomposition-gate-integration smoke passed: 50 assertions'. story_advance --phase=DEV is refused under mode=block on a real overlap from any of the four doors; allowed under advise/off/disjoint; never blocked by an infra error.",
+  "actualTranscript": "lattice validate: 11/11 green; the integration smoke prints '50 assertions' (exit 0). 3-round genuine dual-host review (Codex host-2 + a 6-lens Claude Workflow with per-finding adversarial verification + completeness critic) resolved 10 findings incl. a BLOCKER (light-profile bypass) and TWO bypass-door MAJORs the Claude completeness critic caught that Codex missed (express channel; REVIEW/TEST rollback doors). Round-3: Claude fully clean (fifth-door lens + critic PASS, no 5th door); Codex runtime PASS with only out-of-scope descriptive-metadata findings, deferred to a follow-up story by operator decision.",
+  "outcomeDiff": "none on the runtime gate — expected and actual match: 50 assertions pass, validate green, all four DEV doors enforce under mode=block, fail-open + parity confirmed by both hosts and the completeness critic. Out-of-scope: two descriptive contract registries (lifecycle-registry.ts, process-fact-levels.ts) do not yet record the new gate — deferred to a follow-up story (operator decision); the registries are not read for DEV-entry enforcement.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Descriptive lifecycle/process-fact metadata is not updated to record the new gate (those files are out of this story's scope and are not consumed for DEV-entry enforcement); deferred to a dedicated follow-up story. The integration smoke uses a temp-git-repo + StoryStore seam rather than a full CLI-level e2e.",
+  "pitfalls": "A hard gate must cover EVERY door into the target phase, not just the obvious one: there are FOUR START->DEV transitions (PLAN, INIT_CHECK-express, REVIEW-rollback, TEST-rollback) and a naive 'wire it into canStartDevGuard' (literally what spec §4.4 says) leaves it bypassable via the express channel and the rework rollback. The new sub-check must be FAIL-OPEN (own try/catch -> allow) so a config/store error never strands PLAN->DEV. Enforce the block ONLY under mode===block; the gate itself is mode-agnostic. Use strict !==0 (not >0) for the signed review-count or malformed counts slip through. store.readScopeContract RE-THROWS on a corrupt contract — wrap in safeReadScopeContract.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 178812
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9880
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 338013
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 681952
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 3878466
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 289552
+    }
+  },
+  "totalDurationMs": 5376759,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T09:43:26.172Z",
+  "updatedAt": "2026-06-20T09:43:26.172Z"
+}

@@ -11,8 +11,6 @@
  * No real logic or I/O lives here yet — every function throws NotImplemented.
  */
 
-import type { ScopeContractData, StoryInfo } from './types.js';
-
 /** Gate behaviour for the parallel-decomposition check (§4.7). A NEW set, disjoint in
  * meaningful values from AuditMode ({semi-auto, full-auto}); the two only share `off`. */
 export type ParallelGateMode = 'advise' | 'block' | 'off';
@@ -63,37 +61,14 @@ export interface DecompositionGateResult {
 }
 
 /**
- * Compute the write-set (created/modified paths) of a scope contract. (Story 1)
+ * Story 5 (B-086b) reconciliation: the four impl stories filled the function bodies in
+ * disjoint files (parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts). The
+ * frozen contract now RE-EXPORTS the real impls so callers can import the canonical
+ * function surface from this single contract module. The TYPES above stay DEFINED here;
+ * the impl modules import them TYPE-ONLY (erased at runtime → no runtime import cycle).
+ *
+ *   - computeWriteSet, globsOverlap   → parallel-decomposition-overlap.ts (Story 1)
+ *   - evaluateDecompositionGate        → parallel-decomposition-gate.ts (Story 2)
  */
-export function computeWriteSet(contract: ScopeContractData): string[] {
-  void contract;
-  throw new Error('NotImplemented: computeWriteSet');
-}
-
-/**
- * Static, tiered glob overlap between two write-sets (§4.2): literal-path intersection
- * plus shared-directory-prefix heuristic, with broadness classification. (Story 1)
- */
-export function globsOverlap(a: string[], b: string[]): GlobOverlapResult {
-  void a;
-  void b;
-  throw new Error('NotImplemented: globsOverlap');
-}
-
-/**
- * Pure decomposition gate (§4.4): computes advisories + an optional block reason from
- * scope facts only. Does NOT consult `cfg.mode` for enforcement — the caller
- * (canStartDevGuard) decides whether a non-null block aborts, per `cfg.mode`. (Story 2)
- */
-export function evaluateDecompositionGate(
-  story: StoryInfo,
-  peers: StoryInfo[],
-  contracts: Map<string, ScopeContractData>,
-  cfg: ParallelGateConfig,
-): DecompositionGateResult {
-  void story;
-  void peers;
-  void contracts;
-  void cfg;
-  throw new Error('NotImplemented: evaluateDecompositionGate');
-}
+export { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js';
+export { evaluateDecompositionGate } from './parallel-decomposition-gate.js';

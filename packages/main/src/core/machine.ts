@@ -4,7 +4,11 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue } from './types.js';
+import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
+import { resolveAuditConfig } from './audit-config.js';
+import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
+import { safeReadScopeContract } from './lattice-parallel-wave.js';
+import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
 import type { ReviewLoopIteration } from './types.js';
@@ -296,21 +300,197 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
   }
 }
 
+/**
+ * Parallel-decomposition: the block to ENFORCE at PLAN→DEV, or null (no enforced block).
+ *
+ * Consults cfg.mode ONLY here — the gate (evaluateDecompositionGate) is mode-agnostic and
+ * the spec (§4.4) says the CALLER enforces mode. Returns null unless cfg.mode==='block', so
+ * advise/off never produce an enforced block (advisory is Story 4's surface). The self story's
+ * own scope contract is included in the map (the loop over ALL ids covers it), which the gate
+ * needs to compute its own write-set.
+ *
+ * MAY THROW (config introspection / store read errors) — every caller wraps this in its OWN
+ * fail-open try/catch so a gate/config infra error can NEVER block PLAN→DEV (spec §4.8).
+ *
+ * MIGRATION HAZARD (F-005): under mode='block', the frozen gate (§4.8) is fail-CLOSED on an
+ * unreadable PEER contract — a legacy ACTIVE parallelSafe='yes' peer with NO scope-contract.json
+ * will surprise-block an otherwise-unrelated story (peer_contract_unreadable_parallel). So
+ * enabling mode='block' requires that EVERY active parallelSafe='yes' story carries a readable
+ * scope contract. (The gate behaviour itself is frozen and out of scope here — do not change it.)
+ */
+function parallelDecompositionEnforcedBlock(
+  store: StoryStore,
+  projectRoot: string,
+  story: StoryInfo,
+  profile: WorkflowProfile,
+): ParallelDecompositionBlock | null {
+  const cfg = resolveAuditConfig(profile, projectRoot).parallelGate;
+  if (!cfg || cfg.mode !== 'block') return null;
+  const ids = store.listStoryIds();
+  const peers = ids.filter((id) => id !== story.storyId).map((id) => store.readStory(id));
+  const contracts = new Map<string, ScopeContractData>();
+  for (const id of ids) {
+    const c = safeReadScopeContract(store, id);
+    if (c) contracts.set(id, c);
+  }
+  return evaluateDecompositionGate(story, peers, contracts, cfg).block;
+}
+
+/**
+ * F-006: the SINGLE fail-open wrapper applied to EVERY door into DEV. There are four START→DEV
+ * doors (lifecycle-registry PHASE_EVENT_BY_TARGET DEV:'START'): INIT_CHECK→DEV (canSkipPlanGuard),
+ * PLAN→DEV (canStartDevGuard), and the rollback transitions REVIEW→DEV + TEST→DEV
+ * (canReenterDevGuard). All four must enforce the same parallel hard-block under mode='block'.
+ *
+ * Returns the enforced block to refuse DEV entry, or null (allow). NEVER throws and NEVER blocks
+ * on an infra error: a missing projectRoot or any gate/config/store error degrades to null
+ * (fail-open, spec §4.8) so a gate/config infra error can never strand ANY door into DEV.
+ */
+function parallelDevEntryBlock(
+  store: StoryStore,
+  projectRoot: string | undefined,
+  story: StoryInfo,
+  profile: WorkflowProfile,
+): ParallelDecompositionBlock | null {
+  if (!projectRoot) return null;
+  try {
+    return parallelDecompositionEnforcedBlock(store, projectRoot, story, profile);
+  } catch {
+    return null; // FAIL-OPEN: a gate/config/store error must NEVER block any DEV door (spec §4.8)
+  }
+}
+
+/**
+ * F-007: a write-set entry is LITERAL (tier-1 eligible) iff it carries no trailing `/*` or `/**`.
+ * Local mirror of parallel-decomposition-gate.ts's internal `isLiteralPath` (that module is frozen
+ * and the predicate is not exported) so the formatter names the peer the gate ACTUALLY blocked on.
+ */
+function isLiteralWriteSetEntry(entry: string): boolean {
+  return !entry.endsWith('/*') && !entry.endsWith('/**');
+}
+
+/**
+ * F-007: the FIRST entry that is present-and-literal in BOTH write-sets — i.e. a genuine tier-1
+ * literal collision (zero false positives), the only tier the gate hard-blocks on. Returns null
+ * when there is no literal collision (so the formatter skips a peer with only tier-2 wildcard/
+ * shared-prefix overlap). Mirrors the gate's `literalCollisions`.
+ */
+function firstLiteralCollision(a: string[], b: string[]): string | null {
+  const litB = new Set(b.filter(isLiteralWriteSetEntry));
+  for (const e of a) {
+    if (isLiteralWriteSetEntry(e) && litB.has(e)) return e;
+  }
+  return null;
+}
+
+/**
+ * Map an enforced parallel-decomposition block to an actionable PLAN→DEV failure message.
+ * Names the colliding peer / broad glob where it is cheap to recompute (overlap recomputes
+ * the TIER-1 LITERAL collision against active parallel peers, mirroring the gate, so it never
+ * cites a tier-2 wildcard pair or names the wrong peer). Never throws: any recompute failure
+ * degrades to a general message.
+ */
+function formatParallelDecompositionBlock(
+  block: ParallelDecompositionBlock,
+  story: StoryInfo,
+  store: StoryStore,
+  projectRoot: string,
+  profile: WorkflowProfile,
+): string {
+  switch (block) {
+    case 'overlap_declared_parallel': {
+      let detail = '';
+      try {
+        const cfg = resolveAuditConfig(profile, projectRoot).parallelGate;
+        const sContract = safeReadScopeContract(store, story.storyId);
+        if (cfg && sContract) {
+          const sWriteSet = computeWriteSet(sContract);
+          for (const id of store.listStoryIds()) {
+            if (id === story.storyId) continue;
+            const peer = store.readStory(id);
+            // F-004: mirror evaluateDecompositionGate's activePeers filter — never name a
+            // terminal (DONE/DISCARDED) peer, which the gate does not consider.
+            if (TERMINAL_PHASES.has(peer.phase)) continue;
+            if (peer.parallelSafe !== 'yes') continue;
+            const pContract = safeReadScopeContract(store, id);
+            if (!pContract) continue;
+            // F-007: only a genuine TIER-1 literal collision (not a tier-2 wildcard/shared-prefix
+            // pair) is what the gate hard-blocks on — name only a peer that actually has one.
+            const literal = firstLiteralCollision(sWriteSet, computeWriteSet(pContract));
+            if (literal !== null) {
+              detail = ` with parallel peer ${id} (e.g. ${literal})`;
+              break;
+            }
+          }
+        }
+      } catch { /* general message below if recompute fails */ }
+      return `parallel-decomposition: write-set literally collides${detail || ' with an active parallel peer'}; ` +
+        `independence is not provable [overlap_declared_parallel]. ` +
+        `→ Make the two scope contracts disjoint (allowedModify/allowedCreate), or set parallelSafe=no / sequence the stories so they do not DEV simultaneously.`;
+    }
+    case 'broad_glob_unprovable_parallel': {
+      let broad = '';
+      try {
+        const sContract = safeReadScopeContract(store, story.storyId);
+        if (sContract) {
+          const example = computeWriteSet(sContract).find((e) => e.endsWith('/**'));
+          if (example) broad = ` (e.g. ${example})`;
+        }
+      } catch { /* general message */ }
+      return `parallel-decomposition: a broad glob${broad} is asserted parallel-safe under the strict profile; ` +
+        `independence is unprovable [broad_glob_unprovable_parallel]. ` +
+        `→ Narrow the contract to specific paths or dir/* entries, or set parallelSafe=no.`;
+    }
+    case 'peer_contract_unreadable_parallel': {
+      let peerId = '';
+      try {
+        for (const id of store.listStoryIds()) {
+          if (id === story.storyId) continue;
+          const peer = store.readStory(id);
+          // F-004: same activePeers filter — only an ACTIVE parallel peer can be the unreadable one.
+          if (TERMINAL_PHASES.has(peer.phase)) continue;
+          if (peer.parallelSafe !== 'yes') continue;
+          if (safeReadScopeContract(store, id) === null) { peerId = id; break; }
+        }
+      } catch { /* general message */ }
+      return `parallel-decomposition: the scope contract for parallel peer ${peerId || '(unknown)'} is unreadable, ` +
+        `so disjointness from this story cannot be proven [peer_contract_unreadable_parallel]. ` +
+        `→ Repair the peer's scope-contract.json, or set parallelSafe=no to drop the parallel assertion.`;
+    }
+    case 'fake_dependency_chain':
+      // Advisory-only in the gate (never an enforced block); handled defensively.
+      return `parallel-decomposition: a declared dependency edge could not be corroborated [fake_dependency_chain]. ` +
+        `→ Verify the depends edges name real active peer stories.`;
+  }
+}
+
 export function canStartDevGuard(context: StoryMachineContext): boolean {
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
-    if (!policy.plan.requireStoryReview) return true;
-    const review = context.store.readReview(context.storyId);
-    if (!review || !review.reviews || review.reviews.length === 0) return false;
-    const lastRound = review.reviews[review.reviews.length - 1];
-    const REVIEW_SALT = 'koala-review-integrity-v1';
-    const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
-    const expectedHash = createHash('sha256').update(hashInput).digest('hex');
-    if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
-    return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
+    // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
+    // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
+    // not required, which made the hard block bypassable). The early `return true` is gone.
+    if (policy.plan.requireStoryReview) {
+      const review = context.store.readReview(context.storyId);
+      if (!review || !review.reviews || review.reviews.length === 0) return false;
+      const lastRound = review.reviews[review.reviews.length - 1];
+      const REVIEW_SALT = 'koala-review-integrity-v1';
+      const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
+      const expectedHash = createHash('sha256').update(hashInput).digest('hex');
+      if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
+      // F-002: strict `!== 0` (NOT `> 0`) — a negative / NaN / oddly-typed signed count must
+      // NOT be treated as clean. This restores the original `=== 0` semantics exactly.
+      if ((lastRound.blockerCount ?? lastRound.issueCount) !== 0) return false;
+    }
+    // Parallel-decomposition hard block (spec §4.8) via the shared FAIL-OPEN wrapper, ALWAYS
+    // reached (regardless of requireStoryReview). The wrapper never throws and returns null on any
+    // infra error, so this can never block PLAN→DEV on a gate/config error. The review gate above
+    // stays fail-closed.
+    if (parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
+    return true;
   } catch {
     return false;
   }
@@ -325,9 +505,32 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.enabled) return false;
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
-    return cl.items.length <= policy.quickPath.maxChecklistItems;
+    if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
+    // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
+    // SAME parallel hard-block (otherwise an express story bypasses the gate). Shared FAIL-OPEN
+    // wrapper: a gate/config infra error must never strand the express channel.
+    if (parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
+    return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
+ * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
+ * ARE doors into DEV, so they must enforce the SAME parallel hard-block under mode='block'.
+ * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
+ * must never be stranded by a gate/config error), via parallelDevEntryBlock + the outer catch.
+ */
+export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = context.store.readStory(context.storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+    return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
+  } catch {
+    return true; // FAIL-OPEN: an infra error must never block a rollback into DEV (spec §4.8)
   }
 }
 
@@ -467,9 +670,11 @@ export function canSendStoryEventWithoutSnapshotCan(
     case 'DEV':
       return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
     case 'REVIEW':
-      return eventType === 'START' || (eventType === 'REVIEW_PASS' && canPassReviewGuard(context));
+      // F-006: REVIEW→DEV rollback must consult canReenterDevGuard so this non-xstate path agrees
+      // with the machine guard (the parallel block holds on the rollback door too).
+      return (eventType === 'START' && canReenterDevGuard(context)) || (eventType === 'REVIEW_PASS' && canPassReviewGuard(context));
     case 'TEST':
-      return eventType === 'START' || (eventType === 'FINISH' && canFinishGuard(context));
+      return (eventType === 'START' && canReenterDevGuard(context)) || (eventType === 'FINISH' && canFinishGuard(context));
     default:
       return false;
   }
@@ -499,6 +704,8 @@ export const storyMachine = setup({
     canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
     canStartDev: ({ context }) => canStartDevGuard(context),
     canSkipPlan: ({ context }) => canSkipPlanGuard(context),
+    // F-006: REVIEW→DEV and TEST→DEV rollbacks are also doors into DEV — enforce the parallel block.
+    canReenterDev: ({ context }) => canReenterDevGuard(context),
     canPassReview: ({ context }) => canPassReviewGuard(context),
     canFinish: ({ context }) => canFinishGuard(context),
   },
@@ -550,6 +757,7 @@ export const storyMachine = setup({
         },
         START: {
           target: 'DEV',
+          guard: 'canReenterDev', // F-006: rollback REVIEW→DEV must still enforce the parallel block
         },
       },
     },
@@ -561,6 +769,7 @@ export const storyMachine = setup({
         },
         START: {
           target: 'DEV',
+          guard: 'canReenterDev', // F-006: rollback TEST→DEV must still enforce the parallel block
         },
       },
     },
@@ -653,6 +862,15 @@ export function getGuardFailureReason(
   if (targetPhase === 'DEV') {
     // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
+    // F-003: when the story takes the express (INIT_CHECK→DEV quickPath) channel, the
+    // story-review record gate does NOT apply (express skips review), so the review-reason block
+    // below must be skipped — otherwise an eligible express story shows a spurious "no review
+    // record" message instead of the real (parallel-decomposition) reason it was blocked on.
+    // F-006: the same holds for the REVIEW→DEV and TEST→DEV ROLLBACK doors — a rollback does not
+    // re-demand a clean review (canReenterDevGuard applies ONLY the parallel check), so the review
+    // block must be skipped for those phases too, leaving the parallel reason to render below.
+    const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
+    let tookExpressChannel = false;
     if (story.phase === 'INIT_CHECK') {
       // Express channel failure reasons — read WorkflowPolicy
       const reasons: string[] = [];
@@ -680,10 +898,14 @@ export function getGuardFailureReason(
       if (reasons.length > 0) {
         return `Cannot skip PLAN:\n${reasons.map(r => `  - ${r}`).join('\n')}\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' to enter the full PLAN flow`;
       }
+      // No express-eligibility reasons => this story takes the express channel into DEV.
+      tookExpressChannel = true;
     }
 
-    // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it)
-    try {
+    // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it).
+    // Skipped entirely for an express-channel story AND for a rollback door (review does not apply
+    // to either) — both fall straight through to the parallel-decomposition message below.
+    if (!tookExpressChannel && !isRollbackDoor) try {
       const config2 = loadConfig(projectRoot);
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
@@ -702,7 +924,9 @@ export function getGuardFailureReason(
             const expectedHash = createHash('sha256').update(hashInput).digest('hex');
             if (!lastRound._hash || lastRound._hash !== expectedHash) {
               reasons.push('review.json signature verification failed; review report must be generated by story_review CLI');
-            } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
+            } else if ((lastRound.blockerCount ?? lastRound.issueCount) !== 0) {
+              // F-002: strict `!== 0` mirrors canStartDevGuard — a non-clean non-positive count
+              // (negative/NaN) is NOT clean, so it must surface a reason here too.
               reasons.push(`Latest story_review round has ${lastRound.blockerCount ?? lastRound.issueCount} unresolved blocker(s)`);
             }
           }
@@ -715,6 +939,22 @@ export function getGuardFailureReason(
       }
     } catch {
       // config load failed — fall through (don't block on config error)
+    }
+
+    // Parallel-decomposition block message — mirrors canStartDevGuard's decision via the SAME
+    // helper (parallelDecompositionEnforcedBlock) so the boolean and the message cannot drift.
+    // FAIL-OPEN: on ANY error (or missing projectRoot) fall through to null — never fabricate a
+    // block message on a gate/config error (spec §4.8). projectRoot is optional in this signature.
+    if (projectRoot) {
+      try {
+        const config = loadConfig(projectRoot);
+        const story = store.readStory(storyId);
+        const policy = resolveWorkflowPolicy(config, story);
+        const block = parallelDecompositionEnforcedBlock(store, projectRoot, story, policy.profile);
+        if (block !== null) {
+          return `Cannot enter DEV:\n  - ${formatParallelDecompositionBlock(block, story, store, projectRoot, policy.profile)}`;
+        }
+      } catch { /* fail-open: never fabricate a block message on a gate/config error */ }
     }
   }
 

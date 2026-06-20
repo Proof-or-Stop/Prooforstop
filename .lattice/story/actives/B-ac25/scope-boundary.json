@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ac25",
+  "mode": "custom",
+  "allowed": [
+    "DONE oracle row and gate consumption",
+    "DONE-required runner and hash-bound evidence artifact",
+    "DONE-required validation config schema/normalization",
+    "lifecycle/testing docs describing routine vs DONE-required validation",
+    "process-fact registry/levels/contract verifier updates",
+    "self-host opt-in build plus root npm test policy",
+    "smoke tests for missing/failing/stale/policy-drift/external advisory behavior"
+  ],
+  "excluded": [
+    ".githooks/pre-push behavior changes",
+    "adding root npm test to ordinary validate.commands as the final solution",
+    "Authority remote receipts or production receipt semantics",
+    "customerKeyRef or customer authority API-key handling",
+    "degraded fallback implementation beyond visible lower-assurance wording if already needed by docs",
+    "emergency override implementation",
+    "forcing external projects to run root npm test by default",
+    "historical DONE reopening or retroactive mutation",
+    "Layer4 production rollout or production safety suite changes",
+    "release_approve_push implementation or policy changes"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User confirmed executing B-3321 implementation; INIT reviewer requested explicit anti-expansion exclusions before INIT_CHECK.",
+  "createdAt": "2026-06-20T09:48:15.328Z",
+  "updatedAt": "2026-06-20T09:48:15.328Z",
+  "_hash": "053f3c422eb0bd35b027977cb37e2078cda3b5c1029df5ee024d046b2df43dcd"
+}

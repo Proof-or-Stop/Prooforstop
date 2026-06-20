@@ -1,0 +1,129 @@
+{
+  "storyId": "B-086b",
+  "checkedAt": "2026-06-20T08:22:04.398Z",
+  "features": [
+    {
+      "feature": "Re-export real impls (computeWriteSet/globsOverlap/evaluateDecompositionGate) from parallel-decomposition.ts, replacing the 3 NotImplemented skeletons",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire evaluateDecompositionGate into canStartDevGuard (machine.ts) as a FAIL-OPEN sub-check enforcing the block ONLY under parallelGate.mode===block (spec §4.4)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Mirror the block reason in getGuardFailureReason (machine.ts DEV branch) using a single shared predicate with canStartDevGuard so decision and message cannot drift (spec §4.4 two-coordinated-edits)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "FAIL-OPEN on own gate/config infra error: any throw in the parallel sub-check falls through to allow; never blocks PLAN->DEV on an infra error (spec §4.8)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "FAIL-CLOSED on unreadable peer contract: unreadable peer scope-contract under mode=block returns peer_contract_unreadable_parallel block reason (spec §4.8 corrupt-peer bypass closed)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "getGuardFailureReason FAILS OPEN on sub-check error: returns null (no fabricated block message) rather than throwing (spec §4.4 message branch + §4.8)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "advise and off modes never hard-block: the SAME overlapping configuration that blocks under mode=block returns true under mode=advise and mode=off (spec §4.1, §4.4)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Existing review-gate fail-closed semantics preserved: canStartDevGuard still returns false for unclean/missing review, independent of the parallel sub-check (no regression, spec §4.4)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Hermetic end-to-end smoke: overlap+mode=block BLOCKS, clean disjoint passes, mode=advise/off allow same overlap, config infra failure FAILS OPEN, unreadable peer refuses parallel assertion (spec §8 line 721)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Broad glob under mode=block is hard-blocked end-to-end (spec §8 line 721 smoke requirement, broadGlobBlocks/strict profile)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands so it runs on every lattice validate (spec §8 / CHK-004 contract)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "scope-contract allowedModify bounded to {parallel-decomposition.ts, machine.ts, lattice.config.json}; allowedCreate bounded to the integration smoke; Stories 1-4 output files frozen in explicitExcludes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wave/REVIEW advisory wiring (resolveWaveSafety scope_glob_overlap degradation + story-review.ts advisory injection) (spec §4.4 items 3-4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicitExcludes: packages/main/src/core/lattice-parallel-wave.ts and packages/main/src/handlers/story-review.ts — these belong to Story 4 (B-fa7c) which is already merged; this story is the serial integration and does not re-open Story 4 surfaces",
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Config resolution for parallelGate (resolveAuditConfig nested-object validation, profile defaults, VALID_PARALLEL_MODES) (spec §4.7)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicitExcludes: packages/main/src/core/audit-config.ts — this belongs to Story 3 (B-d2a8) which is already merged; this story consumes resolveAuditConfig without re-implementing it",
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Static glob overlap engine (computeWriteSet + globsOverlap implementation, grammar validator) (spec §4.2, Story 1)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicitExcludes: packages/main/src/core/parallel-decomposition-overlap.ts — belongs to Story 1 (B-4033), already merged; CHK-001 re-exports the real impl rather than reimplementing it",
+      "source": "decisions:parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "evaluateDecompositionGate implementation (active-peer filter, BLOCK conditions §4.3, actionable reason strings) (spec §4.3, Story 2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicitExcludes: packages/main/src/core/parallel-decomposition-gate.ts — belongs to Story 2 (B-986c), already merged; CHK-001 re-exports the real impl",
+      "source": "decisions:parallel-decomposition-spec.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 12,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4c4ee4c1fbf160ce23673207aa72e1d358313298379d98376f954288028bd080",
+  "openQuestions": []
+}

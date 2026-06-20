@@ -1,0 +1,218 @@
+{
+  "findings": [
+    {
+      "id": "B-086b:F-001",
+      "desc": "BLOCKER: canStartDevGuard returns true early at 'if (!policy.plan.requireStoryReview) return true' (line 412) BEFORE the parallel-decomposition sub-check (line 425). A profile that does not require story_review (e.g. light) bypasses the hard gate entirely — a story asserting false parallelism under mode=block can enter DEV despite a real overlap. getGuardFailureReason's parallel branch runs unconditionally, so it still reports the block => decision/message PARITY also breaks (guard allows, reason blocks). Fix: restructure so only the review-record checks are gated on requireStoryReview; the fail-open parallel sub-check ALWAYS runs before return true. Add a light-profile + mode=block smoke case.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T08:36:32.874Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "a0f4d92ffa0cc27e716cf9b5577c5a7c19b937ef33008068d166864005193786",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|blocker-canstartdevguard-returns",
+      "signatureTagSource": "auto",
+      "resolvedReason": "canStartDevGuard restructured: review-record checks gated inside if(requireStoryReview){}, the early return-true removed; the fail-open parallel sub-check now runs on EVERY PLAN->DEV entry regardless of review policy. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:03.996Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-002",
+      "desc": "MAJOR: the review-gate refactor changed 'return (blockerCount ?? issueCount) === 0' (strict zero) into 'if ((blockerCount ?? issueCount) > 0) return false' (line 420) — NOT behavior-equivalent. A signed review with a non-numeric/negative/missing count (e.g. blockerCount=-1, or string '0') is NOT > 0 so it now PASSES the review gate, where the original strict ===0 rejected anything other than numeric zero. getGuardFailureReason line ~819 has the same '> 0' (pre-existing) so for parity both must use strict !==0. Fix: const gateCount = blockerCount ?? issueCount; if (gateCount !== 0) return false; in canStartDevGuard, and !==0 in getGuardFailureReason's review-count check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T08:36:33.358Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "008666c3250a1f58b2b8a2afc9b366045c2a34548c80cf433146ff8ceb53459e",
+      "files": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-review-gate",
+      "signatureTagSource": "auto",
+      "resolvedReason": "strict !==0 at both sites (canStartDevGuard line ~437 + getGuardFailureReason review-reason ~845), restoring the original ===0 semantics (negative/NaN/odd counts no longer pass). commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:04.438Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-003",
+      "desc": "MAJOR (express-channel bypass): the parallel hard-block is enforced ONLY by canStartDevGuard on PLAN->DEV. The INIT_CHECK->DEV express channel is guarded by canSkipPlanGuard (machine.ts ~433-446) which NEVER calls parallelDecompositionEnforcedBlock. So a quickPath story (small checklist, no risk signals) reaches DEV with a provable overlap/broad-glob/unreadable-peer block under mode=block WITHOUT refusal — the gate's core property (a provable contradiction blocks DEV entry) is violated on the express door. Also a phantom-message site (getGuardFailureReason renders a parallel message the express guard never enforced). Fix: add the same fail-open parallel sub-check to canSkipPlanGuard; add an express (INIT_CHECK phase) + mode=block + overlap smoke asserting the guard refuses + the reason renders.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-completeness-critic",
+      "createdAt": "2026-06-20T08:46:07.370Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "ae54e2a609eaeacb632ead628f0baa10d657b62cf632f2ad76570ce350c29dbe",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-express-channel",
+      "signatureTagSource": "auto",
+      "resolvedReason": "added the same fail-open parallel sub-check to canSkipPlanGuard (INIT_CHECK->DEV express door); getGuardFailureReason tracks tookExpressChannel and skips the inapplicable review-record reason for an express story so it surfaces the real parallel-decomposition reason. The gate is now enforced on BOTH doors. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:04.840Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-004",
+      "desc": "MINOR x2: formatParallelDecompositionBlock's overlap recompute (~353-364) and peer_contract_unreadable_parallel recompute (~385-398) select the named peer by filtering only parallelSafe!=='yes', omitting the gate's active-peer filter (!TERMINAL_PHASES.has(phase)). So the message can name a DONE/DISCARDED parallelSafe=yes peer that sorts earlier in listStoryIds() while the gate's block came from a different ACTIVE peer — misleading remediation text. Fix: import TERMINAL_PHASES from parallel-policy.js and skip terminal peers in both recompute loops so the named peer matches the gate's active set.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-parity",
+      "createdAt": "2026-06-20T08:46:07.857Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "cb6e44c27a448308e94b91726597ec2d6f61df657163426fbf15ac4e0aa8cfb0",
+      "files": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "cleanup|ts|minor-formatparalleldecompositionblock-overlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "formatParallelDecompositionBlock overlap + peer_contract_unreadable recompute loops now skip TERMINAL_PHASES peers (imported from parallel-policy.js), matching the gate activePeers filter, so a terminal peer is never named. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:05.242Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-005",
+      "desc": "MINOR (migration hazard, gate is FROZEN/Story-2 so DOCUMENT only): a legacy active peer carrying parallelSafe='yes' but with NO scope-contract.json (never ran scope_contract_set) is absent from the contracts map, so under mode=block the gate fires peer_contract_unreadable_parallel and hard-blocks an UNRELATED self story sharing the wave. This is fail-closed by §4.8 design (closes the corrupt-peer bypass) but is a real migration surprise when flipping mode=block in an existing repo. Out of S5 scope to change the frozen gate; resolve by documenting the hazard (e.g. in the spec/release notes: mode=block requires every active parallelSafe=yes story to carry a scope contract).",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-completeness-critic",
+      "createdAt": "2026-06-20T08:46:08.299Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "219a6f59be3c660b4e083f43ea0a7d029f7c2ba931acbb9102757a49f2c0033e",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-gate.ts"
+      ],
+      "signatureTag": "adversarial|ts|minor-migration-hazard",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Gate parallel-decomposition-gate.ts is FROZEN (Story 2) so no code change; added a MIGRATION HAZARD comment above parallelDecompositionEnforcedBlock noting mode=block requires every active parallelSafe=yes story to carry a readable scope contract. Documented, intentional §4.8 fail-closed behavior. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:05.639Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-086b:F-006",
+      "desc": "BLOCKER (two more unguarded doors): there are FOUR START->DEV doors (PHASE_EVENT_BY_TARGET DEV:'START'): INIT_CHECK->DEV (canSkipPlanGuard, now guarded), PLAN->DEV (canStartDevGuard, now guarded), and the rollback transitions REVIEW->DEV (machine.ts ~691-693) + TEST->DEV (~702-704) which have START:{target:'DEV'} with NO parallel guard (only cwd-worktree). The gate evaluates self.parallelSafe against active non-terminal peers regardless of self's phase, so a parallelSafe=yes story rolling back from REVIEW/TEST to DEV (the 'Run story_advance DEV to rework' path) while a colliding active peer exists re-enters DEV in violation — same bypass class as the round-1 express finding, on two more doors. Fix: extract ONE shared fail-open parallel-gate check and apply it to ALL FOUR START->DEV edges (add guards to the REVIEW + TEST states' START transitions and mirror in canSendStoryEventWithoutSnapshotCan's REVIEW/TEST cases); extend getGuardFailureReason to render the parallel block message for REVIEW/TEST->DEV sources; add smoke cases for REVIEW->DEV + TEST->DEV blocked (+ disjoint + fail-open companions).",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-completeness-critic",
+      "createdAt": "2026-06-20T09:07:20.302Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "a09da7194357196c8c6d6d1ccc6c1710819e06fab0cc961c4580d39000c29afa",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|blocker-unguarded-doors",
+      "signatureTagSource": "auto",
+      "resolvedReason": "All FOUR START->DEV doors now enforce the parallel hard-block via one shared fail-open wrapper parallelDevEntryBlock: canStartDevGuard (PLAN) + canSkipPlanGuard (INIT_CHECK express) refactored to use it; new canReenterDevGuard (parallel-only, fail-open) attached as guard 'canReenterDev' to the REVIEW->DEV + TEST->DEV rollback START transitions and mirrored in canSendStoryEventWithoutSnapshotCan; getGuardFailureReason renders the parallel reason on all four doors via isRollbackDoor. Smoke adds REVIEW/TEST rollback enforce+disjoint+fail-open cases. commit 4f36f5c1e.",
+      "resolvedAt": "2026-06-20T09:13:53.385Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-007",
+      "desc": "MINOR: formatParallelDecompositionBlock's overlap recompute (~369-372) uses globsOverlap(...).pairs.find(([a,b])=>a===b), but globsOverlap.pairs includes tier-2 shared-prefix/wildcard matches, so two identical WILDCARD entries (e.g. 'src/x/*'==='src/x/*') match and the message cites a wildcard as a 'literal' collision and can name the WRONG peer (not the tier-1 literal-collision peer the gate actually blocked on). Parity + the block itself stay correct; message actionability only. Fix: mirror the gate's tier-1 literalCollisions logic in the formatter (only entries with no trailing /* or /** that are literally equal in both write-sets) so the named peer/path is the literal collision that drove the block.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-message-matrix",
+      "createdAt": "2026-06-20T09:07:20.784Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "c5fb9f5653f3077901f8d49ac60ecee59f87c9ee40e8192b77a53ee7c6219d81",
+      "files": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "cleanup|ts|minor-formatparalleldecompositionblock-overlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "formatParallelDecompositionBlock overlap recompute replaced globsOverlap pairs a===b (which matched tier-2 wildcards) with firstLiteralCollision/isLiteralWriteSetEntry mirroring the gate's literalCollisions/isLiteralPath (literal iff no trailing /* or /**); the message now names only a peer with a genuine tier-1 literal collision. Smoke asserts a wildcard-only peer sorting earlier is NOT named. commit 4f36f5c1e.",
+      "resolvedAt": "2026-06-20T09:13:53.825Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-086b:F-008",
+      "desc": "MINOR (OUT OF S5 SCOPE — lifecycle-registry.ts not in allowedModify): lifecycle/process-fact metadata still describes INIT_CHECK->DEV as quick-path-only and PLAN->DEV as plan-review/scope-check, not mentioning the new parallel-decomposition gate now consumed before DEV. Runtime gating is correct (Codex round-2 PASS); this is metadata-doc drift only. Follow-up: add a parallel-decomposition gate id to the DEV-transition lifecycle metadata + extend the lifecycle-contract smoke. Deferred (out of scope for S5).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T09:07:21.217Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "b65da746317a2ca69a269244bc94e2b1fa208d2e3b439ff7eab1133a54f32502",
+      "files": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "cleanup|ts|minor-scope-lifecycle",
+      "signatureTagSource": "auto",
+      "resolvedReason": "OUT OF S5 SCOPE: lifecycle-registry.ts is not in allowedModify (S5 modifies parallel-decomposition.ts/machine.ts/lattice.config.json/smoke). Runtime gating is correct (Codex round-2 PASS). This is metadata-doc drift only (lifecycle/process-fact metadata not naming the new gate). Deferred as a follow-up (add a parallel-decomposition gate id to the DEV-transition lifecycle metadata + extend the lifecycle-contract smoke) — would need its own story/scope.",
+      "resolvedAt": "2026-06-20T09:07:49.588Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-086b:F-009",
+      "desc": "MAJOR (Codex R3, OUT OF S5 SCOPE): LIFECYCLE_TRANSITIONS metadata records INIT_CHECK->DEV as quick-path-only, PLAN->DEV as plan-review/scope-check/cwd-worktree, REVIEW/TEST->DEV as cwd-worktree-only — none mention the new parallel-decomposition hard gate the live machine now enforces on all four DEV doors. Descriptive contract drift (the .gates arrays are not read for DEV-entry enforcement; machine.ts xstate guards do that — runtime verified correct by both hosts). Fix (follow-up): add a parallel-decomposition gate id to all four DEV-transition metadata + update flow/lifecycle contract checks. lifecycle-registry.ts is NOT in S5 allowedModify.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T09:25:18.566Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "a5dde35374d10a873b55c13b58c84e5472e2b63a676fd4e91db7f76fe9887469",
+      "files": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-codex-scope",
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a follow-up story (operator decision 2026-06-20). lifecycle-registry.ts is OUT of S5 allowedModify; the .gates arrays are descriptive (NOT read for DEV-entry enforcement — machine.ts xstate guards enforce, verified complete+correct by both hosts). Runtime gate ships now; the descriptive metadata/contract sync (register the parallel gate on all 4 DEV transitions + flow/lifecycle contract checks) is a separate story.",
+      "resolvedAt": "2026-06-20T09:36:43.522Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-086b:F-010",
+      "desc": "MAJOR (Codex R3, OUT OF S5 SCOPE): process-fact metadata says scope-contract facts are consumed only by REVIEW/TEST/DONE changed-file gates, but machine.ts now consumes scope contracts before EVERY DEV entry; verify-process-fact-contract.mjs (a separate script, NOT in lattice validate — currently passes) does not assert the new guard surface (canSkipPlan/canReenterDev/parallelDevEntryBlock), so the new gate is not mechanically protected against drift. Descriptive/CI-contract drift, not a runtime defect. Fix (follow-up): register the parallel DEV-entry gate as an L4 consumer + extend verify-process-fact-contract.mjs. Both files NOT in S5 allowedModify.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T09:25:19.071Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "8040d81f878b497e610a72cc3c1efaae93346c9d98d507d16b7371dc392093a5",
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|major-codex-scope",
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a follow-up story (operator decision 2026-06-20). process-fact-levels.ts + verify-process-fact-contract.mjs are OUT of S5 allowedModify; the script is NOT in lattice validate and currently passes. Descriptive/CI-contract drift, not a runtime defect. Follow-up: register the parallel DEV-entry gate as an L4 consumer + extend verify-process-fact-contract.mjs to assert canSkipPlan/canReenterDev/parallelDevEntryBlock.",
+      "resolvedAt": "2026-06-20T09:36:44.016Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    }
+  ]
+}

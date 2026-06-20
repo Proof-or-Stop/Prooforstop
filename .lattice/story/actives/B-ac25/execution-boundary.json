@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ac25",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".githooks/pre-push"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Implementation may edit runtime gate/config/docs/tests only inside the accepted B-3321 scope; release and pre-push behavior are out of scope.",
+  "createdAt": "2026-06-20T09:45:33.915Z",
+  "updatedAt": "2026-06-20T09:45:33.915Z",
+  "_hash": "e478cee684f8beb510dfdcf37a2d5ee66380c9ae32e39bde64d5c7f831f27ab3"
+}
