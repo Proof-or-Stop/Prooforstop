@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-9089:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept lane: implementation follows the owner-session contract execution plan. Generic owner-lease and lifecycle consumers use the shared owner-session facade; host-native env reads are confined to adapter/dispatch/test allowlist by owner-session-guardrail. LATTICE_SESSION_ID wins, host adapters bridge Claude Code/Codex/Antigravity/agy/fake future host signals, generated-token storage is runtime/material-excluded local coordination only, and derived-ppid remains a labeled degraded fallback. Verified with npm build, test:owner-session-guardrail, and test:story-owner-lease-smoke.",
+      "createdAt": "2026-06-20T11:21:14.562Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-002",
+      "_hash": "4323cb9d7a4ccbd92513606916fa143ec6d30124cfcb5274f9b8f3457baa8eeb"
+    },
+    {
+      "id": "B-9089:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane pass: session-ownership-and-write-leases.md and guide-scope-guard.md match the B-9089 owner-session runtime contract. Verified canonical LATTICE_SESSION_ID precedence, host-adapter boundary, generated-token local runtime artifact behavior, Antigravity/agy diagnostic naming, degraded ppid fallback, and no Authority/proof claim against owner-session.ts, owner-session-adapters.ts, owner-session-token-store.ts, lattice-dispatch.ts, story-owner-lease.ts, runtime-artifact-registry.ts, context.ts, transition-orchestrator.ts, and guardrail/smoke tests.",
+      "createdAt": "2026-06-20T11:21:24.531Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-004",
+      "_hash": "d45acba27d7cfa98ca535c7c65ee7e732fb8a714c134bfed002c7e0f3c569987"
+    },
+    {
+      "id": "B-9089:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed for owner-session canonical runtime contract. Inspected owner-session facade/adapters/token-store, story-owner-lease integration, dispatch env propagation, lifecycle context/session warning call sites, runtime artifact registry, doctor rendering, and guardrail/smoke coverage. Verified no blocking bugs in type/API shape, host-env confinement, stale legacy labels, or runtime artifact hygiene. Commands run: npm --prefix packages/main run test:story-owner-lease-smoke; npm --prefix packages/main run test:owner-session-guardrail; npx tsc --noEmit -p packages/main/tsconfig.json.",
+      "createdAt": "2026-06-20T11:22:04.870Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-001",
+      "_hash": "00fd0bc644bc5ab65c057f10012555715659c460d7dfbc80b298b2256d3c985d"
+    },
+    {
+      "id": "B-9089:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test coverage review after B-9089:F-001 fix. Verified CHK-004 edge is meaningfully covered by source assertions in packages/main/src/tasks/story-owner-lease-smoke.ts: generated token reuse for same adapter boundary plus assert.notEqual coverage for different adapter boundary, different host provider, and different project root. Confirmed token store scopes by project root/provider/boundary in packages/main/src/core/owner-session-token-store.ts and runtime artifact registration excludes .lattice/runtime/owner-session-tokens/. Reran focused commands: npm --prefix packages/main run test:story-owner-lease-smoke PASS; npm --prefix packages/main run test:owner-session-guardrail PASS. Overall verification evidence is adequate for coverage lane.",
+      "createdAt": "2026-06-20T11:26:27.458Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-006",
+      "_hash": "444c2a66e41df1b99fda1c3bab1a7e0db5e729c05c2fc6436db0e8669f512f5b"
+    },
+    {
+      "id": "B-9089:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs still match the generated-token scoping fix: docs state generated-token is a local owner-session fallback scoped behind the host-neutral facade, keep host env reads at adapter/dispatch/test boundaries, and do not claim Authority receipts, cryptographic identity, or production proof. Reviewed docs/guide-scope-guard.md, docs/requirements/decisions/session-ownership-and-write-leases.md, owner-session token code, runtime artifact registry, guardrail task, and commit 17a0769dd.",
+      "createdAt": "2026-06-20T11:26:31.586Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-008",
+      "_hash": "51a5dce19dfd5873a585b3806f38e12d6b46118d94ae300035b3c92e82b8f286"
+    },
+    {
+      "id": "B-9089:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "PASS: owner-session canonical runtime contract still holds after B-9089:F-001 fix. Verified resolver priority remains LATTICE_SESSION_ID explicit-env -> host-adapter -> generated-token -> derived-ppid; generated tokens are scoped by project root, host provider, and adapter boundary; generic owner-lease/lifecycle callers consume getSessionId/getSessionIdentity instead of host-specific env branches; bounded codex/gemini dispatch passes canonical LATTICE_SESSION_ID into provider env; token storage is registered as volatile/material-excluded runtime state. Commands: npm --prefix packages/main run test:owner-session-guardrail (pass); npm --prefix packages/main run test:story-owner-lease-smoke (pass). Non-concept hygiene observed: git diff --check main...HEAD reports blank EOF lines in owner-session-token-store.ts and owner-session.ts.",
+      "createdAt": "2026-06-20T11:27:17.970Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-005",
+      "_hash": "39c36fa494384be5b7601e41c8eccc301632591879ec5d5750be605f93e2c965"
+    },
+    {
+      "id": "B-9089:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality rerun passed after F-001 fix. Reviewed generated-token scoping assertions, owner-session adapter boundary, canonical dispatch env propagation, and owner lease behavior. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:story-owner-lease-smoke; npm --prefix packages/main run test:owner-session-guardrail; npm --prefix packages/main run test:command-ownership-contract.",
+      "createdAt": "2026-06-20T11:27:31.315Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-007",
+      "_hash": "00c25edd6d03363d07bf5304820b4ebdb32122350ddf122c45c25224e6853ba0"
+    }
+  ]
+}

@@ -75,6 +75,17 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'owner-session-token-store',
+    description: 'Local generated owner-session tokens under .lattice/runtime/owner-session-tokens/.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/runtime/owner-session-tokens/' },
+    ],
+    ignorePatterns: ['.lattice/runtime/owner-session-tokens/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'runtime-cache',
     description: 'Mutable runtime cache and trigger state under .lattice/runtime/.',
     matchers: [

@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Generic core code consumes a host-neutral owner-session result and does not learn new provider-specific env names.",
+    "Local owner-session identity is coordination metadata only and never upgrades evidence into Authority or reviewer proof.",
+    "Behavior-preserving migration comes before cleanup: existing owner-lease semantics must stay green while source labels and adapters move behind the facade.",
+    "Every persisted generated-token path must be runtime-artifact registered and material-safe."
+  ],
+  "drivers": [
+    "The user needs reliable multi-host parallel development across Codex, Claude Code, Antigravity/agy, and future hosts.",
+    "The previous ppid fallback can misidentify one host session as multiple owners when each command gets a new shell parent.",
+    "The implementation touches lifecycle/owner gates, so review and tests must catch regressions mechanically."
+  ],
+  "options": [
+    {
+      "name": "A: Host-neutral resolver facade with adapter boundary and guardrails",
+      "pros": [
+        "Meets the B-a781 target contract directly",
+        "Keeps future host onboarding out of generic owner-lease logic",
+        "Allows focused smoke and grep guardrails to prevent regression"
+      ],
+      "cons": [
+        "Touches several core files and requires careful compatibility for old sessionSource values",
+        "Generated-token persistence must be designed narrowly to avoid runtime artifact pollution"
+      ]
+    },
+    {
+      "name": "B: Extend current core resolver with Codex and agy env branches",
+      "pros": [
+        "Smallest immediate code diff",
+        "Would likely fix one or two current host cases quickly"
+      ],
+      "cons": [
+        "Creates the exact per-host core exception pattern the user rejected",
+        "Every future host would require another core branch and another regression risk",
+        "Does not clean lifecycle ad hoc env reads"
+      ]
+    },
+    {
+      "name": "C: Require users to manually export LATTICE_SESSION_ID only",
+      "pros": [
+        "Avoids adapter/token persistence complexity",
+        "Leaves existing core behavior mostly unchanged"
+      ],
+      "cons": [
+        "Does not give host-neutral runtime support for Codex/Claude/agy users",
+        "Still leaves confusing ppid degradation as a common path",
+        "Fails the execution plan acceptance criteria for adapters and generated-token fallback"
+      ]
+    }
+  ],
+  "chosen": "A: Host-neutral resolver facade with adapter boundary and guardrails",
+  "rationale": "Option A is the only option that satisfies the user requirement to avoid Claude-only fixes and future per-host core branches while preserving current owner-lease behavior through tests.",
+  "preMortem": [
+    {
+      "scenario": "A host-native env name remains in generic owner-lease or lifecycle code after migration.",
+      "trigger": "Implementation moves behavior but misses an ad hoc read in context, transition, gate, or cli-engine code.",
+      "consequence": "Future host onboarding repeats the same core-branch problem and reviewer cannot prove the contract mechanically.",
+      "mitigation": "Add a guardrail task/script in the story-owner smoke suite that fails if host-native session env names appear outside adapter files/tests/docs."
+    },
+    {
+      "scenario": "Generated-token fallback dirties git status or material hash.",
+      "trigger": "Token file is persisted under an unregistered path or a tracked metadata subtree.",
+      "consequence": "DONE or validation sees unrelated dirty material, and local coordination artifacts pollute evidence.",
+      "mitigation": "Register the token storage path in runtime-artifact-registry, ensure ignore/material classification, and cover it in the smoke test."
+    },
+    {
+      "scenario": "The migration accidentally treats local session ids as proof of identity.",
+      "trigger": "Diagnostics or docs phrase generated/local session ids as verified actor identity or Authority evidence.",
+      "consequence": "Users may overclaim production/Authority completion from forgeable local env variables.",
+      "mitigation": "Keep source labels local/non-cryptographic in code comments/docs and add review evidence explicitly checking the local boundary."
+    },
+    {
+      "scenario": "Existing Claude Code stable-session behavior regresses during cleanup.",
+      "trigger": "Moving CLAUDE_CODE_SESSION_ID handling into the adapter changes trim/priority/cache behavior.",
+      "consequence": "Claude users again see false foreign-owner conflicts across Bash invocations.",
+      "mitigation": "Preserve compatibility through adapter tests: canonical env wins, blank canonical env falls through, Claude native signal remains stable across ppid changes."
+    }
+  ],
+  "timestamp": "2026-06-20T10:30:49.898Z"
+}

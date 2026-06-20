@@ -1,0 +1,41 @@
+{
+  "task": "Implement the owner-session canonical runtime contract so local story owner leases stay stable across multi-host repeated invocations without adding provider-specific branches to generic core code.",
+  "outcome": "After completion, the user can run owner-session smoke/guardrail verification and see terminal output equivalent to: `✓ story-owner-lease smoke passed` plus `PASS owner-session host-native env guardrail`; `session_brief` and non-owner diagnostics report explicit-env/generated-token/derived-ppid source labels, and repeated commands with the same LATTICE_SESSION_ID do not self-reject as foreign owners when parent PID changes.",
+  "facts": [
+    "B-a781 produced docs/requirements/decisions/owner-session-contract-execution-plan.md as the execution plan for this runtime work.",
+    "Current runtime behavior resolves session identity with LATTICE_SESSION_ID then CLAUDE_CODE_SESSION_ID then ppid-derived fallback inside core/story-owner-lease.ts.",
+    "handlers/context.ts and handlers/transition-orchestrator.ts currently contain ad hoc session env reads for lifecycle events or DEV-claim warning logic.",
+    "core/lattice-dispatch.ts is the current dispatch runtime/probe/env boundary for Codex, Claude Code, Antigravity/agy, and legacy Gemini compatibility.",
+    "The owner-session id is local non-cryptographic coordination metadata and must not be treated as Authority or reviewer proof.",
+    "Codex CLI, Claude Code CLI, Antigravity CLI via agy, and Lattice CLI are installed on this machine.",
+    "Main currently has unrelated B-b29e untracked scope-check metadata that must not be touched by this story."
+  ],
+  "constraints": [
+    "Do not run omx or read/write/use .omx directories.",
+    "Do not directly edit docs/story or tests/fixtures; use Lattice commands for story and fixture metadata.",
+    "Runtime code changes must stay inside the B-9089 execution boundary and scope boundary.",
+    "Generic owner-lease/lifecycle/gate/cli-engine paths must not gain host-native session env exceptions.",
+    "Generated-token storage, if persisted, must be registered as a runtime artifact and not dirty material diffs.",
+    "Local owner-session evidence must not claim Authority Server completion or cryptographic identity.",
+    "Do not broaden this story into Gemini-to-Antigravity provider migration; active B-fbb6 owns that semantic migration."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/story-owner-lease-doctor.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/owner-session-guardrail.ts",
+    "packages/main/package.json",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/guide-scope-guard.md"
+  ],
+  "timestamp": "2026-06-20T10:40:55.300Z"
+}
