@@ -104,6 +104,42 @@
         }
       ],
       "_hash": "a95170437fcb9487ad1d5cd0f13113cb0c3f8a9aeda512398d3d174f656c5bd5"
+    },
+    {
+      "timestamp": "2026-06-20T18:05:15.341Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Define localReady and unify readiness blocking semantics + Bind done_prepare report freshness to current local main tip are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b179 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "e8c3c02c9b47278e953b17bad07e628d348aa220dbc1130bceaa71c6f245e338"
     }
   ]
 }

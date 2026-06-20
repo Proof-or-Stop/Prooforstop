@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T18:04:58.906Z",
-      "endTime": null,
+      "endTime": "2026-06-20T18:06:09.651Z",
       "userSees": "StoryReadinessCheck 可见 localReady 定义与 blocking 判定已统一；manual/external 行在报告中作为 next action 给出，非阻塞但不丢失。",
       "files": {
         "modify": [
@@ -37,7 +37,20 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"localReady|claims.localReady|blocking\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "In canonical report schema, added explicit localReady computation rule and documented non-blocking advisory behavior.",
+          "headHash": "ded0a0e5787b3c092b682a257473b25c49408284",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:09.761Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
