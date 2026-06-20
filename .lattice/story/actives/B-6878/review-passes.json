@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-20T15:51:59.755Z",
       "reviewRunId": "B-6878:RR-012",
       "_hash": "1838d7f48752131f0cf26a2028b6d2de7b955a2dfde634ecbe0731cc3e8cf20b"
+    },
+    {
+      "id": "B-6878:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 concept-completeness check: (1) rg \"\\bin\\b\" across packages/main/src/core/usage-ledger/ — every hit is a comment or prose phrase; zero prototype-chain presence reads (`key in obj`) remain in executable code on any container/leaf/validated-record object. (2) F-011 confirmed: all five validator `in` reads (storyId, supersedesRecordIds, subagentId, threadId, confidence) are now Object.prototype.hasOwnProperty.call() own-property checks. (3) F-010 confirmed: old local OPENAI_STREAM_WHITELIST / OPENAI_STREAM_NESTED_DETAIL_WHITELIST / GEMINI_STREAM_WHITELIST constants are fully removed; streaming.ts imports OPENAI_USAGE_WHITELIST, OPENAI_NESTED_DETAIL_WHITELIST, GEMINI_USAGE_WHITELIST from the adapters — zero duplication, zero divergence risk. (4) F-009 confirmed: the JSDoc block comment now accurately describes the actual mechanism (local reads via toOwnPropsNullProto, complete path defers to adapter, F-010 DRY note). No stale text remains. (5) No dangling references or half-done edits found. (6) Smoke test section J added: load-bearing validator-pollution case exercises the exact pre-fix regression (inherited storyId/supersedesRecordIds accepted by old `in` check) and verifies it now fails as required. Concept fully converged — no blocker.",
+      "createdAt": "2026-06-20T15:54:46.867Z",
+      "reviewRound": "2026-06-20T15:51:59.755Z",
+      "reviewRunId": "B-6878:RR-010",
+      "_hash": "3dad0919725f74be762fb2087f219f4bc02ee7012219dc90ed8dc56024f25d1f"
     }
   ]
 }
