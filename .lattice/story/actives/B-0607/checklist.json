@@ -123,7 +123,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"truth-first contract\\|source priority\\|active story\\|done-summary\\|completionCommit\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract section defines explicit source-priority order with done-completion facts above memory/advisory context.",
+          "headHash": "c3dad9a9e2ad1bf938f046ee686d3aae148cd88c",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.462Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
