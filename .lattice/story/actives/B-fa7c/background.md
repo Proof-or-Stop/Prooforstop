@@ -1,0 +1,15 @@
+## Trigger Event
+
+The parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8) reached Story 4 after Stories 0-3 landed on main: B-59c7 (contract types), B-4033 (overlap engine core/parallel-decomposition-overlap.ts), B-986c (gate verdict core/parallel-decomposition-gate.ts), B-d2a8 (config core/audit-config.ts, merged 2026-06-20). Story 4 is the advisory-wiring step that makes the already-built gate verdict and overlap engine VISIBLE to the operator at wave-projection time and at REVIEW, without yet enforcing anything.
+
+## Key Insight
+
+The gate has two advisory surfaces that are deliberately non-blocking (spec §4.3 items 3 and 4). resolveWaveSafety in core/lattice-parallel-wave.ts already projects a list of ParallelWaveDegradation objects from precomputed inputs (it is a pure projector — it does NOT read scope contracts itself; the caller storyRef() computes inputs like actualFileOverlaps and passes them in). So the new 'scope_glob_overlap' degradation must be computed at the storyRef() call site (compute this story's and each active parallel peer's write-set via computeWriteSet, run globsOverlap, pass the results in as a new parameter) and emitted via the existing schedulingDegradation() factory at severity 'warn'. The story-review surface is even simpler: push evaluateDecompositionGate().advisories into the existing issues[] array as severity 'advisory'; blockerCount filters severity==='blocker', so advisories are provably non-blocking. Only the advisories are surfaced at REVIEW — the gate's block field is intentionally ignored here because enforcement is Story 5's PLAN→DEV guard.
+
+## Tradeoff
+
+Keeping resolveWaveSafety a pure projector (compute-at-call-site) over making it load scope contracts itself: the former matches every existing degradation kind and keeps the function testable without store I/O, at the cost of a new parameter and call-site wiring. We take it — consistency with the existing pattern and testability win. Surfacing only advisories (not the block) at REVIEW vs. also blocking at REVIEW: the spec is explicit that REVIEW advisories must never raise blockerCount or touch the signed review.json; the single hard-block seam is Story 5's machine.ts guard, so duplicating block logic at REVIEW would create two enforcement points to keep in sync. We surface advisory-only here.
+
+## Conversation Texture
+
+The operator wants all 6 program stories driven to DONE with genuine Claude+Codex full-3x2 dual-host review. Story 4 was scoped (during the §8 file-structure correction) to own fully disjoint files from S1/S2/S3 — core/lattice-parallel-wave.ts + handlers/story-review.ts — so the four impl stories are genuinely 4-way parallel. The recurring hard-won lesson from S3 (B-d2a8) applies: commit ALL code before REVIEW to avoid stranding review-run bindings, and known-bug/high-priority stories require the full-3x2 escalation quorum at DONE.
