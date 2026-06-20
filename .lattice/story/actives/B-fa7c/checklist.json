@@ -62,7 +62,45 @@
       "context": "handlers/story-review.ts: load peers via store.listStoryIds()+readStory(), contracts via store.readScopeContract() (null-tolerant; §4.8 handles a missing peer contract inside the gate), cfg via resolveAuditConfig(...).parallelGate; call evaluateDecompositionGate(story, peers, contracts, cfg) and push each advisories[] entry as {type:'decomposition_advisory', severity:'advisory', message}. Only advisories — the gate's block field is intentionally ignored at REVIEW (enforcement is Story 5). blockerCount = issues.filter(i=>i.severity==='blocker').length, so advisories never block REVIEW or affect the signed review.json.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decompositionAdvisoryIssues(story parallelSafe=yes overlapping an active parallel peer, peers, contracts, cfg) returns issues each {type: decomposition_advisory, severity: advisory, message: <non-empty gate advisory>}; WHY: the gate advisories are surfaced at REVIEW as advisory-severity issues",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the returned issues, appended to a sample issues[] containing one blocker, leave blockerCount (filter severity===blocker) unchanged; WHY: proves advisories never raise blockerCount",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a story+peers configuration where evaluateDecompositionGate returns advisories=[] -> decompositionAdvisoryIssues returns []; WHY: no advisory, no issue injected",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "evaluateDecompositionGate returns a non-null block (e.g. overlap_declared_parallel) AND advisories -> only the advisories become issues; the block field is NOT turned into a blocker issue; WHY: enforcement is Story 5; REVIEW must surface advisories only",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a peer with a missing/unreadable contract (not in the contracts Map) -> decompositionAdvisoryIssues does not throw (evaluateDecompositionGate handles peer-unreadable per §4.8); WHY: must not crash REVIEW on legacy peers",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "every issue produced has severity exactly advisory (never blocker) and type decomposition_advisory; WHY: a typo to blocker would silently break the non-blocking contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
