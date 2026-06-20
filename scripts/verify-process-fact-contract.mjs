@@ -184,16 +184,20 @@ const requiredDecisionDocPromotionCommands = [
   'decision_doc_preview',
   'decision_doc_save',
 ];
-// B-b29e CHK-003: scope-contract facts are read at every DEV entry by the
-// parallel-decomposition hard gate (machine.ts parallelDevEntryBlock →
+// B-b29e CHK-003 (F-001): the durable scope-contract.json the parallel-decomposition
+// hard gate reads at every DEV entry (machine.ts parallelDevEntryBlock →
 // parallelDecompositionEnforcedBlock → resolveAuditConfig().parallelGate +
-// safeReadScopeContract, consumed by canStartDevGuard/canSkipPlanGuard/
-// canReenterDevGuard). These scope-contract L4 facts must therefore name the
-// parallel-decomposition DEV-entry gate in their gateConsumer — this assertion
-// is non-vacuous: dropping the registration from process-fact-levels.ts fails it.
+// safeReadScopeContract → computeWriteSet, consumed by canStartDevGuard/
+// canSkipPlanGuard/canReenterDevGuard) is WRITTEN only by the three producer
+// facts below (all call writeScopeContract). These L4 producers must therefore
+// name the parallel-decomposition DEV-entry gate in their gateConsumer — an L4
+// fact is a command that WRITES a gate-consumed fact. scope_contract_check is a
+// PURE READ (readScopeContract + buildScopeDiffPack, no writeScopeContract) and
+// produces nothing the gate consumes, so it is intentionally excluded. This
+// assertion is non-vacuous: dropping the registration from any of the three
+// producers in process-fact-levels.ts fails it.
 const scopeContractParallelDevEntryConsumerCommands = [
   'scope_contract_set',
-  'scope_contract_check',
   'scope_contract_acknowledge',
   'scope_contract_init_from_plan',
 ];
