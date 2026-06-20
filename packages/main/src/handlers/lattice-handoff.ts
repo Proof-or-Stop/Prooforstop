@@ -1,10 +1,15 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, isAbsolute, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import {
   buildHandoffAcceptProjection,
   buildHandoffResumeProjection,
   buildHandoffWorktreeProjection,
   buildHostDispatchProjection,
+  type HostDispatchPrefetch,
+  type HostDispatchPrefetchManifest,
+  type HostDispatchPrefetchSnapshot,
+  type HostDispatchSupersessionReport,
   createHandoffPack,
   inspectHandoffPack,
   readHandoffAcceptProjection,
@@ -20,6 +25,12 @@ import {
   type HandoffAcceptProjection,
   type HandoffPack,
 } from '../core/lattice-handoff.js';
+import { createDevMemoryHandlers } from './dev-memory.js';
+import { createGapHandlers } from './gap.js';
+import { createLearningValidateHandlers } from './learning-validate.js';
+import { createSessionHandlers } from './session.js';
+import { createStoryQueryHandlers } from './story-query.js';
+import { createSummaryHandlers } from './summary.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -34,6 +45,459 @@ function normalizeList(value: unknown): string[] | undefined {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
   if (typeof value === 'string' && value.trim().length > 0) return [value.trim()];
   return undefined;
+}
+
+function safeJsonParse(raw: string): unknown | undefined {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+function shortErr(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function runSnapshot<T>(
+  label: string,
+  fn: () => T,
+): HostDispatchPrefetchSnapshot {
+  try {
+    const raw = fn();
+    const rendered = typeof raw === 'string'
+      ? raw
+      : JSON.stringify(raw, null, 2);
+    return {
+      status: 'ok',
+      raw: rendered,
+      parsed: typeof raw === 'string' ? safeJsonParse(raw) : raw,
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      raw: `failed to collect ${label}: ${shortErr(error)}`,
+      reason: shortErr(error),
+    };
+  }
+}
+
+function stripAnchor(raw: string): string {
+  const noHash = raw.split('#')[0];
+  return noHash.trim();
+}
+
+function splitPathToCheck(root: string, rawPath: string): string | undefined {
+  const noAnchor = stripAnchor(rawPath).trim();
+  if (!noAnchor) return undefined;
+  if (noAnchor.startsWith('http://') || noAnchor.startsWith('https://')) {
+    return undefined;
+  }
+  return isAbsolute(noAnchor) ? noAnchor : resolve(root, noAnchor);
+}
+
+function normalizeStoryPath(rawPath: string): string {
+  return rawPath.replace(/\\+/g, '/');
+}
+
+function parseYamlLikeFrontmatter(raw: string): Record<string, unknown> | null {
+  const lines = raw.replace(/\r\n/g, '\n').split('\n');
+  if (lines[0]?.trim() !== '---') return null;
+  const endDelimiterIndex = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+  if (endDelimiterIndex <= 0) return null;
+  const sectionLines = lines.slice(1, endDelimiterIndex);
+
+  const frontmatter: Record<string, unknown> = {};
+  let currentSection: string | null = null;
+
+  const parseScalar = (value: string): unknown => {
+    const normalized = value.trim();
+    if (!normalized) return '';
+    if (normalized === 'null') return null;
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+    if (
+      (normalized.startsWith('"') && normalized.endsWith('"'))
+      || (normalized.startsWith("'") && normalized.endsWith("'"))
+    ) {
+      return normalized.slice(1, -1);
+    }
+    return normalized;
+  };
+
+  for (const rawLine of sectionLines) {
+    const line = rawLine.trimEnd();
+    if (!line.trim()) continue;
+    if (line.trim().startsWith('#')) continue;
+
+    const isNested = /^\s/.test(line);
+    const target = isNested
+      ? (typeof currentSection === 'string' ? (frontmatter[currentSection] as Record<string, unknown>) : undefined)
+      : null;
+
+    const matcher = /^([A-Za-z0-9_-]+)\s*:\s*(.*)$/.exec(line.trim());
+    if (!matcher) continue;
+    const [, key, rawValue] = matcher;
+    const value = rawValue.trim();
+
+    if (isNested) {
+      if (!target) continue;
+      target[key] = parseScalar(value);
+      continue;
+    }
+
+    if (value === '') {
+      frontmatter[key] = {};
+      currentSection = key;
+    } else {
+      frontmatter[key] = parseScalar(value);
+      currentSection = null;
+    }
+  }
+
+  return frontmatter;
+}
+
+function pickSupersession(raw: Record<string, unknown>): {
+  status?: string;
+  completedByStory?: string;
+  completionCommit?: string;
+  supersededBy?: string | null;
+  completionNote?: string;
+  sourceStoryId?: string;
+  updatedAt?: string;
+} {
+  const block = raw.supersession;
+  if (typeof block !== 'object' || block === null || Array.isArray(block)) {
+    return {};
+  }
+  const value = block as Record<string, unknown>;
+  return {
+    status: typeof value.status === 'string' ? value.status : undefined,
+    completedByStory: typeof value.completedByStory === 'string' ? value.completedByStory : undefined,
+    completionCommit: typeof value.completionCommit === 'string' ? value.completionCommit : undefined,
+    supersededBy: typeof value.supersededBy === 'string'
+      ? value.supersededBy
+      : value.supersededBy === null
+        ? null
+        : undefined,
+    completionNote: typeof value.completionNote === 'string' ? value.completionNote : undefined,
+    sourceStoryId: typeof value.sourceStoryId === 'string' ? value.sourceStoryId : undefined,
+    updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : undefined,
+  };
+}
+
+function resolveCommitIfExists(root: string, ref: string): boolean {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function collectRelatedDocs(storyGet: Record<string, unknown>): string[] {
+  const checklist = storyGet.checklist as { items?: Array<{ relatedDocs?: unknown }> } | undefined;
+  if (!checklist?.items) return [];
+  const docs = new Set<string>();
+  for (const item of checklist.items) {
+    if (!item || !Array.isArray(item.relatedDocs)) continue;
+    for (const doc of item.relatedDocs) {
+      if (typeof doc !== 'string') continue;
+      const normalized = stripAnchor(doc).trim();
+      if (!normalized) continue;
+      docs.add(normalizedPath(normalized));
+    }
+  }
+  return [...docs];
+}
+
+function normalizedPath(value: string): string {
+  return normalizeStoryPath(value.replace(/^\.\//, ''));
+}
+
+function buildSupersessionReport(
+  root: string,
+  storyId: string,
+  relatedDocs: string[],
+): HostDispatchSupersessionReport {
+  const checked = new Set<string>();
+  const staleSignals: string[] = [];
+  const staleDocs: string[] = [];
+  const completionSignals: string[] = [];
+  let winner: string | undefined;
+  let anySignal = false;
+
+  const statusByDoc: Array<'invalid' | 'stale' | 'present'> = [];
+
+  for (const docRef of relatedDocs) {
+    checked.add(docRef);
+    const checkedPath = splitPathToCheck(root, docRef);
+    if (!checkedPath) {
+      anySignal = true;
+      statusByDoc.push('stale');
+      staleDocs.push(docRef);
+      staleSignals.push(`Related doc ${docRef} uses non-local or unsupported path format.`);
+      continue;
+    }
+
+    let text: string;
+    try {
+      text = readFileSync(checkedPath, 'utf8');
+    } catch (error) {
+      anySignal = true;
+      statusByDoc.push('stale');
+      staleDocs.push(docRef);
+      staleSignals.push(`Related doc missing: ${docRef} (${shortErr(error)}).`);
+      continue;
+    }
+
+    const rawFrontmatter = parseYamlLikeFrontmatter(text);
+    if (!rawFrontmatter) {
+      anySignal = true;
+      statusByDoc.push('invalid');
+      staleDocs.push(docRef);
+      staleSignals.push(`Related doc ${docRef} missing machine-readable frontmatter.`);
+      continue;
+    }
+
+    const metadata = pickSupersession(rawFrontmatter);
+    const completedByStory = metadata.completedByStory || metadata.sourceStoryId;
+    const commit = metadata.completionCommit;
+    const status = typeof metadata.status === 'string' ? metadata.status : '';
+
+    if (!status) {
+      anySignal = true;
+      statusByDoc.push('invalid');
+      staleDocs.push(docRef);
+      staleSignals.push(`Related doc ${docRef} has no supersession.status.`);
+      continue;
+    }
+
+    if (metadata.status === 'completed') {
+      if (!completedByStory || !commit) {
+        anySignal = true;
+        statusByDoc.push('invalid');
+        staleDocs.push(docRef);
+        staleSignals.push(`Related doc ${docRef} completed status lacks completedByStory/completionCommit.`);
+        continue;
+      }
+      if (!/^[0-9a-fA-F]{40}$/.test(commit)) {
+        anySignal = true;
+        statusByDoc.push('invalid');
+        staleDocs.push(docRef);
+        staleSignals.push(`Related doc ${docRef} completionCommit is invalid: ${commit}.`);
+        continue;
+      }
+      if (!resolveCommitIfExists(root, commit)) {
+        anySignal = true;
+        statusByDoc.push('invalid');
+        staleDocs.push(docRef);
+        staleSignals.push(`Related doc ${docRef} completionCommit not found in current repo: ${commit}.`);
+        continue;
+      }
+      completionSignals.push(`${docRef}:completed-by-${completedByStory}`);
+      if (completedByStory === storyId) {
+        winner = storyId;
+        statusByDoc.push('present');
+      } else {
+        statusByDoc.push('stale');
+        staleDocs.push(docRef);
+        staleSignals.push(
+          `Related doc ${docRef} is marked completed by ${completedByStory}, but target is ${storyId}; treat as historical.`,
+        );
+      }
+      continue;
+    }
+
+    if (metadata.status === 'historical' || metadata.status === 'draft') {
+      anySignal = true;
+      statusByDoc.push('stale');
+      staleDocs.push(docRef);
+      staleSignals.push(`Related doc ${docRef} is marked ${metadata.status}; reference-only for current active facts.`);
+      continue;
+    }
+
+    if (metadata.status === 'superseded') {
+      anySignal = true;
+      statusByDoc.push('stale');
+      staleDocs.push(docRef);
+      staleSignals.push(
+        `Related doc ${docRef} is marked superseded${metadata.supersededBy ? ` by ${metadata.supersededBy}` : ''}; prefer current target facts.`,
+      );
+      continue;
+    }
+
+    anySignal = true;
+    statusByDoc.push('invalid');
+    staleDocs.push(docRef);
+    staleSignals.push(`Related doc ${docRef} has unsupported supersession.status=${metadata.status}.`);
+  }
+
+  if (completionSignals.length > 0) {
+    anySignal = true;
+  }
+
+  let reportStatus: HostDispatchSupersessionReport['status'] = 'none';
+  if (relatedDocs.length > 0) {
+    reportStatus = statusByDoc.some(s => s === 'invalid') ? 'invalid'
+      : statusByDoc.every(s => s === 'present') ? 'present'
+      : statusByDoc.some(s => s === 'stale') ? 'stale'
+      : 'none';
+  }
+
+  const summary = reportStatus === 'none'
+    ? 'No related docs with machine-readable supersession found.'
+    : reportStatus === 'present'
+      ? completionSignals.length > 0
+        ? `Found authoritative completion signal(s): ${completionSignals.join('; ')}`
+        : 'Related docs are present with valid supersession metadata.'
+      : `Related docs checked but require live fact revalidation: ${staleSignals.length} item(s).`;
+
+  return {
+    status: reportStatus,
+    docsChecked: [...checked],
+    staleDocs: [...new Set(staleDocs)],
+    ...(winner ? { winner } : {}),
+    ...(anySignal ? { signal: staleSignals[0] } : {}),
+    summary: summary + (anySignal ? ` [rawSignals=${staleSignals.length}]` : ''),
+  };
+}
+
+function buildHostDispatchPrefetchManifest(
+  packStoryId: string,
+  host: string,
+  preflight: HostDispatchPrefetch,
+  supersession: HostDispatchSupersessionReport,
+  storyIsDone: boolean,
+): HostDispatchPrefetchManifest {
+  const staleSignals: string[] = [];
+  const allUnavailable = [
+    preflight.sessionBrief.status,
+    preflight.devMemoryPreflight.status,
+    preflight.activeStorySummary.status,
+    preflight.doneStorySummary.status,
+    preflight.gapAnalyzeSummary.status,
+    preflight.learningSignalSummary.status,
+  ];
+
+  if (allUnavailable.includes('error')) {
+    staleSignals.push('Host preflight failed for one or more mandatory signals.');
+  }
+  if (supersession.staleDocs.length > 0) {
+    staleSignals.push(...supersession.staleDocs.map(doc => `supersession stale: ${doc}`));
+  }
+  if (supersession.status === 'invalid') {
+    staleSignals.push('supersession metadata has validation errors.');
+  }
+
+  const doneSummary = preflight.doneStorySummary.parsed as Record<string, unknown> | undefined;
+  const hasDoneStorySummary = typeof doneSummary === 'object'
+    && doneSummary !== null
+    && doneSummary._empty !== true;
+  const doneSignals = storyIsDone || hasDoneStorySummary;
+
+  if (doneSignals) {
+    return {
+      host,
+      targetStoryId: packStoryId,
+      bundleFiles: [],
+      verdict: 'blocked',
+      winSignal: storyIsDone
+        ? 'activeStorySummary.phase=DONE'
+        : hasDoneStorySummary
+          ? 'doneStorySummary.available'
+          : 'ready-for-open-work',
+      staleSignals,
+    };
+  }
+
+  if (supersession.status === 'present' && supersession.winner === packStoryId) {
+    return {
+      host,
+      targetStoryId: packStoryId,
+      bundleFiles: [],
+      verdict: 'uncertain',
+      winSignal: `supersession(${supersession.winner})`,
+        staleSignals,
+    };
+  }
+
+  const hasLiveSignals = preflight.sessionBrief.status === 'ok'
+    && preflight.devMemoryPreflight.status === 'ok'
+    && preflight.activeStorySummary.status === 'ok'
+    && preflight.gapAnalyzeSummary.status === 'ok'
+    && preflight.learningSignalSummary.status === 'ok';
+  if (!hasLiveSignals || allUnavailable.includes('error') || supersession.status === 'invalid' || supersession.status === 'stale') {
+    return {
+      host,
+      targetStoryId: packStoryId,
+      bundleFiles: [],
+      verdict: 'uncertain',
+      winSignal: 'requires_revalidation',
+      staleSignals,
+    };
+  }
+
+  return {
+    host,
+    targetStoryId: packStoryId,
+    bundleFiles: [],
+    verdict: 'no-block',
+    winSignal: 'activeStorySummary/gapAnalyze/learningValidate',
+    staleSignals,
+  };
+}
+
+function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHost: string): {
+  preflight: HostDispatchPrefetch;
+  prefetchManifest: HostDispatchPrefetchManifest;
+} {
+  const sessionHandlers = createSessionHandlers(ctx);
+  const devMemoryHandlers = createDevMemoryHandlers(ctx);
+  const storyHandlers = createStoryQueryHandlers(ctx);
+  const summaryHandlers = createSummaryHandlers(ctx);
+  const gapHandlers = createGapHandlers(ctx);
+  const learningHandlers = createLearningValidateHandlers(ctx);
+
+  const sessionBrief = runSnapshot('session_brief', () => sessionHandlers.session_brief({ concise: false }));
+  const activeStorySummary = runSnapshot('story_get', () =>
+    storyHandlers.story_get({ storyId: pack.storyId, detail: true }));
+  const doneStorySummary = runSnapshot('summary_get', () => summaryHandlers.summary_get({ storyId: pack.storyId }));
+  const devMemoryPreflight = runSnapshot('dev_memory_preflight', () =>
+    devMemoryHandlers.dev_memory_preflight({ json: true, query: `story:${pack.storyId}`, maxEntries: 5, maxLines: 40 }));
+  const gapAnalyzeSummary = runSnapshot('gap_analyze', () => gapHandlers.gap_analyze());
+  const learningSignalSummary = runSnapshot('learning_validate', () =>
+    learningHandlers.learning_validate({ story: pack.storyId, json: true }));
+
+  const activeStory = (activeStorySummary.parsed && typeof activeStorySummary.parsed === 'object')
+    ? (activeStorySummary.parsed as Record<string, unknown>)
+    : {};
+  const storyIndex = activeStory.index as { phase?: string } | undefined;
+  const storyIsDone = storyIndex?.phase === 'DONE';
+
+  const docs = Array.from(new Set(collectRelatedDocs(activeStory)));
+
+  const supersession = buildSupersessionReport(ctx.root, pack.storyId, docs);
+
+  const preflight: HostDispatchPrefetch = {
+    computedAt: new Date().toISOString(),
+    sessionBrief,
+    devMemoryPreflight,
+    activeStorySummary,
+    doneStorySummary,
+    gapAnalyzeSummary,
+    learningSignalSummary,
+    supersession,
+  };
+
+  const preflightHost = requestedHost.trim().length > 0 ? requestedHost : pack.toHost;
+  const prefetchManifest = buildHostDispatchPrefetchManifest(pack.storyId, preflightHost, preflight, supersession, storyIsDone);
+  return { preflight, prefetchManifest };
 }
 
 function readResumeSource(file: string): HandoffPack | HandoffAcceptProjection {
@@ -190,7 +654,13 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       output?: string;
     }) {
       const pack = readHandoffPack(resolve(process.cwd(), args.file));
-      const result = buildHostDispatchProjection(pack, { host: args.host, mode: args.mode });
+      const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, args.host);
+      const result = buildHostDispatchProjection(pack, {
+        host: args.host,
+        mode: args.mode,
+        preflight,
+        prefetchManifest,
+      });
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, result);

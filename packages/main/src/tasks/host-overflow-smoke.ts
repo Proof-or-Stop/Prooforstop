@@ -61,6 +61,35 @@ function writeConfig(root: string): void {
   }, null, 2));
 }
 
+function writePlanDoc(root: string, relPath: string, body: string): void {
+  mkdirSync(dirname(join(root, relPath)), { recursive: true });
+  writeFileSync(join(root, relPath), `${body}\n`, 'utf8');
+}
+
+function dispatchFromHost(
+  cliPath: string,
+  root: string,
+  packPath: string,
+  host: string,
+): HostDispatchProjection {
+  return JSON.parse(execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'lattice',
+    'host',
+    'dispatch',
+    `--host=${host}`,
+    `--file=${packPath}`,
+    '--mode=supervised',
+    '--json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })) as HostDispatchProjection;
+}
+
 function initRepo(root: string): void {
   mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(root, 'packages/main/src/core/worker.ts'), 'export const worker = "host-overflow";\n');
@@ -264,28 +293,88 @@ try {
   assert.match(worktree.worktreePath, /^\.worktrees\/overflow\/B-overflow\/HP-/);
   assert.match(worktree.cleanupCommand, /git worktree remove/);
 
-  const plannedDispatch = JSON.parse(execFileSync(process.execPath, [
-    cliPath,
-    '--root',
-    root,
-    'lattice',
-    'host',
-    'dispatch',
-    '--host=claude-code',
-    `--file=${packPath}`,
-    '--mode=supervised',
-    '--json',
-  ], {
-    cwd: root,
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-  })) as HostDispatchProjection;
+  const plannedDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
   assert.equal(plannedDispatch.schemaVersion, 'lattice.host_dispatch.v1');
   assert.equal(plannedDispatch.status, 'planned');
   assert.equal(plannedDispatch.overflowReady, true);
   assert.equal(plannedDispatch.authorityChanged, false);
   assert.equal(plannedDispatch.productionDone, false);
+  assert.equal(plannedDispatch.prefetchManifest.verdict, 'no-block');
+  assert.equal(plannedDispatch.prefetchManifest.targetStoryId, 'B-overflow');
+  assert.equal(plannedDispatch.prefetchManifest.host, 'claude-code');
+  assert.equal(plannedDispatch.prefetchManifest.staleSignals.length, 0);
+  assert.equal(plannedDispatch.preflight.sessionBrief.status, 'ok');
+  assert.equal(plannedDispatch.preflight.devMemoryPreflight.status, 'ok');
+  assert.equal(plannedDispatch.preflight.activeStorySummary.status, 'ok');
+  assert.equal(plannedDispatch.preflight.doneStorySummary.status, 'ok');
+  assert.equal(plannedDispatch.preflight.gapAnalyzeSummary.status, 'ok');
+  assert.equal(plannedDispatch.preflight.learningSignalSummary.status, 'ok');
+  assert.equal(plannedDispatch.preflight.supersession.status, 'none');
+  assert.equal(plannedDispatch.prefetchManifest.winSignal, 'activeStorySummary/gapAnalyze/learningValidate');
   assert.match(plannedDispatch.nextAction, /planned only/i);
+
+  const baselineDocPath = 'Docs/story/actives/B-overflow/completion-note.md';
+  writePlanDoc(root, baselineDocPath, `---
+supersession:
+  status: completed
+  completedByStory: B-overflow
+  completionCommit: ${head}
+  completionNote: baseline completion evidence
+  updatedAt: 2026-06-20
+---
+
+Baseline note.
+`);
+  const baseChecklist = store.readChecklist('B-overflow');
+  store.writeChecklist('B-overflow', {
+    ...baseChecklist,
+    items: baseChecklist.items.map((item) => ({
+      ...item,
+      relatedDocs: [baselineDocPath],
+    })),
+  });
+
+  const sameStorySupersessionDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
+  assert.equal(sameStorySupersessionDispatch.prefetchManifest.verdict, 'uncertain');
+  assert.equal(sameStorySupersessionDispatch.prefetchManifest.winSignal, 'supersession(B-overflow)');
+  assert.equal(sameStorySupersessionDispatch.preflight.supersession.status, 'present');
+  assert.equal(sameStorySupersessionDispatch.preflight.supersession.winner, 'B-overflow');
+
+  writePlanDoc(root, baselineDocPath, `---
+supersession:
+  status: completed
+  completedByStory: B-other
+  completionCommit: ${head}
+  completionNote: another story completion evidence
+  updatedAt: 2026-06-20
+---
+
+Historical completion in another story.
+`);
+  const replacedStorySupersessionDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
+  assert.equal(replacedStorySupersessionDispatch.prefetchManifest.verdict, 'uncertain');
+  assert.equal(replacedStorySupersessionDispatch.prefetchManifest.winSignal, 'requires_revalidation');
+  assert.equal(replacedStorySupersessionDispatch.preflight.supersession.status, 'stale');
+  assert.equal(replacedStorySupersessionDispatch.prefetchManifest.staleSignals.length, 1);
+
+  writePlanDoc(root, baselineDocPath, `# Missing supersession frontmatter\n\nNo yaml header.`);
+  const invalidSupersessionDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
+  assert.equal(invalidSupersessionDispatch.prefetchManifest.verdict, 'uncertain');
+  assert.equal(invalidSupersessionDispatch.prefetchManifest.winSignal, 'requires_revalidation');
+  assert.equal(invalidSupersessionDispatch.preflight.supersession.status, 'invalid');
+  assert.ok(invalidSupersessionDispatch.prefetchManifest.staleSignals.length >= 1);
+
+  const beforeDoneStory = store.readStory('B-overflow');
+  const beforeDoneEvents = Array.isArray(beforeDoneStory.events) ? beforeDoneStory.events : [];
+  store.writeStory('B-overflow', {
+    ...beforeDoneStory,
+    phase: 'DONE',
+    endedAt: new Date().toISOString(),
+    events: [...beforeDoneEvents, { phase: 'DONE', action: 'advance', timestamp: new Date().toISOString() }],
+  });
+  const doneDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
+  assert.equal(doneDispatch.prefetchManifest.verdict, 'blocked');
+  assert.equal(doneDispatch.prefetchManifest.winSignal, 'activeStorySummary.phase=DONE');
 
   const unavailableDispatch = registry.get('host_dispatch')!({
     host: 'local-runner',
