@@ -160,6 +160,17 @@
           "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
           "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
           "timestamp": "2026-06-20T12:03:24.230Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"PLAN skeleton assistant|Evidence refresh/execution|Reviewer batch|Top-level orchestration|outside V1|future\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The staged-layer table keeps artifact producers, refresh execution, reviewer batching, and phase handoff outside V1 with explicit future defaults.",
+          "headHash": "8072ed4937bbb53396270b4709f39b39598ead39",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:04:20.040Z"
         }
       ]
     },
