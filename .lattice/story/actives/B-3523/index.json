@@ -4,7 +4,7 @@
   "title": "Rename the npm scope @lattice-agent to @lattice (drop -agent); retire legacy @koala-agent global fallback; fix stale pre-push self-host check",
   "description": "The product is Lattice, not an 'agent'. Rename the live npm workspace scope @lattice-agent/{core,utils,lab} to @lattice/{core,utils,lab} across package names, cross-deps, internal imports, and self-host detection. Also fix the stale .githooks/pre-push self-host check (still keyed on the older @koala-agent/core, which silently disables its build+tsc gate for this repo) and retire the legacy @koala-agent/core global-install fallback. This is a self-host rename of the very package the Lattice CLI is built from, so consistency across package.json, npm workspace resolution, bin, and every self-host gate is load-bearing.",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "rename",
@@ -42,6 +42,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-20T23:35:01.715Z",
+      "branch": "story/B-3523",
+      "user": "Harmonygo",
+      "sessionId": "11b56608-0ef9-4ab5-ae53-e6e3126d9293",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T23:40:17.538Z",
       "branch": "story/B-3523",
       "user": "Harmonygo",
       "sessionId": "11b56608-0ef9-4ab5-ae53-e6e3126d9293",

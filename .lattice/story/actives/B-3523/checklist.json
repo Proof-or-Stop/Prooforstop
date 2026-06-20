@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice",
       "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T23:42:49.231Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [

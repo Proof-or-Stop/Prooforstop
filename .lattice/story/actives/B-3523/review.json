@@ -1,0 +1,232 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-20T23:38:55.723Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (PLAN decision, per product-reviewer advisory): DROP the @lattice-agent/core transitional global-fallback candidate alongside @koala-agent/core — clean break to @lattice/core only (the global fallback is heartbeat-only, not a gate; document the break).; RESOLVED: reference count framing — treat CHK-002 as 'all live @lattice-agent source references' (1 import + ~67 literals/constants/paths), with the CHK-004 grep-clean sweep as the completeness gate.; Open (DEV-time): confirm `npm install` regenerates @lattice/* workspace links cleanly and `node bin/lattice.js` + the worktree's lattice gates still run post-rename (self-host bootstrap)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3523 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7a228bb30d91c314acf04318dfc2276e84610f14a4fd0629ab35b53fc9d08a7e"
+    },
+    {
+      "timestamp": "2026-06-20T23:39:04.121Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (PLAN decision, per product-reviewer advisory): DROP the @lattice-agent/core transitional global-fallback candidate alongside @koala-agent/core — clean break to @lattice/core only (the global fallback is heartbeat-only, not a gate; document the break).; RESOLVED: reference count framing — treat CHK-002 as 'all live @lattice-agent source references' (1 import + ~67 literals/constants/paths), with the CHK-004 grep-clean sweep as the completeness gate.; Open (DEV-time): confirm `npm install` regenerates @lattice/* workspace links cleanly and `node bin/lattice.js` + the worktree's lattice gates still run post-rename (self-host bootstrap)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3523 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "174df8d807ed104eb0b0616dfc6eab8d79f1c5ea566c897dc3abb459caa3d4f4"
+    },
+    {
+      "timestamp": "2026-06-20T23:39:13.603Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (PLAN decision, per product-reviewer advisory): DROP the @lattice-agent/core transitional global-fallback candidate alongside @koala-agent/core — clean break to @lattice/core only (the global fallback is heartbeat-only, not a gate; document the break).; RESOLVED: reference count framing — treat CHK-002 as 'all live @lattice-agent source references' (1 import + ~67 literals/constants/paths), with the CHK-004 grep-clean sweep as the completeness gate.; Open (DEV-time): confirm `npm install` regenerates @lattice/* workspace links cleanly and `node bin/lattice.js` + the worktree's lattice gates still run post-rename (self-host bootstrap)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3523 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "d59abff10048ef50ff8cc095bb9a941f901a9c52587f18e2b14fc3e52c9ee370"
+    },
+    {
+      "timestamp": "2026-06-20T23:39:20.997Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (PLAN decision, per product-reviewer advisory): DROP the @lattice-agent/core transitional global-fallback candidate alongside @koala-agent/core — clean break to @lattice/core only (the global fallback is heartbeat-only, not a gate; document the break).; RESOLVED: reference count framing — treat CHK-002 as 'all live @lattice-agent source references' (1 import + ~67 literals/constants/paths), with the CHK-004 grep-clean sweep as the completeness gate.; Open (DEV-time): confirm `npm install` regenerates @lattice/* workspace links cleanly and `node bin/lattice.js` + the worktree's lattice gates still run post-rename (self-host bootstrap)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3523 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "46666808f5a556f3875e7dbbafb4b60366b7385eb174b7ec7d81608d28f303a4"
+    }
+  ]
+}
