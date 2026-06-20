@@ -1,0 +1,57 @@
+{
+  "storyId": "B-0e7b",
+  "checkedAt": "2026-06-20T11:30:25.044Z",
+  "reviewRound": "2026-06-20T11:01:57.808Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/adversarial-review-spec.md#1-motivation-empirical-evidence",
+      "promise": "§1 Motivation + Empirical Evidence: correct attribution of S4/B-fa7c crash to claude-quality (F-002) and codex (F-007/F-008), completeness-critic test-coverage gap (F-003); S5/B-086b express+rollback bypass doors to claude-completeness-critic (F-003/F-006); B-b29e read-only over-registration to claude-completeness-critic (F-001). Merge commit hashes accurate.",
+      "verifiedBy": "diff/grep + findings.json parse",
+      "evidence": "B-fa7c findings.json: F-002 agent=claude-quality (crash in storyRef), F-003 agent=claude-critic (test gap), F-007/F-008 agent=codex. B-086b: F-003/F-006 agent=claude-completeness-critic (express bypass + rollback doors). B-b29e: F-001 agent=claude-completeness-critic (over-claimed producer). Merge hashes b6ef51079/2481cbbc4/3556165c2 verified via git log."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#2-methodology",
+      "promise": "§2/§3 define concrete data shapes: Lens (6 canonical lenses), Finding{severity,file,line,issue,fix}, Verdict{isReal,agreedSeverity,reasoning}; threshold-confirm default T=1-of-2 (not majority); completeness-critic contract; convergence criterion; canonical loop order frozen.",
+      "verifiedBy": "read spec §2/§3",
+      "evidence": "Spec §2.2 Finding schema, §2.3 Verdict schema, §2.3 threshold-confirm T=1-of-2 rule with explicit tradeoff table, §2.4 critic IO contract, §3.1 convergence criterion (3 conditions), §3.2 loop pseudocode with canonical order matching §2.4. All schemas are present and unambiguous."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#4-lattice-integration-contract",
+      "promise": "§4 Lattice integration: the 6 REAL review lanes (concept/quality/test-coverage/behavior/docs/channel) verified against command-catalog.ts; finding_add LEDGER-MAPPING (BLOCKER->critical, MAJOR->high, MINOR->medium; file->files[], category, reviewRunId, agent); full-3x2 defined abstractly; MVP critic provenance via real lattice-review-* lane with [completeness-critic] in desc; MVP-vs-FUTURE table; local-not-Authority honesty note (§4.5).",
+      "verifiedBy": "diff/grep review-run.ts + command-catalog.ts",
+      "evidence": "REVIEW_RUN_LANES in review-run.ts lines 19-26: exactly 6 lanes matching spec §4.1/§4.2. finding_add in command-catalog.ts line 1451: severity enum critical|high|medium|low. finding_add files[] (line 1464), category enum happy|edge|adversarial|missing|... (line 1452-1461). isReviewerAgent() (line 82-84) gates on agent.startsWith(lattice-review-). review_run_start rejects non-lattice-review- agents (line 93-94). lattice-review-scope-plan and lattice-review-delivery are NOT in REVIEW_RUN_LANES. MVP-vs-FUTURE table in §4.4. §4.5 local-not-Authority honesty present."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#5-implementation-program",
+      "promise": "§5 implementation program S0-S4: each story has scope, dependencies, acceptance criteria, MVP/future marking. S0 frozen contract (serial, first), S1 lens runner, S2 adversarial verifier, S3 completeness critic (role MVP), S4 escalation-flow integration (serial, last). Critical path and MVP cut defined.",
+      "verifiedBy": "read spec §5",
+      "evidence": "S0-S4 all present with explicit scope, Depends[], acceptance criteria, and MVP/future annotation. S0 and S4 marked SERIAL; S1/S2 marked PARALLEL+disjoint. Critical path stated as S0->slowest of {S1,S2,S3}->S4. MVP cut clearly delimited. Each acceptance criterion is concrete and testable."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate green: 11/11 validate commands passed (build + 10 smokes). Verification intent 12/12. Attribution verified against findings.json: B-fa7c F-002 agent=claude-quality, F-003 agent=claude-critic, F-007/F-008 agent=codex; B-086b F-003/F-006 agent=claude-completeness-critic; B-b29e F-001 agent=claude-completeness-critic. Merge hashes b6ef51079/2481cbbc4/3556165c2 confirmed in git log main. CHK-001 happy/edge/adversarial all covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate green (12/12 intent). Spot-check: Finding schema in §2.2 has severity/title/file/line/issue/fix; Verdict in §2.3 has isReal/agreedSeverity/reasoning; threshold-confirm T=1-of-2 explicitly named as NOT majority with tradeoff table; critic IO contract §2.4 specifies input={change,confirmedFindings} outputting raw Finding[] re-entering §2.3. CHK-002 happy/edge/adversarial covered."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate green (12/12 intent). CLI spot-checks: 6 REVIEW lanes verified in review-run.ts REVIEW_RUN_LANES (lines 19-26); finding_add severity enum=critical|high|medium|low at command-catalog.ts:1451; isReviewerAgent() gates on agent.startsWith(lattice-review-) at review-run.ts:82-84; review_run_start throws on non-lattice-review- agent at review-run.ts:93-94; lattice-review-scope-plan and lattice-review-delivery confirmed NOT in REVIEW_RUN_LANES. CHK-003 happy/edge/adversarial covered."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice validate green (12/12 intent). §5 S0-S4 each have scope/deps/acceptance. S1/S2 parallel-safe (disjoint). S0/S4 serial constraints stated. MVP cut = S0+S1+S2+S4+S3-as-role. Acceptance criteria are concrete and testable per story. CHK-004 happy/edge/adversarial covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "DOC-ONLY story. docs/adversarial-review-spec.md is fully present (533 lines, net-new). All 4 promises verified: §1 empirical attributions confirmed against findings.json and git log; §2/§3 schemas concrete and unambiguous; §4 Lattice integration contract spot-checked against review-run.ts and command-catalog.ts with no discrepancies; §5 S0-S4 each have actionable scope/deps/acceptance. lattice validate green (11/11 commands, 12/12 intent coverage). No unresolved TODOs or stubs in diff. Spec is complete, accurate, and buildable."
+  },
+  "_hash": "d88c77ffd8365086a60fa478fea84f00f302b9936625b43f40bf4d072e403522"
+}
