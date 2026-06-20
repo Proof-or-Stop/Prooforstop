@@ -241,13 +241,13 @@
           "kind": "manual_transcript",
           "verdict": "success",
           "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
-          "command": "lattice autopilot_review_status --storyId=B-a781 --runId=two-host-doc-review-v3 --requiredHosts=2 --format=json",
+          "command": "lattice review_escalation_status --storyId=B-a781 --format=json",
           "result": "pass",
-          "note": "Independent two-host local review completed on the current document material: Codex verdict-c268950499b75fbf PASS and Claude Code verdict-9a6cbb3d40660211 PASS; autopilot_review_status reported localReviewCertified=true, passingIndependentHosts=2, staleVerdicts=0. This is local non-Authority evidence, not production Authority completion.",
-          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "note": "Fresh local 3x2 review assurance completed on current materialHash 6bd1e9b0: three-x-two-doc-review-r1/r2/r3 each have Codex+Claude Code PASS, review_escalation_status reports ok=true and assuranceLevel=full-3x2. This is local non-Authority evidence; authorityDone/fullAuthorityDone/productionDone remain false.",
+          "headHash": "9a70f0acbf1be430230d9f0a701bd63810fe5acf",
           "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
           "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
-          "timestamp": "2026-06-20T07:17:53.626Z"
+          "timestamp": "2026-06-20T07:23:23.787Z"
         }
       ]
     }
