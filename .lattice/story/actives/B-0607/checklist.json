@@ -52,8 +52,8 @@
         "CLAUDE.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:32:29.535Z",
       "endTime": null,
       "userSees": "The execution plan contains a section named \"Truth-First Host Handoff Contract\" listing the source priority order and the rule that hosts cannot tell the user work is missing from a plan-only document without checking live Lattice facts.",
       "files": {
@@ -143,6 +143,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start documenting verified stale-doc failure mode"
+    },
+    {
+      "timestamp": "2026-06-20T18:32:29.535Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start host handoff contract definition content"
     }
   ]
 }
