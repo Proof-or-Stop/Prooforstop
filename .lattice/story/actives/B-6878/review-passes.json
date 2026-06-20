@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-20T15:39:00.671Z",
       "reviewRunId": "B-6878:RR-008",
       "_hash": "4569a47f2cd0c289c2eb6e9344d2d2e5c00c2b655899f439c6d044e0944f6bc2"
+    },
+    {
+      "id": "B-6878:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4 final): verified the new section J validator-pollution check (checks 28-29) is genuinely load-bearing against the real validateUsageLedgerRecord (record.ts:330); old `in` operator removed and replaced with hasOwnProperty.call at record.ts:373/389; baseline guard (check 28) confirms check-29 is not always-fail; all 30 checks confirmed in smoke source and runtime (exit 0, 30 checks printed); no prior F-001/F-002 re-filed; no regression on prior 28 checks; coverage converged.",
+      "createdAt": "2026-06-20T15:54:39.760Z",
+      "reviewRound": "2026-06-20T15:51:59.755Z",
+      "reviewRunId": "B-6878:RR-012",
+      "_hash": "1838d7f48752131f0cf26a2028b6d2de7b955a2dfde634ecbe0731cc3e8cf20b"
     }
   ]
 }
