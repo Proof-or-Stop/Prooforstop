@@ -91,20 +91,29 @@ void (() => {
       check('numeric (present non-string) mode -> advise, NEVER block', result.mode === 'advise');
       check('numeric mode emits a warn', warnings.some((w) => w.includes('parallelGate.mode')));
     }
-    check('boolean mode -> advise', resolveParallelGate({ mode: true }, STRICT).mode === 'advise');
-
-    // 5. maxConcurrentReview integer >= 1 guard, against the profile each intent names.
-    check('valid max applied', resolveParallelGate({ maxConcurrentReview: 7 }, LIGHT).maxConcurrentReview === 7);
-    check('zero max -> light default 2', resolveParallelGate({ maxConcurrentReview: 0 }, LIGHT).maxConcurrentReview === 2);
-    check('negative max -> light default 2', resolveParallelGate({ maxConcurrentReview: -1 }, LIGHT).maxConcurrentReview === 2);
-    check('float max -> strict default 4', resolveParallelGate({ maxConcurrentReview: 2.5 }, STRICT).maxConcurrentReview === 4);
-    check('Infinity max -> light default 2', resolveParallelGate({ maxConcurrentReview: Infinity }, LIGHT).maxConcurrentReview === 2);
-    check('NaN max -> balanced default 3', resolveParallelGate({ maxConcurrentReview: NaN }, BALANCED).maxConcurrentReview === 3);
     {
-      const { result, warnings } = captureWarn(() => resolveParallelGate({ maxConcurrentReview: '5' }, BALANCED));
-      check('string max -> balanced default 3', result.maxConcurrentReview === 3);
-      check('invalid max emits a warn', warnings.some((w) => w.includes('maxConcurrentReview')));
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ mode: true }, STRICT));
+      check('boolean mode -> advise', result.mode === 'advise');
+      check('boolean mode emits a warn', warnings.some((w) => w.includes('parallelGate.mode')));
     }
+
+    // 5. maxConcurrentReview must be a positive integer; a present-but-invalid value warns + falls
+    //    back to the profile default — each invalid case asserts BOTH the value AND the warn.
+    check('valid max applied', resolveParallelGate({ maxConcurrentReview: 7 }, LIGHT).maxConcurrentReview === 7);
+    const expectMaxFallback = (val: unknown, profile: ParallelGateConfig, expected: number, label: string): void => {
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ maxConcurrentReview: val }, profile));
+      check(`${label} max -> ${expected}`, result.maxConcurrentReview === expected);
+      check(`${label} max emits a warn`, warnings.some((w) => w.includes('maxConcurrentReview')));
+    };
+    expectMaxFallback(0, LIGHT, 2, 'zero');
+    expectMaxFallback(-1, LIGHT, 2, 'negative');
+    expectMaxFallback(2.5, STRICT, 4, 'float-strict');
+    expectMaxFallback(Infinity, LIGHT, 2, 'Infinity');
+    expectMaxFallback(NaN, BALANCED, 3, 'NaN-balanced');
+    expectMaxFallback('5', BALANCED, 3, 'string-balanced');
+    // F-014: the fallback bound to the BALANCED profile the intents name.
+    expectMaxFallback(0, BALANCED, 3, 'zero-balanced');
+    expectMaxFallback(2.5, BALANCED, 3, 'float-balanced');
 
     // 6. broadGlobBlocks boolean guard.
     check('valid broadGlobBlocks applied', resolveParallelGate({ broadGlobBlocks: true }, LIGHT).broadGlobBlocks === true);
@@ -117,11 +126,21 @@ void (() => {
     // 7. A partial override keeps the profile default for missing sub-fields.
     check('partial override keeps defaults', eq(resolveParallelGate({ mode: 'block' }, BALANCED), { mode: 'block', maxConcurrentReview: 3, broadGlobBlocks: false }));
 
-    // 8. All-wrong-types -> mode advise, the others keep the profile default.
-    check('all-wrong-types -> mode advise + others profile default', eq(
-      resolveParallelGate({ mode: 'bad', maxConcurrentReview: 'x', broadGlobBlocks: 1 }, STRICT),
-      { mode: 'advise', maxConcurrentReview: 4, broadGlobBlocks: true },
-    ));
+    // 8. All-wrong-types -> mode advise, the others keep the profile default, and EACH of the
+    //    three present-but-invalid sub-fields emits its own warn (Codex MEDIUM: assert warn
+    //    emission, not just the resolved value).
+    {
+      const { result, warnings } = captureWarn(() =>
+        resolveParallelGate({ mode: 'bad', maxConcurrentReview: 'x', broadGlobBlocks: 1 }, STRICT),
+      );
+      check('all-wrong-types -> mode advise + others profile default', eq(
+        result,
+        { mode: 'advise', maxConcurrentReview: 4, broadGlobBlocks: true },
+      ));
+      check('all-wrong-types warns for mode', warnings.some((w) => w.includes('parallelGate.mode')));
+      check('all-wrong-types warns for maxConcurrentReview', warnings.some((w) => w.includes('maxConcurrentReview')));
+      check('all-wrong-types warns for broadGlobBlocks', warnings.some((w) => w.includes('broadGlobBlocks')));
+    }
 
     // 8b. Unknown extra keys are ignored, valid sub-fields kept (forward-compatibility).
     check('unknown keys ignored, valid kept', eq(
@@ -151,6 +170,18 @@ void (() => {
 
     // 13. An invalid mode in the config falls back to advise.
     check('invalid config mode -> advise', resolveAuditConfig('strict', tmpProject({ parallelGate: { mode: 'nope' } })).parallelGate!.mode === 'advise');
+
+    // 13b. (F-013) mode "off" survives the full resolveAuditConfig integration path — the
+    //      reversible escape hatch must be reachable from a real config file, not just the unit.
+    check('config mode off -> off (integration)', resolveAuditConfig('light', tmpProject({ parallelGate: { mode: 'off' } })).parallelGate!.mode === 'off');
+
+    // 13c. (F-015) A non-integer maxConcurrentReview in the config falls back to the profile
+    //      default through the integration path (strict default = 4).
+    check('config float max -> strict profile default (integration)', resolveAuditConfig('strict', tmpProject({ parallelGate: { maxConcurrentReview: 2.5 } })).parallelGate!.maxConcurrentReview === 4);
+
+    // 13d. (F-015) A non-boolean broadGlobBlocks in the config falls back to the profile default
+    //      through the integration path (light default = false).
+    check('config non-bool broadGlobBlocks -> light profile default (integration)', resolveAuditConfig('light', tmpProject({ parallelGate: { broadGlobBlocks: 'yes' } })).parallelGate!.broadGlobBlocks === false);
 
     // 14. Unknown keys in the config parallelGate are ignored, valid kept.
     check('config unknown keys ignored', eq(

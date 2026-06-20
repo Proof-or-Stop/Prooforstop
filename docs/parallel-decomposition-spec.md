@@ -368,7 +368,7 @@ parallelGate: {
 // VALID_PARALLEL_MODES = new Set(['advise','block','off']);  PARALLEL_MODE_FALLBACK = 'advise';
 ```
 - `mode` validated against `VALID_PARALLEL_MODES` (same *structure* as `VALID_MODES`, different values); invalid → `console.warn` + `'advise'`.
-- `maxConcurrentReview` uses the integer-≥-1 guard copied from `deprecatedGcThreshold`/`auditTriggerWindow`; else warn + profile default.
+- `maxConcurrentReview` must be a **positive integer** (`Number.isInteger(n) && n > 0`, the same guard as `deprecatedGcThreshold`/`auditTriggerWindow`); a present-but-invalid value (including a float, `0`, a negative, `Infinity`/`NaN`, or a non-number) warns and falls back to the profile default.
 - **Nested-object validation:** unlike the existing *flat scalar* fields (`auditTriggerWindow`, `deprecatedGcThreshold`), `parallelGate` is a nested object, and the per-scalar `readUserConfig` path does not recurse into it. `resolveAuditConfig` therefore delegates to a dedicated `resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig` helper (Story 3 / OQ-001: the profile default is passed explicitly as a second argument so the helper stays pure and decoupled from the per-profile table) that reads the nested object and applies each sub-field's guard+fallback individually. A **present-but-invalid** sub-field (wrong type *or* unknown value — e.g. `mode: 123`) warns and falls back (`mode` → `advise`, the others → their profile default), while an **absent** key keeps the profile default; a missing or non-object `raw` yields all profile defaults. Copying the flat pattern verbatim would silently skip every nested check.
 - `mode: 'off'` disables both behaviors — the same reversible escape hatch every Lattice gate provides.
 
