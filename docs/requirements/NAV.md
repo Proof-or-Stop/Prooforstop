@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 67 files
+> 68 files
 
 ## decisions
 
@@ -42,6 +42,7 @@
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Lattice Runtime-Owned Agent Assets Execution Plan](decisions/lattice-runtime-owned-agent-assets-execution-plan.md)
 - [Lattice Strengthening Roadmap Execution Plan](decisions/lattice-strengthening-roadmap-execution-plan.md)
+- [Lattice Standard Evidence Pipeline Execution Plan](decisions/lattice-standard-evidence-pipeline-execution-plan.md)
 - [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)

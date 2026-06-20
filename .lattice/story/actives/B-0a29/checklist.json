@@ -9,7 +9,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the heading \"Step Contract Matrix\" followed by rows for Step 0 through Step 7 and columns for inputs, outputs, required evidence, missing/stale handling, and verifier.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Step Contract Matrix has rows for state intake, PLAN skeleton, reviewer lanes, evidence, preflight, live smoke, delivery, and done_prepare delegation.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows distinguish upstream evidence refresh from TEST-to-DONE stale refresh owned by done_prepare.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No row allows stale proof to become fresh by direct hash rewrite or main-agent self-signing.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +50,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the heading \"Flowcharts\", a text flowchart block, and the image link \"Lattice standard evidence pipeline flow\" pointing at the SVG asset.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The text flowchart lists the full state intake through DONE delegation path with explicit stop points.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The image/SVG flowchart visually distinguishes ordinary preflight from TEST-to-DONE done_prepare delegation.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Neither flowchart depicts story_pipeline as independently running main merge, stale TEST evidence refresh, validation, or done_closure for DONE readiness.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -35,7 +93,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Track A through Track G and P1 through P7 explicitly say DONE readiness is delegated to \"done_prepare\" where applicable.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "P1-P7 identify owners, deliverables, dependencies, and parallel-safety notes.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tracks that touch delivery, evidence refresh, review gates, or DONE readiness name their dependency on existing gates or done_prepare.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No track claims permission to replace reviewer lanes, delivery reviewer signatures, Authority receipts, or done_prepare TEST-to-DONE readiness behavior.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
