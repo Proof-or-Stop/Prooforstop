@@ -466,7 +466,7 @@
       "desc": "mode and broadGlobBlocks are read twice (guard + assign), so a hostile getter/Proxy could return a valid value for the guard and a different invalid value for the assignment (TOCTOU), yielding an invalid ParallelGateConfig without throwing. Unreachable from JSON.parse but inconsistent with maxConcurrentReview which reads once. Fix: read each field into a const before validating.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T06:32:42.287Z",
@@ -476,7 +476,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "adversarial|ts|mode-broadglobblocks-read",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "mode and broadGlobBlocks now read once into a const before validate+assign (matching maxConcurrentReview), closing the hostile-getter guard/assign TOCTOU. Smoke 8e: a flaky getter returning valid-then-invalid is read once so the stored value is always the guarded one (this test fails under the old double-read). 82 assertions, validate green.",
+      "resolvedAt": "2026-06-20T06:34:45.639Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
