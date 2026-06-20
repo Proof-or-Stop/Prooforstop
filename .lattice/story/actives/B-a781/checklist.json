@@ -50,10 +50,10 @@
           "command": "rg -n \"LATTICE_SESSION_ID|core owner-lease|canonical\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/requirements/decisions/session-ownership-and-write-leases.md",
           "result": "pass",
           "note": "The execution plan and linked lease decision document state that LATTICE_SESSION_ID is canonical and that core owner-lease logic should consume the canonical id.",
-          "headHash": "078380cd1dffdcecb01fcfe54b923da510b42f82",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:49:24.337Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "rg -n \"derived-ppid|ppid Degraded Fallback|last fallback|degraded\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/requirements/decisions/session-ownership-and-write-leases.md",
           "result": "pass",
           "note": "The plan labels ppid identity as a degraded last fallback and requires user-visible source labeling when canonical host identity is absent.",
-          "headHash": "b63bf7f95471082524c3c7d04347a89e0ad8094f",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:49:30.736Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "rg -n \"Canonical env wins|ppid degradation|same worktree but different ppid|derived ids differ|stable ownership\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
           "result": "pass",
           "note": "The verification matrix explicitly covers parent-PID-changing invocations: canonical env remains stable, while ppid-only runs are documented as degraded and insufficient for normal multi-host ownership.",
-          "headHash": "30bd124ef1be9ebcf52fb3e33a510c06e617e98b",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:49:36.687Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         }
       ]
     },
@@ -134,10 +134,10 @@
           "command": "rg -n \"Claude Code|Codex|Antigravity|agy|future hosts|host adapter|LATTICE_SESSION_ID\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/guide-scope-guard.md",
           "result": "pass",
           "note": "The plan documents Claude Code, Codex, Antigravity/agy, and future hosts as adapter-layer providers that bridge to LATTICE_SESSION_ID before owner lease logic.",
-          "headHash": "656affe2822e7f641b5d99106f5e04edaa930b5e",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:49:53.696Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "rg -n \"Generated-token fallback|future host onboarding|generate|adapter layer|source shown\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
           "result": "pass",
           "note": "The plan covers hosts without a native stable session variable by generating or mapping a host-local stable id in the adapter layer and labeling the source shown to users.",
-          "headHash": "ec555541d13f420256fe75ada9bef7f509aec794",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:50:00.060Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,10 +160,10 @@
           "command": "rg -n \"core owner-lease code must not|core owner-lease resolver|special cases|Core exception guard|host-specific env\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/guide-scope-guard.md",
           "result": "pass",
           "note": "The plan explicitly forbids Codex, Claude Code, Antigravity/agy, and future-host special cases in core owner-lease logic; provider-specific knowledge is constrained to adapters and guard diagnostics.",
-          "headHash": "01653db7faa83df21432cac1fbe926d3aa477e48",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:50:06.354Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         }
       ]
     },
@@ -218,10 +218,10 @@
           "command": "rg -n \"Verification Matrix|ppid-changing|wrapper|owner lease refresh|session_brief|documentation grep\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
           "result": "pass",
           "note": "The verification matrix covers ppid-changing invocations, wrapper env bridging, owner lease refresh behavior, session_brief source rendering, and documentation grep checks.",
-          "headHash": "58c0098b37a40eff27a4aca61d5c1e2fc133fb76",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:50:21.190Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,10 +231,10 @@
           "command": "rg -n \"Manual Transcript Evidence|two invocation shapes|parent PID|preserve LATTICE_SESSION_ID|degraded ppid-only run\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
           "result": "pass",
           "note": "The plan requires manual transcript evidence for at least two invocation shapes that change parent PID while preserving LATTICE_SESSION_ID, plus a degraded ppid-only comparison run.",
-          "headHash": "4b33e14b872209e0c0c0d93112c999f7a55e206f",
-          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
-          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
-          "timestamp": "2026-06-20T06:50:27.010Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -244,10 +244,10 @@
           "command": "lattice autopilot_review_status --storyId=B-a781 --runId=two-host-doc-review-v3 --requiredHosts=2 --format=json",
           "result": "pass",
           "note": "Independent two-host local review completed on the current document material: Codex verdict-c268950499b75fbf PASS and Claude Code verdict-9a6cbb3d40660211 PASS; autopilot_review_status reported localReviewCertified=true, passingIndependentHosts=2, staleVerdicts=0. This is local non-Authority evidence, not production Authority completion.",
-          "headHash": "8eeedc663b137ee1cef37a31b9ec2dad310fe6cc",
-          "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
-          "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
-          "timestamp": "2026-06-20T07:05:21.211Z"
+          "headHash": "80043290ad325f6d747d8466c583b614699e1815",
+          "materialHash": "6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55",
+          "storyFilesHash": "50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893",
+          "timestamp": "2026-06-20T07:17:53.626Z"
         }
       ]
     }
