@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9089:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept lane: implementation follows the owner-session contract execution plan. Generic owner-lease and lifecycle consumers use the shared owner-session facade; host-native env reads are confined to adapter/dispatch/test allowlist by owner-session-guardrail. LATTICE_SESSION_ID wins, host adapters bridge Claude Code/Codex/Antigravity/agy/fake future host signals, generated-token storage is runtime/material-excluded local coordination only, and derived-ppid remains a labeled degraded fallback. Verified with npm build, test:owner-session-guardrail, and test:story-owner-lease-smoke.",
+      "createdAt": "2026-06-20T11:21:14.562Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-002",
+      "_hash": "4323cb9d7a4ccbd92513606916fa143ec6d30124cfcb5274f9b8f3457baa8eeb"
+    }
+  ]
+}
