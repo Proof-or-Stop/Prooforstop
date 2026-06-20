@@ -133,7 +133,75 @@
       "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": ".githooks/pre-push line ~148 compares PKG_NAME to @lattice/core (not @koala-agent/core) -> grep pre-push for the comparison; WHY: the stale @koala-agent/core check causes the build+tsc gate to silently exit 0 (skip) in this repo",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": ".githooks/pre-push comment block (line ~24) updated to reference @lattice/core -> grep pre-push for the comment; WHY: comment/code consistency prevents future confusion about which scope triggers the gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "codex-adapter-checks.ts globalCoreCandidates contains only @lattice/core entry (no @koala-agent/core, no @lattice-agent/core) -> grep codex-adapter-checks.ts for globalCoreCandidates array; WHY: legacy fallbacks must be retired, not left as dead paths",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-koala-residue.mjs still passes (node scripts/verify-koala-residue.mjs exits 0) and also guards absence of live @lattice-agent scope -> WHY: the residue checker must be extended to catch the old-old AND old scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-runtime-fact-contract.mjs assertions reference @lattice/core as canonical (not @lattice-agent/core) and still pass -> grep the file + run it; WHY: verifier must match the new canonical name",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-entrypoints.mjs assertions reference @lattice/core, @lattice/utils, @lattice/lab package names and still pass -> grep the file + run it; WHY: entrypoint verifier validates workspace package names",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-global-lab-entrypoint.mjs assertions reference @lattice/core and still pass -> grep the file + run it; WHY: global lab entrypoint verifier validates canonical core name",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree-repair-smoke.ts and flow-stability-smoke.ts fixtures updated to remove @koala-agent/core legacy entries -> grep both smoke test files; WHY: test fixtures must reflect the retired fallback",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-koala-residue.mjs regex pattern now catches both @koala-agent AND @lattice-agent live references -> inspect the regex patterns in the script; WHY: the residue checker scope must expand to cover the transitional name too",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the pre-push hook in simulation: set PKG_NAME=@lattice/core and verify the script proceeds past the name check into the build+tsc path (does NOT exit 0 early) -> trace the bash logic or run with set -x; WHY: proves the gate is now ARMED for this repo instead of silently skipping",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -n @koala-agent/core -- . should return ONLY hits in verify-koala-residue.mjs anti-residue assertions and .lattice/ frozen history, NOT in any live runtime/gate code; WHY: adversarial confirmation that the legacy fallback is truly dead everywhere except the residue checker",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After removing @koala-agent/core from globalCoreCandidates, verify codex-adapter-checks does not throw when no global @koala-agent is installed -> the check should gracefully find no global core and continue; WHY: removing a fallback candidate must not introduce a crash on systems that never had the legacy global",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
