@@ -132,6 +132,24 @@
         }
       ],
       "_hash": "46b54de175db3b1544423c0b3830a66e6887b6e4e3a58c8372efebde5f5dad62"
+    },
+    {
+      "timestamp": "2026-06-20T18:31:54.267Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Document the stale-doc misclassification failure mode + Define the truth-first host handoff contract are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0607 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "140a32536dbb1a5d8d707a3d844b7f59d4709f1f3e5ac351e856fc8ac1ac0fcb"
     }
   ]
 }

@@ -8,8 +8,8 @@
         "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
         "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:32:27.187Z",
       "endTime": null,
       "userSees": "The execution plan contains a section named \"Verified Failure Mode\" with the Claude stale-plan incident, commit 2750aadef, 656 backfilled signatures, and the distinction between the plan-only document and the completed outcome record.",
       "files": {
@@ -132,6 +132,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-20T18:32:27.187Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start documenting verified stale-doc failure mode"
     }
   ]
 }
