@@ -283,26 +283,37 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Host status/probe output includes host_dispatch preflightManifest.winSignal and verdict fields.",
+          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:28:26.943Z"
+        },
+        {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
-          "note": "Host dispatch preflight/preload manifest output remains stable when host status inputs are incomplete via explicit staleSignals and stable schema fields.",
-          "headHash": "bdfc98164660ae9c4ce0aa929aba77fa15c460e6",
+          "note": "Incomplete preflight artifacts still produce stable dispatch status with explicit staleSignals and deterministic schema.",
+          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
           "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
           "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:11.938Z"
+          "timestamp": "2026-06-20T19:28:27.073Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js",
           "result": "pass",
-          "note": "Host dispatch manifest is asserted for both Claude and probe host profiles with consistent keys (winSignal/verdict/staleSignals/evidence tags) across host types.",
-          "headHash": "bdfc98164660ae9c4ce0aa929aba77fa15c460e6",
+          "note": "Both Claude and semantic-editor host probes include parallel manifest fields and evidence tags consistently.",
+          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
           "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
           "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:12.071Z"
+          "timestamp": "2026-06-20T19:28:27.212Z"
         }
       ]
     }
