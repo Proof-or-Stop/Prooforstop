@@ -53,7 +53,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ CHK-002 complete: supersession detection is exposed in handoff pack for completed/superseded plans.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/lattice-hosts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "completed doc markers in plan artifacts are parsed into host handoff preflight metadata",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs with historical/superseded markers are carried through but not treated as primary proof",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "superseded doc chains with missing commit references are flagged as uncertain instead of trusted",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
