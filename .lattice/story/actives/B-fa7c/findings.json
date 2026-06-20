@@ -48,7 +48,7 @@
       "desc": "MAJOR: the smoke's adversarial 'does not throw' assertions exercise the pure helpers (computeScopeGlobOverlaps with omitted peers), NOT the real corrupt-peer crash site (storyRef's store.readScopeContract). They give false confidence that the corrupt-contract case is covered. Fix: extract an exported safeReadScopeContract(store, id) (try/catch -> null) used by createParallelWave, and assert in the smoke that a fake store whose readScopeContract THROWS yields null (no throw).",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-critic",
       "createdAt": "2026-06-20T07:34:37.969Z",
@@ -58,7 +58,11 @@
         "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
       ],
       "signatureTag": "edge|ts|major-smoke-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke asserts safeReadScopeContract against a store throwing SyntaxError->null, throwing Error->null, returning contract->passthrough, null->null — exercises the real crash site. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-004",
