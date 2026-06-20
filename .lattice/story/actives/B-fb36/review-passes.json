@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T23:43:22.561Z",
       "reviewRunId": "B-fb36:RR-008",
       "_hash": "85d8e85a727d6dc518ad597e9066bd29d2e92b7b4ebec80418659abbe258a4de"
+    },
+    {
+      "id": "B-fb36:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: current done_prepare implementation remains a conservative pre-DONE assistant. It fail-closes outside TEST/dirty/wrong-branch/missing-main, never calls story_advance DONE, reads but does not mutate version sources, blocks stale command-backed evidence and stale review/host verdict material instead of rebinding it, surfaces real review/host re-review guidance, and success output hardcodes local-only readiness with authorityDone=false/fullAuthorityDone=false/productionDone=false/receiptVerified=false including the reachable receiptVerified=true runbook edge.",
+      "createdAt": "2026-06-20T00:12:45.554Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-009",
+      "_hash": "34f20a79e7d38596fb2b36584a0b5abc8ac3c891e0e01fc9890c57233d654242"
     }
   ]
 }
