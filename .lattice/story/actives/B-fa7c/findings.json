@@ -85,6 +85,23 @@
       ],
       "signatureTag": "edge|ts|minor-helpers-tested",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa7c:F-006",
+      "desc": "MINOR: computeScopeGlobOverlaps guards self.parallelSafe==='yes' but not self's terminal phase — a DONE story still asserting parallelSafe=yes could emit live overlap advisories. Fix: add self.phase and skip when TERMINAL_PHASES.has(self.phase) (symmetry with the peer filter).",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "claude-critic",
+      "createdAt": "2026-06-20T07:34:39.167Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "f91159172f91c6c8154f901f175cee1dbf2860b86af418feeea92aa3f96c7f2d",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "edge|ts|minor-computescopegloboverlaps-guards",
+      "signatureTagSource": "auto"
     }
   ]
 }
