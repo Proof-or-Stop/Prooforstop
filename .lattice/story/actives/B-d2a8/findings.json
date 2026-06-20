@@ -286,6 +286,21 @@
       "_hash": "b241cec4801d62d4e27d1f8e7f4e3783c4e94bd8a7be721a38c705a5d51a03f5",
       "signatureTag": "missing|unknown|usersees-empty-checklist",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-017",
+      "desc": "CHK-002 userSees is empty — the checklist item describes the test structure (hermetic smoke) but does not declare what the user/operator sees when the smoke passes or fails: no stated output format (count of assertions, exit code, printed message). Without userSees the reviewer cannot verify that the smoke output matches what is claimed. Fill in userSees with the expected output line (e.g., \"parallel-gate-config smoke passed: N assertions\" printed to stdout, process exits 0; on failure, an error message is printed and process exits 1).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-20T06:02:09.943Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-008",
+      "_hash": "68880c72673db50ff855615d005c80b296b923786da360f0aa770b646e5e2956",
+      "signatureTag": "missing|unknown|usersees-empty-checklist",
+      "signatureTagSource": "auto"
     }
   ]
 }
