@@ -6,7 +6,37 @@
       "context": "Section 1: why single-pass review is insufficient for integration-level defects; the concrete evidence from the parallel-decomposition program — the completeness critic / multi-lens workflow found BLOCKER/MAJOR-class defects single-pass review missed (S4 corrupt-contract wave crash; S5 express-channel + REVIEW/TEST-rollback gate bypass doors; B-b29e read-only-command over-registration). Each with story id + finding.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/adversarial-review-spec.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/adversarial-review-spec.md §1 motivates the capability and cites the S4(B-fa7c)/S5(B-086b)/B-b29e defects with story IDs; WHY: the evidence grounds the methodology",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "each cited defect is attributed to the component that actually filed it (S4 crash=quality/crashsafe lens; S5 express+rollback doors=completeness critic; B-b29e over-registration=critic), verifiable against findings.json; WHY: mis-attribution destroys credibility (INIT-003)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the section does NOT overclaim that single-pass review is useless — it argues single-pass MISSES integration-level defects, which the cited evidence supports; WHY: honest framing",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
