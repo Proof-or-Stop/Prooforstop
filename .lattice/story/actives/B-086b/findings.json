@@ -17,6 +17,23 @@
       ],
       "signatureTag": "adversarial|ts|blocker-canstartdevguard-returns",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-086b:F-002",
+      "desc": "MAJOR: the review-gate refactor changed 'return (blockerCount ?? issueCount) === 0' (strict zero) into 'if ((blockerCount ?? issueCount) > 0) return false' (line 420) — NOT behavior-equivalent. A signed review with a non-numeric/negative/missing count (e.g. blockerCount=-1, or string '0') is NOT > 0 so it now PASSES the review gate, where the original strict ===0 rejected anything other than numeric zero. getGuardFailureReason line ~819 has the same '> 0' (pre-existing) so for parity both must use strict !==0. Fix: const gateCount = blockerCount ?? issueCount; if (gateCount !== 0) return false; in canStartDevGuard, and !==0 in getGuardFailureReason's review-count check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T08:36:33.358Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "008666c3250a1f58b2b8a2afc9b366045c2a34548c80cf433146ff8ceb53459e",
+      "files": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-review-gate",
+      "signatureTagSource": "auto"
     }
   ]
 }
