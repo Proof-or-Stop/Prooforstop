@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T06:19:04.137Z",
+      "endTime": "2026-06-20T07:00:31.300Z",
       "userSees": "User sees the heading \"Step Contract Matrix\" followed by rows for Step 0 through Step 7 and columns for inputs, outputs, required evidence, missing/stale handling, and verifier.",
       "files": {
         "modify": [
@@ -43,37 +43,37 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'Step Contract Matrix|Evidence Failure Policy|TEST-to-DONE readiness delegation|done_prepare' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n '0\\. State intake and phase preflight|1\\. Story init / PLAN skeleton|2\\. Verification evidence generation / refresh|3\\. Validation, transcript, and delivery context preparation|4\\. Reviewer lane orchestration|5\\. REVIEW / TEST gate preflight|6\\. TEST-to-DONE readiness delegation' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Command found the Step Contract Matrix, Evidence Failure Policy, and done_prepare delegation rows covering Step 0 through Step 7.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Command checks the Step Contract Matrix row labels for the current 0-6 lifecycle contract, not the earlier Step 0-7 wording.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:31.511Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'TEST-to-DONE readiness delegation|owned by done_prepare|done_prepare --dryRun' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'TEST-to-DONE stale refresh remains|owned by .*done_prepare|done_prepare --dryRun|not a second implementation of DONE readiness' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Document distinguishes upstream evidence planning from TEST-to-DONE stale refresh owned by done_prepare.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Document distinguishes upstream evidence planning from TEST-to-DONE stale refresh and DONE readiness owned by done_prepare.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:31.770Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'never rewrite hashes directly|main agent must not self-sign|not a second implementation of DONE readiness' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'never rewrite hashes directly|delivery-check.json.*delivery reviewer lane|main agent must not self-sign|no track may introduce a second material/evidence/transcript freshness predicate' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Document explicitly blocks hash rewriting, main-agent delivery self-signing, and a second DONE readiness implementation.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Document blocks direct hash rewrite, main-host delivery self-signing, and duplicate freshness truth sources.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:32.023Z"
         }
       ]
     },
@@ -88,7 +88,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T06:19:09.042Z",
+      "endTime": "2026-06-20T07:00:32.574Z",
       "userSees": "User sees the heading \"Flowcharts\", a text flowchart block, and the image link \"Lattice standard evidence pipeline flow\" pointing at the SVG asset.",
       "files": {
         "modify": [
@@ -124,37 +124,37 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'Text Flowchart|State intake|Delegate to lattice done_prepare|DONE readiness PASS' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'rerun-required evidence --> print rerun command and STOP|safely refreshable stale evidence --> delegate to existing refresh writer|missing user-value proof --> run smoke or require metadata-only waiver; if unavailable, STOP|Target is DONE and story is in TEST' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Text flowchart includes full state intake through done_prepare delegation and DONE readiness pass path.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Text flowchart now distinguishes rerun-required stop, refreshable loop, unavailable user-value proof stop, and DONE-target decision.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:32.903Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
-          "command": "rg -n 'Evidence plan \\+ generation|Validation/transcript/context|Final reviewer lanes|Gate or delivery fail stops|After delivery PASS|lattice done_prepare|done_prepare PASS' docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg && xmllint --noout docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "command": "rg -n 'Refresh-only stale|RERUN REQUIRED|Validation and user proof pass|FINDING -&gt; DEV|Ready for non-DONE target|6\\. Delegate to done_prepare|done_prepare PASS|BLOCKED' docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg && xmllint --noout docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
           "result": "pass",
-          "note": "SVG evidence now checks evidence generation, validation/transcript/context, final reviewer lanes, delivery fail stop, delivery PASS before done_prepare, and XML validity.",
-          "headHash": "a8a9ef0cf670db784105471a78c0c4a512844f8a",
-          "materialHash": "2c55e1dfe067ddf5493fd071d253db8a412cdfb00a6b17ab15c67ab562036f7e",
+          "note": "SVG now includes refreshable/rerun branches, validation proof decision, reviewer finding to DEV, non-DONE ready branch, done_prepare delegation, blocked edge, and XML validity.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:36:48.682Z"
+          "timestamp": "2026-06-20T07:00:33.152Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'Delegate to lattice done_prepare|duplicating .*done_closure.*main-sync.*evidence-refresh.*version-bump|not a second implementation of DONE readiness' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Delegate to lattice done_prepare|duplicating .*done_closure.*main-sync.*evidence-refresh.*version-bump|not a second implementation of DONE readiness|never reinterpret a .*done_prepare.* blocker as pass' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Flow and boundary text show story_pipeline delegates DONE readiness rather than independently running merge, refresh, validation, or done_closure.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Flow and boundary text show story_pipeline delegates DONE readiness and preserves done_prepare blockers.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:33.313Z"
         }
       ]
     },
@@ -169,7 +169,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T06:19:13.461Z",
+      "endTime": "2026-06-20T07:00:33.697Z",
       "userSees": "User sees Track A through Track G and P1 through P7 explicitly say DONE readiness is delegated to \"done_prepare\" where applicable.",
       "files": {
         "modify": [
@@ -203,37 +203,37 @@
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'Track A|Track G|P1 \\| Add story pipeline preflight report|P7 \\| Integrate top-level .*story_pipeline.* command' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Track A\\. Pipeline State Model And Preflight|Track G\\. Top-Level Story Pipeline Command|P1 \\| Add story pipeline preflight report|P7 \\| Integrate top-level .*story_pipeline.* command' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
           "note": "Parallel development plan identifies Track A through Track G and P1/P7 integration ownership.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:33.867Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'owned by done_prepare|reviewer lanes|delivery reviewer|done_prepare report import/delegation|coverage reviewers never pass before|evidence snapshot|Track E transcript|Track F delivery-context|P4 \\| Add reviewer batch orchestration' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'Canonical Report And Freshness Source|P3 \\| Add verification evidence planner/refresh orchestrator \\| P1|P4 \\| Add reviewer batch orchestration \\| P1, P3, P5, P6|P3 must wait for P1' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Tracks touching delivery, evidence refresh, reviewer lanes, and DONE readiness name existing gate/done_prepare owners; final reviewer orchestration now depends on evidence snapshot plus transcript and delivery-context artifacts.",
-          "headHash": "31078225e903395d0953b16518745856a59b3b98",
-          "materialHash": "f46230ce4d1eb0b6a122d602f6dfbc058641b9e9680da195a17fd60d241e1536",
+          "note": "Implementation split now forces P3/P4/P6 through the P1 canonical report/freshness schema before final reviewer or delivery semantics.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:44:55.784Z"
+          "timestamp": "2026-06-20T07:00:33.989Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'replace reviewer lanes with a single host self-review|delivery-check.json only through the delivery reviewer lane|no push, no Authority DONE claim|not by replacing it' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'replace reviewer lanes with a single host self-review|delivery-check.json only through the delivery reviewer lane|no push, no Authority DONE claim|not by replacing it|no track may introduce a second material/evidence/transcript freshness predicate' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Document rejects replacing reviewer lanes, delivery reviewer signatures, Authority claims, or done_prepare behavior.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Document rejects replacing reviewer lanes, delivery reviewer signatures, Authority claims, done_prepare behavior, or canonical freshness readers.",
+          "headHash": "9aefc5a67398b904e49b5142d8b03295b9cd2f0f",
+          "materialHash": "f496516cad076916f51deb9da1c25e32c5c45947325473a34591579d9549224b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T07:00:34.107Z"
         }
       ]
     }
