@@ -46,7 +46,39 @@
       "context": "Export the canonical lens set: concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency (as a typed list of {id, facet, asks} or at least the id union), with a documented 'task-tunable' note (the set may be subset/extended per change). Export the CompletenessCritic IO contract type: input {change, confirmedFindings: Finding[]}, output Finding[] (its findings re-enter verification — that is S2/S3's concern; S0 only types the IO).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke asserts CANONICAL_LENS_SET has EXACTLY the 6 spec entries with ids concept-scope, code-quality, behavior-correctness, test-coverage, crash-safety-edge, docs-consistency; WHY: S1 iterates this set",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the lens set is documented task-tunable (a note/flag) and the CompletenessCritic IO type is exported (input change+confirmedFindings:Finding[], output Finding[]); WHY: S1 may subset the set; S3 imports the critic IO",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no behavior leaks into the lens-set/critic-IO definitions (data + types only, no functions that run lenses or the critic); WHY: behavior is S1/S3",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
