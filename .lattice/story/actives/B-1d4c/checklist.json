@@ -179,9 +179,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T19:27:07.739Z",
       "userSees": "✓ CHK-004 complete: host status/probe shows preflight summaries and tests cover manifest fields.",
       "files": {
         "modify": [
@@ -214,7 +214,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js",
+          "result": "pass",
+          "note": "host dispatch projection and prefetchManifest are exposed and smoke asserts their content.",
+          "headHash": "6c1db29a35bdf07d8c4e71dd7d1ade3d179fd7cb",
+          "materialHash": "a78ccddb59536d22059f7cf38456419d1ad3a4bdc27009803f5979fb9907abfc",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T19:27:07.855Z"
+        }
+      ]
     }
   ]
 }
