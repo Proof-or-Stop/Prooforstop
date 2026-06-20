@@ -138,7 +138,7 @@
       "desc": "CHK-001:adversarial:2: intent claims resolveParallelGate(null, strictDefault) -> returns full strictDefault ({block,4,true}). The smoke (line 53) uses PD (balanced default, advise/3/false). The intent names strictDefault and implies the full strict values are returned; the actual assertion only proves null -> balanced default. The strict-profile variant of this guard is never exercised.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:34:31.176Z",
@@ -149,7 +149,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: 'null raw -> strict default' asserts eq(resolveParallelGate(null, STRICT), STRICT) — full strict default.",
+      "resolvedAt": "2026-06-20T06:39:09.204Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-008",
