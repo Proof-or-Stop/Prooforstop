@@ -409,7 +409,7 @@
       "desc": "resolveParallelGate outer catch reason rendering 'err instanceof Error ? err.message : String(err)' can itself throw: a hostile Proxy raw whose getOwnPropertyDescriptor trap THROWS a revoked Proxy makes both 'instanceof' ([[GetPrototypeOf]]) and String(err) (ToPrimitive) throw, escaping the never-throw contract. Fix: render the caught value with describeInvalidValue(err) (the total primitive) so every untrusted-input rendering uses the same total path; add a hostile-throwing-trap smoke case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T06:26:44.130Z",
@@ -419,7 +419,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "adversarial|ts|resolveparallelgate-outer-catch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "resolveParallelGate outer catch now renders err via describeInvalidValue(err) instead of 'instanceof'/String — the same total primitive used for per-field warns. No instanceof/String/toString on untrusted input remains anywhere, so the catch is itself total and the function is provably total for ALL inputs. Smoke 8d-quater: a hostile Proxy raw whose getOwnPropertyDescriptor trap throws a revoked Proxy -> balanced default, warns, no crash. 80 assertions, validate green.",
+      "resolvedAt": "2026-06-20T06:27:55.957Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
