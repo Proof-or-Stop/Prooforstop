@@ -376,7 +376,7 @@ directly to `finding_add` is a **Zod error** (its enums are
 | `file` (+ `line`) | `--files '["<file>"]'` | array; cite `line` inside `desc` |
 | (lens facet) | `--category` | choose `happy\|edge\|adversarial\|missing` (e.g. an unguarded door / missing consumer → `missing` or `adversarial`; a boundary/throw → `edge`) |
 | (current run) | `--reviewRunId` | the lane's `reviewRunId` from `review_run_start` |
-| (lens / critic identity) | `--agent` | the lane agent, or `completeness-critic` for critic findings (§4.3) |
+| (lens / critic identity) | `--agent` | a **real** `lattice-review-*` lane matching the bound `reviewRunId`'s lane; critic findings reuse a lane and carry `[completeness-critic]` in `--desc` (§4.3) — `--agent` is **never** a non-`lattice-review-` value |
 
 So the order is **verify → MAP → `finding_add`**: the abstract severity lives in
 the methodology layer; the ledger only ever sees `critical|high|medium|low`.
@@ -384,16 +384,28 @@ the methodology layer; the ledger only ever sees `critical|high|medium|low`.
 ### 4.3 Critic provenance (MVP) + how a critic-REOPENED round binds the ledger
 
 **MVP critic provenance — the critic has no dedicated lane today.** Reviewer
-evidence only counts under the **six supported** `lattice-review-*` lanes (§4.1),
-and `lattice-review-completeness` does **not** exist. So in MVP the critic is run
-by the **main agent** (or an existing lens host), and its CONFIRMED findings are
-recorded via **`finding_add` under an existing supported lane** — recommended
-**`lattice-review-quality`** or **`lattice-review-behavior`** (whichever the
-critic finding most concerns) — with **`--agent completeness-critic`** (and/or a
-`completeness-critic:` prefix in `--desc`) so the provenance is auditable in the
-finding record. A critic-driven **reopen is a normal `DEV → REVIEW` round** with
-re-bound evidence (below). The dedicated `lattice-review-completeness` lane and
-structured verdict storage stay **FUTURE** (§4.4).
+evidence only counts as REVIEW-lane evidence when the finding's **`agent` starts
+with `lattice-review-`**: Lattice's reviewer-evidence logic gates on
+`agent.startsWith('lattice-review-')` and validates the `reviewRunId ↔ lane`
+binding (the finding's `agent` must equal the bound run's `lane`) — see
+`packages/main/src/core/review-run.ts`. `review_run_start` itself rejects any
+agent not starting with `lattice-review-`, and there is **no
+`lattice-review-completeness`** lane today.
+
+Therefore, in MVP, a CONFIRMED critic finding **must** be recorded with `--agent`
+set to a **real existing review lane** — recommended **`lattice-review-quality`**
+or **`lattice-review-behavior`** (whichever the finding most concerns) — and
+bound to **that lane's current `reviewRunId`** (so the lane binding validates and
+the finding counts as lane evidence). The completeness-critic **provenance is
+carried in the `--desc`** (prefix it with **`[completeness-critic]`**) **and/or a
+`signatureTag`** — **NOT** in the `--agent` field. Putting `completeness-critic`
+in `--agent` would store the finding as non-reviewer/main provenance: it would
+**not** count as lane evidence and the lane binding would not be validated.
+
+A critic-driven **reopen is a normal `DEV → REVIEW` round** with re-bound evidence
+(below). A dedicated **`lattice-review-completeness` lane** and a **structured
+provenance field** (so the critic gets first-class, machine-readable provenance
+instead of a `--desc` tag) stay **FUTURE** (§4.4).
 
 A reopened round is a **new round**, and the program's known mechanics apply:
 
@@ -423,7 +435,8 @@ to the post-fix digest.
 | **Ledger mapping** (BLOCKER/MAJOR/MINOR → critical/high/medium; `{file,line,issue,fix}` → `desc`+`files[]`; pick `category`) before `finding_add` | **MVP** | §4.2 table; prevents the Zod error |
 | Adversarial verification (M skeptics, refute-by-default, **threshold-confirm default T=1-of-2 — not majority**) as a **prompt/role protocol** | **MVP** | no new storage; verdicts live in reasoning + which findings get `finding_add`-ed |
 | Completeness critic as a **defined role** run each round (after lens verification) | **MVP** | role + prompt, drives reopen |
-| Critic provenance via `finding_add` under an existing supported lane with `--agent completeness-critic` | **MVP** | §4.3; no dedicated lane needed |
+| Critic provenance via `finding_add` under a **real review lane** (`--agent lattice-review-quality`/`-behavior`, bound to that lane's `reviewRunId`), with `[completeness-critic]` in `--desc`/`signatureTag` — **not** in `--agent` | **MVP** | §4.3; no dedicated lane needed |
+| Dedicated **`lattice-review-completeness` lane** + **structured provenance field** (first-class critic provenance) | **FUTURE** *(not-yet-implemented)* | — |
 | Reopen → new `reviewRunId` + re-bind to fresh `materialHash`/`materialDigest` | **MVP** | existing freshness mechanics |
 | First-class **CLI review mode** (`lattice review --mode=adversarial`) | **FUTURE** *(not-yet-implemented)* | — |
 | Dedicated **completeness-critic lane** (`lattice-review-completeness`) | **FUTURE** *(not-yet-implemented)* | — |
@@ -489,13 +502,18 @@ reaches `finding_add`). *Depends:* [S0] (imports `Verdict`). Disjoint from S1.
 Run the critic each round **after lens-finding verification** with input
 `{change, CONFIRMED lens findings}`, emit new raw findings (which re-enter S2),
 and signal **reopen** when any critic finding is CONFIRMED. MVP provenance (§4.3):
-record CONFIRMED critic findings via `finding_add` under an existing supported
-lane (`lattice-review-quality` / `-behavior`) with `--agent completeness-critic`.
-*Optional/FUTURE* = a first-class `lattice-review-completeness` lane + structured
-verdict storage. *Acceptance:* on a B-086b-style change (one guarded door, two
+record CONFIRMED critic findings via `finding_add` under a **real review lane**
+(`--agent lattice-review-quality` / `-behavior`, bound to that lane's
+`reviewRunId`) with the completeness-critic provenance in `--desc`
+(`[completeness-critic]` prefix) and/or `signatureTag` — **never** in `--agent`
+(an `--agent` not starting with `lattice-review-` does not count as lane
+evidence). *Optional/FUTURE* = a first-class `lattice-review-completeness` lane +
+structured provenance/verdict storage. *Acceptance:* on a B-086b-style change (one guarded door, two
 unguarded), the critic surfaces the unguarded doors, its findings pass S2, and it
-triggers reopen; provenance is attributable in the finding record. *Depends:*
-[S0, S2] (critic findings go through the verifier).
+triggers reopen; each critic finding is stored under a real `lattice-review-*`
+lane (so it counts as lane evidence) with `[completeness-critic]` provenance in
+`--desc`/`signatureTag`. *Depends:* [S0, S2] (critic findings go through the
+verifier).
 
 **S4 — Escalation-flow integration (SERIAL, last).** **MVP.**
 Wire the round/reopen loop into the Lattice escalation ledger: per-round
