@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-20T11:23:51.740Z",
       "reviewRunId": "B-9089:RR-005",
       "_hash": "39c36fa494384be5b7601e41c8eccc301632591879ec5d5750be605f93e2c965"
+    },
+    {
+      "id": "B-9089:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality rerun passed after F-001 fix. Reviewed generated-token scoping assertions, owner-session adapter boundary, canonical dispatch env propagation, and owner lease behavior. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:story-owner-lease-smoke; npm --prefix packages/main run test:owner-session-guardrail; npm --prefix packages/main run test:command-ownership-contract.",
+      "createdAt": "2026-06-20T11:27:31.315Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-007",
+      "_hash": "00c25edd6d03363d07bf5304820b4ebdb32122350ddf122c45c25224e6853ba0"
     }
   ]
 }
