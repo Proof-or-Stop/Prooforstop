@@ -17,6 +17,27 @@
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a781:F-002",
+      "desc": "Verification evidence covers all nine reviewed intent refs, including CHK-003:adversarial:0 two-host review evidence, but eight evidence records are stale. lattice session_brief reports 8 stale verification intents after HEAD fe23feb, and checklist_get shows CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, and CHK-003 happy/edge evidence bound to older story/material hashes than the current review scope. Refresh stale verification evidence before REVIEW can rely on coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T07:09:40.348Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-006",
+      "_hash": "6e8cb27044369fed632b24f15cac2531ec76512c54ea9ae4c07c5fbea91f58fe",
+      "files": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "missing|md|verification-evidence-covers",
+      "signatureTagSource": "auto"
     }
   ]
 }
