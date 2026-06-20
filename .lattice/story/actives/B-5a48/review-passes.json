@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T13:01:17.206Z",
       "reviewRunId": "B-5a48:RR-005",
       "_hash": "522bca626ff4025ede528b18f56f217633113e3725575de10024a53b81df6a37"
+    },
+    {
+      "id": "B-5a48:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Guard is type-safe: story.phase is StoryPhase (union literal including REVIEW), so === comparison is TypeScript-sound. REVIEW-path behavior is preserved: when story.phase===REVIEW the guard passes and surfaceExperienceHints fires exactly as before. DEV IIFE has no write side effects (only readStory/readChecklist/readDecision + computeChannel). Other REVIEW IIFE side-callers (assessReviewConvergenceAtEntry, reviewIncrementalContext) are documented/confirmed read-only. Regression smoke (CHK-002 adversarial:1) is non-vacuous: seeds a DEV-phase ON-arm story with yielding signals and asserts 0 surfaced events + no hints section in DEV text — will fail against pre-fix code. Label fix CHK-003 adversarial:4->adversarial:0 is a description-only typo correction. No dead code, no type holes, no unguarded write side effects found.",
+      "createdAt": "2026-06-20T13:04:02.264Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-004",
+      "_hash": "55ca5c97867c5e251ea35a7908bb6b54067c89b0fc4ae0c45c96b7c47ad9d0a4"
     }
   ]
 }
