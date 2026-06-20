@@ -131,9 +131,9 @@
       "id": "CHK-003",
       "title": "Fix pre-push self-host check + retire legacy @koala-agent/core global fallback",
       "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T23:52:07.613Z",
-      "endTime": null,
+      "endTime": "2026-06-20T23:58:14.855Z",
       "verificationIntent": {
         "happy": [
           {
