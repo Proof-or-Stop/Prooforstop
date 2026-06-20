@@ -1,0 +1,24 @@
+{
+  "storyId": "B-37b3",
+  "checkedAt": "2026-06-20T07:30:10.928Z",
+  "reviewRound": "2026-06-20T07:25:42.498Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke test exercises resolveLearningRoot via read and write paths: check worktree read resolves main cache (PASS), loadExperienceHints/hasExperienceHints fire from worktree (PASS), write from worktree lands in main checkout (PASS), non-git fallback resolves to itself without throw (PASS), separate-git-dir resolves under checkout not external gitdir (PASS), bare-backed worktree resolves under checkout not bare gitdir (PASS). TOTAL 6 | PASS 6 | FAIL 0. Exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke file packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts added (new file, 326 lines). npm script test:experience-hint-worktree-cache wired in package.json and inserted into the main test chain. Smoke ran: TOTAL 6 | PASS 6 | FAIL 0. Covers linked-worktree read/write, non-git fallback, separate-git-dir regression (F-001), bare-backed regression (F-001). Exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CHK-001 (learning-store resolveLearningRoot) and CHK-002 (smoke) are both fully implemented. The smoke covers 6 checks: linked worktree happy path (read+write), non-git fallback, write-from-worktree parity, separate-git-dir regression (F-001), and bare-backed regression (F-001). All 6 pass with exit 0. No unresolved TODOs in changed source. No user-facing docs modified so docsPromises is empty."
+  },
+  "_hash": "81e9fdac3cc94a382f830adb2440f7bc0cff8bc8c825b57c63e36d30089c4c10"
+}

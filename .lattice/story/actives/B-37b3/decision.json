@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "One canonical cache in the main checkout; resolve to it from anywhere (worktree or main).",
+    "Centralize the fix in learning-store (the only cache toucher) so all consumers inherit it.",
+    "Fail safe: any git-resolution failure falls back to the passed root; never throw into story_review / learning_*.",
+    "No schema/derivation/gate change; advisory-only.",
+    "Minimal blast radius: learning-store path resolution + one smoke; plain/non-git layouts byte-identical."
+  ],
+  "drivers": [
+    "The Experience Layer is built but dormant ONLY because the worktree cannot reach the main-checkout cache (nOn=2).",
+    "git rev-parse --git-common-dir deterministically yields the main root from any worktree; for the main checkout it yields the same root (no behavior change).",
+    "Existing experience-layer smokes use non-git temp roots, so a fallback is mandatory to avoid regressions."
+  ],
+  "options": [
+    {
+      "name": "resolve-to-git-common-dir-parent",
+      "pros": [
+        "Single canonical cache, always fresh.",
+        "Centralized in learning-store; all consumers fixed at once.",
+        "Fallback keeps non-git/plain layouts byte-identical."
+      ],
+      "cons": [
+        "Adds a git subprocess to learning-store reads (cheap; cached/one-shot)."
+      ]
+    },
+    {
+      "name": "copy-or-symlink-cache-into-each-worktree",
+      "pros": [
+        "No path-resolution change."
+      ],
+      "cons": [
+        "Duplication + staleness (a worktree copy goes stale vs main); cleanup hazard; worktree creation must learn about the cache."
+      ]
+    },
+    {
+      "name": "resolve-in-each-caller-and-pass-down",
+      "pros": [
+        "learning-store stays root-agnostic."
+      ],
+      "cons": [
+        "Must change every caller (story-review, 3 learning handlers); easy to miss one; duplicated resolution logic."
+      ]
+    }
+  ],
+  "chosen": "resolve-to-git-common-dir-parent",
+  "rationale": "Resolving the learning dir to the parent of git rev-parse --git-common-dir inside learning-store (the single cache toucher), with a fallback to the passed root on failure, makes one canonical main-checkout cache reachable from every worktree, fixes all consumers at once, and keeps non-git/plain layouts byte-identical — the smallest correct change to revive the dormant Experience Layer.",
+  "preMortem": [
+    {
+      "scenario": "The git-resolution has no fallback, so non-git temp-dir smokes throw or read the wrong place.",
+      "trigger": "Assuming every root is a git worktree.",
+      "consequence": "Existing experience-layer smokes break; learning_* throws.",
+      "mitigation": "try/catch the git rev-parse; on ANY failure/empty, return the passed root unchanged; the new smoke includes a non-git control asserting fallback; run the existing experience-layer smokes."
+    },
+    {
+      "scenario": "git-common-dir is resolved relative to the wrong cwd, yielding a bad main root.",
+      "trigger": "Not running git rev-parse with cwd=passed root, or not resolving the relative ../../.git to an absolute path.",
+      "consequence": "Cache read/written at a wrong location → still no hints, or a stray cache.",
+      "mitigation": "Run git rev-parse --git-common-dir with cwd=root, path.resolve(root, commonDir, ..) to an absolute main root; the smoke asserts the worktree reads the MAIN cache path specifically."
+    },
+    {
+      "scenario": "learning_scan now writes to the resolved main root, but a reader still uses the old (worktree) path → split-brain.",
+      "trigger": "Fixing read XOR write, not both.",
+      "consequence": "Writes and reads disagree; hints still empty.",
+      "mitigation": "Apply the SAME resolveLearningRoot to both the read and write paths in learning-store; the smoke writes via the store then reads via the store from the worktree and asserts a hit."
+    }
+  ],
+  "timestamp": "2026-06-20T06:54:10.608Z"
+}

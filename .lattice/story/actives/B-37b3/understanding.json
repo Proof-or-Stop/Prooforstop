@@ -1,0 +1,23 @@
+{
+  "task": "Resolve the learning-store finding-signals cache directory to the MAIN repo root (parent of `git rev-parse --git-common-dir`, with a fallback to the passed root on any failure) for both read and write, so the Experience Layer hints load during worktree-based review (currently dormant because the gitignored cache lives only in the main checkout).",
+  "outcome": "Running story_review inside a worktree (.worktrees/B-xxxx) loads the main checkout finding-signals cache: the _reviewPrompt advisory hints section is populated and an experience_hint_surfaced event is recorded (previously zero in worktree runs). learning_scan run from a worktree writes/updates the single main-checkout cache. Non-git temp dirs (existing smokes) fall back to the passed root unchanged. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0; existing experience-layer/hint smokes stay green.",
+  "facts": [
+    "core/learning-store.ts is the ONLY code that touches .lattice/learning/; LEARNING_DIR = join(.lattice, learning) resolved relative to the passed projectRoot.",
+    "No worktree carries the finding-signals.json cache (it is gitignored, only in the main checkout); story DEV/REVIEW runs in worktrees, so loadExperienceHints(ctx.root) reads ${worktreeRoot}/.lattice/learning and finds nothing.",
+    "git rev-parse --git-common-dir from a worktree returns the main repo .git (e.g. ../../.git); its parent directory is the canonical main worktree root, where the cache is reachable (verified, 332KB).",
+    "All consumers (experience-hint-loader loadExperienceHints, handlers learning_scan/learning_validate/learning_effectiveness) go through learning-store, so fixing the path resolution there fixes all of them.",
+    "experience_hint_surfaced fired ~never (nOn=2) precisely because of this disconnect; the rest of the Experience Layer (B-000c/B-1dc9 etc.) is built and on main."
+  ],
+  "constraints": [
+    "Resolution MUST fall back to the passed root on any git failure (non-git temp dir, error, empty output) so existing temp-root experience-layer smokes and plain layouts stay byte-identical.",
+    "Only core/learning-store.ts changes (and experience-hint-loader.ts only if strictly necessary) plus ONE new smoke; no change to the cache schema, finding-signals derivation, or any gate.",
+    "Keep learning-store a leaf module (no cross-module imports beyond node builtins).",
+    "Advisory-only: never let a cache-path resolution error break story_review / learning_* (catch + fallback)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
+  ],
+  "timestamp": "2026-06-20T06:54:10.255Z"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-37b3",
+  "changes": "learning-store.ts: resolveLearningRoot() resolves .lattice/learning to the MAIN worktree root via `git worktree list --porcelain` (first entry) when it is a genuine working tree (differs from --git-common-dir; covers normal + linked worktrees), else falls back to `git rev-parse --show-toplevel` (separate-git-dir / bare-backed), final fallback to the passed root; never throws. Funneled through the single resolveLearningDir so all read+write learning paths share one canonical main-checkout cache. Fixes the Experience Layer dormancy (the gitignored finding-signals cache was unreachable from worktrees, so hints never surfaced).",
+  "usage": "No new command; transparent. Verify: node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js (6 checks).",
+  "expectedOutcome": "From a linked worktree, the learning-store / loadExperienceHints resolves and reads the MAIN checkout finding-signals cache (so story_review can surface hints + fire experience_hint_surfaced). separate-git-dir / bare-backed resolve under the actual checkout (not the external gitdir). Non-git dirs fall back. node .../experience-hint-worktree-cache-smoke.js exits 0 (6 checks); full npm test ALL PASS.",
+  "actualTranscript": "experience-hint-worktree-cache-smoke.js -> TOTAL 6 | PASS 6 | FAIL 0, exit 0 (linked->main cache; non-git fallback; write/read parity; separate-git-dir + bare-backed resolve under checkout). npm test -> ALL PASS. Codex host-2 verified F-001 fixed across normal/linked/separate-git-dir/bare/non-git layouts; F-002 (comment accuracy) fixed.",
+  "outcomeDiff": "none — expected and actual match (6/6 smoke; full npm test green; 8/8 intents covered).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the supported layouts (normal, linked, separate-git-dir, bare-backed, non-git fallback). Operational effectiveness of the Experience Layer still requires the REVIEW dispatch to actually feed the story_review _reviewPrompt hint section to the lane reviewers (a behavior, recorded separately); this story fixes the cache REACHABILITY that previously made hints impossible from a worktree.",
+  "pitfalls": "Codex host-2 caught two issues a claude-only review missed: F-001 (the initial dirname(--git-common-dir) approach is wrong for separate-git-dir/bare layouts where the common dir is external git storage; the correct main root comes from git worktree list when it is a genuine working tree, else --show-toplevel) and F-002 (a smoke comment inverted the mechanism). The cache is a gitignored artifact only in the main checkout, so any worktree-run code reading .lattice/learning must resolve the main root first. DONE merge auto-bumps the version + auto-rebuilds dist; do NOT do those manually.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 355396
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 612
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 189436
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1125682
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 817581
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 163459
+    }
+  },
+  "totalDurationMs": 2652167,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T07:31:30.872Z",
+  "updatedAt": "2026-06-20T07:31:30.872Z"
+}

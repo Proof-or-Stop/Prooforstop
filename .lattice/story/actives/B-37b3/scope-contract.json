@@ -1,0 +1,37 @@
+{
+  "storyId": "B-37b3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-hint-loader.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/finding-signals.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Only learning-store path resolution (and experience-hint-loader if strictly needed) + one smoke; finding-signals derivation and cache schema must not change.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 npm wiring: adds test:experience-hint-worktree-cache and chains it into the test target so full npm test runs the new smoke. Planned wiring, not scope expansion.",
+      "timestamp": "2026-06-20T07:04:00.130Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "50f0811e0c4e04c150ffc8bda5c8f915d2453063",
+      "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d"
+    }
+  ],
+  "createdAt": "2026-06-20T06:54:52.222Z",
+  "updatedAt": "2026-06-20T07:04:00.130Z"
+}
