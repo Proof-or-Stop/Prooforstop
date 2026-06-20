@@ -66,16 +66,18 @@ export interface Verdict {
 // ── §2.1 CANONICAL LENS SET (task-tunable) ────────────────────────────────────
 
 /**
- * The canonical lens ids (§2.1). Each id corresponds to one facet a lens reviews.
- * (Spec §2.1 displays the names as `concept/scope`, `behavior/correctness`,
- * `crash-safety/edge`; the stable ids hyphenate those.)
+ * The canonical lens ids (§2.1), VERBATIM from the spec §2.1 table. Ids are string
+ * VALUES (not TS identifiers), so the spec's slash forms are matched exactly — a
+ * frozen contract requires no downstream translation. The three multi-word ids carry
+ * a slash (`concept/scope`, `behavior/correctness`, `crash-safety/edge`); the other
+ * three have no slash in the spec.
  */
 export const LENS_IDS = [
-  'concept-scope',
+  'concept/scope',
   'code-quality',
-  'behavior-correctness',
+  'behavior/correctness',
   'test-coverage',
-  'crash-safety-edge',
+  'crash-safety/edge',
   'docs-consistency',
 ] as const;
 export type LensId = typeof LENS_IDS[number];
@@ -95,7 +97,7 @@ export interface LensDef {
  */
 export const CANONICAL_LENS_SET: readonly LensDef[] = [
   {
-    id: 'concept-scope',
+    id: 'concept/scope',
     facet: 'intent ↔ implementation',
     asks: 'does the code do what the story claims, within scope?',
   },
@@ -105,7 +107,7 @@ export const CANONICAL_LENS_SET: readonly LensDef[] = [
     asks: 'null/throw/type/comparator/refactor-equivalence',
   },
   {
-    id: 'behavior-correctness',
+    id: 'behavior/correctness',
     facet: 'runtime semantics',
     asks: 'does the changed path behave per contract on real inputs?',
   },
@@ -115,7 +117,7 @@ export const CANONICAL_LENS_SET: readonly LensDef[] = [
     asks: 'do assertions exercise the actual sink, not a proxy?',
   },
   {
-    id: 'crash-safety-edge',
+    id: 'crash-safety/edge',
     facet: 'failure modes',
     asks: 'corrupt input, missing file, boundary, fail-open vs fail-closed',
   },
