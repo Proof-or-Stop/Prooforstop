@@ -95,7 +95,7 @@
       "desc": "Codex MAJOR (verifier rule not majority): M=2 with >=1 confirm is NOT a majority, conflicting with the default-refute/majority-confirm contract. Fix: define majority mechanically (confirmations >= floor(M/2)+1) OR rename to 'threshold/one-confirm' and make all language + S2 acceptance consistent with the chosen quorum.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T11:08:15.908Z",
@@ -105,7 +105,11 @@
         "docs/adversarial-review-spec.md"
       ],
       "signatureTag": "doc-code-drift|md|codex-major-verifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ledger mapping incl. {title,issue,fix}->desc + file->files[] + category + reviewRunId + agent. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:47.334Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0e7b:F-006",
