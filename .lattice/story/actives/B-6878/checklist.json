@@ -71,7 +71,30 @@
       "userSees": "node packages/main/dist/tasks/<proto-pollution smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; the pollution assertions fail against the pre-hardening code.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js exits 0 and prints its check count; auto-discovered + npm-wired; full npm test exits 0.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For EACH of anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally, restored) → NO inherited value reaches a persisted record (only own-property whitelisted fields; absent fields stay absent/unavailable); Object.prototype is clean again at the end.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each pollution assertion is load-bearing: it FAILS against the pre-hardening code (or with the chokepoint/own-prop guard removed), proving it is not vacuous.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
