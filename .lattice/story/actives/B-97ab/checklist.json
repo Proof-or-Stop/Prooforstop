@@ -57,7 +57,55 @@
       "context": "LensRunRequest = {lensId: LensId, lane, change: string} (the isolated input a lens gets). buildLensRunPlan(change, lensSet=CANONICAL_LENS_SET) returns one request per lens in the (possibly-subset) set, each carrying ONLY the change + its mapped lane — NEVER another lens's findings/outputs (independence, §2.1). Accepts a subset lens set (task-tunable). No behavior beyond plan construction.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildLensRunPlan(change, CANONICAL_LENS_SET) returns exactly 6 LensRunRequest objects, one per lens in CANONICAL_LENS_SET -> length===6 and each request.lensId is unique across the set; WHY: covers the main-path plan construction",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Each LensRunRequest carries exactly {lensId, lane, change} with lane matching LENS_TO_LANE[lensId] and change being the input string -> fields are correct per request; WHY: verifies the request shape matches the contract and the lane lookup works",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildLensRunPlan with default lensSet (omitting the second arg) uses CANONICAL_LENS_SET -> yields 6 requests; WHY: covers the default-parameter path",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildLensRunPlan(change, subsetLensSet) where subsetLensSet contains only 2 of 6 lenses -> returns exactly 2 requests, only for those 2 lenses; WHY: the task-tunable subset is a key spec requirement (section 2.1) and must not silently include extra lenses",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildLensRunPlan(change, emptyLensSet=[]) -> returns empty array (no requests); WHY: degenerate input boundary; an empty set should not crash or produce phantom requests",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LensRunRequest does NOT have a findings field or any field carrying another lens output -> Object.keys check on each request yields only {lensId, lane, change}; WHY: independence property (section 2.1) — the request shape must not leak cross-lens data at the structural level",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildLensRunPlan called with the same change string for two different subset lens sets -> each call returns requests only for its own subset with no state leakage between calls; WHY: tests that there is no shared mutable state (e.g., a module-level accumulator) across invocations",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildLensRunPlan with a lensSet containing a duplicate lens (same LensDef twice) -> produces at most one request per unique lensId (no duplicate requests); WHY: adversarial duplicate input must not produce duplicate work items that could cause double-counting in downstream aggregation",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
