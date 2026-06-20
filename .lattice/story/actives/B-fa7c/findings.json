@@ -5,7 +5,7 @@
       "desc": "The REVIEW advisory injection ignores parallelGate.mode==='off'. resolveAuditConfig accepts 'off' as the reversible escape hatch (spec §4.7: mode off disables BOTH behaviors), but the injection only checks that parallelGateCfg exists, so story_review still appends decomposition_advisory issues when the gate is disabled. Fix: make decompositionAdvisoryIssues return [] when cfg.mode==='off' (keeps the gate mode-agnostic, puts the mode policy in the caller layer per §4.4); add a smoke assertion that mode:'off' yields no advisory issues even when the gate would return advisories.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T07:26:35.542Z",
@@ -16,7 +16,11 @@
         "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
       ],
       "signatureTag": "edge|ts|review-advisory-injection",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "decompositionAdvisoryIssues returns [] when cfg.mode==='off' (before the gate call); smoke asserts mode off yields no advisory issues. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:22.685Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-002",
