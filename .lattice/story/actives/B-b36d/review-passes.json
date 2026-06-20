@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T12:17:05.697Z",
       "reviewRunId": "B-b36d:RR-006",
       "_hash": "a6226d64c4d2c9e1aba2fbecf7680643b1be96b373cdc18fd3cae9fcd93cdb05"
+    },
+    {
+      "id": "B-b36d:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality pass after B-b36d:F-001 resolution. Verified StoryReadinessReport keeps readiness[*].category as broad grouping while readiness[*].code carries stable delivery blocker detail; delivery code table maps specific blockers to broad categories. Re-checked exact REVIEW/TEST rollback commands, split runCommands/writeEvidence options instead of overloaded dryRun, done_prepare pre/post-merge binding, one-pass refresh-only bound, metadata-only waiver limited to live-smoke transcript, and no V1 degraded single-host gate consumption.",
+      "createdAt": "2026-06-20T12:20:56.620Z",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "reviewRunId": "B-b36d:RR-007",
+      "_hash": "360cc936d9423c9c3c7b2ea216a69671822de75e9cea5fdfe40cf522c76a4172"
     }
   ]
 }
