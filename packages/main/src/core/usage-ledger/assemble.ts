@@ -33,9 +33,57 @@ import { mintRecordId } from './ids.js';
 import { adaptAnthropicUsage } from './adapters/anthropic.js';
 import { adaptOpenAiUsage } from './adapters/openai.js';
 import { adaptGeminiUsage } from './adapters/gemini.js';
+import { ownProp, toOwnPropsNullProto } from './sanitize.js';
 
 /** The providers this assembler knows how to normalize. */
 export type ProviderName = 'anthropic' | 'openai' | 'gemini';
+
+/**
+ * B-6878: the per-provider token-key whitelists — the ONLY keys each adapter
+ * reads off a usage object, enumerated directly from the adapters
+ * (adapters/anthropic.ts, openai.ts, gemini.ts). The chokepoint
+ * (toOwnPropsNullProto) projects an externally-derived usage object down to ONLY
+ * these own-property keys into a null-prototype object, so a downstream adapter
+ * read can never resolve an inherited (prototype-polluted) value. A missing
+ * whitelist key would silently DROP a legitimate provider count, so these mirror
+ * the adapters exactly.
+ */
+const USAGE_WHITELIST: Record<ProviderName, readonly string[]> = {
+  anthropic: [
+    'input_tokens',
+    'output_tokens',
+    'cache_creation_input_tokens',
+    'cache_read_input_tokens',
+  ],
+  // The OpenAI adapter reads prompt_tokens/completion_tokens at the top level and
+  // cacheRead off the NESTED prompt_tokens_details.cached_tokens. The nested
+  // object gets its own projection below (OPENAI_NESTED_DETAIL_WHITELIST).
+  openai: ['prompt_tokens', 'completion_tokens', 'prompt_tokens_details'],
+  gemini: ['promptTokenCount', 'candidatesTokenCount', 'cachedContentTokenCount'],
+};
+
+/** The ONLY nested key the OpenAI adapter reads off prompt_tokens_details. */
+const OPENAI_NESTED_DETAIL_WHITELIST = ['cached_tokens'] as const;
+
+/**
+ * Project an externally-derived usage object through the null-proto whitelist
+ * chokepoint for the given provider. For openai the nested prompt_tokens_details
+ * is ALSO projected (its own null-proto object carrying only cached_tokens), so
+ * EVERY object an adapter reads — top-level usage AND the nested details — is
+ * null-prototype and whitelist-only (mirrors B-30c3's sanitizeNestedDetails).
+ */
+function sanitizeRawUsage(provider: ProviderName, rawUsage: unknown): Record<string, unknown> {
+  const projected = toOwnPropsNullProto(rawUsage, USAGE_WHITELIST[provider]);
+  if (provider === 'openai' && projected.prompt_tokens_details !== undefined) {
+    const nested = projected.prompt_tokens_details;
+    // A non-object nested value is left as-is (the adapter rejects non-objects);
+    // an object is re-projected into a null-proto, cached_tokens-only object.
+    if (nested !== null && typeof nested === 'object' && !Array.isArray(nested)) {
+      projected.prompt_tokens_details = toOwnPropsNullProto(nested, OPENAI_NESTED_DETAIL_WHITELIST);
+    }
+  }
+  return projected;
+}
 
 /** Default redaction profile id (the ledger stores no raw content). */
 export const DEFAULT_REDACTION_PROFILE = 'no-raw-content-v1';
@@ -96,13 +144,17 @@ export interface BuildProviderRecordOptions {
 
 /** Map a provider name to its raw-usage adapter. */
 function adaptUsageFor(provider: ProviderName, providerResponse: unknown): LedgerUsage {
+  // B-6878: every adapter now receives a null-prototype, whitelist-only usage
+  // object (the chokepoint runs inside extractRawUsage), so a polluted
+  // Object.prototype token key can never be resolved by an adapter's
+  // prototype-chain read.
   switch (provider) {
     case 'anthropic':
-      return adaptAnthropicUsage(extractRawUsage(providerResponse, 'usage'));
+      return adaptAnthropicUsage(extractRawUsage(provider, providerResponse, 'usage'));
     case 'openai':
-      return adaptOpenAiUsage(extractRawUsage(providerResponse, 'usage'));
+      return adaptOpenAiUsage(extractRawUsage(provider, providerResponse, 'usage'));
     case 'gemini':
-      return adaptGeminiUsage(extractRawUsage(providerResponse, 'usageMetadata'));
+      return adaptGeminiUsage(extractRawUsage(provider, providerResponse, 'usageMetadata'));
     default: {
       // Exhaustiveness guard: an unknown provider is a programmer error.
       const never: never = provider;
@@ -112,19 +164,34 @@ function adaptUsageFor(provider: ProviderName, providerResponse: unknown): Ledge
 }
 
 /**
- * Pull the usage sub-object out of a provider response by key. A response that
- * IS already the usage object (no nested key) is passed through. A
- * null/undefined/non-object response yields undefined so the adapter funnels it
- * into its unavailable path.
+ * Pull the usage sub-object out of a provider response by key, THEN project it
+ * through the null-proto whitelist chokepoint (B-6878) before any adapter sees it.
+ *
+ * Shape handling (unchanged): a null/undefined/non-object response yields an
+ * (empty) null-proto object so the adapter funnels it into its unavailable path;
+ * a response carrying the usage sub-object under `key` uses that sub-object; a
+ * response that IS already the usage object (no own `key`) is used directly.
+ *
+ * The own-property `key` selection replaces the previous prototype-chain
+ * `if (key in response)`: a polluted Object.prototype.usage on a response with no
+ * OWN usage key can no longer masquerade as a usage sub-object — and whichever
+ * sub-object is selected is projected to a null-proto, whitelist-only object, so
+ * legitimate own-property data is preserved while inherited values are dropped.
  */
-function extractRawUsage(providerResponse: unknown, key: string): unknown {
+function extractRawUsage(
+  provider: ProviderName,
+  providerResponse: unknown,
+  key: string,
+): Record<string, unknown> {
   if (typeof providerResponse !== 'object' || providerResponse === null) {
-    return undefined;
+    return sanitizeRawUsage(provider, undefined);
   }
-  const response = providerResponse as Record<string, unknown>;
-  if (key in response) return response[key];
-  // The caller may already have handed us the usage object directly.
-  return providerResponse;
+  // Own-property check (not `in`): an inherited `key` never selects a sub-object.
+  const raw = Object.prototype.hasOwnProperty.call(providerResponse, key)
+    ? (providerResponse as Record<string, unknown>)[key]
+    : // The caller may already have handed us the usage object directly.
+      providerResponse;
+  return sanitizeRawUsage(provider, raw);
 }
 
 /**
@@ -143,7 +210,16 @@ export function buildProviderRecord(
   context: RecordContext,
   options: BuildProviderRecordOptions = {},
 ): UsageLedgerRecordInput {
-  const usage = options.usage ?? adaptUsageFor(provider, providerResponse);
+  // B-6878: read the pre-mapped `usage` override via an OWN-property guard. A bare
+  // `options.usage` is a prototype-chain read, so a polluted
+  // Object.prototype.usage would, for a caller passing `options = {}`, masquerade
+  // as a supplied usage and bypass the adapter. Only an OWN `usage` key counts as
+  // a real override; otherwise we run the adapter on the provider response (whose
+  // own usage is projected through the chokepoint).
+  const hasUsageOverride = ownProp(options, 'usage') && options.usage !== undefined;
+  const usage = hasUsageOverride
+    ? (options.usage as LedgerUsage)
+    : adaptUsageFor(provider, providerResponse);
 
   const record: UsageLedgerRecordInput = {
     schemaVersion: SCHEMA_VERSION,

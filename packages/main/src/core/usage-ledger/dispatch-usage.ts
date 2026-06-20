@@ -45,6 +45,20 @@ import {
   type UsageLedgerRecordInput,
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
+import { toOwnPropsNullProto } from './sanitize.js';
+
+/**
+ * B-6878: the Anthropic token keys extractAnthropicUsage reads off a parsed
+ * `.usage` object — the chokepoint whitelist for the anthropic extract entry.
+ * Projecting through toOwnPropsNullProto before the u.* reads makes a polluted
+ * Object.prototype token key unreachable via the prototype chain.
+ */
+const ANTHROPIC_USAGE_WHITELIST = [
+  'input_tokens',
+  'output_tokens',
+  'cache_creation_input_tokens',
+  'cache_read_input_tokens',
+] as const;
 
 /**
  * Re-export the opt-in gate so the dispatch seam imports ONLY this module from
@@ -107,7 +121,11 @@ function extractAnthropicUsage(usage: unknown): AnthropicUsage | null {
   if (typeof usage !== 'object' || usage === null || Array.isArray(usage)) {
     return null;
   }
-  const u = usage as Record<string, unknown>;
+  // B-6878: project to a null-proto, whitelist-only object BEFORE any u.* read so
+  // a polluted Object.prototype token key can never be resolved via inheritance
+  // on a usage object that lacks that key as an own property. Legitimate
+  // own-property counts are copied verbatim, so the extracted usage is unchanged.
+  const u = toOwnPropsNullProto(usage, ANTHROPIC_USAGE_WHITELIST);
   // Both primaries must be finite non-negative integers to be a usable usage.
   if (!isFiniteNonNegativeInteger(u.input_tokens) || !isFiniteNonNegativeInteger(u.output_tokens)) {
     return null;
