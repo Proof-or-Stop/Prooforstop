@@ -54,6 +54,18 @@
           "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
           "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
           "timestamp": "2026-06-20T18:33:12.272Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"stale\\|re-?assign\\|plan-only\\|deferred\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Plan-only status is explicitly separated from proof and causal completion context.",
+          "headHash": "68877971c6da87ad3e2959715e7737499c00d975",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.792Z"
         }
       ]
     },
