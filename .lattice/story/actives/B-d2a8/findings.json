@@ -182,7 +182,7 @@
       "desc": "CHK-001:adversarial:4: intent claims resolveParallelGate({maxConcurrentReview:Infinity}, lightDefault) -> falls back to profile default 2. The smoke (line 79) uses PD (balanced default, maxConcurrentReview=3) and asserts the return is 3 not 2. The intent names lightDefault and the fallback value 2; the actual assertion uses balanced and returns 3. The light-profile variant of Infinity rejection is untested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:34:40.644Z",
@@ -193,7 +193,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: expectMaxFallback(Infinity, LIGHT, 2, 'Infinity') asserts maxConcurrentReview Infinity falls back to the LIGHT profile default 2.",
+      "resolvedAt": "2026-06-20T06:39:24.006Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-010",
