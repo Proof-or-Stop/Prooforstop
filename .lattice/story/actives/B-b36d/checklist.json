@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T11:57:02.844Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:03:11.055Z",
       "excludes": [
         "CLI command implementation",
         "runtime schema implementation",
@@ -51,7 +51,31 @@
           }
         ]
       },
-      "userSees": "The revised document opens with Lattice Lifecycle Proof-Or-Stop Readiness Check and describes V1 as Lifecycle Readiness Check, with StoryReadinessReport as the core report model."
+      "userSees": "The revised document opens with Lattice Lifecycle Proof-Or-Stop Readiness Check and describes V1 as Lifecycle Readiness Check, with StoryReadinessReport as the core report model.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Lattice Lifecycle Proof-Or-Stop Readiness Check|Lifecycle Readiness Check|StoryReadinessReport|lattice lifecycle_check|lattice story_readiness|runCommands|writeEvidence|Full Vision\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The plan, flow image, and navigation now use Lifecycle Readiness Check positioning, StoryReadinessReport, and Full Vision staging.",
+          "headHash": "b36ba768a389c88cedaffb6097590c2270608663",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:11.292Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"lattice-standard-evidence-pipeline|Lattice Standard Evidence Pipeline|standard evidence pipeline|story_pipeline --|lattice story_pipeline|Target Command Surface|Recommended operator path\" README.md docs/guide.md docs/requirements/NAV.md docs/requirements/decisions docs/requirements/decisions/assets",
+          "result": "pass",
+          "note": "No stale old filename/title or V1 story_pipeline command framing remains; rg returned no matches.",
+          "headHash": "b36ba768a389c88cedaffb6097590c2270608663",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:11.433Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
