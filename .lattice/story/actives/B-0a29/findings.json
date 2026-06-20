@@ -1,0 +1,113 @@
+{
+  "findings": [
+    {
+      "id": "B-0a29:F-001",
+      "desc": "Pipeline sequences reviewer lanes before verification evidence generation/refresh while assigning coverage verification to validate and the coverage reviewer. Evidence: plan lines around Step Contract Matrix rows for reviewer/evidence and End-To-End Flow show reviewer batch before evidence generation. This can let test-coverage review pass before final material-bound evidence exists, or require an unstated second review loop. Fix by moving evidence generation/refresh before reviewer batch, or explicitly split lanes so coverage/delivery review runs only after final evidence is material-bound.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T06:24:15.883Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-001",
+      "_hash": "916cd6443b78263838c46aae006979ff2ccffc4c9551708f37d8748196d95ad5",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|pipeline-sequences-reviewer",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-002",
+      "desc": "SVG compresses smoke/transcript/delivery context and jumps toward done_prepare PASS without an explicit delivery-review or delivery-check decision. Markdown preserves the gate, so this is advisory, but the image should show delivery reviewer pass/fail to avoid implying a weaker DONE path.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T06:24:21.339Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-001",
+      "_hash": "ad324adeac2c46d3a29502502abcbcb1a0a55a2f0c5d901e87aa4a0448f6bd41",
+      "files": [
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+      ],
+      "signatureTag": "missing|svg|compresses-smoke-transcript",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-003",
+      "desc": "Metadata-only waiver policy is left open. The plan says transcript/user-value proof may be waived for explicit metadata-only stories, but Track E/F implementers still need a concrete command, schema, and owner before implementing fail-closed behavior. Advisory for current execution-plan doc.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:24:27.731Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-002",
+      "_hash": "d1eae9f0a258300867ceda0349091790cf03b7d1480cc8d78340a1e69c352f3f",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|metadata-waiver-policy",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-004",
+      "desc": "Rendered SVG has visual ambiguity/overlap around PLAN skeleton and DEV implementation boxes. Markdown text flow and Mermaid source remain readable, so this does not block implementation, but the image should be cleaned up for a strict execution-plan artifact.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:24:32.992Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-002",
+      "_hash": "8787b06a6e4e30afad78cbdb42df029c9776f1b3c0d9aa19b1cf7bc5d6065daa",
+      "files": [
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+      ],
+      "signatureTag": "edge|svg|rendered-visual-ambiguity",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-005",
+      "desc": "CHK-002 edge evidence only runs xmllint --noout for the SVG. That proves XML validity but not the intent that the SVG visually distinguishes ordinary preflight from TEST-to-DONE done_prepare delegation. The SVG contains relevant nodes, but the recorded evidence command does not assert them, so semantic coverage for CHK-002 edge is missing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T06:24:40.848Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-003",
+      "_hash": "6a150d67d930f4079b41c43a806b7d2cb4fbf6e2220a89e79bd0a5e47e591971",
+      "files": [
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+        ".lattice/story/actives/B-0a29/checklist.json"
+      ],
+      "signatureTag": "missing|svg|edge-evidence-runs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-006",
+      "desc": "Several recorded rg evidence commands are not cleanly replayable because Markdown backticks inside double-quoted shell patterns can trigger command substitution in zsh, producing command-not-found stderr while rg still exits 0. Gate evidence should be deterministic and stderr-clean; replace affected evidence commands with single-quoted patterns or split rg checks that avoid backtick substitution.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T06:24:46.682Z",
+      "reviewRound": "2026-06-20T06:19:30.785Z",
+      "reviewRunId": "B-0a29:RR-003",
+      "_hash": "5ed9b8895190d80398abdbd888708ad05f52571a394e733cebce698ad3941bba",
+      "files": [
+        ".lattice/story/actives/B-0a29/checklist.json"
+      ],
+      "signatureTag": "missing|json|several-recorded-evidence",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
