@@ -3,3 +3,5 @@
 {"type":"plan_reviewed","round":1,"blockerCount":0,"issueCount":6,"timestamp":"2026-06-20T23:07:23.490Z"}
 {"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-20T23:09:06.184Z"}
 {"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-20T23:09:06.624Z"}
+{"type":"review_pass","storyId":"B-8cc8","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-8cc8:RP-001","timestamp":"2026-06-20T23:11:29.692Z"}
+{"type":"dirty_gate_audit","storyId":"B-8cc8","gate":"validate-side-effect","category":"lattice_metadata_changes","pathCount":2,"paths":[".lattice/story/actives/B-8cc8/process-events.jsonl",".lattice/story/actives/B-8cc8/review-passes.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-20T23:11:29.821Z"}

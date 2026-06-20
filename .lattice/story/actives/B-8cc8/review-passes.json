@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-8cc8:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check passed. The single substantive commit 4324d1fbf removes all 49 koala references from CHANGELOG.md (git grep -i koala CHANGELOG.md = exit 1, zero matches). Patch introduces 0 new koala lines. No half-removed state detected. This is the scoped override of the ship-clean program keeping-history decision; CHANGELOG.md full rebrand is complete and internally consistent. No concept deletion residue; no blocker.",
+      "createdAt": "2026-06-20T23:11:29.691Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-001",
+      "_hash": "cba5622d3d9a6eac1edaa0079c9de93a4fae4c5d263a1e90441b7146e4f86f7c"
+    }
+  ]
+}
