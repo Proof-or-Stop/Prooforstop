@@ -1,0 +1,27 @@
+{
+  "storyId": "B-086b",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/parallel-decomposition.ts",
+    "packages/main/src/core/machine.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/core/parallel-decomposition-gate.ts",
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/story-review.ts"
+  ],
+  "scopeChangeReason": "Story 5 serial integration: contract re-export + machine.ts guard wiring + new smoke + config; Stories 1-4 outputs frozen/excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T08:19:51.054Z",
+  "updatedAt": "2026-06-20T08:19:51.054Z"
+}
