@@ -208,7 +208,22 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"Verification Matrix|ppid-changing|wrapper|owner lease refresh|session_brief|documentation grep\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "result": "pass",
+          "note": "The verification matrix covers ppid-changing invocations, wrapper env bridging, owner lease refresh behavior, session_brief source rendering, and documentation grep checks.",
+          "headHash": "58c0098b37a40eff27a4aca61d5c1e2fc133fb76",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:50:21.190Z"
+        }
+      ]
     }
   ]
 }
