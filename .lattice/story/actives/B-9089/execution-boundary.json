@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9089",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git rev-parse*",
+    "git status*",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice delivery_check_set*",
+    "lattice review_*",
+    "lattice story_*",
+    "lattice summary_set*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node packages/main/dist/bin/lattice.js*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:story-owner-lease-smoke",
+    "npm --prefix packages/main run test*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Antigravity CLI agy",
+    "Claude Code CLI",
+    "Codex CLI",
+    "Lattice CLI",
+    "local shell",
+    "multi_agent_v1 reviewers"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-9089",
+    "docs/dev/test-coverage.md",
+    "docs/guide-scope-guard.md",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx*",
+    "rm -rf .omx*"
+  ],
+  "excludedTools": [
+    "Gemini CLI naming for current Antigravity host",
+    "oh-my-codex",
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Execution is limited to implementing the owner-session canonical runtime contract and its direct evidence. Story/fixture files must be mutated only through Lattice commands; docs/story and fixture JSON are not direct edit targets. Local session ids remain non-Authority coordination metadata.",
+  "createdAt": "2026-06-20T10:29:01.207Z",
+  "updatedAt": "2026-06-20T10:29:01.207Z",
+  "_hash": "10b7f21836b972aada24347b6eec1caceaf27b3bc5bb0ecf7dd4053328e647c0"
+}

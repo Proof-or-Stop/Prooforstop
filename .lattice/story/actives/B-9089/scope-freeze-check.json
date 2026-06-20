@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9089",
+  "checkedAt": "2026-06-20T10:29:29.736Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "3cdbb2595525dff5f51a32b48b7db204032b01aec02d5a2066f53ff46cd0bd20",
+  "executionBoundaryHash": "10b7f21836b972aada24347b6eec1caceaf27b3bc5bb0ecf7dd4053328e647c0",
+  "freshnessHash": "f19aadb2fb86fd53b721e0fac70ff400e73fe12dbb94c72ffac3c59431129fff",
+  "effectiveExcludedKeywords": [
+    "Do not add host-specific session env reads to generic core owner-lease, lifecycle, gate, or cli-engine paths",
+    "Do not claim Authority Server completion or use local session ids as cryptographic identity",
+    "Do not push remote branches or modify unrelated active stories",
+    "Do not redesign unrelated lifecycle gates, review escalation policy, or main write lock semantics"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not add host-specific session env reads to generic core owner-lease, lifecycle, gate, or cli-engine paths",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not add host-specific session env reads to generic core owner-lease, lifecycle, gate, or cli-engine paths",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not claim Authority Server completion or use local session ids as cryptographic identity",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim Authority Server completion or use local session ids as cryptographic identity",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push remote branches or modify unrelated active stories",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push remote branches or modify unrelated active stories",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not redesign unrelated lifecycle gates, review escalation policy, or main write lock semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not redesign unrelated lifecycle gates, review escalation policy, or main write lock semantics",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7c3b0c707bc9db7602aa061d83e0be767a2050bfd45572155b0076bde4d1b5ff"
+}

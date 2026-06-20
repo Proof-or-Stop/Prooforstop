@@ -1,0 +1,45 @@
+{
+  "storyId": "B-9089",
+  "name": "owner-session-contract-runtime-implementation",
+  "title": "Implement owner-session canonical runtime contract",
+  "description": "Implement the Owner Session Contract Execution Plan: make LATTICE_SESSION_ID the canonical owner-session id consumed by generic owner-lease and lifecycle paths, move host-specific signals behind adapter/facade boundaries, preserve ppid degraded fallback, add guardrails/tests, and record required two-host plan review evidence before runtime implementation begins.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-20T10:20:33.900Z",
+  "startedAt": "2026-06-20T10:20:33.900Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T10:20:33.901Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T10:29:43.697Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9089",
+    "branch": "story/B-9089",
+    "createdAt": "2026-06-20T10:29:42.795Z"
+  }
+}
