@@ -336,6 +336,23 @@
       ],
       "signatureTag": "adversarial|ts|resolveparallelgate-uses-traverses",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-020",
+      "desc": "JSON.stringify in the warn message throws on BigInt / circular / throwing-toJSON values, so a present-but-invalid subfield crashes resolveParallelGate instead of warn+fallback (lines 93/105/116). Fix: route through a non-throwing describeInvalid formatter.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T06:05:48.533Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "_hash": "d447dc815d4c467acb56375593d11a8a899b60c77a4253312414ff86f6fe2fc7",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "adversarial|ts|json-stringify-warn",
+      "signatureTagSource": "auto"
     }
   ]
 }
