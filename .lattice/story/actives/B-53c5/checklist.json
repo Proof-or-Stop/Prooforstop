@@ -44,9 +44,9 @@
       "id": "CHK-002",
       "title": "Define the canonical lens set (+ task-tunable flag) and the completeness-critic IO contract per §2.1/§2.4",
       "context": "Export the canonical lens set: concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency (as a typed list of {id, facet, asks} or at least the id union), with a documented 'task-tunable' note (the set may be subset/extended per change). Export the CompletenessCritic IO contract type: input {change, confirmedFindings: Finding[]}, output Finding[] (its findings re-enter verification — that is S2/S3's concern; S0 only types the IO).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:15:42.452Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:15:43.013Z",
       "files": {
         "modify": [],
         "create": [
