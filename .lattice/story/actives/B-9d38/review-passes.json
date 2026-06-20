@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T15:41:32.898Z",
       "reviewRunId": "B-9d38:RR-002",
       "_hash": "cc619219c2461348b1dcc1a9cad4283234f5def2fd73b60fb067fada09fe6ac9"
+    },
+    {
+      "id": "B-9d38:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage CLEAN over round-2 hash: all 33 verificationIntent map to real smoke assertions at the sink; the proactively-strengthened smoke (36->50->52) covers pass-by-reference/large-array/extra-field seam output, tag-not-a-lane (now incl. the BARE completeness-critic + lattice-review-completeness invariants), special-chars desc, desc!=base, second lane. CHK-002:adversarial:0 evidence note corrected to the bare-value check. Confirmed by Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:49:18.781Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-003",
+      "_hash": "cdbdea0752aac3d23d02b50283ceba3abba713adad558b58e8997556f0a798a6"
     }
   ]
 }
