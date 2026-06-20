@@ -125,6 +125,8 @@ A `done_prepare` report can be consumed only when all of these bindings match:
 - `storyId` matches the checked story;
 - `target` or implied target is DONE;
 - `preMergeHead` equals the story HEAD observed when `done_prepare` started;
+- `mainTipAtPrepare` equals the local `main` tip observed by `done_prepare` when it
+  started;
 - `postMergeHead` equals the current story HEAD after a no-op main sync or after
   `done_prepare` merged main;
 - `materialHash` and `storyFilesHash` match the current post-merge material;
@@ -136,6 +138,9 @@ If `mergeMain:true` changed HEAD, the post-merge HEAD is the only binding that
 can support a later DONE attempt. Any report bound only to the pre-merge HEAD is
 stale. V1 reports that stale state and prints the `done_prepare` rerun command;
 it does not refresh the report.
+
+If the local `main` tip advanced after report capture, this is also stale even
+when the report still carries a matching `postMergeHead`.
 
 ## Canonical V1 Report
 
@@ -199,6 +204,8 @@ Required top-level shape:
 Rules:
 
 - `StoryReadinessReport` is assembled from existing structured facts only.
+- `claims.localReady` is true iff no `readiness` row has `blocking:true`.
+  Advisory/warn rows remain visible but do not block `localReady`.
 - `claims.authorityDone`, `claims.fullAuthorityDone`, and
   `claims.productionDone` remain `false` unless a separate Authority receipt
   reader supplies verified facts. V1 does not create those facts.
@@ -235,8 +242,8 @@ normal readiness result, not an exception.
 
 ## Exact Rollback Commands
 
-V1 cannot roll a story back to DEV, but it must print the exact command when a
-later phase has to return to implementation work.
+V1 does not execute rollback itself, but it must print the exact command as a
+likely next action when a later phase has to return to implementation work.
 
 From REVIEW to DEV, use this when a verified blocking finding, stale reviewer
 pass, missing required lane, or stale material-bound evidence requires code or
@@ -341,7 +348,7 @@ START
   |
   v
 {Any missing, stale, blocking, manual, or external proof for target?}
-  |-- yes --> [STOP: print source blocker, owner, code, category, and exact next action]
+  |-- yes --> [STOP: print source blocker, owner, code, category, exact next action, no mutation in V1]
   |
   no
   |
@@ -380,14 +387,11 @@ Mermaid source for environments that render diagrams directly:
 
 ```mermaid
 flowchart TD
-  A["Read current lifecycle facts"] --> B["Build StoryReadinessReport"]
-  B --> C{"Target proof complete?"}
-  C -- no --> D["STOP: source blocker, owner, code, category, exact next action"]
-  C -- yes --> E["Report ready from existing proof"]
-  E --> F["Print next lifecycle command only"]
-  D --> G{"Rollback needed?"}
-  G -- REVIEW/TEST to DEV --> H["lattice story_advance '{storyId, phase:DEV}'"]
-  G -- no --> I["Run owner-specific command outside V1"]
+  A["Read current lifecycle facts"] --> B["Build StoryReadinessReport with localReady predicate"]
+  B --> C{"Any blocking, manual, or external proof for target?"}
+  C -- yes --> D["STOP: source blocker, owner, code, category, exact next action; no mutation in V1"]
+  C -- no --> E["Report target readiness from already-recorded proof"]
+  E --> F["4. Handoff: print next lifecycle command only"]
 ```
 
 ## Full Vision: Later Staged Layers

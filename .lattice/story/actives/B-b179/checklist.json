@@ -7,9 +7,80 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:04:58.906Z",
+      "endTime": "2026-06-20T18:06:09.651Z",
+      "userSees": "StoryReadinessCheck 可见 localReady 定义与 blocking 判定已统一；manual/external 行在报告中作为 next action 给出，非阻塞但不丢失。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档明确 localReady=无 blocking:true 行",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "检查 advisory/warn 与 manual/external 在准备态展示时不阻塞 target readiness",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证未将 rollback 渲染为 STOP 后续阶段，而是作为可选 next action",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"localReady|claims.localReady|blocking\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "In canonical report schema, added explicit localReady computation rule and documented non-blocking advisory behavior.",
+          "headHash": "ded0a0e5787b3c092b682a257473b25c49408284",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:09.761Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "LocalReady semantics documented and enforced as no blocking rows in readiness report.",
+          "headHash": "19e159aa1472bea0b2f7f6e237253d5783a4737e",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:06:51.970Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Manual proof checks show advisory/warn rows remain visible and do not block localReady.",
+          "headHash": "6f748bdbfc9b169bf7c2acf4a591f651eefd1bcd",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:06:54.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Rollback remains a likely next action, not a hard lifecycle stage, in V1 read-only check model.",
+          "headHash": "305b651bff07dd606ec563de6ac5d30edfdad06c",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:06:56.630Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +90,81 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:05:01.475Z",
+      "endTime": "2026-06-20T18:06:11.724Z",
+      "userSees": "当 main 主分支前移后，lifecycle readiness 的 DONE 准备条目会展示报告过期并提示重跑 done_prepare。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档要求记录并比较主分支基准值/merge 基准值",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档覆盖 main 有新提交时 report 失效与重跑路径",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证未在 done_prepare 描述里直接回归 headHash-only 造成误判的边界场景",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"mainTipAtPrepare|main tip|pre-merge|postMergeHead\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "Expanded done_prepare binding contract with local main tip capture and stale condition wording.",
+          "headHash": "0dc998e97e130301bff2c7209f45dbfb41377f31",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:11.837Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "done_prepare binding spec now includes main tip capture and stale check against current main.",
+          "headHash": "9f945832b33d367ddaeed65dc3f1e09b23823c6a",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:06:58.457Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "V1 should invalidate stale done_prepare evidence when local main advanced beyond captured merge base.",
+          "headHash": "c3d371deebbb5e7813f0532457d7ab11c4d6a7c6",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:07:02.982Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Avoid using headHash-only freshness for done_prepare due internal merge hash mutation risks.",
+          "headHash": "471aee34e89b077f25a3b9f10c5950e472d4a375",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:07:04.666Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +174,81 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:05:03.379Z",
+      "endTime": "2026-06-20T18:06:20.859Z",
+      "userSees": "文本流程、Mermaid 与 SVG 的 READY 判定与 rollback 文案与 handoff 同步，图例和 next action 风格一致。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "检查文档、Mermaid 与 SVG 在关键判定词与 STOP 行为上保持一致",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "验证 rollback 在 V1 仅表现为主机可执行/非命令 next action 而非独立 stage",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证是否出现与 step 4 handoff 重复或冲突的描述，导致实现歧义",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Target proof complete\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md && rg -n \"Handoff: print next lifecycle command only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg && rg -n \"Rollback\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "对齐文本流程、Mermaid 与 SVG: 更新停点判定语义、STOP 无变更提示，并移除 rollback 作为独立 stage。",
+          "headHash": "db05afb5c375f40d6b808238c2310ba7da36216d",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:20.968Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Removed rollback as a downstream stage to avoid implying auto-transition after STOP in V1.",
+          "headHash": "08ffbbc2c4129497961b0a517f919f4d64b058ab",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:07:10.529Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "V1 flow text/mermaid/SVG now uses ready- blocking/manual/external wording and handoff semantics.",
+          "headHash": "bdd7646a187077927f0bc1ef3887452cc9a34640",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:07:06.482Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Next action is advisory/rollback text, while V1 remains read-only and does not execute lifecycle transitions.",
+          "headHash": "7c96221b0b988a3cc5a3f9fd456bec320f8e17dc",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:07:08.371Z"
+        }
+      ]
     }
   ]
 }
