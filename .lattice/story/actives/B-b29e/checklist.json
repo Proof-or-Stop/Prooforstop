@@ -308,6 +308,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:13:41.737Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "the note is accurate vs the actual registrations: 4 doors in lifecycle-registry + the scope-contract gateConsumer + the drift-check assertion.",
+          "headHash": "6c07fba66bc5729f23430d37078d9067f0be8e67",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:13:42.228Z"
         }
       ]
     }
