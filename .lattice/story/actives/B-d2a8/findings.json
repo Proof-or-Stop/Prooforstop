@@ -452,7 +452,7 @@
       "desc": "quality-cleanup: audit-config.ts:108-128 — the outer try/catch in resolveParallelGate catches everything readParallelGateFields throws, including hypothetical future TypeError from a coding mistake (wrong variable access). The warn message 'could not be introspected' would look like a config issue rather than a code bug. Currently not a real risk (readParallelGateFields only uses typeof checks that don't throw on JSON values, and TS catches shape errors at compile time), but worth noting for future maintainers as the function grows.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T06:30:54.092Z",
@@ -463,7 +463,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "cleanup|ts|quality-cleanup-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The broad outer try/catch is deliberate: the function's contract is never-throw for the PLAN->DEV gate, which requires catching ANY introspection failure. readParallelGateFields uses only non-throwing ops (typeof/Number.isInteger/boolean compare/Object.hasOwn) on JSON values, so the only way to introduce a throw is a coding error, which TypeScript catches at compile time — no reachable runtime logic bug is masked. The JSDoc + inline comment explicitly flag the path as defense-in-depth. Accepted as a documented, intentional tradeoff.",
+      "resolvedAt": "2026-06-20T06:34:46.560Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-d2a8:F-026",
