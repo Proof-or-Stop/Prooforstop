@@ -271,6 +271,21 @@
       ],
       "signatureTag": "missing|ts|edge-priority-type",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-016",
+      "desc": "CHK-001 userSees is empty — the checklist item defines what the implementer builds but does not describe the observable outcome (the user-visible contract): what does a caller of resolveParallelGate or resolveAuditConfig actually see? Missing userSees means behavioral correctness cannot be formally verified against a stated claim. Fill in userSees describing the resolved ParallelGateConfig values returned for each scenario (correct profile defaults, fallback to advise on bad mode, fallback to profile default on bad maxConcurrentReview/broadGlobBlocks, copy not reference on null input).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-20T06:02:03.646Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-008",
+      "_hash": "b241cec4801d62d4e27d1f8e7f4e3783c4e94bd8a7be721a38c705a5d51a03f5",
+      "signatureTag": "missing|unknown|usersees-empty-checklist",
+      "signatureTagSource": "auto"
     }
   ]
 }
