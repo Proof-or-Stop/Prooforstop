@@ -293,7 +293,7 @@
       "desc": "Text flowchart lets refreshable stale evidence fall through to validation, while Mermaid and SVG loop refreshable evidence back through Step 2 for reclassification.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:07:34.171Z",
@@ -304,14 +304,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|text-flowchart-lets",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed text flowchart: refreshable stale evidence now delegates to the existing refresh writer and returns to Step 2 for reclassification before validation.",
+      "resolvedAt": "2026-06-20T07:13:55.400Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-015",
       "desc": "Text flowchart asks whether the story is still in PLAN but omits the explicit non-PLAN branch to DEV implementation that Mermaid and SVG include.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:07:34.759Z",
@@ -322,14 +326,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|text-flowchart-asks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed text flowchart: PLAN decision now explicitly includes the non-PLAN branch into DEV implementation.",
+      "resolvedAt": "2026-06-20T07:13:55.886Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-016",
       "desc": "Checklist verificationEvidence is stale after final doc/SVG/checklist commit; recorded evidence does not prove the current HEAD artifacts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T07:07:35.492Z",
@@ -340,14 +348,18 @@
         ".lattice/story/actives/B-0a29/checklist.json"
       ],
       "signatureTag": "missing|json|checklist-verificationevidence-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Refreshed checklist verificationEvidence after material commit 76fe99f03; new evidence commands assert current doc/SVG/checklist claims and final follow-up commit only records metadata/resolution.",
+      "resolvedAt": "2026-06-20T07:13:56.333Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-017",
       "desc": "Checklist verificationEvidence uses single rg alternation checks that can pass if any one marker exists instead of proving every required row, branch, and artifact marker exists.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T07:07:36.069Z",
@@ -358,14 +370,18 @@
         ".lattice/story/actives/B-0a29/checklist.json"
       ],
       "signatureTag": "missing|json|checklist-verificationevidence-uses",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced weak rg alternation checks with Node assertion commands that fail unless every required marker/branch/schema string is present.",
+      "resolvedAt": "2026-06-20T07:13:56.743Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-018",
       "desc": "CHK-001 acceptance wording still says users see Step 0 through Step 7, but the final matrix defines Step 0 through Step 6.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T07:07:36.673Z",
@@ -377,14 +393,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|json|acceptance-wording-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved without mutating frozen userSees: added a real Step 7 Phase advance handoff row and flowchart node so the Step 0 through Step 7 acceptance is accurate.",
+      "resolvedAt": "2026-06-20T07:13:57.175Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-019",
       "desc": "The plan treats delivery as a reviewer batch lane requiring review_run_start, but current review-run lanes exclude lattice-review-delivery; delivery evidence is produced through delivery_check_set.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:07:37.435Z",
@@ -395,14 +415,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|md|plan-treats-delivery",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Separated delivery from review_run_start lanes: story_pipeline_review now uses concept, quality, test-coverage, docs only; delivery is a delivery_check_set artifact path.",
+      "resolvedAt": "2026-06-20T07:13:57.617Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-020",
       "desc": "--to=REVIEW says it may launch reviewers and the flow reaches reviewer batch before an explicit DEV to REVIEW transition, but review_run_start rejects non-REVIEW stories.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:07:38.231Z",
@@ -413,14 +437,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|review-says-launch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Defined --to=REVIEW sequencing: prepare artifacts in DEV, require clean commit and story_advance --phase=REVIEW, then start review_run_start lanes only after observed REVIEW phase.",
+      "resolvedAt": "2026-06-20T07:13:58.007Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-021",
       "desc": "Canonical report schema leaves freshness, gates, and next as untyped arrays, allowing duplicate row shapes or local freshness predicates across P3/P4/P6.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:07:38.838Z",
@@ -431,7 +459,11 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|canonical-report-schema",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Typed the canonical report rows by adding FreshnessRow, GateRow, and NextActionRow fields with classification, source refs, hashes, owner, verifier, status, and next command.",
+      "resolvedAt": "2026-06-20T07:13:58.479Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
