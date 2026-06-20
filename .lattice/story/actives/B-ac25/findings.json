@@ -5,7 +5,7 @@
       "desc": "External opt-in projects that configure root npm test as DONE-required are blocked by the self-host packages/main build-proof rule. Source: validateSelfHostBuildProof is called unconditionally from runDoneRequiredValidation and evaluateDoneRequiredEvidence in packages/main/src/core/done-required-validation.ts:346 and packages/main/src/core/done-required-validation.ts:440; it treats any root npm test receipt as requiring a preceding npm --prefix packages/main run build receipt. I built packages/main, then ran a temp external-project probe with doneRequiredCommands containing only npm test and a passing package.json test script; the command receipt exitCode was 0, but evidenceStatus was FAIL, reasons included missing-build-proof, evaluationStatus was fail, and blocking was true. This violates the documented external-project boundary in docs/requirements/decisions/testing-infra.md:53-57: external projects explicitly opt into their own DONE-required policy, while the packages/main build proof is a self-host repository requirement.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T10:22:07.291Z",
@@ -18,7 +18,11 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "edge|ts|external-projects-configure",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7ff8f9172 by making packages/main build proof explicit per command: external root npm test no longer inherits self-host proof, while self-host lattice.config.json marks packages/main build as providesBuildProof and root npm test as requiresBuildProof. Verified by npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, and npm test after nested-worktree smoke harness stabilization.",
+      "resolvedAt": "2026-06-20T10:34:31.558Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
