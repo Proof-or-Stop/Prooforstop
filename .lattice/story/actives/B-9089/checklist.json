@@ -38,7 +38,21 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "codex exec read-only review -> /tmp/b9089-codex-plan-review.json; agy --print --sandbox review -> /tmp/b9089-agy-plan-review.json",
+          "result": "pass",
+          "note": "Two independent host plan reviews completed before source changes. Codex verdict PASS with checks local_boundary/generated_token/ppid_degradation/core_exception_migration/implementation_plan all PASS, findings empty, authorityClaim none. Antigravity verdict PASS with the same checks all PASS, authorityClaim none, one low comment cleanup finding in story-owner-lease.ts to address during DEV. Claude Code was attempted first but returned only Execution error, so it is not counted as a host verdict. Document sha256 63b787d47f3ef9821e2d549e4f5cc00345754e86f4510f31a5f06ce6e4fa225f; reviewed HEAD d3a61ff4b3dc68a656cddcedaea958a98627b843.",
+          "headHash": "d3a61ff4b3dc68a656cddcedaea958a98627b843",
+          "materialHash": "863b5f0cf4a4a391ce0252ea46ef186b603aa9dd05a430934187eb9f04417474",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T10:58:47.701Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
