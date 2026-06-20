@@ -204,26 +204,37 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Host resume/accept path is gated by evidence-backed handoff preflight, preventing stale pending claims.",
+          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:28:24.318Z"
+        },
+        {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
-          "note": "Edge case verified by DONE/stale supersession branches: preflight becomes uncertain and user-visible revalidation winSignal is emitted.",
-          "headHash": "1d3c1cf6f029cf0aff80c2c00275c233e884567f",
+          "note": "Missing evidence branch emits uncertain preflight verdict and explicit revalidation signal.",
+          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
           "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
           "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:09.775Z"
+          "timestamp": "2026-06-20T19:28:24.449Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
-          "note": "Adversarial branch verified that memory/stale mismatch cannot auto-advance claims to done without explicit evidence-backed proof.",
-          "headHash": "1d3c1cf6f029cf0aff80c2c00275c233e884567f",
+          "note": "Memory/DONE-mismatch adversarial case refuses blocking completion without authoritative proof.",
+          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
           "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
           "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:09.905Z"
+          "timestamp": "2026-06-20T19:28:24.580Z"
         }
       ]
     },
