@@ -39,16 +39,20 @@ doctor stale story-owner-lease check (step 5) and the multi-session
 convergence/regression smoke (step 6) were both delivered by B-c55d (CHK-005);
 the rollout is now fully implemented.
 
-## Problem
+## Original Problem
 
-Lattice supports parallel story worktrees, but it does not yet mechanically own write coordination across sessions.
+Before the implemented main write lock and story owner lease rollout, Lattice
+supported parallel story worktrees but did not mechanically own write
+coordination across sessions. The remaining B-a781 work is narrower: migrate
+session identity resolution to the canonical host-adapter `LATTICE_SESSION_ID`
+contract without regressing the implemented write-coordination baseline.
 
-Observed failures:
+The rollout was designed to prevent these failure modes:
 
 - Two sessions can mutate the same story metadata and confuse phase or evidence state.
 - Two DONE flows can race on main and leave partial-DONE recovery work.
 - Shared B-META writes such as `gap_log` can duplicate findings.
-- Agents currently rely on human chat coordination instead of Lattice-enforced ownership.
+- Agents relying on human chat coordination instead of Lattice-enforced ownership.
 
 Lattice must allow parallel work while making write authority explicit.
 
