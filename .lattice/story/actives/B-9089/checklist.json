@@ -234,7 +234,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Verification prints \"✓ story-owner-lease smoke passed\" and \"PASS owner-session host-native env guardrail\" after `npm --prefix packages/main run build` succeeds.",
+      "userSees": "Verification prints \"✓ story-owner-lease smoke passed\", \"PASS owner-session host-native env guardrail\", and \"PASS owner-session runtime matrix: codex + claude-code/agy evidence recorded\" after `npm --prefix packages/main run build` succeeds.",
       "files": {
         "modify": [
           "packages/main/src/tasks/story-owner-lease-smoke.ts",
@@ -251,19 +251,19 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Build and focused smoke tests pass for canonical env, adapter bridge, generated token fallback, ppid degradation, owner gate, lifecycle events, and material hygiene.",
+            "desc": "Build and focused smoke tests pass for canonical env, adapter bridge, generated token fallback, ppid degradation, owner gate, lifecycle events, material hygiene, and runtime two-host matrix evidence.",
             "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "The guardrail allows host-native env names only in adapter files, adapter tests/tasks, and documentation while blocking generic core matches.",
-            "type": "cli"
+            "desc": "The runtime matrix uses Codex plus Claude Code when available, and may degrade to Antigravity/agy only with an explicit unavailable note for Claude; local evidence remains non-Authority.",
+            "type": "manual"
           }
         ],
         "adversarial": [
           {
-            "desc": "A deliberately broad grep for CLAUDE/CODEX/AGY/ANTIGRAVITY session env names reports no forbidden generic-core matches.",
+            "desc": "A deliberately broad grep for CLAUDE/CODEX/AGY/ANTIGRAVITY session env names reports no forbidden generic-core matches and any runtime host verdict claiming Authority proof is rejected.",
             "type": "cli"
           }
         ]
