@@ -1,0 +1,55 @@
+{
+  "storyId": "B-53c5",
+  "changes": "S0 (frozen contract, SERIAL-first) of the adversarial-review build program (docs/adversarial-review-spec.md §5): a new types-only module packages/main/src/core/adversarial-review.ts encoding the spec's frozen schemas — Finding (severity BLOCKER|MAJOR|MINOR + title/file/line/issue/fix, §2.2), Verdict (isReal + agreedSeverity BLOCKER|MAJOR|MINOR|NOT_A_DEFECT + reasoning, §2.3), CANONICAL_LENS_SET (6 entries with ids VERBATIM from §2.1: concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency; task-tunable), CompletenessCriticIO (§2.4), and the review-mode interface REVIEW_MODE_PHASES (the single declared canonical 5-step order lenses->verify-lens-findings->critic->verify-critic-findings->converge-or-reopen, §2.4/§3.2/§4.2) + RoundResult/ReviewModeRound. Types/const/interfaces only — ZERO behavior (the finding_add critical|high|medium|low ledger mapping is S2, deliberately absent). A 29-assertion hermetic smoke pins every contract value to explicit literal expected tuples (drift fails). Every later story (S1-S4) imports this surface unchanged.",
+  "usage": "S1-S4 import from packages/main/src/core/adversarial-review.ts: S1 (lens-runner) uses Finding + CANONICAL_LENS_SET + LensId; S2 (verifier) uses Verdict + the severity unions (and adds the finding_add ledger mapping); S3 (critic) uses CompletenessCriticIO; S4 (escalation) uses RoundResult + REVIEW_MODE_PHASES. No story needs a schema change.",
+  "expectedOutcome": "Importing core/adversarial-review.ts yields the frozen types; node packages/main/dist/tasks/adversarial-review-contract-smoke.js prints 'adversarial-review-contract smoke passed: 29 assertions' (exit 0); lattice validate all green; tsc clean.",
+  "actualTranscript": "tsc clean; the contract smoke prints 29 assertions (exit 0); lattice validate all 13 commands green. 2-round genuine dual-host review (Codex + Claude concept/quality lanes) resolved 4 findings: 2 MAJOR — the lens ids were hyphenated but the frozen spec §2.1 uses slash forms (string literals, so verbatim match required; Codex correctly overruled the Claude lane's 'invalid identifier' defense), and the lens-id smoke was self-referential/vacuous (now pinned to explicit literal expected tuples); 2 MINOR — the smoke didn't runtime-construct CompletenessCriticIO + ReviewModeRound. Round-2 both hosts PASS.",
+  "outcomeDiff": "none — the frozen contract matches the spec §2/§3 verbatim (delivery review verified 7/7 promises); types-only confirmed; the smoke is a real drift-guard.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "S0 is the frozen contract (types + interface) ONLY. The behavior — lens-runner (S1), adversarial verifier + finding_add ledger mapping (S2), completeness-critic role (S3), escalation-flow integration (S4) — is the rest of the §5 program. The first-class CLI review mode + dedicated lattice-review-completeness lane + structured verdict storage are FUTURE (§4.4).",
+  "pitfalls": "A FROZEN contract must match the spec VERBATIM — lens ids are STRING LITERALS, so the spec's slash forms (concept/scope) are valid and required; hyphenating them (assuming 'slashes invalid in identifiers' — wrong for string values) creates a translation layer that breaks the no-downstream-schema-change acceptance. A contract smoke must pin assertions to EXPLICIT literal expected tuples declared in the smoke, never self-reference the module's own const (else a contract drift passes vacuously). Keep the abstract methodology severity (BLOCKER/MAJOR/MINOR) separate from the finding_add ledger enum (that mapping is a later story).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 207838
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6180
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 305381
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 367140
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 888968
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 245766
+    }
+  },
+  "totalDurationMs": 2021357,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T12:36:56.105Z",
+  "updatedAt": "2026-06-20T12:36:56.105Z"
+}
