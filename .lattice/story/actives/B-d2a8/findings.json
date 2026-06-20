@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: docs/parallel-decomposition-spec.md line 372 still defines resolveParallelGate as a one-parameter helper (raw?: unknown): ParallelGateConfig, but the implementation in audit-config.ts exports a two-parameter form resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig). The spec was not updated to match the OQ-001 decision. Any caller reading the spec will write code that omits profileDefault and gets a TypeScript error or runtime misbehavior.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T05:33:55.883Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: docs/parallel-decomposition-spec.md §4.7 now documents the two-param resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig) signature (updated rounds 2-3); round-6 docs/concept lanes confirmed spec matches impl.",
+      "resolvedAt": "2026-06-20T06:39:06.348Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-002",
