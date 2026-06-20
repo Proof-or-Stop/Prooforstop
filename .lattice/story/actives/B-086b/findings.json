@@ -70,7 +70,7 @@
       "desc": "MINOR x2: formatParallelDecompositionBlock's overlap recompute (~353-364) and peer_contract_unreadable_parallel recompute (~385-398) select the named peer by filtering only parallelSafe!=='yes', omitting the gate's active-peer filter (!TERMINAL_PHASES.has(phase)). So the message can name a DONE/DISCARDED parallelSafe=yes peer that sorts earlier in listStoryIds() while the gate's block came from a different ACTIVE peer — misleading remediation text. Fix: import TERMINAL_PHASES from parallel-policy.js and skip terminal peers in both recompute loops so the named peer matches the gate's active set.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-parity",
       "createdAt": "2026-06-20T08:46:07.857Z",
@@ -80,7 +80,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "cleanup|ts|minor-formatparalleldecompositionblock-overlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "formatParallelDecompositionBlock overlap + peer_contract_unreadable recompute loops now skip TERMINAL_PHASES peers (imported from parallel-policy.js), matching the gate activePeers filter, so a terminal peer is never named. commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:05.242Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-086b:F-005",
