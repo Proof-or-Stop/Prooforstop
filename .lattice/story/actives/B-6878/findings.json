@@ -199,7 +199,7 @@
       "desc": "concept-cleanup: streaming.ts defines local OPENAI_STREAM_WHITELIST / OPENAI_STREAM_NESTED_DETAIL_WHITELIST / GEMINI_STREAM_WHITELIST as manual copies of the exported OPENAI_USAGE_WHITELIST / OPENAI_NESTED_DETAIL_WHITELIST / GEMINI_USAGE_WHITELIST from adapters/openai.ts and adapters/gemini.ts instead of importing them — the same DRY divergence risk that F-006 fixed for the anthropic whitelist in dispatch-usage.ts remains unaddressed for openai and gemini in streaming.ts; the misleading comment Enumerated directly from the adapters implies import not manual copy",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T15:42:56.721Z",
@@ -212,7 +212,10 @@
         "packages/main/src/core/usage-ledger/adapters/gemini.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-streaming",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 4 (6f719cd2): DRY'd the openai/gemini stream whitelists — import the exported adapter constants, dropped local copies.",
+      "resolvedAt": "2026-06-20T15:56:55.473Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-011",
