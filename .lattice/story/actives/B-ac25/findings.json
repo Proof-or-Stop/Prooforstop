@@ -52,7 +52,7 @@
       "desc": "DONE-required evidence is not actually bound to the current HEAD. runDoneRequiredValidation writes top-level headHash and each receipt records headHash, and the requirements say evidence binds to headHash/materialHash/storyFilesHash and stale head changes must block. But evaluateDoneRequiredEvidence only checks that evidence.headHash and currentHead exist at packages/main/src/core/done-required-validation.ts:533-536; it never compares evidence.headHash to currentHead. The smoke coverage exercises stale material/policy/command drift and receipt identity/status at packages/main/src/tasks/done-required-validation-smoke.ts:196-287, but has no stale-head case. A previously generated done-required-evidence.json can therefore still satisfy DONE after a HEAD-only change if materialHash and storyFilesHash stay unchanged, undermining the DONE-required validation gate identity boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T10:52:52.659Z",
@@ -65,7 +65,11 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
       "signatureTag": "missing|ts|required-evidence-actually",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a04e9ffa63 by comparing evidence.headHash with the current git HEAD during evaluateDoneRequiredEvidence and failing closed with stale-headHash when they differ. Added smoke coverage that preserves material/story hashes while changing the evidence headHash and asserts blocking stale-headHash. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, npm test, and verification_evidence_refresh_stale.",
+      "resolvedAt": "2026-06-20T11:01:16.369Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ac25:F-004",
