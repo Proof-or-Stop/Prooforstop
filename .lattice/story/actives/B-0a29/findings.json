@@ -464,6 +464,78 @@
       "resolvedAt": "2026-06-20T07:13:58.479Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-022",
+      "desc": "Mermaid omits the delivery-check branch shown in the text flowchart and goes from REVIEW/TEST preflight directly to target-DONE routing, breaking diagram agreement on delivery-check separation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:18:24.861Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-018",
+      "_hash": "d8109a63488de6aa90f8cf36eaa19687182e0eeb5829268432f528e5ebb7061f",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|mermaid-omits-delivery",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-023",
+      "desc": "SVG collapses REVIEW/TEST preflight and delivery gate into one box/blocked arrow instead of showing the distinct missing/blocking delivery-check branch before DONE routing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:18:25.500Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-018",
+      "_hash": "96f24ca6f0372cba931e2eb8d9f8a65b5efe598dd3353bfb05a5147fd2723223",
+      "files": [
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+      ],
+      "signatureTag": "missing|svg|collapses-review-test",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-024",
+      "desc": "Preflight can import a previous done_prepare report without requiring current HEAD/material/storyFilesHash/reviewRound/delivery-check binding, allowing stale DONE readiness to act as Step 7 input.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T07:18:26.084Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-017",
+      "_hash": "af82573e3b88dbb577c50783aa6b8a5a88dac8756da2afc545fd1c770e66c389",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|preflight-import-previous",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-025",
+      "desc": "SVG routes validation/user-proof PASS directly into final reviewer lanes and only states Only after REVIEW phase, but omits the explicit clean-commit/story_advance REVIEW handoff and stop path required by markdown and Mermaid.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T07:18:26.701Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-017",
+      "_hash": "20daa0f3836ec7edb11354d7b310993299d145970f1e47cc2cd6ab5445ef63f5",
+      "files": [
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+      ],
+      "signatureTag": "missing|svg|routes-validation-user",
+      "signatureTagSource": "auto"
     }
   ]
 }

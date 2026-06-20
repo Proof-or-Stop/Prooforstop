@@ -523,8 +523,11 @@ lattice story_pipeline_preflight --storyId=B-xxxx --target=DONE --delegateDonePr
 ```
 
 The preflight aggregator reads existing gates; it does not redefine them. For
-DONE target checks, it delegates to `done_prepare --dryRun` or imports a
-previous `done_prepare` report rather than duplicating TEST-to-DONE logic.
+DONE target checks, it delegates to `done_prepare --dryRun` or imports only the
+latest `done_prepare` report bound to the current `headHash`, `materialHash`,
+`storyFilesHash`, review round, validation ref, and delivery-check artifact. If
+any binding differs or is missing, rerun `done_prepare --dryRun` and preserve
+that result instead of treating a previous report as ready proof.
 
 Required checks:
 
@@ -756,7 +759,9 @@ flowchart TD
   I -- no --> L["5 REVIEW / TEST preflight"]
   L --> M{"Gate blocked?"}
   M -- yes --> Z
-  M -- no --> R{"Target DONE and story in TEST?"}
+  M -- no --> DQ{"Delivery check missing or blocking?"}
+  DQ -- yes --> Z
+  DQ -- no --> R{"Target DONE and story in TEST?"}
   R -- no --> S["7 Phase advance handoff for requested non-DONE phase"]
   R -- yes --> T["6 Delegate to lattice done_prepare"]
   T --> U{"done_prepare PASS?"}

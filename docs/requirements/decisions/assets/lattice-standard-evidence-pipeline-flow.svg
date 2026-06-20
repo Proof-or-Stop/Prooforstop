@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="2005" viewBox="0 0 1280 2005" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="2300" viewBox="0 0 1280 2300" role="img" aria-labelledby="title desc">
   <title id="title">Lattice Standard Evidence Pipeline Flow</title>
   <desc id="desc">Lifecycle orchestration flow showing proof-or-stop stages, refreshable evidence loops, reviewer outcomes, non-DONE readiness, and delegation to done_prepare for TEST-to-DONE readiness.</desc>
   <defs>
@@ -30,7 +30,7 @@
     </style>
   </defs>
 
-  <rect width="1280" height="2005" fill="url(#bg)"/>
+  <rect width="1280" height="2300" fill="url(#bg)"/>
   <text x="80" y="70" class="title">Lattice Standard Evidence Pipeline</text>
   <text x="80" y="102" class="subtitle">Proof-or-stop lifecycle orchestration; TEST-to-DONE readiness is delegated to B-fb36 done_prepare.</text>
 
@@ -139,72 +139,94 @@
 
   <path d="M855 1260 C1005 1260 1075 905 1075 494" class="flow-soft"/>
   <text x="882" y="1240" class="label">NO</text>
-  <path d="M640 1320 L640 1360" class="flow"/>
+  <path d="M640 1320 L640 1350" class="flow"/>
   <text x="655" y="1345" class="label">YES</text>
 
   <g filter="url(#shadow)">
-    <rect x="350" y="1360" width="580" height="96" rx="18" class="stage"/>
-    <text x="380" y="1395" class="box-title">4. Final reviewer lanes</text>
-    <text x="380" y="1420" class="box-text">Only after REVIEW phase; review current snapshot.</text>
+    <rect x="350" y="1350" width="580" height="84" rx="18" class="stage"/>
+    <text x="380" y="1383" class="box-title">Clean commit + enter REVIEW phase</text>
+    <text x="380" y="1408" class="box-text">If dirty or not REVIEW, print story_advance and stop.</text>
   </g>
 
-  <path d="M640 1456 L640 1494" class="flow"/>
+  <path d="M930 1392 C1005 1392 1075 980 1075 494" class="flow-soft"/>
+  <text x="955" y="1373" class="label">BLOCKED</text>
+
+  <path d="M640 1434 L640 1470" class="flow"/>
 
   <g filter="url(#shadow)">
-    <path d="M640 1494 L880 1562 L640 1630 L400 1562 Z" class="decision"/>
-    <text x="517" y="1557" class="box-title">Missing lane, finding, or stale pass?</text>
-    <text x="536" y="1582" class="box-text">Retry lane, return to DEV, or rerun stale lane.</text>
+    <rect x="350" y="1470" width="580" height="96" rx="18" class="stage"/>
+    <text x="380" y="1505" class="box-title">4. Final reviewer lanes</text>
+    <text x="380" y="1530" class="box-text">Only after REVIEW phase; review current snapshot.</text>
   </g>
 
-  <path d="M400 1562 C280 1562 250 1460 350 1410" class="flow-soft"/>
-  <text x="252" y="1528" class="label">MISSING / STALE</text>
-  <path d="M880 1562 C1110 1508 1110 635 930 635" class="flow-soft"/>
-  <text x="900" y="1542" class="label">FINDING -&gt; DEV</text>
-  <path d="M640 1630 L640 1670" class="flow"/>
-  <text x="655" y="1655" class="label">NO</text>
+  <path d="M640 1566 L640 1604" class="flow"/>
 
   <g filter="url(#shadow)">
-    <rect x="350" y="1670" width="580" height="92" rx="18" class="stage"/>
-    <text x="380" y="1705" class="box-title">5. REVIEW / TEST preflight + delivery gate</text>
-    <text x="380" y="1730" class="box-text">Gate or delivery fail stops with source blocker.</text>
+    <path d="M640 1604 L880 1672 L640 1740 L400 1672 Z" class="decision"/>
+    <text x="517" y="1667" class="box-title">Missing lane, finding, or stale pass?</text>
+    <text x="536" y="1692" class="box-text">Retry lane, return to DEV, or rerun stale lane.</text>
   </g>
 
-  <path d="M930 1716 C1005 1716 1075 1410 1075 494" class="flow-soft"/>
-  <text x="960" y="1696" class="label">BLOCKED</text>
-  <path d="M640 1762 L640 1800" class="flow"/>
+  <path d="M400 1672 C280 1672 250 1570 350 1520" class="flow-soft"/>
+  <text x="252" y="1638" class="label">MISSING / STALE</text>
+  <path d="M880 1672 C1110 1618 1110 635 930 635" class="flow-soft"/>
+  <text x="900" y="1652" class="label">FINDING -&gt; DEV</text>
+  <path d="M640 1740 L640 1778" class="flow"/>
+  <text x="655" y="1765" class="label">NO</text>
 
   <g filter="url(#shadow)">
-    <path d="M640 1800 L870 1862 L640 1924 L410 1862 Z" class="decision"/>
-    <text x="526" y="1857" class="box-title">Target DONE and story in TEST?</text>
-    <text x="548" y="1882" class="box-text">Non-DONE target stops ready here.</text>
+    <rect x="350" y="1778" width="580" height="84" rx="18" class="stage"/>
+    <text x="380" y="1812" class="box-title">5. REVIEW / TEST preflight</text>
+    <text x="380" y="1837" class="box-text">Gate fail stops with source blocker.</text>
+  </g>
+
+  <path d="M930 1820 C1005 1820 1075 1450 1075 494" class="flow-soft"/>
+  <text x="960" y="1800" class="label">BLOCKED</text>
+  <path d="M640 1862 L640 1900" class="flow"/>
+
+  <g filter="url(#shadow)">
+    <path d="M640 1900 L870 1962 L640 2024 L410 1962 Z" class="decision"/>
+    <text x="512" y="1957" class="box-title">Delivery check missing or blocking?</text>
+    <text x="548" y="1982" class="box-text">Run delivery reviewer and stop.</text>
+  </g>
+
+  <path d="M870 1962 C1005 1962 1075 1510 1075 494" class="flow-soft"/>
+  <text x="890" y="1942" class="label">YES</text>
+  <path d="M640 2024 L640 2062" class="flow"/>
+  <text x="655" y="2049" class="label">NO</text>
+
+  <g filter="url(#shadow)">
+    <path d="M640 2062 L870 2124 L640 2186 L410 2124 Z" class="decision"/>
+    <text x="526" y="2119" class="box-title">Target DONE and story in TEST?</text>
+    <text x="548" y="2144" class="box-text">Non-DONE target stops ready here.</text>
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="80" y="1808" width="260" height="92" rx="18" class="done"/>
-    <text x="110" y="1843" class="box-title">7. Phase advance handoff</text>
-    <text x="110" y="1868" class="box-text">Non-DONE: print allowed story_advance.</text>
+    <rect x="80" y="2070" width="260" height="92" rx="18" class="done"/>
+    <text x="110" y="2105" class="box-title">7. Phase advance handoff</text>
+    <text x="110" y="2130" class="box-text">Non-DONE: print allowed story_advance.</text>
   </g>
 
-  <path d="M410 1862 C380 1862 358 1858 340 1855" class="flow"/>
-  <text x="350" y="1838" class="label">NO</text>
+  <path d="M410 2124 C380 2124 358 2120 340 2117" class="flow"/>
+  <text x="350" y="2100" class="label">NO</text>
 
   <g filter="url(#shadow)">
-    <rect x="940" y="1786" width="270" height="108" rx="18" class="delegated"/>
-    <text x="970" y="1821" class="box-title">6. Delegate to done_prepare</text>
-    <text x="970" y="1846" class="box-text">Import PASS or preserve</text>
-    <text x="970" y="1869" class="box-text">blockedAt / next exactly.</text>
+    <rect x="940" y="2048" width="270" height="108" rx="18" class="delegated"/>
+    <text x="970" y="2083" class="box-title">6. Delegate to done_prepare</text>
+    <text x="970" y="2108" class="box-text">Import bound PASS or preserve</text>
+    <text x="970" y="2131" class="box-text">blockedAt / next exactly.</text>
   </g>
 
-  <path d="M870 1862 C900 1862 918 1845 940 1840" class="flow"/>
-  <text x="888" y="1838" class="label">YES</text>
+  <path d="M870 2124 C900 2124 918 2107 940 2102" class="flow"/>
+  <text x="888" y="2100" class="label">YES</text>
 
   <g filter="url(#shadow)">
-    <rect x="940" y="1914" width="270" height="70" rx="18" class="done"/>
-    <text x="970" y="1942" class="box-title">7. Phase advance handoff</text>
-    <text x="970" y="1966" class="box-text">done_prepare PASS; print/execute DONE</text>
+    <rect x="940" y="2180" width="270" height="70" rx="18" class="done"/>
+    <text x="970" y="2208" class="box-title">7. Phase advance handoff</text>
+    <text x="970" y="2232" class="box-text">done_prepare PASS; print/execute DONE</text>
   </g>
 
-  <path d="M1075 1894 L1075 1914" class="flow"/>
-  <path d="M1210 1840 C1244 1700 1205 760 1075 494" class="flow-soft"/>
-  <text x="1132" y="1745" class="label">BLOCKED</text>
+  <path d="M1075 2156 L1075 2180" class="flow"/>
+  <path d="M1210 2102 C1244 1850 1205 760 1075 494" class="flow-soft"/>
+  <text x="1132" y="1988" class="label">BLOCKED</text>
 </svg>
