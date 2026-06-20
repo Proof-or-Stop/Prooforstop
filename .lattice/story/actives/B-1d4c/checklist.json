@@ -140,7 +140,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ CHK-004 complete: host status/probe shows preflight summaries and tests cover manifest fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/lattice-hosts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts",
+          "packages/main/tests/lattice-cli-probe.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host status/probe returns preflightManifest keys including winSignal and verdict",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "host status output is stable when preflight artifacts are incomplete",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CLAUDE/Antigravity path includes same manifest fields and evidence tags",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
