@@ -314,7 +314,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The self-host repository config opts into a required DONE policy with packages/main build before root npm test or equivalent same-material build proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Self-host policy configuration does not alter ordinary validate.commands and does not make external projects blocking by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The self-host config item does not modify release_approve_push, .githooks/pre-push, or Authority production receipt behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
