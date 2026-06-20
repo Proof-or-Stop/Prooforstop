@@ -133,7 +133,7 @@
       "desc": "quality-cleanup: done-merge-experience-refresh-smoke.ts:187,250 — dead assertions: `check(... cache !== null ...)` is always true because the preceding `if (cache === null) { process.exit(1) }` at lines 183-186 and 246-249 already guarantees cache is non-null. These check() calls can never fail and should be removed to eliminate unreachable dead code.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T09:29:55.890Z",
@@ -144,7 +144,10 @@
         "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-merge",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e5304bf35; removed 2 dead cache!==null checks already guaranteed by the null guard; check count 23->21. Confirmed by quality/test-coverage r3.",
+      "resolvedAt": "2026-06-20T09:43:11.573Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-1a91:F-008",
