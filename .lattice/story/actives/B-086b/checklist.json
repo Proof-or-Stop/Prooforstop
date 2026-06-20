@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reconcile the frozen contract parallel-decomposition.ts to re-export the REAL impls (replace the 3 NotImplemented skeletons computeWriteSet/globsOverlap/evaluateDecompositionGate)",
+      "context": "core/parallel-decomposition.ts currently THROWS 'NotImplemented' for computeWriteSet (lines ~68-71), globsOverlap (~77-81), evaluateDecompositionGate (~88-99). Replace each with a re-export of the real impl: `export { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js'` and `export { evaluateDecompositionGate } from './parallel-decomposition-gate.js'`. The contract's TYPES (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) stay defined here and are still imported (type-only) by the impl modules — type-only imports are erased at runtime so there is no runtime cycle. No current caller imports the functions from the contract (they import directly from -overlap.js/-gate.js), so the re-export is non-breaking; optionally migrate those importers to the contract path IF it stays clean (no circular-import breakage), else leave them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire evaluateDecompositionGate into canStartDevGuard (machine.ts) as a FAIL-OPEN hard-block sub-check, enforcing the block ONLY under parallelGate.mode==='block'",
+      "context": "core/machine.ts canStartDevGuard (~lines 299-317) is the REAL PLAN->DEV decision oracle (returns boolean; the outer try/catch is fail-CLOSED for the review gate). After the existing review-clean check, add the parallel-decomposition sub-check in its OWN nested try/catch that is FAIL-OPEN (on ANY error, fall through to allow — do NOT return false; spec §4.8: a gate/config infra error must never block PLAN->DEV). Inside: resolve cfg = resolveAuditConfig(policy.profile, projectRoot).parallelGate; only when cfg.mode==='block' load peers (store.listStoryIds().filter(!==self).map(readStory)) + contracts (safeReadScopeContract per id, non-null only), call evaluateDecompositionGate(story, peers, contracts, cfg), and return false ONLY if gateResult.block!==null. mode 'advise'/'off' => never blocks here (advisory is Story 4's surface). Use policy.profile (from resolveWorkflowPolicy) for the profile, consistent with story-review.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Mirror the block reason in getGuardFailureReason (machine.ts) so the PLAN->DEV failure message explains the parallel-decomposition block",
+      "context": "core/machine.ts getGuardFailureReason targetPhase==='DEV' branch (~lines 653-719) must render a human-readable reason for the same block canStartDevGuard enforces, keeping the two in sync. Add (mirroring the same mode==='block' + peers/contracts + evaluateDecompositionGate computation) a branch that, when gateResult.block!==null, returns 'Cannot enter DEV: <actionable message per block reason>' naming the colliding peer/path where available. Wrap in try/catch that on error returns null/falls through (do not fabricate a block message on a gate error). The block-reason->message mapping should be a small shared helper so canStartDevGuard's decision and this message derive from the same predicate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke proving the hard gate end-to-end: parallel overlap BLOCKS under mode=block, broad glob blocks (strict), clean disjoint passes, mode=off/advise do NOT block, config/gate-infra failure FAILS OPEN, unreadable peer contract under block refuses the parallel assertion",
+      "context": "New packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts (follow the evidence-state-gate-smoke.ts temp-repo pattern OR a hermetic mock-store pattern). Assert canStartDevGuard returns false for a tier-1 declared-parallel overlap under mode=block; returns true for the same under mode=advise and mode=off; returns true for a clean disjoint wave; FAILS OPEN (returns true) when the gate sub-check throws (e.g. a config that makes resolveAuditConfig/peer-load throw); and getGuardFailureReason returns a message naming the block for the blocked case and null for the clean case. Register in lattice.config.json.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
