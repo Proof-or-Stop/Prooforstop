@@ -23,6 +23,7 @@ import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.js';
 import { resolveAuditConfig } from '../core/audit-config.js';
+import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
 import { existsSync, readFileSync, readdirSync } from 'fs';
@@ -49,6 +50,10 @@ function normalizeTouchpointPath(value: string): string {
  * advisory-severity issues. The gate's `block` field is INTENTIONALLY ignored here —
  * REVIEW is advisory-only; enforcement (turning a block into a blocker) is Story 5.
  * Pure: no I/O. blockerCount filters severity==='blocker', so these never block REVIEW.
+ *
+ * mode='off' is the reversible escape hatch (spec §4.7): it disables BOTH gate behaviors,
+ * so it short-circuits to [] BEFORE calling the (deliberately mode-agnostic, §4.4) gate.
+ * The mode policy lives in this caller layer, not in evaluateDecompositionGate.
  */
 export function decompositionAdvisoryIssues(
   story: StoryInfo,
@@ -56,6 +61,7 @@ export function decompositionAdvisoryIssues(
   contracts: Map<string, ScopeContractData>,
   cfg: ParallelGateConfig,
 ): Array<{ type: 'decomposition_advisory'; severity: 'advisory'; message: string }> {
+  if (cfg.mode === 'off') return [];
   const { advisories } = evaluateDecompositionGate(story, peers, contracts, cfg);
   return advisories.map((message) => ({ type: 'decomposition_advisory' as const, severity: 'advisory' as const, message }));
 }
@@ -467,10 +473,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
 
       // 2.6b. Story 4 (B-fa7c): parallel-decomposition ADVISORIES surfaced at REVIEW.
       // Advisory-only — the gate's `block` field is intentionally ignored here (enforcement
-      // is Story 5). Each advisory becomes an {severity:'advisory'} issue, so blockerCount
-      // (computed below as issues.filter(i=>i.severity==='blocker').length) is unaffected.
-      // Defensive: a missing parallelGate config or any throw skips the injection — an
-      // advisory must never crash REVIEW.
+      // is Story 5; mode='off' is short-circuited inside decompositionAdvisoryIssues). Each
+      // advisory becomes an {severity:'advisory'} issue, so blockerCount (computed below as
+      // issues.filter(i=>i.severity==='blocker').length) is unaffected.
+      // resolveAuditConfig ALWAYS populates parallelGate, so the `if (parallelGateCfg)` guard is
+      // purely defensive. The whole block is also wrapped in try/catch and reads each contract via
+      // safeReadScopeContract (corrupt contract == absent) so an advisory can never crash REVIEW.
       try {
         const parallelGateCfg = resolveAuditConfig(policy.profile, ctx.root).parallelGate;
         if (parallelGateCfg) {
@@ -479,10 +487,10 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             .map(id => store.readStory(id));
           const contracts = new Map<string, ScopeContractData>();
           for (const peer of peers) {
-            const peerContract = store.readScopeContract(peer.storyId);
+            const peerContract = safeReadScopeContract(store, peer.storyId);
             if (peerContract) contracts.set(peer.storyId, peerContract);
           }
-          const selfContract = store.readScopeContract(args.storyId);
+          const selfContract = safeReadScopeContract(store, args.storyId);
           if (selfContract) contracts.set(args.storyId, selfContract);
           issues.push(...decompositionAdvisoryIssues(story, peers, contracts, parallelGateCfg));
         }

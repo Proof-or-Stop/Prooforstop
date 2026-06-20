@@ -13,7 +13,7 @@ import { isMaterialExcludedPath } from './evidence-freshness.js';
 import { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js';
 import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
-import type { StoryInfo, StoryPhase } from './types.js';
+import type { ScopeContractData, StoryInfo, StoryPhase } from './types.js';
 
 export const PARALLEL_WAVE_SCHEMA_VERSION = 'koala.parallel_wave.v1' as const;
 export const PARALLEL_WAVE_INSPECT_SCHEMA_VERSION = 'koala.parallel_wave_inspect.v1' as const;
@@ -314,13 +314,16 @@ const ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND = 'active-story-changed-file-p
 
 export interface ScopeGlobOverlap { peerStoryId: string; pairExample: string; }
 /** Pure: which ACTIVE parallel peers' write-sets statically overlap this story's, for the
- *  advisory scope_glob_overlap wave degradation. Returns [] unless self asserts parallelSafe==='yes'.
- *  Mirrors evaluateDecompositionGate's active-peer semantics (peer non-terminal + parallelSafe==='yes'). */
+ *  advisory scope_glob_overlap wave degradation. Returns [] unless self is ACTIVE (non-terminal)
+ *  AND asserts parallelSafe==='yes'. Mirrors evaluateDecompositionGate's active-peer semantics
+ *  (non-terminal + parallelSafe==='yes') symmetrically on BOTH self and each peer — a terminal
+ *  (DONE/DISCARDED) story must not emit live overlap advisories. */
 export function computeScopeGlobOverlaps(
-  self: { storyId: string; parallelSafe?: StoryInfo['parallelSafe']; writeSet: string[] },
+  self: { storyId: string; phase: StoryPhase; parallelSafe?: StoryInfo['parallelSafe']; writeSet: string[] },
   peers: Array<{ storyId: string; phase: StoryPhase; parallelSafe?: StoryInfo['parallelSafe']; writeSet: string[] }>,
 ): ScopeGlobOverlap[] {
   if (self.parallelSafe !== 'yes') return [];
+  if (TERMINAL_PHASES.has(self.phase)) return [];
   const out: ScopeGlobOverlap[] = [];
   for (const peer of peers) {
     if (peer.storyId === self.storyId) continue;
@@ -357,6 +360,21 @@ export function scopeGlobOverlapDegradations(
     fallback: 'Coordinate the two scope contracts (disjoint allowedModify/allowedCreate) or sequence the stories so they do not DEV simultaneously.',
     authorityImpact: 'none',
   }));
+}
+
+/** Read a story's scope contract without ever throwing. store.readScopeContract RE-THROWS
+ *  (e.g. SyntaxError) on a CORRUPT scope-contract.json (vs returning null for a MISSING one);
+ *  in this advisory/reporting path a corrupt contract is treated the same as a missing one, so
+ *  one bad file cannot crash the whole parallel_wave_create command. */
+export function safeReadScopeContract(
+  store: Pick<StoryStore, 'readScopeContract'>,
+  storyId: string,
+): ScopeContractData | null {
+  try {
+    return store.readScopeContract(storyId);
+  } catch {
+    return null;
+  }
 }
 
 function uniqueStrings(values: Array<string | undefined>): string[] {
@@ -894,8 +912,10 @@ function resolveWaveSafety(
   // scope_glob_overlap (advisory-only, Story 4): a STATIC write-set collision with an active
   // parallel peer. Built via the pure exported scopeGlobOverlapDegradations() so the exact
   // degradation shape is runtime-testable (resolveWaveSafety itself is private). Advisory-only:
-  // it does NOT change the safety tier here (a hard block is Story 5).
-  degradations.push(...scopeGlobOverlapDegradations(story.storyId, scopeGlobOverlaps, explicitOverrideNote));
+  // it does NOT change the safety tier here (a hard block is Story 5), so the
+  // explicitOverrideNote ("...overridden by collection-level safety") is deliberately NOT
+  // appended — nothing is being overridden.
+  degradations.push(...scopeGlobOverlapDegradations(story.storyId, scopeGlobOverlaps));
 
   if (dependencies.active.length > 0 || dependencies.blockingForActive.length > 0 || explicit === 'no') {
     return { safety: 'no', degradations };
@@ -966,6 +986,7 @@ function storyRef(
   hostIds: string[],
   changedFilesByStory: Map<string, ParallelWaveChangedFiles>,
   actualFileOverlapsByStory: Map<string, ParallelWaveActualFileOverlap[]>,
+  contractsByStoryId: Map<string, ScopeContractData>,
 ): ParallelWaveStoryRef {
   const canonical = buildCanonicalStory(store, root, story.storyId).story;
   const dependencies = dependencySummary(story, allStories, waveIds);
@@ -980,13 +1001,16 @@ function storyRef(
   const actualFileOverlaps = actualFileOverlapsByStory.get(story.storyId) ?? [];
   const activeStoryProbeFailures = activeStoryChangedFileProbeFailures(changedFilesByStory, story.storyId);
   // Story 4: static scope-contract write-set overlap with ACTIVE parallel peers (advisory-only).
-  // Null-tolerant: peers without a readable scope contract are skipped, not crashed.
-  const selfContract = store.readScopeContract(story.storyId);
+  // Contracts are read ONCE, safely, upstream (contractsByStoryId, via safeReadScopeContract):
+  // a corrupt OR missing scope-contract.json is simply absent from the Map, so this projection
+  // performs no I/O and cannot throw — one bad contract anywhere never crashes the wave.
+  const canonicalPhaseForOverlap = canonical.lifecycle.phase ?? canonicalPhase(story.phase);
+  const selfContract = contractsByStoryId.get(story.storyId);
   const selfWriteSet = selfContract ? computeWriteSet(selfContract) : [];
   const overlapPeers = allStories
     .filter(p => p.storyId !== story.storyId)
     .flatMap(p => {
-      const peerContract = store.readScopeContract(p.storyId);
+      const peerContract = contractsByStoryId.get(p.storyId);
       if (!peerContract) return [];
       return [{
         storyId: p.storyId,
@@ -996,7 +1020,7 @@ function storyRef(
       }];
     });
   const scopeGlobOverlaps = computeScopeGlobOverlaps(
-    { storyId: story.storyId, parallelSafe: story.parallelSafe, writeSet: selfWriteSet },
+    { storyId: story.storyId, phase: canonicalPhaseForOverlap, parallelSafe: story.parallelSafe, writeSet: selfWriteSet },
     overlapPeers,
   );
   const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures, scopeGlobOverlaps);
@@ -1004,7 +1028,7 @@ function storyRef(
   return {
     storyId: story.storyId,
     title: story.title,
-    phase: canonical.lifecycle.phase ?? canonicalPhase(story.phase),
+    phase: canonicalPhaseForOverlap,
     lane: resolveStoryLane(story),
     ...(story.parallelSafe ? { declaredParallelSafe: story.parallelSafe } : {}),
     safety: resolved.safety,
@@ -1105,8 +1129,15 @@ export function createParallelWave(
   const recommendedHostIds = implementationHostIds(hosts);
   const changedFilesByStory = collectActiveStoryChangedFiles(root, allStories);
   const overlapsByStory = actualFileOverlapsByStory(changedFilesByStory);
+  // Read every scope contract ONCE, safely (corrupt OR missing => simply absent from the Map),
+  // so the per-story overlap projection in storyRef performs no I/O and cannot throw.
+  const contractsByStoryId = new Map<string, ScopeContractData>();
+  for (const s of allStories) {
+    const c = safeReadScopeContract(store, s.storyId);
+    if (c) contractsByStoryId.set(s.storyId, c);
+  }
   const storyRefs = selectedStories.map(story =>
-    storyRef(store, root, story, allStories, waveIds, recommendedHostIds, changedFilesByStory, overlapsByStory)
+    storyRef(store, root, story, allStories, waveIds, recommendedHostIds, changedFilesByStory, overlapsByStory, contractsByStoryId)
   );
   const evidence = uniqueStrings(storyRefs.flatMap(ref => ref.evidenceRefs));
   return {
