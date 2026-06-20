@@ -47,15 +47,26 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-001:happy:0",
+          "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
-          "note": "TypeScript build passes.",
-          "headHash": "0680bc97b8092789096759ec05cfbe26c11728a2",
-          "materialHash": "a78ccddb59536d22059f7cf38456419d1ad3a4bdc27009803f5979fb9907abfc",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T19:27:01.268Z"
+          "note": "Simulates preflight pack assembly and verifies deterministic preflight summary/staleSignals behavior when artifacts transition through stale supersession scenarios.",
+          "headHash": "8e46a3bbc5ac4b35c6d2a673f243e509bf131ab5",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:27:57.737Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "When preflight inputs are missing/invalid, host_dispatch returns uncertain signals and does not claim new pending work without asking revalidation.",
+          "headHash": "8e46a3bbc5ac4b35c6d2a673f243e509bf131ab5",
+          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
+          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
+          "timestamp": "2026-06-20T19:27:57.870Z"
         }
       ]
     },
