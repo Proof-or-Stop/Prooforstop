@@ -212,8 +212,8 @@
       "id": "CHK-004",
       "title": "Hermetic smoke with FAKE seams proving the B-086b reopen trace + ledger ops + 3x2 payloads; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals). Assert: REVIEW_MODE_PHASES === the canonical 5 ['lenses','verify-lens-findings','critic','verify-critic-findings','converge-or-reopen']; a fake runCritic captures its input and asserts it received the CONFIRMED (verified) lens set not raw (§2.4 order); a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[]; a round where the critic confirms -> reopen===true, converged===false; runReopenLoop with a fake confirming a critic finding on round 1 and an applyFix making round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true (loop-until-dry); maxRounds bound -> converged===false when never clean; deriveRoundLedgerOps yields finding_add ops for confirmed lens (agent===the real lane, severity a ledger kind not abstract) + critic (desc starts with '[completeness-critic] ', agent a real lane) + review_pass_set ops ONLY when converged; buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision 'pass'. Register node packages/main/dist/tasks/adversarial-review-round-smoke.js in lattice.config.json validate.commands.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T17:40:17.592Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
