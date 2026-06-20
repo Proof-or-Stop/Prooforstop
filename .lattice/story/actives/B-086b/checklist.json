@@ -29,6 +29,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/parallel-decomposition.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
       }
     },
     {
