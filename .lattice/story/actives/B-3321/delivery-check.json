@@ -1,0 +1,71 @@
+{
+  "storyId": "B-3321",
+  "checkedAt": "2026-06-20T07:30:00.934Z",
+  "reviewRound": "2026-06-20T07:09:05.747Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Document exists and frames the DONE/root npm test issue as a gate coverage gap, not as proof that current main npm test is red.",
+      "status": "verified",
+      "verifiedBy": "test -f plus rg",
+      "evidence": "File exists; rg found gate coverage gap language at line 7."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Document includes the pre-push caveat that current self-host detection is keyed to @koala-agent/core while this repository is @lattice-agent/core.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found @koala-agent/core and @lattice-agent/core caveat at lines 16 and 297."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Future implementation must update process-fact-registry.ts, process-fact-levels.ts, and scripts/verify-process-fact-contract.mjs.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found process-fact-registry, process-fact-levels, and verify-process-fact-contract at lines 164-166 and 248."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Self-host DONE proof must include same-material packages/main build evidence before root npm test, or equivalent current dist proof.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found npm --prefix packages/main run build and same-material build receipt requirements at lines 70, 156, 178, 202, 220, 228, 252, 325, and 335."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "External projects remain opt-in and configurable rather than forced into root npm test cost.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found External Project Behavior and opt-in/configurable language at lines 72-74."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Document names canonical hosts Codex CLI, Claude Code CLI, and Antigravity CLI (agy), with no Gemini CLI semantics.",
+      "status": "verified",
+      "verifiedBy": "rg plus negative rg",
+      "evidence": "rg found canonical host names at lines 354-356; negative rg for Gemini CLI, gemini-cli, and gemini returned no matches."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-3321-validate",
+      "transcript": "Recorded test-evidence.json output from lattice validate --story=B-3321 --json has status pass, allPass true, 8 configured validate.commands entries, and verificationCoverage total 9 required 9 covered 9 missingRequired 0 at 2026-06-20T07:26:12.059Z."
+    },
+    {
+      "featureId": "B-3321-review-escalation",
+      "transcript": "lattice review_escalation_status {storyId:B-3321,format:json} returned ok true, required true, assuranceLevel full-3x2, fullQuorum ok true, and valid rounds b3321-round-1, b3321-round-2, and b3321-round-3 each with passingHostIds antigravity-cli and codex-cli."
+    },
+    {
+      "featureId": "B-3321-final-diff",
+      "transcript": "git diff --name-status main...HEAD shows the documentation file docs/requirements/decisions/done-full-test-gate-execution-plan.md added plus lattice story metadata; git diff --check on the document returned clean."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the documentation promises, validation evidence, review escalation quorum, final diff shape, and no unresolved TODOs for this docs-only story."
+  },
+  "_hash": "a4b849bea38b1a70eb59789cc89340e072b2c772f14c655a9c70152e2ce324bc"
+}
