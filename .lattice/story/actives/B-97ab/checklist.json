@@ -113,7 +113,60 @@
       "context": "LensRunResult = {lensId, lane, findings: Finding[]} (findings=[] means PASS). runLenses(change, lensSet, runLens: (req: LensRunRequest) => Finding[]) builds the plan, applies the injected runLens to EACH request independently (runLens is the seam for the real review agent; harness/main-agent supplied at MVP), and returns LensRunResult[]. collectRawFindings(results) flattens to Finding[] (+ optionally findingsByLane). Independence enforced: runLens only ever receives a single lens's request, never another's result.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runLenses(change, CANONICAL_LENS_SET, fakeRunLens) where fakeRunLens plants one Finding on concept/scope and returns [] for all others -> returns 6 LensRunResult objects; the concept/scope result has findings.length===1 with the planted Finding; all other 5 results have findings===[] (PASS); WHY: covers the main path of injected-seam execution and per-lens result grouping",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "collectRawFindings(results) given the above 6 LensRunResults -> returns flat array of length 1 containing exactly the planted Finding; WHY: covers the flattening aggregator main path",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runLenses invokes the injected runLens callback exactly once per lens (6 times total for CANONICAL_LENS_SET) -> counter-instrumented fakeRunLens records 6 invocations; WHY: verifies the seam is called per-request, not skipped or double-called",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runLenses with a fakeRunLens that returns multiple Findings (e.g., 3) for one lens and [] for the rest -> that lens LensRunResult.findings.length===3, collectRawFindings returns all 3; WHY: multi-finding-per-lens is a realistic scenario (a lens can find several defects)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runLenses with a fakeRunLens that returns Findings for ALL 6 lenses -> all 6 LensRunResults have non-empty findings; collectRawFindings returns the union (total count matches sum of per-lens counts); WHY: no-PASS-lens edge case where every lens finds something",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runLenses with a fakeRunLens that returns [] for ALL lenses -> all 6 LensRunResults have findings===[] (all PASS); collectRawFindings returns []; WHY: all-clean edge case",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The fakeRunLens callback receives ONLY {lensId, lane, change} per invocation — never another lens LensRunResult or another lens request -> instrument fakeRunLens to capture its argument and assert Object.keys match exactly {lensId, lane, change}; WHY: independence is load-bearing (section 2.1); if runLenses leaks prior results into subsequent runLens calls, cross-contamination occurs",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Two lenses map to the same lane (behavior/correctness and crash-safety/edge both map to lattice-review-behavior) -> runLenses returns two DISTINCT LensRunResult objects with different lensId but the same lane; fakeRunLens plants a Finding on crash-safety/edge only -> only the crash-safety/edge result has findings, the behavior/correctness result has []; collectRawFindings does not mis-attribute or merge them; WHY: same-lane collision is the highest-risk aggregation bug — findings must stay attributed to their originating lens, not collapsed by lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "fakeRunLens throws an Error for one lens -> runLenses either propagates the error or handles it gracefully (does not silently swallow and return partial results without indication); WHY: a throwing runLens seam simulates a real agent crash; silent swallowing would hide review failures",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
