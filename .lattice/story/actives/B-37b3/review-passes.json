@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-37b3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 8 verificationIntent entries (6 must, 2 should) have concrete, non-generic verificationEvidence mapped 1:1. Smoke runs live with 4 checks exit 0. CHK-001:happy:0 — worktree reads main cache via loadExperienceHints (non-stub real git worktree). CHK-001:edge:0 — non-git tempdir fallback, no throw. CHK-001:edge:1 — write-then-read parity via worktree asserted. CHK-001:adversarial:0 — resolveFindingSignalsPath from worktree resolves to main cache path (path equality asserted). CHK-001:adversarial:1 — (should) try/catch fallback shown by edge:0 scenario; advisory. CHK-002:happy:0 — smoke exits 0, prints pass line. CHK-002:edge:0 — full npm test green. CHK-002:adversarial:0 — real git worktree + non-git dir, no stub; RED/GREEN verified per evidence note. 0 coverage gaps found.",
+      "createdAt": "2026-06-20T07:05:49.429Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-003",
+      "_hash": "9a6b7a3d17c0fe4dacf8230cd3a9c2ca85fe05c49d768065ad8602e2783ffde5"
+    }
+  ]
+}
