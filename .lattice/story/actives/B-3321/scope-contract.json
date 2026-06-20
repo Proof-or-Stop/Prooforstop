@@ -1,0 +1,26 @@
+{
+  "storyId": "B-3321",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+  ],
+  "allowedTest": [
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/done-oracle.ts",
+    ".githooks/pre-push"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T06:58:01.918Z",
+  "updatedAt": "2026-06-20T06:58:01.918Z"
+}

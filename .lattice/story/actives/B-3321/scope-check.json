@@ -1,0 +1,108 @@
+{
+  "storyId": "B-3321",
+  "checkedAt": "2026-06-20T06:52:53.736Z",
+  "features": [
+    {
+      "feature": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "covered_by": "CHK-001/CHK-002/CHK-003 files.create",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist files.create declares the single documentation output for all three items"
+    },
+    {
+      "feature": "docs/requirements/decisions/testing-infra.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; CHK-002 files.test read-only verification boundary; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "docs/requirements/decisions/story-lifecycle.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; CHK-002 files.test read-only verification boundary; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; CHK-002 files.test read-only verification boundary; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; CHK-002 files.test read-only verification boundary; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "relatedDocs/reference only; no checklist files.modify/create entry",
+      "source": "existing truth doc is cited for planning context, not edited"
+    },
+    {
+      "feature": "lattice.config.json",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraint says do not modify lattice.config.json validation commands; CHK-001 context says no runtime gate implementation; CHK-001 adversarial verificationIntent excludes lattice.config.json command edits; CHK-002 files.test is read-only verification boundary",
+      "source": "config touchpoint is explicitly read-only/excluded for documentation-only planning"
+    },
+    {
+      "feature": "package.json",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding says documentation-only; understanding says do not run full npm test for this planning task; CHK-002 files.test is read-only verification boundary",
+      "source": "package script surface is evidence/reference only, not implementation scope"
+    },
+    {
+      "feature": "packages/main/src/handlers/verifier.ts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding says documentation-only; CHK-001 context says no runtime gate implementation; CHK-002 files.test is read-only verification boundary",
+      "source": "source touchpoint is current failure-mode evidence only"
+    },
+    {
+      "feature": "packages/main/src/handlers/phase-gates.ts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding says documentation-only; CHK-001 context says no runtime gate implementation; CHK-002 files.test is read-only verification boundary",
+      "source": "source touchpoint is current failure-mode evidence only"
+    },
+    {
+      "feature": "packages/main/src/core/done-oracle.ts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding says documentation-only; CHK-001 context says no runtime gate implementation; CHK-002 files.test is read-only verification boundary",
+      "source": "source touchpoint is current DONE-consumption evidence only"
+    },
+    {
+      "feature": ".githooks/pre-push",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding says documentation-only; CHK-002 files.test is read-only verification boundary",
+      "source": "hook touchpoint is evidence/reference only, not implementation scope"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 1,
+    "excluded": 12,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a9ba53daaa70c05e9c775ea6acdd1caca302a11da8f05758ccd6f0e2dc953cb9",
+  "openQuestions": []
+}

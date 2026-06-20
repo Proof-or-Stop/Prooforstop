@@ -9,9 +9,77 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T07:08:28.381Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document cites the verified current failure mode: validate.commands subset, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document clearly states that this does not prove current main npm test is red; it proves the gate can miss failures outside validate.commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document keeps runtime implementation, lattice.config.json command edits, and running full npm test out of this planning story scope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"validate.commands|test-evidence|pre-push|22-step|8 entries|@koala-agent/core|@lattice-agent/core\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Updated document states the 8 configured validate commands, 22-step root npm test chain, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and corrected pre-push boundary: current @koala-agent/core detection does not enter build+tsc for @lattice-agent/core.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.609Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"not that current main `npm test` is red|gate coverage gap\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Problem statement retains the explicit caveat that this proves gate coverage, not current main red status.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.752Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Do not implement the runtime gate|Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`|No runtime implementation\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Scope and non-goal sections still exclude runtime implementation, config/package/hook edits, and full-test execution in this planning story.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.883Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +90,88 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T07:08:40.300Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": [
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/done-oracle.ts",
+          ".githooks/pre-push"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document specifies a target DONE/release validation profile or equivalent doneRequiredCommands design with fresh hash-bound evidence and a dedicated DONE row.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The design distinguishes Orchestrate self-host defaults from external project opt-in/configurable behavior so ordinary users are not forced into root npm test cost.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The design rejects prompt-only policy and requires schema, runner, process-fact, done-oracle, smoke, docs, and migration touchpoints for implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence|npm --prefix packages/main run build|npm test\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Updated document proposes a dedicated DONE/release-required validation profile, dedicated DONE row, and requires same-material build evidence before root npm test for self-host full-suite proof.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.444Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"External Project Behavior|opt-in|configurable|Self-host behavior|advisory\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document separates external project opt-in/advisory behavior from Orchestrate self-host required policy.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.555Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"process-fact-registry|process-fact-levels|verify-process-fact-contract|Do not simply append|schema/config|runner|done-oracle|smoke\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document now explicitly requires process fact registry, process-fact-levels, and contract verifier updates, and still rejects appending npm test to routine validate.commands as the final fix.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.679Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -34,9 +181,106 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T07:08:55.173Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document lists concrete implementation verification commands, expected artifacts, and smoke scenarios that prove subset validate cannot unlock DONE when full-suite evidence is missing or failing.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document defines in-flight story migration, emergency bypass/degraded handling, and stale evidence recovery without weakening DONE semantics.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document mandates 3 distinct rounds with 2 independent hosts over the final material hash for implementation of this high-risk gate change.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Implementation Validation Commands|Negative validation cases|Expected artifacts|configured `validate.commands` pass but DONE-required `npm test` fails|build receipt\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document lists future validation commands, expected artifacts, negative cases, stale/missing/failing cases, and build receipt checks before root npm test.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.323Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"In-Flight Story Migration|Rollback/de-escalation policy|emergency override|degraded|policy-hash-mismatch|command-set-changed\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document covers in-flight migration, rollback/de-escalation, emergency/degraded behavior, stale policy/command-set transitions, and no silent assurance upgrade.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.443Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"3 distinct review rounds|2 independent hosts|Codex CLI|Claude Code CLI|Antigravity CLI|agy|Deprecated third-host terminology\" docs/requirements/decisions/done-full-test-gate-execution-plan.md && ! rg -n \"Gemini CLI\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document mandates 3 distinct rounds with 2 independent hosts over final material hash, uses canonical host names Codex CLI, Claude Code CLI, and Antigravity CLI (agy), and avoids Gemini CLI terminology.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.575Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-20T06:58:18.148Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Document committed in f0260da5 and verified against CHK-001 intents."
+    },
+    {
+      "timestamp": "2026-06-20T06:58:29.354Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Document committed in f0260da5 and verified against CHK-002 intents."
+    },
+    {
+      "timestamp": "2026-06-20T06:58:41.689Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Document committed in f0260da5 and verified against CHK-003 intents."
     }
   ]
 }
