@@ -290,6 +290,30 @@ Matches are allowed in host adapter files, adapter tests, and docs that explain
 the migration. Matches in owner-lease core, lifecycle gates, or generic command
 orchestration should block the implementation review.
 
+## Manual Transcript Evidence
+
+Before runtime implementation begins, the implementation story must record
+manual transcript evidence for parent-PID-changing invocations. The transcript
+does not need to prove cryptographic identity; it proves local owner-lease
+continuity under invocation shapes that previously caused false foreign-owner
+sessions.
+
+Minimum transcript set:
+
+1. Run the same story-scoped mutating command through one invocation shape that
+   changes parent PID while preserving the same `LATTICE_SESSION_ID`; the command
+   must refresh or reuse the same owner lease.
+2. Run the same command through a second, different parent-PID-changing shape
+   that also preserves `LATTICE_SESSION_ID`; it must still resolve to the same
+   owner session and not self-reject as a foreign owner.
+3. Run a degraded comparison with no canonical env, no adapter signal, and no
+   generated token; changing ppid must produce a distinct derived id or an
+   explicit degraded-source warning.
+
+Each transcript record should include story id, command, host provider, cwd,
+git HEAD, material hash or document hash, observed session id/source, owner
+lease before/after summary, and pass/fail result.
+
 ## Rollout Slices
 
 ### R0. Documentation and review plan
