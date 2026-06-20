@@ -1,0 +1,43 @@
+{
+  "storyId": "B-3f13",
+  "name": "remove-koala-current-surface-tokens",
+  "title": "Remove selected Koala current-surface tokens from docs, runtime names, handoff schemas, and salts",
+  "description": "Clean the selected current-surface Koala residue requested by the user: CLAUDE serve metadata references, gitignore runtime names, Lattice prompt alias prose, handoff schemaVersion strings, and draft-check salt. Keep historical archives out of scope unless directly required by tests.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-20T21:09:55.841Z",
+  "startedAt": "2026-06-20T21:09:55.841Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T21:09:55.842Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-5409b611e2fc3bd5",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T21:11:04.898Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-5409b611e2fc3bd5",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3f13",
+    "branch": "story/B-3f13",
+    "createdAt": "2026-06-20T21:11:03.534Z"
+  }
+}

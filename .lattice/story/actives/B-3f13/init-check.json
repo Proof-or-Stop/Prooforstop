@@ -1,0 +1,29 @@
+{
+  "storyId": "B-3f13",
+  "checkedAt": "2026-06-20T21:10:59.618Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-06-20T21:10:59.618Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-20T21:10:59.618Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Current agent tool policy does not allow spawning subagents without an explicit user request for delegation. I manually verified the story background, checklist, scope boundary, execution boundary, and freeze check are limited to the five user-requested Koala current-surface cleanup targets and exclude historical archive cleanup.",
+    "actor": "Harmonygo",
+    "session": "sess-5409b611e2fc3bd5",
+    "attestedAt": "2026-06-20T21:10:59.618Z",
+    "headHash": "0b1abc26687fb65578bbd7ff543e86c50567c0d1",
+    "materialHash": "72e31461b1d2bdf38865614777f80eca364db55552dd37a925961603280235a7"
+  },
+  "_hash": "b09484f4cb81dbea38de38e33e96c33ed49358847626f357d6ee52795f1af260"
+}

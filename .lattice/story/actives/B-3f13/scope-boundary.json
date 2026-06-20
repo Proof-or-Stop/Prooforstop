@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3f13",
+  "mode": "maintenance",
+  "allowed": [
+    ".gitignore .koala-serve.json and koala-debug.log runtime ignore entries",
+    ".lattice/Lattice.md legacy alias prose",
+    "CLAUDE.md current .koala-serve.json references",
+    "directly required generated/template/test references for these renamed current surfaces",
+    "packages/main/src/core/draft-check-hash.ts draft-check integrity salt and dependent contract tests",
+    "packages/main/src/core/lattice-handoff.ts handoff schemaVersion strings and dependent handlers/tests"
+  ],
+  "excluded": [
+    "docs/koala archive migration",
+    "full repository zero-koala sweep beyond the five requested surfaces",
+    "historical changelog rewrite",
+    "old story evidence cleanup"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly requested clearing these selected Koala residues: CLAUDE.md .koala-serve.json; .gitignore .koala-serve.json and koala-debug.log; .lattice/Lattice.md legacy alias claim; lattice-handoff.ts koala.handoff_* schemaVersion; draft-check-hash.ts koala-draft-check-integrity-v1.",
+  "createdAt": "2026-06-20T21:10:22.469Z",
+  "updatedAt": "2026-06-20T21:10:22.469Z",
+  "_hash": "6723783241b1859cd907fa8a8b6be8a9430a5add87d8870792ff1a42d510df8b"
+}
