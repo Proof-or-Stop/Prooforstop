@@ -78,6 +78,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+        ]
       }
     },
     {
