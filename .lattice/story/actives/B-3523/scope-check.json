@@ -1,0 +1,185 @@
+{
+  "storyId": "B-3523",
+  "checkedAt": "2026-06-20T23:38:36.367Z",
+  "features": [
+    {
+      "feature": "Rename packages/main/package.json name field: @lattice-agent/core -> @lattice/core",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename packages/utils/package.json name field: @lattice-agent/utils -> @lattice/utils",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename packages/lab/package.json name field: @lattice-agent/lab -> @lattice/lab",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update inter-package cross-dependencies to @lattice/* in all three package.json files",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run a real npm install at repo root to regenerate node_modules/@lattice/* workspace symlinks (not manual symlinks)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update all live @lattice-agent/* source references in packages/**/src (imports, string literals, path joins, constants)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update CANONICAL_CORE_PACKAGE_NAME constant in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update rollout-check.ts mainPackageName === '@lattice-agent/core' comparison to '@lattice/core'",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update cli-init.ts dev-host import from '@lattice-agent/core/dev-host' to '@lattice/core/dev-host'",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rebuild packages (utils, main, lab) with tsc clean build after rename; verify node bin/lattice.js --version resolves under @lattice/core",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix .githooks/pre-push self-host detection: change @koala-agent/core -> @lattice/core so build+tsc gate executes (lines ~24, ~148)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Retire @koala-agent/core legacy global-fallback entry from codex-adapter-checks.ts globalCoreCandidates",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Retire @lattice-agent/core transitional fallback entry from codex-adapter-checks.ts globalCoreCandidates (clean-break decision)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Update worktree-repair-smoke.ts and flow-stability-smoke.ts legacy-fallback fixtures to reflect retired entries",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update verify-runtime-fact-contract.mjs, verify-entrypoints.mjs, verify-global-lab-entrypoint.mjs assertions to @lattice/core canonical name",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep verify-koala-residue.mjs; tighten it to also assert absence of live @lattice-agent scope (not just @koala-agent)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update .codex/hooks and .claude/hooks to @lattice scope",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update README.md, CLAUDE.md, CHANGELOG.md and decision docs that name @lattice-agent as current scope",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Acceptance gate: git grep -nE '@lattice-agent' -- . ':(exclude).lattice/**' returns zero live references (only intentional anti-residue assertions)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Acceptance gate: git grep '@koala-agent/core' shows only residue-checker pattern and anti-residue assertions; no live fallback",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run full self-host gate suite green: full build + recursive tsc --noEmit, lattice codex verify, lattice rollout check, koala-residue + runtime-fact + entrypoints verifiers",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Confirm .githooks/pre-push now executes its build+tsc path under @lattice/core after rename",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep top-level package name 'lattice' and 'lattice' bin unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not rewrite frozen .lattice/ story records or docs/koala/ audit history",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 context: NOT frozen .lattice/ history or docs/koala/ audits",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "covered": 23,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b9951f62f12b92d14c26593779a28a916593d4c9a8c23014e6fbbe752a1b08a5",
+  "openQuestions": []
+}
