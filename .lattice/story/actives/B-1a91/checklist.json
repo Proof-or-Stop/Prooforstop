@@ -7,7 +7,35 @@
       "userSees": "After any `story_advance --phase=DONE` that merges to main, the merge report shows an \"experience cache refreshed (N signals)\" line, and .lattice/learning/finding-signals.json updatedAt advances to include the just-completed story's findings — no manual `learning_scan` needed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE merge runs applyDoneMergeEffects which re-derives + persists the finding-signals cache (updatedAt advances) and appends an advisory \"experience cache refreshed (N signals)\" line.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The refresh runs on EVERY DONE merge (not gated on material-code change).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A forced derive/write failure is swallowed (try/catch) — advisory line, the DONE merge still succeeds (never blocked/thrown).",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The cache is written to the canonical MAIN checkout (via resolveLearningRoot), not a worktree-local path.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

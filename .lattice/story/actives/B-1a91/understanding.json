@@ -1,0 +1,28 @@
+{
+  "task": "Make the Experience Layer cache trustworthy + self-accumulating: (1) auto-refresh the finding-signals cache on every DONE merge (never-throw advisory effect in applyDoneMergeEffects), (2) record a coverage WATERMARK on the cache (coveredStoryCount/coveredFindingCount/coveredThrough), (3) report the coverage GAP in learning_validate (persisted cache watermark vs current store) so a silently-failed/skipped refresh is detectable + recoverable via learning_scan.",
+  "outcome": "After any story_advance --phase=DONE that merges to main, the merge report shows \"experience cache refreshed (N signals)\" and the cache updatedAt + watermark advance to include the just-completed story (no manual learning_scan). `lattice learning_validate` prints a coverage line: \"coverage: N/N findings, 0 gap\" normally, or \"coverage: 438/470 findings, 32 across J stories not yet summarized (cache behind; run learning_scan)\" when a refresh was missed; learning_scan then returns it to 0 gap. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
+  "facts": [
+    "applyDoneMergeEffects (handlers/done-effects.ts ~890-896) runs bumpVersionOnDoneMerge + runDoneMainPackageBuildAfterMerge post-merge under the main write-lock — the natural site for the third (cache-refresh) effect.",
+    "deriveFindingSignalsFromStore (core/finding-signals.ts ~282) persists the cache via learning-store writeFindingSignals when passed a projectRoot; resolveLearningRoot (B-37b3) makes it land in the canonical MAIN cache from any worktree.",
+    "The FindingSignalsCache type (core/experience-layer-types.ts ~87-94) is currently {schemaVersion, updatedAt, signals}; the watermark fields are additive (back-compat: a cache without them = unknown coverage = treat as needs-scan, never crash).",
+    "learning_validate (handlers/learning-validate.ts) already derives current signals via deriveFindingSignalsFromStore (no projectRoot, read-only) — the natural home for the gap report; core/experience-revalidation.ts is the pure leaf for the computation.",
+    "Findings carry createdAt + resolvedAt (monotonic-ish); Lattice story ids are B-xxxx hashes (NOT integers) so the watermark is a coverage count + max-timestamp, not a literal sequence number."
+  ],
+  "constraints": [
+    "Advisory-only: the cache is never read by any gate; the DONE auto-refresh MUST never throw or block/slow the merge (try/catch, advisory mergeLines line on failure).",
+    "Run the refresh on EVERY DONE merge (findings accrue per-story regardless of code change).",
+    "Watermark + gap report are ADDITIVE and back-compatible: an old cache without watermark fields must degrade to \"coverage unknown / run learning_scan\", never crash learning_validate.",
+    "Recovery is the EXISTING learning_scan full re-derive (closes any gap); do not invent a new recovery command.",
+    "Do NOT change learning-store resolveLearningRoot (B-37b3) or version-bump.ts; keep finding-signals/experience-revalidation leaf modules."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/experience-revalidation.ts",
+    "packages/main/src/handlers/learning-validate.ts",
+    "packages/main/src/tasks/(new smokes)"
+  ],
+  "timestamp": "2026-06-20T08:54:05.042Z"
+}

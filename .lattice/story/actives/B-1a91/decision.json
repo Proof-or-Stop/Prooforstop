@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Auto-accumulate at the reliable choke point (DONE merge), same mechanism as auto-bump/auto-rebuild.",
+    "Never block the merge: the cache is advisory; refresh failure is swallowed + reported, never fatal.",
+    "Make silent failure LOUD: a coverage watermark + gap report turns a missed/failed refresh into a detectable, recoverable signal.",
+    "Additive + back-compatible: watermark fields are optional; old caches degrade to needs-scan, never crash.",
+    "Reuse existing recovery: learning_scan full re-derive closes any gap; no new recovery command."
+  ],
+  "drivers": [
+    "The cache only updates on a manual out-of-band learning_scan today → it silently rots; the operator wants experience to accumulate per-story AND a bug that drops a story to be detectable + recoverable.",
+    "A never-throw auto-refresh alone has a silent-failure hole; the watermark/gap is what makes it trustworthy.",
+    "Story ids are hashes, not integers — so the \"sequence number\" must be a coverage count + timestamp watermark."
+  ],
+  "options": [
+    {
+      "name": "done-merge-hook-plus-watermark-and-validate-gap",
+      "pros": [
+        "Reliable: fires on every story DONE; catches the just-merged story.",
+        "Watermark makes the never-throw refresh trustworthy (detect+recover).",
+        "Same site/mechanism as auto-bump/auto-rebuild; advisory, never blocks."
+      ],
+      "cons": [
+        "Touches several experience-layer files (done-effects, finding-signals, types, revalidation, learning-validate) — but all one cohesive concern."
+      ]
+    },
+    {
+      "name": "cron-or-CI-schedule",
+      "pros": [
+        "No DONE-path change."
+      ],
+      "cons": [
+        "Main cron unreliable; misses the just-merged story; lag; out-of-band like today."
+      ]
+    },
+    {
+      "name": "pre-review-agent-step",
+      "pros": [
+        "No core change."
+      ],
+      "cons": [
+        "Depends on the agent remembering — the exact failure we are removing."
+      ]
+    }
+  ],
+  "chosen": "done-merge-hook-plus-watermark-and-validate-gap",
+  "rationale": "Wiring the never-throw cache re-derive into applyDoneMergeEffects (beside auto-bump/auto-rebuild) makes experience accumulate on every story DONE; pairing it with a coverage watermark + a learning_validate gap report makes the never-throw refresh trustworthy (a silent miss is detectable and recoverable via learning_scan). Cron/CI and agent-step alternatives are unreliable or reintroduce the manual dependency.",
+  "preMortem": [
+    {
+      "scenario": "The cache refresh throws/hangs and breaks or slows the DONE merge.",
+      "trigger": "Not wrapping the re-derive in try/catch, or doing heavy work in the lock.",
+      "consequence": "A story cannot DONE because of an advisory cache refresh — unacceptable.",
+      "mitigation": "Wrap the re-derive in try/catch; on any error append an advisory mergeLines line and continue; the re-derive is a cheap store-read + JSON write; a smoke asserts a forced derive failure leaves the merge succeeding."
+    },
+    {
+      "scenario": "An old cache without watermark fields crashes learning_validate or reports a bogus huge gap.",
+      "trigger": "Assuming the watermark always exists.",
+      "consequence": "learning_validate breaks or cries wolf on legacy caches.",
+      "mitigation": "Treat missing watermark as \"coverage unknown → run learning_scan\" (not a numeric gap); a smoke covers a watermark-less cache."
+    },
+    {
+      "scenario": "The gap is a false positive/negative because the watermark counts and the store counts are computed differently.",
+      "trigger": "Counting findings differently at write-time vs validate-time (e.g. filters, dedup).",
+      "consequence": "Gap shows non-zero right after a fresh scan, or hides a real miss.",
+      "mitigation": "Compute coveredFindingCount with the SAME counting used by deriveFindingSignalsFromStore; the smoke asserts gap=0 immediately after learning_scan and gap=delta after adding a finding without scan."
+    }
+  ],
+  "timestamp": "2026-06-20T08:54:05.376Z"
+}
