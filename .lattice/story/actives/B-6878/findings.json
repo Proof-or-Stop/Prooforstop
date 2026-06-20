@@ -95,6 +95,25 @@
       ],
       "signatureTag": "adversarial|ts|assemble-sanitizerawusage-billing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-006",
+      "desc": "quality-cleanup: dispatch-usage.ts:56 defines a local ANTHROPIC_USAGE_WHITELIST that duplicates the exported ANTHROPIC_USAGE_WHITELIST from adapters/anthropic.ts but does not import it — if the adapter whitelist ever gains or loses a field the dispatch extractAnthropicUsage path silently stays on the stale local copy",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T15:28:45.191Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "reviewRunId": "B-6878:RR-004",
+      "_hash": "8c618c12426bede9e9dce082a9dfd2aec8a59497ea16000cf69eb3497cc85439",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-dispatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
