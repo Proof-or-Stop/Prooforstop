@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-20T11:01:07.967Z",
       "reviewRunId": "B-ac25:RR-022",
       "_hash": "ecd7626e2499bf055d87513ab0447de27c2faa94aa09f27c8e3c28a7246d6419"
+    },
+    {
+      "id": "B-ac25:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass. Rechecked done-required-validation.ts: evaluateDoneRequiredEvidence now compares evidence.headHash to currentHead, checks materialHash/storyFilesHash freshness, rejects policyHash/commandSetHash drift, validates receipt count/order/command/args/cwd/shell/status, and enforces explicit requiresBuildProof only when configured. DONE oracle consumes this as a separate done-required-validation row. AGENTS.md changes only clarify routine TEST lattice validate vs opt-in DONE-required evidence/no-full-suite-assurance. Verified locally: node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs. No blocker found.",
+      "createdAt": "2026-06-20T11:05:17.485Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-021",
+      "_hash": "aeea75c33623e4d8469adc59bf7026a50c57dd495998beebac37714461829b5f"
     }
   ]
 }
