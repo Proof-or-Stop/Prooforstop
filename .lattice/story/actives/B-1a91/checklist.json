@@ -49,9 +49,9 @@
       "title": "Smoke: DONE merge auto-refreshes the cache and never breaks the merge",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that drives a DONE merge for a story carrying a resolved finding and asserts the finding-signals cache is (re)written/updated as part of applyDoneMergeEffects (updatedAt advances and/or the new story's signal appears), without a separate learning_scan. Include a control proving a derive failure is swallowed (advisory line, merge still succeeds). Prefer driving the real applyDoneMergeEffects / the real derive+write path. Bump the printed check count.",
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T09:07:14.529Z",
       "verificationIntent": {
         "happy": [
           {
