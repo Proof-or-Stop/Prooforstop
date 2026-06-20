@@ -60,7 +60,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_required_validate executes the configured required commands and writes done-required-evidence.json with PASS receipts, output digests, and bounded output tails.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A failing required command writes a FAIL artifact with command identity, exit code, digest/tail, and does not look like PASS evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Root npm test cannot satisfy self-host full assurance unless a preceding same-material packages/main build receipt or equivalent build proof exists.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
