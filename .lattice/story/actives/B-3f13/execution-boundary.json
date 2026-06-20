@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3f13",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm run test:koala-residue",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    ".claude/agents/lattice-evaluator-cli.md",
+    ".gitignore",
+    ".lattice-codex/agents/lattice-evaluator-cli.md",
+    ".lattice-codex/README.md",
+    ".lattice/Lattice.md",
+    "CLAUDE.md",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/draft-check-hash.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/tasks/*",
+    "packages/main/src/tasks/host-overflow-smoke.ts",
+    "packages/main/src/verifier/dev-host.ts",
+    "packages/main/src/verifier/serve.ts",
+    "README.md",
+    "scripts/*"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bounded cleanup for selected Koala current-surface residues only; no historical archive rewrite or remote push.",
+  "createdAt": "2026-06-20T21:10:37.438Z",
+  "updatedAt": "2026-06-20T21:10:37.438Z",
+  "_hash": "da6a057b46fdd853d6b7625dbbec00539f2d871332995339d71eb6d0ccf62e39"
+}
