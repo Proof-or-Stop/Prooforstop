@@ -307,14 +307,14 @@
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/core/runtime-artifact-registry.ts",
-          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:owner-session-guardrail && git diff --check",
           "result": "pass",
-          "note": "Smoke verifies .lattice/runtime/owner-session-tokens/ is registered before the generic runtime-cache matcher, volatile, material-hash excluded, repairable, and gitignored.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "note": "Commit 17a0769dd extends generated-token smoke coverage to prove token persistence is scoped by adapter boundary, host provider, and project root using resolveSessionIdentity/readOrCreate token path; build, smoke, guardrail, and diff check passed.",
+          "headHash": "17a0769dd04b52af597711899002455d43307ad7",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:23:35.677Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
