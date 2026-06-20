@@ -90,9 +90,9 @@
         "CLAUDE.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T18:32:29.535Z",
-      "endTime": null,
+      "endTime": "2026-06-20T18:33:22.150Z",
       "userSees": "The execution plan contains a section named \"Truth-First Host Handoff Contract\" listing the source priority order and the rule that hosts cannot tell the user work is missing from a plan-only document without checking live Lattice facts.",
       "files": {
         "modify": [],
@@ -284,6 +284,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Failure-mode documentation complete"
+    },
+    {
+      "timestamp": "2026-06-20T18:33:22.150Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Host handoff contract defined and documented"
     }
   ]
 }
