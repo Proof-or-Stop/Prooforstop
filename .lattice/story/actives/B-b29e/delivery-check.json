@@ -1,0 +1,61 @@
+{
+  "storyId": "B-b29e",
+  "checkedAt": "2026-06-20T10:43:59.148Z",
+  "reviewRound": "2026-06-20T10:14:09.997Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/lifecycle-registry.ts#LIFECYCLE_TRANSITIONS",
+      "promise": "gate id parallel-decomposition added to the gates arrays of the 4 runtime DEV-entry doors (INIT_CHECK->DEV quick-path, PLAN->DEV, REVIEW->DEV rollback, TEST->DEV rollback), NOT the 2 legacy TEST_CASE entries",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Diff shows 4 hunks adding parallel-decomposition: line 159 (INIT_CHECK->DEV quick-path), line 169 (PLAN->DEV), line 209 (REVIEW->DEV rollback), line 229 (TEST->DEV rollback). Legacy TEST_CASE->DEV (line 251, empty gates []) and TEST_CASE_REVIEW->DEV (line 273, empty gates []) have no parallel-decomposition added. Confirmed by grep: only 4 occurrences in LIFECYCLE_TRANSITIONS, all on runtime doors."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts",
+      "promise": "the parallel DEV-entry gate named in gateConsumer of the 3 scope-contract PRODUCER facts (scope_contract_set, scope_contract_acknowledge, scope_contract_init_from_plan); scope_contract_check (pure read) correctly EXCLUDED",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Diff shows gateConsumer updated for scope_contract_set, scope_contract_acknowledge, scope_contract_init_from_plan each adding storyMachine parallel-decomposition DEV-entry gate (canStartDevGuard/canSkipPlanGuard/canReenterDevGuard). scope_contract_check entry NOT changed — gateConsumer still reads only story_advance REVIEW/TEST/DONE scope gate, confirming intentional exclusion."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs",
+      "promise": "a NON-VACUOUS assertion (the 3 producers must name the gate) PLUS an EXCLUSIVITY assertion (only those 3 may; a non-producer re-adding it fails)",
+      "status": "verified",
+      "verifiedBy": "diff/read + test run",
+      "evidence": "Diff adds scopeContractParallelDevEntryConsumerCommands (3 producers), scopeContractParallelDevEntryConsumerPattern, presence loop asserting each producer gateConsumer matches the pattern, and exclusivity scan asserting the full matched set equals exactly the 3 producers. npm run test:process-fact-contract passes: Process fact contract verified."
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#8.1",
+      "promise": "section 8.1 added listing the 3 producers + the 4 doors + the exclusion of scope_contract_check",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Diff adds section 8.1 Gate registration in the descriptive metadata registries naming: lifecycle-registry.ts 4 runtime DEV-entry transitions; process-fact-levels.ts 3 producer facts; scope_contract_check explicitly noted as intentionally not listed (pure read, no writeScopeContract). Note that this is descriptive-metadata sync only."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:process-fact-contract passes (Process fact contract verified). Drift check reads LIFECYCLE_TRANSITIONS; removing parallel-decomposition from any of the 4 runtime doors would fail the exclusivity assertion. node packages/main/dist/cli.js validate passes with all 50 smoke assertions green. No runtime code (machine.ts, phase-gates.ts, story-advance.ts) changed — confirmed by empty diff for those files."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:process-fact-contract passes. Non-vacuous loop in verify-process-fact-contract.mjs asserts scope_contract_set, scope_contract_acknowledge, scope_contract_init_from_plan each have gateConsumer matching /parallel-decomposition DEV-entry gate/. Exclusivity scan additionally asserts scope_contract_check is not in the matched set."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:process-fact-contract passes. Two new assertions verified: (1) presence loop — non-vacuous, removing a producer registration fails; (2) exclusivity scan — prevents a non-producer from being incorrectly tagged. Both assertions active in live script."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "docs/parallel-decomposition-spec.md section 8.1 verified by direct diff read: all required content present (4 doors, 3 producers, scope_contract_check exclusion, descriptive-metadata-only note). Docs-only item; no additional machine test required."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Metadata-only chore story: no new runtime feature, no runtime code changed. All 4 deliverables verified: lifecycle-registry.ts adds parallel-decomposition to exactly the 4 runtime DEV doors (not legacy TEST_CASE entries); process-fact-levels.ts tags the 3 producers with gateConsumer and correctly excludes the pure-read scope_contract_check; verify-process-fact-contract.mjs carries non-vacuous presence assertion plus exclusivity assertion guarding against future drift; docs/parallel-decomposition-spec.md section 8.1 documents the registration accurately. npm run test:process-fact-contract passes and lattice validate passes (50 assertions green). Re-signed over post-merge state; verdict unchanged: PASS 4/4."
+  },
+  "_hash": "8dcc3e27211533de39a9f8fa7bad06087ab19d53bc746a3d11810449a23e52fd"
+}

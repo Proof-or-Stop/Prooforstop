@@ -97,6 +97,84 @@ export interface ValidRateReport {
   staleSignals: SignalValidity[];
 }
 
+/**
+ * B-1a91 CHK-003: coverage-gap report comparing a PERSISTED finding-signals cache's
+ * coverage watermark against the CURRENT live counts (re-derived from the store).
+ *
+ * `gapFindings`/`gapStories` are how far BEHIND the persisted cache is — current
+ * MINUS covered, floored at 0 (a cache that somehow covers more than the live store
+ * never reports a negative gap). When the cache carries no watermark (a legacy cache
+ * written before B-1a91, or a malformed/null cache), coverage is UNKNOWN (`known:
+ * false`) and the covered counts default to 0 so nothing reads NaN.
+ */
+export interface CoverageGapReport {
+  /** Findings the persisted cache summarized (its watermark); 0 when unknown. */
+  coveredFindingCount: number;
+  /** Findings the live store currently holds. */
+  currentFindingCount: number;
+  /** max(current - covered, 0): findings not yet folded into the cache. */
+  gapFindings: number;
+  /** Distinct stories the persisted cache summarized (its watermark); 0 when unknown. */
+  coveredStoryCount: number;
+  /** Distinct stories the live store currently holds findings for. */
+  currentStoryCount: number;
+  /** max(current - covered, 0): stories not yet folded into the cache. */
+  gapStories: number;
+  /** Persisted-cache coverage timestamp watermark, if recorded; else undefined. */
+  coveredThrough?: string;
+  /**
+   * Whether the persisted cache carried a usable watermark. `false` => the cache
+   * predates the watermark (or is absent/malformed); the gap is unknowable until a
+   * full re-derive (learning_scan) re-stamps the watermark.
+   */
+  known: boolean;
+}
+
+/** Live current counts to compare a persisted watermark against (re-derived from the store). */
+export interface CoverageCurrentCounts {
+  currentFindingCount: number;
+  currentStoryCount: number;
+}
+
+/** Coerce a watermark field to a non-negative integer; non-numbers => undefined. */
+function nonNegInt(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+  return value < 0 ? 0 : Math.floor(value);
+}
+
+/**
+ * Compute the coverage gap between a persisted cache's watermark and the live store.
+ * Defensive: a null/undefined/watermark-less cache => `known:false` with 0 covered
+ * (gap then equals the full current counts). NEVER returns NaN.
+ */
+export function computeCoverageGap(
+  cache: FindingSignalsCache | null | undefined,
+  current: CoverageCurrentCounts,
+): CoverageGapReport {
+  const currentFindingCount = nonNegInt(current?.currentFindingCount) ?? 0;
+  const currentStoryCount = nonNegInt(current?.currentStoryCount) ?? 0;
+
+  const coveredFindingsRaw = nonNegInt(cache?.coveredFindingCount);
+  const coveredStoriesRaw = nonNegInt(cache?.coveredStoryCount);
+  // A watermark is "known" only when BOTH count fields are present + numeric.
+  const known = coveredFindingsRaw !== undefined && coveredStoriesRaw !== undefined;
+
+  const coveredFindingCount = coveredFindingsRaw ?? 0;
+  const coveredStoryCount = coveredStoriesRaw ?? 0;
+
+  const report: CoverageGapReport = {
+    coveredFindingCount,
+    currentFindingCount,
+    gapFindings: Math.max(currentFindingCount - coveredFindingCount, 0),
+    coveredStoryCount,
+    currentStoryCount,
+    gapStories: Math.max(currentStoryCount - coveredStoryCount, 0),
+    known,
+  };
+  if (known && typeof cache?.coveredThrough === 'string') report.coveredThrough = cache.coveredThrough;
+  return report;
+}
+
 /** Roll a `SignalValidity[]` up into a `ValidRateReport` (deterministic; never NaN). */
 export function computeValidRate(validity: SignalValidity[]): ValidRateReport {
   const list = Array.isArray(validity) ? validity : [];

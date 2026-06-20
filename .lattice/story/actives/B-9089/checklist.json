@@ -1,0 +1,94 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record two-host review evidence for the owner-session execution plan",
+      "context": "Before runtime implementation begins, bind fresh two-host review evidence to docs/requirements/decisions/owner-session-contract-execution-plan.md. Reviews must explicitly check the local/non-cryptographic boundary, generated-token fallback, ppid degradation, and migration away from core host-specific exceptions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The story records two independent host review verdicts bound to the owner-session execution plan document hash/HEAD before any runtime code is changed, and both verdicts explicitly pass the local-boundary, generated-token, ppid-degraded, and no-core-host-exception checks."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Introduce host-neutral owner-session resolver facade",
+      "context": "Create a shared resolver module/facade that returns canonical session id, source, provider diagnostics, and degraded status. Existing owner lease behavior should pass through this facade without weakening current lease semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Owner-lease diagnostics and session_brief show a canonical Lattice session source for stable env/adapter paths, while ppid-only fallback is visibly degraded instead of silently posing as a durable host session."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Move host-specific session signals to adapter boundary",
+      "context": "Claude Code, Codex, Antigravity/agy, and fake future-host handling belong in adapter/facade code, not generic owner-lease, lifecycle, gate, or cli-engine paths. Core should consume the canonical resolver result only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Codex, Claude Code, Antigravity/agy, and a fake future-host path all resolve through the same Lattice owner-session contract; diagnostics may show provider labels, but generic owner-lease conflicts are driven only by the canonical session id."
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add generated-token fallback and runtime artifact hygiene",
+      "context": "Hosts with a session boundary but no native stable env need stable generated-token fallback using approved runtime/session storage. Any persisted token path must be registered as a runtime artifact and ignored/material-safe.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A host without a native stable session can reuse a generated local token across repeated Lattice invocations without dirtying git status, and doctor/session diagnostics label that path as generated-token local coordination."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Replace lifecycle and DEV-claim ad hoc session reads",
+      "context": "Lifecycle event collection and DEV-claim warnings should use the same canonical owner-session resolver as story owner leases, so one local session is recognized across repeated invocations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Repeated lifecycle commands from the same canonical owner session no longer emit false DEV-claim or foreign-owner warnings merely because the shell parent PID changed."
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add guardrail tests and multi-host verification matrix coverage",
+      "context": "Update story-owner lease smoke coverage and add a guardrail check so host-native session env names are permitted only in adapter files/tests/docs. Verify canonical env, blank env, adapter bridge, generated-token, ppid degraded fallback, owner gate, lifecycle event, and material hygiene cases.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The verification output includes passing smoke/guardrail checks for canonical env, host adapter bridge, generated token fallback, ppid degradation, lifecycle events, and material hygiene."
+    },
+    {
+      "id": "CHK-007",
+      "title": "Record parent-PID-changing owner-session transcript evidence before runtime code",
+      "context": "Before changing runtime code, record manual transcript evidence for at least two parent-PID-changing invocation shapes that preserve LATTICE_SESSION_ID and one degraded comparison with no canonical/env adapter signal. Each transcript must include story id, command, host provider, cwd, git HEAD, material hash or document hash, observed session id/source, owner lease before/after summary, and pass/fail result.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+      ],
+      "userSees": "Implementation does not begin until the story contains transcript evidence showing repeated commands with the same LATTICE_SESSION_ID reuse the same owner lease instead of self-rejecting as a foreign session.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

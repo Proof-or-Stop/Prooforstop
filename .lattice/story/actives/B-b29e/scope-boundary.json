@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b29e",
+  "mode": "maintenance",
+  "allowed": [
+    "core/lifecycle-registry.ts: register the parallel-decomposition gate on the 4 DEV-entry transitions",
+    "core/process-fact-levels.ts: register the parallel DEV-entry gate as a scope-contract-fact consumer",
+    "docs/parallel-decomposition-spec.md: note the registration in section 8",
+    "scripts/verify-process-fact-contract.mjs: assert the new guard surface"
+  ],
+  "excluded": [
+    "any change to machine.ts runtime guards or the gate enforcement behavior (B-086b, DONE/frozen)",
+    "changing the gate fail-open / mode semantics — this is metadata-only sync",
+    "the gate impl files parallel-decomposition*.ts / audit-config.ts (frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Follow-up to B-086b (F-009/F-010, operator-deferred): descriptive metadata + drift-check sync only.",
+  "createdAt": "2026-06-20T09:54:02.650Z",
+  "updatedAt": "2026-06-20T09:54:02.650Z",
+  "_hash": "4d37f9640b0d14252d71a686f06aaf15f2ebc3fbef1e1b41856a68a48b10100a"
+}

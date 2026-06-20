@@ -91,6 +91,26 @@ export interface FindingSignalsCache {
   updatedAt: string;
   /** Aggregated signals, one per `localSignature` (stable, sorted). */
   signals: FindingSignal[];
+  /**
+   * B-1a91 CHK-003: coverage watermark — how much of the finding corpus this cache
+   * actually summarizes, so a silently-missed/failed DONE auto-refresh (CHK-001 is
+   * never-throw) is DETECTABLE by comparing this watermark against the live store.
+   * ALL THREE fields are ADDITIVE + OPTIONAL: a legacy cache written before this
+   * field set carries none of them, and learning_validate degrades to a "coverage
+   * unknown" report rather than crashing or producing a false gap.
+   *
+   * Counted with the SAME enumeration deriveFindingSignals(FromStore) uses to build
+   * the signals (every considered finding / every distinct story id / the max
+   * createdAt|resolvedAt folded in), so a fresh scan yields a 0 gap (no false
+   * positive). Story ids are B-xxxx hashes, NOT a monotone sequence, so the
+   * watermark is a count + a max-timestamp, never a literal story sequence number.
+   */
+  /** Number of findings considered when this cache was derived. */
+  coveredFindingCount?: number;
+  /** Number of distinct story ids that contributed findings to this cache. */
+  coveredStoryCount?: number;
+  /** Max finding `createdAt`/`resolvedAt` (ISO) folded into this cache; absent when none had a timestamp. */
+  coveredThrough?: string;
 }
 
 // ── B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle ──────
@@ -258,4 +278,6 @@ export interface SignalSourceFinding {
   /** Phase 1b forward-compat: lifecycle phase the finding was raised in. */
   lifecyclePhase?: string;
   createdAt?: string;
+  /** B-1a91 CHK-003: resolution timestamp; folded into the coverage watermark (`coveredThrough`). */
+  resolvedAt?: string;
 }

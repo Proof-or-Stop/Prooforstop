@@ -1,0 +1,26 @@
+{
+  "storyId": "B-b29e",
+  "checkedAt": "2026-06-20T09:56:04.874Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T09:55:44.936Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Trigger Event paragraph references \"two findings (F-009, F-010)\" without explaining their content. A new reader with no prior context cannot determine what these finding IDs describe; a one-sentence gloss (e.g. F-009: lifecycle-registry omission; F-010: process-fact-levels omission) would make the document standalone-readable."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T09:56:04.874Z",
+      "issues": []
+    }
+  ],
+  "_hash": "e0b37289313447a2ecbd1f045ab6f224696933b03af4b44ce822a250e027918b"
+}

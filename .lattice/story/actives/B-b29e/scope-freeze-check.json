@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-b29e",
+  "checkedAt": "2026-06-20T09:54:03.154Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "4d37f9640b0d14252d71a686f06aaf15f2ebc3fbef1e1b41856a68a48b10100a",
+  "executionBoundaryHash": "5809103fee134a579b4d0d9fd14fbd7a71b0b9467e7a0740614e6565b49ae8b3",
+  "freshnessHash": "5941b26abe25dca80e235e47bb8b011368cbac17de0f35382a5c844e44cbbca0",
+  "effectiveExcludedKeywords": [
+    "any change to machine.ts runtime guards or the gate enforcement behavior (B-086b, DONE/frozen)",
+    "changing the gate fail-open / mode semantics — this is metadata-only sync",
+    "the gate impl files parallel-decomposition*.ts / audit-config.ts (frozen)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any change to machine.ts runtime guards or the gate enforcement behavior (B-086b, DONE/frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "any change to machine.ts runtime guards or the gate enforcement behavior (B-086b, DONE/frozen)",
+      "excluded": true
+    },
+    {
+      "keyword": "changing the gate fail-open / mode semantics — this is metadata-only sync",
+      "source": "scopeBoundary.excluded",
+      "text": "changing the gate fail-open / mode semantics — this is metadata-only sync",
+      "excluded": true
+    },
+    {
+      "keyword": "the gate impl files parallel-decomposition*.ts / audit-config.ts (frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "the gate impl files parallel-decomposition*.ts / audit-config.ts (frozen)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a2fc073f001e8f4eb4f34fee88e6660d39ff71e36b0461ce386e36da3eab78d7"
+}
