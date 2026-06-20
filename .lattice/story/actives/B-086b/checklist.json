@@ -44,8 +44,8 @@
       "id": "CHK-002",
       "title": "Wire evaluateDecompositionGate into canStartDevGuard (machine.ts) as a FAIL-OPEN hard-block sub-check, enforcing the block ONLY under parallelGate.mode==='block'",
       "context": "core/machine.ts canStartDevGuard (~lines 299-317) is the REAL PLAN->DEV decision oracle (returns boolean; the outer try/catch is fail-CLOSED for the review gate). After the existing review-clean check, add the parallel-decomposition sub-check in its OWN nested try/catch that is FAIL-OPEN (on ANY error, fall through to allow — do NOT return false; spec §4.8: a gate/config infra error must never block PLAN->DEV). Inside: resolve cfg = resolveAuditConfig(policy.profile, projectRoot).parallelGate; only when cfg.mode==='block' load peers (store.listStoryIds().filter(!==self).map(readStory)) + contracts (safeReadScopeContract per id, non-null only), call evaluateDecompositionGate(story, peers, contracts, cfg), and return false ONLY if gateResult.block!==null. mode 'advise'/'off' => never blocks here (advisory is Story 4's surface). Use policy.profile (from resolveWorkflowPolicy) for the profile, consistent with story-review.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T08:25:34.182Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
