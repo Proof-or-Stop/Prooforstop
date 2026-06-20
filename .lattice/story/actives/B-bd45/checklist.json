@@ -51,10 +51,10 @@
           "command": "node packages/main/dist/cli.js lifecycle_check --storyId=B-bd45 --target=DONE --json",
           "result": "pass",
           "note": "CLI returns StoryReadinessReport JSON with storyId/target/phase/mode/readiness/next/claims.localReady for a real story.",
-          "headHash": "8b3fda5b08f099cb3f1b071509739ece3ca2e75e",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:03.882Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Smoke verifies JSON/text report shape and story metadata snapshot remains unchanged after lifecycle_check.",
-          "headHash": "c82a72400281088e0df1ce39fc7e0a2195fba912",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:04.440Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Smoke uses a throwing store to prove runCommands:true/writeEvidence:true fail before reading store facts or writing metadata.",
-          "headHash": "dce9d4fbe45451d8cbea1901a16322a946b51678",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:05.001Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Smoke asserts localReady equals !readiness.some(row.blocking === true).",
-          "headHash": "7ef76fc23f28004b42a8483afad6fb5daea347bc",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:16.312Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,10 +141,10 @@
           "command": "node packages/main/dist/cli.js lifecycle_check --storyId=B-bd45 --target=DONE",
           "result": "pass",
           "note": "Text output shows WARN advisory rows while localReady remains controlled only by blocking rows.",
-          "headHash": "8ac68a9ce600f25b112843641f41af1035c449f6",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:16.877Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,10 +153,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Smoke asserts authorityDone/fullAuthorityDone/productionDone are false in V1 without verified Authority receipt facts.",
-          "headHash": "4ff9b08fab62e2c8b0ff96e893241bd7ec4d671b",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:17.439Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         }
       ]
     },
@@ -212,10 +212,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Focused smoke verifies JSON report shape and text output for lifecycle_check.",
-          "headHash": "8abcd47d58cb2bcc65c76691f31852375ac74889",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:27.551Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -224,10 +224,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Focused smoke verifies missing delivery, missing summary, and missing DONE-required validation are distinct blocker codes with next actions.",
-          "headHash": "2c332c7189f71c25592d7421cc782c3335b498fb",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:28.111Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,10 +236,10 @@
           "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Focused smoke snapshots story metadata and git status before/after lifecycle_check and fails on mutation.",
-          "headHash": "420fc1983a075007a932fcf2a7ce49f14def49d6",
-          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
-          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
-          "timestamp": "2026-06-20T21:02:28.666Z"
+          "headHash": "1f5f367e683b7753899f2ba15ebad01e5b16e2c1",
+          "materialHash": "ad4866d3becff332e31c179fec64b63003b72e58bb9b83b9e12a34c2e516f2f0",
+          "storyFilesHash": "e50610e315aa4cffb97bf71a2ee9120efb20d3d70b74a1a9a10c4e4f8f1305c0",
+          "timestamp": "2026-06-20T21:13:46.167Z"
         }
       ]
     }
