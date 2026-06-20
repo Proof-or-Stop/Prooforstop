@@ -54,6 +54,17 @@
             "priority": "should"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ]
       }
     },
     {
