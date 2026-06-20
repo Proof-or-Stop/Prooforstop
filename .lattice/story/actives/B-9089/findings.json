@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-9089:F-001",
+      "desc": "CHK-004:edge verificationIntent is not covered by the focused tests. The intent requires proving generated-token persistence is scoped by project root, host provider, and adapter session boundary so different sessions do not collide. The smoke test only asserts same-provider/same-boundary reuse across ppid changes (story-owner-lease-smoke.ts:169-178) and runtime artifact registration (story-owner-lease-smoke.ts:404-420). It never asserts different project roots, different providers, or different adapter boundaries produce distinct token files/session ids, even though owner-session-token-store.ts keys token files by projectRoot/provider/boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T11:21:04.272Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-003",
+      "_hash": "a3f2b26efa6be37af070fa92ddb6cd33e0073b0249795335121d8f27a2c04b66",
+      "files": [
+        "packages/main/src/tasks/story-owner-lease-smoke.ts",
+        "packages/main/src/core/owner-session-token-store.ts"
+      ],
+      "signatureTag": "missing|ts|edge-verificationintent-covered",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
