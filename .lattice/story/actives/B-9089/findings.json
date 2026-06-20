@@ -5,7 +5,7 @@
       "desc": "CHK-004:edge verificationIntent is not covered by the focused tests. The intent requires proving generated-token persistence is scoped by project root, host provider, and adapter session boundary so different sessions do not collide. The smoke test only asserts same-provider/same-boundary reuse across ppid changes (story-owner-lease-smoke.ts:169-178) and runtime artifact registration (story-owner-lease-smoke.ts:404-420). It never asserts different project roots, different providers, or different adapter boundaries produce distinct token files/session ids, even though owner-session-token-store.ts keys token files by projectRoot/provider/boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T11:21:04.272Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/owner-session-token-store.ts"
       ],
       "signatureTag": "missing|ts|edge-verificationintent-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 17a0769dd by adding generated-token distinctness assertions for different adapter boundaries in the same root/provider, different providers with the same root/boundary, and different project roots with the same provider/boundary. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:story-owner-lease-smoke, npm --prefix packages/main run test:owner-session-guardrail, and git diff --check.",
+      "resolvedAt": "2026-06-20T11:24:03.044Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
