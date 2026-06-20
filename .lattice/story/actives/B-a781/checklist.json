@@ -10,7 +10,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the execution plan state: LATTICE_SESSION_ID is the canonical owner lease identity; host-specific session variables are bridged before core owner lease logic; ppid is last-resort degraded fallback only.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
