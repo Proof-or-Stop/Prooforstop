@@ -266,6 +266,10 @@ function commandCwd(projectRoot: string, cwd?: string): string {
   return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
 }
 
+function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
+  return commandCwd(projectRoot, cwd).replace(/\\/g, '/');
+}
+
 function outputTail(output: string): string {
   return output.length <= OUTPUT_TAIL_CHARS ? output : output.slice(output.length - OUTPUT_TAIL_CHARS);
 }
@@ -275,16 +279,18 @@ function commandStatus(code: number, timedOut?: boolean): DoneRequiredEvidenceSt
 }
 
 function receiptLine(receipt: DoneRequiredCommandReceipt): string {
-  return `${receipt.status} ${receipt.label}: ${receipt.command} ${receipt.args.join(' ')}`.trim();
+  const args = Array.isArray(receipt.args) ? receipt.args : [];
+  return `${receipt.status} ${receipt.label}: ${receipt.command} ${args.join(' ')}`.trim();
 }
 
 function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
   if (receipt.status !== 'PASS') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
-  const cwd = receipt.cwd.replace(/\\/g, '/');
-  const packagesMain = resolve(projectRoot, 'packages/main').replace(/\\/g, '/');
-  const args = receipt.args;
-  if (receipt.command === 'npm' && cwd === projectRoot.replace(/\\/g, '/')) {
+  const cwd = normalizedCommandCwd(projectRoot, receipt.cwd);
+  const rootCwd = normalizedCommandCwd(projectRoot);
+  const packagesMain = normalizedCommandCwd(projectRoot, 'packages/main');
+  const args = Array.isArray(receipt.args) ? receipt.args : [];
+  if (receipt.command === 'npm' && cwd === rootCwd) {
     const prefixIndex = args.indexOf('--prefix');
     if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
       return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
@@ -303,17 +309,74 @@ function requiresPackagesMainBuildProof(command?: DoneRequiredCommand): boolean 
   return command?.requiresBuildProof === PACKAGES_MAIN_BUILD_PROOF;
 }
 
+function sameStringArray(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+export function validateRequiredReceiptCoverage(
+  evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
+  projectRoot: string,
+  commands: DoneRequiredCommand[],
+): string[] {
+  const reasons: string[] = [];
+  const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  if (!Array.isArray(evidence.receipts)) {
+    reasons.push('receipt-shape-mismatch: receipts must be an array');
+  }
+  if (receipts.length !== commands.length) {
+    reasons.push(`receipt-count-mismatch: expected ${commands.length}, got ${receipts.length}`);
+  }
+
+  for (let i = 0; i < commands.length; i++) {
+    const command = commands[i];
+    const receipt = receipts[i];
+    if (!receipt) {
+      reasons.push(`missing-receipt[${i}]: ${formatDoneRequiredCommand(command)}`);
+      continue;
+    }
+
+    if (receipt.command !== command.command) {
+      reasons.push(`receipt-command-mismatch[${i}]: expected ${command.command}, got ${receipt.command}`);
+    }
+    if (!Array.isArray(receipt.args) || !sameStringArray(receipt.args, command.args)) {
+      const actualArgs = Array.isArray(receipt.args) ? receipt.args : [];
+      reasons.push(`receipt-args-mismatch[${i}]: expected ${JSON.stringify(command.args)}, got ${JSON.stringify(actualArgs)}`);
+    }
+
+    const expectedCwd = normalizedCommandCwd(projectRoot, command.cwd);
+    const actualCwd = typeof receipt.cwd === 'string'
+      ? normalizedCommandCwd(projectRoot, receipt.cwd)
+      : '';
+    if (actualCwd !== expectedCwd) {
+      reasons.push(`receipt-cwd-mismatch[${i}]: expected ${expectedCwd}, got ${actualCwd || '<missing>'}`);
+    }
+
+    const expectedShell = command.shell === true;
+    const actualShell = receipt.shell === true;
+    if (actualShell !== expectedShell) {
+      reasons.push(`receipt-shell-mismatch[${i}]: expected ${expectedShell}, got ${actualShell}`);
+    }
+
+    if (receipt.status !== 'PASS' || receipt.exitCode !== 0 || receipt.timedOut === true) {
+      reasons.push(`receipt-status-fail[${i}]: status=${receipt.status} exitCode=${receipt.exitCode} timedOut=${receipt.timedOut === true}`);
+    }
+  }
+
+  return reasons;
+}
+
 export function validateSelfHostBuildProof(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
   commands: DoneRequiredCommand[] = [],
 ): string[] {
   const reasons: string[] = [];
-  for (let i = 0; i < evidence.receipts.length; i++) {
-    const receipt = evidence.receipts[i];
+  const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  for (let i = 0; i < receipts.length; i++) {
+    const receipt = receipts[i];
     const command = commands[i];
     if (!requiresPackagesMainBuildProof(command)) continue;
-    const build = evidence.receipts.slice(0, i).find((candidate, candidateIndex) => (
+    const build = receipts.slice(0, i).find((candidate, candidateIndex) => (
       isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex]) &&
       candidate.materialHash &&
       receipt.materialHash &&
@@ -359,6 +422,7 @@ export async function runDoneRequiredValidation(args: {
         label: result.label,
         command: result.command,
         args: result.args,
+        ...(result.shell ? { shell: true } : {}),
         cwd: result.cwd ?? commandCwd(args.projectRoot, command.cwd),
         status,
         exitCode: result.code,
@@ -464,6 +528,7 @@ export function evaluateDoneRequiredEvidence(args: {
   if (evidence.status !== 'PASS') reasons.push(...(evidence.reasons.length > 0 ? evidence.reasons : ['status-fail']));
   if (evidence.policyHash !== policy.policyHash) reasons.push('policy-drift');
   if (evidence.commandSetHash !== policy.commandSetHash) reasons.push('command-set-drift');
+  reasons.push(...validateRequiredReceiptCoverage(evidence, args.projectRoot, policy.commands));
 
   const currentHead = currentGitHead(args.gitCwd);
   const currentMaterial = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);

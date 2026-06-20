@@ -61,6 +61,7 @@ export interface DoneRequiredCommandReceipt {
   label: string;
   command: string;
   args: string[];
+  shell?: boolean;
   cwd: string;
   status: DoneRequiredEvidenceStatus;
   exitCode: number;

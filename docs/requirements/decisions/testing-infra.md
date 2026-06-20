@@ -52,7 +52,7 @@ The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` imp
 
 `lattice validate` is routine TEST evidence. `done_required_validate --storyId=<id>` is the separate DONE-required evidence writer for projects that explicitly configure `doneRequiredCommands` or `validationProfiles.done` in `lattice.config.json`.
 
-Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`.
+Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`. Its receipts must cover the effective policy commands exactly in order and match command, args, cwd, and shell identity; artifact-level PASS cannot substitute for per-receipt PASS results.
 
 For this self-host repository, the required policy explicitly marks the root `npm test` command with `requiresBuildProof: "packages-main-build"`, so it must be preceded by `npm --prefix packages/main run build` or an equivalent same-material packages/main build proof. This build-proof rule is a self-host policy requirement; external projects that only configure root `npm test` as a DONE-required command do not inherit it.
 

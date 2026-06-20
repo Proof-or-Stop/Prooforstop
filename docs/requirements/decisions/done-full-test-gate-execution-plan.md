@@ -151,6 +151,7 @@ Each required command receipt should include:
 Data requirements:
 
 - Command receipts record command, args, cwd, status, exit code, duration, and bounded output tail.
+- DONE evaluation requires receipts to cover effective policy commands exactly in order and match command, args, cwd, and shell identity.
 - Output digest stores enough identity to compare logs without storing unbounded output.
 - Overall status is PASS only when every required command PASSes.
 - Evidence binds to `headHash`, `materialHash`, and `storyFilesHash`.

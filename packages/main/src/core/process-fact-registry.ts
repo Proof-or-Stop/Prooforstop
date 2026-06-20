@@ -854,7 +854,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/done-required-validation',
     consumerGate: 'story_advance DONE done-required-validation gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.done_required_validate,
-    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence.',
+    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy.',
   },
   {
     name: 'artifact:declared-artifacts.json',

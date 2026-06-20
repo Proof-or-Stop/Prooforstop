@@ -2038,7 +2038,7 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   }
 
   const coreText = read('packages/main/src/core/done-required-validation.ts');
-  for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'requiresBuildProof', 'providesBuildProof', 'materialHash', 'storyFilesHash']) {
+  for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'requiresBuildProof', 'providesBuildProof', 'materialHash', 'storyFilesHash', 'validateRequiredReceiptCoverage', 'receipt-count-mismatch', 'receipt-command-mismatch', 'receipt-status-fail']) {
     assert(coreText.includes(token), `packages/main/src/core/done-required-validation.ts: required token missing: ${token}`);
   }
   const oracleText = read('packages/main/src/core/done-oracle.ts');

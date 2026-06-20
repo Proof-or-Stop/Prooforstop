@@ -166,6 +166,17 @@ function writeDoneEvidence(root: string, store: StoryStore, receipts: DoneRequir
   return evidence;
 }
 
+function assertDoneRequiredBlocked(
+  root: string,
+  store: StoryStore,
+  reasonPattern: RegExp,
+  message: string,
+): void {
+  const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+  assert.equal(evaluation.blocking, true, message);
+  assert.match(evaluation.reasons.join('\n'), reasonPattern, `${message}: ${evaluation.reasons.join(', ')}`);
+}
+
 // Ordinary validate can pass while required gate fails, and missing artifact blocks required policy.
 {
   const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
@@ -177,6 +188,67 @@ function writeDoneEvidence(root: string, store: StoryStore, receipts: DoneRequir
     assert.equal(required.status, 'fail');
     assert.equal(required.blocking, true);
     assert.match(required.detail || '', /missing done-required-evidence\.json/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// DONE evaluation revalidates receipt coverage, identity, and per-receipt PASS status.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    writeDoneEvidence(root, store, []);
+    assertDoneRequiredBlocked(root, store, /receipt-count-mismatch/, 'empty receipts must not satisfy a required policy');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, {}), baseReceipt(root, {})]);
+    assertDoneRequiredBlocked(root, store, /receipt-count-mismatch/, 'extra receipts must not satisfy a required policy');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { command: 'npm' })]);
+    assertDoneRequiredBlocked(root, store, /receipt-command-mismatch\[0\]/, 'receipt command must match policy command');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { args: ['-e', 'process.exit(1)'] })]);
+    assertDoneRequiredBlocked(root, store, /receipt-args-mismatch\[0\]/, 'receipt args must match policy args');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { cwd: join(root, 'packages/main') })]);
+    assertDoneRequiredBlocked(root, store, /receipt-cwd-mismatch\[0\]/, 'receipt cwd must match normalized policy cwd');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { status: 'FAIL', exitCode: 0 })]);
+    assertDoneRequiredBlocked(root, store, /receipt-status-fail\[0\]/, 'receipt FAIL status must block even when artifact status is PASS');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { status: 'PASS', exitCode: 7 })]);
+    assertDoneRequiredBlocked(root, store, /receipt-status-fail\[0\]/, 'nonzero receipt exitCode must block even when artifact status is PASS');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { status: 'PASS', exitCode: 0, timedOut: true })]);
+    assertDoneRequiredBlocked(root, store, /receipt-status-fail\[0\]/, 'timed out receipt must block even when artifact status is PASS');
+
+    writeDoneEvidence(root, store);
+    const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evaluation.ok, true, evaluation.reasons.join(', '));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Receipt count must match policy command count exactly; truncated artifacts fail closed.
+{
+  const { root, store } = fixture([
+    { label: 'first command', command: 'node', args: ['-e', 'process.exit(0)'] },
+    { label: 'second command', command: 'node', args: ['-e', 'process.exit(0)'] },
+  ]);
+  try {
+    writeDoneEvidence(root, store, [baseReceipt(root, { label: 'first command' })]);
+    assertDoneRequiredBlocked(root, store, /receipt-count-mismatch/, 'truncated receipts must not satisfy all policy commands');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Shell policy commands require shell receipts, so a plain receipt cannot impersonate one.
+{
+  const { root, store } = fixture([{ label: 'shell command', command: 'node -e "process.exit(0)"', args: [], shell: true }]);
+  try {
+    writeDoneEvidence(root, store, [baseReceipt(root, { label: 'shell command', command: 'node -e "process.exit(0)"', args: [] })]);
+    assertDoneRequiredBlocked(root, store, /receipt-shell-mismatch\[0\]/, 'shell receipts must match policy shell identity');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
