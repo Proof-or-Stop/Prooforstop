@@ -198,6 +198,27 @@ void (() => {
       check('throwing-toJSON broadGlobBlocks -> strict default true (no crash)', result.broadGlobBlocks === true);
       check('throwing-toJSON broadGlobBlocks warns', warnings.some((w) => w.includes('broadGlobBlocks')));
     }
+    // 8d-bis. (F-022) The describeInvalidValue LAST-RESORT fallback must itself be total. A revoked
+    //         Proxy throws on every operation — including Object.prototype.toString's
+    //         Symbol.toStringTag read — and a throwing @@toStringTag getter does the same. Both must
+    //         still warn+fall-back, not crash.
+    {
+      const revocable = Proxy.revocable<Record<string, unknown>>({}, {});
+      revocable.revoke();
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ mode: revocable.proxy }, STRICT));
+      check('revoked-proxy mode -> advise (no crash)', result.mode === 'advise');
+      check('revoked-proxy mode warns', warnings.some((w) => w.includes('parallelGate.mode')));
+    }
+    {
+      const throwingTag = Object.defineProperty(
+        { toJSON(): never { throw new Error('toJSON'); } },
+        Symbol.toStringTag,
+        { get(): never { throw new Error('toStringTag'); } },
+      );
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ maxConcurrentReview: throwingTag }, LIGHT));
+      check('throwing-@@toStringTag max -> light default (no crash)', result.maxConcurrentReview === 2);
+      check('throwing-@@toStringTag max warns', warnings.some((w) => w.includes('maxConcurrentReview')));
+    }
 
     // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
 

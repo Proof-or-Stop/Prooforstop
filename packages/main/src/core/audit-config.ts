@@ -69,8 +69,11 @@ const PARALLEL_GATE_PROFILE_DEFAULTS: Record<WorkflowProfile, ParallelGateConfig
  * Render an arbitrary invalid value for a warning message WITHOUT ever throwing.
  * `JSON.stringify` throws on `bigint`, circular references, and throwing `toJSON`
  * getters — and this runs on the present-but-invalid path, whose contract is
- * warn+fallback, never crash. bigint is handled first (JSON can't serialize it);
- * everything else falls through a try/catch to a non-throwing tag.
+ * warn+fallback, never crash. bigint is handled first (JSON can't serialize it).
+ * The last-resort fallback `Object.prototype.toString.call` is ALSO fallible — it
+ * reads `Symbol.toStringTag`, which throws for a revoked Proxy or a throwing
+ * `@@toStringTag` getter — so it is nested in its own try/catch ending in a
+ * constant. Every branch is therefore total.
  */
 function describeInvalidValue(value: unknown): string {
   if (typeof value === 'bigint') return `${value}n`;
@@ -78,7 +81,11 @@ function describeInvalidValue(value: unknown): string {
     // JSON.stringify(undefined) / (function) returns undefined — coalesce to String().
     return JSON.stringify(value) ?? String(value);
   } catch {
-    return Object.prototype.toString.call(value);
+    try {
+      return Object.prototype.toString.call(value);
+    } catch {
+      return '<unserializable>';
+    }
   }
 }
 
