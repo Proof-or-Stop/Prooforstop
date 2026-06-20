@@ -1,0 +1,67 @@
+{
+  "storyId": "B-d2a8",
+  "checkedAt": "2026-06-20T06:48:33.170Z",
+  "reviewRound": "2026-06-20T05:57:12.536Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "resolveParallelGate(raw, profileDefault) two-param signature",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts line 107: export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig — two-param signature confirmed"
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "Per-profile defaults light{advise,2,false}/balanced{advise,3,false}/strict{block,4,true}",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts lines 62-66: PARALLEL_GATE_PROFILE_DEFAULTS with exact light/balanced/strict values as specified"
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "mode validated against VALID_PARALLEL_MODES, invalid -> console.warn + advise fallback",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts lines 147-156: Object.hasOwn check + VALID_PARALLEL_MODES.has guard; invalid sets result.mode = PARALLEL_MODE_FALLBACK (advise) and calls console.warn"
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "maxConcurrentReview positive-integer guard; present-but-invalid -> warn + profile default fallback",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts lines 159-168: Number.isInteger(m) && m > 0 guard; invalid branch calls console.warn and keeps profileDefault.maxConcurrentReview"
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "present-but-invalid vs absent semantics via Object.hasOwn own-key check; mode off escape hatch accepted",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts uses Object.hasOwn(r, key) for all three sub-fields (lines 147, 159, 171); mode off accepted at smoke line 83; prototype/inherited absent confirmed at smoke lines 158-172"
+    },
+    {
+      "docPath": "docs/parallel-decomposition-spec.md#4.7",
+      "promise": "total / never-throw: describeInvalidValue handles bigint/circular/throwing-toJSON; outer try/catch wrapper covers revoked Proxy on raw itself",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "audit-config.ts lines 78-90: describeInvalidValue is total (bigint branch, JSON.stringify try/catch, Object.prototype.toString nested try/catch, constant fallback); lines 108-127: outer try/catch on readParallelGateFields renders err via describeInvalidValue"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "82 assertions passed via node packages/main/dist/tasks/parallel-gate-config-smoke.js (confirmed live run). Covers: per-profile defaults for all three profiles, valid full override, mode off/advise/block, invalid mode string/numeric/boolean -> advise+warn, maxConcurrentReview zero/negative/float/Infinity/NaN/string fallback+warn, broadGlobBlocks non-boolean fallback+warn, partial override, all-wrong-types, unknown keys ignored, prototype/inherited keys absent (no warn), __proto__ JSON no prototype pollution, bigint/circular/throwing-toJSON present-invalid warn+fallback no crash, revoked Proxy raw -> profile default+warn, hostile-trap exotic-throwing err -> balanced default+warn, flaky getter read-once, resolveAuditConfig integration (per-profile, config override, non-object/null, mode off integration, all integration warn paths). All 9 lattice validate commands green."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same 82-assertion smoke run. Per-profile defaults resolve correctly for all three profiles via both direct resolveParallelGate and resolveAuditConfig integration; each sub-field override honored; each malformed sub-field asserts BOTH resolved value AND warn emission (invalid mode string+numeric+boolean, invalid max zero/negative/float/Infinity/NaN/string, invalid broadGlobBlocks string). Config never crashes on bigint, circular, throwing-toJSON, revoked-Proxy raw, hostile-trap exotic-throwing raw."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docs promises from spec §4.7 are verified in code: two-param resolveParallelGate signature, all three profile defaults, VALID_PARALLEL_MODES guard with warn+advise fallback, positive-integer maxConcurrentReview guard, Object.hasOwn present-vs-absent semantics, and total/never-throw via describeInvalidValue plus outer try/catch wrapper. The 82-assertion hermetic smoke covers happy path, all sub-field invalid types, adversarial exotic inputs (bigint/circular/revoked-proxy/hostile-trap), and the full resolveAuditConfig integration path. No unresolved TODOs. All 9 validate commands green."
+  },
+  "_hash": "b59da5006a09cc81bf52a0fec21026872acbe229f08a77acaff5734687d71f5f"
+}
