@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a scope_glob_overlap degradation kind to resolveWaveSafety, computed at the storyRef() call site from active parallel peers' write-sets via computeWriteSet + globsOverlap",
+      "context": "core/lattice-parallel-wave.ts: resolveWaveSafety is a pure projector (does not read scope contracts). At the storyRef() call site, for each ACTIVE non-terminal peer that also asserts parallelSafe='yes', compute this story's and the peer's write-set via computeWriteSet(scopeContract) and run globsOverlap; pass the overlap results into resolveWaveSafety as a new parameter; emit a 'scope_glob_overlap' degradation (severity 'warn', authorityImpact 'none', visible true) via the existing schedulingDegradation() factory naming the peer + an example colliding pair. None when disjoint or peer terminal.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Inject evaluateDecompositionGate().advisories into story_review issues[] at severity 'advisory' (non-blocking, never raises blockerCount)",
+      "context": "handlers/story-review.ts: load peers via store.listStoryIds()+readStory(), contracts via store.readScopeContract() (null-tolerant; §4.8 handles a missing peer contract inside the gate), cfg via resolveAuditConfig(...).parallelGate; call evaluateDecompositionGate(story, peers, contracts, cfg) and push each advisories[] entry as {type:'decomposition_advisory', severity:'advisory', message}. Only advisories — the gate's block field is intentionally ignored at REVIEW (enforcement is Story 5). blockerCount = issues.filter(i=>i.severity==='blocker').length, so advisories never block REVIEW or affect the signed review.json.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

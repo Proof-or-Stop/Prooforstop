@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fa7c",
+  "checkedAt": "2026-06-20T06:57:59.354Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "8f91ff3a7606b52853211721aab6ac42973135e14f60e76ef7c1566ce70e5376",
+  "executionBoundaryHash": "24e063dad772b5715f3c14161d172a649b267145f1579f9921950b55c935fdef",
+  "freshnessHash": "b571e1bbb4e7c25daf4e6ddaceee76bd726dc2d85ed65443687a8e5c99720c9b",
+  "effectiveExcludedKeywords": [
+    "any change to parallel-decomposition.ts contract, parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts, or audit-config.ts (Stories 0-3, frozen/DONE)",
+    "machine.ts canStartDevGuard / getGuardFailureReason hard PLAN→DEV block (that is Story 5)",
+    "raising blockerCount or altering signed review.json from the advisory injection"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any change to parallel-decomposition.ts contract, parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts, or audit-config.ts (Stories 0-3, frozen/DONE)",
+      "source": "scopeBoundary.excluded",
+      "text": "any change to parallel-decomposition.ts contract, parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts, or audit-config.ts (Stories 0-3, frozen/DONE)",
+      "excluded": true
+    },
+    {
+      "keyword": "machine.ts canStartDevGuard / getGuardFailureReason hard PLAN→DEV block (that is Story 5)",
+      "source": "scopeBoundary.excluded",
+      "text": "machine.ts canStartDevGuard / getGuardFailureReason hard PLAN→DEV block (that is Story 5)",
+      "excluded": true
+    },
+    {
+      "keyword": "raising blockerCount or altering signed review.json from the advisory injection",
+      "source": "scopeBoundary.excluded",
+      "text": "raising blockerCount or altering signed review.json from the advisory injection",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "2a5104627d622877ee6ea43513190564a9fbb4809b5692efcac03d7d39671908",
+      "overlapTerms": [
+        "## Conversation Texture",
+        "## Key Insight",
+        "## Tradeoff",
+        "## Trigger Event",
+        "## Trigger Event The parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8) reached Story 4 after Stories 0-3 landed on main: B-59c7 (contract types), B-4033 (overlap engine core/parallel-decomposition-overlap.ts), B-986c (gate verdict core/parallel-decomposition-gate.ts), B-d2a8 (config core/audit-config.ts, merged 2026-06-20). Story 4 is the advisory-wiring step that makes the already-built gate verdict and overlap engine VISIBLE to the operator at wave-projection time and at REVIEW, without yet enforcing anything. ## Key Insight The gate has two advisory surfaces that are deliberately non-blocking (spec §4.3 items 3 and 4). resolveWaveSafety in core/lattice-parallel-wave.ts already projects a list of ParallelWaveDegradation objects from precomputed inputs (it is a pure projector — it does NOT read scope contracts itself; the caller storyRef() computes inputs like actualFileOverlaps and passes them in). So the new 'scope_glob_overlap' degradation must be computed at the storyRef() call site (compute this story's and each active parallel peer's write-set via computeWriteSet, run globsOverlap, pass the results in as a new parameter) and emitted via the existing schedulingDegradation() factory at severity 'warn'. The story-review surface is even simpler: push evaluateDecompositionGate().advisories into the existing issues[] array as severity 'advisory'; blockerCount filters severity==='blocker', so advisories are provably non-blocking. Only the advisories are surfaced at REVIEW — the gate's block field is intentionally ignored here because enforcement is Story 5's PLAN→DEV guard. ## Tradeoff Keeping resolveWaveSafety a pure projector (compute-at-call-site) over making it load scope contracts itself: the former matches every existing degradation kind and keeps the function testable without store I/O, at the cost of a new parameter and call-site wiring. We take it — consistency with the existing pattern and testability win. Surfacing only advisories (not the block) at REVIEW vs. also blocking at REVIEW: the spec is explicit that REVIEW advisories must never raise blockerCount or touch the signed review.json; the single hard-block seam is Story 5's machine.ts guard, so duplicating block logic at REVIEW would create two enforcement points to keep in sync. We surface advisory-only here. ## Conversation Texture The operator wants all 6 program stories driven to DONE with genuine Claude+Codex full-3x2 dual-host review. Story 4 was scoped (during the §8 file-structure correction) to own fully disjoint files from S1/S2/S3 — core/lattice-parallel-wave.ts + handlers/story-review.ts — so the four impl stories are genuinely 4-way parallel. The recurring hard-won lesson from S3 (B-d2a8) applies: commit ALL code before REVIEW to avoid stranding review-run bindings, and known-bug/high-priority stories require the full-3x2 escalation quorum at DONE.",
+        "Keeping resolveWaveSafety a pure projector (compute-at-call-site) over making it load scope contracts itself: the former matches every existing degradation kind and keeps the function testable without store I/O, at the cost of a new parameter and call-site wiring. We take it — consistency with the existing pattern and testability win. Surfacing only advisories (not the block) at REVIEW vs. also blocking at REVIEW: the spec is explicit that REVIEW advisories must never raise blockerCount or touch the signed review.json; the single hard-block seam is Story 5's machine.ts guard, so duplicating block logic at REVIEW would create two enforcement points to keep in sync. We surface advisory-only here.",
+        "Parallel-decomposition wave/REVIEW advisory wiring (program Story 4)",
+        "Story 4 of the parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8). Wires the two ADVISORY (non-blocking) surfaces of §4.3: (1) core/lattice-parallel-wave.ts resolveWaveSafety gains a 'scope_glob_overlap' degradation kind populated from globsOverlap (S1) over active parallel peers' write-sets, so the operator sees the static overlap fact in the wave projection before the PLAN→DEV block; (2) handlers/story-review.ts calls evaluateDecompositionGate (S2) and injects its advisories[] as severity 'advisory' issues that do NOT raise blockerCount and never affect the signed review.json. The hard PLAN→DEV block is Story 5 (machine.ts) and is explicitly out of scope here. Consumes already-merged functions: computeWriteSet/globsOverlap (B-4033), evaluateDecompositionGate (B-986c), resolveAuditConfig().parallelGate (B-d2a8). New hermetic smoke proves both advisory surfaces; registered in lattice.config.json.",
+        "The gate has two advisory surfaces that are deliberately non-blocking (spec §4.3 items 3 and 4). resolveWaveSafety in core/lattice-parallel-wave.ts already projects a list of ParallelWaveDegradation objects from precomputed inputs (it is a pure projector — it does NOT read scope contracts itself; the caller storyRef() computes inputs like actualFileOverlaps and passes them in). So the new 'scope_glob_overlap' degradation must be computed at the storyRef() call site (compute this story's and each active parallel peer's write-set via computeWriteSet, run globsOverlap, pass the results in as a new parameter) and emitted via the existing schedulingDegradation() factory at severity 'warn'. The story-review surface is even simpler: push evaluateDecompositionGate().advisories into the existing issues[] array as severity 'advisory'; blockerCount filters severity==='blocker', so advisories are provably non-blocking. Only the advisories are surfaced at REVIEW — the gate's block field is intentionally ignored here because enforcement is Story 5's PLAN→DEV guard.",
+        "The operator wants all 6 program stories driven to DONE with genuine Claude+Codex full-3x2 dual-host review. Story 4 was scoped (during the §8 file-structure correction) to own fully disjoint files from S1/S2/S3 — core/lattice-parallel-wave.ts + handlers/story-review.ts — so the four impl stories are genuinely 4-way parallel. The recurring hard-won lesson from S3 (B-d2a8) applies: commit ALL code before REVIEW to avoid stranding review-run bindings, and known-bug/high-priority stories require the full-3x2 escalation quorum at DONE.",
+        "The parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8) reached Story 4 after Stories 0-3 landed on main: B-59c7 (contract types), B-4033 (overlap engine core/parallel-decomposition-overlap.ts), B-986c (gate verdict core/parallel-decomposition-gate.ts), B-d2a8 (config core/audit-config.ts, merged 2026-06-20). Story 4 is the advisory-wiring step that makes the already-built gate verdict and overlap engine VISIBLE to the operator at wave-projection time and at REVIEW, without yet enforcing anything."
+      ],
+      "overlapRatio": 0.6875,
+      "previousStoryId": "B-0d9d",
+      "previousReason": "recreating with embedded checklist (created without one in IDEA)",
+      "previousDiscardedAt": "2026-06-20T06:56:52.553Z",
+      "mitigation": "The discarded direction (B-0d9d) was NOT abandoned on its merits — B-0d9d was discarded purely mechanically because story_create had placed it in IDEA with no checklist.json, so checklist_add could not attach the two checklist items. B-fa7c is the identical, intended direction recreated WITH the checklist embedded at creation. Same approved Story-4 scope per spec §8 line 719 / §4.3 items 3-4."
+    }
+  ],
+  "issues": [],
+  "_hash": "b8a8bd90e9096719d5924d5cdfb392e419d45df8c7346e31578ccdee0bd8cd0e"
+}
