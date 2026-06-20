@@ -71,7 +71,30 @@
       "userSees": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js prints its checks and exits 0; full npm test exits 0 with the new smoke auto-discovered in the chain; lifecycle-registry-contract stays green (no command-policy/process-fact drift).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js exits 0; full npm test exits 0 with the new smoke auto-discovered in the run-all-smokes chain.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cross-site dedup: a PLAN story_review fires a plan:<phase> event; advancing the SAME story to REVIEW + buildNextSteps fires its OWN single event under the ISO currentReviewRound key (disjoint); a second buildNextSteps in the same round adds NO event; the REVIEW event.reviewRound equals the ISO currentReviewRound (not plan:<phase>).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "INVARIANT: resolveReviewPromptHash / review-run output is byte-identical for an ON vs OFF story (hint content never enters the signed reviewer prompt); lifecycle-registry-contract stays green WITHOUT any command-policy/process-fact edit (no new command).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
