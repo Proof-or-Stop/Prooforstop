@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T13:49:38.269Z",
       "reviewRunId": "B-97ab:RR-002",
       "_hash": "3767cf4b9796fcb4812efa874ac1010e8aa9594df25abf0ff4a12822cfa084d1"
+    },
+    {
+      "id": "B-97ab:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage CLEAN over round-2 hash: all 33 verificationIntent entries map to real smoke assertions at the actual sink; round-1 HIGH (CHK-003:happy:1 1-finding flatten never called) + 2 MED (CHK-001:adversarial:0/1 subset-not-bijection + lane-removal only reasoned) + LOW (one-only same-lane) all FIXED in round 2 with real runtime assertions; the 4 overclaimed evidence notes rewritten honest (incl. 96-assertion count). Confirmed by round-2 test-coverage re-review (4/4 fixed, no new gap) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:15.745Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-003",
+      "_hash": "4f2e467c262a63afb2ffea2f0d35789a4aee39d934b58ecda64265295be8a29f"
     }
   ]
 }
