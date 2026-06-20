@@ -97,7 +97,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice lifecycle_check --storyId=<story> --target=DONE` prints stable readiness rows, exact next actions, and a no-mutation V1 mode line; the smoke proves story files are unchanged before/after.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke test verifies JSON report shape and text output for lifecycle_check",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke test covers missing delivery/summary/DONE-required rows as distinct blockers with next actions",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke test snapshots story metadata before/after lifecycle_check and fails if any mutation occurs",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
