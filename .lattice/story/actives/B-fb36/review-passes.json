@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-20T00:21:48.911Z",
       "reviewRunId": "B-fb36:RR-014",
       "_hash": "f7f3904f6c19695e26959e5750358d239ee841a42ed0b8d2260d071377449de7"
+    },
+    {
+      "id": "B-fb36:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs re-review after F-006: docs/requirements/decisions/done-prepare-automation-execution-plan.md remains consistent with behavior. It states done_prepare reuses validate/done_closure freshness semantics, delegates stale refresh to verification_evidence_refresh_stale, does not rewrite stale hashes, blocks on generated refresh commits, remains local-only pre-DONE, keeps DONE explicit, and does not claim receiptVerified/fullAuthorityDone/productionDone. Verified against packages/main/src/handlers/done-prepare.ts, packages/main/src/core/evidence-freshness.ts, packages/main/src/handlers/checklist.ts, packages/main/src/handlers/done-closure.ts, and node packages/main/dist/tasks/done-prepare-smoke.js PASS including storyFilesHash drift and receipt boundary cases.",
+      "createdAt": "2026-06-20T00:30:56.858Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-016",
+      "_hash": "ef59e44b49a82941587f768e6febeea37bcb5d58ab88ab1301bca2ef8dd9930c"
     }
   ]
 }
