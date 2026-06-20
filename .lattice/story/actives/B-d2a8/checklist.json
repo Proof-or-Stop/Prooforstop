@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Populate AuditConfig.parallelGate in resolveAuditConfig: per-profile defaults + a resolveParallelGate(raw, profileDefault) helper validating the nested object field-by-field (mode/maxConcurrentReview/broadGlobBlocks) with guards and fallbacks per spec 4.7",
       "context": "core/audit-config.ts: add PARALLEL_GATE_PROFILE_DEFAULTS (light advise/2/false, balanced advise/3/false, strict block/4/true), import VALID_PARALLEL_MODES + ParallelGateConfig from parallel-decomposition.js, add resolveParallelGate with per-sub-field guard+fallback (invalid mode -> warn + advise; maxConcurrentReview integer >= 1 else profile default; broadGlobBlocks boolean else profile default; missing/non-object -> all profile defaults), set merged.parallelGate from the user override and profile default",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T05:28:32.119Z",
-      "endTime": null,
+      "endTime": "2026-06-20T05:31:57.867Z",
       "files": {
         "modify": [
           "packages/main/src/core/audit-config.ts"
