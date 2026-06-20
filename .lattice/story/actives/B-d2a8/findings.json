@@ -301,6 +301,24 @@
       "_hash": "68880c72673db50ff855615d005c80b296b923786da360f0aa770b646e5e2956",
       "signatureTag": "missing|unknown|usersees-empty-checklist",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-018",
+      "desc": "CHK-002:edge:0 (priority must): the intent requires proving warn emission in the integrated resolveAuditConfig path, not just the unit helper. Smoke line 172 checks only .mode === advise via resolveAuditConfig but never wraps the call with captureWarn. The unit-level tests (CHK-001:edge:0, lines 85-87) do capture and assert the warn correctly. CHK-002:edge:0 explicitly calls out proves the warn+fallback path in the integrated smoke, not just the unit helper — the warns half is absent in the integration block. Same deficiency applies to the should-priority integration assertions for maxConcurrentReview (line 180) and broadGlobBlocks (line 184): all three integration-path invalid-value cases are value-only with no captureWarn wrapper.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T06:02:18.862Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-009",
+      "_hash": "1717f0e8e83e9372085e62b7e886a3c6cc3971fb1bb9a68d5da6c9d64c0f77da",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-priority-intent",
+      "signatureTagSource": "auto"
     }
   ]
 }
