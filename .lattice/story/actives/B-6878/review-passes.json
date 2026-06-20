@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T15:05:06.680Z",
       "reviewRunId": "B-6878:RR-002",
       "_hash": "a939ecf679aece99846faadf586e1806149c7b5232831a082ee1b9c35e0e5127"
+    },
+    {
+      "id": "B-6878:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness check: (a) Zero unguarded prototype-chain `in` reads on externally-derived usage objects remain in core/usage-ledger (assemble/dispatch/adapters/streaming/record) — all replaced with ownProp() guards or hasOwnProperty.call; (b) chokepoint toOwnPropsNullProto applied at all 3 required entry points: extractRawUsage (assemble.ts), extractAnthropicUsage (dispatch-usage.ts), and all 3 streaming extractors (anthropic via null-proto merged object pattern, openai via sanitizeOpenAiStreamUsage, gemini via toOwnPropsNullProto direct); (c) nested openai prompt_tokens_details projection confirmed in BOTH assemble.ts (line 82) and streaming.ts (line 56); (d) no half-done edits, no dangling refs, no contradictory comments — the defense-in-depth/not-a-live-vuln framing is honest and consistent between spec and sanitize.ts code comment; no doc-promise-undelivered found (18-check smoke = 18 actual check() calls, all helpers implemented); record.ts in-operator uses on storyId/supersedesRecordIds/confidence are on internal assembled records (not external provider objects) — out of scope for external-usage hardening.",
+      "createdAt": "2026-06-20T15:09:53.142Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "reviewRunId": "B-6878:RR-001",
+      "_hash": "57d53c8206dc205c639dc821a4f39be25a0286a0bd1bb348ff96ea2e200a5eb6"
     }
   ]
 }
