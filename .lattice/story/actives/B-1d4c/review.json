@@ -161,6 +161,24 @@
         }
       ],
       "_hash": "ff69ce171912cb50a477f0dcc20ce5a0de06139fdde4d2203746f5d139a4613d"
+    },
+    {
+      "timestamp": "2026-06-20T18:55:35.219Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Build host handoff preflight pack including session_brief, memory preflight, stories/checklists, gap, and stale-validation signals + Add plan supersession detection and completed-story references are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-1d4c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "601959d6b128258479899e53cc673168e437e7f5ad54aa0c09aa8add8d973914"
     }
   ]
 }
