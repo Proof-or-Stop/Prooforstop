@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T05:32:14.031Z",
       "reviewRunId": "B-d2a8:RR-001",
       "_hash": "fab8dbea94cf4ce3b308bbd79317d02c129f8685c01f475988fcc6bd29dddd7f"
+    },
+    {
+      "id": "B-d2a8:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: no new findings. F-006 (empty catch in cleanup) is fixed — the finally block now emits console.warn with the error message. The key-in-r guard is correct for all three sub-fields: present-but-null/undefined hits the else branch (warn+fallback) for mode and broadGlobBlocks, and the else branch (warn+keep-profile-default) for maxConcurrentReview. Integer guard (typeof m===number && Number.isInteger(m) && m>0) correctly rejects Infinity, NaN, floats, 0, negatives, and strings. No shared-reference mutation — all spreads create fresh objects; PARALLEL_GATE_PROFILE_DEFAULTS module-level constant is never mutated. All smoke imports are used. No dead code, no as any, no empty catches, JSON.stringify is safe in all warn paths.",
+      "createdAt": "2026-06-20T05:48:31.563Z",
+      "reviewRound": "2026-06-20T05:46:07.746Z",
+      "reviewRunId": "B-d2a8:RR-005",
+      "_hash": "12e07c3189879d7ee2bd64566f56621f05ade18609a8e6934b625b4cc612abdd"
     }
   ]
 }
