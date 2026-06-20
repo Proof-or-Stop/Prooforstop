@@ -5,9 +5,9 @@
       "title": "Add readReviewRuns to the docs-drift-wrapper-root-smoke stub store",
       "context": "In packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts makeStubStore (~159-190), add `readReviewRuns: () => ({ runs: [] })` to the returned stub object so collectReviewerEvidenceState (review-run.ts:868) no longer throws when the docs-drift preflight runs reviewerEvidenceAdvisoryGate. Mirror the shape used by review-incremental-context-smoke.ts. Do NOT change the production review-preflight gate or review-run.ts. Sibling stubs were audited: review-incremental-context already has it; review-convergence + authority-enforce-matrix do not hit the gate. Only this stub needs the method.",
       "userSees": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the docs-drift preflight without TypeError and exits 0 (no \"store.readReviewRuns is not a function\").",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T05:19:44.487Z",
-      "endTime": null,
+      "endTime": "2026-06-20T05:21:43.537Z",
       "verificationIntent": {
         "happy": [
           {
