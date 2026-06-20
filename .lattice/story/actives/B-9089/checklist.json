@@ -97,7 +97,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Codex, Claude Code, Antigravity/agy, and a fake future-host path all resolve through the same Lattice owner-session contract; diagnostics may show provider labels, but generic owner-lease conflicts are driven only by the canonical session id."
+      "userSees": "The guardrail prints \"PASS owner-session host-native env guardrail: no generic core host-session env reads\" while adapter diagnostics still mention codex, claude-code, antigravity/agy as provider labels.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [
+          "packages/main/src/core/owner-session-adapters.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude Code, Codex, Antigravity/agy, and fake future host adapter inputs map into the canonical resolver result without changing generic owner-lease call sites.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Provider labels are diagnostic only; two providers with the same canonical session id are treated as the same local owner session.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A new host-native env name appearing in generic owner-lease/lifecycle/gate/cli-engine files fails the guardrail check.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
