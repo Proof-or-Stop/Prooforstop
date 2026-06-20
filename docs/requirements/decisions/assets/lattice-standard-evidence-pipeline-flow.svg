@@ -83,26 +83,26 @@
   <text x="655" y="615" class="label">NO / ACCEPTED</text>
 
   <g filter="url(#shadow)">
-    <rect x="350" y="646" width="580" height="92" rx="18" class="stage"/>
-    <text x="380" y="681" class="box-title">DEV implementation</text>
-    <text x="380" y="706" class="box-text">Code changes happen outside the pipeline command.</text>
+    <rect x="500" y="646" width="430" height="92" rx="18" class="stage"/>
+    <text x="530" y="681" class="box-title">DEV implementation</text>
+    <text x="530" y="706" class="box-text">Code changes happen outside the pipeline command.</text>
   </g>
 
   <path d="M640 738 L640 780" class="flow"/>
 
   <g filter="url(#shadow)">
     <rect x="350" y="780" width="580" height="106" rx="18" class="stage"/>
-    <text x="380" y="815" class="box-title">2. Reviewer lane batch</text>
-    <text x="380" y="840" class="box-text">review_run_start per lane, then signed pass/finding</text>
-    <text x="380" y="863" class="box-text">Missing lane is never converted into a pass.</text>
+    <text x="380" y="815" class="box-title">2. Evidence plan + generation / refresh</text>
+    <text x="380" y="840" class="box-text">Map verificationIntent to commands and evidence refs.</text>
+    <text x="380" y="863" class="box-text">Refresh only through existing evidence writers.</text>
   </g>
 
   <path d="M640 886 L640 928" class="flow"/>
 
   <g filter="url(#shadow)">
     <path d="M640 928 L860 988 L640 1048 L420 988 Z" class="decision"/>
-    <text x="536" y="983" class="box-title">Missing lane or finding?</text>
-    <text x="570" y="1008" class="box-text">Retry lane or return to DEV.</text>
+    <text x="536" y="983" class="box-title">Evidence missing or stale?</text>
+    <text x="560" y="1008" class="box-text">Rerun or refresh before review.</text>
   </g>
 
   <path d="M860 988 C1005 988 1040 840 1040 528" class="flow-soft"/>
@@ -112,9 +112,9 @@
 
   <g filter="url(#shadow)">
     <rect x="350" y="1090" width="580" height="116" rx="18" class="stage"/>
-    <text x="380" y="1125" class="box-title">3. Evidence plan + generation / refresh</text>
-    <text x="380" y="1150" class="box-text">Map verificationIntent to commands and evidence refs.</text>
-    <text x="380" y="1173" class="box-text">Refresh only through existing evidence writers.</text>
+    <text x="380" y="1125" class="box-title">3. Reviewer lane batch</text>
+    <text x="380" y="1150" class="box-text">Review final material-bound evidence snapshot.</text>
+    <text x="380" y="1173" class="box-text">Stale pass reruns only affected lanes.</text>
   </g>
 
   <path d="M640 1206 L640 1248" class="flow"/>
@@ -132,8 +132,8 @@
 
   <g filter="url(#shadow)">
     <rect x="350" y="1382" width="580" height="86" rx="18" class="stage"/>
-    <text x="380" y="1417" class="box-title">5-6. Smoke, transcript, delivery context</text>
-    <text x="380" y="1442" class="box-text">Create user-value proof and delivery-review context pack.</text>
+    <text x="380" y="1417" class="box-title">5. Smoke/transcript + 6. Delivery review</text>
+    <text x="380" y="1442" class="box-text">Delivery check fail stops; pass can reach done_prepare.</text>
   </g>
 
   <g filter="url(#shadow)">
@@ -148,8 +148,8 @@
   <g filter="url(#shadow)">
     <rect x="960" y="1220" width="250" height="132" rx="18" class="delegated"/>
     <text x="990" y="1254" class="box-title">DONE target?</text>
-    <text x="990" y="1280" class="box-text">Delegate TEST-to-DONE</text>
-    <text x="990" y="1303" class="box-text">readiness to</text>
+    <text x="990" y="1280" class="box-text">After delivery PASS,</text>
+    <text x="990" y="1303" class="box-text">delegate readiness to</text>
     <text x="990" y="1326" class="box-text">lattice done_prepare.</text>
   </g>
 

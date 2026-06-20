@@ -155,8 +155,8 @@ story or rewrite stale proof into fresh proof.
 |---|---|---|---|---|---|
 | 0. State intake and phase preflight | `storyId`, current cwd, `session_brief`, story phase, git branch/status, worktree path, target phase | pipeline state snapshot, allowed next stage, immediate blocker list | command transcript or structured result from `session_brief`; git status; resolved story/worktree identity | stop before mutation; print `cd`, clean-tree, phase, or worktree repair command; never stash/revert unrelated files | pipeline preflight plus lifecycle handler |
 | 1. Story init / PLAN skeleton | title, description, optional checklist titles, `aux_doc_list`, risk signals, duplicate-story scan | checklist title/context/relatedDocs, understanding snapshot, decision skeleton, verificationIntent skeleton, initial scope proposal | story metadata write through Lattice command; `understanding_set`; decision record when required; `story_review` report | remain in PLAN/INIT_CHECK; print missing skeleton fields or story_review blockers; do not start code changes | `story_review`, verification-intent reviewer, concept reviewer |
-| 2. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per lane; `review_pass_set` or `finding_add` per lane; reviewRound/material bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings | independent reviewer lanes and REVIEW gate |
-| 3. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as rerun-required or refreshable; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
+| 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as rerun-required or refreshable; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
+| 3. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence snapshot | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings | independent reviewer lanes and REVIEW gate |
 | 4. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
 | 5. Live smoke / transcript diff | expected user outcome, validate commands, story-specific smoke commands, current material binding | transcript-diff artifact, stdout/stderr digest, expected/actual/diff notes | real command transcript with exit code; digest; elapsed time; HEAD/material/storyFilesHash binding; artifact path | block user-value verification unless story has explicit metadata-only waiver; print missing smoke command or expected-output gap | test coverage reviewer and delivery reviewer |
 | 6. Delivery context pack and delivery review | relatedDocs, decision promises, diff summary, validation/evidence state, transcript artifact, review assurance state | delivery context pack, delivery reviewer instruction, signed delivery check | context pack artifact; delivery reviewer `reviewRunId` when applicable; `delivery_check_set` / delivery-check artifact written by delivery reviewer only | block DONE; launch or instruct delivery reviewer; main agent must not self-sign delivery | delivery reviewer lane and DONE gate |
@@ -176,7 +176,7 @@ human decision can produce it.
 | verificationEvidence command result | print rerun command; do not mark fresh | implementation host or evidence command runner | `lattice validate` |
 | safely refreshable stale evidence | call existing refresh writer when configured; otherwise print refresh command | evidence refresh command | `lattice validate` |
 | stale review escalation or host verdict | block and request real re-attestation; no rebinding | appropriate reviewer / host verdict lane | review assurance / escalation gate |
-| transcript-diff artifact | block delivery unless metadata-only waiver exists | live smoke command owner | delivery reviewer |
+| transcript-diff artifact | block delivery unless a signed metadata-only waiver exists | live smoke command owner | delivery reviewer |
 | delivery check | block DONE; run delivery reviewer | delivery reviewer | DONE gate |
 | Authority receipt | mark local-only; never claim Authority/fullAuthority/production DONE | Authority server / receipt verifier | Authority receipt gate |
 | `done_prepare` blocker | stop and preserve `blockedAt` / `next` exactly | owner named by `done_prepare` | B-fb36 `done_prepare` |
@@ -221,50 +221,7 @@ Acceptance:
 - scope contract starts from explicit path patterns rather than ad hoc
   acknowledgements after the fact.
 
-### 2. Reviewer Lane Orchestration
-
-Goal: launch and collect reviewer lanes as a managed batch.
-
-Command shape:
-
-```bash
-lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs
-```
-
-Required behavior:
-
-- start each lane with `review_run_start`;
-- require every finding/pass to include the lane `agent` and `reviewRunId`;
-- run lanes in parallel when host capacity allows;
-- collect pass/finding results into one status table;
-- surface stalled reviewers and allow retry without invalidating completed
-  lanes;
-- never convert a missing review into a pass.
-
-Output example:
-
-```json
-{
-  "storyId": "B-xxxx",
-  "reviewRound": "2026-06-20T10:00:00.000Z",
-  "lanes": [
-    {"lane":"concept","status":"pass","reviewRunId":"B-xxxx:RR-001"},
-    {"lane":"quality","status":"finding","findingIds":["B-xxxx:F-001"]},
-    {"lane":"test-coverage","status":"pass","reviewRunId":"B-xxxx:RR-003"},
-    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"}
-  ],
-  "blocking": true,
-  "next": "Resolve B-xxxx:F-001, return to DEV, then rerun affected lanes."
-}
-```
-
-Acceptance:
-
-- a host does not manually spawn four reviewers and reconcile outputs;
-- reviewer independence and signed run binding remain intact;
-- repeated REVIEW rounds only rerun lanes that are stale, affected, or required.
-
-### 3. Verification Evidence Generation And Refresh
+### 2. Verification Evidence Generation And Refresh
 
 Goal: map verificationIntent to executable evidence without manual bookkeeping.
 
@@ -301,6 +258,65 @@ Acceptance:
 - `validate` reports coverage gaps only when evidence is truly missing/stale;
 - host does not manually copy command strings into checklist evidence;
 - stale evidence recovery produces a deterministic next action.
+
+### 3. Reviewer Lane Orchestration
+
+Goal: launch and collect reviewer lanes as a managed batch against final
+material-bound evidence.
+
+Command shape:
+
+```bash
+lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs
+```
+
+Required behavior:
+
+- run required evidence planning/refresh before final reviewer pass/finding
+  collection;
+- start each lane with `review_run_start`;
+- require every finding/pass to include the lane `agent` and `reviewRunId`;
+- run lanes in parallel when host capacity allows;
+- collect pass/finding results into one status table;
+- surface stalled reviewers and allow retry without invalidating completed
+  lanes;
+- never convert a missing review into a pass;
+- treat coverage and delivery-adjacent lanes as stale when new evidence,
+  transcript, validation, or delivery context is written after their pass.
+
+Concept and quality lanes may optionally run early as advisory design checks, but
+the final REVIEW gate consumes only reviewer runs bound after the current
+material and verification evidence are stable.
+
+Output example:
+
+```json
+{
+  "storyId": "B-xxxx",
+  "reviewRound": "2026-06-20T10:00:00.000Z",
+  "evidenceSnapshot": {
+    "headHash": "<current-head>",
+    "materialHash": "<current-material>",
+    "storyFilesHash": "<current-story-files>"
+  },
+  "lanes": [
+    {"lane":"concept","status":"pass","reviewRunId":"B-xxxx:RR-001"},
+    {"lane":"quality","status":"finding","findingIds":["B-xxxx:F-001"]},
+    {"lane":"test-coverage","status":"pass","reviewRunId":"B-xxxx:RR-003"},
+    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"}
+  ],
+  "blocking": true,
+  "next": "Resolve B-xxxx:F-001, return to DEV, refresh evidence, then rerun affected lanes."
+}
+```
+
+Acceptance:
+
+- a host does not manually spawn four reviewers and reconcile outputs;
+- reviewer independence and signed run binding remain intact;
+- coverage reviewers never pass before the evidence they are asked to judge
+  exists;
+- repeated REVIEW rounds only rerun lanes that are stale, affected, or required.
 
 ### 4. Gate Preflight Aggregator
 
@@ -441,6 +457,39 @@ Acceptance:
 - `done_prepare` and DONE pre-checks can consume the signed delivery artifact
   directly.
 
+## Metadata-Only Waiver Policy
+
+Live smoke and transcript artifacts are required by default. A story can skip
+user-value smoke only when it is explicitly metadata-only and the waiver itself
+is signed evidence.
+
+Required waiver shape:
+
+```json
+{
+  "kind": "waiver",
+  "waiverType": "permanent",
+  "intentRef": "<CHK-id>:<lane>:<index>",
+  "reason": "why this story has no user-visible runtime behavior",
+  "owner": "implementation host",
+  "acceptedBy": "delivery reviewer",
+  "sourceRefs": ["<doc-or-code-ref>"]
+}
+```
+
+Rules:
+
+- only documentation, metadata, process-record, or registry-only stories may use
+  the waiver;
+- runtime behavior, CLI behavior, Authority behavior, user-visible output, and
+  gate semantics cannot use a metadata-only waiver;
+- the implementation host may propose the waiver, but the delivery reviewer must
+  accept it before DONE;
+- waiver acceptance is not Authority evidence and must not claim
+  `authorityDone`, `fullAuthorityDone`, or `productionDone`;
+- `story_pipeline_live_smoke` must print the missing smoke command unless the
+  waiver is present and delivery-accepted.
+
 ## End-To-End Flow
 
 Recommended operator path:
@@ -456,12 +505,13 @@ Internally:
 1. Preflight current state.
 2. Fill missing PLAN skeleton if still in PLAN.
 3. Ensure code is committed before REVIEW/TEST/DONE transitions.
-4. Launch reviewers and collect results.
-5. If blockers exist, stop with findings and next action.
-6. Refresh/generate evidence.
+4. Refresh/generate material-bound evidence.
+5. Launch required reviewers against the current evidence snapshot and collect
+   results.
+6. If blockers exist, stop with findings and next action.
 7. Run validation.
 8. Write transcript diff.
-9. Run delivery reviewer.
+9. Run delivery reviewer against validation and transcript artifacts.
 10. If target is DONE and the story is in TEST, delegate readiness to
     `lattice done_prepare`.
 11. If all gates pass, print the exact `story_advance --phase=DONE` command or
@@ -492,13 +542,14 @@ START
   v
 [DEV implementation happens outside the pipeline command]
   v
-[2 Reviewer lane batch]
-  |-- missing lane --> retry missing lane only
-  |-- blocking finding --> return to DEV with finding id
-  v
-[3 Evidence plan + generation/refresh]
+[2 Evidence plan + generation/refresh]
   |-- rerun-required evidence --> print rerun command and STOP
   |-- safely refreshable stale evidence --> delegate to existing refresh writer
+  v
+[3 Reviewer lane batch]
+  |-- missing lane --> retry missing lane only
+  |-- blocking finding --> return to DEV with finding id
+  |-- evidence changed after pass --> rerun affected lane
   v
 [4 REVIEW/TEST gate preflight]
   |-- blocked --> print source gate and next command
@@ -540,15 +591,16 @@ flowchart TD
   F -- yes --> D
   F -- no --> G["DEV implementation"]
   C -- no --> G
-  G --> H["2 Reviewer lane batch"]
-  H --> I{"Missing lane or finding?"}
-  I -- missing lane --> H
-  I -- finding --> G
-  I -- no --> J["3 Evidence plan + generation / refresh"]
+  G --> J["2 Evidence plan + generation / refresh"]
   J --> K{"Evidence missing or stale?"}
   K -- rerun required --> Z
   K -- refreshable --> J
-  K -- no --> L["4 REVIEW / TEST preflight"]
+  K -- no --> H["3 Reviewer lane batch"]
+  H --> I{"Missing lane, finding, or stale pass?"}
+  I -- missing lane --> H
+  I -- finding --> G
+  I -- stale pass --> H
+  I -- no --> L["4 REVIEW / TEST preflight"]
   L --> M{"Gate blocked?"}
   M -- yes --> Z
   M -- no --> N["5 Live smoke + transcript diff"]
@@ -629,6 +681,8 @@ Owner scope:
 - `review_run_start` orchestration;
 - pass/finding collection;
 - stalled-lane retry report.
+- stale-pass detection when material, verification evidence, transcript, or
+  delivery context changes after a reviewer pass.
 
 Deliverables:
 
@@ -638,7 +692,8 @@ Deliverables:
 
 Dependencies:
 
-- benefits from Track A report model but can prototype independently.
+- benefits from Track A report model;
+- final coverage-lane gating depends on Track D evidence snapshot output.
 
 Parallel safety:
 
@@ -663,7 +718,8 @@ Deliverables:
 
 Dependencies:
 
-- should consume Track A report model when available.
+- should consume Track A report model when available;
+- must produce the evidence snapshot consumed by Track C final reviewer lanes.
 
 Parallel safety:
 
@@ -750,14 +806,16 @@ Parallel safety:
 |---|---|---|---|
 | P1 | Add story pipeline preflight report | B-fb36 | read-only blocker report that imports DONE prepare output |
 | P2 | Generate PLAN skeletons for story pipeline | none | init/PLAN skeleton command |
-| P3 | Add reviewer batch orchestration | P1 optional | review lane batch command |
-| P4 | Add verification evidence planner/refresh orchestrator | P1 optional | evidence dry-run and refresh command |
+| P3 | Add verification evidence planner/refresh orchestrator | P1 optional | evidence dry-run, refresh command, and evidence snapshot |
+| P4 | Add reviewer batch orchestration | P1, P3 for final coverage semantics | review lane batch command |
 | P5 | Add live smoke transcript artifact writer | none | transcript-diff generator |
 | P6 | Add delivery context pack and delivery pipeline command | P1, P5 | delivery context + reviewer flow |
 | P7 | Integrate top-level `story_pipeline` command | P1-P6, B-fb36 | end-to-end orchestration with DONE prepare delegation |
 
-P1, P2, P3, P4, and P5 can start in parallel if file ownership is kept
-separate. P6 should wait for P5. P7 should wait for all prior tracks.
+P1, P2, P3, and P5 can start in parallel if file ownership is kept separate.
+P4 can prototype reviewer launch/status handling in parallel, but its final
+coverage-lane gate must wait for P3's evidence snapshot contract. P6 should wait
+for P5. P7 should wait for all prior tracks.
 
 ## Evidence Requirements
 
@@ -844,8 +902,6 @@ Success target:
   print the exact DONE command unless `--execute` is supplied?
 - Should reviewer batch orchestration use local host subagents directly, or only
   print host-neutral commands for the current surface?
-- Should live smoke transcript generation be required for metadata-only stories,
-  or should they have an explicit `metadataOnly` waiver?
 - How should the pipeline persist large stdout/stderr: inline summary, digest
   plus artifact, or both?
 - Should stale review escalation host verdicts ever be regenerated by pipeline,
