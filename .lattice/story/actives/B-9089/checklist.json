@@ -275,10 +275,37 @@
       "relatedDocs": [
         "docs/requirements/decisions/owner-session-contract-execution-plan.md"
       ],
-      "userSees": "Implementation does not begin until the story contains transcript evidence showing repeated commands with the same LATTICE_SESSION_ID reuse the same owner lease instead of self-rejecting as a foreign session.",
+      "userSees": "The pre-code transcript section contains \"PASS parent-pid transcript: canonical session reused lease across two invocation shapes; degraded ppid-only path labeled derived-ppid\" before source edits begin.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9089/checklist.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two parent-PID-changing invocation shapes preserve the same LATTICE_SESSION_ID and refresh/reuse the same owner lease without foreign-owner rejection.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The degraded comparison without canonical env, adapter signal, or generated token shows distinct ppid-derived ids or an explicit degraded warning.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The transcript records story id, command, host provider, cwd, HEAD/material hash, observed session id/source, owner lease before/after, and pass/fail; incomplete transcript evidence is not accepted.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
