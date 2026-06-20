@@ -63,6 +63,26 @@
           "docs/requirements/decisions/owner-session-contract-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution plan defines a host adapter bridge table or equivalent section for Codex, Claude Code, Antigravity/agy, and future hosts, with each host producing or forwarding a stable value into LATTICE_SESSION_ID before owner lease logic runs.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan gives onboarding rules for hosts that lack a native stable session variable: generate or map a host-local stable session id in the adapter layer, export it as LATTICE_SESSION_ID, and document the source shown to users.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan explicitly forbids adding Codex, Claude, agy, or future host special cases to core owner lease code; host-specific variables are resolved only by adapters before the core sees LATTICE_SESSION_ID.",
+            "type": "docs"
+          }
+        ]
       }
     },
     {
