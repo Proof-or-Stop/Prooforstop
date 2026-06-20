@@ -558,7 +558,7 @@
       "desc": "Canonical FreshnessRow.classification uses underscore enum values while later classification table and smoke matrix use hyphen or space literals such as refresh-only, advisory drift, and hard stale, making the typed contract ambiguous.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:25:51.025Z",
@@ -569,14 +569,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "edge|md|canonical-freshnessrow-classification",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by standardizing FreshnessRow.classification and all classification table/smoke-matrix literals to underscore enum values: advisory_drift, refresh_only, rerun_required, hard_stale.",
+      "resolvedAt": "2026-06-20T07:28:11.125Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-027",
       "desc": "Mermaid sends Clean commit + enter REVIEW phase directly to reviewer lanes, but text flowchart and SVG require dirty or still-not-REVIEW to print story_advance and STOP before launching reviewers.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:25:51.816Z",
@@ -587,7 +591,11 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|mermaid-sends-clean",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding a Mermaid Dirty or still not REVIEW? decision after Clean commit + enter REVIEW phase; yes stops, no launches reviewer lanes.",
+      "resolvedAt": "2026-06-20T07:28:11.450Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
