@@ -346,7 +346,7 @@
       "desc": "JSON.stringify in the warn message throws on BigInt / circular / throwing-toJSON values, so a present-but-invalid subfield crashes resolveParallelGate instead of warn+fallback (lines 93/105/116). Fix: route through a non-throwing describeInvalid formatter.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T06:05:48.533Z",
@@ -356,7 +356,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "adversarial|ts|json-stringify-warn",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "audit-config.ts: added describeInvalidValue (bigint-first, JSON.stringify in try/catch, Object.prototype.toString fallback) used in all 3 warn messages — present-but-invalid never throws. Smoke 8d (bigint mode/max, circular mode, throwing-toJSON broadGlobBlocks) all warn+fall-back without crashing.",
+      "resolvedAt": "2026-06-20T06:09:21.323Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-021",
