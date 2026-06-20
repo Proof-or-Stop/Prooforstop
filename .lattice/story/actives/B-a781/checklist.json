@@ -151,6 +151,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:50:00.060Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"core owner-lease code must not|core owner-lease resolver|special cases|Core exception guard|host-specific env\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/guide-scope-guard.md",
+          "result": "pass",
+          "note": "The plan explicitly forbids Codex, Claude Code, Antigravity/agy, and future-host special cases in core owner-lease logic; provider-specific knowledge is constrained to adapters and guard diagnostics.",
+          "headHash": "01653db7faa83df21432cac1fbe926d3aa477e48",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:50:06.354Z"
         }
       ]
     },
