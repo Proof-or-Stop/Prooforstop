@@ -124,7 +124,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:2014 adds DONE-required command/process-fact checks, and scripts/verify-process-fact-contract.mjs:3330 adds a scope-classifier row, but the script never asserts packages/main/src/core/lifecycle-registry.ts:393 TEST.produces, packages/main/src/core/lifecycle-registry.ts:398 DONE.consumes, or packages/main/src/core/lifecycle-registry.ts:432 LIFECYCLE_ORACLE_ARTIFACT_REFS[done-required-validation]. The implementation currently has the right lifecycle values, but the requested contract regression would still pass if those phase artifact/oracle-ref entries drifted while the process registry and scope classifier stayed intact.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T11:29:12.494Z",
@@ -136,7 +136,11 @@
         "packages/main/src/core/lifecycle-registry.ts"
       ],
       "signatureTag": "missing|mjs|scripts-verify-process",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 9149c35b5 by adding explicit process-fact contract assertions that lifecycle-registry.ts keeps done-required-evidence.json in LIFECYCLE_ARTIFACTS, TEST produces it, DONE consumes it, and LIFECYCLE_ORACLE_ARTIFACT_REFS maps done-required-validation to done-required-evidence.json. Verified by source inspection and will be revalidated with node scripts/verify-process-fact-contract.mjs plus the story validation suite before DONE.",
+      "resolvedAt": "2026-06-20T11:37:52.771Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
