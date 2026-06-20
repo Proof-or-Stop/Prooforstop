@@ -166,37 +166,50 @@ the line, trace the path, show the throw actually escapes. "Looks plausible" is 
 **refute.** This is what filters the single largest failure mode of unsupervised
 multi-agent review: confident-but-wrong findings.
 
-**Confirmation threshold.** A finding is **CONFIRMED** iff at least a
-**threshold** of the M skeptics confirm. With **M=2**, the recommended default is
-**≥1 confirm** (a single concrete confirmation outranks a non-confirmation,
-because the burden is to *prove* the defect, and one proof suffices). This is
+**Threshold-confirm rule (NOT majority).** A finding is **CONFIRMED** iff the
+number of confirming skeptics meets a fixed **confirm-threshold T** (`confirms ≥
+T`). The recommended default is **T=1 of M=2** — *threshold-confirm, default
+1-of-2*. This is deliberately **not** a majority vote: with M=2 a majority would
+require 2 confirmations, but a single skeptic who **concretely confirms the
+defect against the code** is sufficient to keep the finding, because the burden
+is to *prove* the defect and one proof suffices (the other skeptic's
+non-confirmation under refute-by-default carries no disproving weight). T is
 **tunable**, and the tradeoff is explicit:
 
-- **threshold = 1-of-2 (recommended default):** maximizes recall — a real defect
-  one skeptic spots survives even if the other missed it. Cost: a wrong-but-
+- **T = 1 of 2 (recommended default):** maximizes recall — a real defect one
+  skeptic spots survives even if the other missed it. Cost: a wrong-but-
   convincing finding that fools one skeptic gets through to the fix queue. Net
   bias toward **safety** (fix the questionable one).
-- **threshold = 2-of-2 (strict):** maximizes precision — both must confirm.
-  Cost: a real defect only one skeptic could see is dropped. Net bias toward
-  **low noise.**
+- **T = 2 of 2 (strict, = unanimous at M=2):** maximizes precision — both must
+  confirm. Cost: a real defect only one skeptic could see is dropped. Net bias
+  toward **low noise.**
 
-Use 1-of-2 by default (review optimizes for not-missing-defects); raise to 2-of-2
-only when fix-churn from false positives is the dominant cost. A
-**`NOT_A_DEFECT`** verdict from all skeptics **drops** the finding (it never
-counts against convergence).
+Use T=1-of-2 by default (review optimizes for not-missing-defects); raise to
+T=2-of-2 only when fix-churn from false positives is the dominant cost. A finding
+that **no** skeptic confirms (all `isReal=false`, i.e. `confirms = 0 < T`) is
+**dropped** — it never counts against convergence.
 
 ### 2.4 COMPLETENESS CRITIC contract (frozen)
 
 The critic is a distinguished lens with a different input and a different
-question.
+question. It runs at **one fixed point in the canonical order** (§3.2): **after**
+the lens raw findings have been adversarially verified, so its `confirmedFindings`
+input is the verified set, never the raw set.
 
 ```
 CompletenessCritic {
-  input:  { change, confirmedFindings },   // the diff + everything CONFIRMED so far
+  input:  { change, confirmedFindings },   // the diff + the CONFIRMED lens findings (post §2.3)
   job:    "what did the review MISS?",
-  output: Finding[]                          // new findings → go through §2.3 too
+  output: Finding[]                          // new raw findings → go through §2.3 too
 }
 ```
+
+**Canonical order (frozen — §2.4, §3.2, §4.2 all agree).**
+`run lenses → adversarially verify the lens raw findings (§2.3) → pass the
+CONFIRMED lens findings + the change to the critic → adversarially verify the
+critic's raw findings (§2.3, same rule) → converge or reopen (§3).` The critic
+is **never** run on un-verified raw findings, and its own output is **never**
+privileged — it re-enters §2.3.
 
 It hunts the integration surface the per-facet lenses structurally miss:
 
@@ -233,17 +246,23 @@ If any of the three fails, the round is **NOT** clean.
 ### 3.2 Loop-until-dry / reopen
 
 ```
-round:
-  run all lenses (independent)           ─┐
-  collect raw findings                    │
-  run completeness critic                 │  (sees confirmed findings)
-  adversarially verify ALL raw findings   │  (§2.3, refute-by-default)
-  if no CONFIRMED finding remains:        │
-      round is CLEAN  → converged ────────┘
+round:                                              # canonical order — matches §2.4 and §4.2
+  run all lenses (independent)                  ─┐
+  collect lens RAW findings                      │
+  adversarially verify lens raw findings (§2.3)  │   → CONFIRMED lens findings (refuted dropped)
+  run completeness critic on                     │
+      { change, CONFIRMED lens findings }        │   → critic RAW findings
+  adversarially verify critic raw findings (§2.3)│   → CONFIRMED critic findings (refuted dropped)
+  if no CONFIRMED finding remains (lens+critic): │
+      round is CLEAN  → converged ───────────────┘
   else:
       fix each CONFIRMED finding
       REOPEN: a new round on the fixed change
 ```
+
+The critic always runs **after** lens-finding verification (so it sees the
+verified set, never raw noise) and its findings are verified the **same** way
+before they count. This single order is frozen and identical in §2.4 and §4.2.
 
 A critic-found defect → **fix → re-review** is the central loop: the critic
 forces a new round, the new round re-runs the lenses + critic on the *fixed*
@@ -270,45 +289,111 @@ The contract is the *data flow* (§2 schemas + §3 loop), not a concurrency engi
 The mode does **not** invent a new ledger. It composes existing Lattice review
 primitives:
 
-- **Review lanes** — `lattice-review-{concept,scope,quality,behavior,test,docs,
-  channel,delivery}` are the existing dimensional lanes; lenses **map onto**
-  these lanes.
+- **REVIEW lanes (`review_run_start --lane` enum, verified against
+  `command-catalog.ts`)** — exactly six: `lattice-review-concept`,
+  `lattice-review-quality`, `lattice-review-test-coverage`,
+  `lattice-review-behavior`, `lattice-review-docs`, `lattice-review-channel`.
+  Lenses **map onto these six** (mapping in §4.2). These are the only lanes a
+  `review_run_start` call accepts.
+- **Other-phase reviewer artifacts (NOT `review_run_start` lanes).**
+  `lattice-review-scope-plan` is the **PLAN** scope reviewer (writes
+  `scope-check.json` via `scope_check_save`); `lattice-review-delivery` is the
+  **TEST/DONE** delivery reviewer (writes `delivery-check.json` via
+  `delivery_check_set`). They are separate phase artifacts and are **not** part
+  of the REVIEW-round lens set. A dedicated completeness lane does **not** exist
+  today (FUTURE, §4.4).
 - **`review_run_start`** → obtains a `reviewRunId` for the current REVIEW round
-  and reviewer lane.
-- **`finding_add`** → records a finding (categories `happy|edge|adversarial|
-  missing`) bound to the current `reviewRunId`.
+  and reviewer lane (one of the six).
+- **`finding_add`** → records a finding bound to the current `reviewRunId`
+  (schema mapping in §4.2: `severity ∈ critical|high|medium|low`, `desc`,
+  `category ∈ happy|edge|adversarial|missing|…`, optional `files[]`, `agent`).
 - **`review_pass_set`** → records a lane's no-finding / no-blocker PASS
   conclusion (a pass-only `finding_add` is misuse).
-- **full-3×2 escalation** — defined inline below.
+- **full-3×2 escalation** — defined abstractly below.
 
-**full-3×2 escalation (definition).** The strong-proof escalation tier is **3
-distinct review rounds × 2 independent PASS hosts**: the **claude-code** host and
-the **codex** host each independently review and PASS, across **three** separate
-rounds, with every PASS submitted via **`autopilot_review_submit`** and **bound
-to the current `materialDigest`/`materialHash`** of the change. It is the
-existing strong escalation; this mode is a **review MODE / escalation TIER** that
-*feeds* it (the lenses + critic + verifier produce the per-round, per-host
-review work that the 3×2 ledger records).
+**full-3×2 escalation (abstract definition).** The strong-proof escalation tier
+is **3 distinct review rounds × 2 INDEPENDENT PASS hosts**: each round, two
+independent hosts each review and PASS, with **every verdict bound to the current
+`materialDigest`** and carrying a **distinct `hostId` / `sessionId` / `keyId`**
+(independence is established by these distinct identities + bindings — **provider
+names are diagnostic, not the proof of independence**). Each host PASS is
+submitted via **`autopilot_review_submit`**. *In THIS program* the two concrete
+hosts are **claude-code** and **codex**, but that pairing is only this program's
+example; any two hosts with distinct host/session/key identities satisfy the
+contract. This mode is a **review MODE / escalation TIER** that *feeds* the 3×2
+ledger (the lenses + verifier + critic produce the per-round, per-host review
+work the ledger records).
 
-### 4.2 How lenses → lanes → findings, with verification before they count
+### 4.2 How lenses → lanes → findings (canonical order + ledger mapping)
+
+**Lens → lane mapping (the six real REVIEW lanes).**
+
+| Canonical LENS (§2.1) | REVIEW lane (`review_run_start --lane`) |
+|---|---|
+| concept / scope | `lattice-review-concept` |
+| code-quality | `lattice-review-quality` |
+| behavior / correctness | `lattice-review-behavior` |
+| test-coverage | `lattice-review-test-coverage` |
+| crash-safety / edge | `lattice-review-behavior` (or `lattice-review-quality`) |
+| docs-consistency | `lattice-review-docs` |
+
+(`lattice-review-channel` carries channel-integrity review when relevant. The
+completeness critic has **no dedicated lane today** — its MVP provenance is in
+§4.3; a `lattice-review-completeness` lane is FUTURE, §4.4.)
+
+**Canonical order (matches §2.4 / §3.2 exactly):**
 
 ```
-lens (facet)            → maps to a lattice-review-<lane>
-  ↓ raw Finding
-adversarial verify (§2.3) → M skeptics, refute-by-default
-  ↓ CONFIRMED only
-finding_add (reviewRunId) ─ recorded against the lane's review run
+per lane: review_run_start --lane <lane>      → reviewRunId
+run lens (facet)                              → raw Finding[]
+adversarial verify lens raw findings (§2.3)   → CONFIRMED lens findings
   ↓
-completeness critic       → new raw findings → re-enter §2.3
+MAP each CONFIRMED finding to ledger fields (below) → finding_add(reviewRunId, agent)
   ↓
-lane PASS (no confirmed)  → review_pass_set (reviewRunId)
+completeness critic on {change, CONFIRMED lens findings} → critic raw Finding[]
+adversarial verify critic raw findings (§2.3) → CONFIRMED critic findings
+  ↓ (any confirmed critic finding ⇒ REOPEN, §4.3)
+MAP + finding_add the CONFIRMED critic findings too
+  ↓
+lane ends round with zero confirmed findings  → review_pass_set(reviewRunId)
 ```
 
-A raw finding that is **refuted** by the skeptics is **never** `finding_add`-ed
-(it did not survive verification). Only CONFIRMED findings reach the ledger. A
-lane that ends a round with zero confirmed findings calls `review_pass_set`.
+A finding **refuted** by the skeptics is **never** `finding_add`-ed. Only
+CONFIRMED findings reach the ledger.
 
-### 4.3 How a critic-REOPENED round binds to the escalation ledger
+**LEDGER MAPPING — methodology `Finding` (§2.2) → `finding_add` args (REQUIRED).**
+A builder must **map before calling `finding_add`**; passing the abstract
+severity `BLOCKER`/`MAJOR`/`MINOR` or the raw `{file,line,issue,fix}` fields
+directly to `finding_add` is a **Zod error** (its enums are
+`critical|high|medium|low` and its fields are `desc` + `files[]`).
+
+| methodology `Finding` field | `finding_add` arg | mapping rule |
+|---|---|---|
+| `severity: BLOCKER` | `--severity critical` | BLOCKER → `critical` |
+| `severity: MAJOR` | `--severity high` | MAJOR → `high` |
+| `severity: MINOR` | `--severity medium` | MINOR → `medium` (use `low` for cosmetic) |
+| `title` + `issue` + `fix` | `--desc` | compose: `"<title> — <issue> Fix: <fix>"` |
+| `file` (+ `line`) | `--files '["<file>"]'` | array; cite `line` inside `desc` |
+| (lens facet) | `--category` | choose `happy\|edge\|adversarial\|missing` (e.g. an unguarded door / missing consumer → `missing` or `adversarial`; a boundary/throw → `edge`) |
+| (current run) | `--reviewRunId` | the lane's `reviewRunId` from `review_run_start` |
+| (lens / critic identity) | `--agent` | the lane agent, or `completeness-critic` for critic findings (§4.3) |
+
+So the order is **verify → MAP → `finding_add`**: the abstract severity lives in
+the methodology layer; the ledger only ever sees `critical|high|medium|low`.
+
+### 4.3 Critic provenance (MVP) + how a critic-REOPENED round binds the ledger
+
+**MVP critic provenance — the critic has no dedicated lane today.** Reviewer
+evidence only counts under the **six supported** `lattice-review-*` lanes (§4.1),
+and `lattice-review-completeness` does **not** exist. So in MVP the critic is run
+by the **main agent** (or an existing lens host), and its CONFIRMED findings are
+recorded via **`finding_add` under an existing supported lane** — recommended
+**`lattice-review-quality`** or **`lattice-review-behavior`** (whichever the
+critic finding most concerns) — with **`--agent completeness-critic`** (and/or a
+`completeness-critic:` prefix in `--desc`) so the provenance is auditable in the
+finding record. A critic-driven **reopen is a normal `DEV → REVIEW` round** with
+re-bound evidence (below). The dedicated `lattice-review-completeness` lane and
+structured verdict storage stay **FUTURE** (§4.4).
 
 A reopened round is a **new round**, and the program's known mechanics apply:
 
@@ -324,20 +409,22 @@ A reopened round is a **new round**, and the program's known mechanics apply:
   head. `lattice validate` re-stamps; escalation verdicts re-bind to the new
   digest.)
 
-Concretely: critic re-opens → fix lands (new digest) → all lenses + 2 hosts
-re-review on the fresh digest under new `reviewRunId`s. A reopened round
-therefore *consumes* a full 3×2 row only when its PASSes are bound to the
-post-fix digest.
+Concretely: critic re-opens → fix lands (new digest) → all lenses + the two
+independent hosts re-review on the fresh digest under new `reviewRunId`s. A
+reopened round therefore *consumes* a full 3×2 row only when its PASSes are bound
+to the post-fix digest.
 
 ### 4.4 MVP vs FUTURE
 
 | Capability | Tier | Status |
 |---|---|---|
-| Documented, reusable **orchestration** over existing lanes (this spec as the runbook) | **MVP** | buildable now |
-| Lens→lane mapping using `review_run_start` / `finding_add` / `review_pass_set` | **MVP** | existing primitives |
-| Adversarial verification (M=2 skeptics, refute-by-default) as a **prompt/role protocol** over findings | **MVP** | no new storage; verdicts live in reasoning + which findings get `finding_add`-ed |
-| Completeness critic as a **defined role** run each round before convergence | **MVP** | role + prompt, drives reopen |
-| Reopen → new `reviewRunId` + re-bind to fresh `materialHash` | **MVP** | existing freshness mechanics |
+| Documented, reusable **orchestration** over the six existing lanes (this spec as the runbook) | **MVP** | buildable now |
+| Lens→lane mapping (§4.2) using `review_run_start` / `finding_add` / `review_pass_set` | **MVP** | existing primitives |
+| **Ledger mapping** (BLOCKER/MAJOR/MINOR → critical/high/medium; `{file,line,issue,fix}` → `desc`+`files[]`; pick `category`) before `finding_add` | **MVP** | §4.2 table; prevents the Zod error |
+| Adversarial verification (M skeptics, refute-by-default, **threshold-confirm default T=1-of-2 — not majority**) as a **prompt/role protocol** | **MVP** | no new storage; verdicts live in reasoning + which findings get `finding_add`-ed |
+| Completeness critic as a **defined role** run each round (after lens verification) | **MVP** | role + prompt, drives reopen |
+| Critic provenance via `finding_add` under an existing supported lane with `--agent completeness-critic` | **MVP** | §4.3; no dedicated lane needed |
+| Reopen → new `reviewRunId` + re-bind to fresh `materialHash`/`materialDigest` | **MVP** | existing freshness mechanics |
 | First-class **CLI review mode** (`lattice review --mode=adversarial`) | **FUTURE** *(not-yet-implemented)* | — |
 | Dedicated **completeness-critic lane** (`lattice-review-completeness`) | **FUTURE** *(not-yet-implemented)* | — |
 | **Structured verdict storage** (persist `Verdict{isReal,agreedSeverity,reasoning}` per finding, not just confirmed-or-not) | **FUTURE** *(not-yet-implemented)* | — |
@@ -372,45 +459,54 @@ re-design.**
 Codify, in a single source-of-truth module/types, the `Finding` schema (§2.2),
 the `Verdict` schema (§2.3), the canonical lens set + "task-tunable" flag (§2.1),
 the completeness-critic IO contract (§2.4), and the **review-mode interface**
-(round → {run lenses, run critic, verify, converge-or-reopen}, §3). No behavior;
+(round → {run lenses → verify lens findings → run critic → verify critic findings
+→ converge-or-reopen}, the canonical order of §2.4/§3.2/§4.2). No behavior;
 types + the mode interface only. Every later story imports this.
 *Acceptance:* the schemas/interface compile and match §2/§3 exactly; no
 downstream story needs a schema change. *Depends:* — .
 
 **S1 — Lens runner (PARALLEL).** **MVP.**
 Drive the canonical lens set as independent review agents over a change, each
-mapped to its `lattice-review-<lane>`, each returning PASS or raw `Finding[]`.
-Enforce independence (no lens sees another's output). *Acceptance:* given a
-change, produces per-lane raw findings via the S0 `Finding` schema; lanes run
-without cross-contamination. *Depends:* [S0] (imports `Finding`, lens set).
+mapped per the §4.2 table to one of the **six real REVIEW lanes**
+(`lattice-review-concept` / `-quality` / `-test-coverage` / `-behavior` /
+`-docs` / `-channel`), each returning PASS or raw `Finding[]`. Enforce
+independence (no lens sees another's output). *Acceptance:* given a change,
+produces per-lane raw findings via the S0 `Finding` schema; every emitted lane is
+in the six-lane enum; lanes run without cross-contamination. *Depends:* [S0]
+(imports `Finding`, lens set).
 
 **S2 — Adversarial verifier (PARALLEL).** **MVP.**
 Implement the M-skeptic, refute-by-default verification (§2.3): each raw finding
-→ M `Verdict`s → CONFIRMED by threshold (default 1-of-2) → only CONFIRMED
-findings flow to `finding_add`; `NOT_A_DEFECT`-by-all are dropped. *Acceptance:*
-a planted wrong-but-plausible finding is refuted and never `finding_add`-ed; a
-real defect with one concrete confirmation is CONFIRMED at threshold 1-of-2.
-*Depends:* [S0] (imports `Verdict`). Disjoint from S1.
+→ M `Verdict`s → **CONFIRMED by threshold-confirm, default T=1-of-2 (not a
+majority)** → only CONFIRMED findings are **mapped (§4.2) then `finding_add`-ed**;
+findings with `confirms < T` are dropped. *Acceptance:* a planted
+wrong-but-plausible finding gets `confirms=0` and is never `finding_add`-ed; a
+real defect with **one** concrete confirmation is CONFIRMED at T=1-of-2; the
+mapping turns a `BLOCKER` into `--severity critical` (no abstract severity
+reaches `finding_add`). *Depends:* [S0] (imports `Verdict`). Disjoint from S1.
 
-**S3 — Completeness-critic lane (PARALLEL → FUTURE-leaning).** **MVP role; lane
-is FUTURE.**
-Run the critic each round with input `{change, confirmedFindings}`, emit new raw
-findings (which re-enter S2), and signal **reopen** when any critic finding is
-CONFIRMED. MVP = a defined role + prompt driven by the runner. *Optional/FUTURE*
-= a first-class `lattice-review-completeness` lane with structured storage.
-*Acceptance:* on a B-086b-style change (one guarded door, two unguarded), the
-critic surfaces the unguarded doors and triggers reopen. *Depends:* [S0, S2]
-(critic findings go through the verifier).
+**S3 — Completeness critic (role MVP; dedicated lane FUTURE).** **MVP role.**
+Run the critic each round **after lens-finding verification** with input
+`{change, CONFIRMED lens findings}`, emit new raw findings (which re-enter S2),
+and signal **reopen** when any critic finding is CONFIRMED. MVP provenance (§4.3):
+record CONFIRMED critic findings via `finding_add` under an existing supported
+lane (`lattice-review-quality` / `-behavior`) with `--agent completeness-critic`.
+*Optional/FUTURE* = a first-class `lattice-review-completeness` lane + structured
+verdict storage. *Acceptance:* on a B-086b-style change (one guarded door, two
+unguarded), the critic surfaces the unguarded doors, its findings pass S2, and it
+triggers reopen; provenance is attributable in the finding record. *Depends:*
+[S0, S2] (critic findings go through the verifier).
 
 **S4 — Escalation-flow integration (SERIAL, last).** **MVP.**
 Wire the round/reopen loop into the Lattice escalation ledger: per-round
-`review_run_start` → CONFIRMED `finding_add` → lane `review_pass_set`; on reopen,
-new `reviewRunId` + re-bind to the fresh `materialHash`/`materialDigest`; feed
-the 3×2 host PASSes (claude-code + codex) via `autopilot_review_submit` per §4.3.
-*Acceptance:* a critic-reopened round produces new run IDs bound to the post-fix
-digest; a clean round (§3.1) records lane PASSes; no stale-digest PASS satisfies
-the gate. **Local-only — no Authority receipt is claimed (§4.5).** *Depends:*
-[S1, S2, S3].
+`review_run_start` → mapped CONFIRMED `finding_add` → lane `review_pass_set`; on
+reopen, new `reviewRunId` + re-bind to the fresh `materialHash`/`materialDigest`;
+feed the **3×2 PASSes from two independent hosts** (each with distinct
+`hostId`/`sessionId`/`keyId`; claude-code + codex in this program) via
+`autopilot_review_submit` per §4.1/§4.3. *Acceptance:* a critic-reopened round
+produces new run IDs bound to the post-fix digest; a clean round (§3.1) records
+lane PASSes; no stale-digest PASS satisfies the gate. **Local-only — no Authority
+receipt is claimed (§4.5).** *Depends:* [S1, S2, S3].
 
 **MVP cut:** S0 + S1 + S2 + S4 (with S3 as the *role* form) is a runnable mode
 today over existing lanes. The first-class CLI mode, the dedicated
