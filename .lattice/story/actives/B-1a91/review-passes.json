@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T09:27:43.338Z",
       "reviewRunId": "B-1a91:RR-004",
       "_hash": "f4d05a005a5c3a97ae0adc02ec1c6b375150431e86aaadf8c3ec3eec8fa2880c"
+    },
+    {
+      "id": "B-1a91:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review: all five round-1 findings (F-001..F-005) are genuinely fixed. (a) --story filtered path now emits advisory coverage line for both human and --json output, while still running the per-story validity report; early-return on filtered===true is clean with no ValidRateReport.coverage collision risk. (b) global/unfiltered coverage gap path (readFindingSignals -> computeCoverageGap -> renderCoverageLine) is unchanged and still meaningful. (c) No dangling references, half-done edits, or contradictory comments: cache! and as-number cast appear only in comments describing what was removed; m![1] in check() is logically guarded by !!m and pre-existed. (d) done-effects.ts now passes new Date().toISOString() as now to deriveFindingSignalsFromStore, consistent with finding-signals.ts opts.now usage and updatedAt fallback to epoch sentinel; learning_scan passes now the same way (comment correct). Metadata-only scenario (F-004) is self-consistent: buildDoneReadyStoryWithLinkedWorktree commits all files on main first, so story branch diff vs main contains only .lattice/ metadata, isDoneMainRuntimeBuildInput returns false, build is skipped, yet refresh still fires unconditionally. Smoke docstring accurately describes all three scenarios. No concept deleted/replaced en masse; no residue check needed. Clean.",
+      "createdAt": "2026-06-20T09:31:00.260Z",
+      "reviewRound": "2026-06-20T09:27:43.338Z",
+      "reviewRunId": "B-1a91:RR-005",
+      "_hash": "5e1b22fa1c7a9f5f29df95d291a7dad1fd33ee598b00e007d6f4884f8a2c497e"
     }
   ]
 }
