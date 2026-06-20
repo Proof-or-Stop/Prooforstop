@@ -96,9 +96,15 @@ export interface VerifiedFinding {
  * Adversarially verify ONE finding: call `runSkeptic(finding, change)` exactly M
  * times (M = opts.skeptics ?? DEFAULT_SKEPTICS), collect the verdicts, count
  * STRICT `isReal === true` confirmations (refute-by-default: undefined/false/
- * anything-not-true does NOT count), and confirm when `confirms >= T`
- * (T = opts.threshold ?? DEFAULT_CONFIRM_THRESHOLD) — threshold-confirm, NOT
- * majority. A confirms=0 finding is `confirmed=false`.
+ * anything-not-true does NOT count), and confirm when `confirms >= T` —
+ * threshold-confirm, NOT majority.
+ *
+ * The EFFECTIVE confirm threshold is at least 1: a requested threshold below 1
+ * (T = opts.threshold ?? DEFAULT_CONFIRM_THRESHOLD) is clamped to 1, so a
+ * confirms=0 finding is ALWAYS dropped (`confirmed=false`) regardless of the
+ * requested threshold — §2.3 refute-by-default (a finding that no skeptic
+ * confirms can never confirm). A requested threshold ABOVE the skeptic count is
+ * left as-is (nothing can confirm).
  */
 export function verifyFinding(
   finding: Finding,
@@ -107,7 +113,8 @@ export function verifyFinding(
   opts?: { skeptics?: number; threshold?: number },
 ): VerifiedFinding {
   const skeptics = opts?.skeptics ?? DEFAULT_SKEPTICS;
-  const threshold = opts?.threshold ?? DEFAULT_CONFIRM_THRESHOLD;
+  const requested = opts?.threshold ?? DEFAULT_CONFIRM_THRESHOLD;
+  const threshold = Math.max(1, requested); // §2.3: a finding ALWAYS needs >=1 concrete confirmation; T<1 is clamped to 1 (refute-by-default — zero confirmations can never confirm)
   const verdicts: Verdict[] = [];
   for (let i = 0; i < skeptics; i++) {
     verdicts.push(runSkeptic(finding, change));

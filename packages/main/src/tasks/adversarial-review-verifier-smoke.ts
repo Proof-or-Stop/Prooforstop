@@ -183,15 +183,29 @@ check(
   'toFindingAddArgs file with spaces/separators preserved verbatim',
   spacedArgs.files.length === 1 && spacedArgs.files[0] === 'src/a b/c.ts',
 );
-// CHK-002:adversarial:1 — pure: shapes a plain object synchronously, no awaited finding_add call.
-const pureResult: unknown = toFindingAddArgs(majorFinding, {
-  reviewRunId: 'RR-pure',
-  agent: 'lattice-review-behavior',
-  category: 'happy',
-});
+// CHK-002:adversarial:1 — toFindingAddArgs synchronously returns a fresh, deterministic plain
+// FindingAddArgs object (idempotent, distinct ref, exact shape, non-Promise); the stronger
+// 'never calls finding_add' property is structurally guaranteed by the module having no I/O
+// imports and is best spied at the S4 boundary.
+const pureOpts = { reviewRunId: 'RR-pure', agent: 'lattice-review-behavior', category: 'happy' as const };
+const pureResultA = toFindingAddArgs(majorFinding, pureOpts);
+const pureResultB = toFindingAddArgs(majorFinding, pureOpts);
+const pureResult: unknown = pureResultA;
 check(
   'toFindingAddArgs returns a plain (non-Promise) object synchronously',
   typeof pureResult === 'object' && pureResult !== null && !(pureResult instanceof Promise),
+);
+check(
+  'toFindingAddArgs is idempotent (two calls, same inputs -> deep-equal output)',
+  JSON.stringify(pureResultA) === JSON.stringify(pureResultB),
+);
+check(
+  'toFindingAddArgs builds a fresh object each call (distinct ref, no shared mutable state)',
+  pureResultA !== pureResultB,
+);
+check(
+  'toFindingAddArgs result has EXACTLY keys {agent,category,desc,files,reviewRunId,severity}',
+  Object.keys(pureResultA).sort().join(',') === 'agent,category,desc,files,reviewRunId,severity',
 );
 
 // ── 4. defaults ───────────────────────────────────────────────────────────────
@@ -263,10 +277,19 @@ const vSeqTFF = verifyFinding(majorFinding, 'CHG', fakeSeq([true, false, false])
 check('M=3,T=2 [true,false,false] confirms === 1', vSeqTFF.confirms === 1);
 check('M=3,T=2 [true,false,false] confirmed === false', vSeqTFF.confirmed === false);
 
-// CHK-003:adversarial:2 — T=0 boundary: confirms===0 but confirmed===true (confirms >= 0 always true).
+// CHK-003:adversarial:2 — §2.3 invariant: zero concrete confirmations can never confirm;
+// requested T<1 is clamped to 1. all-false @ threshold:0 yields confirms===0 AND confirmed===false (DROPPED).
 const vT0 = verifyFinding(majorFinding, 'CHG', fakeFixed(0), { skeptics: 2, threshold: 0 });
-check('T=0 boundary confirms === 0', vT0.confirms === 0);
-check('T=0 boundary confirmed === true (confirms >= 0 always)', vT0.confirmed === true);
+check('T=0 all-false confirms === 0', vT0.confirms === 0);
+check('T=0 all-false confirmed === false (DROPPED — threshold floored to 1)', vT0.confirmed === false);
+// §2.3 invariant — a confirms=0 finding is DROPPED regardless of the requested threshold (T=0 AND T=1).
+const vT1zero = verifyFinding(majorFinding, 'CHG', fakeFixed(0), { skeptics: 2, threshold: 1 });
+check('T=1 all-false confirms === 0', vT1zero.confirms === 0);
+check('T=1 all-false confirmed === false (DROPPED)', vT1zero.confirmed === false);
+// and a 1-of-2 fake @ threshold:0 -> confirmed === true (confirms=1 >= floored-1).
+const v1of2_t0 = verifyFinding(majorFinding, 'CHG', fakeFixed(1), { skeptics: 2, threshold: 0 });
+check('1-of-2 @ T=0 confirms === 1', v1of2_t0.confirms === 1);
+check('1-of-2 @ T=0 confirmed === true (confirms=1 >= floored-1)', v1of2_t0.confirmed === true);
 
 // ── 6. refute-by-default strictness ──────────────────────────────────────────
 // A Verdict with isReal=false but a non-NOT_A_DEFECT agreedSeverity must NOT count.
