@@ -79,7 +79,35 @@
       "userSees": "lattice learning_validate prints a coverage line: normally \"coverage: N/N findings, 0 gap\"; when a DONE auto-refresh was missed/failed it shows e.g. \"coverage: 438/470 findings, 32 not yet summarized (cache behind; run learning_scan)\", and after learning_scan it returns to 0 gap.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The cache carries a coverage watermark (coveredStoryCount/coveredFindingCount/coveredThrough); learning_validate prints \"coverage: N/N findings, 0 gap\" right after a scan.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "After adding a finding without re-scan, learning_validate reports a non-zero gap (delta findings/stories not yet summarized); after learning_scan, gap=0.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A cache WITHOUT watermark fields degrades to \"coverage: unknown — run learning_scan\" (back-compat; learning_validate never crashes).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "coveredFindingCount is counted with the SAME method as deriveFindingSignalsFromStore, so gap=0 immediately after a scan (no false positive).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
