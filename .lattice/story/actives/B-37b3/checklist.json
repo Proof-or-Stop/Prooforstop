@@ -47,7 +47,69 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "Smoke: reading via the learning-store / loadExperienceHints FROM a linked worktree resolves and reads the main-checkout finding-signals cache (non-empty). Passed (4 checks).",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "Smoke: a non-git temp dir falls back to the passed root (resolveLearningRoot catch) — no throw, empty when the cache is absent.",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "resolveLearningDir funnels EVERY read+write path (finding-signals/playbooks/proposals/registry/log) through resolveLearningRoot, so write-then-read agree on one canonical main cache; smoke asserts write-parity.",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "resolveLearningRoot runs git rev-parse --git-common-dir with cwd=searchOrigin and dirname(resolve(searchOrigin, commonDir)) → the absolute main root; the smoke asserts the worktree reads the MAIN cache path. For the main checkout (.git) it is byte-identical to the old behavior.",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "resolveLearningRoot is try/catch with fallback to searchOrigin, so a git failure never breaks story_review / learning_*; advisory-only.",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,7 +148,44 @@
           "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke directly: exits 0 and prints \"experience-hint-worktree-cache smoke passed (4 checks)\".",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with test:experience-hint-worktree-cache in the chain; existing experience-layer/hint smokes stay green.",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
+          "result": "pass",
+          "note": "The smoke drives the real learning-store resolver against a real git main+worktree and a non-git dir (not a stub); RED/GREEN verified (neutralizing the resolver fails 3/4 checks).",
+          "headHash": "a2ea6a081b5adbf0cc8747d01b88741f5040d1db",
+          "materialHash": "1173651175dba6b93d435311b8f9b908395fd49ab2c3a114bf76672ccdd0ae1d",
+          "storyFilesHash": "0d5c973cbceef7bb773ff3d5f6fc61c131f6967a14e81674b22bcd5f7a61f0d9",
+          "timestamp": "2026-06-20T07:03:59.536Z"
+        }
+      ]
     }
   ]
 }
