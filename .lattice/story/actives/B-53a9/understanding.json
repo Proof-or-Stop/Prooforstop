@@ -1,0 +1,21 @@
+{
+  "task": "Add the missing readReviewRuns method to the docs-drift-wrapper-root-smoke stub StoryStore so the docs-drift preflight gate (reviewerEvidenceAdvisoryGate -> collectReviewerEvidenceState) stops throwing, restoring full npm test to green. A B-5a9a regression.",
+  "outcome": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the docs-drift preflight without TypeError and exits 0; full `npm test` exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing instead of throwing \"TypeError: store.readReviewRuns is not a function\".",
+  "facts": [
+    "docs-drift-wrapper-root-smoke.ts makeStubStore (~182-191) returns a partial StoryStore cast as unknown as StoryStore that omits readReviewRuns.",
+    "collectReviewerEvidenceState (review-run.ts:868) calls store.readReviewRuns(storyId).runs; it is reached via review-preflight.ts reviewerEvidenceAdvisoryGate which the docs-drift smoke exercises.",
+    "review-incremental-context-smoke.ts (line ~119) already implements readReviewRuns -> this is the reference shape.",
+    "This is a regression from merged B-5a9a (commit 19a543165), which added the store.readReviewRuns call to the preflight path without updating this stub; B-5a9a self-DONEd because the DONE gate runs only the configured validate.commands subset which excludes this smoke.",
+    "Sibling stubs audited: review-convergence-smoke and authority-enforce-matrix-smoke do not hit the preflight gate, so only docs-drift-wrapper-root needs the method."
+  ],
+  "constraints": [
+    "Test-fixture completeness fix ONLY; do NOT change the production review-preflight gate or review-run.ts.",
+    "Minimal: add the single readReviewRuns stub method returning { runs: [] } (the fixture has no review runs).",
+    "Only docs-drift-wrapper-root-smoke.ts changes; the rest of the smoke stays byte-identical."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
+  ],
+  "timestamp": "2026-06-20T05:17:32.423Z"
+}

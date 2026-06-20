@@ -4,7 +4,7 @@
   "title": "Fix docs-drift-wrapper-root-smoke stub store missing readReviewRuns (B-5a9a npm-test regression)",
   "description": "Full npm test is RED on main at test:docs-drift-wrapper-root with TypeError: store.readReviewRuns is not a function, because B-5a9a added a store.readReviewRuns call into the review-preflight gate path but the smoke stub store does not implement it. Add readReviewRuns: () => ({ runs: [] }) to the docs-drift-wrapper-root-smoke stub (mirroring review-incremental-context-smoke); verify full npm test returns to green. Test-fixture completeness fix only; no production change.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-20T05:13:58.121Z",
   "startedAt": "2026-06-20T05:13:58.121Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T05:29:32.296Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T05:16:47.935Z",
+      "branch": "story/B-53a9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T05:19:15.983Z",
+      "branch": "story/B-53a9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T05:22:43.119Z",
+      "branch": "story/B-53a9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-20T05:26:00.255Z",
+      "branch": "story/B-53a9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T05:29:32.296Z",
+      "branch": "story/B-53a9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-53a9",
-    "branch": "story/B-53a9",
-    "createdAt": "2026-06-20T05:16:46.394Z"
-  }
+  "currentReviewRound": "2026-06-20T05:22:43.119Z"
 }
