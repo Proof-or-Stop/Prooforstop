@@ -5,7 +5,7 @@
       "desc": "MAJOR (both hosts; adjudicated to the Claude critic's narrower scope): the parallel-decomposition gateConsumer was added to all FOUR scope-contract facts, but scope_contract_check is a PURE READ (handler calls store.readScopeContract + buildScopeDiffPack, ZERO writeScopeContract) so it produces no input the gate consumes — registering it (and hard-asserting it in verify-process-fact-contract) locks in a producer->gate edge the runtime does not have, contradicting L4's 'commands that WRITE facts consumed by gates'. The other three (scope_contract_set/acknowledge/init_from_plan) all call writeScopeContract -> produce the durable scope-contract.json the gate reads, so they are correct (acknowledge writes the contract too — Codex's wider removal of acknowledge over-corrects vs the registry's file-granularity convention, where acknowledge already lists the other contract-reading gates). Fix: drop the parallel-gate clause from scope_contract_check's gateConsumer; remove scope_contract_check from the verify-script asserted-commands array (assert only the 3 producers, still non-vacuous); update spec §8.1 to list the 3 producer facts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-completeness-critic",
       "createdAt": "2026-06-20T10:22:44.984Z",
@@ -17,7 +17,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "adversarial|ts|major-both-hosts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "scope_contract_check's gateConsumer reverted to its pre-existing value (parallel-gate clause dropped) — it is a pure read (no writeScopeContract). The 3 producer facts (scope_contract_set/acknowledge/init_from_plan, all call writeScopeContract) retain the parallel gateConsumer. verify-process-fact-contract asserts only the 3 producers; non-vacuity re-proven (removing acknowledge's registration fails the check). spec §8.1 updated to list the 3 producers + state check is excluded. commit 7d905ea98.",
+      "resolvedAt": "2026-06-20T10:25:41.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
