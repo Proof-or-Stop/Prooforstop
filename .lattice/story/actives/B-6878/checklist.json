@@ -5,8 +5,8 @@
       "title": "Add a single null-prototype whitelist chokepoint helper + apply at the two usage-ledger entry points",
       "context": "Per spec Option 2 (PREFERRED). Add ONE shared helper (e.g. toOwnPropsNullProto(obj, whitelist): projects only own-property whitelisted keys into an Object.create(null) object) in core/usage-ledger/adapters/shared.ts or a new core/usage-ledger/sanitize.ts (leaf; no cross-module imports beyond node builtins). Apply it ONCE at the two entry points so all downstream reads see a null-proto object: (1) extractRawUsage in core/usage-ledger/assemble.ts (providerResponse cast from unknown — most load-bearing; also handle options.usage ?? {} default), (2) the anthropic extract path in core/usage-ledger/dispatch-usage.ts (envelope.usage / nested usage). Enumerate the per-provider whitelist from existing adapters (anthropic: input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens; openai: prompt_tokens/completion_tokens/prompt_tokens_details(+cached_tokens); gemini: promptTokenCount/candidatesTokenCount/cachedContentTokenCount). Re-locate exact lines by symbol. Mirror B-30c3 semantics. Do NOT change the B-253e validator / four-field accounting / record shapes; do NOT redo providers/codex-cli.ts or providers/gemini-cli.ts.",
       "userSees": "A single shared chokepoint helper exists and is applied at extractRawUsage (assemble.ts) and the anthropic extract (dispatch-usage.ts); downstream adapter/streaming reads see a null-prototype, whitelist-only object. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T14:46:16.689Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
