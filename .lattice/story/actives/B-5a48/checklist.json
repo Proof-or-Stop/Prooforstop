@@ -51,26 +51,26 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
-          "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "ON arm returns rendered section + fires one experience_hint_surfaced event (hintMode on, full hintIds) on dedup miss; covered by CHK-002 happy:0/1/2/3 checks in the shadow-gate smoke after the leaf refactor.",
-          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
-          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
-          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
-          "timestamp": "2026-06-20T12:18:18.240Z"
+          "note": "Direct leaf check: surfaceExperienceHints on an ON-arm story with signals returns hintMode=on, non-empty renderedSection (label + [recAB]), hintIds full, fired=true, and appends exactly one experience_hint_surfaced(hintMode:on).",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
-          "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "GOLDEN: _reviewPrompt bytes + event payload byte-identical before/after leaf extraction on both arms; shadow-gate smoke (which exercises story_review firing) passes 14/14 unchanged; explicit golden literals added in the dispatch-hint smoke.",
-          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
-          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
-          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
-          "timestamp": "2026-06-20T12:18:18.390Z"
+          "note": "GOLDEN ON: story_review _reviewPrompt bytes + event payload byte-identical to pre-extraction literals (refactor behavior-preserving on the ON arm).",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -78,23 +78,23 @@
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "OFF-arm leaf event lossless: surfaceExperienceHints on OFF-arm story fires one event with hintMode off + full hintIds while renderedSection empty — asserted at leaf level in the dispatch-hint smoke.",
-          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
-          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
-          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
-          "timestamp": "2026-06-20T12:18:18.540Z"
+          "note": "GOLDEN OFF (lossless): story_review _reviewPrompt bytes byte-identical pre/post extraction AND the OFF-arm event carries hintMode:off with the FULL hintIds; renderedSection empty.",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/core/experience-hint-surface.ts",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "Load/track failure swallowed by try/catch → renderedSection empty, no throw, no partial event (early return in the leaf).",
-          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
-          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
-          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
-          "timestamp": "2026-06-20T12:18:18.689Z"
+          "note": "Failure injected inside the leaf (activity-log path occupied by a directory -> appendActivityLog EISDIR): surfaceExperienceHints does not throw, returns renderedSection=\"\" and fired=false, no partial event. Verified non-vacuous (re-throwing from the catch makes this check FAIL).",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         }
       ]
     },
@@ -145,11 +145,11 @@
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "ON-arm story with finding-signals: buildNextSteps REVIEW guidance contains the rendered hints section after the Agent({lattice-review-*}) lines + exactly one experience_hint_surfaced(hintMode on) recorded for the round — asserted in the dispatch-hint smoke.",
-          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
-          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
-          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
-          "timestamp": "2026-06-20T12:19:36.011Z"
+          "note": "ON-arm buildNextSteps REVIEW guidance contains the rendered hints section AFTER the Agent({lattice-review-*}) launch lines, and exactly one experience_hint_surfaced(hintMode:on, full hintIds) is recorded for the round.",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -157,23 +157,23 @@
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "OFF-arm story: buildNextSteps REVIEW guidance byte-identical to the no-hints baseline (no section) + one event(hintMode off) with full hintIds (lossless).",
-          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
-          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
-          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
-          "timestamp": "2026-06-20T12:19:36.165Z"
+          "note": "OFF-arm buildNextSteps REVIEW guidance is BYTE-IDENTICAL to the no-hints baseline (no section) AND exactly one event(hintMode:off) carries the full hintIds (lossless).",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/handlers/transition-effects.ts",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "Whole hint block wrapped in try/catch (advisory-only) so a thrown error never blocks/alters the REVIEW transition; active-reviewer set computed before the block, unchanged by hints.",
-          "headHash": "adbf7a00419b3edc0b624efd3db2398338008e73",
-          "materialHash": "e5526a90c5df394b9d264c8a00ae3e7013ecee407e0565a9e247d349b0f584a1",
-          "storyFilesHash": "1579746deaa097a7fc5386eac37da38be4ee6a1b085f51f2a4368d13ad67ac53",
-          "timestamp": "2026-06-20T12:19:36.361Z"
+          "note": "Hint-path failure driven THROUGH buildNextSteps (EISDIR on activity-log) is swallowed: buildNextSteps does not throw, the returned guidance still contains \"Active reviewers:\" + the Agent({lattice-review-*}) lines (transition not blocked/garbled), no section appended, no partial event.",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         }
       ]
     },
@@ -227,11 +227,11 @@
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "Smoke exits 0 (7/7 checks); auto-discovered by run-all-smokes (PASS experience-layer-review-dispatch-hint 1.7s); full npm test exits 0 with ALL PASS.",
-          "headHash": "5ced0400c2434b6d5f56ceacb80de109ffd485ff",
-          "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
-          "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
-          "timestamp": "2026-06-20T12:34:23.255Z"
+          "note": "node experience-layer-review-dispatch-hint-smoke.js prints \"TOTAL 10 | PASS 10 | FAIL 0\" / \"✓ experience-layer-review-dispatch-hint smoke passed (10 checks)\" and exits 0; auto-discovered by run-all-smokes; full npm test exits 0.",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -239,11 +239,11 @@
           "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
           "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
           "result": "pass",
-          "note": "Cross-site dedup check: PLAN story_review fires plan:PLAN event; same story advanced to REVIEW + buildNextSteps fires one event under the ISO currentReviewRound key (disjoint); second buildNextSteps adds no event; REVIEW event.reviewRound equals the ISO key (not plan:<phase>).",
-          "headHash": "5ced0400c2434b6d5f56ceacb80de109ffd485ff",
-          "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
-          "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
-          "timestamp": "2026-06-20T12:34:23.434Z"
+          "note": "Cross-site dedup: PLAN story_review fires a plan:PLAN event; the same story at REVIEW fires ONE event under the ISO currentReviewRound key (disjoint); a second buildNextSteps in the same round adds NO event; REVIEW event.reviewRound == ISO currentReviewRound (not plan:PLAN).",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -256,6 +256,18 @@
           "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
           "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
           "timestamp": "2026-06-20T12:34:23.611Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "INVARIANT: resolveReviewPromptHash is byte-identical for an ON vs OFF story (hint content never enters the signed reviewer prompt). No new command: full npm test (which chains lifecycle-registry-contract + process-fact-contract) exits 0 WITHOUT any command-policy/process-fact edit.",
+          "headHash": "91f1689454082f9c57c8e2349d04b64c4464d798",
+          "materialHash": "18e1ed1cda8db3c9b38e2b22fce661bd5b57955a03713a419b78c1903c48d545",
+          "storyFilesHash": "ee4814cc396e6a55055729a699bfe05ca04fb88ae246a3c6d5d640f77241963b",
+          "timestamp": "2026-06-20T12:47:35.221Z"
         }
       ]
     }
