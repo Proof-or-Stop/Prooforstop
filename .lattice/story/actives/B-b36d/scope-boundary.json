@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b36d",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/guide.md",
+    "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+    "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "README.md"
+  ],
+  "excluded": [
+    "Authority server implementation",
+    "docs/story/**",
+    "packages/main/dist/**",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "remote push/release",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User accepted renaming the design to Lattice Lifecycle Proof-Or-Stop Readiness Check and authorized work until completion; scope is documentation/diagram refinement only, not CLI implementation.",
+  "createdAt": "2026-06-20T11:48:47.979Z",
+  "updatedAt": "2026-06-20T11:48:47.979Z",
+  "_hash": "a93b1caf889f51f6c25e291bcaf930573f0ae6a84f96cbd321935b672437d84c"
+}

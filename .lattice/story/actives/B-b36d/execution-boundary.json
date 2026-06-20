@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b36d",
+  "allowedCommands": [
+    "awk*",
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git mv*",
+    "git status*",
+    "lattice checklist_get*",
+    "lattice checklist_update*",
+    "lattice finding_add*",
+    "lattice finding_resolve*",
+    "lattice review_pass_set*",
+    "lattice review_run_start*",
+    "lattice session_brief",
+    "lattice story_advance*",
+    "lattice story_get*",
+    "lattice story_review*",
+    "lattice validate*",
+    "npm --prefix packages/main run build",
+    "rg*",
+    "sed*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent reviewer tools"
+  ],
+  "allowedPaths": [
+    "docs/guide.md",
+    "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+    "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "README.md"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "lattice authority* --execute*",
+    "lattice release_approve_push*",
+    "omx*",
+    "rm -rf .omx*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/dist/**",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Documentation-only execution boundary for B-b36d. Allowed activity is renaming/repositioning the readiness-check design, updating its diagram and references, and running local validation/review commands. No CLI/runtime implementation, remote push, or Authority production claim.",
+  "createdAt": "2026-06-20T11:49:07.631Z",
+  "updatedAt": "2026-06-20T11:49:07.631Z",
+  "_hash": "537ee244e87de4ac14e59e7f067328d52a798e28845f1bc146d1fd63bd1defab"
+}
