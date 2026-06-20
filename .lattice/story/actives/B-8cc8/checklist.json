@@ -61,9 +61,9 @@
       "id": "CHK-002",
       "title": "Acceptance: zero koala in CHANGELOG, build and validate green",
       "context": "git grep -i koala CHANGELOG.md returns nothing; npm run build exits 0; the lattice validate suite stays all-green (CHANGELOG is docs, excluded from the koala-residue gate, no test impact).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T23:09:06.623Z",
       "userSees": "0 koala in CHANGELOG; npm run build exit 0; lattice validate all-green",
       "verificationIntent": {
         "happy": [
