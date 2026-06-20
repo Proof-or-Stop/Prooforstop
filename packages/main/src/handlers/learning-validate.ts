@@ -18,7 +18,14 @@
 import { execFileSync } from 'node:child_process';
 
 import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
-import { revalidateSignals, computeValidRate, type ValidRateReport } from '../core/experience-revalidation.js';
+import {
+  revalidateSignals,
+  computeValidRate,
+  computeCoverageGap,
+  type ValidRateReport,
+  type CoverageGapReport,
+} from '../core/experience-revalidation.js';
+import { readFindingSignals } from '../core/learning-store.js';
 import type { HandlerContext } from './context.js';
 
 interface LearningValidateArgs {
@@ -58,8 +65,29 @@ function shortHead(cwd: string): string {
   }
 }
 
+/**
+ * B-1a91 CHK-003: render the advisory coverage line from a CoverageGapReport.
+ *   - no watermark (legacy/absent cache):  "coverage: unknown — run learning_scan"
+ *   - known + in sync (gap 0):             "coverage: N/M findings, 0 gap"
+ *   - known + behind (gap > 0):            "coverage: <covered>/<current> findings,
+ *                                           <gap> across <J> stories not yet
+ *                                           summarized (cache behind; run learning_scan)"
+ * Advisory only — no gate reads it.
+ */
+function renderCoverageLine(gap: CoverageGapReport): string {
+  if (!gap.known) return 'coverage: unknown — run learning_scan';
+  if (gap.gapFindings <= 0) {
+    return `coverage: ${gap.coveredFindingCount}/${gap.currentFindingCount} findings, 0 gap`;
+  }
+  return (
+    `coverage: ${gap.coveredFindingCount}/${gap.currentFindingCount} findings, ` +
+    `${gap.gapFindings} across ${gap.gapStories} stories not yet summarized ` +
+    `(cache behind; run learning_scan)`
+  );
+}
+
 /** Render the advisory human report (counts, valid-rate, drift-rate, stale list). */
-function renderHuman(head: string, report: ValidRateReport): string {
+function renderHuman(head: string, report: ValidRateReport, coverageLine: string): string {
   const lines: string[] = [];
   lines.push(`Experience Layer — referential validity (HEAD ${head})`);
   lines.push(`  signals (total):           ${report.total}`);
@@ -69,6 +97,8 @@ function renderHuman(head: string, report: ValidRateReport): string {
   lines.push(`  unanchored (no files):     ${report.unanchored}`);
   lines.push(`  valid-rate:  ${report.validRate.toFixed(3)}`);
   lines.push(`  drift-rate:  ${report.driftRate.toFixed(3)}`);
+  // B-1a91 CHK-003: coverage watermark vs the live store — advisory only.
+  lines.push(`  ${coverageLine}`);
   lines.push('Stale signals (code anchors gone at HEAD):');
   if (report.staleSignals.length === 0) {
     lines.push('  (none)');
@@ -94,7 +124,8 @@ export function createLearningValidateHandlers(ctx: HandlerContext) {
       const cwd = process.cwd();
       const storyIds = typeof args.story === 'string' ? [args.story.trim()] : undefined;
 
-      // NO projectRoot => derive only, never persist.
+      // NO projectRoot => derive only, never persist. The derived cache carries the
+      // CURRENT coverage watermark (counted by the same method as a learning_scan).
       const cache = deriveFindingSignalsFromStore(ctx.store, storyIds ? { storyIds } : {});
 
       const headFiles = buildHeadFileSet(cwd);
@@ -104,10 +135,24 @@ export function createLearningValidateHandlers(ctx: HandlerContext) {
       const report = computeValidRate(validity);
       const head = shortHead(cwd);
 
+      // B-1a91 CHK-003: coverage gap — compare the PERSISTED cache's watermark
+      // against the just-derived CURRENT counts. The current counts come from the
+      // derived cache's own watermark, so they are computed identically to what a
+      // learning_scan would persist => gap=0 immediately after a scan (no false
+      // positive). A persisted cache without a watermark (legacy/absent) degrades to
+      // "coverage: unknown". Advisory only; readFindingSignals never throws (returns
+      // null on absent/malformed) so the report can never crash learning_validate.
+      const persisted = readFindingSignals(cwd);
+      const gap = computeCoverageGap(persisted, {
+        currentFindingCount: typeof cache.coveredFindingCount === 'number' ? cache.coveredFindingCount : 0,
+        currentStoryCount: typeof cache.coveredStoryCount === 'number' ? cache.coveredStoryCount : 0,
+      });
+      const coverageLine = renderCoverageLine(gap);
+
       if (args.json) {
-        return JSON.stringify({ head, ...report }, null, 2);
+        return JSON.stringify({ head, ...report, coverage: gap }, null, 2);
       }
-      return renderHuman(head, report);
+      return renderHuman(head, report, coverageLine);
     },
   };
 }

@@ -57,6 +57,7 @@ import {
   renderAuxiliaryClassification,
 } from '../core/auxiliary-worktree-cleanup.js';
 import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
+import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -899,6 +900,36 @@ export async function applyDoneMergeEffects(
         mainShaAfterDoneMerge,
         { changedPaths: doneMergeChangedPaths },
       ));
+
+      // B-1a91 CHK-001: auto-refresh the Experience Layer finding-signals cache.
+      // The cache only ever updated via an explicit out-of-band `learning_scan`,
+      // so accumulated per-story experience could silently go stale. Here we
+      // re-derive + persist it on EVERY DONE merge (NOT gated on the changed-paths
+      // build predicate — findings accrue regardless of whether code changed) so
+      // the just-completed story's findings are folded in with no manual scan.
+      //
+      // deriveFindingSignalsFromStore persists through the learning-store, whose
+      // resolveLearningRoot canonicalizes any worktree root to the MAIN checkout
+      // (post-B-37b3), so the cache always lands in the single shared
+      // .lattice/learning/. We derive from a MAIN-rooted StoryStore (NOT the
+      // worktree `store`): by this point Step 4 has already removed the story
+      // worktree directory, so the worktree store can no longer enumerate/read
+      // findings — but every story's metadata (including this just-merged story's
+      // resolved findings) lives on main, where the merge just landed. mainMergeRoot
+      // is the canonical main checkout already used for the merge.
+      //
+      // ADVISORY ONLY: no gate reads this cache. The refresh is wrapped so it can
+      // NEVER throw or block the DONE merge; a failure is swallowed into a status
+      // line, and CHK-003's coverage watermark + learning_validate gap report make
+      // any silently-skipped refresh DETECTABLE and recoverable (run learning_scan).
+      try {
+        const refreshStore = new StoryStore(mainMergeRoot);
+        const signalsCache = deriveFindingSignalsFromStore(refreshStore, { projectRoot: mainMergeRoot });
+        const n = Array.isArray(signalsCache.signals) ? signalsCache.signals.length : 0;
+        mergeLines.push(`✓ experience cache refreshed (${n} signals)`);
+      } catch (e: any) {
+        mergeLines.push(`⚠ experience cache refresh skipped: ${e?.message || e}`);
+      }
     }
 
     if (mergeLines.length > 0) {
