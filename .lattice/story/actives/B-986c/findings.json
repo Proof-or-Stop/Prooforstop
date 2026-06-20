@@ -1,0 +1,160 @@
+{
+  "findings": [
+    {
+      "id": "B-986c:F-001",
+      "desc": "CHK-001:adversarial:1 claims evidence proves \"Peer with parallelSafe=no has overlapping path -> no overlap_declared_parallel block (peer must also assert parallel),\" but the smoke block 8 (line 142-151 of parallel-decomposition-gate-smoke.ts) tests the CONVERSE scenario: story parallelSafe=no with a parallel peer. No smoke fixture exercises story=parallel + peer=non-parallel + overlapping paths. The gate code at line 73 does implement this correctly (assertsParallel(peer) check), but the smoke evidence does not directly assert the stated claim. CHK-002:edge:4 claims the same scenario is covered by the smoke, compounding the mismatch.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:38:41.736Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "0ee0741aa5c9ba56e2e68a5f972ec0f97ce682de155769a359499772c37369f2",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts",
+        "packages/main/src/core/parallel-decomposition-gate.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-claims-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke #12 covers parallel S + non-parallel peer (overlapping) -> block null (peer must also assert parallel).",
+      "resolvedAt": "2026-06-20T00:03:16.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-002",
+      "desc": "CHK-001:adversarial:2 claims evidence proves \"Story own contract missing from Map -> fail-open (block=null, NOT peer_contract_unreadable).\" No smoke block omits the story S from the contracts Map. Every fixture in parallel-decomposition-gate-smoke.ts (blocks 1-10) passes a contract for story S. The gate implementation at lines 62-63 handles this correctly (sContract check, sWriteSet defaults to []), but the stated behavioral claim is never exercised by the smoke. The evidence command node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js does not cover this intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:38:48.015Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "c3d9b366b49448f902c12e5f3e4761347c4a274778da10be900d698b8ff3b982",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts",
+        "packages/main/src/core/parallel-decomposition-gate.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-claims-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: gate now early-returns fail-open on an unreadable OWN contract (Codex MAJOR); smoke #8 asserts own-contract-missing -> block null + fail-open advisory + surviving depends advisory.",
+      "resolvedAt": "2026-06-20T00:03:17.065Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-003",
+      "desc": "CHK-001:adversarial:3 claims evidence proves \"Multiple peers: one DONE (ignored), one active with overlap, one active with missing contract -> block=overlap_declared_parallel (highest precedence).\" No single smoke fixture combines all three conditions: a DONE peer (filtered), an active parallel peer with a literal collision, AND an active parallel peer with no contract. The three conditions are each proven in isolation (blocks 7, 2, 5 respectively) but never simultaneously, so the multi-peer precedence interaction with mixed terminal/active peers is not exercised. CHK-002:adversarial:1 also claims \"overlap > peer_contract_unreadable > broad_glob\" three-way precedence is asserted, but no fixture combines all three firing conditions simultaneously; only overlap > broad is tested (smoke block 9, line 162).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:38:55.324Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "70fd0488b3d6fc6b21de12872ed02cd452cf07240bb00d58d9674059776b9615",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-claims-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke #15 covers 3-way precedence (overlap > peer_unreadable > broad, all triggered) and #16 covers multi-peer mixed (terminal ignored, active overlaps).",
+      "resolvedAt": "2026-06-20T00:03:17.508Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-004",
+      "desc": "CHK-001:edge:0 and CHK-001:edge:1 claim separate evidence for DONE filtering and DISCARDED filtering respectively, but smoke block 7 (lines 127-139 of parallel-decomposition-gate-smoke.ts) tests BOTH terminal phases in a single fixture by passing both a DONE peer and a DISCARDED peer simultaneously. A single assertion (block null) cannot distinguish which filtering rule is responsible for the result. If DONE filtering were silently broken but DISCARDED filtering were correct, the block-7 assertion would still pass because the DISCARDED peer is also excluded. The two intents are not independently falsifiable by the current evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:39:02.374Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "fa6ca7c110d41759d06dd875a05a6bd3a8b4627839011fe526f0a30877520df4",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-edge-claim",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke #10/#11 isolate DONE-only and DISCARDED-only peer filtering.",
+      "resolvedAt": "2026-06-20T00:03:17.932Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-005",
+      "desc": "dead code: parallel-policy.ts:34-45 JSDoc for resolveParallelSafety is now orphaned — TERMINAL_PHASES insertion placed a second JSDoc block between the existing comment and the function, so resolveParallelSafety has no attached doc and the older JSDoc block is unreachable dead comment",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:39:07.544Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-002",
+      "_hash": "cf77ea6e760adbff0b03e18f37ccf509e7c40f670c5083545b8f6036cc5a56b0",
+      "files": [
+        "packages/main/src/core/parallel-policy.ts"
+      ],
+      "signatureTag": "missing|ts|dead-code-parallel",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: TERMINAL_PHASES moved above resolveParallelSafety's JSDoc; the function doc is no longer orphaned.",
+      "resolvedAt": "2026-06-20T00:03:18.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-006",
+      "desc": "dead code: parallel-decomposition-gate-smoke.ts:45 uses async IIFE (void (async () => {) with no await expression inside; the async keyword is unnecessary dead modifier",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:39:11.461Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-002",
+      "_hash": "fe0cdb4b0cdff577dba261718f1684e1b45fa3d90d478e68f4fd08d79b8f1669",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|dead-code-parallel",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the smoke IIFE is now synchronous (void (() => {...})()), no redundant async.",
+      "resolvedAt": "2026-06-20T00:03:18.825Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-986c:F-007",
+      "desc": "CHK-001:adversarial:4 intent claims block=null with EMPTY advisories when all supplied peers are terminal (DONE/DISCARDED) and story has a broad glob. Smoke block-5 (lines 97-107) tests peers=[] (truly no peers, not all-terminal) and checks that a broad advisory IS emitted. Smoke block-10/11 (lines 164-171) tests isolated DONE/DISCARDED peers but uses a literal-collision contract (not broad), and asserts only block=null without touching advisories. Neither block covers the exact scenario: (a) non-empty peer list where every peer is DONE/DISCARDED, (b) broad-glob story, (c) advisories is empty. The evidence command node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js correctly points to the smoke, but the smoke does not assert the three-way conjunction required by this intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:50:51.582Z",
+      "reviewRound": "2026-06-19T23:48:31.012Z",
+      "reviewRunId": "B-986c:RR-006",
+      "_hash": "28dd5745b723d5c199f3b32251b2520a504b757a460d0b48614751d4877aae99",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: gate change makes no-active-peers a TRUE §4.8 no-op (broad advisory gated on activePeers>0); smoke #5b asserts all-terminal-peers + broad -> block null AND empty advisories (the CHK-001:adversarial:4 intent).",
+      "resolvedAt": "2026-06-20T00:03:19.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

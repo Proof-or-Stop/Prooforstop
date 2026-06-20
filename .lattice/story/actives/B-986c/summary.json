@@ -1,0 +1,56 @@
+{
+  "storyId": "B-986c",
+  "changes": "New core/parallel-decomposition-gate.ts: pure evaluateDecompositionGate(story, peers, contracts, cfg) -> {advisories, block}. Consumes the Story-1 overlap engine. Blocks ONLY on provable contradictions (tier-1 literal overlap; broad glob asserted parallel under strict WITH active peers; active parallel peer with unreadable contract); advises on heuristic cases; fake_dependency_chain is advise-only. Spec section 4.8 fail-open on own contract, fail-closed on a peer contract, no-active-peers no-op; never reads cfg.mode. parallel-policy.ts exports a single-source TERMINAL_PHASES. + 32-assertion hermetic smoke registered in lattice.config.json.",
+  "usage": "Story 4 (wave/review advisory) and Story 5 (canStartDevGuard enforcement) call evaluateDecompositionGate to decide or advise whether a set of parallel stories is genuinely disjoint. Until Story 5 wires it into the PLAN->DEV guard there is no end-user enforcement; the verdict behavior is exercised by node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js.",
+  "expectedOutcome": "A tier-1 literal collision between two active parallel stories returns block overlap_declared_parallel; a broad glob asserted parallel under strict with an active peer returns broad_glob_unprovable_parallel; a clean disjoint parallel pair returns block null; a lone parallel story (no active peers) returns block null and empty advisories (section 4.8 no-op).",
+  "actualTranscript": "Live demo: OVERLAP -> block overlap_declared_parallel citing src/x.ts + peer P; BROAD/strict -> block broad_glob_unprovable_parallel citing src/**; CLEAN -> block null, no advisories; LONE -> block null, empty advisories. validate --story coverage 32/32; smoke 32 assertions; full validate 8/8 green.",
+  "outcomeDiff": "None -- actual matches expected on every point (block reasons, cited paths, empty advisories for clean and lone).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Verdict-only: enforcement wiring into canStartDevGuard and the wave/review surfaces is Stories 4 and 5 (the frozen contract parallel-decomposition.ts re-export reconcile is Story 5). fake_dependency_chain is advise-only because the depends string[] model carries no cited symbol (spec section 4.5). Static overlap is two conservative tiers (no minimatch in the project); the runtime probe is the backstop.",
+  "pitfalls": "Genuine dual-host review was decisive: Codex (host 2) round-1 caught 2 real MAJORs against spec section 4.8 that all three Claude lanes missed -- a broad-glob hard block with zero active peers (no-op rule), and a missing-own-contract that was not a true fail-open. Lesson: read the failure-mode guardrails section (4.8) before implementing a gate; fail-OPEN on your own unreadable data, fail-CLOSED on a peer (corrupt-peer bypass), and no-active-peers is a TRUE no-op (empty advisories). 3 rounds to converge (MAJOR/finding count fell each round).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 170104
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1201
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 711999
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 630322
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1386321
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 62157
+    }
+  },
+  "totalDurationMs": 2962104,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T00:05:37.066Z",
+  "updatedAt": "2026-06-20T00:05:37.066Z"
+}

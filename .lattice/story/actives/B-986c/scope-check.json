@@ -1,0 +1,157 @@
+{
+  "storyId": "B-986c",
+  "checkedAt": "2026-06-19T23:29:59.733Z",
+  "features": [
+    {
+      "feature": "Implement evaluateDecompositionGate as a new pure function in core/parallel-decomposition-gate.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consume Story-1 overlap engine (computeWriteSet, globsOverlap, classifyBroadness) from core/parallel-decomposition-overlap.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Gate computes advisories[] plus an optional hard block reason from scope facts only; does NOT consult cfg.mode for enforcement (mode enforcement lives in Story 5 caller canStartDevGuard)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "BLOCK reason overlap_declared_parallel: S asserts parallel AND tier-1 literal-path intersection with active peer P also asserting parallel (spec §4.3 cond.1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.3"
+    },
+    {
+      "feature": "BLOCK reason broad_glob_unprovable_parallel: S asserts parallel but write-set contains BROAD glob; hard block only when cfg.broadGlobBlocks=true, else advisory (spec §4.3 cond.2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.3"
+    },
+    {
+      "feature": "fake_dependency_chain advise-only: with StoryInfo.depends as string[] and no cited symbol, the falsifiable case is not evaluable in-model; gate never hard-blocks fake_dependency_chain (spec §4.3 cond.3, §4.5)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.3"
+    },
+    {
+      "feature": "BLOCK reason peer_contract_unreadable_parallel: unreadable peer contract means independence is unprovable; fail-closed on parallel assertion (spec §4.8)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.8"
+    },
+    {
+      "feature": "Tier-1 literal exact-path set-intersection triggers block; tier-2 shared-directory-prefix triggers advisory only (spec §4.2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.2"
+    },
+    {
+      "feature": "Filter active peers using terminalPhases={DONE, DISCARDED}; hoist and export TERMINAL_PHASES from parallel-policy.ts as single source (spec §4.3 preamble)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.3"
+    },
+    {
+      "feature": "Fail-open: config-load failure or own contract unreadable -> treat as mode off, allow (spec §4.8)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.8"
+    },
+    {
+      "feature": "No active peers -> no-op (trivially parallel-safe, mirrors summarizeParallelPolicy) (spec §4.8)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.8"
+    },
+    {
+      "feature": "Hermetic smoke task: each block reason fires on its provable case and degrades to advisory on the non-provable case; clean disjoint decomposition returns block=null (CHK-002 title)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.3"
+    },
+    {
+      "feature": "Smoke uses in-memory StoryInfo/ScopeContractData fixtures (no file I/O, no network) — hermetic",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md/§4.2"
+    },
+    {
+      "feature": "Smoke task registered in lattice.config.json validate.commands for CI integration",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire evaluateDecompositionGate into canStartDevGuard (machine.ts) as the real PLAN->DEV decision predicate (spec §4.4 edit 1)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: gate does NOT consult cfg.mode; mode enforcement in Story 5 caller canStartDevGuard. This belongs to Story 5 per spec §8 suggested breakdown.",
+      "source": "decisions:parallel-decomposition-spec.md/§4.4"
+    },
+    {
+      "feature": "Wire evaluateDecompositionGate into getGuardFailureReason (machine.ts) for the DEV branch human-readable message (spec §4.4 edit 2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Story 5 (Integration: the hard gate + message per spec §8). CHK-001 files.modify does not include machine.ts.",
+      "source": "decisions:parallel-decomposition-spec.md/§4.4"
+    },
+    {
+      "feature": "Add scope_glob_overlap degradation kind to resolveWaveSafety in lattice-parallel-wave.ts (spec §4.4 ADVISE injection 4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Story 4 per spec §8. CHK-001/CHK-002 file lists do not include lattice-parallel-wave.ts.",
+      "source": "decisions:parallel-decomposition-spec.md/§4.4"
+    },
+    {
+      "feature": "Add advisory injection to story-review.ts (spec §4.4 ADVISE injection 3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Story 4 per spec §8. CHK-001/CHK-002 file lists do not include story-review.ts.",
+      "source": "decisions:parallel-decomposition-spec.md/§4.4"
+    },
+    {
+      "feature": "parallelGate config resolution in resolveAuditConfig: VALID_PARALLEL_MODES, mode/maxConcurrentReview/broadGlobBlocks per-field validation, profile table (spec §4.7)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Story 3 (Config resolution) per spec §8. CHK-001/CHK-002 file lists do not include audit-config.ts resolution logic. Only the TERMINAL_PHASES export from parallel-policy.ts is in S2 scope.",
+      "source": "decisions:parallel-decomposition-spec.md/§4.7"
+    },
+    {
+      "feature": "lattice-parallel-wave.md: parallel_wave_create, parallel_wave_inspect, parallel_plan, parallel_dispatch, parallel_status, parallel_merge_queue, parallel_report commands are L0 read-only",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "These are existing Parallel Wave commands, not part of the decomposition gate. Different subsystem; no S2 checklist item covers wave commands.",
+      "source": "decisions:lattice-parallel-wave.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 14,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "34ed7c75d69429d61f6313b12f4455eea1b2601c636e5cf9ccadcd834b7d16b6",
+  "openQuestions": []
+}
