@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-1a91:F-001",
+      "desc": "quality-cleanup: done-merge-experience-refresh-smoke.ts:174 — non-null assertion cache! is unsound (TypeScript cannot infer process.exit(1) as noreturn, so cache remains FindingSignalsCache|null at this point) and the as-number cast that follows is redundant (typeof cache?.coveredFindingCount === 'number' already narrows it). Fix: pull the null guard into a real branch before this line (e.g. if (!cache) { ... return; }), then drop both the non-null assertion and the cast.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T09:16:58.159Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-003",
+      "_hash": "f3d21e22ff7d7d220755b9cc02955da020ab7cc8189583188a4470799b5b7721",
+      "files": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|quality-cleanup-merge",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
