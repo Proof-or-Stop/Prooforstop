@@ -220,6 +220,18 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:10.702Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/owner-session-adapters.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Adapter boundary supports legacy Claude session naming and agy diagnostic provider while keeping Antigravity as a first-class provider label; TypeScript build passed.",
+          "headHash": "42d9e39db07cbdaa068028baf28d6365c81c557a",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:11.297Z"
         }
       ]
     },
