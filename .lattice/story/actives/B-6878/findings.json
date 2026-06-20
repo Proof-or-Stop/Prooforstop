@@ -5,7 +5,7 @@
       "desc": "6/9 verificationIntent entries are stale (headHash mismatch): CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0. All six carry evidence whose headHash predates the current HEAD (a2efffe). validate reports 3/9 covered, 6 required missing. The evidence commands for the stale intents were recorded against earlier commits and have not been re-bound after the final hardening commit. Until re-stamped they do not satisfy the must-coverage requirement for a normal-channel story.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T15:09:32.500Z",
@@ -21,7 +21,10 @@
         "packages/main/src/core/usage-ledger/adapters/openai.ts"
       ],
       "signatureTag": "missing|ts|verificationintent-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded all 9 verificationIntent evidence entries bound to usage-ledger-prototype-pollution-smoke.js at the current material (ef73b51); recover_evidence re-stamps freshness before TEST.",
+      "resolvedAt": "2026-06-20T15:56:50.692Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-002",
