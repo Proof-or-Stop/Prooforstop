@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4620",
+  "mode": "maintenance",
+  "allowed": [
+    "Create docs/requirements/decisions/lattice-experiment-protocol.md (the rev2 pre-registered experiment protocol, English, self-contained)",
+    "Optionally append an Unreleased CHANGELOG.md entry noting the decision doc landed"
+  ],
+  "excluded": [
+    "Building the experiment harness or any condition runner",
+    "Changing any production code under packages/",
+    "Modifying lattice-Paper/ files",
+    "Running any real agent experiment or producing empirical results"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator on 2026-06-20 directed landing the rev2 experiment protocol as a decision doc and reviewing it via genuine Lattice 3-round 2-host (Claude+Codex) review; design-doc only.",
+  "createdAt": "2026-06-20T18:17:27.205Z",
+  "updatedAt": "2026-06-20T18:17:27.205Z",
+  "_hash": "b906cf8383c7dcf3dab1eb0c02e947298e0f8ea30205f12f4fb1a5d70bf0767b"
+}

@@ -1,0 +1,43 @@
+{
+  "storyId": "B-b179",
+  "checkedAt": "2026-06-20T18:08:51.382Z",
+  "reviewRound": "2026-06-20T18:07:13.817Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "promise": "文档与 Mermaid 流程口径一致",
+      "status": "verified",
+      "verifiedBy": "docs-read",
+      "evidence": "检查了 localReady、no mutation in V1、Target proof wording 与 Step 4 handoff 文案。"
+    },
+    {
+      "docPath": "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+      "promise": "SVG 与文本、Mermaid 一致",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "确认 SVG 已更新 handoff 与 rollback 文案。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "文档和故事元数据变更，未涉及运行时行为修改；已在仓库里完成命令验证与审阅。"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "通过 lattice validate --story=B-b179 --json 验证 9/9 intent 覆盖。"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "通过所有 reviewer pass_set 完成 review lane。"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "文档口径修正后完成 review 与 validation 复核，当前无未完成 TODO。"
+  },
+  "_hash": "1b4dbea9baf985d071143bd9510036fd07271cb0f86d274c722011d55f7bd6e0"
+}

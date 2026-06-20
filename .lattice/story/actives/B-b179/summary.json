@@ -1,0 +1,55 @@
+{
+  "storyId": "B-b179",
+  "changes": "标准化并重写 Lifecycle Readiness Check 文档，补齐 localReady、done_prepare main-tip 绑定、handoff/rollback 表达，并同步 Mermaid 与 SVG。",
+  "usage": "阅读 docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md 与对应 SVG 了解 V1 生命周期就绪检查预期行为。",
+  "expectedOutcome": "文档内 READY 判定、blocking 语义与下一步动作在不同场景下保持一致；主流程与 V1 都可复用。",
+  "actualTranscript": "已在 DEV/REVIEW/TEST/DONE 阶段执行 story_advance、review pass、lattice validate、done_required_validate，全部通过；delivery-check 与 summary 已写入。",
+  "outcomeDiff": "预期是减少流程歧义与证据误报风险，结果是文档与证据链闭环并满足 DONE Gate。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "变更限定于文档和流程语义建议，不含 CLI runtime 代码实现。",
+  "pitfalls": "未同步实施层代码，仅覆盖 V1 read-only 和文档层面；未来如接入执行层需按权限与回滚策略再校准。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 11455052
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 4170
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 41646
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 116352
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 51511
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 80465
+    }
+  },
+  "totalDurationMs": 11749197,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T18:09:25.793Z",
+  "updatedAt": "2026-06-20T18:09:25.793Z"
+}

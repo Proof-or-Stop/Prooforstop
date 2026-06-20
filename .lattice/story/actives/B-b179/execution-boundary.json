@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b179",
+  "allowedCommands": [
+    "git",
+    "lattice*",
+    "npm",
+    "rg"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "docs/requirements/decisions/assets"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Doc-only workflow. Execution is scoped to requirements docs and readiness-flow assets.",
+  "createdAt": "2026-06-20T18:04:22.367Z",
+  "updatedAt": "2026-06-20T18:04:22.367Z",
+  "_hash": "516f65acff03918c43bc32d200f3093dcd49e0bb749c984c92f295015d973eac"
+}
