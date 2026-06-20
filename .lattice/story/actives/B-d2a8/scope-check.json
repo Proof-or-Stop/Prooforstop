@@ -145,10 +145,11 @@
       "q": "resolveParallelGate signature mismatch: spec section 4.7 line 372 defines the helper as resolveParallelGate(raw?: unknown): ParallelGateConfig (one parameter), but CHK-001 title and verificationIntent both call a two-parameter form resolveParallelGate(raw, profileDefault). INIT-001 flagged this and the story understanding recorded a deliberate decision to use the two-param form to keep the helper pure/decoupled. The decided deviation is noted as an improvement but the signature must be consistently documented so S5 integration (canStartDevGuard wiring) knows the actual public API.",
       "evidence": "spec section 4.7 line 372: resolveParallelGate(raw?: unknown): ParallelGateConfig; CHK-001 title: resolveParallelGate(raw, profileDefault); INIT-001 decision: use two-param form as deliberate improvement",
       "sourcePointers": [
-        "docs/parallel-decomposition-spec.md:372",
-        "B-d2a8 CHK-001 title",
-        "B-d2a8 init-check.json INIT-001"
-      ]
+        "CHK-001",
+        "docs/parallel-decomposition-spec.md#4.7"
+      ],
+      "resolution": "Resolved: resolveParallelGate uses the TWO-parameter form (raw, profileDefault), a deliberate improvement over the spec §4.7 one-param illustration (which is non-normative). Passing the profile default explicitly keeps the helper a pure, independently unit-testable function decoupled from the WorkflowProfile table; the one-param form would couple it to PARALLEL_GATE_PROFILE_DEFAULTS and WorkflowProfile. This was decided in understanding (unknowns) and decision_set (chosen=dedicated-two-param-helper). No S5 ambiguity: Story 5 calls resolveAuditConfig(profile, root).parallelGate (already a fully-resolved ParallelGateConfig), NOT resolveParallelGate directly, so the helper signature is internal to audit-config.ts.",
+      "resolvedAt": "2026-06-20T05:28:23.247Z"
     }
   ]
 }
