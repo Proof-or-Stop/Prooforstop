@@ -55,6 +55,17 @@
           "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
           "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
           "timestamp": "2026-06-20T21:02:03.882Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke verifies JSON/text report shape and story metadata snapshot remains unchanged after lifecycle_check.",
+          "headHash": "c82a72400281088e0df1ce39fc7e0a2195fba912",
+          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
+          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
+          "timestamp": "2026-06-20T21:02:04.440Z"
         }
       ]
     },
