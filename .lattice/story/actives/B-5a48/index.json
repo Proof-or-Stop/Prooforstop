@@ -1,0 +1,23 @@
+{
+  "storyId": "B-5a48",
+  "name": "wire-experience-hints-into-review-loop",
+  "title": "Surface the A/B-gated Experience Layer hints in the REVIEW reviewer-launch guidance (+ shared firing leaf) so the ON arm reaches lane reviewers and experience_hint_surfaced accrues",
+  "description": "Today experience hints render only in story_review _reviewPrompt (PLAN), but REVIEW lane reviewers are launched with hand-written prompts that bypass it, so the ON arm never influences review and REVIEW rounds emit zero experience_hint_surfaced. Extract a single shared leaf core/experience-hint-surface.ts (surfaceExperienceHints: firing+dedup+arm), refactor story-review.ts to use it (byte-preserving), and surface the rendered+gated hints in buildNextSteps REVIEW branch (transition-effects.ts) so they appear in the reviewer-launch text the agent reads and fire the A/B event (PLAN plan:<phase> vs REVIEW ISO-round key = disjoint, no double-count). Advisory-only: review-run.ts/resolveReviewPromptHash untouched + byte-identical arms; OFF appends nothing; no new command. + smoke.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-06-20T12:00:13.231Z",
+  "startedAt": "2026-06-20T12:00:13.231Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T12:00:13.232Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ]
+}
