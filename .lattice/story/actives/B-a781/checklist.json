@@ -20,6 +20,26 @@
           "docs/requirements/decisions/owner-session-contract-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The created execution plan states that LATTICE_SESSION_ID is the canonical owner lease identity used by core owner-session logic, and linked contract docs repeat that host-specific session variables must be bridged before core lease handling.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan documents degraded identity behavior: ppid-derived identity is allowed only as a last-resort fallback when LATTICE_SESSION_ID is absent, and the user-visible source should make that degraded fallback clear.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reviewer challenges a parent-PID-changing invocation path and the documentation still requires stable ownership through LATTICE_SESSION_ID, with ppid fallback treated as non-canonical and insufficient for the normal multi-host contract.",
+            "type": "manual"
+          }
+        ]
       }
     },
     {
