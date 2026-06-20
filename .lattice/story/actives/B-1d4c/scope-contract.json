@@ -7,7 +7,8 @@
     "packages/main/src/handlers/lattice-cli.ts",
     "packages/main/src/core/lattice-hosts.ts",
     "packages/main/src/handlers/dev-memory.ts",
-    "packages/main/src/handlers/session.ts"
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/host-overflow-smoke.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -16,8 +17,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "add host-overflow-smoke test harness file needed for regression coverage",
   "acknowledgements": [],
   "createdAt": "2026-06-20T19:28:30.930Z",
-  "updatedAt": "2026-06-20T19:28:30.930Z"
+  "updatedAt": "2026-06-20T19:28:47.811Z"
 }
