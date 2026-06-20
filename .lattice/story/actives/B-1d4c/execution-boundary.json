@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1d4c",
+  "allowedCommands": [
+    "./bin/*",
+    "./packages/main/bin/*",
+    "bash *",
+    "cat *",
+    "git *",
+    "grep *",
+    "lattice *",
+    "node *",
+    "npm run *",
+    "rg *",
+    "sed *",
+    "sh *",
+    "ts-node *",
+    "tsx *"
+  ],
+  "allowedTools": [
+    "filesystem",
+    "git",
+    "terminal",
+    "web"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".githooks",
+    ".lattice",
+    ".lattice-codex",
+    "docs/requirements",
+    "package.json",
+    "packages/main",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".env",
+    ".github/secrets",
+    "coverage",
+    "node_modules/.cache"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implementation scope for host handoff preflight and stale-doc guard.",
+  "createdAt": "2026-06-20T18:53:52.353Z",
+  "updatedAt": "2026-06-20T18:53:52.353Z",
+  "_hash": "799b39c42949e9410f257140fc9c70128b357268b15821f095af68c3ff1ee9e0"
+}
