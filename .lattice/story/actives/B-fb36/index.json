@@ -4,7 +4,7 @@
   "title": "Implement DONE prepare automation for pre-DONE closure readiness",
   "description": "Implement the documented lattice done_prepare command as a conservative pre-DONE readiness assistant. It should orchestrate main sync, stale evidence classification, validation, done_closure, runtime-change reporting, and final clean-tree guidance without weakening lifecycle gates or modifying version files before DONE.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "done_prepare",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-19T22:34:29.744Z",
   "startedAt": "2026-06-19T22:34:29.744Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T00:36:52.356Z",
   "events": [
     {
       "phase": "INIT",
@@ -142,12 +142,15 @@
       "branch": "story/B-fb36",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T00:36:52.356Z",
+      "branch": "story/B-fb36",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fb36",
-    "branch": "story/B-fb36",
-    "createdAt": "2026-06-19T22:37:51.965Z"
-  },
   "currentReviewRound": "2026-06-20T00:21:48.911Z"
 }
