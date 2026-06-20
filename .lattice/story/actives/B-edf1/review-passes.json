@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T05:31:18.963Z",
       "reviewRunId": "B-edf1:RR-002",
       "_hash": "3816e9f2433a086f0aeff956da82c83d325dfc0b58102f76229b3de4b2410b35"
+    },
+    {
+      "id": "B-edf1:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/completeness check passed. Checked: (1) patch is live in worktree — escalationBaseDetail extracted, escalationDetail appends advisories only when escalation.ok && advisories?.length, row stays pass, blocking unchanged; (2) advisory strings in review-escalation.ts both contain re-attestation advisory required matching smoke ADVISORY_RE; (3) no concept word deleted/replaced en masse — only the inline detail ternary was extracted to a variable; (4) no residue of old inline ternary outside the new escalationBaseDetail assignment; (5) no doc-promise-undelivered — smoke imports are all real exports (buildDoneChecklist, renderDoneChecklist, currentMaterialHash, currentStoryFilesHash, resetConfigCache, DoneCheckRow); (6) smoke wired to package.json test:done-escalation-drift-advisory and the test chain. 0 findings.",
+      "createdAt": "2026-06-20T05:34:14.993Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-001",
+      "_hash": "4cdb6170203e42655b6699adc02dc842520e6bea15cb0902fb60cfa3a047bde9"
     }
   ]
 }
