@@ -1,0 +1,27 @@
+{
+  "storyId": "B-fa7c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/parallel-decomposition.ts",
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/core/parallel-decomposition-gate.ts",
+    "packages/main/src/core/audit-config.ts"
+  ],
+  "scopeChangeReason": "Story 4 advisory wiring: only the wave projector, the review handler, the new smoke, and lattice.config.json; frozen Stories 0-3 files and Story 5's machine.ts are explicitly excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T07:05:55.808Z",
+  "updatedAt": "2026-06-20T07:05:55.808Z"
+}
