@@ -137,6 +137,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
     'done_closure',  // read-only DONE closure projection; local readiness only, no Authority claim
+    'lifecycle_check', // read-only proof-or-stop readiness projection; no command execution or evidence writes
     'done_prepare',  // pre-DONE readiness assistant; handler fail-closes outside TEST before mutation
     'done_required_validate', // opt-in DONE-required validation evidence writer; advisory when no policy exists
     'story_get', 'story_list', 'story_reconcile', 'story_discard',

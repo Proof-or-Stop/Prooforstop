@@ -1,0 +1,44 @@
+{
+  "storyId": "B-bd45",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "lifecycle_check is a new read-only command and must be listed in DEFAULT_PHASE_TOOLS so active stories can run it without bypassing the CLI phase gate.",
+      "timestamp": "2026-06-20T20:59:25.526Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5a8ed54aa045fd9e84d6f551b23f9419bcb94c61",
+      "materialHash": "55b668425f7e9dda025ba00eab5c192b84691562c67d70ad0c4826ce89b7b6b9"
+    }
+  ],
+  "createdAt": "2026-06-20T20:45:14.659Z",
+  "updatedAt": "2026-06-20T20:59:25.526Z"
+}
