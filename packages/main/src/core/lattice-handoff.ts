@@ -290,6 +290,42 @@ export interface HandoffWorktreeProjection {
   warnings: string[];
 }
 
+export interface HostDispatchPrefetchSnapshot {
+  status: 'ok' | 'unavailable' | 'error';
+  raw: string;
+  parsed?: unknown;
+  reason?: string;
+}
+
+export interface HostDispatchSupersessionReport {
+  status: 'none' | 'present' | 'invalid' | 'stale';
+  docsChecked: string[];
+  staleDocs: string[];
+  winner?: string;
+  signal?: string;
+  summary: string;
+}
+
+export interface HostDispatchPrefetch {
+  computedAt: string;
+  sessionBrief: HostDispatchPrefetchSnapshot;
+  devMemoryPreflight: HostDispatchPrefetchSnapshot;
+  activeStorySummary: HostDispatchPrefetchSnapshot;
+  doneStorySummary: HostDispatchPrefetchSnapshot;
+  gapAnalyzeSummary: HostDispatchPrefetchSnapshot;
+  learningSignalSummary: HostDispatchPrefetchSnapshot;
+  supersession: HostDispatchSupersessionReport;
+}
+
+export interface HostDispatchPrefetchManifest {
+  host: string;
+  targetStoryId: string;
+  bundleFiles: string[];
+  verdict: 'blocked' | 'no-block' | 'uncertain';
+  winSignal: string;
+  staleSignals: string[];
+}
+
 export interface HostDispatchProjection {
   schemaVersion: 'lattice.host_dispatch.v1';
   status: 'planned' | 'unavailable';
@@ -308,6 +344,8 @@ export interface HostDispatchProjection {
   limits: string[];
   hostStatus: LatticeHostStatus;
   worktree: Pick<HandoffWorktreeProjection, 'branch' | 'worktreePath' | 'cleanupCommand' | 'reviewCommand'>;
+  preflight: HostDispatchPrefetch;
+  prefetchManifest: HostDispatchPrefetchManifest;
 }
 
 function stringValue(value: unknown): string | undefined {
@@ -398,6 +436,29 @@ function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
       'Do not auto-merge, auto-trust, or submit authority evidence from overflow output.',
       'Manual review in the owning Lattice worktree remains required before merge or DONE.',
     ],
+  };
+}
+
+function ensureHostDispatchPrefetchDefaults(storyId: string): HostDispatchPrefetch {
+  const unavailable: HostDispatchPrefetchSnapshot = {
+    status: 'unavailable',
+    raw: 'prefetch not executed',
+    reason: 'Host dispatch preflight was not executed before projection.',
+  };
+  return {
+    computedAt: new Date().toISOString(),
+    sessionBrief: unavailable,
+    devMemoryPreflight: unavailable,
+    activeStorySummary: unavailable,
+    doneStorySummary: unavailable,
+    gapAnalyzeSummary: unavailable,
+    learningSignalSummary: unavailable,
+    supersession: {
+      status: 'none',
+      docsChecked: [],
+      staleDocs: [],
+      summary: 'No preflight facts were available.',
+    },
   };
 }
 
@@ -1074,11 +1135,25 @@ export function buildHandoffWorktreeProjection(pack: HandoffPack): HandoffWorktr
 
 export function buildHostDispatchProjection(
   pack: HandoffPack,
-  args: { host: string; mode?: 'supervised' },
+  args: {
+    host: string;
+    mode?: 'supervised';
+    preflight?: HostDispatchPrefetch;
+    prefetchManifest?: HostDispatchPrefetchManifest;
+  },
 ): HostDispatchProjection {
   const hostStatus = buildLatticeHostStatus(args.host);
   const worktree = buildHandoffWorktreeProjection(pack);
   const planned = hostStatus.overflowReady;
+  const preflight = args.preflight ?? ensureHostDispatchPrefetchDefaults(pack.storyId);
+  const prefetchManifest = args.prefetchManifest ?? {
+    host: hostStatus.host,
+    targetStoryId: pack.storyId,
+    bundleFiles: [],
+    verdict: 'uncertain',
+    winSignal: 'prefetch-not-computed',
+    staleSignals: ['Host dispatch preflight was not computed.'],
+  };
   return {
     schemaVersion: 'lattice.host_dispatch.v1',
     status: planned ? 'planned' : 'unavailable',
@@ -1109,6 +1184,8 @@ export function buildHostDispatchProjection(
       cleanupCommand: worktree.cleanupCommand,
       reviewCommand: worktree.reviewCommand,
     },
+    preflight,
+    prefetchManifest,
   };
 }
 
@@ -1238,10 +1315,17 @@ export function renderHostDispatchProjectionText(result: HostDispatchProjection)
     `nextAction: ${result.nextAction}`,
     `worktreePath: ${result.worktree.worktreePath}`,
     `branch: ${result.worktree.branch}`,
+    `prefetchManifest.verdict: ${result.prefetchManifest.verdict}`,
+    `prefetchManifest.winSignal: ${result.prefetchManifest.winSignal}`,
+    `prefetchManifest.targetStoryId: ${result.prefetchManifest.targetStoryId}`,
   ];
   if (result.limits.length > 0) {
     lines.push('', 'limits:');
     lines.push(...result.limits.map(limit => `  - ${limit}`));
+  }
+  if (result.prefetchManifest.staleSignals.length > 0) {
+    lines.push('', 'staleSignals:');
+    lines.push(...result.prefetchManifest.staleSignals.map(signal => `  - ${signal}`));
   }
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');

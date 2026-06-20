@@ -1,0 +1,24 @@
+{
+  "task": "Make host handoff load authoritative truth facts (session, memory, checklist/summary, gap, and stale-doc checks) before resume/accept, regardless of host.",
+  "outcome": "A resumed host can see the same concise fact bundle and stale status immediately, and handoff refuses stale superseded docs without evidence freshness.",
+  "facts": [
+    "lattice-handoff currently projects host/installed state but not machine-readable preflight bundle",
+    "dev_memory_preflight handler exists but isn’t auto-injected in host handoff context",
+    "gap_analyze and learning_validate have stale evidence outputs available from command handlers",
+    "legacy plan execution docs may carry superseded/completed markers not consumed by host decisions"
+  ],
+  "constraints": [
+    "follow existing host handoff/dispatch schema; avoid reading/writing docs/story and tests/fixtures directly",
+    "must keep changes scoped to main runtime and host adapters used by Codex/Claude/Antigravity"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/session.ts"
+  ],
+  "timestamp": "2026-06-20T18:55:33.484Z"
+}
