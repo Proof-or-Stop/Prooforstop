@@ -200,7 +200,22 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "npm run test:process-fact-contract passes with the new assertion that scope_contract_set gateConsumer names the parallel DEV-entry gate.",
+          "headHash": "6a659d8c49252a92e4fa27e433ffbf9dc6eebfdc",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:50.805Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
