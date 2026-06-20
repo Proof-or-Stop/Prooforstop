@@ -659,6 +659,11 @@ Behavior:
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),
   }},
+  { name: 'done_required_validate', description: 'Run opt-in DONE-required validation commands and write done-required-evidence.json', schema: {
+    storyId: z.string().describe('Story ID'),
+    story: z.string().optional().describe('Alias for storyId.'),
+    json: z.boolean().optional().describe('Return done-required-evidence.json content as JSON.'),
+  }},
   { name: 'decision_doc_quorum_check', description: 'Read-only decision-doc local quorum diagnostic; decision-doc edits are classification-only unless review_escalation_status requires quorum. Alias: lattice decision doc quorum check', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

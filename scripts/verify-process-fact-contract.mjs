@@ -39,6 +39,7 @@ const requiredReviewerRunIdPromptFiles = new Set([
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
+const lifecycleRegistryPath = 'packages/main/src/core/lifecycle-registry.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -159,6 +160,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
+  { name: 'artifact:done-required-evidence.json', path: 'done-required-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
@@ -1265,6 +1267,28 @@ function assertInitializerPattern(initializer, label, pattern, message) {
   assert(pattern.test(initializer), `${processFactRegistryPath}: ${label} ${message}`);
 }
 
+function extractObjectPropertyBlock(objectText, propertyName, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\{`).exec(objectText);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return '';
+
+  const openIndex = match.index + match[0].lastIndexOf('{');
+  return extractBalancedBlock(objectText, openIndex, '{', '}', `${label} ${propertyName}`);
+}
+
+function assertArrayPropertyIncludesValue(block, propertyName, value, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\[`).exec(block);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return;
+
+  const openIndex = match.index + match[0].lastIndexOf('[');
+  const arrayBody = extractBalancedBlock(block, openIndex, '[', ']', `${label} ${propertyName}`);
+  assert(
+    new RegExp(`['"]${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(arrayBody),
+    `${label} ${propertyName} must include '${value}'`,
+  );
+}
+
 function assertProcessFactMappedSourceContracts(sourceText) {
   const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
   assertInitializerPattern(
@@ -2008,6 +2032,80 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
       assert(!registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${commandName} must not gain gate-evidence semantic`);
     }
   }
+}
+
+function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const commandName = 'done_required_validate';
+  assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
+
+  const policy = policyByName.get(commandName);
+  assert(policy, `${commandPolicyPath}: required DONE-required validation command missing lifecycle policy`);
+  if (policy) {
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must remain gateEvidence`);
+    assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(policy, 'storyScopedMutating'), `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`);
+    assert(/done-required-evidence\.json/.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name done-required-evidence.json`);
+    assert(/Missing policy is advisory\/non-blocking|advisory\/non-blocking/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep missing config advisory/non-blocking`);
+    assert(/malformed opted-in policy.*fail/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep malformed opted-in config fail-closed`);
+    assert(/never claims Authority receipt completion.*productionDone.*release approval/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep no-Authority/no-release boundary`);
+  }
+
+  const levelEntry = levelRegistry.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required DONE-required validation command missing level entry`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'validation', `${processFactLevelRegistryPath}: ${commandName} category must stay validation`);
+    assert(levelEntry.owner === 'handlers/done-required-validation', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(/DONE.*done-required-validation/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gate consumer must name DONE done-required-validation`);
+  }
+
+  const registryEntry = registry.get(commandName);
+  assert(registryEntry, `${processFactRegistryPath}: required DONE-required validation command missing registry entry`);
+  if (registryEntry) {
+    for (const semantic of ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing semantic ${semantic}`);
+    }
+    assert(registryEntry.artifact?.path === 'done-required-evidence.json', `${processFactRegistryPath}: ${commandName} must produce done-required-evidence.json`);
+    assert(registryEntry.artifact?.signed === false, `${processFactRegistryPath}: ${commandName} artifact must remain unsigned local evidence`);
+  }
+
+  const artifactEntry = registry.get('artifact:done-required-evidence.json');
+  assert(artifactEntry, `${processFactRegistryPath}: artifact:done-required-evidence.json registry entry missing`);
+  if (artifactEntry) {
+    assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: done-required artifact must stay L4`);
+    for (const semantic of ['artifact', 'validation-result', 'execution-evidence', 'schema-contract', 'gate-evidence']) {
+      assert(artifactEntry.semantics.includes(semantic), `${processFactRegistryPath}: done-required artifact missing semantic ${semantic}`);
+    }
+  }
+
+  const doneRequiredArtifact = 'done-required-evidence.json';
+  const lifecycleRegistryText = read(lifecycleRegistryPath);
+  const lifecycleArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ARTIFACTS', lifecycleRegistryPath);
+  assert(
+    new RegExp(`['"]${doneRequiredArtifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(lifecycleArtifactsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ARTIFACTS must include '${doneRequiredArtifact}'`,
+  );
+
+  const phaseArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_PHASE_ARTIFACTS', lifecycleRegistryPath);
+  const testPhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'TEST', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(testPhaseArtifacts, 'produces', doneRequiredArtifact, `${lifecycleRegistryPath}: TEST phase`);
+  const donePhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'DONE', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(donePhaseArtifacts, 'consumes', doneRequiredArtifact, `${lifecycleRegistryPath}: DONE phase`);
+
+  const oracleArtifactRefsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ORACLE_ARTIFACT_REFS', lifecycleRegistryPath);
+  assert(
+    /['"]done-required-validation['"]\s*:\s*['"]done-required-evidence\.json['"]/.test(oracleArtifactRefsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ORACLE_ARTIFACT_REFS must map 'done-required-validation' to '${doneRequiredArtifact}'`,
+  );
+
+  const coreText = read('packages/main/src/core/done-required-validation.ts');
+  for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'requiresBuildProof', 'providesBuildProof', 'materialHash', 'storyFilesHash', 'validateRequiredReceiptCoverage', 'receipt-count-mismatch', 'receipt-command-mismatch', 'receipt-status-fail']) {
+    assert(coreText.includes(token), `packages/main/src/core/done-required-validation.ts: required token missing: ${token}`);
+  }
+  const oracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(oracleText.includes("id: 'done-required-validation'"), 'packages/main/src/core/done-oracle.ts: DONE checklist must contain separate done-required-validation row');
+  assert(oracleText.includes('evaluateDoneRequiredEvidence'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume done-required evaluator');
 }
 
 function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
@@ -3253,6 +3351,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.lattice/story/actives/B-scope/decision-doc-proposals.json',
     '.lattice/story/actives/B-scope/scope-discard-digest.json',
     '.lattice/story/actives/B-scope/process-events.jsonl',
+    '.lattice/story/actives/B-scope/done-required-evidence.json',
     transcriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
@@ -3267,6 +3366,14 @@ async function assertLifecycleArtifactScopePolicy() {
     'B-997b lifecycle artifact row',
     row => row.id === 'scope.lifecycle_artifact:B-scope:summary.json'
       && row.source === '.lattice/story/actives/B-scope/summary.json'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
+  expectRow(
+    probe(['.lattice/story/actives/B-scope/done-required-evidence.json']),
+    'B-ac25 done-required lifecycle artifact row',
+    row => row.id === 'scope.lifecycle_artifact:B-scope:done-required-evidence.json'
+      && row.source === '.lattice/story/actives/B-scope/done-required-evidence.json'
       && row.status === 'pass'
       && row.blocking === false,
   );
@@ -3409,6 +3516,7 @@ function assertProcessFactCommandInventory() {
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 

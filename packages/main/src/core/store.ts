@@ -7,7 +7,7 @@ import type {
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
-  ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData,
+  ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile,
 } from './types.js';
@@ -226,6 +226,19 @@ export class StoryStore {
 
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
     this.writeJson(storyId, 'test-evidence.json', data);
+  }
+
+  readDoneRequiredEvidence(storyId: string): DoneRequiredEvidenceData | null {
+    try {
+      return this.readJson<DoneRequiredEvidenceData>(storyId, 'done-required-evidence.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeDoneRequiredEvidence(storyId: string, data: DoneRequiredEvidenceData): void {
+    this.writeJson(storyId, 'done-required-evidence.json', data);
   }
 
   // ── Eval Evidence (evaluator agent scoring) ──

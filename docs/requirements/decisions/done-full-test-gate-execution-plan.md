@@ -29,6 +29,8 @@ No runtime implementation is in scope for B-3321. Do not change runtime code, co
 
 Add a dedicated DONE/release-required validation profile, or an equivalent `doneRequiredCommands` configuration surface, with fresh hash-bound evidence consumed by DONE. Do not simply append `npm test` to ordinary `validate.commands`.
 
+Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.lattice/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
+
 Reasons:
 
 - Normal `lattice validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.
@@ -48,8 +50,8 @@ Recommended configuration shape:
     "done": {
       "required": true,
       "commands": [
-        { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000 },
-        { "command": "npm", "args": ["test"], "timeoutMs": 1200000 }
+        { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000, "providesBuildProof": "packages-main-build" },
+        { "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
       ]
     }
   }
@@ -61,13 +63,13 @@ Equivalent acceptable shape:
 ```json
 {
   "doneRequiredCommands": [
-    { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000 },
-    { "command": "npm", "args": ["test"], "timeoutMs": 1200000 }
+    { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000, "providesBuildProof": "packages-main-build" },
+    { "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
   ]
 }
 ```
 
-The exact schema can differ, but the behavior must preserve the distinction between routine validation and DONE/release-required validation. Because root tests execute built `packages/main/dist` tasks and `dist` is untracked, the DONE-required proof must include a fresh `npm --prefix packages/main run build` receipt before root `npm test`, or a root `pretest` / equivalent receipt proving the build output matches the same `headHash` and `materialHash`.
+The exact schema can differ, but the behavior must preserve the distinction between routine validation and DONE/release-required validation. The `packages-main-build` proof is a self-host policy requirement that must be explicitly enabled on the command that needs it. External projects that opt into `doneRequiredCommands: [{ "command": "npm", "args": ["test"] }]` do not inherit this rule. Because this repository's root tests execute built `packages/main/dist` tasks and `dist` is untracked, the self-host DONE-required proof must include a fresh `npm --prefix packages/main run build` receipt before the root `npm test`, or a root `pretest` / equivalent receipt proving the build output matches the same `headHash` and `materialHash`.
 
 ## External Project Behavior
 
@@ -90,10 +92,9 @@ This avoids imposing Orchestrate-specific cost on every Lattice user while fixin
 
 ## Evidence Data Model
 
-The future implementation should persist a separate evidence artifact from ordinary `test-evidence.json`, or extend the evidence model with a distinct DONE-required section. The artifact name is intentionally left to implementation, but examples are:
+The implementation persists a separate evidence artifact from ordinary `test-evidence.json`:
 
 - `.lattice/story/actives/<storyId>/done-required-evidence.json`
-- `.lattice/story/actives/<storyId>/test-evidence.json` with `doneRequired` as a top-level field
 
 Each required command receipt should include:
 
@@ -150,6 +151,7 @@ Each required command receipt should include:
 Data requirements:
 
 - Command receipts record command, args, cwd, status, exit code, duration, and bounded output tail.
+- DONE evaluation requires receipts to cover effective policy commands exactly in order and match command, args, cwd, and shell identity.
 - Output digest stores enough identity to compare logs without storing unbounded output.
 - Overall status is PASS only when every required command PASSes.
 - Evidence binds to `headHash`, `materialHash`, and `storyFilesHash`.
@@ -175,7 +177,7 @@ Self-host required policy:
 - Failing DONE-required evidence blocks DONE.
 - Stale DONE-required evidence blocks DONE.
 - Evidence from a different HEAD, material hash, story files hash, command set, or policy hash blocks DONE.
-- Evidence that runs root `npm test` without a same-material build receipt, or equivalent proof of current `packages/main/dist`, blocks DONE for the self-host required policy.
+- Evidence for a command with `requiresBuildProof: "packages-main-build"` without a same-material build receipt, or equivalent proof of current `packages/main/dist`, blocks DONE for the self-host required policy.
 - A skipped command in the required set is a failure unless the policy explicitly defines it as optional.
 - The DONE checklist gets a dedicated row separate from ordinary `test-evidence`, for example `done-required-validation`.
 
@@ -225,13 +227,13 @@ Exit criteria:
 - Persist command receipts with bounded output.
 - Mark overall status PASS only when all required commands PASS.
 - Ensure execution failures produce a FAIL artifact when possible.
-- Ensure the root `npm test` receipt is tied to a preceding same-material package build receipt, or to an equivalent root `pretest` / build receipt.
+- Ensure commands that explicitly declare `requiresBuildProof: "packages-main-build"` are tied to a preceding same-material package build receipt, or to an equivalent root `pretest` / build receipt.
 
 Exit criteria:
 
 - A passing full-suite run writes fresh PASS evidence.
 - A failing command writes FAIL evidence with output digest and tail.
-- A root `npm test` run without current `packages/main/dist` proof cannot write full-assurance PASS evidence.
+- A self-host command that declares `requiresBuildProof: "packages-main-build"` cannot write full-assurance PASS evidence without current `packages/main/dist` proof.
 
 ### M3. DONE Oracle Row
 
@@ -249,14 +251,14 @@ Exit criteria:
 
 ### M4. Self-Host Config
 
-- Configure Orchestrate/Lattice self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, or an equivalent full-suite command with a same-material build receipt.
+- Configure Orchestrate/Lattice self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, with `requiresBuildProof: "packages-main-build"` on the root test command, or an equivalent full-suite command with a same-material build receipt.
 - Pick a timeout high enough for the current root chain.
 - Document the command cost and when to run it.
 
 Exit criteria:
 
 - Self-host DONE cannot pass with only the 8 configured `validate.commands` entries.
-- Self-host DONE cannot pass with stale or missing `packages/main/dist` proof before root `npm test`.
+- Self-host DONE cannot pass with stale or missing `packages/main/dist` proof before any command that explicitly requires `packages-main-build` proof.
 
 ### M5. Docs
 
@@ -295,6 +297,7 @@ Exit criteria:
 - Decide whether `release_approve_push --confirm` requires fresh DONE-required evidence.
 - Decide whether `.githooks/pre-push` should merely check for the artifact, rerun the profile, fix/scope its self-host build+tsc boundary, or remain narrower.
 - If pre-push stays narrower, document that the remote push hook is not a root full-suite gate and does not currently provide build+tsc assurance for this repo until the `@koala-agent/core` / `@lattice-agent/core` self-host boundary is resolved.
+- B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override behavior.
 
 Exit criteria:
 
@@ -302,7 +305,7 @@ Exit criteria:
 
 ## In-Flight Story Migration
 
-When the future implementation lands:
+When the implementation is present:
 
 - Stories in INIT, INIT_CHECK, PLAN, DEV, or REVIEW do not need full-suite evidence until they approach TEST/DONE.
 - Stories in TEST must run the DONE-required profile before advancing to DONE when the self-host policy is required.
@@ -319,10 +322,12 @@ Rollback/de-escalation policy:
 
 ## Implementation Validation Commands
 
-Future implementation should run at least:
+Implementation validation should run at least:
 
 ```bash
 npm --prefix packages/main run build
+node packages/main/dist/tasks/done-required-validation-smoke.js
+node scripts/verify-process-fact-contract.mjs
 npm test
 lattice validate --story=<storyId> --json
 lattice story_advance '{"storyId":"<storyId>","phase":"DONE"}'
@@ -331,7 +336,7 @@ lattice story_advance '{"storyId":"<storyId>","phase":"DONE"}'
 Expected artifacts:
 
 - Ordinary validation still writes `test-evidence.json` from `lattice validate`.
-- DONE-required validation writes a separate full-suite artifact or a distinct `doneRequired` evidence section.
+- DONE-required validation writes the separate `done-required-evidence.json` artifact.
 - DONE-required validation records `npm --prefix packages/main run build` before root `npm test`, or records a root `pretest` / equivalent receipt proving same-material `packages/main/dist`.
 - The DONE checklist renders both ordinary validation and full-suite rows.
 - A material change after full-suite PASS makes the full-suite row stale.

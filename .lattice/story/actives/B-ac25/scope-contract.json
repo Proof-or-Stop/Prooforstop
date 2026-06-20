@@ -1,0 +1,72 @@
+{
+  "storyId": "B-ac25",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
+    "packages/main/src/core/command-policy.ts",
+    "package.json",
+    "lattice.config.json",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "AGENTS.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
+    "package.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Extend scope after verified REVIEW findings F-003/F-004/F-005. AGENTS.md is added only to correct the project-level validation-flow truth source so it distinguishes routine lattice validate from opt-in DONE-required validation; this does not add release, pre-push, Authority, Layer4, or external-project blocking behavior.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These paths are necessary implementation surfaces for the approved DONE-required validation scope: core/config.ts adds the doneRequiredCommands schema and default command availability, cli-engine.ts keeps the static CLI command inventory aligned, and packages/main/package.json exposes the smoke script. They do not implement release, pre-push, Authority, or external-project blocking behavior.",
+      "timestamp": "2026-06-20T10:16:10.129Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "7ea940860ddf637748a056dae0fda062b0419564",
+      "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+      "anchors": [
+        "doneRequiredCommands.schema",
+        "done_required_validate.cli_inventory",
+        "self_host.smoke_script",
+        "excluded.release_prepush_authority_untouched"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-20T10:15:40.907Z",
+  "updatedAt": "2026-06-20T10:55:09.795Z"
+}

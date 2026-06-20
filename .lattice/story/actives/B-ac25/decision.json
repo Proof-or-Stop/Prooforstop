@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Routine validation and DONE-required validation must remain separate surfaces.",
+    "Required DONE evidence must be mechanical, fresh, and hash-bound.",
+    "External projects must stay advisory unless they explicitly opt in.",
+    "Prompt/docs guidance is insufficient without runtime gate consumption."
+  ],
+  "drivers": [
+    "B-3321 verified that configured validate.commands can be narrower than root npm test.",
+    "DONE output must not overclaim full-suite assurance.",
+    "Self-host needs stricter assurance than default external projects."
+  ],
+  "options": [
+    {
+      "name": "A: Top-level doneRequiredCommands plus separate done-required-evidence.json and done_required_validate command",
+      "pros": [
+        "Clear separation from ordinary validate.commands",
+        "DONE oracle can consume a distinct artifact",
+        "Self-host opt-in is explicit and external defaults remain advisory",
+        "Smoke tests can exercise the runner with fake commands"
+      ],
+      "cons": [
+        "Adds a new CLI command and artifact type",
+        "Requires store/types/process-fact updates"
+      ]
+    },
+    {
+      "name": "B: validationProfiles.done plus profile-aware validate command",
+      "pros": [
+        "Generalizes validation profiles beyond DONE",
+        "Could reuse validate command UX"
+      ],
+      "cons": [
+        "Larger config and CLI surface",
+        "Higher risk of confusing routine validate with DONE-required proof",
+        "More migration/documentation work for this story"
+      ]
+    },
+    {
+      "name": "C: Append root npm test to validate.commands",
+      "pros": [
+        "Smallest immediate code/config change"
+      ],
+      "cons": [
+        "Rejected by B-3321 as the final solution",
+        "Slows every routine validation run",
+        "Does not create a distinct DONE-required assurance claim",
+        "Does not keep external opt-in semantics clean"
+      ]
+    }
+  ],
+  "chosen": "A: Top-level doneRequiredCommands plus separate done-required-evidence.json and done_required_validate command",
+  "rationale": "Choose A because it creates an explicit DONE-required evidence path without changing routine validate behavior. It is the smallest runtime implementation that satisfies B-3321 gate semantics, freshness, self-host opt-in, and external advisory defaults.",
+  "preMortem": [
+    {
+      "scenario": "DONE blocks every external project after upgrade",
+      "trigger": "The oracle treats missing doneRequiredCommands as failure instead of advisory",
+      "consequence": "Lattice becomes too expensive and breaks non-self-host users",
+      "mitigation": "Gate fails only when a required policy is configured; missing policy renders advisory/pass row with no full-suite claim."
+    },
+    {
+      "scenario": "Stale root npm test receipt satisfies DONE",
+      "trigger": "Evidence lacks material/story/policy hash checks",
+      "consequence": "DONE still overclaims assurance after code or policy changes",
+      "mitigation": "Artifact records headHash, materialHash, storyFilesHash, policyHash, and commandSetHash; oracle rejects mismatch with explicit stale reason."
+    },
+    {
+      "scenario": "Root npm test runs against stale packages/main/dist",
+      "trigger": "The root test command is recorded without a same-material build receipt",
+      "consequence": "Full-suite evidence is false because built CLI output does not match source",
+      "mitigation": "Self-host required policy demands an earlier build receipt or equivalent same-material build proof before root npm test can pass."
+    },
+    {
+      "scenario": "The change becomes prose-only process policy",
+      "trigger": "Process fact registry and verifier are not updated",
+      "consequence": "Future refactors can remove the gate artifact without failing tests",
+      "mitigation": "Register done_required_validate and done-required-evidence in process-fact registry, levels, and verify-process-fact-contract.mjs."
+    },
+    {
+      "scenario": "The story expands into release/pre-push/Authority production work",
+      "trigger": "M8 future alignment language is implemented in this story",
+      "consequence": "Scope grows beyond the user-confirmed implementation and increases risk",
+      "mitigation": "Scope boundary excludes release_approve_push, pre-push behavior, Authority receipts, Layer4, customerKeyRef, and emergency override implementation."
+    }
+  ],
+  "timestamp": "2026-06-20T09:52:59.397Z"
+}

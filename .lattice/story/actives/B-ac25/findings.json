@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "id": "B-ac25:F-001",
+      "desc": "External opt-in projects that configure root npm test as DONE-required are blocked by the self-host packages/main build-proof rule. Source: validateSelfHostBuildProof is called unconditionally from runDoneRequiredValidation and evaluateDoneRequiredEvidence in packages/main/src/core/done-required-validation.ts:346 and packages/main/src/core/done-required-validation.ts:440; it treats any root npm test receipt as requiring a preceding npm --prefix packages/main run build receipt. I built packages/main, then ran a temp external-project probe with doneRequiredCommands containing only npm test and a passing package.json test script; the command receipt exitCode was 0, but evidenceStatus was FAIL, reasons included missing-build-proof, evaluationStatus was fail, and blocking was true. This violates the documented external-project boundary in docs/requirements/decisions/testing-infra.md:53-57: external projects explicitly opt into their own DONE-required policy, while the packages/main build proof is a self-host repository requirement.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T10:22:07.291Z",
+      "reviewRound": "2026-06-20T10:16:31.865Z",
+      "reviewRunId": "B-ac25:RR-007",
+      "_hash": "b0d4c076bc2417a46567eadf40445cdbced604fe4c50a7f94ebb70b6e35c437f",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "edge|ts|external-projects-configure",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7ff8f9172 by making packages/main build proof explicit per command: external root npm test no longer inherits self-host proof, while self-host lattice.config.json marks packages/main build as providesBuildProof and root npm test as requiresBuildProof. Verified by npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, and npm test after nested-worktree smoke harness stabilization.",
+      "resolvedAt": "2026-06-20T10:34:31.558Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-002",
+      "desc": "packages/main/src/core/done-required-validation.ts:459-478 evaluates only artifact-level status/hash fields and build-proof requirements for receipts that exist. It never verifies evidence.receipts.length or receipt identity against policy.commands. Verified with a /tmp fixture configured with two doneRequiredCommands (packages/main build providesBuildProof + root npm test requiresBuildProof): writing done-required-evidence.json with status=PASS, current policyHash/commandSetHash/materialHash/storyFilesHash, and receipts=[] makes evaluateDoneRequiredEvidence return ok=true/status=pass/detail=PASS with 0 required commands. This lets DONE accept a full-test proof artifact that contains no required command receipts, so the new DONE-required gate can be bypassed/corrupted instead of failing closed. Add a gate check that receipt count and each receipt label/command/args/cwd/shell/status correspond to the normalized policy command set before accepting PASS evidence, and cover empty/truncated/mismatched receipts in the smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T10:38:48.256Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-010",
+      "_hash": "8389b3df52e6a643c10e2700d78b567cf96405b02e8d4521c5200f2af7d4077e",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 89224d04d by adding receipt coverage and identity validation before accepting DONE-required PASS evidence. The evaluator now fails closed when receipts are missing, have the wrong count, mismatch command/args/cwd/shell, or report failed/nonzero/timedOut status, while preserving explicit self-host requiresBuildProof behavior. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, node scripts/verify-nested-worktree-bootstrap.mjs, and npm test.",
+      "resolvedAt": "2026-06-20T10:49:49.434Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-003",
+      "desc": "DONE-required evidence is not actually bound to the current HEAD. runDoneRequiredValidation writes top-level headHash and each receipt records headHash, and the requirements say evidence binds to headHash/materialHash/storyFilesHash and stale head changes must block. But evaluateDoneRequiredEvidence only checks that evidence.headHash and currentHead exist at packages/main/src/core/done-required-validation.ts:533-536; it never compares evidence.headHash to currentHead. The smoke coverage exercises stale material/policy/command drift and receipt identity/status at packages/main/src/tasks/done-required-validation-smoke.ts:196-287, but has no stale-head case. A previously generated done-required-evidence.json can therefore still satisfy DONE after a HEAD-only change if materialHash and storyFilesHash stay unchanged, undermining the DONE-required validation gate identity boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T10:52:52.659Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-017",
+      "_hash": "d8c9fad0669501dd8583f5d5ab4e2386de51711dd9bc0b415edb3c42610cc1a2",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|required-evidence-actually",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a04e9ffa63 by comparing evidence.headHash with the current git HEAD during evaluateDoneRequiredEvidence and failing closed with stale-headHash when they differ. Added smoke coverage that preserves material/story hashes while changing the evidence headHash and asserts blocking stale-headHash. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, npm test, and verification_evidence_refresh_stale.",
+      "resolvedAt": "2026-06-20T11:01:16.369Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-004",
+      "desc": "CHK-003 adversarial verificationIntent requires the DONE-required gate to block stale storyFilesHash evidence, but the refreshed smoke coverage does not assert that path. Source: packages/main/src/tasks/done-required-validation-smoke.ts:272-287 only checks stale-material, policy-drift, and command-set-drift; rg finds no stale-storyFilesHash or missing-storyFilesHash assertion in the smoke. The evaluator branch exists at packages/main/src/core/done-required-validation.ts:539-540, but without a smoke assertion a DONE-required evidence artifact with stale storyFilesHash is not protected by the recorded validation coverage. Add a focused smoke case that writes fresh PASS done-required-evidence.json, changes story files hash without relying on material drift, and asserts evaluateDoneRequiredEvidence returns stale-storyFilesHash/blocking.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T10:52:53.895Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-016",
+      "_hash": "0b41c4dcf20a054dea5a3c6fc5e1621eb19ed2ae4ee0f14d421c4a158108581d",
+      "files": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationintent-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a04e9ffa63 by adding a focused stale storyFilesHash smoke case to done-required-validation-smoke. The test rewrites only storyFilesHash in otherwise current PASS evidence and asserts evaluateDoneRequiredEvidence blocks with stale-storyFilesHash while materialHash and headHash remain current. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, npm test, and verification_evidence_refresh_stale.",
+      "resolvedAt": "2026-06-20T11:01:22.495Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-005",
+      "desc": "AGENTS.md remains a stale truth source for validation flow: AGENTS.md:561 says current validation is unified through `lattice validate`, while B-ac25 adds a separate opt-in DONE-required evidence path (`done_required_validate`) documented in testing-infra.md:53-57 and story-lifecycle.md:191/274-275. Because AGENTS.md is the project-level instruction file, later agents can be told to rely only on ordinary `lattice validate` and miss the DONE-required evidence command or overstate full-suite assurance. Update AGENTS.md to distinguish routine TEST `lattice validate` from opted-in DONE-required `lattice done_required_validate --storyId=<id>`, including advisory/no-full-suite behavior when no policy exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T10:53:17.487Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-015",
+      "_hash": "8a80368e2a35a767616d16794bfa986308966973ea83ee86d9b877b255bf39ff",
+      "files": [
+        "AGENTS.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|agents-remains-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a04e9ffa63 by updating AGENTS.md to distinguish routine TEST lattice validate from the opt-in DONE-required path. The project instruction now states that configured doneRequiredCommands / DONE-required policy require lattice done_required_validate --storyId=<id> before DONE, and that no policy is advisory/no full-suite assurance. Verified by docs reviewer finding source review, npm --prefix packages/main run build, done-required-validation smoke, process fact contract, npm test, and verification_evidence_refresh_stale.",
+      "resolvedAt": "2026-06-20T11:01:28.479Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-006",
+      "desc": "scripts/verify-process-fact-contract.mjs:2014 adds DONE-required command/process-fact checks, and scripts/verify-process-fact-contract.mjs:3330 adds a scope-classifier row, but the script never asserts packages/main/src/core/lifecycle-registry.ts:393 TEST.produces, packages/main/src/core/lifecycle-registry.ts:398 DONE.consumes, or packages/main/src/core/lifecycle-registry.ts:432 LIFECYCLE_ORACLE_ARTIFACT_REFS[done-required-validation]. The implementation currently has the right lifecycle values, but the requested contract regression would still pass if those phase artifact/oracle-ref entries drifted while the process registry and scope classifier stayed intact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T11:29:12.494Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-023",
+      "_hash": "d249927a00e7f9c5cf3f718c17cce43f384d9e00ee305ffaeef33b97dd7a3c13",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 9149c35b5 by adding explicit process-fact contract assertions that lifecycle-registry.ts keeps done-required-evidence.json in LIFECYCLE_ARTIFACTS, TEST produces it, DONE consumes it, and LIFECYCLE_ORACLE_ARTIFACT_REFS maps done-required-validation to done-required-evidence.json. Verified by source inspection and will be revalidated with node scripts/verify-process-fact-contract.mjs plus the story validation suite before DONE.",
+      "resolvedAt": "2026-06-20T11:37:52.771Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "storyId": "B-ac25",
+  "checkedAt": "2026-06-20T09:58:08.657Z",
+  "features": [
+    {
+      "feature": "doneRequiredCommands config normalization",
+      "covered_by": "B-ac25 CHK-001; plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 M1 Schema And Config; B-ac25 expected covered scope"
+    },
+    {
+      "feature": "done_required_validate runner",
+      "covered_by": "B-ac25 CHK-002; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 Runner And Artifact Plan item 2; M2 Runner And Artifact"
+    },
+    {
+      "feature": "done-required-evidence.json artifact",
+      "covered_by": "B-ac25 CHK-002; plan.md Execution Boundary; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 Evidence Data Model permits a separate DONE-required artifact; expected implementation chooses done-required-evidence.json"
+    },
+    {
+      "feature": "DONE oracle done-required-validation row",
+      "covered_by": "B-ac25 CHK-003; plan.md CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 M3 DONE Oracle Row"
+    },
+    {
+      "feature": "process-fact registry levels and contract coverage",
+      "covered_by": "B-ac25 CHK-004; plan.md CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 Process Fact Contract and M3 exit criteria"
+    },
+    {
+      "feature": "self-host required policy config",
+      "covered_by": "B-ac25 CHK-008; plan.md CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 External Project Behavior self-host behavior and M4 Self-Host Config"
+    },
+    {
+      "feature": "lifecycle and testing docs claim boundary",
+      "covered_by": "B-ac25 CHK-007; plan.md CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 M5 Docs and Non-Goals"
+    },
+    {
+      "feature": "regression smoke tests",
+      "covered_by": "B-ac25 CHK-006; plan.md CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-3321 M6 Smoke Tests and Negative validation cases"
+    },
+    {
+      "feature": "release_approve_push implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-007 excludes; B-ac25 CHK-008 excludes",
+      "source": "B-3321 M8 says decide separately; B-ac25 excludes implementation"
+    },
+    {
+      "feature": ".githooks/pre-push behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-007 excludes; B-ac25 CHK-008 excludes",
+      "source": "B-3321 M8 and Non-Goals keep pre-push alignment out of this implementation"
+    },
+    {
+      "feature": "Authority remote or production receipts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-004 no Authority semantics; B-ac25 CHK-007 excludes; B-ac25 CHK-008 excludes",
+      "source": "B-ac25 PLAN claim boundary; scope_check_save is local PLAN evidence only"
+    },
+    {
+      "feature": "Layer4 production or Authority behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not",
+      "source": "B-ac25 excludes Layer4 behavior; process-fact level registration remains covered separately as local DONE gate evidence"
+    },
+    {
+      "feature": "customerKeyRef behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not",
+      "source": "B-ac25 explicit expected excluded scope"
+    },
+    {
+      "feature": "emergency override implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-007 excludes",
+      "source": "B-3321 only requires degraded or emergency claim boundaries; implementation is out of B-ac25"
+    },
+    {
+      "feature": "forcing external projects to block by default",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-001 edge intent; B-ac25 CHK-003 edge intent; B-ac25 CHK-008 excludes",
+      "source": "B-3321 External Project Behavior requires opt-in and advisory defaults"
+    },
+    {
+      "feature": "appending root npm test to ordinary validate.commands",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Execution Boundary Do not; B-ac25 CHK-001 context; B-ac25 CHK-008 edge intent",
+      "source": "B-3321 Chosen Solution and Non-Goals reject appending npm test to normal validate.commands"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 8,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ec88834af786b393b21fa384f9633aace360b6db012d82b801deedc58dfc5701",
+  "openQuestions": []
+}
