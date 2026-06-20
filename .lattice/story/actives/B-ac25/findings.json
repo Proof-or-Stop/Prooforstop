@@ -76,7 +76,7 @@
       "desc": "CHK-003 adversarial verificationIntent requires the DONE-required gate to block stale storyFilesHash evidence, but the refreshed smoke coverage does not assert that path. Source: packages/main/src/tasks/done-required-validation-smoke.ts:272-287 only checks stale-material, policy-drift, and command-set-drift; rg finds no stale-storyFilesHash or missing-storyFilesHash assertion in the smoke. The evaluator branch exists at packages/main/src/core/done-required-validation.ts:539-540, but without a smoke assertion a DONE-required evidence artifact with stale storyFilesHash is not protected by the recorded validation coverage. Add a focused smoke case that writes fresh PASS done-required-evidence.json, changes story files hash without relying on material drift, and asserts evaluateDoneRequiredEvidence returns stale-storyFilesHash/blocking.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T10:52:53.895Z",
@@ -88,7 +88,11 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "missing|ts|adversarial-verificationintent-requires",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a04e9ffa63 by adding a focused stale storyFilesHash smoke case to done-required-validation-smoke. The test rewrites only storyFilesHash in otherwise current PASS evidence and asserts evaluateDoneRequiredEvidence blocks with stale-storyFilesHash while materialHash and headHash remain current. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, npm test, and verification_evidence_refresh_stale.",
+      "resolvedAt": "2026-06-20T11:01:22.495Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ac25:F-005",
