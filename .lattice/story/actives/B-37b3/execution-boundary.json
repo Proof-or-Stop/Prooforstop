@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-37b3",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/experience-hint-loader.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-20T06:47:47.426Z",
+  "updatedAt": "2026-06-20T06:47:47.426Z",
+  "_hash": "6ca21fe7a7cf0f4cbe1f59d2807cbabf3b1b130a9124a24b32de5cd1b1d6d699"
+}
