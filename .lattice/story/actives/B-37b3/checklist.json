@@ -116,7 +116,7 @@
       "title": "Smoke: hints load + experience_hint_surfaced fires from a worktree whose cache lives in the main checkout",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that builds a main git repo with a finding-signals cache under main/.lattice/learning/, creates a linked worktree, and asserts that the learning-store/experience-hint-loader resolves and reads the cache from the worktree (hasExperienceHints true; loadExperienceHints non-empty) — and a control that a non-git temp dir falls back to the passed root (no throw, empty when absent). Prefer driving the real learning-store resolver. Confirm the existing experience-layer smokes (temp-root, non-git) still pass (fallback path).",
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; existing experience-layer/hint smokes stay green.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-20T06:57:06.379Z",
       "endTime": "2026-06-20T07:16:05.681Z",
       "verificationIntent": {
