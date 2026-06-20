@@ -19,7 +19,24 @@
   ],
   "explicitExcludes": [],
   "scopeChangeReason": "Auto-refresh hook in done-effects + watermark in finding-signals/types + gap report in experience-revalidation/learning-validate + 2 smokes; learning-store resolver (B-37b3) and version-bump must not change.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 npm wiring: adds test:done-merge-experience-refresh + test:experience-coverage-gap scripts and chains them into the test target. Planned wiring, not scope expansion.",
+      "timestamp": "2026-06-20T09:11:07.226Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "811a71f39507dc12468bb49a47c9262f140851d0",
+      "materialHash": "09ac9713a72ae3835da51c1a6cab899d943cff7cbaeaa5cb65d3b99dae354966"
+    }
+  ],
   "createdAt": "2026-06-20T08:55:00.064Z",
-  "updatedAt": "2026-06-20T08:55:00.064Z"
+  "updatedAt": "2026-06-20T09:11:07.226Z"
 }
