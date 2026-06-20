@@ -54,7 +54,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document specifies a target DONE/release validation profile or equivalent doneRequiredCommands design with fresh hash-bound evidence and a dedicated DONE row.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The design distinguishes Orchestrate self-host defaults from external project opt-in/configurable behavior so ordinary users are not forced into root npm test cost.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The design rejects prompt-only policy and requires schema, runner, process-fact, done-oracle, smoke, docs, and migration touchpoints for implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
