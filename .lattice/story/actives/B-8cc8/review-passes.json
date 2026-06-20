@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-8cc8:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check passed. The single substantive commit 4324d1fbf removes all 49 koala references from CHANGELOG.md (git grep -i koala CHANGELOG.md = exit 1, zero matches). Patch introduces 0 new koala lines. No half-removed state detected. This is the scoped override of the ship-clean program keeping-history decision; CHANGELOG.md full rebrand is complete and internally consistent. No concept deletion residue; no blocker.",
+      "createdAt": "2026-06-20T23:11:29.691Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-001",
+      "_hash": "cba5622d3d9a6eac1edaa0079c9de93a4fae4c5d263a1e90441b7146e4f86f7c"
+    },
+    {
+      "id": "B-8cc8:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Pure-docs rebrand: only CHANGELOG.md touched (commit 4324d1fbf, 49 koala lines removed, 49 lattice lines added, net zero). Verified: (1) git grep -i koala CHANGELOG.md returns nothing; (2) 5 ## version headings preserved; (3) npm run build exits 0; (4) lattice validate all-green. No dead code, no type-safety issues, no I/O shell isolation concerns — CHANGELOG.md is a documentation file with no imports, functions, or shell bridge interactions. No blocker.",
+      "createdAt": "2026-06-20T23:12:02.954Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-004",
+      "_hash": "2483f3e328755fc32fb96aa7633d9383a5982ca625c138f5f3df426ff670aa14"
+    },
+    {
+      "id": "B-8cc8:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 must-priority intents have valid verificationEvidence with concrete bindings; CHK-001:happy:0/1/2 covered by manual_transcript (git grep 0 matches, case-preserving grep, historical technical token diff); CHK-001:edge:0/1 covered (mixed-case grep 0, markdown structure); CHK-001:adversarial:0 covered by logic_test (empirical insert->grep hit->revert->0 demo); CHK-002:happy:0/1/2 covered (build exit 0, validate all-green, git grep empty); CHK-002:edge:0/1 covered (markdown headers valid, git diff --stat CHANGELOG.md only); CHK-002:adversarial:0/1 covered by logic_test (gate exclusion unchanged, full-repo grep clean). 2 should-level intents (CHK-001:edge:2 line-count, CHK-001:adversarial:1 homoglyph) uncovered but non-blocking per channel=express and missingRequired=0.",
+      "createdAt": "2026-06-20T23:12:13.939Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-003",
+      "_hash": "7a7be550f197276c64d18f0881ebac121bb268e5aa45b6535639814d9e73d79d"
+    },
+    {
+      "id": "B-8cc8:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols (pure docs diff) → Fallback 1. Step 2/3: Scanned all paragraphs in CHANGELOG.md. Checks: (1) git grep -i koala CHANGELOG.md = 0 matches confirmed in worktree; (2) all 4 version headers (0.3.4-1, 0.3.0, 0.2.2, 0.2.1.1) rebranded to Lattice X.Y.Z; (3) all historical technical tokens replaced: .lattice/, @lattice-agent/core, bin/lattice.js, lattice.config.json, lattice-lab, lattice-residue, LATTICE_RESIDUE_*; (4) section headings intact, no orphaned fences, 357 lines intact; (5) one line in B-3d39 entry reads only probed @lattice-agent/core but the install link is @lattice-agent/core (tautological due to rebrand) — this is the intentionally non-literal history per explicit user decision, not a doc-code drift; (6) scope is CHANGELOG.md only, no other file touched. No blockers. PASS.",
+      "createdAt": "2026-06-20T23:12:19.797Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-002",
+      "_hash": "cc798c57674382e47e2f37a37acb6add884b803adf62ffc02b1296a84a616806"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "storyId": "B-8cc8",
+  "checkedAt": "2026-06-20T23:07:04.082Z",
+  "features": [
+    {
+      "feature": "Replace all koala/Koala/KOALA variants in CHANGELOG.md with lattice/Lattice/LATTICE (case-preserving), covering version titles, product-name prose, koala-lab, @koala-agent tokens, koala commands, .koala paths, bin/koala.js, and koala.config — scope CHANGELOG.md only",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify zero koala hits after replacement (git grep -i koala CHANGELOG.md returns 0)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build stays green after change (npm run build exits 0)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lattice validate suite stays all-green after change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "95fe3312a5c94d5e7a8b3649087f3743e6bc18a30e25b97870ed158f1d778d21",
+  "openQuestions": []
+}

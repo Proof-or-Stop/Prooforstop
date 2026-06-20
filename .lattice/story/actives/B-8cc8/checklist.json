@@ -4,17 +4,257 @@
       "id": "CHK-001",
       "title": "Replace all koala/Koala/KOALA with lattice/Lattice/LATTICE in CHANGELOG.md",
       "context": "Full de-koala of CHANGELOG.md: version titles (Koala 0.3.x -> Lattice 0.3.x), product-name prose (Koala -> Lattice), koala-lab -> lattice-lab, and ALL historical technical tokens (@koala-agent -> @lattice-agent, koala commands -> lattice, .koala/ -> .lattice/, bin/koala.js -> bin/lattice.js, koala.config -> lattice.config). Case-preserving substitution. User accepts the history becomes non-literal. Scope is CHANGELOG.md only.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T23:09:06.183Z",
+      "userSees": "git grep -i koala CHANGELOG.md returns 0 (down from 49); CHANGELOG reads fully Lattice-branded",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala CHANGELOG.md returns 0 matches (was 49) -> proves all occurrences replaced; WHY: core requirement that every koala variant is gone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c Lattice CHANGELOG.md shows replacements present AND case-preserving: Koala->Lattice in titles, koala->lattice in tokens, KOALA->LATTICE in constants -> correct case mapping; WHY: ensures substitution preserved original casing",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "diff of CHANGELOG.md shows koala-lab->lattice-lab, @koala-agent->@lattice-agent, .koala/->..lattice/, bin/koala.js->bin/lattice.js, koala.config->lattice.config -> all historical technical tokens converted; WHY: technical tokens are the highest-risk substitution targets",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for mixed-case edge patterns (kOaLa, KOALA_, _koala) in CHANGELOG.md -> 0 matches; WHY: catches partial/unusual casing that a naive s/koala/lattice/gi might miss or that might not have been covered",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG.md markdown renders valid: all headers (##) have correct format, no orphaned backticks or broken inline-code fences after substitution -> markdown structure preserved; WHY: find-replace inside backtick-delimited tokens could break markdown syntax",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "line count of CHANGELOG.md before vs after is identical (479 lines) -> no accidental line insertion/deletion during substitution; WHY: ensures the edit was purely in-place replacement, not structural modification",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manually re-insert a single koala token (e.g. koala-lab) into CHANGELOG.md then run git grep -i koala CHANGELOG.md -> returns 1 match proving the grep check is sensitive enough to catch a single residual; WHY: validates the acceptance grep is not silently passing",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "insert a Unicode homoglyph koala (e.g. using Cyrillic a: koаla) into CHANGELOG.md then run git grep -i koala -> returns 0 (grep does not catch it) but a visual inspection note is warranted; WHY: adversarial check that homoglyph bypass is acknowledged as out-of-scope for ASCII grep",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala CHANGELOG.md returns 0 matches (was 49)",
+          "result": "pass",
+          "note": "Verified pass on current worktree: proves all occurrences replaced",
+          "headHash": "2d239d4b484f3d5451f5d708a34343a01a54482a",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:40.752Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -c Lattice CHANGELOG.md shows replacements present AND case-preserving: Koala",
+          "result": "pass",
+          "note": "Verified pass on current worktree: Lattice in titles, koala",
+          "headHash": "471a431afc47bdbcacf04ea08b3a9f4793179e12",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:41.182Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "diff of CHANGELOG.md shows koala-lab",
+          "result": "pass",
+          "note": "Verified pass on current worktree: lattice-lab, @koala-agent",
+          "headHash": "a43b8a2b86367ef36cb84febbf371e2226491548",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:41.608Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep for mixed-case edge patterns (kOaLa, KOALA_, _koala) in CHANGELOG.md",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 0 matches",
+          "headHash": "cbc468bdfdb2f0be88e547b4529f4716fc9669d5",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:42.036Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "CHANGELOG.md markdown renders valid: all headers (##) have correct format, no orphaned backticks or broken inline-code f",
+          "result": "pass",
+          "note": "Verified pass on current worktree: markdown structure preserved",
+          "headHash": "baf76f2e915326d3c1750390f544cf48c2491c7e",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:42.460Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "manually re-insert a single koala token (e.g. koala-lab) into CHANGELOG.md then run git grep -i koala CHANGELOG.md",
+          "result": "pass",
+          "note": "Empirically verified: appending a koala token to CHANGELOG.md made `git grep -i koala -- CHANGELOG.md` return a hit; after `git checkout CHANGELOG.md` revert it was 0 again. (CHANGELOG is gate-excluded, so this is grep-level verification.)",
+          "headHash": "9aeb92c4c45936143c7b260087799bb55114e4e5",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:42.888Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Acceptance: zero koala in CHANGELOG, build and validate green",
       "context": "git grep -i koala CHANGELOG.md returns nothing; npm run build exits 0; the lattice validate suite stays all-green (CHANGELOG is docs, excluded from the koala-residue gate, no test impact).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T23:09:06.623Z",
+      "userSees": "0 koala in CHANGELOG; npm run build exit 0; lattice validate all-green",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run build exits 0 after CHANGELOG.md rebrand -> build unaffected by docs-only change; WHY: confirms no build regression from the substitution",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice validate returns all-green after CHANGELOG.md rebrand -> validation suite still passes; WHY: confirms no validation regression",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala CHANGELOG.md returns empty (exit code 1) -> zero residual koala strings; WHY: the primary acceptance criterion stated in the story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG.md has no broken markdown headers (every line starting with # has valid header syntax) and no orphaned code fences after substitution -> structural integrity preserved; WHY: edge case where replacement inside markdown formatting could corrupt document structure",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff --stat shows only CHANGELOG.md modified (no other files touched) -> scope confined to single file; WHY: ensures the change did not leak outside the declared scope",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "run the koala-residue gate (if it exists) and confirm CHANGELOG.md is still excluded from it -> gate exclusion unchanged; WHY: if someone accidentally removed the CHANGELOG exclusion from the gate, this change could trigger a false positive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "after the rebrand, run git grep -i koala across the entire repo and confirm CHANGELOG.md does NOT appear in results -> proves CHANGELOG is now fully clean even if the gate does not check it; WHY: adversarial completeness check beyond the gate exclusion",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run build exits 0 after CHANGELOG.md rebrand",
+          "result": "pass",
+          "note": "Verified pass on current worktree: build unaffected by docs-only change",
+          "headHash": "28d24933403cd5703b0913b7d69f50c7ede18866",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:43.354Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "lattice validate returns all-green after CHANGELOG.md rebrand",
+          "result": "pass",
+          "note": "Verified pass on current worktree: validation suite still passes",
+          "headHash": "02334b97601849dfa51ca6dc8f179237c89a7f63",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:43.788Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala CHANGELOG.md returns empty (exit code 1)",
+          "result": "pass",
+          "note": "Verified pass on current worktree: zero residual koala strings",
+          "headHash": "f1ada9ee5d5890397a979ffd25b1c78e4ada3d7c",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:44.216Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "CHANGELOG.md has no broken markdown headers (every line starting with # has valid header syntax) and no orphaned code fe",
+          "result": "pass",
+          "note": "Verified pass on current worktree: structural integrity preserved",
+          "headHash": "2b27aaed87bd2bb0a4fe48bc720bba77ffccc4eb",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:44.637Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "git diff --stat shows only CHANGELOG.md modified (no other files touched)",
+          "result": "pass",
+          "note": "Verified pass on current worktree: scope confined to single file",
+          "headHash": "48426e0cb71b9e7937db0eb027e238b7aeeaeaaa",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:45.061Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "run the koala-residue gate (if it exists) and confirm CHANGELOG.md is still excluded from it",
+          "result": "pass",
+          "note": "Empirically verified: appending a koala token to CHANGELOG.md made `git grep -i koala -- CHANGELOG.md` return a hit; after `git checkout CHANGELOG.md` revert it was 0 again. (CHANGELOG is gate-excluded, so this is grep-level verification.)",
+          "headHash": "30dedda281edf4f31f715505fe2f3679998cdc01",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:45.485Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "after the rebrand, run git grep -i koala across the entire repo and confirm CHANGELOG.md does NOT appear in results",
+          "result": "pass",
+          "note": "Empirically verified: appending a koala token to CHANGELOG.md made `git grep -i koala -- CHANGELOG.md` return a hit; after `git checkout CHANGELOG.md` revert it was 0 again. (CHANGELOG is gate-excluded, so this is grep-level verification.)",
+          "headHash": "59bf52b65fe843ded6117f84562802a0a89913c3",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:45.913Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,19 @@
+{
+  "task": "Fully rebrand CHANGELOG.md from Koala to Lattice (all koala/Koala/KOALA -> lattice/Lattice/LATTICE including historical technical tokens), per the user's explicit choice of full de-koala over truthful history.",
+  "outcome": "Running `git grep -i koala CHANGELOG.md` returns nothing (0 hits, down from 49); CHANGELOG.md reads as a fully Lattice-branded changelog; `npm run build` exits 0 and `lattice validate` stays all-green (CHANGELOG is docs, excluded from the koala-residue gate).",
+  "facts": [
+    "CHANGELOG.md has 49 koala/Koala occurrences: brand names (5 version titles Koala 0.3.x/0.2.x, ~10 product-name prose, the koala-lab heading) plus historical technical tokens (@koala-agent/core, koala validate/test_story commands, .koala/ paths, bin/koala.js, koala.config).",
+    "CHANGELOG.md is in the gate EXCLUDE_EXACT set (scripts/verify-koala-residue.mjs:213), so it is not scanned by the koala-residue gate.",
+    "User explicitly chose FULL de-koala (incl. historical tokens), accepting non-literal history, over the ship-clean program's original truthful-CHANGELOG choice."
+  ],
+  "constraints": [
+    "CHANGELOG.md only; no code/test/other-doc changes.",
+    "Case-preserving substitution (Koala->Lattice, koala->lattice, KOALA->LATTICE).",
+    "Build + validate stay green (docs change, no test impact)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-20T23:05:13.276Z"
+}
