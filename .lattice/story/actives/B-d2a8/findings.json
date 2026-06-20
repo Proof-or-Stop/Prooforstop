@@ -108,6 +108,24 @@
       ],
       "signatureTag": "edge|ts|parallel-gate-config",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-007",
+      "desc": "CHK-001:adversarial:2: intent claims resolveParallelGate(null, strictDefault) -> returns full strictDefault ({block,4,true}). The smoke (line 53) uses PD (balanced default, advise/3/false). The intent names strictDefault and implies the full strict values are returned; the actual assertion only proves null -> balanced default. The strict-profile variant of this guard is never exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:34:31.176Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "d2ea15b67f6cf85484b6e88318d8735aca8c458e0a63466c660aa1bbc50411ec",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
