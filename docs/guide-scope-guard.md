@@ -26,6 +26,13 @@ The protection level that `guard_session_check` applies is the same regardless
 of mode — every forbidden write is recorded and blocks the lifecycle gate.  The
 difference is *when* the intervention happens.
 
+Provider strings in this guide describe scope-guard behavior, not owner-session
+identity. Owner-session identity should flow through the canonical
+`LATTICE_SESSION_ID` host-adapter contract described in
+`docs/requirements/decisions/owner-session-contract-execution-plan.md`; provider
+labels such as `codex`, `claude-code`, `antigravity`, and `agy` are diagnostic
+context and must not become new core owner-lease exceptions.
+
 ## Multi-host semantics
 
 | Host / provider string | Guard mode | Mechanism |

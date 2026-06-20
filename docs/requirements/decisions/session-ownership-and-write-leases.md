@@ -6,6 +6,13 @@ Adopted design; rollout fully implemented. This document is the canonical, adopt
 design for Koala's multi-session coordination rules and is treated as a process truth
 source — agents and the scope-plan reviewer should honor it.
 
+Owner-session identity amendment: B-a781 adds
+`owner-session-contract-execution-plan.md` as the execution plan for migrating
+session identity to the canonical `LATTICE_SESSION_ID` host-adapter contract.
+Until that plan is implemented, the implemented baseline below remains the
+runtime behavior; future owner-lease/session work should treat the B-a781 plan
+as the migration target.
+
 - **Main write lock (rollout step 3) — implemented (B-f60c)**: a unified lock in
   `core/main-write-lock.ts` over the canonical `.koala/locks/main-write.lock/` path, held by
   DONE / done_recover / gap_log / audit / story_create / B-META finding writes, with
@@ -16,13 +23,19 @@ source — agents and the scope-plan reviewer should honor it.
   `CommandPolicy.ownershipClass`, stale-lease detection + `--takeover` / `--forceTakeover`,
   ownership-aware rejection errors, and `session_brief` ownership rendering.
 
-`sessionId` is resolved by a 3-source priority chain: `KOALA_SESSION_ID`
-(`sessionSource: koala-env`) → `CLAUDE_CODE_SESSION_ID` (`sessionSource: claude-code-env`) →
-`deriveLocalSessionId(hostname, worktree-root, ppid)` (`sessionSource: derived-ppid`). It is
-a local process-coordination id, never a cryptographic identity; ppid is only the
-last-resort fallback because each Claude Code Bash call spawns a fresh shell. The doctor
-stale story-owner-lease check (step 5) and the multi-session convergence/regression smoke
-(step 6) were both delivered by B-c55d (CHK-005); the rollout is now fully implemented.
+Current implementation resolves `sessionId` by a 3-source priority chain:
+`LATTICE_SESSION_ID` (`sessionSource: koala-env`) → `CLAUDE_CODE_SESSION_ID`
+(`sessionSource: claude-code-env`) → `deriveLocalSessionId(hostname,
+worktree-root, ppid)` (`sessionSource: derived-ppid`). It is a local
+process-coordination id, never a cryptographic identity; ppid is only the
+last-resort fallback because each Claude Code Bash call spawns a fresh shell.
+The target migration is documented in
+`owner-session-contract-execution-plan.md`: core owner-lease/lifecycle code
+should consume only canonical `LATTICE_SESSION_ID`, while Claude Code, Codex,
+Antigravity/agy, and future host-specific signals are bridged by adapters. The
+doctor stale story-owner-lease check (step 5) and the multi-session
+convergence/regression smoke (step 6) were both delivered by B-c55d (CHK-005);
+the rollout is now fully implemented.
 
 ## Problem
 
