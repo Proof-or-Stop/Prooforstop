@@ -84,8 +84,8 @@
       "title": "Convert the residual prototype-chain `in` operators to own-property checks (the belt)",
       "context": "The cheap belt complementing the chokepoint. Convert residual `in` operators (and any dot/bracket reads not covered by the chokepoint) on externally-derived usage objects to Object.prototype.hasOwnProperty.call(obj, key): core/usage-ledger/assemble.ts (extractRawUsage `if (key in response)` — if the chokepoint already replaces it, note that), core/usage-ledger/record.ts (validator `if (!(field in usage))`), core/usage-ledger/adapters/openai.ts (`cached_tokens in details`), core/usage-ledger/adapters/shared.ts (shared cached_tokens helper), core/usage-ledger/streaming.ts (the start/delta merge `in` checks). Re-locate by symbol. Behavior identical for legitimate own-property data (only inherited values change). Optional/lower: diagnostics.ts internal-table bracket lookups — harden ONLY if trivial (internal enums/model ids, not external parsed data, not token-value surfaces).",
       "userSees": "A grep shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/record/adapters/streaming (own-property checks or routed via the chokepoint). Behavior for legitimate own-property usage data is unchanged. npm test exits 0.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T14:48:46.442Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
