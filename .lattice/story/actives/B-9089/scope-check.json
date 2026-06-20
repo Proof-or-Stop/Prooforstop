@@ -1,0 +1,147 @@
+{
+  "storyId": "B-9089",
+  "checkedAt": "2026-06-20T10:38:31.421Z",
+  "features": [
+    {
+      "feature": "Pre-code two-host review evidence bound to the current owner-session plan version",
+      "covered_by": "CHK-001; plan.md CHK-001; CHK-001 verificationIntent happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Two-Host Review Evidence Before Implementation"
+    },
+    {
+      "feature": "Pre-code parent-PID-changing transcript evidence with canonical-env reuse and degraded ppid-only comparison",
+      "covered_by": "CHK-007; plan.md CHK-007; CHK-007 verificationIntent happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Manual Transcript Evidence"
+    },
+    {
+      "feature": "Canonical LATTICE_SESSION_ID contract plus explicit local/non-cryptographic Authority boundary",
+      "covered_by": "understanding constraints; decision principles; CHK-001 adversarial intent; CHK-002 adversarial intent; CHK-004 generated-token diagnostics",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Canonical Contract and #Local Boundary"
+    },
+    {
+      "feature": "Resolver priority covers explicit env, host adapter bridge, generated-token fallback, and derived-ppid degraded fallback",
+      "covered_by": "CHK-002; CHK-003; CHK-004; CHK-006; plan.md execution order",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Resolution Priority"
+    },
+    {
+      "feature": "Host adapter facade for Claude Code, Codex, Antigravity/agy, and fake future host without generic-core env branches",
+      "covered_by": "CHK-003; CHK-006 guardrail coverage; plan.md CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Host Adapter Bridge and #Future Hosts"
+    },
+    {
+      "feature": "Route Codex and Antigravity/agy launch, dispatch, or pre-apply paths through the adapter boundary",
+      "covered_by": "Partial: CHK-003 mentions adapter functions; docs/guide-scope-guard is only a relatedDoc",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Migration Away From Core Host Exceptions step 4; #Antigravity / agy"
+    },
+    {
+      "feature": "Generated-token fallback scoping, runtime artifact registration, ignored/material-safe persistence",
+      "covered_by": "CHK-004; CHK-006 material hygiene coverage; plan.md CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Generated-Token Fallback"
+    },
+    {
+      "feature": "Lifecycle event collection and DEV-claim warnings use the shared resolver instead of ad hoc session reads",
+      "covered_by": "CHK-005; CHK-003 adversarial guardrail; plan.md CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Migration Away From Core Host Exceptions step 5"
+    },
+    {
+      "feature": "Core exception guard blocks host-native session env names outside adapter, adapter tests, and docs",
+      "covered_by": "CHK-003; CHK-006; plan.md CHK-003/CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Verification Matrix Core exception guard"
+    },
+    {
+      "feature": "Verification matrix cases cover canonical env, blank env, adapters, generated token, ppid fallback/degradation, owner gate, lifecycle, local boundary, guard, and material hygiene",
+      "covered_by": "CHK-006; CHK-006 verificationIntent happy/edge/adversarial; plan.md CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Verification Matrix"
+    },
+    {
+      "feature": "Runtime verification matrix must run on at least two hosts, with one native/canonical path, another native or generated-token path, and one degraded ppid-only run",
+      "covered_by": "Partial: CHK-006 title/context mention multi-host matrix; CHK-001 is two-host plan review only, not runtime matrix execution",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Rollout Slices R5. Multi-host verification"
+    },
+    {
+      "feature": "Compatibility-window removal and documentation update from migration target to implemented behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "R6 is explicitly after the compatibility window and is not part of the first implementation boundary",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Rollout Slices R6. Compatibility removal"
+    },
+    {
+      "feature": "Mechanical DEV/REVIEW/TEST scope contract for the planned file boundary",
+      "covered_by": "Partial: checklist files fields and plan.md Files sections describe files, but no formal contract is configured",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "scope_contract_show: Scope contract not configured; scope_contract_check skips"
+    },
+    {
+      "feature": "Understanding touchpoints runtime-fact-registry.ts and command-ownership-contract.ts are intentionally in or out of execution scope",
+      "covered_by": "understanding.touchpoints only",
+      "status": "orphan-suspect",
+      "excluded_by": "",
+      "source": "understanding_get touchpoints; no matching checklist files entry or plan.md Files entry"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 3,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "180eb26a27cb16a7041b95b3571778f6854fd60e2f8e3e22f4a75a2cf123a1fa",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Is actual Codex and Antigravity/agy launch/dispatch/pre-apply integration in scope for B-9089, or should this story only add adapter modules and guardrails?",
+      "evidence": "The source plan says to route Codex and Antigravity/agy launch/dispatch paths through the adapter, but the current checklist/plan only names adapter modules, owner-lease/lifecycle files, and docs/guide-scope-guard as a relatedDoc.",
+      "sourcePointers": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#Migration Away From Core Host Exceptions",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#Antigravity / agy",
+        "CHK-003",
+        "plan.md CHK-003"
+      ]
+    },
+    {
+      "id": "OQ-002",
+      "q": "Should B-9089 initialize a formal Lattice scope contract from the PLAN file boundary before DEV, or is the fail-open scope_contract state intentional for this story?",
+      "evidence": "scope_contract_show reports no configured scope contract and scope_contract_check skips, while the story touches owner-lease/lifecycle paths where the execution boundary matters.",
+      "sourcePointers": [
+        "scope_contract_show --storyId=B-9089",
+        "scope_contract_check --storyId=B-9089",
+        "plan.md Files sections"
+      ]
+    },
+    {
+      "id": "OQ-003",
+      "q": "Are runtime-fact-registry.ts and command-ownership-contract.ts expected touchpoints for this story, or should they be removed from understanding.touchpoints until a checklist item claims them?",
+      "evidence": "understanding_get lists both files, but checklist_get and plan_get do not assign either file to a CHK section.",
+      "sourcePointers": [
+        "understanding_get touchpoints",
+        "checklist_get files",
+        "plan_get Files sections"
+      ]
+    }
+  ]
+}
