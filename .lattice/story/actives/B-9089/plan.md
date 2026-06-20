@@ -48,6 +48,7 @@ This is a single-owner integration story. The touched files are tightly coupled 
 - Modify: `packages/main/src/core/story-owner-lease.ts`
 - Modify: `packages/main/src/handlers/session.ts`
 - Modify: `packages/main/src/core/story-owner-lease-doctor.ts`
+- Modify: `docs/requirements/decisions/session-ownership-and-write-leases.md`
 - Create: `packages/main/src/core/owner-session.ts`
 - Test: `packages/main/src/tasks/story-owner-lease-smoke.ts`
 
@@ -56,6 +57,7 @@ This is a single-owner integration story. The touched files are tightly coupled 
 - Preserve existing canonical env and ppid fallback behavior first.
 - Update owner-lease acquisition/refresh/read summaries to consume the facade result rather than embedding source-specific logic.
 - Keep legacy lease reading tolerant of older `koala-env` and `claude-code-env` sessionSource values.
+- Update `session-ownership-and-write-leases.md` so it reflects implemented canonical source labels after code lands.
 
 **Verify**:
 - `lattice session_brief` can show `owner session: <id> [explicit-env]` for canonical env and `owner session: <id> [derived-ppid]` only for degraded fallback.
@@ -72,6 +74,7 @@ This is a single-owner integration story. The touched files are tightly coupled 
 - Modify: `packages/main/src/handlers/context.ts`
 - Modify: `packages/main/src/handlers/transition-orchestrator.ts`
 - Modify: `packages/main/src/core/lattice-dispatch.ts`
+- Modify: `docs/guide-scope-guard.md`
 - Create: `packages/main/src/core/owner-session-adapters.ts`
 - Test: `packages/main/src/tasks/story-owner-lease-smoke.ts`
 
@@ -81,6 +84,7 @@ This is a single-owner integration story. The touched files are tightly coupled 
 - Dispatch/provider launch code may call the adapter bridge to preserve or set `LATTICE_SESSION_ID` in child/dispatch env summaries.
 - Generic owner-lease, lifecycle, gate, and cli-engine code must not read host-native session env names directly.
 - Add a guardrail check that fails if forbidden host-native env names appear outside allowed adapter/test/docs and dispatch-boundary paths.
+- Update `docs/guide-scope-guard.md` only where it describes provider labels versus owner-session identity.
 
 **Verify**:
 - Guardrail output contains `PASS owner-session host-native env guardrail: no generic core host-session env reads`.
