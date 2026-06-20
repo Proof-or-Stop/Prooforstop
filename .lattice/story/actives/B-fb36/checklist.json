@@ -64,10 +64,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke proves clean TEST worktree command surface reaches preflight/ready path with defaults and no version mutation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -77,10 +77,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Smoke case non-TEST phase blocks at preflight before merge, refresh, validate, runtime detection, or version mutation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -90,10 +90,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Smoke cases dirty preflight, wrong cwd, wrong branch, and missing local main block before mutation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         }
       ]
     },
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Clean ready smoke proves mergeMain, staleEvidenceRefresh, validate skip/pass control, doneClosure, and exact DONE next command ordering.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Stale refresh disabled and metadata refresh paths verify stale evidence classification happens before refresh and validation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -176,10 +176,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Command-backed stale evidence and validate-fail smokes block without done_closure or DONE-ready guidance.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         }
       ]
     },
@@ -235,10 +235,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Runtime source diff smoke reports postDoneRuntimeVersionBumpRequired=true and protected version files are not mutated.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -248,10 +248,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Docs-only diff smoke reports postDoneRuntimeVersionBumpRequired=false without version mutation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -261,10 +261,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Command schema rejects versionBump inputs and handler only reads version state; no pre-DONE version normalization path exists.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         }
       ]
     },
@@ -321,10 +321,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Clean ready smoke prints localDoneReady with authorityDone=false, fullAuthorityDone=false, productionDone=false, and one DONE command.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -334,10 +334,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Stale review material smoke blocks through review assurance/escalation diagnostics and never claims two-host, receipt, Authority, fullAuthority, or production completion.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -347,10 +347,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Validate-created metadata smoke proves final cleanTree blocks with exact metadata file guidance instead of false PASS.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         }
       ]
     },
@@ -433,10 +433,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke clean path covers PASS, step ordering, DONE next command, and unchanged Authority completion claims.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -446,10 +446,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers runtime source diff and docs-only diff classification without version mutation.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -459,10 +459,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers dirty-tree preflight and refreshStale=false stale evidence blocking.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -472,10 +472,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers validate failure and stale review material wording without Authority/fullAuthority/production overclaim.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:edge:2",
@@ -485,10 +485,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers prepare-generated metadata changes blocking at cleanTree with exact files.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -498,10 +498,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers merge-main conflict blocking at mergeMain with conflicted files and no later steps.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -511,10 +511,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers command-backed stale evidence requiring rerun and refusing hash rewriting.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -524,10 +524,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "Focused smoke covers dryRun=true no mutation of git status or protected state.",
-          "headHash": "c75dfd8346405d31d7d4ee9aa0bbb44d56ca7273",
-          "materialHash": "5602abc6368d6cbac44e1f883d81c89abdfedee8d5ecb467fbaededf5df35745",
-          "storyFilesHash": "801c05eef5baf29bee753c36c6bf171b11b2f26d9920e039639b72214b96ee04",
-          "timestamp": "2026-06-19T23:42:31.703Z"
+          "headHash": "23c3c231322dc5fa5db6e5fdf75fdd4817be4a71",
+          "materialHash": "050f8de3930961ce8240a2cb3b33d33ec23b828dd0c99089f17228453a1f62bf",
+          "storyFilesHash": "0253c9ef4ba82d503e474701267ccf213315b603df9b60f68149709b2b8767f8",
+          "timestamp": "2026-06-20T00:08:58.069Z"
         }
       ]
     }
