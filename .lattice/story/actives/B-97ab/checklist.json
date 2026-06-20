@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Define the LENS_TO_LANE mapping (six real review lanes per §4.2) + the lane type, in core/adversarial-review-lens-runner.ts",
       "context": "New module importing S0 (core/adversarial-review.js: LensId, CANONICAL_LENS_SET, Finding). LENS_TO_LANE: Record<LensId, lane> exactly per §4.2 (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs). The lane type must be the six real review_run_start lanes; pin correctness by cross-checking against review-run.ts REVIEW_RUN_LANES (import it, or assert in the smoke). Every mapped lane must be a real lane.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T13:40:39.549Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
