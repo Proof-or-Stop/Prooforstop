@@ -7,7 +7,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "git grep -i koala CHANGELOG.md returns 0 (down from 49); CHANGELOG reads fully Lattice-branded"
+      "userSees": "git grep -i koala CHANGELOG.md returns 0 (down from 49); CHANGELOG reads fully Lattice-branded",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala CHANGELOG.md returns 0 matches (was 49) -> proves all occurrences replaced; WHY: core requirement that every koala variant is gone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c Lattice CHANGELOG.md shows replacements present AND case-preserving: Koala->Lattice in titles, koala->lattice in tokens, KOALA->LATTICE in constants -> correct case mapping; WHY: ensures substitution preserved original casing",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "diff of CHANGELOG.md shows koala-lab->lattice-lab, @koala-agent->@lattice-agent, .koala/->..lattice/, bin/koala.js->bin/lattice.js, koala.config->lattice.config -> all historical technical tokens converted; WHY: technical tokens are the highest-risk substitution targets",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for mixed-case edge patterns (kOaLa, KOALA_, _koala) in CHANGELOG.md -> 0 matches; WHY: catches partial/unusual casing that a naive s/koala/lattice/gi might miss or that might not have been covered",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG.md markdown renders valid: all headers (##) have correct format, no orphaned backticks or broken inline-code fences after substitution -> markdown structure preserved; WHY: find-replace inside backtick-delimited tokens could break markdown syntax",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "line count of CHANGELOG.md before vs after is identical (479 lines) -> no accidental line insertion/deletion during substitution; WHY: ensures the edit was purely in-place replacement, not structural modification",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manually re-insert a single koala token (e.g. koala-lab) into CHANGELOG.md then run git grep -i koala CHANGELOG.md -> returns 1 match proving the grep check is sensitive enough to catch a single residual; WHY: validates the acceptance grep is not silently passing",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "insert a Unicode homoglyph koala (e.g. using Cyrillic a: koаla) into CHANGELOG.md then run git grep -i koala -> returns 0 (grep does not catch it) but a visual inspection note is warranted; WHY: adversarial check that homoglyph bypass is acknowledged as out-of-scope for ASCII grep",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
