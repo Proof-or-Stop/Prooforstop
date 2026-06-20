@@ -116,7 +116,7 @@
       "desc": "parallel-gate-config-smoke.ts:126 empty catch {} in finally cleanup swallows rmSync errors silently; add at least a console.warn to surface unexpected temp-dir cleanup failures during CI runs",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T05:34:28.759Z",
@@ -127,7 +127,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "edge|ts|parallel-gate-config",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: the finally cleanup catch now console.warns '[parallel-gate-config-smoke] temp cleanup failed ...' instead of swallowing rmSync errors.",
+      "resolvedAt": "2026-06-20T06:39:08.763Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-007",
