@@ -95,7 +95,7 @@
       "desc": "dead code: parallel-policy.ts:34-45 JSDoc for resolveParallelSafety is now orphaned — TERMINAL_PHASES insertion placed a second JSDoc block between the existing comment and the function, so resolveParallelSafety has no attached doc and the older JSDoc block is unreachable dead comment",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T23:39:07.544Z",
@@ -106,7 +106,11 @@
         "packages/main/src/core/parallel-policy.ts"
       ],
       "signatureTag": "missing|ts|dead-code-parallel",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: TERMINAL_PHASES moved above resolveParallelSafety's JSDoc; the function doc is no longer orphaned.",
+      "resolvedAt": "2026-06-20T00:03:18.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-986c:F-006",
