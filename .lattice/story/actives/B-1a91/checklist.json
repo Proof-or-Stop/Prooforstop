@@ -5,8 +5,8 @@
       "title": "Auto-refresh the finding-signals cache in applyDoneMergeEffects after the DONE merge",
       "context": "In handlers/done-effects.ts applyDoneMergeEffects (~after the bumpVersionOnDoneMerge / runDoneMainPackageBuildAfterMerge calls at ~890-896, post-merge, inside the main write-lock), re-derive + persist the finding-signals cache by calling deriveFindingSignalsFromStore(store, { projectRoot: <root> }) (core/finding-signals.ts) — which writes via learning-store writeFindingSignals → resolveLearningRoot (canonical MAIN cache, post-B-37b3). Run it on EVERY DONE merge (do NOT gate on shouldBuildDoneMainPackageForChangedPaths). Wrap in try/catch: NEVER throw or block the merge; append an advisory mergeLines status line (e.g. \"experience cache refreshed (N signals)\" or \"experience cache refresh skipped: <reason>\"). Use the correct root so the cache lands in the main checkout. Do NOT change learning-store.ts (B-37b3 resolver) or version-bump.ts. Keep the effect advisory-only (no gate reads it).",
       "userSees": "After any `story_advance --phase=DONE` that merges to main, the merge report shows an \"experience cache refreshed (N signals)\" line, and .lattice/learning/finding-signals.json updatedAt advances to include the just-completed story's findings — no manual `learning_scan` needed.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T08:59:02.155Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [

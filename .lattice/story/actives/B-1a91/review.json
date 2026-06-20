@@ -1,0 +1,35 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-20T08:56:36.316Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Auto-refresh the finding-signals cache in applyDoneMergeEffects after the DONE merge + Smoke: DONE merge auto-refreshes the cache and never breaks the merge are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/(new smokes) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "766792e0ec722d97aacf7a04a9975baa760f2c33db1d02585b1a5a7ff5da9516"
+    },
+    {
+      "timestamp": "2026-06-20T08:57:06.004Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Auto-refresh the finding-signals cache in applyDoneMergeEffects after the DONE merge + Smoke: DONE merge auto-refreshes the cache and never breaks the merge are performed simultaneously?)"
+        }
+      ],
+      "_hash": "0a32b269272821b324998388ca1c015b71ea275aa960d3f82dee31c62f4ae14e"
+    }
+  ]
+}
