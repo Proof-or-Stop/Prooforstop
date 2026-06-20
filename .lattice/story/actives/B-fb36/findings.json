@@ -119,6 +119,28 @@
       "resolvedAt": "2026-06-19T23:45:11.470Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-006",
+      "desc": "done_prepare incorrectly reclassifies matching-storyFilesHash evidence as stale after unrelated main/material drift. Evidence: packages/main/src/handlers/done-prepare.ts:241-245 calls checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root) and omits evidence?.storyFilesHash. The freshness helper only accepts whole-tree materialHash drift when evidenceStoryFilesHash is provided and matches (packages/main/src/core/evidence-freshness.ts:293-304). The established verifier and refresh paths pass evidence?.storyFilesHash (packages/main/src/handlers/verifier.ts:340-342 and packages/main/src/handlers/checklist.ts:1002-1006), and flow-stability smoke asserts matching storyFilesHash must keep coverage covered after unrelated drift (packages/main/src/tasks/flow-stability-smoke.ts:1473-1483). Because done_prepare uses its own stalePlan to block command-backed evidence at packages/main/src/handlers/done-prepare.ts:622-630, a TEST story with fresh story-owned evidence can be falsely blocked after merging unrelated main changes, violating the preserved storyFilesHash freshness boundary.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T00:14:16.202Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-010",
+      "_hash": "20c3a1bfabddc1c4b08b307a999c10a13a1a292ff5cea2e9d0fbc3dcac3e3cdb",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|prepare-incorrectly-reclassifies",
+      "signatureTagSource": "auto"
     }
   ]
 }
