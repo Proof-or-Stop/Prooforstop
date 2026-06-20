@@ -54,6 +54,24 @@
       ],
       "signatureTag": "missing|ts|happy-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-004",
+      "desc": "CHK-001:edge:3: intent claims resolveParallelGate({maxConcurrentReview:2.5}, strictDefault) -> returns 4 (the strict profile default). The smoke (line 78) uses PD (balanced default, maxConcurrentReview=3) and therefore asserts the return is 3, not 4. The intent names strictDefault and the value 4 but the actual assertion uses a different profile entirely. This specific named-profile behavior is untested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:34:23.457Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "58a92b99517190fe631209c26e715e43de87244a2ffd19b2019553eb140e2033",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
