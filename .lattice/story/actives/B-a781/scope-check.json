@@ -1,0 +1,38 @@
+{
+  "storyId": "B-a781",
+  "checkedAt": "2026-06-20T06:36:46.519Z",
+  "features": [
+    {
+      "feature": "canonical owner-session contract doc",
+      "covered_by": "CHK-001 plus plan_get CHK-001 cover LATTICE_SESSION_ID as canonical owner lease identity, host-specific session bridging before core logic, ppid as degraded fallback, and the new owner-session-contract execution doc. decision_get option A supports the canonical adapter contract.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/checklist_get/plan_get/decision_get"
+    },
+    {
+      "feature": "host adapter bridge/future-host onboarding",
+      "covered_by": "CHK-002 plus plan_get CHK-002 cover Codex, Claude Code, Antigravity/agy, and future hosts; native-session and generated-token cases; precedence; migration of legacy fallback; and no owner-lease core host special cases. decision_get rejects adding every host env variable to owner lease core.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/checklist_get/plan_get/decision_get"
+    },
+    {
+      "feature": "verification/two-host review rollout",
+      "covered_by": "Plan CHK-003 covers ppid-changing smoke, wrapper/dispatch bridge checks, owner lease refresh behavior, session_brief source rendering, fallback warnings, and two-host review evidence; CHK-003 title/context/userSees name the rollout boundary.",
+      "status": "gap",
+      "excluded_by": "Gap: checklist_get shows CHK-003 is missing verificationIntent, so the PLAN checklist/evidence boundary for this feature is incomplete even though plan.md describes the rollout.",
+      "source": "checklist_get/plan_get"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9e8c976243ffde25be1c9c13834e2943966cda1e0bf0f43343f676f5decb9825",
+  "openQuestions": []
+}
