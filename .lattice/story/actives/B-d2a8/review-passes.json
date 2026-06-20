@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-016",
       "_hash": "6f36c84c3b5e20f102d39880c3c55983ea62d55773a6bc5fa5532d9d1eed178c"
+    },
+    {
+      "id": "B-d2a8:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Exhaustive totality trace of resolveParallelGate: (1) describeInvalidValue is total for all inputs — bigint via template literal, undefined/function via JSON.stringify→undefined??String() coalesce, Symbol via same path (JSON.stringify returns undefined, String(sym) does not throw), revoked Proxy via JSON.stringify throw→Object.prototype.toString.call→throw→inner catch returning constant, throwing-toJSON via JSON.stringify throw→Object.prototype.toString.call (succeeds since no toStringTag), circular+throwing-toStringTag via both inner paths→<unserializable>. (2) readParallelGateFields throws for revoked Proxy (Array.isArray throws), Proxy with throwing getOwnPropertyDescriptor (Object.hasOwn throws), Proxy with throwing get trap (typeof r.mode throws), flaky Proxy on second access in describeInvalidValue(r.mode) (throw escapes readParallelGateFields) — all caught by resolveParallelGate outer try/catch. (3) The caught err in outer catch is rendered via describeInvalidValue (not instanceof/String) — total for Error, revoked Proxy, bigint, all exotic types as verified above. (4) { ...profileDefault } in catch block is always safe because profileDefault always comes from PARALLEL_GATE_PROFILE_DEFAULTS plain object literals. (5) Ordinary JSON-parseable inputs (null/undefined/primitive/array/plain-object) produce identical behavior to pre-change rounds — no regression. NO instanceof/String/toString runs on untrusted input anywhere in resolveParallelGate or readParallelGateFields. Function is provably total for ALL inputs. PASS.",
+      "createdAt": "2026-06-20T06:31:22.908Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-017",
+      "_hash": "396625d9344558d9cb04f457f2f42638bd8aaecc481d9e7a67580fad9b27bf3a"
     }
   ]
 }
