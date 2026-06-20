@@ -1,0 +1,93 @@
+{
+  "storyId": "B-fb36",
+  "checkedAt": "2026-06-19T23:59:27.791Z",
+  "reviewRound": "2026-06-19T23:43:22.561Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "done_prepare is a conservative pre-DONE readiness assistant that exposes the command surface, applies documented defaults, requires the requested TEST story worktree, checks local main/branch/clean tree before mutation, and does not accept version-bump modes.",
+      "status": "verified",
+      "verifiedBy": "git diff + command catalog/schema + CHK-001/CHK-005 smoke",
+      "evidence": "command-catalog registers done_prepare and done prepare alias; handler preflight checks story phase, cwd, branch, local main, clean tree; smoke passed non-TEST/wrong-cwd/wrong-branch/missing-main/dirty/versionBump rejection cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "done_prepare orchestrates mergeMain, stale evidence classification/refresh, validate, and done_closure in order, while blocking on merge conflicts, stale command-backed evidence, refreshStale=false, validation failure, or done_closure blockers.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + lattice done_closure + CHK-002/CHK-005 smoke",
+      "evidence": "handler runs git merge main, verification_evidence_refresh_stale dry-run classification, validate, and buildDoneClosureRunbook; smoke passed clean path, merge conflict, stale disabled, stale rerun, validate failure, and done_closure blocked review material cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "Runtime behavior diffs report postDoneRuntimeVersionBumpRequired and postDoneNext-style guidance without modifying package.json, lockfiles, or LATTICE_CLI_VERSION before DONE; docs-only/story metadata-only diffs do not require patch finalization.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + CHK-003/CHK-005 smoke",
+      "evidence": "detectRuntimeChanges reads git diff and version sources only; command schema rejects versionBump/bumpVersion/postDoneVersionBump; smoke passed runtime-source true, docs-only false, and version-bump rejection cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "dryRun=true reports planned steps and blockers without mutating git, evidence files, version files, or build outputs.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + CHK-005 smoke + current dry-run",
+      "evidence": "dryRun branches skip merge, stale refresh, validate, and build mutations; smoke asserted status, HEAD, and checklist unchanged for planned merge/refresh/validate/build; current B-fb36 dry-run blocked at doneClosure without changing git status."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "prepare-generated metadata changes or delegated metadata commits must block at cleanTree with exact files or generated commit list and rerun guidance instead of printing false DONE readiness.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + CHK-004/CHK-005 smoke",
+      "evidence": "handler compares HEAD before/after refresh/validate and blocks cleanTree with commits plus git log/rerun commands; final dirty check blocks with exact files; smoke passed validate-created metadata and safe stale refresh auto-commit cleanTree cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "done_prepare must not rebind, rewrite, refresh, or re-endorse review escalation or host verdict material; stale/missing review assurance must block and point to real review/escalation/host verdict paths.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + review_escalation_status + CHK-004/CHK-005 smoke",
+      "evidence": "handler reads done_closure runbook and emits review_escalation_status/autopilot_review_submit guidance only; it does not write host verdicts. review_escalation_status currently reports full-3x2; stale review material smoke blocks at doneClosure without verdict rebind."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "Output keeps local DONE readiness separate from Authority receipt backed completion and production completion; authorityDone, fullAuthorityDone, productionDone, and receiptVerified are never overclaimed by done_prepare.",
+      "status": "verified",
+      "verifiedBy": "done_closure output + transcript-diff + CHK-004/CHK-005 smoke",
+      "evidence": "done_closure states local readiness is not Authority DONE readiness; renderPass hard-codes authorityDone=false/fullAuthorityDone=false/productionDone=false and reports receiptVerified from closure only; transcript and smoke show no Authority or production completion claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "DONE remains explicit: done_prepare does not call story_advance DONE, does not push remotely, and only prints the final DONE command when all local readiness checks pass.",
+      "status": "verified",
+      "verifiedBy": "handler inspection + transcript-diff + smoke",
+      "evidence": "handler returns text only and never calls story_advance or push; validate-fail and blocked doneClosure smokes do not print story_advance; clean path smoke asserts exactly one DONE next command."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real machine evidence: .lattice/story/actives/B-fb36/evidence/transcript-diff.md plus node packages/main/dist/tasks/done-prepare-smoke.js. Smoke passed command surface/preflight cases: clean TEST path, non-TEST block, wrong cwd, wrong branch, missing local main, dirty tree, and versionBump rejection."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Real machine evidence: smoke run passed mergeMain/staleEvidenceRefresh/validate/doneClosure paths, including clean ready path, merge conflict block, refreshStale=false block, command-backed stale evidence rerun block, validate failure block, and done_closure blocked review material."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Real machine evidence: smoke run passed runtime source diff postDoneRuntimeVersionBumpRequired=true, docs-only false, and version bump mode rejection; handler inspection confirmed version sources are read but not written by done_prepare."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Real machine evidence: transcript-diff dry-run on B-fb36 blocked at doneClosure without Authority/production claims; smoke run passed localDoneReady with authorityDone=false/fullAuthorityDone=false/productionDone=false and cleanTree blocking for generated metadata files/commits."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Real machine evidence: node packages/main/dist/tasks/done-prepare-smoke.js passed all focused smoke cases on this review machine, including dryRun planned merge/refresh/validate/build no-mutation assertions and stale review material blocking without verdict rebind."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review inspected git diff, decision doc, summary, transcript-diff, checklist evidence, smoke source/output, done_closure, review escalation/full-3x2 host verdicts, and process-fact contract. I reran the done-prepare smoke and a current dry-run; no source files were edited and no omx/.omx paths were used. No unresolved delivery blockers found for the B-fb36 implementation; branch sync remains the expected separate DONE pre-check after this signature."
+  },
+  "_hash": "13dbe50580404adac47b3d9751d492b87377fce6f6eb040da0fbf35cc61caee9"
+}

@@ -1,0 +1,31 @@
+{
+  "storyId": "B-fb36",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/handlers/done-prepare.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes.js"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Review finding B-fb36:F-002 process-fact contract verification requires process-fact-levels metadata for the newly registered done_prepare command.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T22:52:51.308Z",
+  "updatedAt": "2026-06-19T23:31:07.235Z"
+}

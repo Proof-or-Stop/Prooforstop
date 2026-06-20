@@ -1,0 +1,150 @@
+{
+  "findings": [
+    {
+      "id": "B-fb36:F-001",
+      "desc": "The command catalog advertises Alias: lattice done prepare for done_prepare, but NESTED_SPACE_ALIASES only maps `done closure`; `normalizeNestedSpaceAlias([\"done\",\"prepare\",\"{}\"])` returns matched:false while `done closure` maps correctly. Users following the documented alias hit command `done` instead of done_prepare.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:19:45.699Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-001",
+      "_hash": "f1bca333bbcfdf1f4b99646c76b654612fe7076643b869673353359f7d10c4a4",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "signatureTag": "missing|ts|command-catalog-advertises",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added done prepare -> done_prepare mapping in alias-normalizer; command-catalog-smoke passed after fix.",
+      "resolvedAt": "2026-06-19T23:33:34.872Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-002",
+      "desc": "done_prepare is registered in command-catalog/COMMAND_POLICIES/DEFAULT_PHASE_TOOLS, but the CLI-engine compatibility MAIN_TOOLS marker was not updated. `node scripts/verify-process-fact-contract.mjs` fails with `lifecycle policy entry not present in MAIN_TOOLS: done_prepare` plus DEFAULT_PHASE_TOOLS drift for every phase, so the process-fact/command policy contract is broken.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T23:19:45.701Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-001",
+      "_hash": "946f68fc5f53110f4b14a5d2b8c52bf1ed991cc8d3c7e2ef219b01a096ec8485",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|ts|prepare-registered-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added done_prepare to cli-engine compatibility marker and process-fact levels; node scripts/verify-process-fact-contract.mjs passed.",
+      "resolvedAt": "2026-06-19T23:33:35.310Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-003",
+      "desc": "Dry-run no-mutation coverage is overclaimed. CHK-005:adversarial:2 requires dryRun=true against a scenario that would otherwise merge main, refresh stale evidence, or write metadata, but the smoke at packages/main/src/tasks/done-prepare-smoke.ts:402 builds an already-ready repo with no main divergence, no stale evidence, and no build output path. It only proves git status is unchanged in a mostly no-op dryRun path. A regression that accidentally merges main or refreshes stale evidence under dryRun would not be exercised by this case. Add a dryRun smoke with main ahead and/or stale safe-refresh evidence, assert the same files/evidence/version/build state before and after, and assert the output reports the skipped planned mutation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:20:13.797Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-002",
+      "_hash": "147ce702762fd8a565c940c7424bb0d9bab3fd3bd2180bd1afef9d99e740bb3f",
+      "files": [
+        "packages/main/src/tasks/done-prepare-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|mutation-coverage-overclaimed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added dryRun planned-mutation smoke with main ahead, safe stale evidence, validate and build enabled; asserts HEAD/status/checklist unchanged and skipped planned mutation output.",
+      "resolvedAt": "2026-06-19T23:33:35.732Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-004",
+      "desc": "done_prepare bypasses the required commit-required stop for prepare-generated metadata. In packages/main/src/handlers/done-prepare.ts:610 it delegates safe stale verification evidence refresh to createChecklistHandlers(ctx).verification_evidence_refresh_stale({ storyId }). That handler rewrites checklist evidence and then calls autoCommitStoryMetadata at packages/main/src/handlers/checklist.ts:1039-1045, whose implementation stages and commits the story metadata at packages/main/src/core/auto-commit-metadata.ts:200-218. As a result, done_prepare can produce and auto-commit metadata, then see a clean tree and print PASS, instead of blocking at cleanTree with exact files as required by docs/requirements/decisions/done-prepare-automation-execution-plan.md:293-308 and acceptance lines 604-605. The concept contract says the first implementation must not auto-commit prepare-generated metadata; callers need the explicit commit-required stop before DONE.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T23:21:16.365Z",
+      "reviewRound": "2026-06-19T23:15:44.027Z",
+      "reviewRunId": "B-fb36:RR-003",
+      "_hash": "14083fcf46fdd1ae667dcb1ccab876ced52df546defc4053710e6846d5a323bb",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|prepare-bypasses-required",
+      "signatureTagSource": "auto",
+      "resolvedReason": "done_prepare now records HEAD before refresh/validate and blocks cleanTree if refresh/validate created commit(s); smoke covers safe stale refresh auto-commit blocking with commit guidance.",
+      "resolvedAt": "2026-06-19T23:33:36.161Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-005",
+      "desc": "done-prepare doc still claims generated metadata changes remain uncommitted and require manual git add/commit before DONE (docs/requirements/decisions/done-prepare-automation-execution-plan.md:149 and :297), but implemented safe stale refresh calls verification_evidence_refresh_stale, which auto-commits story metadata, and done_prepare blocks on the new commit with rerun guidance (packages/main/src/handlers/checklist.ts:1043, packages/main/src/handlers/done-prepare.ts:670, packages/main/src/tasks/done-prepare-smoke.ts:361). Update the doc to describe the generated-commit/rerun path or align implementation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T23:37:11.322Z",
+      "reviewRound": "2026-06-19T23:33:22.035Z",
+      "reviewRunId": "B-fb36:RR-007",
+      "_hash": "3ff11b38e3ea89ea9480a29d4c59c4a6da2dddc1985e339e77d226419879e2bd",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|prepare-still-claims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Decision doc now documents verification_evidence_refresh_stale auto-commit behavior and done_prepare cleanTree generated-commit rerun guidance; docs reviewer B-fb36:RP-004 passed.",
+      "resolvedAt": "2026-06-19T23:45:11.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-006",
+      "desc": "done_prepare incorrectly reclassifies matching-storyFilesHash evidence as stale after unrelated main/material drift. Evidence: packages/main/src/handlers/done-prepare.ts:241-245 calls checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root) and omits evidence?.storyFilesHash. The freshness helper only accepts whole-tree materialHash drift when evidenceStoryFilesHash is provided and matches (packages/main/src/core/evidence-freshness.ts:293-304). The established verifier and refresh paths pass evidence?.storyFilesHash (packages/main/src/handlers/verifier.ts:340-342 and packages/main/src/handlers/checklist.ts:1002-1006), and flow-stability smoke asserts matching storyFilesHash must keep coverage covered after unrelated drift (packages/main/src/tasks/flow-stability-smoke.ts:1473-1483). Because done_prepare uses its own stalePlan to block command-backed evidence at packages/main/src/handlers/done-prepare.ts:622-630, a TEST story with fresh story-owned evidence can be falsely blocked after merging unrelated main changes, violating the preserved storyFilesHash freshness boundary.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T00:14:16.202Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-010",
+      "_hash": "20c3a1bfabddc1c4b08b307a999c10a13a1a292ff5cea2e9d0fbc3dcac3e3cdb",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|prepare-incorrectly-reclassifies",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Passed evidence.storyFilesHash into done_prepare checkEvidenceFreshnessForGit stale classifier and added focused smoke: matching storyFilesHash command evidence survives unrelated main material drift. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-prepare-smoke.js, node scripts/verify-process-fact-contract.mjs, command catalog smoke, and command ownership contract.",
+      "resolvedAt": "2026-06-20T00:21:59.391Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

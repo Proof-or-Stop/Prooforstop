@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-fb36:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Dry-run planned mutation smoke coverage verified",
+      "createdAt": "2026-06-19T23:35:57.520Z",
+      "reviewRound": "2026-06-19T23:33:22.035Z",
+      "reviewRunId": "B-fb36:RR-006",
+      "_hash": "4cc0accbe0091835cd2320c364fe1f70a403b7a15e19d46d9e1e458165056bc7"
+    },
+    {
+      "id": "B-fb36:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-004 generated commits now block cleanTree with rerun guidance; no version mutation or verdict rebind found.",
+      "createdAt": "2026-06-19T23:36:45.575Z",
+      "reviewRound": "2026-06-19T23:33:22.035Z",
+      "reviewRunId": "B-fb36:RR-004",
+      "_hash": "28cc36bc658e1ef9b4e218d1a8a6cb5c67fafdbc8be341c08cddacaf61b83f89"
+    },
+    {
+      "id": "B-fb36:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality re-review passed after alias, cli-engine, and process-fact verification.",
+      "createdAt": "2026-06-19T23:37:09.348Z",
+      "reviewRound": "2026-06-19T23:33:22.035Z",
+      "reviewRunId": "B-fb36:RR-005",
+      "_hash": "6a48364eab841ed7b8883e20734598ee2c5f7b5b861dc7e0a6e652c62aea5402"
+    },
+    {
+      "id": "B-fb36:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "F-005 metadata behavior doc fix verified.",
+      "createdAt": "2026-06-19T23:44:53.818Z",
+      "reviewRound": "2026-06-19T23:43:22.561Z",
+      "reviewRunId": "B-fb36:RR-008",
+      "_hash": "85d8e85a727d6dc518ad597e9066bd29d2e92b7b4ebec80418659abbe258a4de"
+    },
+    {
+      "id": "B-fb36:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: current done_prepare implementation remains a conservative pre-DONE assistant. It fail-closes outside TEST/dirty/wrong-branch/missing-main, never calls story_advance DONE, reads but does not mutate version sources, blocks stale command-backed evidence and stale review/host verdict material instead of rebinding it, surfaces real review/host re-review guidance, and success output hardcodes local-only readiness with authorityDone=false/fullAuthorityDone=false/productionDone=false/receiptVerified=false including the reachable receiptVerified=true runbook edge.",
+      "createdAt": "2026-06-20T00:12:45.554Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-009",
+      "_hash": "34f20a79e7d38596fb2b36584a0b5abc8ac3c891e0e01fc9890c57233d654242"
+    },
+    {
+      "id": "B-fb36:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: verification coverage reviewed for done_prepare. Evidence: lattice test_list shows latest lattice validate PASS at 2026-06-20T00:09:27.429Z with 20/20 verificationIntent coverage and no source changes after validated head e261d1b. Targeted command node packages/main/dist/tasks/done-prepare-smoke.js passed, covering clean ready exact one DONE command, dirty/wrong cwd/wrong branch/missing main/non-TEST blocks, stale safe refresh and command-rerun blocker, validate failure, generated metadata cleanTree blocker, stale review material without overclaim, dryRun no mutation, and receiptVerified=true runbook boundary without receiptVerified:true or Authority overclaim.",
+      "createdAt": "2026-06-20T00:14:11.778Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-011",
+      "_hash": "c7068b15df10315ab6a6289de1cf092b6503c466c98fd7ed8c81244cc45b4ecf"
+    },
+    {
+      "id": "B-fb36:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "PASS: documentation aligns with current done_prepare behavior. Evidence: docs/requirements/decisions/done-prepare-automation-execution-plan.md lines 16-20, 144-155, 195-200, 421-431, 644-657; packages/main/src/handlers/done-prepare.ts lines 449-455, 670-687, 721-730, 740-752; packages/main/src/tasks/done-prepare-smoke.ts lines 320-360, 445-468, 485-508; checklist evidence records focused smoke pass via node packages/main/dist/tasks/done-prepare-smoke.js.",
+      "createdAt": "2026-06-20T00:14:58.526Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-012",
+      "_hash": "14256d146d0d07f530f6b694d695291a36b1cfd5d058c6267acfc99c2e353ec2"
+    },
+    {
+      "id": "B-fb36:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-006 re-review passed. done_prepare classifyStaleEvidence forwards evidence?.storyFilesHash into checkEvidenceFreshnessForGit (src/handlers/done-prepare.ts:241-245; dist/handlers/done-prepare.js:171), preserving B-5a9a storyFilesHash freshness when materialHash drifts outside story-owned files. Focused smoke covers command-backed storyFilesHash evidence surviving unrelated main material drift (src/tasks/done-prepare-smoke.ts:221-250,537-551; dist/tasks/done-prepare-smoke.js:189-218,473-485). Authority boundary remains local-only/no overclaim: done_prepare renders authorityDone/fullAuthorityDone/productionDone false and smoke asserts no true variants even with verified runbook receipt (src/handlers/done-prepare.ts:449-455; src/tasks/done-prepare-smoke.ts:361-401). Ran node packages/main/dist/tasks/done-prepare-smoke.js: PASS.",
+      "createdAt": "2026-06-20T00:23:58.451Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-013",
+      "_hash": "df9f6792de77f4929f026b599c991b51a3b99e9663f3d5f2bd2fe67c6816695f"
+    },
+    {
+      "id": "B-fb36:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-006 coverage re-review passed. packages/main/src/tasks/done-prepare-smoke.ts records command-backed verification evidence with storyFilesHash, drifts only unrelated main README material, and asserts done_prepare PASS/staleEvidenceRefresh PASS with no stale command rerun guidance. ReceiptVerified local-only boundary coverage remains present: done_closure can verify the receipt, while done_prepare still prints receiptVerified=false and authorityDone/fullAuthorityDone=false. Verified by running node packages/main/dist/tasks/done-prepare-smoke.js successfully.",
+      "createdAt": "2026-06-20T00:24:30.735Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-014",
+      "_hash": "f7f3904f6c19695e26959e5750358d239ee841a42ed0b8d2260d071377449de7"
+    },
+    {
+      "id": "B-fb36:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs re-review after F-006: docs/requirements/decisions/done-prepare-automation-execution-plan.md remains consistent with behavior. It states done_prepare reuses validate/done_closure freshness semantics, delegates stale refresh to verification_evidence_refresh_stale, does not rewrite stale hashes, blocks on generated refresh commits, remains local-only pre-DONE, keeps DONE explicit, and does not claim receiptVerified/fullAuthorityDone/productionDone. Verified against packages/main/src/handlers/done-prepare.ts, packages/main/src/core/evidence-freshness.ts, packages/main/src/handlers/checklist.ts, packages/main/src/handlers/done-closure.ts, and node packages/main/dist/tasks/done-prepare-smoke.js PASS including storyFilesHash drift and receipt boundary cases.",
+      "createdAt": "2026-06-20T00:30:56.858Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-016",
+      "_hash": "ef59e44b49a82941587f768e6febeea37bcb5d58ab88ab1301bca2ef8dd9930c"
+    },
+    {
+      "id": "B-fb36:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after F-006: PASS. done_prepare now passes evidence.storyFilesHash into checkEvidenceFreshnessForGit for stale checklist classification (packages/main/src/handlers/done-prepare.ts:233-245), preserving B-5a9a semantics that unrelated whole-tree materialHash drift can be accepted only through the shared storyFilesHash freshness path. Command-backed truly stale evidence still blocks and requires rerun (packages/main/src/handlers/done-prepare.ts:622-630). Review-assurance/escalation staleness is not rebound: done_prepare blocks on done_closure and prints review_escalation_status/autopilot_review_submit guidance (packages/main/src/handlers/done-prepare.ts:287-303, 718-733). Authority boundary remains local-only: PASS output hardcodes authorityDone=false, fullAuthorityDone=false, productionDone=false, receiptVerified=false (packages/main/src/handlers/done-prepare.ts:449-455), and smoke coverage verifies no receiptVerified/authorityDone/fullAuthorityDone/productionDone overclaim including an authority receipt precondition and stale review material case (packages/main/src/tasks/done-prepare-smoke.ts:377-401, 537-565). Verified with node packages/main/dist/tasks/done-prepare-smoke.js and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-20T00:32:14.816Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-015",
+      "_hash": "f5f86ee0acfc6ee6c184a12ee618c96f0b43a0fb5af901592d1ee6bb06e4321d"
+    }
+  ]
+}
