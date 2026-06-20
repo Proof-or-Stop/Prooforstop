@@ -158,7 +158,7 @@
       "desc": "dispatch-usage.ts:215 — resultText reads inherited envelope.result via prototype-chain; Object.prototype.result can replace the raw fallback text on a no-own-result envelope (same unguarded-container class as F-004, missed in round 2). Not a token surface, but same hardening class in the same file. Fix: own-prop guard the envelope.result read (ownProp(envelope,'result') ? ... : fallback). Add a smoke check that a polluted Object.prototype.result is not used when the envelope has no own result.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-20T15:31:06.481Z",
@@ -168,7 +168,10 @@
         "packages/main/src/core/usage-ledger/dispatch-usage.ts"
       ],
       "signatureTag": "adversarial|ts|dispatch-usage-resulttext",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812): own-prop guard envelope.result in parseClaudeCliOutput. result-pollution smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:54.423Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-009",
