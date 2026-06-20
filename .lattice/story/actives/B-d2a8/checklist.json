@@ -21,7 +21,16 @@
       "context": "new task smoke under packages/main/src/tasks/; call resolveAuditConfig / resolveParallelGate with in-memory or temp-dir config inputs; assert the 3 profile default rows, a valid override is applied, an invalid mode falls back to advise, a non-integer maxConcurrentReview falls back, a non-boolean broadGlobBlocks falls back, and a non-object parallelGate yields all profile defaults; register in lattice.config.json",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+        ],
+        "test": []
+      }
     }
   ]
 }
