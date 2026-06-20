@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "SEVERITY_TO_FINDING_KIND ledger severity map (BLOCKER->critical, MAJOR->high, MINOR->medium) + FindingAddSeverity type, in core/adversarial-review-verifier.ts",
+      "context": "New module importing S0 (core/adversarial-review.js: Finding, FindingSeverity, Verdict). FindingAddSeverity = 'critical'|'high'|'medium'|'low' (finding_add's enum). SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = {BLOCKER:'critical', MAJOR:'high', MINOR:'medium'} per §4.2 table (low is reserved for cosmetic MINOR; the default map uses medium). The point is that the abstract methodology severities NEVER reach finding_add (which would be a Zod error).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "composeDesc(finding) + toFindingAddArgs(finding,{reviewRunId,agent,category}) ledger arg builder",
+      "context": "composeDesc(finding)=`${title} — ${issue} Fix: ${fix}` with the line cited inside the desc (e.g. append ` (line <n>)` or include it). FindingAddArgs = {severity: FindingAddSeverity, desc: string, files: string[], category: 'happy'|'edge'|'adversarial'|'missing', reviewRunId: string, agent: string}. toFindingAddArgs maps severity via SEVERITY_TO_FINDING_KIND, composes desc, sets files=[finding.file], passes through reviewRunId+agent+category. agent must be a real lattice-review-* lane (caller-supplied; the function does not invent it). Pure — returns the arg object, performs NO finding_add call (that is S4).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "verifyFinding (M skeptics, refute-by-default counting, threshold-confirm T=1-of-2) + verifyFindings + confirmedFindings",
+      "context": "DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1. verifyFinding(finding, change, runSkeptic:(finding:Finding,change:string)=>Verdict, opts?:{skeptics?:number, threshold?:number}) runs runSkeptic M times, collects Verdict[], confirms=count(v.isReal===true), confirmed=(confirms>=T). Returns VerifiedFinding={finding, verdicts:Verdict[], confirms:number, confirmed:boolean}. runSkeptic is the injected seam (the real skeptic agent at MVP); refute-by-default lives in the skeptic role, the module just counts isReal and thresholds. verifyFindings(findings, change, runSkeptic, opts) maps over the array. confirmedFindings(verified):Finding[] returns survivors (confirmed===true). A confirms=0 finding is dropped (confirmed false).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke with a FAKE runSkeptic proving threshold + mapping + no-abstract-leak; register in lattice.config.json",
+      "context": "New packages/main/src/tasks/adversarial-review-verifier-smoke.ts (check+counter, explicit literals). Assert: SEVERITY_TO_FINDING_KIND maps BLOCKER->critical/MAJOR->high/MINOR->medium and every value is in {critical,high,medium,low}; composeDesc yields the exact `<title> — <issue> Fix: <fix>` string with line cited; toFindingAddArgs returns the right shape (severity mapped, files=[file], category, reviewRunId, agent) and never emits an abstract BLOCKER/MAJOR/MINOR; verifyFinding with a fake runSkeptic that returns k isReal=true of M: T=1-of-2 -> 1 confirm CONFIRMED, 0 confirm DROPPED; T=2-of-2 -> needs both; default M=2,T=1; verifyFindings over a list yields per-finding verdicts; confirmedFindings filters confirms>=T only. Register node packages/main/dist/tasks/adversarial-review-verifier-smoke.js in lattice.config.json validate.commands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
