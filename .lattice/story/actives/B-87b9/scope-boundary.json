@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-87b9",
+  "mode": "feature",
+  "allowed": [
+    "package.json: optional test script entry for the new smoke",
+    "packages/main/src: new plan_skeleton command + handler (suggests checklist/context/understanding from StoryReadinessReport)",
+    "packages/main/src/cli-engine.ts or command registry: register plan_skeleton",
+    "packages/main/src/tasks: new plan-skeleton smoke test"
+  ],
+  "excluded": [
+    "Do not modify the V1 lifecycle_check read-only contract",
+    "No new mutation primitive (write path reuses existing PLAN setters)",
+    "No new readiness predicate (consume StoryReadinessReport)",
+    "No phase advance / reviewer launch / evidence write / Authority claim from plan_skeleton"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose to develop lifecycle P2-P8 via host Codex/Claude CLIs (2026-06-21)",
+  "createdAt": "2026-06-20T23:30:33.868Z",
+  "updatedAt": "2026-06-20T23:30:33.868Z",
+  "_hash": "ce539f2cea86f9c5f090abba7098c04b10b43d7ebb0c057965aeb57d28ea1661"
+}

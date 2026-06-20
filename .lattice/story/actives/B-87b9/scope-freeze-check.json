@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-87b9",
+  "checkedAt": "2026-06-20T23:30:34.370Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "ce539f2cea86f9c5f090abba7098c04b10b43d7ebb0c057965aeb57d28ea1661",
+  "executionBoundaryHash": "983e224ac475ef25bbb0e46a9a01c6ec1e2e83a3649aea3d59e7e07e6adb15bf",
+  "freshnessHash": "c0197877c2bf9a5a545720e6a7c1a970bf557e260182f0b628c604d06e881970",
+  "effectiveExcludedKeywords": [
+    "Do not modify the V1 lifecycle_check read-only contract",
+    "No new mutation primitive (write path reuses existing PLAN setters)",
+    "No new readiness predicate (consume StoryReadinessReport)",
+    "No phase advance / reviewer launch / evidence write / Authority claim from plan_skeleton"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not modify the V1 lifecycle_check read-only contract",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify the V1 lifecycle_check read-only contract",
+      "excluded": true
+    },
+    {
+      "keyword": "No new mutation primitive (write path reuses existing PLAN setters)",
+      "source": "scopeBoundary.excluded",
+      "text": "No new mutation primitive (write path reuses existing PLAN setters)",
+      "excluded": true
+    },
+    {
+      "keyword": "No new readiness predicate (consume StoryReadinessReport)",
+      "source": "scopeBoundary.excluded",
+      "text": "No new readiness predicate (consume StoryReadinessReport)",
+      "excluded": true
+    },
+    {
+      "keyword": "No phase advance / reviewer launch / evidence write / Authority claim from plan_skeleton",
+      "source": "scopeBoundary.excluded",
+      "text": "No phase advance / reviewer launch / evidence write / Authority claim from plan_skeleton",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "15f1d920fc50a4734dec7aeae4ff16afeb064e77c75de9704424cf19a148a7cb"
+}

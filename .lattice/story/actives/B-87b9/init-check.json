@@ -1,0 +1,26 @@
+{
+  "storyId": "B-87b9",
+  "checkedAt": "2026-06-20T23:32:15.744Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T23:32:10.078Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json priority=high (elevated from medium) but neither the title nor description contains any canonical riskSignals keyword (auth/password/token/migration/destructive/state machine/guard/gate/reset/production/incident/hotfix/PII/GDPR/breaking change). The auto-elevation was triggered by false-positive matches: the word p1 (Phase 1) matched the Production/Emergency pattern, and lattice validate matched Validation Framework. No genuine high-priority risk is reflected in the story title or description."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T23:32:15.744Z",
+      "issues": []
+    }
+  ],
+  "_hash": "31a843fc29ba64da967a7112b28a461bef4cbd4e5b1bbd95bcbf1ef09185e0f5"
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-87b9",
+  "allowedCommands": [
+    "claude -p",
+    "codex exec",
+    "git grep",
+    "lattice plan_skeleton",
+    "lattice validate",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".koala",
+    "CHANGELOG.md",
+    "docs/requirements/decisions",
+    "jek.md"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "P2 lifecycle plan_skeleton; developed via host codex/claude",
+  "createdAt": "2026-06-20T23:30:34.110Z",
+  "updatedAt": "2026-06-20T23:30:34.110Z",
+  "_hash": "983e224ac475ef25bbb0e46a9a01c6ec1e2e83a3649aea3d59e7e07e6adb15bf"
+}
