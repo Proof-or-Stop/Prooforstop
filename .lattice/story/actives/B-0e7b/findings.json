@@ -29,7 +29,7 @@
       "desc": "doc-code-drift: §2.3 Verdict schema declares agreedSeverity as BLOCKER|MAJOR|MINOR|NOT_A_DEFECT. This is the same severity-label mismatch as §2.2: Lattice finding_add uses critical|high|medium|low, not BLOCKER/MAJOR/MINOR. Additionally, NOT_A_DEFECT is introduced in §2.3 without being part of the Finding severity enum. If Verdict.agreedSeverity is ever stored or mapped to a finding_add call, the BLOCKER/MAJOR/MINOR values cannot be passed directly. The spec needs to either use the Lattice severity vocabulary or explicitly define the translation layer between its methodological labels and Lattice severity values.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T11:04:45.777Z",
@@ -42,7 +42,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "missing|md|code-drift-verdict",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "same mapping covers VERDICT.agreedSeverity. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:46.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0e7b:F-003",
