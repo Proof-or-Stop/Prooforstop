@@ -252,11 +252,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts toFindingAddArgs returns a plain object (typeof==='object', !==null, NOT a Promise) — it shapes args synchronously, performs no finding_add I/O.",
-          "headHash": "d36d1fc116c9579d230b734bab09d33ec358b191",
-          "materialHash": "bf564bc53879950ad99ca9036215ed775187da33d67783f6c9c2b08e00a5fab7",
-          "storyFilesHash": "8f9df1c5f8aee29694a81d8e04e16c924378aad3faa21139df7daa91862d0950",
-          "timestamp": "2026-06-20T15:05:19.733Z"
+          "note": "Smoke asserts toFindingAddArgs returns a fresh, deterministic plain FindingAddArgs object: non-Promise plain object; two same-input calls deep-equal (idempotent) yet distinct refs (no shared mutable state); exact key set {agent,category,desc,files,reviewRunId,severity}. Honest scope: the stronger 'never calls finding_add' is structurally guaranteed by the module having no I/O imports (best spied at the S4 boundary).",
+          "headHash": "194177f266895e1f160dd390b6143c9f0c5d6fe6",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:13:37.204Z"
         }
       ]
     },
@@ -451,11 +451,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts T=0 boundary: all-false fake @T=0 -> confirms===0 yet confirmed===true (confirms>=0 always holds) — documents that T=0 confirms everything.",
-          "headHash": "d36d1fc116c9579d230b734bab09d33ec358b191",
-          "materialHash": "bf564bc53879950ad99ca9036215ed775187da33d67783f6c9c2b08e00a5fab7",
-          "storyFilesHash": "8f9df1c5f8aee29694a81d8e04e16c924378aad3faa21139df7daa91862d0950",
-          "timestamp": "2026-06-20T15:05:19.733Z"
+          "note": "§2.3 invariant: a confirms=0 finding is ALWAYS dropped. verifyFinding floors the effective threshold at Math.max(1,requested), so an all-false fake @ threshold:0 -> confirms===0, confirmed===false (DROPPED); the smoke asserts this for T=0 and T=1, and that a 1-of-2 fake @ T=0 is confirmed (confirms=1>=floored-1). Corrects the earlier (Codex-caught) bug where T=0 confirmed a zero-confirm finding.",
+          "headHash": "194177f266895e1f160dd390b6143c9f0c5d6fe6",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:13:37.204Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
