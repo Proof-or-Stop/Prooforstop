@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8cc8",
+  "allowedCommands": [
+    "git grep",
+    "lattice validate",
+    "npm run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".koala",
+    "docs/requirements/decisions",
+    "packages",
+    "scripts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "express docs story: full koala->lattice rebrand of CHANGELOG.md only",
+  "createdAt": "2026-06-20T23:02:06.972Z",
+  "updatedAt": "2026-06-20T23:02:06.972Z",
+  "_hash": "7f5e5074489d30329e91853cc49fdec91015eb0fb8825437b8dd70df90b3c110"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8cc8",
+  "mode": "maintenance",
+  "allowed": [
+    "CHANGELOG.md: full rebrand koala/Koala/KOALA -> lattice/Lattice/LATTICE (version titles, product-name prose, koala-lab, @koala-agent, koala commands, .koala paths, bin/koala.js, koala.config)"
+  ],
+  "excluded": [
+    "No code or test changes",
+    "No files other than CHANGELOG.md",
+    "No reverting of the now-non-literal historical accuracy (user explicitly accepted full de-koala)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose full de-koala of CHANGELOG via Lattice express-channel story (2026-06-21)",
+  "createdAt": "2026-06-20T23:02:06.752Z",
+  "updatedAt": "2026-06-20T23:02:06.752Z",
+  "_hash": "149d259071e140e31f93b6caa5716a023cff0d6db565943cec1f51ee60dfa749"
+}
