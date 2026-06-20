@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-3321:F-001",
+      "desc": "docs/requirements/decisions/done-full-test-gate-execution-plan.md:16 says .githooks/pre-push runs package build plus recursive tsc for the self-host repo, and line 38 frames pre-push as a possible narrower build+tsc safety net. The current hook only enters that build/tsc path when packages/main/package.json name equals @koala-agent/core (.githooks/pre-push:147-150), but the current package is @lattice-agent/core (packages/main/package.json:2), so for this repo the hook exits before build+tsc. The document is still right that pre-push does not run root npm test, but it overstates the present release/push assurance surface and should describe the current no-root-npm-test boundary without claiming build+tsc coverage unless the self-host detection is fixed or deliberately scoped.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T07:02:05.973Z",
+      "reviewRound": "2026-06-20T06:58:54.090Z",
+      "reviewRunId": "B-3321:RR-002",
+      "_hash": "ee068d0bd3d550c37f34ad0a573dc4b1179407d2d8eba2b5b7a681f42925f3ce",
+      "files": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        ".githooks/pre-push",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
