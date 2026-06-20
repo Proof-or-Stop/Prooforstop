@@ -81,31 +81,42 @@ export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateCo
   const r = raw as Record<string, unknown>;
   const result: ParallelGateConfig = { ...profileDefault };
 
-  if (typeof r.mode === 'string') {
-    if (VALID_PARALLEL_MODES.has(r.mode as ParallelGateMode)) {
+  // For each sub-field, distinguish a PRESENT-but-invalid value (warn + fallback) from an
+  // ABSENT key (keep the profile default). A present-but-wrong-TYPE value is invalid, not
+  // missing — e.g. mode: 123 under the strict profile must degrade to advise, never silently
+  // keep block.
+  if ('mode' in r) {
+    if (typeof r.mode === 'string' && VALID_PARALLEL_MODES.has(r.mode as ParallelGateMode)) {
       result.mode = r.mode as ParallelGateMode;
     } else {
       console.warn(
-        `[audit-config] invalid parallelGate.mode "${r.mode}", falling back to "${PARALLEL_MODE_FALLBACK}".`,
+        `[audit-config] invalid parallelGate.mode ${JSON.stringify(r.mode)}, falling back to "${PARALLEL_MODE_FALLBACK}".`,
       );
-      result.mode = PARALLEL_MODE_FALLBACK;
+      result.mode = PARALLEL_MODE_FALLBACK; // advise is non-blocking — never hard-block on a bad config value
     }
   }
 
-  if (typeof r.maxConcurrentReview === 'number' && Number.isFinite(r.maxConcurrentReview)) {
+  if ('maxConcurrentReview' in r) {
     const m = r.maxConcurrentReview;
-    if (!Number.isInteger(m) || m <= 0) {
+    if (typeof m === 'number' && Number.isInteger(m) && m > 0) {
+      result.maxConcurrentReview = m;
+    } else {
       console.warn(
-        `[audit-config] parallelGate.maxConcurrentReview must be a positive integer (>=1), got ${m}, falling back to ${profileDefault.maxConcurrentReview}.`,
+        `[audit-config] parallelGate.maxConcurrentReview must be a positive integer (>=1), got ${JSON.stringify(m)}, falling back to ${profileDefault.maxConcurrentReview}.`,
       );
       // Keep profileDefault.maxConcurrentReview
-    } else {
-      result.maxConcurrentReview = m;
     }
   }
 
-  if (typeof r.broadGlobBlocks === 'boolean') {
-    result.broadGlobBlocks = r.broadGlobBlocks;
+  if ('broadGlobBlocks' in r) {
+    if (typeof r.broadGlobBlocks === 'boolean') {
+      result.broadGlobBlocks = r.broadGlobBlocks;
+    } else {
+      console.warn(
+        `[audit-config] parallelGate.broadGlobBlocks must be a boolean, got ${JSON.stringify(r.broadGlobBlocks)}, falling back to ${profileDefault.broadGlobBlocks}.`,
+      );
+      // Keep profileDefault.broadGlobBlocks
+    }
   }
 
   return result;
