@@ -345,9 +345,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T10:11:54.180Z",
       "files": {
         "modify": [
           "package.json",
@@ -383,7 +383,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves ordinary test-evidence PASS can coexist with missing DONE-required artifact that blocks required policy.",
+          "headHash": "c70d84ac49523a90b265cfd46c3df2e3b94defb5",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:54.494Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers missing artifact, stale material, policy drift, command-set drift, and missing build receipt rejection.",
+          "headHash": "c70d84ac49523a90b265cfd46c3df2e3b94defb5",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:54.906Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers fixture project without doneRequiredCommands and asserts advisory/non-blocking DONE-required row.",
+          "headHash": "c70d84ac49523a90b265cfd46c3df2e3b94defb5",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:55.187Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
