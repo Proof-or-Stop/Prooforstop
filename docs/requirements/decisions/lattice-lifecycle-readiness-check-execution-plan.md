@@ -174,6 +174,7 @@ Required top-level shape:
       "sourceRef": "<artifact-or-command-ref>",
       "owner": "host|reviewer|delivery-reviewer|done_prepare|authority|human",
       "category": "missing|stale|blocking|manual|external|advisory",
+      "code": "<stable machine-readable readiness code>",
       "reason": "<specific reason>",
       "nextCommand": "<exact command when available>"
     }
@@ -201,11 +202,19 @@ Rules:
 - `claims.authorityDone`, `claims.fullAuthorityDone`, and
   `claims.productionDone` remain `false` unless a separate Authority receipt
   reader supplies verified facts. V1 does not create those facts.
+- `readiness[*].category` is a broad generic classification for grouping and
+  text rendering only: `missing`, `stale`, `blocking`, `manual`, `external`, or
+  `advisory`.
+- `readiness[*].code` is the stable machine-readable readiness detail. Delivery
+  rows must use the delivery blocker codes below, such as
+  `missing_delivery_check`, `delivery_check_blocking`,
+  `docs_promise_unresolved`, or `product_outcome_unproven`.
 - `readiness[*].nextCommand` must be the exact command the host can run next, or
   absent only when the next action is genuinely manual or external.
 - Report rendering must preserve the original source blocker. It must not
   collapse a `validate`, REVIEW, delivery, or `done_prepare` failure into a
-  generic "not ready" row.
+  generic "not ready" row. Text rendering should include both `code` and broad
+  `category` while keeping the exact next action visible.
 
 ## Readiness Matrix
 
@@ -252,23 +261,24 @@ source blocker and the command.
 
 ## Delivery Blocker Categories
 
-Delivery readiness rows use stable categories so a host can tell what kind of
-proof is missing:
+Delivery readiness rows use stable `readiness[*].code` values so a host can
+tell what kind of proof is missing or blocking. Each code also maps to a broad
+`readiness[*].category` for grouping:
 
-| Category | Meaning | Typical next command |
-|---|---|---|
-| `missing_delivery_context` | delivery reviewer lacks a current context pack or equivalent structured refs | build context through the current delivery-context command for that story |
-| `missing_live_smoke_transcript` | no current live-smoke transcript and no accepted metadata-only waiver | run the story-specific live smoke command |
-| `metadata_waiver_not_accepted` | waiver exists but delivery reviewer has not accepted it | ask delivery reviewer to accept or reject the waiver |
-| `stale_delivery_context` | context predates current HEAD/material/storyFilesHash, validation, or review round | rebuild context through the current delivery-context command |
-| `missing_delivery_check` | no delivery-check artifact exists where DONE requires one | run the delivery reviewer path that writes `delivery_check_set` |
-| `stale_delivery_check` | delivery check predates current material, validation, review, transcript, or waiver state | rerun the delivery reviewer path |
-| `delivery_check_blocking` | delivery reviewer recorded a blocking user-value concern | return to DEV or resolve the delivery finding |
-| `docs_promise_unresolved` | relatedDocs or decision promises were changed/owed but not reconciled | update docs or record why no doc change is required |
-| `product_outcome_unproven` | evidence proves commands but not the user-visible outcome | produce live-smoke transcript or delivery-approved waiver |
+| `readiness[*].code` | Broad `category` | Meaning | Typical next action |
+|---|---|---|---|
+| `missing_delivery_context` | `missing` | delivery reviewer lacks a current context pack or equivalent structured refs | build context through the current delivery-context command for that story |
+| `missing_live_smoke_transcript` | `missing` | no current live-smoke transcript and no accepted metadata-only waiver | run the story-specific live smoke command |
+| `metadata_waiver_not_accepted` | `manual` | waiver exists but delivery reviewer has not accepted it | ask delivery reviewer to accept or reject the waiver |
+| `stale_delivery_context` | `stale` | context predates current HEAD/material/storyFilesHash, validation, or review round | rebuild context through the current delivery-context command |
+| `missing_delivery_check` | `missing` | no delivery-check artifact exists where DONE requires one | run the delivery reviewer path that writes `delivery_check_set` |
+| `stale_delivery_check` | `stale` | delivery check predates current material, validation, review, transcript, or waiver state | rerun the delivery reviewer path |
+| `delivery_check_blocking` | `blocking` | delivery reviewer recorded a blocking user-value concern | return to DEV or resolve the delivery finding |
+| `docs_promise_unresolved` | `blocking` | relatedDocs or decision promises were changed/owed but not reconciled | update docs or record why no doc change is required |
+| `product_outcome_unproven` | `blocking` | evidence proves commands but not the user-visible outcome | produce live-smoke transcript or delivery-approved waiver |
 
-These categories are report categories only in V1. They are not new DONE gate
-facts until a future implementation story registers them as process facts.
+These codes are report details only in V1. They are not new DONE gate facts
+until a future implementation story registers them as process facts.
 
 ## Refresh-Only Policy
 
@@ -331,7 +341,7 @@ START
   |
   v
 {Any missing, stale, blocking, manual, or external proof for target?}
-  |-- yes --> [STOP: print source blocker, owner, category, and exact next action]
+  |-- yes --> [STOP: print source blocker, owner, code, category, and exact next action]
   |
   no
   |
@@ -372,7 +382,7 @@ Mermaid source for environments that render diagrams directly:
 flowchart TD
   A["Read current lifecycle facts"] --> B["Build StoryReadinessReport"]
   B --> C{"Target proof complete?"}
-  C -- no --> D["STOP: source blocker, owner, category, exact next action"]
+  C -- no --> D["STOP: source blocker, owner, code, category, exact next action"]
   C -- yes --> E["Report ready from existing proof"]
   E --> F["Print next lifecycle command only"]
   D --> G{"Rollback needed?"}
