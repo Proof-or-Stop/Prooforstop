@@ -145,11 +145,12 @@ function readParallelGateFields(raw: unknown, profileDefault: ParallelGateConfig
   // warn, violating the absent-key-keeps-profile-default invariant. An OWN `undefined` is still
   // present-invalid (hasOwn true, fails the type guard → warn + fallback).
   if (Object.hasOwn(r, 'mode')) {
-    if (typeof r.mode === 'string' && VALID_PARALLEL_MODES.has(r.mode as ParallelGateMode)) {
-      result.mode = r.mode as ParallelGateMode;
+    const mode = r.mode; // read once — a hostile getter must not differ between guard and assign
+    if (typeof mode === 'string' && VALID_PARALLEL_MODES.has(mode as ParallelGateMode)) {
+      result.mode = mode as ParallelGateMode;
     } else {
       console.warn(
-        `[audit-config] invalid parallelGate.mode ${describeInvalidValue(r.mode)}, falling back to "${PARALLEL_MODE_FALLBACK}".`,
+        `[audit-config] invalid parallelGate.mode ${describeInvalidValue(mode)}, falling back to "${PARALLEL_MODE_FALLBACK}".`,
       );
       result.mode = PARALLEL_MODE_FALLBACK; // advise is non-blocking — never hard-block on a bad config value
     }
@@ -168,11 +169,12 @@ function readParallelGateFields(raw: unknown, profileDefault: ParallelGateConfig
   }
 
   if (Object.hasOwn(r, 'broadGlobBlocks')) {
-    if (typeof r.broadGlobBlocks === 'boolean') {
-      result.broadGlobBlocks = r.broadGlobBlocks;
+    const broadGlobBlocks = r.broadGlobBlocks; // read once — guard and assign must see the same value
+    if (typeof broadGlobBlocks === 'boolean') {
+      result.broadGlobBlocks = broadGlobBlocks;
     } else {
       console.warn(
-        `[audit-config] parallelGate.broadGlobBlocks must be a boolean, got ${describeInvalidValue(r.broadGlobBlocks)}, falling back to ${profileDefault.broadGlobBlocks}.`,
+        `[audit-config] parallelGate.broadGlobBlocks must be a boolean, got ${describeInvalidValue(broadGlobBlocks)}, falling back to ${profileDefault.broadGlobBlocks}.`,
       );
       // Keep profileDefault.broadGlobBlocks
     }
@@ -243,11 +245,12 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
   }
 
   // §4.7: the nested parallelGate object needs field-by-field validation (the flat path above
-  // does not recurse). profileDefaults.parallelGate is always populated, so the non-null
-  // assertion is sound.
+  // does not recurse). profileDefaults.parallelGate is always populated (set unconditionally
+  // above), so the non-null assertion (`!`, which only strips `undefined` and keeps shape
+  // checking — narrower than an `as` cast) is sound.
   merged.parallelGate = resolveParallelGate(
     (userOverrides as { parallelGate?: unknown }).parallelGate,
-    profileDefaults.parallelGate as ParallelGateConfig,
+    profileDefaults.parallelGate!,
   );
 
   return merged;

@@ -247,6 +247,22 @@ void (() => {
       check('hostile-trap-throwing RAW -> balanced default (no crash)', eq(result, BALANCED));
       check('hostile-trap-throwing RAW warns (could not introspect)', warnings.length >= 1);
     }
+    // 8e. (F-026) Each present sub-field is read ONCE, so a flaky getter cannot desync the guard
+    //     from the assignment. A getter that returns a VALID value on the first read and an INVALID
+    //     one on the second would, under a double-read, store the invalid value into the result;
+    //     read-once guarantees the resolved value is always the one that passed the guard.
+    {
+      let modeReads = 0;
+      const flakyMode = { get mode(): unknown { return modeReads++ === 0 ? 'block' : 123; } };
+      const result = resolveParallelGate(flakyMode, LIGHT);
+      check('flaky mode getter read once -> stored value is the guarded one', result.mode === 'block');
+    }
+    {
+      let broadReads = 0;
+      const flakyBroad = { get broadGlobBlocks(): unknown { return broadReads++ === 0 ? true : 'nope'; } };
+      const result = resolveParallelGate(flakyBroad, LIGHT);
+      check('flaky broadGlobBlocks getter read once -> stored value is the guarded one', result.broadGlobBlocks === true);
+    }
 
     // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
 
