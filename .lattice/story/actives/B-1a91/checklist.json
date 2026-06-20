@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Auto-refresh the finding-signals cache in applyDoneMergeEffects after the DONE merge",
+      "context": "In handlers/done-effects.ts applyDoneMergeEffects (~after the bumpVersionOnDoneMerge / runDoneMainPackageBuildAfterMerge calls at ~890-896, post-merge, inside the main write-lock), re-derive + persist the finding-signals cache by calling deriveFindingSignalsFromStore(store, { projectRoot: <root> }) (core/finding-signals.ts) — which writes via learning-store writeFindingSignals → resolveLearningRoot (canonical MAIN cache, post-B-37b3). Run it on EVERY DONE merge (do NOT gate on shouldBuildDoneMainPackageForChangedPaths). Wrap in try/catch: NEVER throw or block the merge; append an advisory mergeLines status line (e.g. \"experience cache refreshed (N signals)\" or \"experience cache refresh skipped: <reason>\"). Use the correct root so the cache lands in the main checkout. Do NOT change learning-store.ts (B-37b3 resolver) or version-bump.ts. Keep the effect advisory-only (no gate reads it).",
+      "userSees": "After any `story_advance --phase=DONE` that merges to main, the merge report shows an \"experience cache refreshed (N signals)\" line, and .lattice/learning/finding-signals.json updatedAt advances to include the just-completed story's findings — no manual `learning_scan` needed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke: DONE merge auto-refreshes the cache and never breaks the merge",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that drives a DONE merge for a story carrying a resolved finding and asserts the finding-signals cache is (re)written/updated as part of applyDoneMergeEffects (updatedAt advances and/or the new story's signal appears), without a separate learning_scan. Include a control proving a derive failure is swallowed (advisory line, merge still succeeds). Prefer driving the real applyDoneMergeEffects / the real derive+write path. Bump the printed check count.",
+      "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

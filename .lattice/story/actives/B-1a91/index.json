@@ -1,0 +1,22 @@
+{
+  "storyId": "B-1a91",
+  "name": "auto-refresh-finding-signals-on-done-merge",
+  "title": "Auto-refresh the Experience Layer finding-signals cache on DONE merge so experience grows with every completed story",
+  "description": "The finding-signals cache only updates on an explicit out-of-band learning_scan (no DONE/finding/hook/cron trigger), so accumulated experience goes stale until someone re-scans. Wire a never-throw, advisory finding-signals re-derive into applyDoneMergeEffects after the merge (alongside auto-bump/auto-rebuild), run on every DONE merge, writing the canonical MAIN cache (via B-37b3 resolveLearningRoot). + smoke. Advisory-only; no gate reads the cache; must never block the merge.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-06-20T08:31:23.655Z",
+  "startedAt": "2026-06-20T08:31:23.655Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T08:31:23.655Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
