@@ -39,7 +39,30 @@
       "userSees": "After story_advance --phase=REVIEW on an ON-arm story that has finding-signals, the reviewer-launch guidance text now contains the rendered \"Project experience hints (advisory only)\" section right after the Agent({lattice-review-*}) lines, and exactly one experience_hint_surfaced event (hintMode:on) is recorded for that review round. On an OFF-arm story the guidance text is byte-identical to today and exactly one event (hintMode:off) is recorded. The transition never fails due to hint surfacing.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_advance --phase=REVIEW on an ON-arm story with finding-signals → buildNextSteps guidance text contains the rendered hints section after the Agent({lattice-review-*}) lines, and exactly one experience_hint_surfaced(hintMode:on) is recorded for the review round.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "OFF-arm story → buildNextSteps REVIEW guidance is BYTE-IDENTICAL to the no-hints baseline (no section appended) AND exactly one event(hintMode:off) carrying full hintIds is recorded (lossless).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A thrown error inside the hint block never blocks or alters the REVIEW transition (advisory try/catch); the active-reviewer set is unchanged whether hints are present or absent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
