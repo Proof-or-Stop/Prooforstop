@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T07:09:05.747Z",
       "reviewRunId": "B-3321:RR-007",
       "_hash": "097eb994a4a837ab399c7a7bc88ca480e84d6942cc5a71f8607786fba5fbab07"
+    },
+    {
+      "id": "B-3321:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Re-reviewed final document and resolved findings. F-003 build/dist freshness gap is handled strongly enough: doc requires same-material npm --prefix packages/main run build receipt before root npm test or equivalent pretest/build receipt, blocks DONE when build proof is missing/stale, includes policy/command-set freshness, process-fact registry coverage, and negative tests for stale/missing build receipt. No new blocking findings.",
+      "createdAt": "2026-06-20T07:12:12.253Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-010",
+      "_hash": "86eea6012ce21d3eb440a8cc2a5ece0a2dffe3df3ac418bf6d10f4dacd0db42c"
     }
   ]
 }
