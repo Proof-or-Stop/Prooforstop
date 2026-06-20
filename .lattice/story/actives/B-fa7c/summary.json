@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fa7c",
+  "changes": "Story 4 of the parallel-decomposition gate program: wired the two ADVISORY (non-blocking) surfaces of spec §4.3. (1) core/lattice-parallel-wave.ts gained pure exported computeScopeGlobOverlaps + scopeGlobOverlapDegradations (a scope_glob_overlap wave degradation, severity warn) computed at the createParallelWave/storyRef call site from active parallel peers' write-sets; all contract reads route through a new safeReadScopeContract (try/catch→null) so a corrupt scope-contract.json can no longer crash the wave. (2) handlers/story-review.ts injects evaluateDecompositionGate().advisories as severity 'advisory' issues (never raising blockerCount; gate block field ignored — enforcement is Story 5). mode='off' silences BOTH surfaces. New 56-assertion hermetic smoke; registered in lattice.config.json. The pure projector layers stay config-free; only the factory reads the gate mode.",
+  "usage": "Operators see a scope_glob_overlap 'warn' degradation in the parallel-wave projection (lattice parallel_wave_create/parallel_report) when a story asserting parallelSafe='yes' statically overlaps an active parallel peer, and a decomposition_advisory issue in story_review — both advisory, neither blocks. Setting parallelGate.mode='off' in .lattice/audit-config.json disables both.",
+  "expectedOutcome": "lattice validate runs all 10 commands green incl. 'parallel-wave-advisory smoke passed: 56 assertions'. A corrupt peer contract does not crash the wave; mode='off' produces no scope_glob_overlap degradation and no decomposition_advisory.",
+  "actualTranscript": "lattice validate: 10/10 green; parallel-wave-advisory-smoke.js prints '56 assertions' (exit 0). 3-round genuine dual-host review (Codex host-2 + a 5-lens Claude Workflow with per-finding adversarial verification + completeness critic) resolved 8 findings incl. 2 MAJOR (mode='off' escape hatch; a corrupt-contract crash surface the completeness critic caught that Codex missed); round-3 both hosts zero findings.",
+  "outcomeDiff": "none — expected and actual match: 56 assertions pass, validate green, advisory-only + crash-safe + mode='off' suppression all confirmed by both hosts.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "A full hermetic end-to-end createParallelWave crash test was intentionally not added (its storyRef path needs ~13 StoryStore reads + real git probes — a faithful fake is disproportionate); crash-safety is covered by the safeReadScopeContract helper test + source-cited routing (all wave contract reads go through it). The wave and story-review derive the workflow profile from different sources, but mode='off' is profile-independent (only an explicit audit-config override yields 'off'), so they always agree on the off boundary.",
+  "pitfalls": "resolveWaveSafety is a pure projector — compute overlap data at the call site, never read config inside it. The wave's scope_glob_overlap degradation is a SEPARATE advisory surface from the story-review injection; mode='off' must gate BOTH (a §4.7 escape-hatch completeness gap that one host missed). store.readScopeContract RE-THROWS on a corrupt (vs missing) contract — always wrap it in the new safeReadScopeContract on advisory/reporting paths.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 202863
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76466
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 434196
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 731539
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2508715
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 377633
+    }
+  },
+  "totalDurationMs": 4331490,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T08:09:18.580Z",
+  "updatedAt": "2026-06-20T08:09:18.580Z"
+}

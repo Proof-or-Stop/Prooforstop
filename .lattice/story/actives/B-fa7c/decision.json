@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Keep resolveWaveSafety a pure projector — no store I/O inside it; compute overlap data at the call site.",
+    "Extract pure exported helpers for both surfaces so the smoke is hermetic (no store, no git).",
+    "Advisory-only: never raise blockerCount, never read the gate block field at REVIEW.",
+    "Reuse existing primitives (computeWriteSet, globsOverlap, evaluateDecompositionGate, TERMINAL_PHASES, schedulingDegradation) — add no new overlap logic.",
+    "Mirror the active-peer semantics of evaluateDecompositionGate (self asserts parallelSafe=yes; peer non-terminal and asserts parallelSafe=yes)."
+  ],
+  "drivers": [
+    "resolveWaveSafety is private + pure (must stay testable without store)",
+    "Advisory must not touch blockerCount / signed review.json",
+    "Must consume already-frozen Stories 0-3 functions unchanged"
+  ],
+  "options": [
+    {
+      "name": "pure-helpers",
+      "pros": [
+        "hermetic smoke without a fake StoryStore",
+        "resolveWaveSafety stays pure",
+        "mirrors S2/S3 pure-function + thin-wiring pattern"
+      ],
+      "cons": [
+        "adds two small exported helpers"
+      ]
+    },
+    {
+      "name": "inline-with-store",
+      "pros": [
+        "fewer exported symbols"
+      ],
+      "cons": [
+        "resolveWaveSafety would need store I/O OR the smoke needs a full fake StoryStore + git probe — not hermetic",
+        "harder to unit-test the overlap/advisory logic in isolation"
+      ]
+    }
+  ],
+  "chosen": "pure-helpers",
+  "rationale": "Extracting computeScopeGlobOverlaps(self, peers) and decompositionAdvisoryIssues(story, peers, contracts, cfg) as pure exported helpers keeps resolveWaveSafety a pure projector, makes both advisory surfaces unit-testable hermetically (no StoryStore/git), and matches the pure-function + thin-call-site-wiring pattern used by Stories 1-3. The call sites (storyRef, story_review handler) do the store reads and pass plain data in.",
+  "preMortem": [
+    {
+      "scenario": "The scope_glob_overlap degradation accidentally fires for a story with no asserted parallelism or against a DONE/DISCARDED peer, spamming the wave projection",
+      "trigger": "computeScopeGlobOverlaps forgets the self.parallelSafe===yes guard or the TERMINAL_PHASES peer filter",
+      "consequence": "noisy false-positive warnings erode operator trust in the advisory",
+      "mitigation": "guard on self.parallelSafe===yes AND filter peers by !TERMINAL_PHASES.has(phase) && peer.parallelSafe===yes; smoke asserts zero overlaps for non-parallel self and terminal/non-parallel peers"
+    },
+    {
+      "scenario": "The advisory injection accidentally raises blockerCount and changes the signed review.json",
+      "trigger": "pushing the gate advisories at severity blocker, or also pushing the gate block field",
+      "consequence": "a non-blocking advisory becomes a hard REVIEW blocker, breaking the spec contract",
+      "mitigation": "push only advisories[] at severity advisory; never read the block field; smoke asserts the produced issues are all severity advisory and that blockerCount (filter severity===blocker) is unchanged"
+    },
+    {
+      "scenario": "A missing/unreadable peer scope contract throws and crashes the wave projection or story_review",
+      "trigger": "store.readScopeContract returns null and the call-site code dereferences it, or computeWriteSet receives null",
+      "consequence": "wave projection / REVIEW crashes on real projects with legacy stories lacking contracts",
+      "mitigation": "null-tolerant: skip peers whose contract is null when building write-sets (a missing peer contract is handled by evaluateDecompositionGate per §4.8); smoke includes a peer with no contract and asserts no throw"
+    }
+  ],
+  "timestamp": "2026-06-20T07:04:20.389Z"
+}

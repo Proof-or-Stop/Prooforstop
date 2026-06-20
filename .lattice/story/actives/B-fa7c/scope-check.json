@@ -1,0 +1,122 @@
+{
+  "storyId": "B-fa7c",
+  "checkedAt": "2026-06-20T07:08:07.424Z",
+  "features": [
+    {
+      "feature": "scope_glob_overlap degradation kind added to resolveWaveSafety (wave projection advisory surface)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 4 + §8 line 719"
+    },
+    {
+      "feature": "computeScopeGlobOverlaps pure exported helper: self.parallelSafe===yes guard, active non-terminal peer filter, globsOverlap, returns ScopeGlobOverlap[]",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 4 + §8 line 719"
+    },
+    {
+      "feature": "scope_glob_overlap degradation shape: kind=scope_glob_overlap, severity=warn, authorityImpact=none, visible=true, reason naming peer+pairExample, via schedulingDegradation()",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 4"
+    },
+    {
+      "feature": "storyRef() call site builds peer write-sets via computeWriteSet+readScopeContract (null-tolerant), calls computeScopeGlobOverlaps, passes result into resolveWaveSafety",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 4 + §4.8"
+    },
+    {
+      "feature": "Terminal-peer filter (DONE/DISCARDED): no overlap degradation emitted for terminal peers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 block-conditions preamble"
+    },
+    {
+      "feature": "Null-contract-tolerant: peer contracts that are null are skipped at the storyRef() call site (no throw, no overlap emitted for that peer)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.8"
+    },
+    {
+      "feature": "evaluateDecompositionGate().advisories[] injected in story_review as {type:decomposition_advisory, severity:advisory} issues (non-blocking REVIEW advisory surface)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 3 + §4.4 ADVISE point 3 + §8 line 719"
+    },
+    {
+      "feature": "decompositionAdvisoryIssues pure exported helper: maps evaluateDecompositionGate advisories[] to {type,severity:advisory,message}[]",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 3"
+    },
+    {
+      "feature": "Gate block field ignored at REVIEW: block is intentionally not turned into a blocker issue (enforcement is Story 5 / machine.ts)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.4 ADVISE point 3 vs DECISION point 1"
+    },
+    {
+      "feature": "Advisory injection never raises blockerCount (blockerCount = filter severity===blocker; advisories are severity advisory)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.3 item 3 + §4.1 table"
+    },
+    {
+      "feature": "Peer-unreadable-contract handling in story_review: missing peer contract passed as absent (not in Map); evaluateDecompositionGate handles per §4.8; no throw",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §4.8"
+    },
+    {
+      "feature": "Hermetic smoke (parallel-wave-advisory-smoke.ts) covering both advisory surfaces with synthetic inputs (no StoryStore, no git)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §8 line 719"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:parallel-decomposition-spec.md §8 line 719"
+    },
+    {
+      "feature": "Hard PLAN→DEV block via canStartDevGuard + getGuardFailureReason in machine.ts (Story 5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes machine.ts; story description explicitly states Story 5 is out of scope",
+      "source": "decisions:parallel-decomposition-spec.md §4.4 DECISION point 1 + §8 line 721"
+    },
+    {
+      "feature": "Frozen Stories 0-3 files (parallel-decomposition.ts, parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts, audit-config.ts) are not modified",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes lists all four frozen files",
+      "source": "decisions:parallel-decomposition-spec.md §8 lines 710-717"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 13,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "43fff6b2a0c8607a559e89a7a9deb6b8c7d556f2d4811fab46093329e78f83b3",
+  "openQuestions": []
+}

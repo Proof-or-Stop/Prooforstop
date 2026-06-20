@@ -1,0 +1,174 @@
+{
+  "findings": [
+    {
+      "id": "B-fa7c:F-001",
+      "desc": "The REVIEW advisory injection ignores parallelGate.mode==='off'. resolveAuditConfig accepts 'off' as the reversible escape hatch (spec §4.7: mode off disables BOTH behaviors), but the injection only checks that parallelGateCfg exists, so story_review still appends decomposition_advisory issues when the gate is disabled. Fix: make decompositionAdvisoryIssues return [] when cfg.mode==='off' (keeps the gate mode-agnostic, puts the mode policy in the caller layer per §4.4); add a smoke assertion that mode:'off' yields no advisory issues even when the gate would return advisories.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:26:35.542Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "0bb130bbd6ff2023221b2080ae6c74710f100c3cc339ccacee6ee41fecd2f42e",
+      "files": [
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|review-advisory-injection",
+      "signatureTagSource": "auto",
+      "resolvedReason": "decompositionAdvisoryIssues returns [] when cfg.mode==='off' (before the gate call); smoke asserts mode off yields no advisory issues. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:22.685Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-002",
+      "desc": "MAJOR: storyRef() calls store.readScopeContract for self + each peer with NO try/catch. readScopeContract returns null only for a MISSING contract and RE-THROWS (SyntaxError) for a corrupt/unparseable scope-contract.json. The flatMap only handles null, so a single corrupt contract anywhere (peers=allStories) crashes the entire parallel_wave_create command — a NEW crash surface (the wave never read contracts pre-S4). Sibling story-review.ts wraps the identical reads in try/catch. Fix: read all contracts once via a safe try/catch helper into a Map in createParallelWave, pass to storyRef; treat a throw as a missing contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-quality",
+      "createdAt": "2026-06-20T07:34:37.509Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "0a0962be2f71fc9f64b0218cdfc8eb227edc9d27d33bd3ddc5d600994ec88c61",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-storyref-calls",
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeReadScopeContract(store,id) try/catch->null added; createParallelWave builds contractsByStoryId Map once over allStories and threads it to storyRef which does pure Map lookups (no I/O, no throw); story-review reads switched to safeReadScopeContract too. Corrupt contract no longer crashes the wave. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.110Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-003",
+      "desc": "MAJOR: the smoke's adversarial 'does not throw' assertions exercise the pure helpers (computeScopeGlobOverlaps with omitted peers), NOT the real corrupt-peer crash site (storyRef's store.readScopeContract). They give false confidence that the corrupt-contract case is covered. Fix: extract an exported safeReadScopeContract(store, id) (try/catch -> null) used by createParallelWave, and assert in the smoke that a fake store whose readScopeContract THROWS yields null (no throw).",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-critic",
+      "createdAt": "2026-06-20T07:34:37.969Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "edd7276fd1969d04a0131d170ad76b2f5062c5ff50ae07f6ee5fe10285553d1e",
+      "files": [
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|major-smoke-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke asserts safeReadScopeContract against a store throwing SyntaxError->null, throwing Error->null, returning contract->passthrough, null->null — exercises the real crash site. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-004",
+      "desc": "MINOR: scopeGlobOverlapDegradations is always passed explicitOverrideNote ' Explicit parallelSafe=yes is overridden by collection-level safety.', but this advisory does NOT change the safety tier, so nothing is overridden. Misleading human-facing text. Fix: pass '' (or an advisory-appropriate note).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-quality",
+      "createdAt": "2026-06-20T07:34:38.376Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "c7e94d1f6eb0df79e645fc8526ab69cd451d8d570a51b726309664931cf78ac8",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "cleanup|ts|minor-scopegloboverlapdegradations-always",
+      "signatureTagSource": "auto",
+      "resolvedReason": "scopeGlobOverlapDegradations call in resolveWaveSafety now passes no override note (defaults '') since the advisory doesn't change the safety tier. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-005",
+      "desc": "MINOR: CHK-001 helpers tested in isolation; scopeGlobOverlapDegradations is fed a hand-written pairExample rather than computeScopeGlobOverlaps' actual output, so a separator change between the two helpers would not be caught. Fix: add one assertion composing scopeGlobOverlapDegradations(id, computeScopeGlobOverlaps(...)) and asserting the reason contains the composed pair string.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-test-coverage",
+      "createdAt": "2026-06-20T07:34:38.770Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "fc5117b7f5cd39ebba9cb1d915360536bf5f7d179ca6c62a70be650492bd9160",
+      "files": [
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|minor-helpers-tested",
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke adds an end-to-end composition assertion chaining computeScopeGlobOverlaps into scopeGlobOverlapDegradations and asserting the pairExample renders verbatim in the reason. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:24.360Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-006",
+      "desc": "MINOR: computeScopeGlobOverlaps guards self.parallelSafe==='yes' but not self's terminal phase — a DONE story still asserting parallelSafe=yes could emit live overlap advisories. Fix: add self.phase and skip when TERMINAL_PHASES.has(self.phase) (symmetry with the peer filter).",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "claude-critic",
+      "createdAt": "2026-06-20T07:34:39.167Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "f91159172f91c6c8154f901f175cee1dbf2860b86af418feeea92aa3f96c7f2d",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "edge|ts|minor-computescopegloboverlaps-guards",
+      "signatureTagSource": "auto",
+      "resolvedReason": "computeScopeGlobOverlaps self param gained phase:StoryPhase and returns [] when TERMINAL_PHASES.has(self.phase); storyRef passes canonical phase; smoke asserts terminal self yields []. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:24.762Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-007",
+      "desc": "mode='off' escape hatch incomplete: it only silences the story-review advisory, NOT the WAVE scope_glob_overlap degradation. Spec §4.7 'off disables both behaviors / reversible escape hatch' — an operator who disables the gate still sees scope_glob_overlap warnings in the wave projection. Codex host-2 MAJOR; Claude adjudicators refuted (config-independence of the projection). SYNTHESIS fix: keep resolveWaveSafety + computeScopeGlobOverlaps PURE (config-free); have the createParallelWave FACTORY (already impure, reads store+root) resolve parallelGate.mode once and pass scopeGlobEnabled=(mode!=='off') to storyRef, which skips computeScopeGlobOverlaps when disabled. + smoke.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:50:20.722Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "2aabd912cc241ea637c2f24f0cfee6d9fcd00d31497a6eafef7ba1e60a9ee458",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|mode-escape-hatch",
+      "signatureTagSource": "auto",
+      "resolvedReason": "createParallelWave resolves parallelGate.mode once and threads scopeGlobEnabled=(mode!=='off') into storyRef; storyRef computes scopeGlobOverlaps only when enabled, so mode='off' emits no wave scope_glob_overlap degradation. Config read confined to the factory; resolveWaveSafety + computeScopeGlobOverlaps stay pure (grep-verified). Smoke: advise/block enable -> overlaps; off -> []. commit 4612174fa.",
+      "resolvedAt": "2026-06-20T07:55:02.853Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-008",
+      "desc": "MINOR: the safeReadScopeContract smoke proves the helper returns null on a throwing store, but does not exercise the createParallelWave -> contractsByStoryId -> storyRef end-to-end crash site. Fix: add a minimal end-to-end assertion (if feasible without heavy fakes) that createParallelWave completes when one story's readScopeContract throws, preserving readable peers; otherwise document that the helper-level coverage + source-verified usage is sufficient.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:50:21.197Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "a947cb3cebd9d4b5f0b97b82dc44c46ba104334eca3467fca8361509b2e92783",
+      "files": [
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|minor-safereadscopecontract-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeReadScopeContract helper tested (throw->null, both error kinds); a full hermetic createParallelWave e2e was judged disproportionate (its storyRef path runs buildCanonicalStory ~13 store reads + real git probes). Mitigation: createParallelWave routes EVERY contract read through safeReadScopeContract (contractsByStoryId build) and storyRef only does pure Map.get lookups — no direct store.readScopeContract in that path — so a corrupt contract cannot throw out of createParallelWave; documented with a source-cited smoke note + helper assertion. commit 4612174fa.",
+      "resolvedAt": "2026-06-20T07:55:03.277Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
+    }
+  ]
+}

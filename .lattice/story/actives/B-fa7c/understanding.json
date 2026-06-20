@@ -1,0 +1,30 @@
+{
+  "task": "Wire the two advisory (non-blocking) surfaces of the parallel-decomposition gate: a scope_glob_overlap degradation in resolveWaveSafety and an evaluateDecompositionGate advisory injection in story_review.",
+  "outcome": "In the parallel-wave projection, a story that asserts parallelSafe='yes' and statically overlaps an active parallel peer now shows a degradation line like: 'scope_glob_overlap (warn): write-set overlaps active parallel peer B-xxxx (e.g. core/foo.ts ↔ core/foo.ts)'. And running story_review on such a story prints an advisory issue: 'decomposition_advisory: <reason from evaluateDecompositionGate>' — advisory severity, so blockerCount stays unchanged and the signed review.json is unaffected. A disjoint or terminal-peer story shows neither.",
+  "facts": [
+    "resolveWaveSafety in core/lattice-parallel-wave.ts is a private pure projector (story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures) -> {safety, degradations}; it does NOT read scope contracts.",
+    "Degradations are ParallelWaveDegradation {id,host,capability,severity:info|warn|block,visible:true,reason,fallback,authorityImpact,recovery?} built via the schedulingDegradation() factory (~line 696); existing kinds: active-dependency, blocking-for-active, declared-parallel-safe, shared-hotspot, changed-files, active-story-changed-file-probe-failed, actual-file-overlap.",
+    "resolveWaveSafety is called from storyRef() (~line 928) where actualFileOverlaps and other inputs are precomputed and passed in.",
+    "story-review.ts builds issues[] of {type, severity:blocker|advisory, itemId?, message, ...}; blockerCount = issues.filter(i=>i.severity===blocker).length (~line 488).",
+    "computeWriteSet(contract) and globsOverlap(a,b)->{overlap,pairs,broadSide} live in core/parallel-decomposition-overlap.ts; evaluateDecompositionGate(story,peers,contracts,cfg)->{advisories,block} in core/parallel-decomposition-gate.ts; resolveAuditConfig(profile,root).parallelGate in core/audit-config.ts.",
+    "store exposes listStoryIds(), readStory(id), readScopeContract(id)->ScopeContractData|null."
+  ],
+  "constraints": [
+    "Advisory-only: must NOT raise blockerCount or alter the signed review.json; the gate block field is ignored at REVIEW (hard block is Story 5).",
+    "resolveWaveSafety must stay a pure projector — compute overlap data at the storyRef() call site and pass it in as a new parameter, do not add store I/O inside resolveWaveSafety.",
+    "Only touch core/lattice-parallel-wave.ts, handlers/story-review.ts, a new smoke task, and lattice.config.json. Do NOT touch the frozen Stories 0-3 files.",
+    "Terminal peers (DONE/DISCARDED) and non-parallel stories must not generate overlap noise (reuse TERMINAL_PHASES / parallelSafe filters)."
+  ],
+  "unknowns": [
+    "Exact storyRef() local variables available to compute peer write-sets (peer story list + each peer scope contract) — confirm whether storyRef already has the peer set or needs store.listStoryIds().",
+    "Whether resolveAuditConfig().parallelGate is already resolved somewhere in story-review or must be loaded via loadConfig+resolveAuditConfig.",
+    "Best hermetic test seam: resolveWaveSafety is private — decide whether to export a small helper or test via the public wave projection entrypoint."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lattice-parallel-wave.ts (resolveWaveSafety + storyRef call site + new scope_glob_overlap kind)",
+    "packages/main/src/handlers/story-review.ts (advisory injection before/after the scope-check block)",
+    "packages/main/src/tasks/parallel-wave-advisory-smoke.ts (new hermetic smoke)",
+    "lattice.config.json (register the smoke)"
+  ],
+  "timestamp": "2026-06-20T07:02:51.347Z"
+}

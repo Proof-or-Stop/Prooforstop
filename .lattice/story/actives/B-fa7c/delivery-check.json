@@ -1,0 +1,95 @@
+{
+  "storyId": "B-fa7c",
+  "checkedAt": "2026-06-20T08:07:01.810Z",
+  "reviewRound": "2026-06-20T07:21:12.232Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "exported pure computeScopeGlobOverlaps(self, peers): self.parallelSafe===yes guard + terminal-self guard + per-peer non-terminal/parallelSafe=yes filter via globsOverlap",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 323-341: function exported, self.parallelSafe!==yes returns [], TERMINAL_PHASES.has(self.phase) returns [], peer loop skips terminal phases and peer.parallelSafe!==yes; calls globsOverlap from parallel-decomposition-overlap.js"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "exported pure scopeGlobOverlapDegradations(storyId, overlaps, note) building ParallelWaveDegradation with capability scope_glob_overlap, severity warn, authorityImpact none",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 350-365: function exported, maps overlaps to objects with capability:scope_glob_overlap, severity:warn, authorityImpact:none, visible:true; uses degradationId(storyId, scope-glob-overlap, peerStoryId)"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "exported safeReadScopeContract(store, id) (try/catch -> null) used by createParallelWave to build contractsByStoryId Map; storyRef does pure Map lookups — corrupt contract no longer crashes the wave",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 371-380: safeReadScopeContract exported, try/catch returns null on any throw. Lines 1155-1158: createParallelWave builds contractsByStoryId via safeReadScopeContract. storyRef uses contractsByStoryId.get() only — no direct store.readScopeContract in storyRef path"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "mode=off suppresses wave overlap advisory surface: createParallelWave computes scopeGlobEnabled=(mode!==off) and passes it to storyRef which gates computeScopeGlobOverlaps to [] when disabled",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 1151-1152: parallelMode read from resolveAuditConfig, scopeGlobEnabled=parallelMode!==off. Lines 1015-1040 (storyRef): scopeGlobOverlaps = scopeGlobEnabled ? computeScopeGlobOverlaps(...) : []"
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts",
+      "promise": "exported decompositionAdvisoryIssues maps evaluateDecompositionGate().advisories -> {type:decomposition_advisory, severity:advisory}; gate block field ignored; injection never raises blockerCount",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 58-67: decompositionAdvisoryIssues exported, mode=off short-circuits to []; calls evaluateDecompositionGate; maps advisories to {type:decomposition_advisory, severity:advisory}. Line 540: blockerCount = issues.filter(i=>i.severity===blocker).length — advisory issues excluded"
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts",
+      "promise": "mode=off suppresses decompositionAdvisoryIssues: short-circuits to [] before calling the gate even for inputs that otherwise yield advisories",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 64: if (cfg.mode===off) return []; placed before the evaluateDecompositionGate call at line 65. Smoke test F-001 confirms mode=off short-circuit at runtime (56 assertions all passed)"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "resolveWaveSafety and computeScopeGlobOverlaps stay PURE (no config reads inside these functions)",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep for loadConfig/resolveAuditConfig returns only import line 4 and factory line 1151 (inside createParallelWave). resolveWaveSafety at line 819 is a private function (no export). computeScopeGlobOverlaps at line 323 has no config reads."
+    },
+    {
+      "docPath": "lattice.config.json",
+      "promise": "parallel-wave-advisory-smoke.js registered in validate.commands so lattice validate runs it",
+      "status": "verified",
+      "verifiedBy": "diff/test",
+      "evidence": "lattice.config.json diff adds node packages/main/dist/tasks/parallel-wave-advisory-smoke.js as validate.commands[9]. lattice validate confirmed 10 commands run; commands[9] passed with 56 assertions."
+    },
+    {
+      "docPath": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+      "promise": "Real-machine smoke test exists with 56 assertions covering computeScopeGlobOverlaps (CHK-001) and decompositionAdvisoryIssues (CHK-002)",
+      "status": "verified",
+      "verifiedBy": "test execution",
+      "evidence": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js output: parallel-wave-advisory smoke passed: 56 assertions. All 10 lattice validate commands green."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts + packages/main/src/core/lattice-parallel-wave.ts",
+      "promise": "Story 5 hard-block enforcement (PLAN->DEV blocker from parallel gate) is NOT present in this story; only advisory wiring is delivered",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "decompositionAdvisoryIssues emits severity:advisory only; blockerCount computed from severity===blocker filter; gate block field explicitly ignored (comment at line 475); no code path raises blockerCount from decomposition advisory issues."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "parallel-wave-advisory-smoke.js: computeScopeGlobOverlaps — happy (one overlap named peer+pairExample), shape (keys peerStoryId+pairExample), F-005 composition chain, edge (self parallelSafe!=yes->[], terminal self DONE/DISCARDED->[], peer terminal->, peer parallelSafe!=yes->, self-vs-self skip, disjoint write-sets->[]). scopeGlobOverlapDegradations shape (capability/severity/visible/authorityImpact/id/reason). safeReadScopeContract (SyntaxError->null, Error->null, good contract passthrough, null passthrough). F-007 mode=off->zero overlaps+zero degradations, mode=advise/block->one overlap+one degradation. F-008 crash-safety underwrite. 56 assertions all passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "parallel-wave-advisory-smoke.js: decompositionAdvisoryIssues — happy (shared-prefix advisory issued; type=decomposition_advisory severity=advisory message non-empty; blockerCount unchanged when appended to blocker list), edge (lone story no advisories->[], tier-1 gate block present but only advisories emitted no blocker), adversarial (missing peer contract no throw; all issues advisory), F-001 mode=off short-circuits to [] even for inputs that yield advisories under advise mode. 56 assertions all passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 docsPromises verified from source code and test execution. The 56-assertion smoke test covers happy, edge, adversarial, and composition paths for CHK-001 and CHK-002. No hard-block Story 5 enforcement is present. The F-008 createParallelWave crash-safety gap (no full hermetic factory call) is an honest and proportionate engineering decision: safeReadScopeContract throw->null is directly tested (F-003/F-008), and grep confirms all scope-contract reads in createParallelWave go through safeReadScopeContract with only Map.get() in storyRef."
+  },
+  "_hash": "8060f828733b79f46f3f58fa85773fc16a0216fa5f831ee50daa0a044a017422"
+}

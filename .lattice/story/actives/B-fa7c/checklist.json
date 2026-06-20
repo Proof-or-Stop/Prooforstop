@@ -4,17 +4,310 @@
       "id": "CHK-001",
       "title": "Add a scope_glob_overlap degradation kind to resolveWaveSafety, computed at the storyRef() call site from active parallel peers' write-sets via computeWriteSet + globsOverlap",
       "context": "core/lattice-parallel-wave.ts: resolveWaveSafety is a pure projector (does not read scope contracts). At the storyRef() call site, for each ACTIVE non-terminal peer that also asserts parallelSafe='yes', compute this story's and the peer's write-set via computeWriteSet(scopeContract) and run globsOverlap; pass the overlap results into resolveWaveSafety as a new parameter; emit a 'scope_glob_overlap' degradation (severity 'warn', authorityImpact 'none', visible true) via the existing schedulingDegradation() factory naming the peer + an example colliding pair. None when disjoint or peer terminal.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T07:10:55.374Z",
+      "endTime": "2026-06-20T07:18:48.491Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computeScopeGlobOverlaps(self parallelSafe=yes writeSet [core/foo.ts], peers [{B-p1, phase DEV, parallelSafe yes, writeSet [core/foo.ts]}]) -> one overlap naming B-p1 with pairExample core/foo.ts; WHY: the core positive case — a real write-set collision with an active parallel peer is surfaced",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the overlap result, fed into resolveWaveSafety, produces a ParallelWaveDegradation with capability scope_glob_overlap, severity warn, visible true, authorityImpact none, reason naming the peer + pair; WHY: proves the degradation kind is emitted via schedulingDegradation with the right shape",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "self.parallelSafe!=yes (undefined or no) -> computeScopeGlobOverlaps returns [] even with an overlapping active parallel peer; WHY: only a story ASSERTING parallel can falsely assert it",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "peer in TERMINAL_PHASES (DONE/DISCARDED) -> no overlap emitted even with identical write-set; WHY: terminal peers are not concurrent, must not generate noise",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "peer with parallelSafe!=yes -> no overlap; and self vs self (same storyId) skipped; WHY: only active parallel peers count, never self",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "disjoint write-sets (core/foo.ts vs core/bar.ts) -> no overlap; WHY: independence provable, no false positive",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a peer whose scope contract is null/missing is skipped when building peer write-sets (call-site filters null) -> no throw, no overlap for that peer; WHY: legacy stories lacking a contract must not crash the wave projection",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "multiple active parallel peers each overlapping -> one degradation per peer, each naming the correct peer + pair; WHY: proves per-peer fan-out, no dedup loss",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts computeScopeGlobOverlaps(self parallelSafe=yes [core/foo.ts], peers [{B-p1 DEV yes [core/foo.ts]}]) returns one overlap naming B-p1 with the colliding pair example.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts scopeGlobOverlapDegradations('B-self',[{B-p1,...}]) returns one ParallelWaveDegradation with capability scope_glob_overlap, severity warn, visible true, authorityImpact none, id containing scope-glob-overlap+b-p1, reason naming the peer — the degradation resolveWaveSafety emits.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts self.parallelSafe!=='yes' (undefined/no) returns [] even with an overlapping active parallel peer.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts a TERMINAL_PHASES peer (phase DONE) yields no overlap even with identical write-set.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts a peer with parallelSafe!=='yes' yields no overlap, and self-vs-self (same storyId) is skipped.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts disjoint write-sets (core/foo.ts vs core/bar.ts) yield no overlap.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke models a null/missing-contract peer by omitting it from the peers list (call-site filters null) -> no throw, no overlap for that peer.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts multiple overlapping active parallel peers yield one degradation entry per peer naming the correct peer+pair (per-peer fan-out).",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Inject evaluateDecompositionGate().advisories into story_review issues[] at severity 'advisory' (non-blocking, never raises blockerCount)",
       "context": "handlers/story-review.ts: load peers via store.listStoryIds()+readStory(), contracts via store.readScopeContract() (null-tolerant; §4.8 handles a missing peer contract inside the gate), cfg via resolveAuditConfig(...).parallelGate; call evaluateDecompositionGate(story, peers, contracts, cfg) and push each advisories[] entry as {type:'decomposition_advisory', severity:'advisory', message}. Only advisories — the gate's block field is intentionally ignored at REVIEW (enforcement is Story 5). blockerCount = issues.filter(i=>i.severity==='blocker').length, so advisories never block REVIEW or affect the signed review.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T07:14:33.478Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decompositionAdvisoryIssues(story parallelSafe=yes overlapping an active parallel peer, peers, contracts, cfg) returns issues each {type: decomposition_advisory, severity: advisory, message: <non-empty gate advisory>}; WHY: the gate advisories are surfaced at REVIEW as advisory-severity issues",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the returned issues, appended to a sample issues[] containing one blocker, leave blockerCount (filter severity===blocker) unchanged; WHY: proves advisories never raise blockerCount",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a story+peers configuration where evaluateDecompositionGate returns advisories=[] -> decompositionAdvisoryIssues returns []; WHY: no advisory, no issue injected",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "evaluateDecompositionGate returns a non-null block (e.g. overlap_declared_parallel) AND advisories -> only the advisories become issues; the block field is NOT turned into a blocker issue; WHY: enforcement is Story 5; REVIEW must surface advisories only",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a peer with a missing/unreadable contract (not in the contracts Map) -> decompositionAdvisoryIssues does not throw (evaluateDecompositionGate handles peer-unreadable per §4.8); WHY: must not crash REVIEW on legacy peers",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "every issue produced has severity exactly advisory (never blocker) and type decomposition_advisory; WHY: a typo to blocker would silently break the non-blocking contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts decompositionAdvisoryIssues over a story+peer+contracts yielding gate advisories returns issues each {type decomposition_advisory, severity advisory, message non-empty}.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke appends the produced issues to an issues[] containing one blocker and asserts blockerCount (filter severity===blocker) is unchanged.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts a config where evaluateDecompositionGate returns advisories=[] yields decompositionAdvisoryIssues -> [].",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts when the gate also returns a non-null block, only the advisories become issues; the block field is NOT turned into a blocker issue.",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts a peer with a missing contract (absent from the contracts Map) does not throw (gate handles peer-unreadable per §4.8).",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts every produced issue has severity exactly 'advisory' and type 'decomposition_advisory' (never blocker).",
+          "headHash": "dbb582262591f4c50b69b3217bbb905e45142a71",
+          "materialHash": "6243109df881b8d8067f5e5e42b8695d9a2a97d088e26e92bec272ebe32ab8d9",
+          "storyFilesHash": "41e78510a032cc7f329ef6b9e770c2c822347bf89754f0115ddce3edc8d54639",
+          "timestamp": "2026-06-20T08:01:18.413Z"
+        }
+      ]
     }
   ]
 }
