@@ -1,0 +1,45 @@
+{
+  "storyId": "B-b36d",
+  "checkedAt": "2026-06-20T11:54:26.482Z",
+  "features": [
+    {
+      "feature": "Rename and reposition the existing standard evidence pipeline document as a Lifecycle Proof-Or-Stop Readiness Check rather than a story_pipeline execution conveyor",
+      "covered_by": "CHK-001; understanding.outcome says the revised document is titled Lifecycle Proof-Or-Stop Readiness Check with no implication that Lattice secretly auto-advances stories; decision.chosen Option B reframes as Lifecycle Proof-Or-Stop Readiness Check with V1 read-only and Full Vision staged later; touchpoints include old/new decision doc names and flow assets",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get/understanding_get/decision_get; docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md:1"
+    },
+    {
+      "feature": "V1 boundary is a read-only readiness control tower that reports blockers and exact next actions without mutating lifecycle state or duplicating gate truth sources",
+      "covered_by": "CHK-002; understanding.task says reads readiness and prints exact next actions before future automation; constraints delegate DONE readiness to done_prepare; decision.principles require V1 read-only by default and no duplicate gate truth sources; done_prepare doc confirms dryRun/readiness assistant semantics",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get/understanding_get/decision_get; docs/requirements/decisions/done-prepare-automation-execution-plan.md:124"
+    },
+    {
+      "feature": "Contract gap patches are in scope: rollback next commands, delivery blocker symmetry, dry-run execution wording, done_prepare HEAD/material binding, and bounded refresh-only loop behavior",
+      "covered_by": "CHK-003; understanding.facts list the verified gaps; decision.preMortem covers rollback command, done_prepare truth-source duplication, and refresh loop failure modes; current pipeline doc has corresponding evidence failure, gate preflight, delivery check, refresh, and done_prepare delegation sections",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/decision_get; docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md:261"
+    },
+    {
+      "feature": "CLI/runtime implementation scope for lifecycle_check/story_pipeline commands, handlers, gates, evidence writers, reviewer launchers, delivery writers, and automation is not part of B-b36d",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User instruction says documentation-only refinement; understanding.constraints says no CLI/runtime implementation changes; touchpoints are docs/assets/navigation only; decision.chosen preserves the full vision as staged later instead of implementing it now",
+      "source": "lattice understanding_get/decision_get; docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md:782"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8e52f6a353f91681d3df403623319b49d29482633904960ce830b208c042ec18",
+  "openQuestions": []
+}
