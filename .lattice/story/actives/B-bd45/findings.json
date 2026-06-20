@@ -54,7 +54,7 @@
       "desc": "CHK-001:edge:0 is not actually covered by lifecycle-check-smoke. The intent requires proving format=json and --json produce the same top-level report shape without mutating story files, but packages/main/src/tasks/lifecycle-check-smoke.ts only exercises json:true at lines 156-157 and format:\"text\" at lines 180-185; it never calls format:\"json\" or compares it with json:true. The recorded verificationEvidence for CHK-001:edge:0 points to npm --prefix packages/main run test:lifecycle-check-smoke, so the evidence overclaims this edge intent. Add a smoke assertion that invokes both json:true and format:\"json\", compares their top-level report shape, and keeps the no-mutation snapshot around both calls.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T21:06:31.373Z",
@@ -65,7 +65,11 @@
         "packages/main/src/tasks/lifecycle-check-smoke.ts"
       ],
       "signatureTag": "edge|ts|edge-actually-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: lifecycle-check-smoke now invokes both json:true and format:\"json\" and compares the required top-level report shape; focused smoke passes.",
+      "resolvedAt": "2026-06-20T21:13:35.307Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
