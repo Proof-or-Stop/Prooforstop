@@ -138,6 +138,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:49:53.696Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"Generated-token fallback|future host onboarding|generate|adapter layer|source shown\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "result": "pass",
+          "note": "The plan covers hosts without a native stable session variable by generating or mapping a host-local stable id in the adapter layer and labeling the source shown to users.",
+          "headHash": "ec555541d13f420256fe75ada9bef7f509aec794",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:50:00.060Z"
         }
       ]
     },
