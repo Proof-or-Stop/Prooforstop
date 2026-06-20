@@ -722,6 +722,16 @@ Build the gate itself **through the Lattice story workflow** (every code change 
 
 This is the canonical shape: contract first (S0), four independent impls in parallel (S1–S4, bounded by `W`), serial integration last (S5). The critical path is S0 → slowest of S1–S4 → S5 — the spec proving itself.
 
+### 8.1 Gate registration in the descriptive metadata registries
+
+Once the hard gate is wired into `machine.ts` (§4.4, the `parallelDevEntryBlock` fail-open wrapper consumed by `canStartDevGuard`, `canSkipPlanGuard`, and `canReenterDevGuard` under `parallelGate.mode === 'block'`), the descriptive lifecycle metadata registers it so the registries do not under-report the runtime door set:
+
+- **`lifecycle-registry.ts` (`LIFECYCLE_TRANSITIONS`)** — the `parallel-decomposition` gate id is listed on the `gates` array of exactly the **four runtime DEV-entry transitions**: `INIT_CHECK→DEV` (express skip-plan), `PLAN→DEV`, and the two rollbacks `REVIEW→DEV` and `TEST→DEV`. It is *not* added to the two legacy `TEST_CASE→DEV` / `TEST_CASE_REVIEW→DEV` rollbacks, which the runtime does not guard. It is a hard gate, not an oracle row, so (like `cwd-worktree`) it is gates-only and absent from `oracleRows`.
+- **`process-fact-levels.ts`** — the three scope-contract **producer** L4 facts (`scope_contract_set`, `scope_contract_acknowledge`, `scope_contract_init_from_plan`) name the parallel-decomposition DEV-entry gate as a `gateConsumer`, because `machine.ts` reads each story's durable scope contract (`resolveAuditConfig().parallelGate` + `safeReadScopeContract` → `computeWriteSet`) before every DEV entry, and these three are the commands that *write* that contract (`writeScopeContract`). `scope_contract_check` is intentionally **not** listed: it is a pure read (`readScopeContract` + `buildScopeDiffPack`, no write) and produces no input the gate consumes, so registering it would assert a producer→gate edge the runtime does not have.
+- **`scripts/verify-process-fact-contract.mjs`** — a non-vacuous assertion requires those three producer facts to keep naming the parallel-decomposition DEV-entry gate; removing the registration fails the contract check.
+
+This is descriptive-metadata sync only: it records the existing runtime gate, and changes no runtime gating behavior.
+
 > 注：这套门要用 Lattice 自己的故事流程来建（有审计轨迹）、并用本规范自身分解来做（吃自己的狗粮）：S0 冻接口、S1–S4 并行、S5 串行集成；所有故事产物必须英文（否则 english-artifacts 门卡 DONE），不能直接提交代码。S5 必须同时改 `canStartDevGuard`（真判定）和 `getGuardFailureReason`（文案），共用一个谓词。
 
 ---

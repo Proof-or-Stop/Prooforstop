@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Metadata mirrors runtime: register the gate on exactly the lifecycle transitions that correspond to the 4 runtime START->DEV doors — never invent or omit a door.",
+    "No behavior change: touch only descriptive registries + the drift check + docs; machine.ts stays frozen.",
+    "Extend the single existing drift source (verify-process-fact-contract.mjs) rather than add a parallel test surface.",
+    "Match existing shapes: reuse the kebab-case gate-id convention and the existing consumer-registration form."
+  ],
+  "drivers": [
+    "the metadata must match the live machine.ts gate exactly",
+    "must not change runtime gating",
+    "the drift check must mechanically protect the gate going forward"
+  ],
+  "options": [
+    {
+      "name": "register-and-extend-check",
+      "pros": [
+        "one source of drift-truth (verify-process-fact-contract)",
+        "metadata matches runtime",
+        "minimal, descriptive-only change"
+      ],
+      "cons": [
+        "must precisely map lifecycle transitions to runtime doors"
+      ]
+    },
+    {
+      "name": "doc-note-only",
+      "pros": [
+        "smallest change"
+      ],
+      "cons": [
+        "leaves the machine-readable registries stale; the drift check still cannot catch future divergence — does not actually close the gap"
+      ]
+    }
+  ],
+  "chosen": "register-and-extend-check",
+  "rationale": "Registering the parallel-decomposition gate id on the lifecycle DEV-entry transitions that map to the 4 runtime doors + adding the process-fact consumer + extending verify-process-fact-contract.mjs to assert the guard surface makes the descriptive contract match the live machine.ts gate AND mechanically guards against future drift, all without touching runtime. A doc-note-only approach would leave the machine-readable registries stale and the drift check blind.",
+  "preMortem": [
+    {
+      "scenario": "The gate is registered on a lifecycle transition that is NOT actually a runtime door (or omitted from one that IS), so the metadata lies about enforcement",
+      "trigger": "the 6+ to:DEV lifecycle entries are not carefully mapped to the 4 runtime START->DEV doors (canStartDev/canSkipPlan/canReenterDev)",
+      "consequence": "audits/projections report the wrong door coverage — the exact drift this story exists to fix, now inverted",
+      "mitigation": "in DEV, read each to:DEV transition source phase + event and cross-check against machine.ts guards; register on EXACTLY the INIT_CHECK/PLAN/REVIEW/TEST START->DEV doors; the extended drift check asserts the mapping"
+    },
+    {
+      "scenario": "The change accidentally alters runtime gating (e.g. a gate id that is actually consumed for enforcement, not just description)",
+      "trigger": "assuming .gates is purely descriptive when some consumer reads it to enforce",
+      "consequence": "a metadata-only chore silently changes PLAN->DEV behavior",
+      "mitigation": "S5 review already established .gates is descriptive (enforcement is the xstate guards); re-confirm no enforcement path reads the new gate id; lattice validate + the integration smoke (unchanged) stay green proving runtime behavior is unchanged"
+    },
+    {
+      "scenario": "verify-process-fact-contract.mjs is extended in a way that passes vacuously (asserts nothing real) or breaks the existing check",
+      "trigger": "a tautological assertion or one that does not actually read the new registration",
+      "consequence": "the drift check gives false confidence and will not catch a future regression",
+      "mitigation": "the new assertion must read the actual registration and FAIL if the parallel gate is removed from the metadata; verify by temporarily removing the registration and confirming the check fails, then restore"
+    }
+  ],
+  "timestamp": "2026-06-20T09:58:33.322Z"
+}

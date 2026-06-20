@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-b29e:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 verify-fix: all 5 items confirmed. scope_contract_check gateConsumer reverted to pre-existing value (REVIEW/TEST/DONE scope gate only, no parallel-decomposition). The 3 producers (scope_contract_set, scope_contract_acknowledge, scope_contract_init_from_plan) all correctly name the parallel-decomposition DEV-entry gate. Handler audit confirms check is pure read (readScopeContract+buildScopeDiffPack, no writeScopeContract); all 3 producers call writeScopeContract. verify-process-fact-contract.mjs asserted-commands array contains exactly the 3 producers, pattern tests actual gateConsumer string (non-vacuous). spec §8.1 lists 3 producers and explicitly excludes check. lifecycle-registry 4 DEV-entry transitions (INIT_CHECK/PLAN/REVIEW/TEST ->DEV) have parallel-decomposition; legacy TEST_CASE/TEST_CASE_REVIEW rollbacks remain gates:[]. Zero BLOCKER/MAJOR findings.",
+      "createdAt": "2026-06-20T10:27:10.275Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-001",
+      "_hash": "bf545952fe7d2bfe462a770648aba153075b2c722529ce81e66429f189f39d76"
+    },
+    {
+      "id": "B-b29e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 12 intents have evidence with result=pass and kind correct to intent type. Exclusivity assertion structurally sound: scans all levelRegistryEntries with same pattern used by presence loop; scope_contract_check gateConsumer does not match pattern; non-producer addition fails with offending name; producer removal fails via both presence loop and exclusivity length check. test:process-fact-contract passes green. lifecycle-registry 4 doors + legacy 2 doors correct. spec §8.1 accurate.",
+      "createdAt": "2026-06-20T10:33:13.146Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-002",
+      "_hash": "e5eeffa92104620b35d29205edb2ffc853edb16a43affb24a70e9fc3b2e589e4"
+    },
+    {
+      "id": "B-b29e:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope PASS over final code (e848add61): descriptive-metadata sync only; the parallel gate is registered on exactly the 4 runtime DEV doors (lifecycle-registry) + the 3 scope-contract PRODUCER facts (process-fact-levels) + asserted exclusively by the drift check; no runtime/frozen-file change. 3-round dual-host converged.",
+      "createdAt": "2026-06-20T10:35:46.769Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-003",
+      "_hash": "359d4d9510dfe42e0c44b218182051744e7ded28e949d9a92811070763f2d727"
+    },
+    {
+      "id": "B-b29e:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS over final code: precise registration (read-only scope_contract_check correctly excluded), the drift check is non-vacuous AND exclusive (fails if a non-producer re-adds the gate OR a producer drops it), regex consistent, spec accurate. Round-3 both hosts clean.",
+      "createdAt": "2026-06-20T10:35:47.960Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-004",
+      "_hash": "83e27b3122fb4407426e5bd19be47368914188b449c51f7872f29f1056881a95"
+    },
+    {
+      "id": "B-b29e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS over final code: 12 verificationIntent items covered; the drift check proven both ways (presence + exclusivity); lattice validate + integration smoke green proving runtime unchanged. 0 open findings.",
+      "createdAt": "2026-06-20T10:35:49.226Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-005",
+      "_hash": "ce93e389988cd9ecabea8d8f247b1459c9b8f51a3f80427a14367c3ceb640b7b"
+    },
+    {
+      "id": "B-b29e:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS over final code (e848add61): docs/parallel-decomposition-spec.md §8.1 note accurately describes the registration — the 4 runtime DEV doors in lifecycle-registry, the 3 scope-contract PRODUCER facts (set/acknowledge/init_from_plan, scope_contract_check excluded as a pure read) as gateConsumers, and the exclusive drift-check assertion. Doc matches the code; round-3 verifiers confirmed §8.1 corresponds exactly to the implementation.",
+      "createdAt": "2026-06-20T10:36:34.605Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-006",
+      "_hash": "6f8f6871720358f6f9793eb5e0cfeeb3a6ad104388e0d75e2a4fb711c913fbbf"
+    }
+  ]
+}

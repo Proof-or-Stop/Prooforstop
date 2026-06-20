@@ -4,33 +4,325 @@
       "id": "CHK-001",
       "title": "Register the parallel-decomposition gate on all four DEV-entry transitions in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
       "context": "core/lifecycle-registry.ts: add a parallel-decomposition gate id (e.g. 'parallel-decomposition') to the gates metadata of the INIT_CHECK->DEV, PLAN->DEV, REVIEW->DEV, and TEST->DEV transitions, matching the runtime guards (canSkipPlanGuard/canStartDevGuard/canReenterDevGuard). Match the existing gate-id naming/shape used by sibling gates (e.g. cwd-worktree, plan-review, scope-check).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T10:06:27.044Z",
+      "endTime": "2026-06-20T10:07:39.068Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the LIFECYCLE_TRANSITIONS gates arrays for the four START->DEV doors (INIT_CHECK/PLAN/REVIEW/TEST) each include a parallel-decomposition gate id; WHY: the metadata records the gate on exactly the runtime doors",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "no OTHER to:DEV lifecycle transition (the gates:[] entries ~247/269) gains the gate unless it maps to a real runtime START->DEV door; WHY: do not invent doors the runtime does not guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice validate stays all-green and the integration smoke is unchanged -> runtime behavior provably unchanged by the metadata edit; WHY: metadata-only, no enforcement change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "lifecycle-registry.ts gates arrays for INIT_CHECK/PLAN/REVIEW/TEST->DEV now include 'parallel-decomposition'; the extended drift check asserts the registration (passes).",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "git show",
+          "result": "pass",
+          "note": "the two legacy TEST_CASE->DEV / TEST_CASE_REVIEW->DEV entries (gates:[]) were left untouched — only the 4 runtime doors registered.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/cli.js validate",
+          "result": "pass",
+          "note": "lattice validate all green incl. the unchanged 50-assertion integration smoke -> runtime behavior provably unchanged by the metadata edit.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Register the parallel DEV-entry gate as a consumer of scope-contract facts in process-fact-levels.ts",
       "context": "core/process-fact-levels.ts: scope_contract_set / scope_contract_init_from_plan facts currently list REVIEW/TEST/DONE changed-file gates as consumers; add the parallel DEV-entry gate (machine.ts consumes scope contracts before every DEV entry) as an L4 consumer, matching the existing consumer-registration shape.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T10:07:39.476Z",
+      "endTime": "2026-06-20T10:08:32.298Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "process-fact-levels.ts lists the parallel DEV-entry gate as a consumer of scope-contract facts (matching the existing consumer-registration shape); WHY: machine.ts consumes scope contracts before every DEV entry",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the consumer registration uses the existing L4/consumer form and does not alter other fact consumers; WHY: additive, no regression to other facts",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the existing process-fact contract assertions still pass (no existing fact broken); WHY: additive change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "process-fact-levels.ts gateConsumer of the scope_contract L4 facts now names the parallel-decomposition DEV-entry gate; drift check passes.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "git show",
+          "result": "pass",
+          "note": "additive gateConsumer string extension matching the existing free-text shape; other fact consumers unchanged.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "the existing process-fact contract assertions still pass (no existing fact broken).",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Extend verify-process-fact-contract.mjs to assert the new parallel DEV-entry guard surface",
       "context": "scripts/verify-process-fact-contract.mjs (run via npm --prefix . run test:process-fact-contract; not in lattice validate): add assertions that the parallel DEV-entry gate (canSkipPlan / canReenterDev / parallelDevEntryBlock) is registered as a scope-contract-fact consumer, so future divergence between machine.ts and the metadata is caught. The check must pass after the CHK-001/002 updates.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T10:08:32.771Z",
+      "endTime": "2026-06-20T10:10:02.877Z",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix . run test:process-fact-contract passes WITH a new assertion that the parallel DEV-entry gate (canSkipPlan/canReenterDev/parallelDevEntryBlock) is registered as a scope-contract-fact consumer; WHY: the gate is now mechanically protected from drift",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the new assertion reads the ACTUAL registration (not a constant) and FAILS if the parallel gate is removed from the metadata; WHY: a tautological assertion gives false confidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "temporarily removing the registration makes test:process-fact-contract FAIL, then restoring makes it pass -> the check genuinely guards the registration; WHY: prove the drift gate is real",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "npm run test:process-fact-contract passes with the new assertion that scope_contract_set gateConsumer names the parallel DEV-entry gate.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "the assertion reads the ACTUAL gateConsumer registration (regex), not a constant.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "NON-VACUITY PROVEN by the implementer: reverting the gateConsumer to original -> drift check FAILS exit=1; restoring -> exit=0 PASS.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Document the registration in docs/parallel-decomposition-spec.md §8",
       "context": "Add a short note to docs/parallel-decomposition-spec.md §8 (or §4.4) recording that the parallel-decomposition DEV gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs, closing the descriptive-contract loop from Story 5.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T10:10:03.345Z",
+      "endTime": "2026-06-20T10:10:42.535Z",
+      "files": {
+        "modify": [
+          "docs/parallel-decomposition-spec.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/parallel-decomposition-spec.md section 8 (or 4.4) notes the gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs; WHY: closes the descriptive-contract loop from Story 5",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the doc note names the 4 runtime DEV doors (INIT_CHECK/PLAN/REVIEW/TEST) and does NOT claim the 2 legacy TEST_CASE to:DEV entries carry the gate; WHY: the doc must match the actual registration (4 doors, not 6)",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the doc note is accurate vs the actual registrations (cites the 4 doors + the drift check + the process-fact consumer); WHY: docs must match the code",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "spec section 8.1 notes the gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs (grep confirms the note present).",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "the note names the 4 runtime doors (INIT_CHECK/PLAN/REVIEW/TEST) and explicitly excludes the 2 legacy TEST_CASE to:DEV entries.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "the note is accurate vs the actual registrations: 4 doors in lifecycle-registry + the scope-contract gateConsumer + the drift-check assertion.",
+          "headHash": "ace1173bf907a834f99ad90cb729d7c9d5d3b77a",
+          "materialHash": "1288b703fff7320f0f77e350a21f0a171fdf572a0946088f93f505bb4cc4e3a3",
+          "storyFilesHash": "668bd444d7605e6319025907d6810049bc0f72e9ef52abef0f3cf20b1d8ff1b5",
+          "timestamp": "2026-06-20T10:35:50.749Z"
+        }
+      ]
     }
   ]
 }

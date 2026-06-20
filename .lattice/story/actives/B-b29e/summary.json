@@ -1,0 +1,55 @@
+{
+  "storyId": "B-b29e",
+  "changes": "Descriptive-metadata follow-up to B-086b: registered the parallel-decomposition DEV gate in the contract registries so audits/projections/drift-checks reflect the runtime gate (no behavior change). lifecycle-registry.ts: added gate id 'parallel-decomposition' to the gates arrays of the 4 runtime START->DEV doors (INIT_CHECK/PLAN/REVIEW/TEST), not the 2 legacy TEST_CASE entries. process-fact-levels.ts: named the parallel DEV-entry gate in the gateConsumer of the 3 scope-contract PRODUCER facts (scope_contract_set/acknowledge/init_from_plan — all call writeScopeContract), excluding scope_contract_check (pure read). verify-process-fact-contract.mjs: added a non-vacuous PRESENCE assertion + an EXCLUSIVITY assertion (only the 3 producers may name the gate). docs §8.1 note.",
+  "usage": "Run 'npm --prefix . run test:process-fact-contract' — it now verifies the parallel-decomposition DEV-entry gate is registered on exactly the 3 scope-contract producer facts (and fails if a non-producer like scope_contract_check re-adds it, or a producer drops it). Inspecting lifecycle-registry.ts shows the gate on the 4 DEV doors.",
+  "expectedOutcome": "npm run test:process-fact-contract prints 'Process fact contract verified' (exit 0) with the new presence+exclusivity assertions; lattice validate all green; the runtime integration smoke unchanged (no behavior change).",
+  "actualTranscript": "test:process-fact-contract: 'Process fact contract verified' exit 0; lattice validate all green incl. the unchanged 50-assertion integration smoke. 3-round genuine dual-host review (Codex + a Claude completeness-critic workflow) resolved 2 MAJOR precision findings: (F-001) the gate was over-registered on the read-only scope_contract_check — narrowed to the 3 producers (the critic adjudicated the granularity vs Codex's wider over-correction); (F-002) the drift check lacked exclusivity so the regression could return — added an exclusivity assertion. Round-3 both hosts PASS.",
+  "outcomeDiff": "none — the metadata now matches the live machine.ts gate on the 4 DEV doors + the 3 scope-contract producers; the drift check guards both presence and exclusivity; runtime unchanged (confirmed by the empty machine.ts diff + green integration smoke).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Metadata/contract-registry sync only — no runtime behavior change (the gate itself shipped in B-086b). The pre-existing classification of scope_contract_check as L4 (it carries a gateConsumer for the changed-file scope gates despite being a pure read) is left as-is — out of scope; we only ensured the PARALLEL gate is not added to it.",
+  "pitfalls": "A 'gateConsumer' edge must point from a fact PRODUCER (a command that writes the artifact the gate reads) to the gate — a read-only command (scope_contract_check) is not a producer and must not be registered, even though it shares the artifact. A drift/contract check must assert EXCLUSIVITY, not just presence, or it cannot catch the over-registration regression it was added to prevent. Map descriptive lifecycle transitions to the actual runtime guards before registering (6 to:DEV entries, only 4 are real runtime doors).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 209800
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6230
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 463521
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 545382
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1386280
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 192078
+    }
+  },
+  "totalDurationMs": 2803375,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T10:40:28.355Z",
+  "updatedAt": "2026-06-20T10:40:28.355Z"
+}

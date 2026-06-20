@@ -184,6 +184,24 @@ const requiredDecisionDocPromotionCommands = [
   'decision_doc_preview',
   'decision_doc_save',
 ];
+// B-b29e CHK-003 (F-001): the durable scope-contract.json the parallel-decomposition
+// hard gate reads at every DEV entry (machine.ts parallelDevEntryBlock →
+// parallelDecompositionEnforcedBlock → resolveAuditConfig().parallelGate +
+// safeReadScopeContract → computeWriteSet, consumed by canStartDevGuard/
+// canSkipPlanGuard/canReenterDevGuard) is WRITTEN only by the three producer
+// facts below (all call writeScopeContract). These L4 producers must therefore
+// name the parallel-decomposition DEV-entry gate in their gateConsumer — an L4
+// fact is a command that WRITES a gate-consumed fact. scope_contract_check is a
+// PURE READ (readScopeContract + buildScopeDiffPack, no writeScopeContract) and
+// produces nothing the gate consumes, so it is intentionally excluded. This
+// assertion is non-vacuous: dropping the registration from any of the three
+// producers in process-fact-levels.ts fails it.
+const scopeContractParallelDevEntryConsumerCommands = [
+  'scope_contract_set',
+  'scope_contract_acknowledge',
+  'scope_contract_init_from_plan',
+];
+const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV-entry gate/;
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
@@ -3449,6 +3467,42 @@ function assertProcessFactCommandInventory() {
     l4WithoutGate.length === 0,
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
+
+  // B-b29e CHK-003: the parallel-decomposition DEV-entry hard gate (machine.ts)
+  // reads each story's scope contract before every door into DEV, so the
+  // scope-contract L4 facts must register it as a gateConsumer. Reads the actual
+  // registration, so removing it from process-fact-levels.ts fails this check.
+  for (const commandName of scopeContractParallelDevEntryConsumerCommands) {
+    const entry = levelRegistry.get(commandName);
+    assert(
+      Boolean(entry),
+      `${processFactLevelRegistryPath}: scope-contract fact ${commandName} missing from registry`,
+    );
+    if (!entry) continue;
+    assert(
+      scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''),
+      `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name the parallel-decomposition DEV-entry gate (machine.ts parallelDevEntryBlock reads the scope contract before every DEV entry)`,
+    );
+  }
+
+  // B-b29e F-002: EXCLUSIVITY — only the three scope-contract producer facts may
+  // name the parallel-decomposition DEV-entry gate. The presence loop above
+  // guards that each producer still names the gate, but does NOT stop a
+  // non-producer (e.g. the pure-read scope_contract_check, the Round-1
+  // over-registration) from re-adding the edge. Scan EVERY process-fact entry and
+  // assert the set that names the gate equals exactly the producer set, so the
+  // drift check guards against the very regression it fixed.
+  const actualParallelDevEntryConsumers = levelRegistryEntries
+    .filter(entry => scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''))
+    .map(entry => entry.name)
+    .sort();
+  const expectedParallelDevEntryConsumers = [...scopeContractParallelDevEntryConsumerCommands].sort();
+  assert(
+    actualParallelDevEntryConsumers.length === expectedParallelDevEntryConsumers.length &&
+      actualParallelDevEntryConsumers.every((name, index) => name === expectedParallelDevEntryConsumers[index]),
+    `${processFactLevelRegistryPath}: ONLY the scope-contract producer facts (${expectedParallelDevEntryConsumers.join(', ')}) may name the parallel-decomposition DEV-entry gate, but got [${actualParallelDevEntryConsumers.join(', ')}] — a pure-read or unrelated fact must not claim a producer→gate edge the runtime does not have (offending: ${actualParallelDevEntryConsumers.filter(name => !expectedParallelDevEntryConsumers.includes(name)).join(', ') || '(none extra)'}; missing: ${expectedParallelDevEntryConsumers.filter(name => !actualParallelDevEntryConsumers.includes(name)).join(', ') || '(none)'})`,
+  );
+
   assertL4ProducerOrReplacement(levelRegistryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries
