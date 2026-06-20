@@ -41,7 +41,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Verified failure mode snapshot\\|2750aadef\\|656\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Failure-mode section documents the verified stale-doc incident and proof anchor (commit 2750aadef, 656 signatures).",
+          "headHash": "cb9bb117110e486faeae020807d08ff44c42e905",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.272Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
