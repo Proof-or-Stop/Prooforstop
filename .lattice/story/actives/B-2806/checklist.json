@@ -182,9 +182,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke with a FAKE runSkeptic proving threshold + mapping + no-abstract-leak; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-verifier-smoke.ts (check+counter, explicit literals). Assert: SEVERITY_TO_FINDING_KIND maps BLOCKER->critical/MAJOR->high/MINOR->medium and every value is in {critical,high,medium,low}; composeDesc yields the exact `<title> — <issue> Fix: <fix>` string with line cited; toFindingAddArgs returns the right shape (severity mapped, files=[file], category, reviewRunId, agent) and never emits an abstract BLOCKER/MAJOR/MINOR; verifyFinding with a fake runSkeptic that returns k isReal=true of M: T=1-of-2 -> 1 confirm CONFIRMED, 0 confirm DROPPED; T=2-of-2 -> needs both; default M=2,T=1; verifyFindings over a list yields per-finding verdicts; confirmedFindings filters confirms>=T only. Register node packages/main/dist/tasks/adversarial-review-verifier-smoke.js in lattice.config.json validate.commands.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T14:59:10.177Z",
       "verificationIntent": {
         "happy": [
           {
