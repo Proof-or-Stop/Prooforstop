@@ -215,13 +215,13 @@
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "rg -n 'owned by done_prepare|reviewer lanes|delivery reviewer|done_prepare report import/delegation|coverage reviewers never pass before|evidence snapshot' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "command": "rg -n 'owned by done_prepare|reviewer lanes|delivery reviewer|done_prepare report import/delegation|coverage reviewers never pass before|evidence snapshot|Track E transcript|Track F delivery-context|P4 \\| Add reviewer batch orchestration' docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
           "result": "pass",
-          "note": "Tracks touching delivery, evidence refresh, reviewer lanes, and DONE readiness name the existing gate or done_prepare owner, and coverage lanes depend on evidence snapshots.",
-          "headHash": "2574a0fc606c1302d64daac889e17ac936170731",
-          "materialHash": "f23fcb80b89ff3d661b36cb28427f3a71da89bbde16dddf4322ea58bd6e6bc20",
+          "note": "Tracks touching delivery, evidence refresh, reviewer lanes, and DONE readiness name existing gate/done_prepare owners; final reviewer orchestration now depends on evidence snapshot plus transcript and delivery-context artifacts.",
+          "headHash": "31078225e903395d0953b16518745856a59b3b98",
+          "materialHash": "f46230ce4d1eb0b6a122d602f6dfbc058641b9e9680da195a17fd60d241e1536",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T06:29:00.482Z"
+          "timestamp": "2026-06-20T06:44:55.784Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",

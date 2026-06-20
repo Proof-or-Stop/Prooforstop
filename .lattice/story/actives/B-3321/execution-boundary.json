@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3321",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate",
+    "npm --prefix packages/main run build",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".githooks/pre-push",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git reset --hard",
+    "npm test",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Documentation-only story; full npm test is discussed as target policy but not run in this planning task.",
+  "createdAt": "2026-06-20T06:46:26.122Z",
+  "updatedAt": "2026-06-20T06:46:26.122Z",
+  "_hash": "f714cd9f40827602fa11a357936fd3393cf394330c1841a4f58ac1385a242084"
+}

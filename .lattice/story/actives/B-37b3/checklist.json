@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Resolve the learning-store finding-signals cache from the main repo root (worktree-safe), read + write",
+      "context": "In core/learning-store.ts (the only toucher of .lattice/learning/), resolve the learning directory to the MAIN repo root — the parent of `git rev-parse --git-common-dir` run in the given root — instead of the passed (possibly-worktree) root, for both reading and writing the finding-signals cache. Add a helper (e.g. resolveLearningRoot(root)) that runs git rev-parse --git-common-dir in `root`, resolves it to an absolute path, and returns its parent dir; on ANY failure (non-git dir, error, empty) FALL BACK to the passed root unchanged. All consumers (experience-hint-loader loadExperienceHints, learning_scan write, learning_validate, learning_effectiveness) inherit the fix via learning-store. Do not change the cache schema, the finding-signals derivation, or any gate. Keep the module leaf (no cross-module imports).",
+      "userSees": "Running story_review inside a worktree (.worktrees/B-xxxx) now loads the main checkout’s finding-signals cache: hints surface in the _reviewPrompt section and an experience_hint_surfaced event is recorded (previously zero). learning_scan run from a worktree writes/updates the single main-checkout cache.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke: hints load + experience_hint_surfaced fires from a worktree whose cache lives in the main checkout",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that builds a main git repo with a finding-signals cache under main/.lattice/learning/, creates a linked worktree, and asserts that the learning-store/experience-hint-loader resolves and reads the cache from the worktree (hasExperienceHints true; loadExperienceHints non-empty) — and a control that a non-git temp dir falls back to the passed root (no throw, empty when absent). Prefer driving the real learning-store resolver. Confirm the existing experience-layer smokes (temp-root, non-git) still pass (fallback path).",
+      "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; existing experience-layer/hint smokes stay green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
