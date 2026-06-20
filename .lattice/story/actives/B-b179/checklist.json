@@ -7,9 +7,37 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:04:58.906Z",
+      "endTime": null,
+      "userSees": "StoryReadinessCheck 可见 localReady 定义与 blocking 判定已统一；manual/external 行在报告中作为 next action 给出，非阻塞但不丢失。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档明确 localReady=无 blocking:true 行",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "检查 advisory/warn 与 manual/external 在准备态展示时不阻塞 target readiness",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证未将 rollback 渲染为 STOP 后续阶段，而是作为可选 next action",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
