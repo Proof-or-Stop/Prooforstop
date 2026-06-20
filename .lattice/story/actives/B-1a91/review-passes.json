@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1a91:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none detected in changed files. All imports used; CoverageCurrentCounts export is referenced as the parameter type of computeCoverageGap in the same file (not dead). I/O isolation: experience-revalidation.ts gains computeCoverageGap but stays pure (only imports from experience-layer-types.js type-only). finding-signals.ts pure half adds watermark tracking with no new I/O. learning-validate.ts correctly adds readFindingSignals from learning-store.js in the handler layer (correct layer for I/O). done-effects.ts catch (e: any) pattern is consistent with the entire file's existing convention. Back-compat: optional fields on FindingSignalsCache degrade cleanly to known:false. Never-throw contract: the try/catch in done-effects.ts line 925-932 is genuinely never-throw — deriveFindingSignalsFromStore (and writeFindingSignals inside it) can throw, but the catch always pushes a warning line and never re-throws. Two medium findings registered: F-001 (non-null assertion + redundant as-number cast in smoke test line 174) and F-002 (storyIds filter vs full persisted cache scope mismatch in learning-validate). Neither is a blocker.",
+      "createdAt": "2026-06-20T09:17:51.420Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-003",
+      "_hash": "f80afeb6f1f511b4172b075867307bce8b4689c27bd67f3fee256259aa3b97ec"
+    }
+  ]
+}
