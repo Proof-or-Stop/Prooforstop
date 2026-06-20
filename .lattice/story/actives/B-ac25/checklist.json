@@ -8,9 +8,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T09:59:27.912Z",
-      "endTime": null,
+      "endTime": "2026-06-20T10:11:15.347Z",
       "files": {
         "modify": [
           "packages/main/src/core/validation-types.ts",
@@ -49,7 +49,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Config schema and normalization implemented in core/config.ts and core/done-required-validation.ts; smoke proves configured policy normalizes separately from ordinary validate.commands.",
+          "headHash": "74eda4734b23f538c9f07c501e51607d136b2cde",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:15.786Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves projects without doneRequiredCommands render advisory/non-blocking DONE-required status.",
+          "headHash": "74eda4734b23f538c9f07c501e51607d136b2cde",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:16.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact verifier pins malformed opted-in policy fail-closed semantics through done_required_validate policy/contract tokens.",
+          "headHash": "74eda4734b23f538c9f07c501e51607d136b2cde",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:16.616Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
