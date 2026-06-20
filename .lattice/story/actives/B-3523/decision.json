@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Brand consistency: the product is Lattice — the scope is @lattice, not @lattice-agent.",
+    "Atomic self-host flip: rename names, workspace, bin, dist, and every self-host gate together so the running CLI never sees an inconsistent identity.",
+    "Real install, not symlink: the @lattice/* workspace links must actually exist.",
+    "Clean break on legacy: retire the @koala-agent (and @lattice-agent) global fallbacks; one canonical @lattice/core.",
+    "Keep the guards: anti-residue checkers stay and tighten to forbid both legacy scopes."
+  ],
+  "drivers": [
+    "Operator directive: scope should be @lattice.",
+    "Self-host gates (pre-push build+tsc, codex verify, rollout) must run against the REAL package name, not silently pass on a stale one.",
+    "npm workspace resolution + the CLI's own package identity are load-bearing and self-modifying."
+  ],
+  "options": [
+    {
+      "name": "atomic-rename-drop-legacy",
+      "pros": [
+        "Single consistent end state: @lattice/core everywhere; pre-push gate restored; one canonical global candidate.",
+        "Matches the operator directive exactly; no half-migrated dual-scope world.",
+        "grep-clean acceptance is unambiguous."
+      ],
+      "cons": [
+        "Wide change (68 refs/37 files) + npm install + rebuild; merge-conflict-prone vs concurrent main churn.",
+        "Self-host bootstrap risk: must rebuild + reinstall before the worktree gates trust the new name.",
+        "Drops migration fallback for anyone with a legacy global @koala-agent/@lattice-agent install (mitigated: heartbeat-only, not a gate; documented)."
+      ]
+    },
+    {
+      "name": "rename-keep-transitional-fallback",
+      "pros": [
+        "Keeps @lattice-agent/core (and maybe @koala-agent/core) as a global migration fallback for one release."
+      ],
+      "cons": [
+        "Leaves a legacy scope name live -> anti-residue/grep-clean acceptance can't be clean; contradicts the 'clean break' the operator wants.",
+        "More moving parts in the self-host detection."
+      ]
+    },
+    {
+      "name": "defer-pre-push-only",
+      "pros": [
+        "Tiny; just fixes the broken pre-push gate now."
+      ],
+      "cons": [
+        "Does not deliver the operator's actual ask (@lattice scope)."
+      ]
+    }
+  ],
+  "chosen": "atomic-rename-drop-legacy",
+  "rationale": "It is the only option that delivers the operator's @lattice end state with consistent self-host gates and a clean grep-clean acceptance. Keeping a transitional fallback contradicts the clean-break directive and muddies the residue guards; pre-push-only doesn't deliver the rename. The legacy global fallback is heartbeat-only (not a gate), so dropping it is safe and documented.",
+  "preMortem": [
+    {
+      "scenario": "npm workspace resolution breaks after the rename: node bin/lattice.js can't resolve @lattice/core, so the worktree's own lattice gates (validate/advance) fail.",
+      "trigger": "package.json renamed but node_modules/@lattice/* links not regenerated, or a cross-dep version mismatch, or dist not rebuilt.",
+      "consequence": "The story can't run its own workflow gates; self-host bootstrap is broken mid-DEV.",
+      "mitigation": "After renaming the 3 package.json names+deps, run a REAL `npm install` at root, rebuild (main then utils then lab), and verify `node bin/lattice.js --version` + `rollout check` before relying on any gate. No symlinked node_modules."
+    },
+    {
+      "scenario": "A self-host gate keeps a stale name and silently breaks or silently passes.",
+      "trigger": "One of CANONICAL_CORE_PACKAGE_NAME / rollout-check / codex-adapter-checks / .githooks/pre-push left at @lattice-agent or @koala-agent.",
+      "consequence": "pre-push skips build+tsc again, or codex-verify/rollout mis-detect self-host.",
+      "mitigation": "Enumerate every self-host name site (the touchpoints list) and flip together; acceptance runs pre-push's build+tsc path, codex verify, rollout check, and greps for any residual @lattice-agent/@koala-agent live name."
+    },
+    {
+      "scenario": "A live @lattice-agent reference is missed (string literal / path join / doc), so residue remains.",
+      "trigger": "The change relies on enumerated files and misses one (e.g. prompt-registry.ts / init-assets.ts string).",
+      "consequence": "Residual brand inconsistency; verify-koala-residue or a manual grep later flags it.",
+      "mitigation": "CHK-004 acceptance is a repo-wide `git grep -nE '@lattice-agent' -- ':(exclude).lattice/**'` == 0 live (only justified anti-residue assertions), plus updating the verifiers to forbid the live scope."
+    }
+  ],
+  "timestamp": "2026-06-20T23:36:13.026Z"
+}

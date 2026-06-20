@@ -6,7 +6,55 @@
       "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After rename, packages/main/package.json has name=@lattice/core, packages/utils/package.json has name=@lattice/utils, packages/lab/package.json has name=@lattice/lab -> verify with node -e reading all 3 package.json files; WHY: confirms the foundational name change landed in all 3 workspaces",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Cross-deps updated: utils depends on @lattice/core, lab depends on @lattice/core, main depends on @lattice/lab -> parse each package.json dependencies block; WHY: workspace inter-package resolution depends on exact scope match",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm install at repo root succeeds and creates node_modules/@lattice/* workspace links (ls -la node_modules/@lattice/) -> links point to packages/{main,utils,lab}; WHY: npm workspace resolution must resolve @lattice/* not @lattice-agent/*",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Top-level package.json name remains lattice (no scope) and bin entry remains lattice -> read root package.json; WHY: the CLI binary name must not change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node_modules/@lattice-agent/ directory should NOT exist after npm install (stale workspace links cleaned) -> ls node_modules/@lattice-agent/ should fail with ENOENT; WHY: leftover old-scope symlinks would allow stale imports to silently resolve",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm ls --depth=0 shows @lattice/core, @lattice/utils, @lattice/lab as workspace packages with no missing/invalid markers; WHY: npm workspace graph integrity after rename",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a require(\"@lattice-agent/core\") in a test script after rename -> should fail with MODULE_NOT_FOUND; WHY: proves old scope is truly dead and cannot silently resolve via leftover symlinks or node_modules",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify no package.json anywhere in the repo still contains @lattice-agent in name or dependency keys: git grep -n @lattice-agent -- **/package.json should return empty; WHY: catches partial rename (missed cross-dep or nested package.json)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
