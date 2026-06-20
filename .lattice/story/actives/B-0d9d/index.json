@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0d9d",
+  "name": "parallel-decomp-wave-review-advisory",
+  "title": "Parallel-decomposition wave/REVIEW advisory wiring (program Story 4)",
+  "description": "Story 4 of the parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8). Wires the two ADVISORY (non-blocking) surfaces of §4.3: (1) core/lattice-parallel-wave.ts resolveWaveSafety gains a 'scope_glob_overlap' degradation kind populated from globsOverlap (S1) over active parallel peers' write-sets, so the operator sees the static overlap fact in the wave projection before the PLAN→DEV block; (2) handlers/story-review.ts calls evaluateDecompositionGate (S2) and injects its advisories[] as severity 'advisory' issues that do NOT raise blockerCount and never affect the signed review.json. The hard PLAN→DEV block is Story 5 (machine.ts) and is explicitly out of scope here. Consumes already-merged functions: computeWriteSet/globsOverlap (B-4033), evaluateDecompositionGate (B-986c), resolveAuditConfig().parallelGate (B-d2a8). New hermetic smoke proves both advisory surfaces; registered in lattice.config.json.",
+  "type": "feature",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "depends": [
+    "B-59c7"
+  ],
+  "keywords": [
+    "parallel-decomposition",
+    "lattice-parallel-wave",
+    "story-review",
+    "advisory",
+    "resolveWaveSafety"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "machine.ts"
+    }
+  ],
+  "createdAt": "2026-06-20T06:55:21.385Z",
+  "startedAt": null,
+  "endedAt": "2026-06-20T06:56:52.524Z",
+  "events": [
+    {
+      "phase": "IDEA",
+      "action": "create",
+      "timestamp": "2026-06-20T06:55:21.395Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT",
+      "action": "advance",
+      "timestamp": "2026-06-20T06:56:31.946Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-20T06:56:52.524Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "recreating with embedded checklist (created without one in IDEA)"
+    }
+  ]
+}

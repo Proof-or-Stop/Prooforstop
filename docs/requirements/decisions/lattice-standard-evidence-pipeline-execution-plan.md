@@ -102,6 +102,7 @@ not become a parallel DONE-readiness implementation inside `story_pipeline`.
 Introduce a single high-level command family:
 
 ```bash
+lattice story_pipeline --storyId=B-xxxx --to=REVIEW
 lattice story_pipeline --storyId=B-xxxx --to=TEST
 lattice story_pipeline --storyId=B-xxxx --to=DONE
 lattice story_pipeline --storyId=B-xxxx --to=DONE --dryRun
@@ -115,6 +116,7 @@ Recommended initial options:
   "to": "DONE",
   "dryRun": false,
   "runReviewers": true,
+  "executeEvidence": false,
   "runValidation": true,
   "runLiveSmoke": true,
   "writeTranscriptDiff": true,
@@ -128,6 +130,14 @@ Recommended initial options:
   "allowDegradedSingleHost": false
 }
 ```
+
+`--to=REVIEW` is the reviewer-ready target. If the story is still in DEV, it
+first prepares or refreshes evidence, validation, transcript, and delivery
+context, then requires a clean commit and runs or prints
+`lattice story_advance --phase=REVIEW`. Only after the observed story phase is
+REVIEW may it call `review_run_start` and launch configured reviewer lanes when
+`runReviewers=true`. It stops before TEST and prints the exact REVIEW
+blocker/finding/lane status.
 
 For `--to=DONE`, the `donePrepare` block is a pass-through to
 `lattice done_prepare`; it is not a second implementation of DONE readiness.
@@ -144,6 +154,84 @@ The first implementation may expose narrower commands internally:
 The user-facing flow should still converge toward one operator command that
 prints exact blockers and next actions.
 
+## Canonical Report And Freshness Source
+
+Track A owns the canonical `StoryPipelineReport` and artifact snapshot schema.
+All later tracks consume that schema and its central freshness readers instead
+of recomputing gate truth locally.
+
+Required top-level fields:
+
+```json
+{
+  "storyId": "B-xxxx",
+  "target": "REVIEW|TEST|DONE",
+  "phase": "DEV",
+  "headHash": "<git-head>",
+  "materialHash": "<current-material>",
+  "storyFilesHash": "<current-story-files>",
+  "artifacts": {
+    "verificationEvidence": [],
+    "validationRef": null,
+    "transcriptRef": null,
+    "deliveryContextRef": null,
+    "donePrepareRef": null
+  },
+  "freshness": [
+    {
+      "id": "verificationEvidence:CHK-001:happy:0",
+      "classification": "fresh|advisory_drift|refresh_only|rerun_required|hard_stale",
+      "sourceRef": "checklist:CHK-001:happy:0",
+      "artifactRef": ".lattice/story/actives/B-xxxx/evidence/<artifact>",
+      "recorded": {
+        "headHash": "<recorded-head>",
+        "materialHash": "<recorded-material>",
+        "storyFilesHash": "<recorded-story-files>"
+      },
+      "current": {
+        "headHash": "<current-head>",
+        "materialHash": "<current-material>",
+        "storyFilesHash": "<current-story-files>"
+      },
+      "owner": "implementation-host|evidence-runner|delivery-reviewer",
+      "verifier": "validate|coverage-reviewer|delivery-gate",
+      "sourceCommand": "<command or writer ref>",
+      "nextCommand": "<rerun or refresh command>"
+    }
+  ],
+  "gates": [
+    {
+      "id": "review.freshness",
+      "status": "pass|warn|blocked|manual|external",
+      "blocking": true,
+      "source": "storyMachine|validate|done_prepare|delivery_gate",
+      "sourceRef": "<command/artifact/finding ref>",
+      "owner": "reviewer|host|authority|done_prepare",
+      "nextCommand": "<minimum next command>"
+    }
+  ],
+  "next": [
+    {
+      "kind": "command|human_decision|external_wait",
+      "owner": "host|reviewer|authority|done_prepare",
+      "command": "<exact command when available>",
+      "reason": "<why this is next>"
+    }
+  ]
+}
+```
+
+Rules:
+
+- P1 defines `StoryPipelineReport`, `ArtifactSnapshot`, `FreshnessRow`,
+  `GateRow`, `NextActionRow`, and JSON renderer before P3/P4/P6 depend on them;
+- P3 writes evidence-plan and evidence-snapshot rows into the canonical report;
+- P4 consumes the canonical artifact snapshot for stale reviewer detection;
+- P6 consumes the canonical transcript/evidence/doc-promise snapshot for
+  delivery context;
+- no track may introduce a second material/evidence/transcript freshness
+  predicate outside the shared readers.
+
 ## Step Contract Matrix
 
 Every step follows the same rule: produce required evidence or stop. A step that
@@ -155,11 +243,12 @@ story or rewrite stale proof into fresh proof.
 |---|---|---|---|---|---|
 | 0. State intake and phase preflight | `storyId`, current cwd, `session_brief`, story phase, git branch/status, worktree path, target phase | pipeline state snapshot, allowed next stage, immediate blocker list | command transcript or structured result from `session_brief`; git status; resolved story/worktree identity | stop before mutation; print `cd`, clean-tree, phase, or worktree repair command; never stash/revert unrelated files | pipeline preflight plus lifecycle handler |
 | 1. Story init / PLAN skeleton | title, description, optional checklist titles, `aux_doc_list`, risk signals, duplicate-story scan | checklist title/context/relatedDocs, understanding snapshot, decision skeleton, verificationIntent skeleton, initial scope proposal | story metadata write through Lattice command; `understanding_set`; decision record when required; `story_review` report | remain in PLAN/INIT_CHECK; print missing skeleton fields or story_review blockers; do not start code changes | `story_review`, verification-intent reviewer, concept reviewer |
-| 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as rerun-required or refreshable; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
+| 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; producer actor/runner identity; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as `rerun_required` or refreshable; auto-run only with explicit `executeEvidence`; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
 | 3. Validation, transcript, and delivery context preparation | validation command set, expected user outcome, story-specific smoke commands, relatedDocs, decision promises, current material binding | validation result, transcript-diff artifact or metadata-only waiver, delivery-review context pack | command transcript with exit code/digest; HEAD/material/storyFilesHash binding; context pack artifact; signed metadata-only waiver when applicable | block before reviewer pass; print validation, smoke, waiver, or context-pack next action | validation runner, live smoke owner, delivery reviewer |
-| 4. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence, validation, transcript, and delivery-context snapshot | lane status table, pass/finding refs, stalled-lane retry plan, signed delivery check | signed `reviewRunId` per lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence/artifact bindings; `delivery_check_set` only from delivery reviewer | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings; rerun stale lanes when artifacts change | independent reviewer lanes, delivery reviewer, and REVIEW gate |
+| 4. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence, validation, transcript, and delivery-context snapshot | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per review-run lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence/artifact bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings; rerun stale lanes when artifacts change | independent reviewer lanes and REVIEW gate |
 | 5. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
-| 6. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure`, `story_advance --phase=DONE` |
+| 6. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure` |
+| 7. Phase advance handoff | target phase, prior stage pass report, explicit execute flag | exact `story_advance` command or execution transcript | printed command when dry-run/manual; `story_advance` result when explicitly executed; no push or Authority claim | if execute is not explicit, print only; if lifecycle gate fails, preserve its blocker and next command | lifecycle handler |
 
 ## Evidence Failure Policy
 
@@ -172,7 +261,7 @@ human decision can produce it.
 | PLAN skeleton evidence | stop in PLAN; generate or print missing fields | main host / story init skeleton command | `story_review` |
 | reviewer pass/finding for a lane | block REVIEW; retry only the missing or stale lane | reviewer lane host | REVIEW gate |
 | verified finding fix evidence | return to DEV with finding id and expected proof | implementation host | original reviewer lane |
-| verificationEvidence command result | print rerun command; do not mark fresh | implementation host or evidence command runner | `lattice validate` |
+| verificationEvidence command result | default to plan-only output and print rerun command; do not mark fresh unless `executeEvidence=true`, the command passes, and producer identity plus transcript ref are recorded | implementation host or evidence command runner | `lattice validate` |
 | safely refreshable stale evidence | call existing refresh writer when configured; otherwise print refresh command | evidence refresh command | `lattice validate` |
 | stale review escalation or host verdict | block and request real re-attestation; no rebinding | appropriate reviewer / host verdict lane | review assurance / escalation gate |
 | transcript-diff artifact | block delivery unless a signed metadata-only waiver exists | live smoke command owner | delivery reviewer |
@@ -228,6 +317,7 @@ Command shape:
 
 ```bash
 lattice story_pipeline_evidence --storyId=B-xxxx --refreshStale=true
+lattice story_pipeline_evidence --storyId=B-xxxx --executeEvidence=true
 ```
 
 Required behavior:
@@ -236,11 +326,34 @@ Required behavior:
 - map each intent to one or more known evidence commands;
 - detect stale evidence using the same freshness logic as `validate`;
 - distinguish safely refreshable metadata from commands that must be rerun;
-- rerun required evidence commands when configured and safe;
+- default to plan-only/dry-run output; print commands and blockers without
+  writing fresh evidence;
+- rerun required evidence commands only when `executeEvidence=true`, the command
+  is in the idempotent command catalog, the worktree is clean, and the producer
+  actor/runner is recorded;
 - call existing `verification_evidence_refresh_stale` rather than rewriting
   hashes directly;
-- record head/material/storyFilesHash bindings through existing metadata
-  writers.
+- record head/material/storyFilesHash bindings, command transcript ref, exit
+  code, stdout/stderr digest, elapsed time, and producer actor/runner through
+  existing metadata writers.
+
+Evidence execution modes:
+
+| Mode | Writes `verificationEvidence`? | Preconditions | Output when blocked |
+|---|---|---|---|
+| plan-only default | no | none beyond readable story state | evidence plan plus exact rerun command |
+| refresh_only | yes, via existing refresh writer only | stale row is classified `refresh_only` and writer supports the evidence kind | refresh blocker and next command |
+| execute evidence | yes, via existing metadata writer after command pass | `executeEvidence=true`, clean worktree, idempotent command catalog match, producer actor, transcript capture | command, owner, verifier, and reason execution is unsafe |
+
+Freshness classification:
+
+| Classification | Predicate | Pipeline action |
+|---|---|---|
+| fresh | evidence head/material/storyFilesHash match the current canonical snapshot | consume as evidence |
+| advisory_drift | whole-tree material changes but storyFilesHash and evidence inputs match, such as unrelated main merges | warn; do not force rerun; do not rewrite hashes directly |
+| refresh_only | legacy or metadata-only binding lacks the current wrapper fields, but transcript ref, command digest, producer, and storyFilesHash still match and an existing refresh writer supports the kind | call the refresh writer or print its command |
+| rerun_required | command transcript/digest/producer is missing, command is not idempotent, external/authority result cannot be rebound, or source inputs for that evidence kind changed | stop unless `executeEvidence=true`; rerun command and record a new transcript |
+| hard_stale | story-owned files, verificationIntent, checklist scope, validation command set, transcript, or delivery context changed after evidence/reviewer pass | block gate/reviewer consumption and rerun affected evidence or lanes |
 
 Evidence mapping examples:
 
@@ -256,6 +369,8 @@ Acceptance:
 
 - `validate` reports coverage gaps only when evidence is truly missing/stale;
 - host does not manually copy command strings into checklist evidence;
+- every pipeline-written evidence row names the producer actor and command
+  transcript ref, while `validate` and reviewers remain consumers/verifiers;
 - stale evidence recovery produces a deterministic next action.
 
 ### 3. Validation, Transcript, And Delivery Context Preparation
@@ -323,14 +438,16 @@ material-bound evidence and artifacts.
 Command shape:
 
 ```bash
-lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs,delivery
+lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs
 ```
 
 Required behavior:
 
 - run required evidence planning/refresh, validation, transcript, and delivery
   context generation before final reviewer pass/finding collection;
-- start each lane with `review_run_start`;
+- start each review-run lane with `review_run_start`; the supported lane set is
+  the current REVIEW gate lane set, such as concept, quality, test-coverage, and
+  docs;
 - require every finding/pass to include the lane `agent` and `reviewRunId`;
 - run lanes in parallel when host capacity allows;
 - collect pass/finding results into one status table;
@@ -339,7 +456,9 @@ Required behavior:
 - never convert a missing review into a pass;
 - run final coverage, docs, and delivery-adjacent lanes only after evidence,
   validation, transcript, and delivery context artifacts are current;
-- write `delivery-check.json` only through the delivery reviewer lane;
+- treat delivery as a separate `delivery_check_set` artifact path, not a
+  `review_run_start` lane, unless a future story explicitly adds
+  `lattice-review-delivery` to the review-run lane contract and gates;
 - treat any lane pass as stale when new evidence, transcript, validation, or
   delivery context is written after that pass.
 
@@ -366,9 +485,13 @@ Output example:
     {"lane":"concept","status":"pass","reviewRunId":"B-xxxx:RR-001"},
     {"lane":"quality","status":"finding","findingIds":["B-xxxx:F-001"]},
     {"lane":"test-coverage","status":"pass","reviewRunId":"B-xxxx:RR-003"},
-    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"},
-    {"lane":"delivery","status":"pass","reviewRunId":"B-xxxx:RR-005"}
+    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"}
   ],
+  "deliveryCheck": {
+    "status": "missing",
+    "artifact": null,
+    "next": "Run story_pipeline_delivery to build context and call delivery_check_set."
+  },
   "blocking": true,
   "next": "Resolve B-xxxx:F-001, return to DEV, refresh artifacts, then rerun affected lanes."
 }
@@ -383,7 +506,7 @@ Acceptance:
 - delivery reviewer spends time judging delivery, not collecting scattered
   command output;
 - `delivery_check_set` is based on structured evidence refs and transcript
-  artifact;
+  artifact, outside the `review_run_start` lane batch;
 - `done_prepare` and DONE pre-checks can consume the signed delivery artifact
   directly;
 - repeated REVIEW rounds only rerun lanes that are stale, affected, or required.
@@ -400,8 +523,11 @@ lattice story_pipeline_preflight --storyId=B-xxxx --target=DONE --delegateDonePr
 ```
 
 The preflight aggregator reads existing gates; it does not redefine them. For
-DONE target checks, it delegates to `done_prepare --dryRun` or imports a
-previous `done_prepare` report rather than duplicating TEST-to-DONE logic.
+DONE target checks, it delegates to `done_prepare --dryRun` or imports only the
+latest `done_prepare` report bound to the current `headHash`, `materialHash`,
+`storyFilesHash`, review round, validation ref, and delivery-check artifact. If
+any binding differs or is missing, rerun `done_prepare --dryRun` and preserve
+that result instead of treating a previous report as ready proof.
 
 Required checks:
 
@@ -525,13 +651,16 @@ Internally:
 5. Run validation.
 6. Write transcript diff or record a signed metadata-only waiver.
 7. Generate the delivery-review context pack.
-8. Launch required reviewers and the delivery reviewer against the current
-   evidence/validation/transcript/delivery-context snapshot.
-9. If blockers exist, stop with findings and next action.
-10. Run REVIEW/TEST gate preflight.
-11. If target is DONE and the story is in TEST, delegate readiness to
+8. If reviewer lanes are requested and the story is not already in REVIEW,
+   require a clean commit, then print or execute `story_advance --phase=REVIEW`.
+9. Launch required review-run lanes only after the observed phase is REVIEW.
+10. Build or refresh the delivery-check artifact through `delivery_check_set`
+   when the target gate requires delivery proof.
+11. If blockers exist, stop with findings and next action.
+12. Run REVIEW/TEST gate preflight.
+13. If target is DONE and the story is in TEST, delegate readiness to
     `lattice done_prepare`.
-12. If all gates pass, print the exact `story_advance --phase=DONE` command or
+14. Hand off to Step 7: print the exact `story_advance --phase=DONE` command or
     execute it when explicitly requested.
 
 The pipeline should prefer stopping with precise blockers over making risky
@@ -549,23 +678,27 @@ START
   |-- blocked/manual/external --> print exact next action and STOP
   v
 {Story still in PLAN?}
-  | yes
-  v
-[1 Generate/refresh PLAN skeleton]
-  v
-[story_review]
-  |-- blockers --> revise skeleton and stay in PLAN
-  | no / accepted
+  |-- yes --> [1 Generate/refresh PLAN skeleton]
+  |           |
+  |           v
+  |         [story_review]
+  |           |-- blockers --> revise skeleton and stay in PLAN
+  |           | no / accepted
+  |           v
+  |-- no -----+
   v
 [DEV implementation happens outside the pipeline command]
   v
 [2 Evidence plan + generation/refresh]
   |-- rerun-required evidence --> print rerun command and STOP
-  |-- safely refreshable stale evidence --> delegate to existing refresh writer
+  |-- safely refreshable stale evidence --> delegate to existing refresh writer, then return to Step 2
   v
 [3 Validation + transcript + delivery context]
   |-- validation fail --> print validate blocker and STOP
-  |-- missing user-value proof --> run smoke or require metadata-only waiver
+  |-- missing user-value proof --> run smoke or require metadata-only waiver; if unavailable, STOP
+  v
+[clean commit + enter REVIEW phase]
+  |-- dirty or still not REVIEW --> print exact story_advance command and STOP
   v
 [4 Reviewer lane batch]
   |-- missing lane --> retry missing lane only
@@ -577,7 +710,7 @@ START
   |-- missing/blocking delivery check --> run delivery reviewer and STOP
   v
 {Target is DONE and story is in TEST?}
-  | no --> [Ready for requested non-DONE phase]
+  | no --> [7 Phase advance handoff for requested non-DONE phase]
   |         |
   |         +--> print/execute allowed story_advance command
   | yes
@@ -587,7 +720,10 @@ START
   v
 [DONE readiness PASS]
   |
-  +--> print/execute story_advance --phase=DONE when explicitly requested
+  v
+[7 Phase advance handoff]
+  |
+  +--> print/execute story_advance when explicitly requested
 ```
 
 ### Image Flowchart
@@ -614,7 +750,10 @@ flowchart TD
   K -- no --> N["3 Validation + transcript + delivery context"]
   N --> O{"Validation and user-value proof pass?"}
   O -- no --> Z
-  O -- yes --> H["4 Reviewer lane batch"]
+  O -- yes --> W["Clean commit + enter REVIEW phase"]
+  W --> WX{"Dirty or still not REVIEW?"}
+  WX -- yes --> Z
+  WX -- no --> H["4 Reviewer lane batch"]
   H --> I{"Missing lane, finding, or stale pass?"}
   I -- missing lane --> H
   I -- finding --> G
@@ -622,12 +761,14 @@ flowchart TD
   I -- no --> L["5 REVIEW / TEST preflight"]
   L --> M{"Gate blocked?"}
   M -- yes --> Z
-  M -- no --> R{"Target DONE and story in TEST?"}
-  R -- no --> S["Ready for requested non-DONE phase"]
+  M -- no --> DQ{"Delivery check missing or blocking?"}
+  DQ -- yes --> Z
+  DQ -- no --> R{"Target DONE and story in TEST?"}
+  R -- no --> S["7 Phase advance handoff for requested non-DONE phase"]
   R -- yes --> T["6 Delegate to lattice done_prepare"]
   T --> U{"done_prepare PASS?"}
   U -- no --> Z
-  U -- yes --> V["Print or execute story_advance --phase=DONE"]
+  U -- yes --> V["7 Phase advance handoff: print or execute story_advance"]
 ```
 
 ## Parallel Development Plan
@@ -640,6 +781,9 @@ can work safely in parallel.
 Owner scope:
 
 - pipeline report types;
+- canonical `StoryPipelineReport` / `ArtifactSnapshot` schema;
+- shared freshness readers for material, storyFilesHash, evidence, transcript,
+  validation, and delivery context;
 - aggregation of existing gate outputs;
 - `done_prepare` report import/delegation for DONE target checks;
 - JSON/text renderers;
@@ -648,6 +792,7 @@ Owner scope:
 Deliverables:
 
 - `StoryPipelineReport` model;
+- central freshness reader module consumed by P3/P4/P6;
 - `story_pipeline_preflight` command;
 - proof that DONE target preflight reuses `done_prepare` output instead of
   duplicating `done_closure`, main-sync, evidence-refresh, or version-bump
@@ -661,7 +806,8 @@ Dependencies:
 
 Parallel safety:
 
-- read-only command; low conflict risk.
+- read-only command; low conflict risk;
+- must land before tracks that write or consume evidence freshness.
 
 ### Track B. PLAN Skeleton Generator
 
@@ -733,7 +879,7 @@ Deliverables:
 
 Dependencies:
 
-- should consume Track A report model when available;
+- depends on Track A canonical report and freshness reader schema;
 - must produce the evidence snapshot consumed by Track C final reviewer lanes.
 
 Parallel safety:
@@ -821,13 +967,15 @@ Parallel safety:
 |---|---|---|---|
 | P1 | Add story pipeline preflight report | B-fb36 | read-only blocker report that imports DONE prepare output |
 | P2 | Generate PLAN skeletons for story pipeline | none | init/PLAN skeleton command |
-| P3 | Add verification evidence planner/refresh orchestrator | P1 optional | evidence dry-run, refresh command, and evidence snapshot |
+| P3 | Add verification evidence planner/refresh orchestrator | P1 | evidence dry-run, refresh command, and evidence snapshot |
 | P4 | Add reviewer batch orchestration | P1, P3, P5, P6 for final reviewer semantics | review lane batch command |
 | P5 | Add live smoke transcript artifact writer | none | transcript-diff generator |
 | P6 | Add delivery context pack and delivery pipeline command | P1, P5 | delivery context + reviewer flow |
 | P7 | Integrate top-level `story_pipeline` command | P1-P6, B-fb36 | end-to-end orchestration with DONE prepare delegation |
 
-P1, P2, P3, and P5 can start in parallel if file ownership is kept separate.
+P1, P2, and P5 can start in parallel if file ownership is kept separate. P3
+must wait for P1's canonical report and freshness reader schema before writing
+freshness classifications.
 P4 can prototype reviewer launch/status handling in parallel, but its final
 coverage and delivery-adjacent gate must wait for P3's evidence snapshot, P5's
 transcript artifact, and P6's delivery-context contract. P6 should wait for P5.
@@ -847,17 +995,22 @@ Every implementation story must include:
 
 Minimum smoke matrix:
 
-| Scenario | Expected |
-|---|---|
-| clean story, all gates pass | pipeline reports ready |
-| stale verification evidence | pipeline reports refresh/rerun next action |
-| reviewer finding open | pipeline blocks before TEST |
-| delivery check missing | pipeline blocks before DONE |
-| main branch behind | pipeline reports merge requirement |
-| dirty main checkout overlap | pipeline blocks, no stash/revert |
-| storyFilesHash match with whole-tree drift | advisory, not hard stale |
-| story-owned file changed | hard stale |
-| Authority receipts missing | no production/authority DONE claim |
+| Scenario | Required replay command | Fixture/task id | Expected artifacts and fields | Expected result |
+|---|---|---|---|---|
+| clean story, all gates pass | `npm --prefix packages/main run build && node packages/main/dist/tasks/story-pipeline-contract-smoke.js --case=clean-pass` | `story-pipeline:clean-pass` | `StoryPipelineReport` with `headHash`, `materialHash`, `storyFilesHash`, validation ref, transcript ref, delivery context ref, all exit codes `0`, stdout/stderr digests | pipeline reports ready |
+| stale verification evidence | `node packages/main/dist/tasks/story-pipeline-contract-smoke.js --case=stale-verification-evidence` | `story-pipeline:stale-verification-evidence` | freshness row with classification `refresh_only` or `rerun_required`, owner, verifier, next command, no direct hash rewrite | pipeline reports refresh/rerun next action |
+| reviewer finding open | `node packages/main/dist/tasks/story-pipeline-review-smoke.js --case=open-finding` | `story-pipeline-review:open-finding` | signed `reviewRunId`, finding id, review round, material/storyFilesHash binding | pipeline blocks before TEST |
+| delivery check missing | `node packages/main/dist/tasks/story-pipeline-delivery-smoke.js --case=missing-delivery-check` | `story-pipeline-delivery:missing-delivery-check` | delivery context ref, missing delivery-check blocker, owner `delivery reviewer`, next command | pipeline blocks before DONE |
+| main branch behind | `node packages/main/dist/tasks/story-pipeline-preflight-smoke.js --case=main-behind` | `story-pipeline-preflight:main-behind` | imported `done_prepare --dryRun` blocker with `blockedAt` and `next` preserved | pipeline reports merge requirement |
+| dirty main checkout overlap | `node packages/main/dist/tasks/story-pipeline-preflight-smoke.js --case=dirty-overlap` | `story-pipeline-preflight:dirty-overlap` | dirty path list, no stash/revert event, exact clean-tree next action | pipeline blocks, no stash/revert |
+| storyFilesHash match with whole-tree drift | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-files-hash-advisory` | `story-pipeline-evidence:story-files-hash-advisory` | freshness row `advisory_drift`, unchanged `storyFilesHash`, whole-tree material drift note | advisory, not hard stale |
+| story-owned file changed | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-owned-hard-stale` | `story-pipeline-evidence:story-owned-hard-stale` | freshness row `hard_stale`, changed source path, rerun command, no fresh evidence write | hard stale |
+| Authority receipts missing | `node packages/main/dist/tasks/story-pipeline-authority-smoke.js --case=missing-receipt` | `story-pipeline-authority:missing-receipt` | `authorityDone=false`, `fullAuthorityDone=false`, `productionDone=false`, local-only label | no production/authority DONE claim |
+
+Each smoke must assert the command exit code, stdout/stderr digest fields,
+artifact path or explicit metadata-only waiver, producer actor for generated
+evidence, and verifier/consumer identity for gate decisions. A passing smoke
+that checks only keyword presence is insufficient.
 
 ## Safety And Authority Boundary
 

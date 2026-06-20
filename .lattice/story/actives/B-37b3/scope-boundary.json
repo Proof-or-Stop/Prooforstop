@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-37b3",
+  "mode": "feature",
+  "allowed": [
+    "Add a smoke proving worktree resolves the main-checkout cache and non-git falls back",
+    "Resolve the learning-store finding-signals cache directory to the main repo root (via git common-dir) for read and write so worktree-based review can load it, with a safe fallback to the passed root"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator asked to make the Experience Layer operationally effective; root cause is the worktree cache-path disconnect.",
+  "createdAt": "2026-06-20T06:47:47.073Z",
+  "updatedAt": "2026-06-20T06:47:47.073Z",
+  "_hash": "1c0ea88051829f090be77ba9247cc1f9cdd605c707d8c65a7939f3a8af7ab92f"
+}
