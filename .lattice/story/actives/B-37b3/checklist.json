@@ -5,8 +5,8 @@
       "title": "Resolve the learning-store finding-signals cache from the main repo root (worktree-safe), read + write",
       "context": "In core/learning-store.ts (the only toucher of .lattice/learning/), resolve the learning directory to the MAIN repo root — the parent of `git rev-parse --git-common-dir` run in the given root — instead of the passed (possibly-worktree) root, for both reading and writing the finding-signals cache. Add a helper (e.g. resolveLearningRoot(root)) that runs git rev-parse --git-common-dir in `root`, resolves it to an absolute path, and returns its parent dir; on ANY failure (non-git dir, error, empty) FALL BACK to the passed root unchanged. All consumers (experience-hint-loader loadExperienceHints, learning_scan write, learning_validate, learning_effectiveness) inherit the fix via learning-store. Do not change the cache schema, the finding-signals derivation, or any gate. Keep the module leaf (no cross-module imports).",
       "userSees": "Running story_review inside a worktree (.worktrees/B-xxxx) now loads the main checkout’s finding-signals cache: hints surface in the _reviewPrompt section and an experience_hint_surfaced event is recorded (previously zero). learning_scan run from a worktree writes/updates the single main-checkout cache.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T06:57:05.625Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
