@@ -174,7 +174,60 @@
       "context": "New packages/main/src/tasks/adversarial-review-critic-smoke.ts (check+counter, explicit literals). Assert: runCompletenessCritic with a fake runCritic that records its input and returns a planted Finding[] -> returns exactly those findings unchanged, and the fake received exactly {change, confirmedFindings} (the confirmed set, not raw); an empty confirmedFindings still calls the critic. toCriticFindingAddArgs(finding,{reviewRunId,agent:'lattice-review-quality',category}) -> desc STARTS WITH '[completeness-critic] ' followed by the S2 composeDesc; severity is the mapped critical|high|medium|low (NOT an abstract BLOCKER/MAJOR/MINOR); agent==='lattice-review-quality' (a real lane, never 'completeness-critic'); files/category/reviewRunId pass through; works for 'lattice-review-behavior' too. COMPLETENESS_CRITIC_DESC_TAG==='[completeness-critic]'. Register node packages/main/dist/tasks/adversarial-review-critic-smoke.js in lattice.config.json validate.commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke test: runCompletenessCritic with a FAKE runCritic that records its input and returns planted Finding[] -> asserts returned findings === planted findings (unchanged) AND the fake received exactly {change, confirmedFindings}; WHY: proves seam pass-through contract end-to-end",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test: toCriticFindingAddArgs(finding,{reviewRunId,agent:\"lattice-review-quality\",category}) -> asserts desc STARTS WITH \"[completeness-critic] \" AND agent === \"lattice-review-quality\" (never \"completeness-critic\") AND severity is the S2-mapped critical|high|medium|low; WHY: proves provenance tagging + agent-is-real-lane invariant",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test: COMPLETENESS_CRITIC_DESC_TAG === \"[completeness-critic]\" (explicit literal assertion); WHY: locks the constant value against drift",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-critic-smoke.js; WHY: ensures the test runs in CI/validate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke test: runCompletenessCritic with confirmedFindings:[] (empty confirmed set) -> fakeRunCritic is STILL called (no short-circuit); WHY: the critic must always run even when the verified set has zero findings",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test: toCriticFindingAddArgs with agent:\"lattice-review-behavior\" -> same invariants hold (desc prefix, real lane agent, mapped severity); WHY: proves both recommended lanes work, not just quality",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke test: for every abstract severity (BLOCKER, MAJOR, MINOR), toCriticFindingAddArgs result.severity is NEVER the abstract string -- always one of critical|high|medium|low; WHY: decision pre-mortem risk (c) -- prevents abstract severity leak to the ledger",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test: toCriticFindingAddArgs result.files, result.category, result.reviewRunId all pass through identically from toFindingAddArgs -- the wrapper only changes desc; WHY: prevents silent field mutation or loss in the wrapper",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke test uses check+counter pattern (explicit pass/fail count) and exits non-zero on any assertion failure; WHY: ensures lattice validate catches regressions rather than silently passing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
