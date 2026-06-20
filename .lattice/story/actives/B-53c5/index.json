@@ -4,7 +4,7 @@
   "title": "Adversarial-review S0: frozen contract (Finding/Verdict/Lens/critic-IO types + review-mode interface)",
   "description": "Story S0 (SERIAL, first) of the adversarial multi-lens review capability build program (docs/adversarial-review-spec.md §5). Codify, in a single source-of-truth module packages/main/src/core/adversarial-review.ts, the FROZEN contract from the spec: the Finding schema (§2.2: severity BLOCKER|MAJOR|MINOR, title, file, line, issue, fix), the Verdict schema (§2.3: isReal, agreedSeverity BLOCKER|MAJOR|MINOR|NOT_A_DEFECT, reasoning), the canonical lens set + 'task-tunable' flag (§2.1: concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency), the completeness-critic IO contract (§2.4: input {change, confirmedFindings}, output Finding[]), and the REVIEW-MODE INTERFACE encoding the canonical round order (run lenses -> verify lens findings -> run critic on CONFIRMED -> verify critic findings -> converge-or-reopen, §2.4/§3.2/§4.2). Types + the mode interface ONLY — no behavior. Every later story (S1 lens-runner, S2 verifier, S3 critic, S4 escalation) imports this. A hermetic smoke proves the shapes compile + match the spec (valid Finding/Verdict construct; the 6-lens canonical set; the canonical-order constant) and is registered in lattice.config.json.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "adversarial-review",
@@ -33,6 +33,20 @@
       "user": "Harmonygo",
       "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T12:06:42.670Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-53c5",
+    "branch": "story/B-53c5",
+    "createdAt": "2026-06-20T12:06:41.727Z"
+  }
 }
