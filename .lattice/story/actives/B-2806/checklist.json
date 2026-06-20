@@ -52,7 +52,55 @@
       "context": "composeDesc(finding)=`${title} — ${issue} Fix: ${fix}` with the line cited inside the desc (e.g. append ` (line <n>)` or include it). FindingAddArgs = {severity: FindingAddSeverity, desc: string, files: string[], category: 'happy'|'edge'|'adversarial'|'missing', reviewRunId: string, agent: string}. toFindingAddArgs maps severity via SEVERITY_TO_FINDING_KIND, composes desc, sets files=[finding.file], passes through reviewRunId+agent+category. agent must be a real lattice-review-* lane (caller-supplied; the function does not invent it). Pure — returns the arg object, performs NO finding_add call (that is S4).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "composeDesc({title:\"Null deref\",issue:\"crashes on undefined\",fix:\"add guard\",line:42,...}) -> returns exactly \"Null deref — crashes on undefined Fix: add guard\" with line 42 cited in the string; WHY: validates the exact template from §4.2 (title — issue Fix: fix) and line citation",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs(BLOCKER finding, {reviewRunId:\"R-1\",agent:\"lattice-review-quality\",category:\"happy\"}) -> returns {severity:\"critical\",desc:<composed>,files:[\"src/foo.ts\"],category:\"happy\",reviewRunId:\"R-1\",agent:\"lattice-review-quality\"}; WHY: validates the complete arg shape with severity mapped through SEVERITY_TO_FINDING_KIND, not abstract",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs with MAJOR finding -> severity is high, not MAJOR; toFindingAddArgs with MINOR finding -> severity is medium, not MINOR; WHY: exercises all three severity branches to ensure no abstract leak",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "composeDesc with a finding whose title/issue/fix contain special characters (em-dash, quotes, newlines) -> output preserves them literally without escaping or truncation; WHY: ensures the template concatenation does not corrupt rich text",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs with finding.file containing spaces or path separators -> files array contains the exact original path string; WHY: file paths must not be split, trimmed, or normalized",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "composeDesc with line=0 -> line 0 is still cited (boundary); WHY: line 0 is a valid best-effort anchor and must not be suppressed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "toFindingAddArgs output severity field is NEVER equal to BLOCKER, MAJOR, or MINOR (check all three input severities) -> every emitted severity is in {critical,high,medium,low}; WHY: the primary adversarial risk — an abstract severity leaking to finding_add causes a Zod error",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs does not call finding_add, review_run_start, or any CLI command (it is pure) -> no I/O side effects; WHY: S4 owns the actual CLI call; S2 must only build args",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
