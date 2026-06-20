@@ -116,7 +116,7 @@
       "desc": "quality-cleanup: dispatch-usage.ts:56 defines a local ANTHROPIC_USAGE_WHITELIST that duplicates the exported ANTHROPIC_USAGE_WHITELIST from adapters/anthropic.ts but does not import it — if the adapter whitelist ever gains or loses a field the dispatch extractAnthropicUsage path silently stays on the stale local copy",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T15:28:45.191Z",
@@ -128,7 +128,10 @@
         "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-dispatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812) / round 4 (6f719cd2): single shared whitelist — dispatch imports ANTHROPIC_USAGE_WHITELIST; streaming imports OPENAI/GEMINI whitelists from the adapters.",
+      "resolvedAt": "2026-06-20T15:56:53.361Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-007",
