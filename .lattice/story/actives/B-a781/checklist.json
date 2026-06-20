@@ -67,6 +67,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:49:30.736Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"Canonical env wins|ppid degradation|same worktree but different ppid|derived ids differ|stable ownership\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "result": "pass",
+          "note": "The verification matrix explicitly covers parent-PID-changing invocations: canonical env remains stable, while ppid-only runs are documented as degraded and insufficient for normal multi-host ownership.",
+          "headHash": "30bd124ef1be9ebcf52fb3e33a510c06e617e98b",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:49:36.687Z"
         }
       ]
     },
