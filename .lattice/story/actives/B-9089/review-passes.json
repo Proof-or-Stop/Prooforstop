@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T11:18:13.732Z",
       "reviewRunId": "B-9089:RR-004",
       "_hash": "d45acba27d7cfa98ca535c7c65ee7e732fb8a714c134bfed002c7e0f3c569987"
+    },
+    {
+      "id": "B-9089:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed for owner-session canonical runtime contract. Inspected owner-session facade/adapters/token-store, story-owner-lease integration, dispatch env propagation, lifecycle context/session warning call sites, runtime artifact registry, doctor rendering, and guardrail/smoke coverage. Verified no blocking bugs in type/API shape, host-env confinement, stale legacy labels, or runtime artifact hygiene. Commands run: npm --prefix packages/main run test:story-owner-lease-smoke; npm --prefix packages/main run test:owner-session-guardrail; npx tsc --noEmit -p packages/main/tsconfig.json.",
+      "createdAt": "2026-06-20T11:22:04.870Z",
+      "reviewRound": "2026-06-20T11:18:13.732Z",
+      "reviewRunId": "B-9089:RR-001",
+      "_hash": "00fd0bc644bc5ab65c057f10012555715659c460d7dfbc80b298b2256d3c985d"
     }
   ]
 }
