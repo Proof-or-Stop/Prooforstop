@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T13:01:17.206Z",
       "reviewRunId": "B-5a48:RR-004",
       "_hash": "55ca5c97867c5e251ea35a7908bb6b54067c89b0fc4ae0c45c96b7c47ad9d0a4"
+    },
+    {
+      "id": "B-5a48:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness check PASS. The phase guard (`if (story.phase === \"REVIEW\")`) is the correct placement: it sits inside the REVIEW IIFE which JS eagerly evaluates for all phases, and it gates the ONLY call to surfaceExperienceHints (the sole side-effecting function) in that IIFE. The F-001 comment accurately explains the eager-IIFE root cause, why the spurious firing occurred, and the deliberate choice not to restructure to lazy getters. The claim that phase===REVIEW guarantees currentReviewRound is set is verified by transition-orchestrator.ts: currentReviewRound is stamped (line 483) and writeStory called (line 484) strictly BEFORE buildNextSteps (line 509). No other IIFE branches in buildNextSteps have write/side-effect operations — the DEV IIFE is read-only (store.readStory/readChecklist/readDecision), and PLAN/TEST/DONE are plain string/template literals. The regression smoke (CHK-002 adversarial:1) correctly seeds a DEV-phase story, calls devNextSteps (which returns .DEV but triggers the eager REVIEW IIFE), and asserts zero experience_hint_surfaced events. No dangling or contradictory references introduced by the round-2 commit. Pre-existing issues noted but not introduced by this diff: (a) outer JSDoc says computed lazily while the internal comment says EAGERLY (pre-existing before B-5a48, not touched by round-2); (b) duplicate CHK-002 adversarial:0 labels at lines 526 and 568 (pre-existing before round-2, round-2 only adds adversarial:1). Zero concept deletions or replacements this round. No blocker.",
+      "createdAt": "2026-06-20T13:04:29.528Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-006",
+      "_hash": "c752fab625df1bde844bff005fd5e4b4828aeda3d283bf6f6d9170dc3dcf9e8d"
     }
   ]
 }
