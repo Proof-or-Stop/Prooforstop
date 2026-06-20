@@ -209,7 +209,85 @@
       "context": "Update .codex/hooks + .claude/hooks, README.md, CLAUDE.md, CHANGELOG.md, and the couple of decision docs that name @lattice-agent as the current scope (NOT frozen .lattice/ history or docs/koala/ audits). Acceptance: `git grep -nE '@lattice-agent' -- . ':(exclude).lattice/**'` shows no LIVE current-scope reference (only intentional anti-residue assertions naming it as forbidden, if any, are justified); `git grep '@koala-agent/core'` shows only the residue-checker pattern + anti-residue assertions, no live fallback. Run green: full build + recursive tsc --noEmit, `lattice codex verify`, `lattice rollout check`, the koala-residue + runtime-fact + entrypoints verifiers, and confirm .githooks/pre-push now executes its build+tsc path under @lattice/core.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": ".codex/hooks and .claude/hooks updated to reference @lattice (not @lattice-agent) -> git grep -n @lattice-agent -- .codex/ .claude/ returns 0 hits; WHY: agent hooks must use the current canonical scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "README.md, CLAUDE.md, CHANGELOG.md updated to @lattice where they previously said @lattice-agent -> git diff of these files shows the rename; WHY: user-facing docs must reflect the current scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Decision docs that name @lattice-agent as current scope are updated -> git grep @lattice-agent -- docs/ excluding docs/koala/ and frozen .lattice/ returns only anti-residue assertions or 0 hits; WHY: non-frozen docs must reflect current naming",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Full build succeeds: npm run build exits 0 from repo root; WHY: integration proof that the entire workspace compiles under the new scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Recursive tsc --noEmit green: find all tsconfig.json, run npx tsc --noEmit for each; WHY: type-check coverage matches pre-push gate scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice codex verify exits 0; WHY: codex verification gate must pass under @lattice/core",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice rollout check exits 0; WHY: rollout readiness gate must pass under @lattice/core",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Frozen .lattice/ history files are NOT rewritten: git diff --name-only .lattice/ shows no changes; WHY: frozen audit history must be immutable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/koala/ audit files are NOT rewritten: git diff --name-only docs/koala/ shows no changes; WHY: historical koala audit docs are preserved as-is",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": ".githooks/pre-push now executes its build+tsc path (does not exit 0 at the name check) when run against this repo -> invoke the hook or trace its logic; WHY: the whole point of CHK-003 is this gate being armed, and CHK-004 must confirm end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git grep -nE @lattice-agent -- . :(exclude).lattice/** returns ONLY intentional anti-residue assertions (lines that assert @lattice-agent is forbidden/absent), zero LIVE references -> count and categorize every hit; WHY: the adversarial acceptance criterion from the story description, catches any missed rename",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep @koala-agent/core -- . shows only verify-koala-residue.mjs pattern + anti-residue assertions + frozen .lattice/ history, no live fallback code -> categorize every hit; WHY: confirms @koala-agent/core legacy fallback is fully retired from live code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the full verifier suite: node scripts/verify-koala-residue.mjs && node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs && node scripts/verify-global-lab-entrypoint.mjs -> all exit 0; WHY: verifiers are the automated acceptance gate and must all pass under the new scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node bin/lattice.js --version succeeds as final self-host smoke test; WHY: if the CLI cannot boot under @lattice/core, the rename is broken regardless of what other checks pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
