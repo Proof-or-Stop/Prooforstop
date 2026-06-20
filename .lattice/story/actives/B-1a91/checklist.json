@@ -17,6 +17,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Coverage watermark on the cache + learning_validate gap report (detect and recover silently-missed story experience)",
+      "context": "In core/finding-signals.ts deriveFindingSignals(FromStore), record a COVERAGE WATERMARK on the cache (add fields to the FindingSignalsCache type in core/experience-layer-types.ts): coveredStoryCount, coveredFindingCount, coveredThrough (max finding createdAt/resolvedAt folded in). In learning_validate (handlers/learning-validate.ts plus a pure leaf in core/experience-revalidation.ts), compute and report the COVERAGE GAP by comparing the PERSISTED cache watermark (readFindingSignals) against the current store counts (deriveFindingSignalsFromStore current): e.g. \"coverage: N/M findings, 0 gap\" or \"coverage: 438/470 findings, 32 across J stories not yet summarized (cache behind; run learning_scan)\". This makes a silently-failed/skipped DONE auto-refresh (CHK-001 never-throw) DETECTABLE; recovery is the existing learning_scan full re-derive which closes the gap. Advisory-only; no gate reads it. Add a smoke: after adding a finding without re-scan, learning_validate reports a non-zero gap; after learning_scan, gap=0.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-1a91/background.md"
+      ],
+      "userSees": "lattice learning_validate prints a coverage line: normally \"coverage: N/N findings, 0 gap\"; when a DONE auto-refresh was missed/failed it shows e.g. \"coverage: 438/470 findings, 32 not yet summarized (cache behind; run learning_scan)\", and after learning_scan it returns to 0 gap.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
