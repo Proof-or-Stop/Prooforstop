@@ -228,6 +228,18 @@
           "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
           "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
           "timestamp": "2026-06-20T21:02:28.111Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Focused smoke snapshots story metadata and git status before/after lifecycle_check and fails on mutation.",
+          "headHash": "420fc1983a075007a932fcf2a7ce49f14def49d6",
+          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
+          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
+          "timestamp": "2026-06-20T21:02:28.666Z"
         }
       ]
     }
