@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-20T11:26:22.895Z",
       "reviewRunId": "B-ac25:RR-027",
       "_hash": "0af4c2543f880744b06354fe1aed3db6b39c920149d609347352e1770f94e042"
+    },
+    {
+      "id": "B-ac25:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs lane. Reviewed AGENTS.md, docs/requirements/decisions/done-full-test-gate-execution-plan.md, story-lifecycle.md, testing-infra.md, lifecycle-artifact-scope.md, and lifecycle/process-fact registry touchpoints. Docs distinguish routine lattice validate TEST evidence from opt-in done_required_validate DONE-required evidence: AGENTS.md:10-12,88-89,141-143; story-lifecycle.md:191,262,274-275; testing-infra.md:51-57,59-64; done-full-test-gate-execution-plan.md:32,74-89,336-345. No docs blocker: release/pre-push/Authority boundaries are explicit and not overclaimed: done-full-test-gate-execution-plan.md:295-300; story-lifecycle.md:192,275. M4-M12 are not described as implemented; lifecycle-artifact-scope.md:22-27 keeps them follow-up. Latest lifecycle artifact fix does not require additional docs: lifecycle-artifact-scope.md:18-27 and 31-47 define a registry-backed closed-set policy rather than an exhaustive filename list, while the new done-required-evidence.json artifact is already documented in the DONE-required flow docs and registered mechanically.",
+      "createdAt": "2026-06-20T11:31:26.152Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-028",
+      "_hash": "89991d8e259c8d9e02c6ac7b4a0b4878dd2c66cda3c2e1fb4950e3f14b775c56"
     }
   ]
 }
