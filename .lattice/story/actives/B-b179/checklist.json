@@ -60,9 +60,9 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T18:05:01.475Z",
-      "endTime": null,
+      "endTime": "2026-06-20T18:06:11.724Z",
       "userSees": "当 main 主分支前移后，lifecycle readiness 的 DONE 准备条目会展示报告过期并提示重跑 done_prepare。",
       "files": {
         "modify": [
@@ -91,7 +91,20 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"mainTipAtPrepare|main tip|pre-merge|postMergeHead\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "Expanded done_prepare binding contract with local main tip capture and stale condition wording.",
+          "headHash": "0dc998e97e130301bff2c7209f45dbfb41377f31",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:11.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
