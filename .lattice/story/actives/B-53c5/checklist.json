@@ -126,7 +126,41 @@
       "context": "New packages/main/src/tasks/adversarial-review-contract-smoke.ts: construct a valid Finding and a valid Verdict (assert shape/fields), assert the canonical lens set has exactly the 6 spec entries with the right ids, assert REVIEW_MODE_PHASES is the canonical 5-step order, and assert the severity unions are exactly {BLOCKER,MAJOR,MINOR} / {...,NOT_A_DEFECT}. tsc compiling is itself part of the proof. Register the smoke in lattice.config.json validate.commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js prints its pass line (exit 0) and is registered in lattice.config.json validate.commands; WHY: the contract is CI-checked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke is hermetic (no FS/git/store), pure type+const assertions; WHY: a contract smoke needs no environment",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice validate runs all configured commands green including the new smoke; WHY: no regression",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
