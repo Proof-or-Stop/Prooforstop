@@ -124,7 +124,22 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"Claude Code|Codex|Antigravity|agy|future hosts|host adapter|LATTICE_SESSION_ID\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/guide-scope-guard.md",
+          "result": "pass",
+          "note": "The plan documents Claude Code, Codex, Antigravity/agy, and future hosts as adapter-layer providers that bridge to LATTICE_SESSION_ID before owner lease logic.",
+          "headHash": "656affe2822e7f641b5d99106f5e04edaa930b5e",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:49:53.696Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
