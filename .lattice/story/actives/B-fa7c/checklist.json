@@ -4,7 +4,7 @@
       "id": "CHK-001",
       "title": "Add a scope_glob_overlap degradation kind to resolveWaveSafety, computed at the storyRef() call site from active parallel peers' write-sets via computeWriteSet + globsOverlap",
       "context": "core/lattice-parallel-wave.ts: resolveWaveSafety is a pure projector (does not read scope contracts). At the storyRef() call site, for each ACTIVE non-terminal peer that also asserts parallelSafe='yes', compute this story's and the peer's write-set via computeWriteSet(scopeContract) and run globsOverlap; pass the overlap results into resolveWaveSafety as a new parameter; emit a 'scope_glob_overlap' degradation (severity 'warn', authorityImpact 'none', visible true) via the existing schedulingDegradation() factory naming the peer + an example colliding pair. None when disjoint or peer terminal.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-20T07:10:55.374Z",
       "endTime": "2026-06-20T07:14:30.233Z",
       "verificationIntent": {
