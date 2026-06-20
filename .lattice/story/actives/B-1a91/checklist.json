@@ -121,6 +121,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/finding-signals.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/experience-revalidation.ts",
+          "packages/main/src/handlers/learning-validate.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
+        ],
+        "test": []
       }
     }
   ]
