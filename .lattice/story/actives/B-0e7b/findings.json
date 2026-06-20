@@ -173,6 +173,23 @@
       "resolvedAt": "2026-06-20T11:13:48.567Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0e7b:F-009",
+      "desc": "MAJOR: §4.3 MVP critic provenance is incoherent with the ledger mechanics. It says record critic findings under an existing lane with --agent completeness-critic, but reviewer-evidence is keyed on agent.startsWith('lattice-review-') (review-run.ts); with agent='completeness-critic' the finding is stored as non-reviewer/main provenance, the lane/reviewRunId binding is NOT validated, and it won't count as reviewer-lane evidence under the six lanes. Fix: for MVP, record critic findings with the ACTUAL existing lane as --agent (e.g. lattice-review-quality or lattice-review-behavior) and put 'completeness-critic' in --desc (e.g. '[completeness-critic] ...') / signature metadata — NOT the agent field; a real structured provenance field / dedicated lattice-review-completeness lane stays FUTURE. Do not claim --agent completeness-critic counts as an existing REVIEW lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:17:13.452Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "2bbf9325f3d8e3a713678162c2b2fcaf93f16fc88360009ee446d53b092c967f",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|major-critic-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
