@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T05:31:18.963Z",
       "reviewRunId": "B-edf1:RR-003",
       "_hash": "67e217f66d35e9b7239f71564acf0e8373b6aedd160542b99f24d2aecdbd7245"
+    },
+    {
+      "id": "B-edf1:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked all 3 changed code files (done-oracle.ts, done-escalation-drift-advisory-smoke.ts, package.json). (1) No dead code — all imports in the smoke are used, no commented-out blocks. (2) Type safety clean — no `as any`, no empty catch; advisories read is null-safe via optional chaining `escalation.advisories?.length`; detail string composition via template literal is clean; TSC --noEmit passes with 0 errors. (3) No I/O shell isolation concern — both changed files are core/tasks, not shells/ui/main. Status and blocking fields in the review-escalation row are unchanged (escalation.ok ? pass : fail, blocking: escalation.required && !escalation.ok). review-escalation.ts and evidence-freshness.ts are untouched. Smoke uses `finally` blocks with rmSync+resetConfigCache for both cases A and B — cleanup is deterministic. Advisory-visible (A) and clean no-advisory (B) are independent temp-repo instances. 0 findings.",
+      "createdAt": "2026-06-20T05:33:19.977Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-002",
+      "_hash": "3816e9f2433a086f0aeff956da82c83d325dfc0b58102f76229b3de4b2410b35"
     }
   ]
 }
