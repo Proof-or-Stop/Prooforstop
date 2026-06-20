@@ -68,6 +68,23 @@
       ],
       "signatureTag": "cleanup|ts|minor-scopegloboverlapdegradations-always",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa7c:F-005",
+      "desc": "MINOR: CHK-001 helpers tested in isolation; scopeGlobOverlapDegradations is fed a hand-written pairExample rather than computeScopeGlobOverlaps' actual output, so a separator change between the two helpers would not be caught. Fix: add one assertion composing scopeGlobOverlapDegradations(id, computeScopeGlobOverlaps(...)) and asserting the reason contains the composed pair string.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "claude-test-coverage",
+      "createdAt": "2026-06-20T07:34:38.770Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "fc5117b7f5cd39ebba9cb1d915360536bf5f7d179ca6c62a70be650492bd9160",
+      "files": [
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|minor-helpers-tested",
+      "signatureTagSource": "auto"
     }
   ]
 }
