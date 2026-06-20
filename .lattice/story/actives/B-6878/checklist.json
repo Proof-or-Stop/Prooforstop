@@ -163,9 +163,9 @@
       "title": "Smoke: prototype-pollution defense across all paths + the chokepoint helper",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wired) that: (a) for EACH of anthropic / openai / gemini AND the streaming and estimate paths, pollutes Object.prototype with each token key inside a try/finally (ALWAYS restore in finally) and asserts NO inherited value reaches a persisted ledger record — the surfaced record carries only own-property, whitelisted token fields; absent fields stay absent/unavailable (drive the REAL assemble/dispatch/record path, not a stub); (b) asserts the chokepoint helper returns a null-prototype object (Object.getPrototypeOf === null) and DROPS non-whitelisted own keys (parallel to the B-30c3 codex/gemini smoke). Each pollution assertion must be load-bearing (fail if the chokepoint/own-prop guard were removed). Bump the printed check count.",
       "userSees": "node packages/main/dist/tasks/<proto-pollution smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; the pollution assertions fail against the pre-hardening code.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T14:51:51.527Z",
-      "endTime": null,
+      "endTime": "2026-06-20T15:02:24.828Z",
       "verificationIntent": {
         "happy": [
           {
@@ -199,7 +199,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Exit 0; prints 'usage-ledger-prototype-pollution smoke passed (18 checks)'. Auto-discovered by run-all-smokes (filename *-smoke.js) and present in the suite (PASS usage-ledger-prototype-pollution). package.json alias test:usage-ledger-prototype-pollution added. Full smoke suite 197/200 (3 fails are pre-existing parallel-load flakiness in english-open-source-surface/story-capsule/story-create-concurrency, all PASS standalone, none touch usage-ledger). npm test ALL PASS (exit 0).",
+          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
+          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
+          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
+          "timestamp": "2026-06-20T15:02:25.032Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "For anthropic/openai/gemini (provider final via recordDispatchFinal[ForProvider] persisted+read back), streaming (extract*StreamUsage), and estimate (recordDispatchPreflight persisted), each token key is polluted onto Object.prototype inside try/finally and the persisted/surfaced record carries NO 999; absent cache fields stay null. Object.prototype asserted clean at end (final check passes).",
+          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
+          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
+          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
+          "timestamp": "2026-06-20T15:02:25.201Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git checkout <pre-hardening> -- assemble/dispatch/openai/record/streaming && build && run smoke",
+          "result": "pass",
+          "note": "Load-bearing verified by reverting the source hardening (keeping the smoke): smoke FAILED 6/18 with 'a usage field carried the polluted value 999' on exactly the anthropic/openai/gemini + 3 streaming pollution assertions; legitimate-data positive cases still passed. Restored hardening -> 18/18 pass. (Estimate pollution case passes even pre-hardening by design: that path computes input from prompt text and sets output/cache to literal null, so it was never a pollution surface; included per spec to assert the property holds.)",
+          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
+          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
+          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
+          "timestamp": "2026-06-20T15:02:25.376Z"
+        }
+      ]
     }
   ]
 }
