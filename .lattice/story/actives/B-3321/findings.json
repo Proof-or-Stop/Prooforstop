@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/done-full-test-gate-execution-plan.md:16 says .githooks/pre-push runs package build plus recursive tsc for the self-host repo, and line 38 frames pre-push as a possible narrower build+tsc safety net. The current hook only enters that build/tsc path when packages/main/package.json name equals @koala-agent/core (.githooks/pre-push:147-150), but the current package is @lattice-agent/core (packages/main/package.json:2), so for this repo the hook exits before build+tsc. The document is still right that pre-push does not run root npm test, but it overstates the present release/push assurance surface and should describe the current no-root-npm-test boundary without claiming build+tsc coverage unless the self-host detection is fixed or deliberately scoped.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T07:02:05.973Z",
@@ -18,14 +18,18 @@
         "packages/main/package.json"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bc66cec: document now states current pre-push does not run root npm test and its build+tsc branch is still keyed to @koala-agent/core while this repo is @lattice-agent/core, so it must not be claimed as current self-host build+tsc assurance.",
+      "resolvedAt": "2026-06-20T07:09:18.096Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3321:F-002",
       "desc": "docs/requirements/decisions/done-full-test-gate-execution-plan.md:147 introduces DONE-blocking missing/failing/stale DONE-required evidence, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:168-175 plans the runner/artifact/DONE oracle row, but the plan never requires updating packages/main/src/core/process-fact-registry.ts, process-fact-levels, or scripts/verify-process-fact-contract.mjs. AGENTS.md:64 and docs/requirements/decisions/story-lifecycle.md:194-195 require every new gate evidence/artifact/process fact to be registered and contract-verified; the comparable 3x2 plan does this explicitly at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:706-708. As written, the future implementation plan can change DONE gate evidence without the required registry/contract backstop.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:02:13.198Z",
@@ -39,14 +43,18 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bc66cec: plan now explicitly requires future implementation updates to packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts, and scripts/verify-process-fact-contract.mjs for the new DONE-required gate evidence/artifact.",
+      "resolvedAt": "2026-06-20T07:09:18.113Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3321:F-003",
       "desc": "The execution plan does not make a fresh build a required part of the DONE-required proof. The recommended policy examples run only `npm test` (docs/requirements/decisions/done-full-test-gate-execution-plan.md:40 and :58), and the self-host milestone says to require root `npm test` or an equivalent full-suite command (docs/requirements/decisions/done-full-test-gate-execution-plan.md:215). Root `npm test` mostly executes built `packages/main/dist/tasks/...` scripts (package.json:15 and :21), and packages/main builds those outputs from TypeScript (packages/main/package.json:22). `currentMaterialHash` is computed from tracked git tree objects (packages/main/src/core/evidence-freshness.ts:217), while `git ls-files packages/main/dist` returns no tracked files. A future implementation can therefore produce hash-fresh PASS evidence by running tests against stale generated dist. The plan should require either a DONE-required build step before `npm test`, a root `pretest`/test script that builds, or an explicit equivalent command whose receipt proves the build output came from the same material hash.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:03:43.798Z",
@@ -60,7 +68,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "missing|md|execution-plan-make",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bc66cec: plan now requires npm --prefix packages/main run build before root npm test, or an equivalent root pretest/build receipt proving packages/main/dist matches the same headHash/materialHash; negative tests include stale/missing build receipt blocking DONE.",
+      "resolvedAt": "2026-06-20T07:09:18.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
