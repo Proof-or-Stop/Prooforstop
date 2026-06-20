@@ -27,7 +27,7 @@
       "desc": "MAJOR: the review-gate refactor changed 'return (blockerCount ?? issueCount) === 0' (strict zero) into 'if ((blockerCount ?? issueCount) > 0) return false' (line 420) — NOT behavior-equivalent. A signed review with a non-numeric/negative/missing count (e.g. blockerCount=-1, or string '0') is NOT > 0 so it now PASSES the review gate, where the original strict ===0 rejected anything other than numeric zero. getGuardFailureReason line ~819 has the same '> 0' (pre-existing) so for parity both must use strict !==0. Fix: const gateCount = blockerCount ?? issueCount; if (gateCount !== 0) return false; in canStartDevGuard, and !==0 in getGuardFailureReason's review-count check.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T08:36:33.358Z",
@@ -37,7 +37,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "adversarial|ts|major-review-gate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "strict !==0 at both sites (canStartDevGuard line ~437 + getGuardFailureReason review-reason ~845), restoring the original ===0 semantics (negative/NaN/odd counts no longer pass). commit 485eba1a8.",
+      "resolvedAt": "2026-06-20T08:53:04.438Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-086b:F-003",
