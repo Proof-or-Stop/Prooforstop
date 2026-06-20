@@ -3485,6 +3485,24 @@ function assertProcessFactCommandInventory() {
     );
   }
 
+  // B-b29e F-002: EXCLUSIVITY — only the three scope-contract producer facts may
+  // name the parallel-decomposition DEV-entry gate. The presence loop above
+  // guards that each producer still names the gate, but does NOT stop a
+  // non-producer (e.g. the pure-read scope_contract_check, the Round-1
+  // over-registration) from re-adding the edge. Scan EVERY process-fact entry and
+  // assert the set that names the gate equals exactly the producer set, so the
+  // drift check guards against the very regression it fixed.
+  const actualParallelDevEntryConsumers = levelRegistryEntries
+    .filter(entry => scopeContractParallelDevEntryConsumerPattern.test(entry.gateConsumer || ''))
+    .map(entry => entry.name)
+    .sort();
+  const expectedParallelDevEntryConsumers = [...scopeContractParallelDevEntryConsumerCommands].sort();
+  assert(
+    actualParallelDevEntryConsumers.length === expectedParallelDevEntryConsumers.length &&
+      actualParallelDevEntryConsumers.every((name, index) => name === expectedParallelDevEntryConsumers[index]),
+    `${processFactLevelRegistryPath}: ONLY the scope-contract producer facts (${expectedParallelDevEntryConsumers.join(', ')}) may name the parallel-decomposition DEV-entry gate, but got [${actualParallelDevEntryConsumers.join(', ')}] — a pure-read or unrelated fact must not claim a producer→gate edge the runtime does not have (offending: ${actualParallelDevEntryConsumers.filter(name => !expectedParallelDevEntryConsumers.includes(name)).join(', ') || '(none extra)'}; missing: ${expectedParallelDevEntryConsumers.filter(name => !actualParallelDevEntryConsumers.includes(name)).join(', ') || '(none)'})`,
+  );
+
   assertL4ProducerOrReplacement(levelRegistryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries
