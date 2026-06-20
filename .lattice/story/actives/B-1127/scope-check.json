@@ -1,0 +1,220 @@
+{
+  "storyId": "B-1127",
+  "checkedAt": "2026-06-20T16:11:49.521Z",
+  "features": [
+    {
+      "feature": "5-phase canonical round (frozen order: lenses->verify-lens-findings->critic->verify-critic-findings->converge-or-reopen) implemented by runAdversarialRound",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.2 / §5 S4)"
+    },
+    {
+      "feature": "AdversarialRoundResult extends RoundResult with confirmedByLane (per-lane per-lens attribution)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§5 S4)"
+    },
+    {
+      "feature": "Critic receives VERIFIED (confirmed post-§2.3) lens findings — never raw lens output (§2.4 invariant)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§2.4 / §3.2)"
+    },
+    {
+      "feature": "Task-tunable RoundConfig (lensSet, skeptics, threshold) with defaults from CANONICAL_LENS_SET",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§2.1 / §2.3)"
+    },
+    {
+      "feature": "Injectable RoundSeams (runLens, runSkeptic, runCritic) enabling hermetic testing",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.3 / §5 S4)"
+    },
+    {
+      "feature": "converged + reopen flags on AdversarialRoundResult (convergence criterion per §3.1: no confirmed lens AND no confirmed critic)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.1)"
+    },
+    {
+      "feature": "deriveRoundLedgerOps: finding_add LedgerOps for each confirmed lens finding (via S2 toFindingAddArgs, per-lane attribution)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.2)"
+    },
+    {
+      "feature": "deriveRoundLedgerOps: finding_add LedgerOps for each confirmed critic finding (via S3 toCriticFindingAddArgs, [completeness-critic] prefix in desc, agent=real lattice-review-* lane)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.2 / §4.3)"
+    },
+    {
+      "feature": "deriveRoundLedgerOps: review_pass_set LedgerOps per lane only when round.converged (no pass on reopen)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.2)"
+    },
+    {
+      "feature": "No abstract severity (BLOCKER/MAJOR/MINOR) in any ledger op — only critical|high|medium|low reach finding_add",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.2 ledger mapping table)"
+    },
+    {
+      "feature": "deriveRoundLedgerOps is PURE — derives op descriptors only, performs no actual finding_add or review_pass_set CLI call",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§5 S4)"
+    },
+    {
+      "feature": "runReopenLoop: loop-until-dry with maxRounds bound; applyFix seam produces new change on each reopen; returns {rounds, converged, finalChange}",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.2 / §5 S4)"
+    },
+    {
+      "feature": "buildHostVerdictPayloads: 3x2 shaper producing HostVerdictPayload[] with distinct hostId/sessionId/keyId per host, same materialDigest+validationDigest; decision defaults to pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.1 / §5 S4)"
+    },
+    {
+      "feature": "buildHostVerdictPayloads is PURE — no CLI call, no Authority receipt (local-only §4.5)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.5)"
+    },
+    {
+      "feature": "Hermetic smoke asserting REVIEW_MODE_PHASES equals canonical 5-phase frozen array with explicit string literals",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.2 / §5 S4)"
+    },
+    {
+      "feature": "Smoke: capturing fake runCritic proves critic seam received CONFIRMED (verified) lens set not raw (§2.4 invariant)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§2.4)"
+    },
+    {
+      "feature": "Smoke: clean round (all skeptics refute) proves converged=true, reopen=false, criticFindings=[]",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.1)"
+    },
+    {
+      "feature": "Smoke: B-086b reopen trace via runReopenLoop (critic finding on round 1, applyFix, clean round 2, rounds.length===2, result.converged===true)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§3.2 / §1.2 B-086b trace)"
+    },
+    {
+      "feature": "Smoke: maxRounds bound proves converged=false when never-clean",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§5 S4)"
+    },
+    {
+      "feature": "Smoke: deriveRoundLedgerOps end-to-end (agent=real lane, severity=ledger kind not abstract, critic desc prefix, review_pass_set only on converge)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.2 / §4.3)"
+    },
+    {
+      "feature": "Smoke: buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision pass",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§4.1)"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:adversarial-review-spec.md (§5 S4)"
+    },
+    {
+      "feature": "Re-implementing S1/S2/S3 lens runner, adversarial verifier, completeness critic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract.json protectedFiles: adversarial-review-lens-runner.ts, adversarial-review-verifier.ts, adversarial-review-critic.ts — imported read-only",
+      "source": "decisions:adversarial-review-spec.md (§5 S4 depends-on clause)"
+    },
+    {
+      "feature": "Actual CLI execution (review_run_start / finding_add / review_pass_set / autopilot_review_submit calls from the round module)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002/CHK-003 are explicitly PURE; real CLI calls are performed by the harness (local-only)",
+      "source": "decisions:adversarial-review-spec.md (§5 S4 local-only / §4.5)"
+    },
+    {
+      "feature": "Authority receipt or authorityDone/productionDone claim",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 buildHostVerdictPayloads explicitly local-only §4.5; no Authority receipt claimed",
+      "source": "decisions:adversarial-review-spec.md (§4.5)"
+    },
+    {
+      "feature": "First-class lattice review --mode=adversarial CLI",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 FUTURE not-yet-implemented; scope-contract.json protects adversarial-review.ts",
+      "source": "decisions:adversarial-review-spec.md (§4.4 FUTURE)"
+    },
+    {
+      "feature": "Dedicated lattice-review-completeness lane or structured provenance field for critic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 FUTURE not-yet-implemented; MVP critic provenance via [completeness-critic] in desc is in CHK-002",
+      "source": "decisions:adversarial-review-spec.md (§4.4 FUTURE)"
+    },
+    {
+      "feature": "Structured Verdict storage (persist Verdict{isReal,agreedSeverity,reasoning} per finding)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 FUTURE not-yet-implemented",
+      "source": "decisions:adversarial-review-spec.md (§4.4 FUTURE)"
+    },
+    {
+      "feature": "Modifying S0 (adversarial-review.ts) or review-run.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract.json protectedFiles: adversarial-review.ts, review-run.ts",
+      "source": "decisions:adversarial-review-spec.md (§5 S0)"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "covered": 22,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "39d4fdbd363ba940cc42d664a1ae6ffae0766996d00ffded1e49a87651ad4233",
+  "openQuestions": []
+}
