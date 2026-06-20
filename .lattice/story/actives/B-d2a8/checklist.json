@@ -107,9 +107,9 @@
       "id": "CHK-002",
       "title": "Hermetic smoke: per-profile defaults resolve correctly, each sub-field override is honored, and each malformed sub-field warns and falls back (config never crashes)",
       "context": "new task smoke under packages/main/src/tasks/; call resolveAuditConfig / resolveParallelGate with in-memory or temp-dir config inputs; assert the 3 profile default rows, a valid override is applied, an invalid mode falls back to advise, a non-integer maxConcurrentReview falls back, a non-boolean broadGlobBlocks falls back, and a non-object parallelGate yields all profile defaults; register in lattice.config.json",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T05:31:58.332Z",
       "files": {
         "modify": [
           "lattice.config.json"
