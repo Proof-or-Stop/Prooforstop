@@ -110,7 +110,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "excludes": [
+        "Changing story_advance implementation",
+        "Changing done_prepare implementation",
+        "Changing evidence refresh implementation",
+        "Changing delivery-check implementation"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document prints exact next-action semantics for REVIEW/TEST to DEV rollback, delivery blocker categories, dry-run/default options, done_prepare pre/post-merge binding, and refresh-only loop bounds.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When blockers can be artifact-only, material rework, external, or manual, the document assigns different owners and commands instead of a single vague STOP path.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The revised text does not allow direct hash rewriting, unbounded refresh loops, pre-merge done_prepare reports to masquerade as post-merge readiness, or degraded single-host gate consumption in V1.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
