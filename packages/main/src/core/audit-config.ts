@@ -100,8 +100,31 @@ function describeInvalidValue(value: unknown): string {
  * Presence is tested with Object.hasOwn (own keys only — an inherited/prototype-shaped sub-field
  * never overrides a default), and the present-but-invalid path never throws (invalid values are
  * rendered via describeInvalidValue, so a bigint/circular config value still warn+falls-back).
+ * The function is TOTAL: the field reader runs inside a try/catch wrapper, so even a raw that
+ * cannot be introspected at all (a revoked Proxy) degrades to the profile default instead of
+ * crashing the PLAN→DEV gate.
  */
 export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig {
+  try {
+    return readParallelGateFields(raw, profileDefault);
+  } catch (err) {
+    // Defense-in-depth last resort. `raw` is normally a JSON-parsed value, so in practice this
+    // never fires — but the function is exported with a never-throw contract, and introspecting a
+    // hostile/revoked Proxy can make Array.isArray, Object.hasOwn, or a property read throw. A
+    // config read must NEVER crash the PLAN→DEV gate, so any introspection failure degrades to the
+    // profile default. (readParallelGateFields' per-field describeInvalidValue path is itself
+    // total, so this only catches a raw that cannot be inspected at all, not ordinary invalid
+    // sub-field values, which still get their granular per-field warn + fallback.)
+    console.warn(
+      `[audit-config] parallelGate config could not be introspected (${err instanceof Error ? err.message : String(err)}); using profile default.`,
+    );
+    return { ...profileDefault };
+  }
+}
+
+/** Field-by-field reader for resolveParallelGate. May throw only on an exotic, non-JSON `raw`
+ *  (e.g. a revoked Proxy) whose introspection fails — the exported wrapper catches that. */
+function readParallelGateFields(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { ...profileDefault };
   }

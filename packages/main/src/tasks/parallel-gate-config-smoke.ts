@@ -219,6 +219,17 @@ void (() => {
       check('throwing-@@toStringTag max -> light default (no crash)', result.maxConcurrentReview === 2);
       check('throwing-@@toStringTag max warns', warnings.some((w) => w.includes('maxConcurrentReview')));
     }
+    // 8d-ter. (F-022 follow-on) RAW ITSELF being a revoked Proxy makes the top-level Array.isArray /
+    //         Object.hasOwn introspection throw — the function-level try/catch wrapper must degrade
+    //         to the full profile default (every field), not crash. This exercises the wrapper, not
+    //         the per-field path.
+    {
+      const rev = Proxy.revocable<Record<string, unknown>>({}, {});
+      rev.revoke();
+      const { result, warnings } = captureWarn(() => resolveParallelGate(rev.proxy, STRICT));
+      check('revoked-proxy RAW -> strict profile default (no crash)', eq(result, STRICT));
+      check('revoked-proxy RAW warns (could not introspect)', warnings.length >= 1);
+    }
 
     // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
 
