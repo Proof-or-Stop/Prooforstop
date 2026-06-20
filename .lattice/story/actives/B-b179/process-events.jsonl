@@ -1,0 +1,15 @@
+{"type":"dispatch","storyId":"B-b179","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-20T17:15:55.066Z"}
+{"type":"dispatch","storyId":"B-b179","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","timestamp":"2026-06-20T17:15:55.971Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":11,"issueCount":17,"timestamp":"2026-06-20T18:04:48.950Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-20T18:04:58.906Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-06-20T18:05:01.475Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-20T18:05:03.379Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":5,"timestamp":"2026-06-20T18:05:15.341Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-20T18:06:09.762Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-20T18:06:11.838Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-20T18:06:20.968Z"}
+{"type":"review_pass","storyId":"B-b179","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-b179:RP-001","timestamp":"2026-06-20T18:07:28.499Z"}
+{"type":"review_pass","storyId":"B-b179","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-b179:RP-002","timestamp":"2026-06-20T18:07:29.167Z"}
+{"type":"review_pass","storyId":"B-b179","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-b179:RP-003","timestamp":"2026-06-20T18:07:29.821Z"}
+{"type":"review_pass","storyId":"B-b179","command":"review_pass_set","role":"reviewer","agent":"lattice-review-docs","result":"pass","reviewPassId":"B-b179:RP-004","timestamp":"2026-06-20T18:07:30.454Z"}
+{"type":"dirty_gate_audit","storyId":"B-b179","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-b179/done-required-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-20T18:10:07.957Z"}

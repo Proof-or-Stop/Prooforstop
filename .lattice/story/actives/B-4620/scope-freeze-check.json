@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4620",
+  "checkedAt": "2026-06-20T18:17:51.393Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "b906cf8383c7dcf3dab1eb0c02e947298e0f8ea30205f12f4fb1a5d70bf0767b",
+  "executionBoundaryHash": "79f32d4001235495a339f3068e6d0012a6e751bee0442c8ecf6f43ac14fdc0da",
+  "freshnessHash": "3095776687ab5f4466e5ee670a30727c31a525ee7f68b4efff2db5fdd247a4da",
+  "effectiveExcludedKeywords": [
+    "Building the experiment harness or any condition runner",
+    "Changing any production code under packages/",
+    "Modifying lattice-Paper/ files",
+    "Running any real agent experiment or producing empirical results"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Building the experiment harness or any condition runner",
+      "source": "scopeBoundary.excluded",
+      "text": "Building the experiment harness or any condition runner",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing any production code under packages/",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing any production code under packages/",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying lattice-Paper/ files",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying lattice-Paper/ files",
+      "excluded": true
+    },
+    {
+      "keyword": "Running any real agent experiment or producing empirical results",
+      "source": "scopeBoundary.excluded",
+      "text": "Running any real agent experiment or producing empirical results",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dd7b62fe6ffbce7d0267050c1574492115c0cff92d35f1bdd8615e25a7b85ae4"
+}

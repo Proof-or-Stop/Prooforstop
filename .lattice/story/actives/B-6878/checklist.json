@@ -5,27 +5,245 @@
       "title": "Add a single null-prototype whitelist chokepoint helper + apply at the two usage-ledger entry points",
       "context": "Per spec Option 2 (PREFERRED). Add ONE shared helper (e.g. toOwnPropsNullProto(obj, whitelist): projects only own-property whitelisted keys into an Object.create(null) object) in core/usage-ledger/adapters/shared.ts or a new core/usage-ledger/sanitize.ts (leaf; no cross-module imports beyond node builtins). Apply it ONCE at the two entry points so all downstream reads see a null-proto object: (1) extractRawUsage in core/usage-ledger/assemble.ts (providerResponse cast from unknown — most load-bearing; also handle options.usage ?? {} default), (2) the anthropic extract path in core/usage-ledger/dispatch-usage.ts (envelope.usage / nested usage). Enumerate the per-provider whitelist from existing adapters (anthropic: input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens; openai: prompt_tokens/completion_tokens/prompt_tokens_details(+cached_tokens); gemini: promptTokenCount/candidatesTokenCount/cachedContentTokenCount). Re-locate exact lines by symbol. Mirror B-30c3 semantics. Do NOT change the B-253e validator / four-field accounting / record shapes; do NOT redo providers/codex-cli.ts or providers/gemini-cli.ts.",
       "userSees": "A single shared chokepoint helper exists and is applied at extractRawUsage (assemble.ts) and the anthropic extract (dispatch-usage.ts); downstream adapter/streaming reads see a null-prototype, whitelist-only object. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T14:46:16.689Z",
+      "endTime": "2026-06-20T14:48:38.556Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The chokepoint helper toOwnPropsNullProto(obj, whitelist) returns an Object.create(null) object (Object.getPrototypeOf === null) carrying ONLY whitelisted own keys; applied at extractRawUsage (assemble.ts) + anthropic extract (dispatch-usage.ts), a normal provider response yields a record byte-identical to pre-change (legitimate own-property data preserved) for anthropic/openai/gemini.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With Object.prototype polluted by each token key (try/finally), the chokepoint-projected object exposes NONE of the inherited values; a downstream adapter read sees only own whitelisted keys.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The whitelist does not silently drop a legitimate own-property token field (incl. nested cached_tokens for openai); per-provider un-polluted record is unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-ledger/assemble.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "create": [
+          "packages/main/src/core/usage-ledger/sanitize.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Smoke helper + per-provider checks: toOwnPropsNullProto returns a null-proto (Object.getPrototypeOf===null) whitelist-only object; applied at the entry points a normal provider response yields a record byte-identical to pre-change for anthropic/openai/gemini (legitimate own-property data preserved). Driven through the real assemble/dispatch/record path.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "With Object.prototype polluted by each token key (try/finally restored), the projected object exposes none of the inherited values; the downstream adapter read sees only own whitelisted keys (anthropic/openai/gemini + streaming load-bearing checks).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Whitelist does not drop a legitimate own-property token field incl. nested openai cached_tokens; DIGEST-PRESERVED checks assert a legit payload WITH extra non-read fields (total_tokens/totalTokenCount/audio_tokens) yields raw.payloadDigest === payloadDigest(original).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Convert the residual prototype-chain `in` operators to own-property checks (the belt)",
       "context": "The cheap belt complementing the chokepoint. Convert residual `in` operators (and any dot/bracket reads not covered by the chokepoint) on externally-derived usage objects to Object.prototype.hasOwnProperty.call(obj, key): core/usage-ledger/assemble.ts (extractRawUsage `if (key in response)` — if the chokepoint already replaces it, note that), core/usage-ledger/record.ts (validator `if (!(field in usage))`), core/usage-ledger/adapters/openai.ts (`cached_tokens in details`), core/usage-ledger/adapters/shared.ts (shared cached_tokens helper), core/usage-ledger/streaming.ts (the start/delta merge `in` checks). Re-locate by symbol. Behavior identical for legitimate own-property data (only inherited values change). Optional/lower: diagnostics.ts internal-table bracket lookups — harden ONLY if trivial (internal enums/model ids, not external parsed data, not token-value surfaces).",
       "userSees": "A grep shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/record/adapters/streaming (own-property checks or routed via the chokepoint). Behavior for legitimate own-property usage data is unchanged. npm test exits 0.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T14:48:46.442Z",
+      "endTime": "2026-06-20T14:51:45.591Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A grep over assemble/dispatch/adapters/streaming/record shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects — each is Object.prototype.hasOwnProperty.call or routed through the chokepoint.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "record.ts validator `in`-conversion (493/546) preserves identical validation behavior for legitimate own-property usage data (B-253e rules unchanged); full npm test (which exercises the validator) green.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator, streaming merge) do NOT treat an inherited key as present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/adapters/shared.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/streaming.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Exhaustive grep + smoke: no remaining key-in-obj prototype-chain presence read on externally-derived objects across assemble/dispatch/adapters/streaming/record (own-prop guarded or routed through the chokepoint).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "record.ts validator in→hasOwnProperty conversion preserves identical B-253e validation behavior for legitimate own-property data (baseline-validates-clean check); full npm test green.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator storyId/supersedesRecordIds, container reads, envelope.result) do NOT treat an inherited key/container as present (CONTAINER-POLLUTION + validator-pollution + result-pollution load-bearing checks).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Smoke: prototype-pollution defense across all paths + the chokepoint helper",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wired) that: (a) for EACH of anthropic / openai / gemini AND the streaming and estimate paths, pollutes Object.prototype with each token key inside a try/finally (ALWAYS restore in finally) and asserts NO inherited value reaches a persisted ledger record — the surfaced record carries only own-property, whitelisted token fields; absent fields stay absent/unavailable (drive the REAL assemble/dispatch/record path, not a stub); (b) asserts the chokepoint helper returns a null-prototype object (Object.getPrototypeOf === null) and DROPS non-whitelisted own keys (parallel to the B-30c3 codex/gemini smoke). Each pollution assertion must be load-bearing (fail if the chokepoint/own-prop guard were removed). Bump the printed check count.",
       "userSees": "node packages/main/dist/tasks/<proto-pollution smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; the pollution assertions fail against the pre-hardening code.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T14:51:51.527Z",
+      "endTime": "2026-06-20T15:02:24.828Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js exits 0 and prints its check count; auto-discovered + npm-wired; full npm test exits 0.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For EACH of anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally, restored) → NO inherited value reaches a persisted record (only own-property whitelisted fields; absent fields stay absent/unavailable); Object.prototype is clean again at the end.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each pollution assertion is load-bearing: it FAILS against the pre-hardening code (or with the chokepoint/own-prop guard removed), proving it is not vacuous.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "node usage-ledger-prototype-pollution-smoke.js prints \"usage-ledger-prototype-pollution smoke passed (30 checks)\" and exits 0; auto-discovered by run-all-smokes; full npm test exits 0.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "For anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally restored) yields NO inherited value in the persisted record; Object.prototype asserted clean again at the end (section G).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Each pollution assertion is load-bearing: verified by revert-experiment that the digest-preserved/container/validator/result checks FAIL against pre-hardening code. The estimate-path check is honestly labeled NOT load-bearing (estimate never reads provider token keys) — a property assertion only.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      ]
     }
   ]
 }

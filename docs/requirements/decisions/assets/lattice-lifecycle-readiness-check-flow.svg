@@ -53,15 +53,16 @@
 
   <g filter="url(#shadow)">
     <path d="M640 435 L900 515 L640 595 L380 515 Z" class="decision"/>
-    <text x="520" y="510" class="box-title">Target proof complete?</text>
+    <text x="520" y="510" class="box-title">Any missing, stale, blocking, manual, or external proof for target?</text>
     <text x="498" y="535" class="box-text">missing, stale, blocking, manual, external?</text>
   </g>
 
   <g filter="url(#shadow)">
     <rect x="930" y="470" width="290" height="118" rx="18" class="stop"/>
     <text x="965" y="506" class="box-title">STOP</text>
-    <text x="965" y="531" class="box-text">print source blocker, owner,</text>
-    <text x="965" y="554" class="box-text">category, and exact next action</text>
+    <text x="965" y="531" class="box-text">print source blocker, owner, code,</text>
+    <text x="965" y="554" class="box-text">category, exact next action,</text>
+    <text x="965" y="577" class="box-text">no mutation in V1</text>
   </g>
 
   <path d="M900 515 L930 529" class="flow"/>
@@ -80,23 +81,9 @@
 
   <g filter="url(#shadow)">
     <rect x="330" y="782" width="620" height="96" rx="18" class="ready"/>
-    <text x="365" y="818" class="box-title">4. Print next lifecycle command only</text>
+    <text x="365" y="818" class="box-title">4. Handoff: print next lifecycle command only</text>
     <text x="365" y="843" class="box-text">No command execution in V1; host chooses whether to run it.</text>
   </g>
-
-  <g filter="url(#shadow)">
-    <rect x="80" y="640" width="250" height="134" rx="18" class="stop"/>
-    <text x="112" y="675" class="box-title">Rollback needed?</text>
-    <text x="112" y="700" class="box-text">REVIEW/TEST blocker:</text>
-    <text x="112" y="724" class="box-text">print story_advance</text>
-    <text x="112" y="747" class="box-text">phase=DEV command</text>
-  </g>
-
-  <path d="M965 588 C810 660 470 675 330 706" class="flow-soft"/>
-  <text x="565" y="649" class="label">EXACT NEXT ACTIONS</text>
-
-  <path d="M930 565 C650 610 345 612 235 640" class="flow-soft"/>
-  <text x="390" y="590" class="small">if implementation work is required</text>
 
   <g filter="url(#shadow)">
     <rect x="80" y="950" width="1120" height="270" rx="24" class="deferred"/>

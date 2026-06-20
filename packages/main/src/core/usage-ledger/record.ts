@@ -366,7 +366,11 @@ export function validateUsageLedgerRecord(
   requireString(record.agentType, 'agentType', errors);
 
   // storyId is nullable but MUST be present (null allowed, undefined not).
-  if (!('storyId' in record)) {
+  // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+  // MECHANISM ONLY — the B-253e rule is unchanged: storyId is "present" iff it is
+  // an OWN property; an inherited Object.prototype.storyId must not satisfy the
+  // required-field rule. For a legitimate record (own field) behavior is identical.
+  if (!Object.prototype.hasOwnProperty.call(record, 'storyId')) {
     errors.push('storyId is required (use null for non-story calls, never omit it)');
   } else if (record.storyId !== null && typeof record.storyId !== 'string') {
     errors.push(`storyId must be a string or null (got ${describe(record.storyId)})`);
@@ -378,7 +382,11 @@ export function validateUsageLedgerRecord(
   }
 
   // supersedesRecordIds: required string[] (may be empty), undefined rejected.
-  if (!('supersedesRecordIds' in record)) {
+  // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+  // MECHANISM ONLY — the B-253e rule is unchanged: an inherited
+  // Object.prototype.supersedesRecordIds (even a []) must not satisfy the
+  // required-field rule. For a legitimate record (own field) behavior is identical.
+  if (!Object.prototype.hasOwnProperty.call(record, 'supersedesRecordIds')) {
     errors.push('supersedesRecordIds is required (use [] when nothing is superseded)');
   } else if (!Array.isArray(record.supersedesRecordIds)) {
     errors.push(`supersedesRecordIds must be an array (got ${describe(record.supersedesRecordIds)})`);
@@ -387,8 +395,13 @@ export function validateUsageLedgerRecord(
   }
 
   // Optional attribution identifiers, when present, must be string|null.
+  // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+  // MECHANISM ONLY — the B-253e rule is unchanged: an inherited
+  // Object.prototype.<key> must not be treated as "present" and so must not pull
+  // the value-shape check onto a polluted value. For a legitimate record behavior
+  // is identical (own key -> same value-shape check; absent key -> skipped).
   for (const key of ['subagentId', 'threadId'] as const) {
-    if (key in record && record[key] !== null && typeof record[key] !== 'string') {
+    if (Object.prototype.hasOwnProperty.call(record, key) && record[key] !== null && typeof record[key] !== 'string') {
       errors.push(`${key} must be a string or null when present (got ${describe(record[key])})`);
     }
   }
@@ -490,7 +503,11 @@ function validateUsage(usage: unknown, errors: string[]): void {
     'cacheCreationInputTokens',
     'cacheReadInputTokens',
   ] as const) {
-    if (!(field in usage)) {
+    // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+    // MECHANISM ONLY — the B-253e rule is unchanged: the field is "present" iff it
+    // is an OWN property; a polluted Object.prototype.<field> must not satisfy the
+    // required-field rule. For a legitimate record (own fields) behavior is identical.
+    if (!Object.prototype.hasOwnProperty.call(usage, field)) {
       errors.push(`usage.${field} is required (use null for an unavailable dimension, never omit it)`);
     } else {
       validateTokenDimension(usage[field], `usage.${field}`, errors);
@@ -519,8 +536,13 @@ function validateUsage(usage: unknown, errors: string[]): void {
       requireString(estimator.name, 'usage.estimator.name', errors);
       requireString(estimator.version, 'usage.estimator.version', errors);
       requireString(estimator.unit, 'usage.estimator.unit', errors);
+      // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+      // MECHANISM ONLY — the B-253e rule is unchanged: confidence is validated
+      // only when supplied as an OWN property; an inherited
+      // Object.prototype.confidence must not pull this check onto a polluted value.
+      // For a legitimate record behavior is identical.
       if (
-        'confidence' in estimator &&
+        Object.prototype.hasOwnProperty.call(estimator, 'confidence') &&
         estimator.confidence !== 'high' &&
         estimator.confidence !== 'medium' &&
         estimator.confidence !== 'low'
@@ -543,7 +565,9 @@ function validateCanonical(canonical: unknown, errors: string[]): void {
     return;
   }
   for (const field of ['input', 'output', 'cacheCreation', 'cacheRead'] as const) {
-    if (!(field in canonical)) {
+    // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+    // MECHANISM ONLY — the B-253e rule is unchanged.
+    if (!Object.prototype.hasOwnProperty.call(canonical, field)) {
       errors.push(`usage.canonical.${field} is required (use null for an unavailable dimension)`);
     } else {
       validateTokenDimension(canonical[field], `usage.canonical.${field}`, errors);

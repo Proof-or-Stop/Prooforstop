@@ -1,0 +1,71 @@
+{
+  "storyId": "B-6878",
+  "checkedAt": "2026-06-20T16:05:42.551Z",
+  "reviewRound": "2026-06-20T15:51:59.755Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#fix-strategy",
+      "promise": "A single null-prototype whitelist chokepoint helper (toOwnPropsNullProto) in sanitize.ts applied at the two entry points so all downstream reads operate on a null-prototype, whitelist-only object",
+      "verifiedBy": "diff/read",
+      "evidence": "sanitize.ts NEW file exports ownProp + toOwnPropsNullProto; assemble.ts extractRawUsage and options.usage override use ownProp; dispatch-usage.ts extractAnthropicUsage projects through toOwnPropsNullProto(usage, ANTHROPIC_USAGE_WHITELIST); adapters anthropic.ts openai.ts gemini.ts each export their WHITELIST and project internally before reads"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#surface-inventory",
+      "promise": "raw.payloadDigest computed over the ORIGINAL raw payload not the projection for all providers including streaming — byte-identical for legitimate payloads with extra non-read fields (F-005/F-007 fix)",
+      "verifiedBy": "diff/read",
+      "evidence": "adapters/anthropic.ts openai.ts gemini.ts: projected used for reads rawUsage passed to buildProviderReportedUsage; streaming.ts: original reference kept before projection adaptOpenAiUsage(original) and adaptGeminiUsage(original) called; smoke digest-preserved checks assert digest==payloadDigest(original) for all 3 providers plus streaming"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#surface-inventory",
+      "promise": "Own-property guards on every external CONTAINER read (envelope.usage model result stream usage usageMetadata message) — F-004/F-008",
+      "verifiedBy": "diff/read",
+      "evidence": "dispatch-usage.ts: extractModel uses ownProp for envelope.model envelope.usage nested usage.model; parseClaudeCliOutput uses ownProp for envelope.usage container and envelope.result; streaming.ts: all three stream extractors guard chunk.usage/chunk.usageMetadata/event.message/event.usage with ownProp; smoke container-pollution checks verify inherited containers rejected"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#surface-inventory",
+      "promise": "All residual in-operator presence reads converted to hasOwnProperty including record.ts validator mechanism-only B-253e rules unchanged — F-011; exhaustive grep clean",
+      "verifiedBy": "diff/grep",
+      "evidence": "record.ts: storyId supersedesRecordIds subagentId/threadId loop usage fields loop canonical fields loop estimator.confidence all converted from in to Object.prototype.hasOwnProperty.call; assemble.ts extractRawUsage in replaced with hasOwnProperty; openai.ts cached_tokens in details replaced with null-proto projection; streaming.ts all in checks replaced with ownProp; exhaustive grep over core/usage-ledger shows zero remaining key-in-obj code"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#verification-approach",
+      "promise": "A 30-check prototype-pollution smoke load-bearing plus package.json alias test:usage-ledger-prototype-pollution",
+      "verifiedBy": "diff/read",
+      "evidence": "usage-ledger-prototype-pollution-smoke.ts NEW: grep -c await check() == 30 confirmed; 23 labeled LOAD-BEARING; covers chokepoint helper all 3 provider finals all 3 streaming extractors estimate digest-preserved for all 3 providers plus streaming container-pollution for all paths result-pollution validator-pollution clean-prototype; package.json adds test:usage-ledger-prototype-pollution alias"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#threat-model",
+      "promise": "Defense-in-depth NOT a live vulnerability — the framing is honest and not over-claimed",
+      "verifiedBy": "read",
+      "evidence": "The spec doc explicitly states no reachable live exploit exists today; sanitize.ts header mirrors this framing verbatim; smoke test header labels estimate check explicitly NOT load-bearing; transcript-diff.md carries the same honest framing; no CLI output changes"
+    },
+    {
+      "docPath": "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md#scope-boundary",
+      "promise": "Protected providers/codex-cli.ts and gemini-cli.ts NOT modified; no new CLI command; B-253e validation rules four-field accounting record shapes unchanged",
+      "verifiedBy": "diff",
+      "evidence": "git diff --name-only shows neither providers/codex-cli.ts nor providers/gemini-cli.ts in the diff; no CLI handler or command file added; record.ts changes are mechanism-only with explicit MECHANISM ONLY comments preserving B-253e rule semantics"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "30-check smoke drives real recordDispatchFinal/recordDispatchFinalForProvider/parseClaudeCliOutput paths persisted to OS temp dir and read back via verifyLedgerChain; helper null-proto + whitelist checks; per-provider pollution (anthropic/openai/gemini) with try/finally restore; legitimate billing data preserved byte-identical; digest-preserved checks for all 3 providers; exit 0 confirmed in transcript-diff.md"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke covers all converted in sites: streaming anthropic/openai/gemini container pollution; record validator storyId/supersedesRecordIds pollution (validator-pollution LOAD-BEARING); openai cached_tokens nested null-proto projection; exhaustive grep verified zero remaining key-in-obj code in core/usage-ledger; npm test full suite exit 0 per transcript"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "30 checks in usage-ledger-prototype-pollution-smoke.ts 23 labeled LOAD-BEARING; all paths driven (anthropic/openai/gemini finals + 3 streaming extractors + estimate + dispatch parseClaudeCliOutput); streaming digest-preserved openai/gemini (F-007); container-pollution all 3 streaming paths + dispatch; result-pollution; validator-pollution; Object.prototype clean-again assertion; exit 0; package.json alias wired; transcript-diff.md documents genuine run exit 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docs promises verified in code via diff inspection and grep. The 30-check smoke drives real persisted ledger paths (not stubs), covers both happy-path (legitimate billing preserved byte-identical) and adversarial paths (polluted prototype inherited containers missing own fields) with 23 checks labeled LOAD-BEARING failing against pre-hardening code. The digest-over-original fix is present in all 3 adapters and both streaming paths. The honest defense-in-depth framing (not a live vuln) is maintained throughout. No TODOs no new CLI commands protected files untouched."
+  },
+  "_hash": "2d96349ee2496a6f1456a0e0ef568716998ec5e6c2ca682729f756b95bdf363f"
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-76f5",
+  "allowedCommands": [
+    "./bin/*",
+    "./packages/main/bin/*",
+    "bash *",
+    "cat *",
+    "git *",
+    "grep *",
+    "lattice *",
+    "node ./packages/main/bin/*",
+    "node *",
+    "npm run *",
+    "rg *",
+    "sed *",
+    "sh *",
+    "ts-node *",
+    "tsx *",
+    "tsx src/*"
+  ],
+  "allowedTools": [
+    "filesystem",
+    "git",
+    "terminal",
+    "web"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".githooks",
+    ".lattice",
+    ".lattice-codex",
+    "docs/requirements",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".env",
+    ".github/secrets",
+    "coverage",
+    "node_modules/.cache"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Feature scope for host handoff fact preflight and stale-doc supersession guard.",
+  "createdAt": "2026-06-20T18:52:39.541Z",
+  "updatedAt": "2026-06-20T18:52:39.541Z",
+  "_hash": "d9a01f03b9b7963fcf725e25d7f863e315baba38f0ca9945789d89f691afb107"
+}

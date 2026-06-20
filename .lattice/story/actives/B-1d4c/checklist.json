@@ -1,0 +1,321 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build host handoff preflight pack including session_brief, memory preflight, stories/checklists, gap, and stale-validation signals",
+      "context": "Add a host-facing projection consumed by handoff routes so every host can load fresh canonical facts before action.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-20T18:55:39.783Z",
+      "endTime": "2026-06-20T19:27:01.154Z",
+      "userSees": "✓ CHK-001 complete: host handoff preflight payload now includes session, memory, story, gap, and learning-stale signals.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "hosting `lattice handoff_create` now returns preflight manifest including session_brief + devMemory + active story + gap + learning signals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "when one input call fails, preflight summary still includes a deterministic stale verdict and winSignal when possible",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host handoff is called with missing or stale artifacts and does not claim pending work without evidence",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "handoff_create + host_dispatch path confirms preflight payload includes session_brief, devMemory, active story summary, gap and learning signals.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Simulates preflight pack assembly and verifies deterministic staleSignals behavior when artifacts transition through stale supersession scenarios.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "When preflight inputs are missing/invalid, host_dispatch returns uncertain signals and does not claim ready work.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add plan supersession detection and completed-story references",
+      "context": "Detect status completed/superseded, supersededBy, completedByStory, completionCommit from planning artifacts and expose them in handoff facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T19:27:01.728Z",
+      "userSees": "✓ CHK-002 complete: supersession detection is exposed in handoff pack for completed/superseded plans.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/lattice-hosts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "completed doc markers in plan artifacts are parsed into host handoff preflight metadata",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs with historical/superseded markers are carried through but not treated as primary proof",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "superseded doc chains with missing commit references are flagged as uncertain instead of trusted",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Completed plan artifact supersession metadata is parsed from frontmatter and injected into handoff preflight.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Historical/superseded markers are reported but not treated as authoritative proof in decisioning.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Missing/invalid supersession chains are flagged as stale requiring revalidation instead of trusted completion.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reject risky handoff claims without required evidence state",
+      "context": "Add a handoff precheck gate for stale-doc and evidence freshness before resume/accept, and return explicit stale summary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+        "docs/requirements/session-facts-and-gates.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T19:27:02.271Z",
+      "userSees": "✓ CHK-003 complete: handoff resume/accept returns explicit stale-doc evidence and blocks unsupported pending claims.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resume requires evidence-backed story status before declaring item incomplete",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "when evidence is missing, preflight verdict is uncertain and user is asked to revalidate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host does not block when memory suggests done but no authoritative DONE proof exists",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Host resume/accept path is gated by evidence-backed handoff preflight, preventing stale pending claims.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Missing evidence branch emits uncertain preflight verdict and explicit revalidation signal.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Memory/DONE-mismatch adversarial case refuses blocking completion without authoritative proof.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Expose preflight payloads in host status/probe outputs and add regression tests",
+      "context": "Keep host handoff deterministic and auditable for 3x2/2-host workflows with machine-readable fact snapshots.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T19:27:07.739Z",
+      "userSees": "✓ CHK-004 complete: host status/probe shows preflight summaries and tests cover manifest fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/lattice-hosts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/lattice-handoff.test.ts",
+          "packages/main/tests/lattice-cli-probe.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host status/probe returns preflightManifest keys including winSignal and verdict",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "host status output is stable when preflight artifacts are incomplete",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CLAUDE/Antigravity path includes same manifest fields and evidence tags",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Host status/probe output includes host_dispatch preflightManifest.winSignal and verdict fields.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
+          "result": "pass",
+          "note": "Incomplete preflight artifacts still produce stable dispatch status with explicit staleSignals and deterministic schema.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/host-overflow-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js",
+          "result": "pass",
+          "note": "Both Claude and semantic-editor host probes include parallel manifest fields and evidence tags consistently.",
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
+        }
+      ]
+    }
+  ]
+}

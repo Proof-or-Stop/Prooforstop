@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0607",
+  "mode": "feature",
+  "allowed": [
+    "docs/guide.md",
+    "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excluded": [
+    ".lattice/learning/** data regeneration",
+    "Authority Server changes",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "production receipt claims",
+    "signature_backfill rerun"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User asked to write an execution document to solve stale plan/backfill documents misleading future hosts; this story is scoped to the execution plan and optional documentation navigation only.",
+  "createdAt": "2026-06-20T17:17:01.425Z",
+  "updatedAt": "2026-06-20T17:17:01.425Z",
+  "_hash": "c79f73a58adf90ac38d9f9388968ee7b1becc49c4e62046095a3f793af1813db"
+}

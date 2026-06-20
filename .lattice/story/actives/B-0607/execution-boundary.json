@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0607",
+  "allowedCommands": [
+    "git diff*",
+    "git status*",
+    "lattice aux_doc_list*",
+    "lattice checklist_get*",
+    "lattice checklist_update*",
+    "lattice decision_*",
+    "lattice scope_contract_check*",
+    "lattice session_brief",
+    "lattice story_advance*",
+    "lattice story_get*",
+    "lattice story_review*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    "docs/guide.md",
+    "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "lattice authority_*",
+    "lattice learning_scan*",
+    "lattice signature_backfill*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".lattice/learning",
+    ".omx",
+    "docs/story",
+    "packages/main/src",
+    "packages/main/tests",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "This story writes an execution plan only. It may inspect current Lattice facts and source docs, but must not implement runtime code, rerun signature backfill, regenerate learning caches, or claim Authority/production completion.",
+  "createdAt": "2026-06-20T17:17:26.071Z",
+  "updatedAt": "2026-06-20T17:17:26.071Z",
+  "_hash": "de0de35246bac7700fdb7a7750183fe9d55747e8541fe6aa9c0758eeac5790c0"
+}

@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Live executable facts outrank stale planning prose.",
+    "Host handoff should be helpful by default and hard-block only when false certainty would mislead the user.",
+    "Memory and learning hints are advisory context, not gate evidence.",
+    "Supersession must be machine-readable and human-readable."
+  ],
+  "drivers": [
+    "Prevent hosts from asking users to redo completed work.",
+    "Keep implementation incremental so future stories can validate behavior before hard gates.",
+    "Make stale plan detection reusable for Codex, Claude Code, Antigravity, and future hosts."
+  ],
+  "options": [
+    {
+      "name": "A: Advisory truth-first preflight plus machine-readable supersession metadata",
+      "pros": [
+        "Low risk for a documentation execution plan.",
+        "Lets hosts see current facts before asserting missing work.",
+        "Can be implemented incrementally across handoff, docs, and memory surfaces."
+      ],
+      "cons": [
+        "Advisory mode can still be ignored until follow-up code wires it into host entrypoints.",
+        "Requires follow-up stories to turn policy into runtime behavior."
+      ]
+    },
+    {
+      "name": "B: Immediate hard gate for every host handoff when stale documents are detected",
+      "pros": [
+        "Strongest protection against repeated false tasking.",
+        "Forces hosts to inspect current facts before proceeding."
+      ],
+      "cons": [
+        "Too broad for this document-only story.",
+        "Could block legitimate planning work when documents are intentionally historical or superseded.",
+        "Needs runtime implementation and careful false-positive handling."
+      ]
+    },
+    {
+      "name": "C: Documentation note only",
+      "pros": [
+        "Fastest and least invasive.",
+        "No CLI or metadata design needed."
+      ],
+      "cons": [
+        "Future hosts can miss the note exactly as they missed the outcome record.",
+        "Does not produce a reusable machine-readable contract."
+      ]
+    }
+  ],
+  "chosen": "A: Advisory truth-first preflight plus machine-readable supersession metadata",
+  "rationale": "Choose advisory preflight plus metadata because this story is scoped to an execution plan, not runtime code. It gives a concrete implementation path while avoiding premature hard blocks. The plan can require follow-up stories to add supersession metadata, handoff preflight packs, dev-memory injection, and stale-plan warnings with tests before any hard gate is considered.",
+  "preMortem": [
+    {
+      "scenario": "The plan only adds prose and future hosts still miss it.",
+      "trigger": "No follow-up story wires dev_memory_preflight or supersession detection into host handoff.",
+      "consequence": "Claude/Codex/Antigravity can still tell the user stale work is undone.",
+      "mitigation": "The execution plan must define concrete implementation stories with command outputs and acceptance gates, not just recommendations."
+    },
+    {
+      "scenario": "Supersession metadata is too vague to distinguish historical plans from active work.",
+      "trigger": "Documents say completed but lack completedByStory, completionCommit, supersededBy, or status fields.",
+      "consequence": "Host warnings become noisy and users stop trusting them.",
+      "mitigation": "Require a minimal schema and fixtures for active, completed, superseded, and historical-reference documents."
+    },
+    {
+      "scenario": "Memory preflight is treated as authoritative gate evidence.",
+      "trigger": "A host or future gate consumes dev-memory as proof instead of advisory context.",
+      "consequence": "Non-authoritative lessons could incorrectly satisfy completion or review gates.",
+      "mitigation": "Plan must preserve dev-memory as non-authoritative and require live facts or validation for claims about completion."
+    }
+  ],
+  "timestamp": "2026-06-20T17:18:42.380Z"
+}

@@ -33,6 +33,7 @@ import { mintRecordId } from './ids.js';
 import { adaptAnthropicUsage } from './adapters/anthropic.js';
 import { adaptOpenAiUsage } from './adapters/openai.js';
 import { adaptGeminiUsage } from './adapters/gemini.js';
+import { ownProp } from './sanitize.js';
 
 /** The providers this assembler knows how to normalize. */
 export type ProviderName = 'anthropic' | 'openai' | 'gemini';
@@ -96,6 +97,12 @@ export interface BuildProviderRecordOptions {
 
 /** Map a provider name to its raw-usage adapter. */
 function adaptUsageFor(provider: ProviderName, providerResponse: unknown): LedgerUsage {
+  // B-6878: each adapter receives the ORIGINAL raw usage sub-object and projects
+  // it INTERNALLY (toOwnPropsNullProto with its own whitelist) for the token-field
+  // reads — so a polluted Object.prototype token key can never be resolved — while
+  // the digest is computed over the ORIGINAL payload (byte-identical to
+  // pre-B-6878, extra non-read fields preserved). extractRawUsage only selects the
+  // right sub-object via an OWN-property container guard (no projection here).
   switch (provider) {
     case 'anthropic':
       return adaptAnthropicUsage(extractRawUsage(providerResponse, 'usage'));
@@ -112,19 +119,28 @@ function adaptUsageFor(provider: ProviderName, providerResponse: unknown): Ledge
 }
 
 /**
- * Pull the usage sub-object out of a provider response by key. A response that
- * IS already the usage object (no nested key) is passed through. A
- * null/undefined/non-object response yields undefined so the adapter funnels it
- * into its unavailable path.
+ * Pull the ORIGINAL usage sub-object out of a provider response by key, using an
+ * OWN-property container guard. No whitelist projection happens here — the adapter
+ * projects internally for its reads while digesting the original payload (B-6878).
+ *
+ * Shape handling: a null/undefined/non-object response yields `undefined` so the
+ * adapter funnels it into its unavailable path; a response carrying the usage
+ * sub-object as its OWN `key` uses that sub-object; a response that IS already the
+ * usage object (no own `key`) is used directly.
+ *
+ * The own-property `key` selection (not a prototype-chain `in`): a polluted
+ * Object.prototype.usage on a response with no OWN usage key can never masquerade
+ * as a usage sub-object — an inherited container is treated as absent.
  */
 function extractRawUsage(providerResponse: unknown, key: string): unknown {
   if (typeof providerResponse !== 'object' || providerResponse === null) {
     return undefined;
   }
-  const response = providerResponse as Record<string, unknown>;
-  if (key in response) return response[key];
-  // The caller may already have handed us the usage object directly.
-  return providerResponse;
+  // Own-property check (not `in`): an inherited `key` never selects a sub-object.
+  return Object.prototype.hasOwnProperty.call(providerResponse, key)
+    ? (providerResponse as Record<string, unknown>)[key]
+    : // The caller may already have handed us the usage object directly.
+      providerResponse;
 }
 
 /**
@@ -143,7 +159,16 @@ export function buildProviderRecord(
   context: RecordContext,
   options: BuildProviderRecordOptions = {},
 ): UsageLedgerRecordInput {
-  const usage = options.usage ?? adaptUsageFor(provider, providerResponse);
+  // B-6878: read the pre-mapped `usage` override via an OWN-property guard. A bare
+  // `options.usage` is a prototype-chain read, so a polluted
+  // Object.prototype.usage would, for a caller passing `options = {}`, masquerade
+  // as a supplied usage and bypass the adapter. Only an OWN `usage` key counts as
+  // a real override; otherwise we run the adapter on the provider response (whose
+  // own usage is projected through the chokepoint).
+  const hasUsageOverride = ownProp(options, 'usage') && options.usage !== undefined;
+  const usage = hasUsageOverride
+    ? (options.usage as LedgerUsage)
+    : adaptUsageFor(provider, providerResponse);
 
   const record: UsageLedgerRecordInput = {
     schemaVersion: SCHEMA_VERSION,

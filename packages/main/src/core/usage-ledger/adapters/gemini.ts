@@ -32,8 +32,24 @@ import {
   readPrimaryDimension,
   readReportedDimension,
 } from './shared.js';
+import { toOwnPropsNullProto } from '../sanitize.js';
 
 export const GEMINI_PROVIDER_UNITS = 'gemini-usage-v1';
+
+/**
+ * B-6878: the ONLY token keys this adapter reads off a Gemini usageMetadata
+ * object. The reads below go through a null-proto, whitelist-only PROJECTION so a
+ * prototype-polluted token key can never be resolved via inheritance. The
+ * ORIGINAL raw usageMetadata is fed to the digest, so raw.payloadDigest stays
+ * byte-identical to pre-B-6878 for any un-polluted payload, including one carrying
+ * legitimate extra non-read fields (e.g. totalTokenCount, which is also excluded
+ * from the record by design).
+ */
+export const GEMINI_USAGE_WHITELIST = [
+  'promptTokenCount',
+  'candidatesTokenCount',
+  'cachedContentTokenCount',
+] as const;
 
 /** The Gemini usageMetadata shape (only the fields we read). */
 export interface GeminiUsageMetadata {
@@ -56,9 +72,12 @@ export function adaptGeminiUsage(rawUsageMetadata: unknown): LedgerUsage {
     return buildUnavailableUsage('gemini: response carried no usageMetadata object');
   }
 
-  const usage = rawUsageMetadata as GeminiUsageMetadata;
-  const input = readPrimaryDimension(usage.promptTokenCount);
-  const output = readPrimaryDimension(usage.candidatesTokenCount);
+  // B-6878: read token fields through a null-proto, whitelist-only projection so
+  // an inherited (prototype-polluted) token key can never be resolved. The
+  // ORIGINAL rawUsageMetadata is passed to the digest below (extra fields kept).
+  const projected = toOwnPropsNullProto(rawUsageMetadata, GEMINI_USAGE_WHITELIST);
+  const input = readPrimaryDimension(projected.promptTokenCount);
+  const output = readPrimaryDimension(projected.candidatesTokenCount);
 
   if (!hasBothPrimaries(input, output)) {
     return buildUnavailableUsage('gemini: usageMetadata did not report both prompt and candidates token counts');
@@ -67,11 +86,13 @@ export function adaptGeminiUsage(rawUsageMetadata: unknown): LedgerUsage {
   // Gemini never reports a cache-write count: cacheCreation is null, never 0.
   const cacheCreation: TokenDimension = null;
   // cacheRead from cachedContentTokenCount; absent -> null (genuine 0 preserved).
-  const cacheRead = readReportedDimension(usage.cachedContentTokenCount);
+  const cacheRead = readReportedDimension(projected.cachedContentTokenCount);
 
   return buildProviderReportedUsage(
     { input, output, cacheCreation, cacheRead },
     GEMINI_PROVIDER_UNITS,
+    // Digest the ORIGINAL raw usageMetadata, NOT the projection: byte-identical to
+    // pre-B-6878 (canonicalJson uses own-enumerable keys, already pollution-safe).
     rawUsageMetadata,
   );
 }

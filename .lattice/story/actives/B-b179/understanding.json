@@ -1,0 +1,23 @@
+{
+  "task": "优化 Lattice Readiness Check 文档的 readiness 语义，消除 READY 判定歧义并修正回退与主分支漂移边界",
+  "outcome": "我可以直接读取一致的 readiness 报告：localReady 按无 blocking 行定义，manual 和 external 有明确的非命令下一步，并且 main 漂移会让 done_prepare 重做。",
+  "facts": [
+    "当前草案中 target proof complete 语义与 readiness 定义不一致",
+    "建议已指出 localReady 未显式定义",
+    "done_prepare 绑定当前仅按 headHash 容易被 main 漂移误判",
+    "图中 rollback 与 STOP 的关系未形成统一 next action 语义",
+    "INIT_CHECK 已通过两位 host reviewer，scope/execution/scope-freeze 已设置"
+  ],
+  "constraints": [
+    "仅改文档与流程说明，不改 CLI 运行时代码",
+    "不得读取或写入 docs/story 与 tests/fixtures 目录",
+    "保持流程事实与文档约束一致，不以口头文本替代 gate 证据",
+    "不新增新命令或新文件，仅修订现有决策文案与流程图"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+  ],
+  "timestamp": "2026-06-20T18:04:47.408Z"
+}

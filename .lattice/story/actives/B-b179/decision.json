@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "定义统一可计算谓词优先于人类解释词",
+    "优先保证 V1 可读性和无副作用边界，再谈自动化执行",
+    "DONE 相关判定必须具备防主分支漂移的绑定锚点"
+  ],
+  "drivers": [
+    "当前文档里 READY 与阻塞语义不一致，主机误判风险高",
+    "done_prepare 重用绑定没有 main 针对性，导致重复回滚或误报",
+    "flow 与 STOP/rollback 命令语义不统一，违背 one-next-action 约定"
+  ],
+  "options": [
+    {
+      "name": "A: 仅改文档与图示一致性语义",
+      "pros": [
+        "低风险、可快速落地",
+        "不会影响 CLI 行为，便于验证和回滚"
+      ],
+      "cons": [
+        "未触碰实现层，真正自动化收益有限"
+      ]
+    },
+    {
+      "name": "B: 同步实现与文档",
+      "pros": [
+        "一并消除实现层歧义",
+        "对后续 pipeline 版本收益更大"
+      ],
+      "cons": [
+        "范围变大，需额外 reviewer 和回归风险"
+      ]
+    }
+  ],
+  "chosen": "A: 仅改文档与图示一致性语义",
+  "rationale": "本 story 目标是先把 READY 判定与 proof 表述统一，先保底 V1 文档，后续再由实现层 story 跟进。",
+  "preMortem": [
+    {
+      "scenario": "只改文档导致读者与实现仍偏离",
+      "trigger": "未在后续 story 落实现层对齐",
+      "consequence": "执行者继续误解 readiness / rollback 语义",
+      "mitigation": "明确在文档中标注 V1 范围与非实现承诺边界，并保留对应后续 story 链路"
+    },
+    {
+      "scenario": "manual/external 被判为阻塞过严",
+      "trigger": "文档中未区分命令可得性",
+      "consequence": "主机看起来被无限阻塞",
+      "mitigation": "将两类行定义为 manual/external next action 并注明命令可空"
+    },
+    {
+      "scenario": "done_prepare main 漂移边界未写清",
+      "trigger": "流程未绑定 main tip",
+      "consequence": "流程上报错并阻塞 merge，复盘成本上升",
+      "mitigation": "在文档中新增 main-tip 绑定字段与 stale 条件示例"
+    }
+  ],
+  "timestamp": "2026-06-20T18:04:45.387Z"
+}
