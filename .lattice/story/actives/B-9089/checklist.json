@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record two-host review evidence for the owner-session execution plan",
+      "context": "Before runtime implementation begins, bind fresh two-host review evidence to docs/requirements/decisions/owner-session-contract-execution-plan.md. Reviews must explicitly check the local/non-cryptographic boundary, generated-token fallback, ppid degradation, and migration away from core host-specific exceptions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Introduce host-neutral owner-session resolver facade",
+      "context": "Create a shared resolver module/facade that returns canonical session id, source, provider diagnostics, and degraded status. Existing owner lease behavior should pass through this facade without weakening current lease semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Move host-specific session signals to adapter boundary",
+      "context": "Claude Code, Codex, Antigravity/agy, and fake future-host handling belong in adapter/facade code, not generic owner-lease, lifecycle, gate, or cli-engine paths. Core should consume the canonical resolver result only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/guide-scope-guard.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add generated-token fallback and runtime artifact hygiene",
+      "context": "Hosts with a session boundary but no native stable env need stable generated-token fallback using approved runtime/session storage. Any persisted token path must be registered as a runtime artifact and ignored/material-safe.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Replace lifecycle and DEV-claim ad hoc session reads",
+      "context": "Lifecycle event collection and DEV-claim warnings should use the same canonical owner-session resolver as story owner leases, so one local session is recognized across repeated invocations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add guardrail tests and multi-host verification matrix coverage",
+      "context": "Update story-owner lease smoke coverage and add a guardrail check so host-native session env names are permitted only in adapter files/tests/docs. Verify canonical env, blank env, adapter bridge, generated-token, ppid degraded fallback, owner gate, lifecycle event, and material hygiene cases.",
+      "relatedDocs": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
