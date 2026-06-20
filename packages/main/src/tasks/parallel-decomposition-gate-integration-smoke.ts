@@ -28,7 +28,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { canStartDevGuard, getGuardFailureReason } from '../core/machine.js';
+import { canStartDevGuard, canSkipPlanGuard, getGuardFailureReason } from '../core/machine.js';
 import type { StoryMachineContext } from '../core/machine.js';
 import type { ChecklistData, ReviewData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { ParallelGateMode } from '../core/parallel-decomposition.js';
@@ -79,6 +79,15 @@ function blockerReview(storyId: string): ReviewData {
   };
 }
 
+/** A correctly-signed review with an arbitrary (possibly negative) blockerCount. The F-002
+ *  `> 0` bug would have let blockerCount=-1 pass as clean; strict `!== 0` must reject it. */
+function signedReview(storyId: string, issueCount: number, blockerCount: number): ReviewData {
+  const timestamp = NOW;
+  const hashInput = `${storyId}:${timestamp}:${issueCount}:${blockerCount}:${REVIEW_SALT}`;
+  const _hash = createHash('sha256').update(hashInput).digest('hex');
+  return { reviews: [{ timestamp, issueCount, blockerCount, issues: [], _hash }] };
+}
+
 function story(id: string, phase: StoryInfo['phase'], parallelSafe: StoryInfo['parallelSafe']): StoryInfo {
   return {
     storyId: id,
@@ -120,8 +129,11 @@ const doneChecklist: ChecklistData = {
  * contracts, and the self story's review.json. Returns the root + store + context.
  */
 function buildRepo(opts: {
+  profile?: 'light' | 'balanced' | 'strict';
   parallelMode?: ParallelGateMode;
   broadGlobBlocks?: boolean;
+  selfPhase?: StoryInfo['phase'];
+  selfChecklist?: ChecklistData;
   selfParallelSafe: StoryInfo['parallelSafe'];
   peerParallelSafe: StoryInfo['parallelSafe'];
   selfModify: string[];
@@ -133,6 +145,9 @@ function buildRepo(opts: {
   corruptPeerStory?: boolean;
   /** Omit the peer's scope-contract.json entirely (peer_contract_unreadable test). */
   omitPeerContract?: boolean;
+  /** An optional EXTRA terminal (DONE) parallel peer that also overlaps self — used to prove the
+   *  failure message names the ACTIVE peer, not the terminal one. Sorts earlier than B-peer. */
+  doneOverlapPeerId?: string;
 }): { root: string; store: StoryStore; context: StoryMachineContext } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-pdgi-'));
   write(root, 'lattice.config.json', JSON.stringify({
@@ -143,7 +158,7 @@ function buildRepo(opts: {
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
-    workflow: { profile: 'balanced' },
+    workflow: { profile: opts.profile ?? 'balanced' },
   }));
   if (opts.parallelMode) {
     write(root, '.lattice/audit-config.json', JSON.stringify({
@@ -162,13 +177,19 @@ function buildRepo(opts: {
   resetConfigCache();
 
   const store = new StoryStore(root);
-  store.writeStory(SELF_ID, story(SELF_ID, 'PLAN', opts.selfParallelSafe));
-  store.writeChecklist(SELF_ID, doneChecklist);
+  store.writeStory(SELF_ID, story(SELF_ID, opts.selfPhase ?? 'PLAN', opts.selfParallelSafe));
+  store.writeChecklist(SELF_ID, opts.selfChecklist ?? doneChecklist);
   store.writeScopeContract(SELF_ID, contract(SELF_ID, opts.selfModify, opts.selfCreate));
   if (opts.review) store.writeReview(SELF_ID, opts.review);
 
   store.writeStory(PEER_ID, story(PEER_ID, 'DEV', opts.peerParallelSafe));
   if (!opts.omitPeerContract) store.writeScopeContract(PEER_ID, contract(PEER_ID, opts.peerModify, opts.peerCreate));
+
+  if (opts.doneOverlapPeerId) {
+    // A DONE (terminal) parallelSafe=yes peer whose write-set ALSO literally overlaps self.
+    store.writeStory(opts.doneOverlapPeerId, story(opts.doneOverlapPeerId, 'DONE', 'yes'));
+    store.writeScopeContract(opts.doneOverlapPeerId, contract(opts.doneOverlapPeerId, opts.selfModify, []));
+  }
 
   if (opts.corruptPeerStory) {
     // index.json EXISTS (so the id is still listed) but is NOT valid JSON => store.readStory throws.
@@ -407,6 +428,159 @@ function assertPeerContractUnreadableBlocks(): void {
   }
 }
 
+// ── F-001: light profile (requireStoryReview=false) + mode=block + overlap -> guard FALSE ──
+// The pre-fix early `return true` when !requireStoryReview made the hard block bypassable.
+function assertLightProfileStillEnforces(): void {
+  const { root, store, context } = buildRepo({
+    profile: 'light', // requireStoryReview=false => NO review record needed; parallel check must still run
+    parallelMode: 'block',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'], // tier-1 literal collision
+    peerCreate: [],
+    review: null, // light profile does not require a review record
+  });
+  try {
+    check('F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE',
+      canStartDevGuard(context) === false);
+    const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root);
+    check('F-001: light profile -> parallel block message present + names peer',
+      /overlap_declared_parallel/.test(reason ?? '') && (reason ?? '').includes(PEER_ID));
+    // sanity: the SAME repo with disjoint write-sets passes (proves it is the overlap blocking, not light itself)
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  // companion: light profile + disjoint -> guard TRUE (no review, no overlap => allowed)
+  const ok = buildRepo({
+    profile: 'light',
+    parallelMode: 'block',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/self-a.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/peer-a.ts'],
+    peerCreate: [],
+    review: null,
+  });
+  try {
+    check('F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE', canStartDevGuard(ok.context) === true);
+  } finally {
+    rmSync(ok.root, { recursive: true, force: true });
+  }
+}
+
+// ── F-003: express channel (INIT_CHECK->DEV via canSkipPlanGuard) must enforce the same block ──
+function assertExpressChannelEnforces(): void {
+  const { root, store, context } = buildRepo({
+    profile: 'balanced', // quickPath enabled, maxChecklistItems=2
+    parallelMode: 'block',
+    selfPhase: 'INIT_CHECK',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'], // overlap
+    peerCreate: [],
+    review: null, // express channel does not consult review
+  });
+  try {
+    check('F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)',
+      canSkipPlanGuard(context) === false);
+    const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root);
+    check('F-003: express channel -> getGuardFailureReason renders the parallel block',
+      /overlap_declared_parallel/.test(reason ?? '') && (reason ?? '').includes(PEER_ID));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  // companion: express channel + disjoint -> canSkipPlanGuard TRUE (no phantom block)
+  const ok = buildRepo({
+    profile: 'balanced',
+    parallelMode: 'block',
+    selfPhase: 'INIT_CHECK',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/self-a.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/peer-a.ts'],
+    peerCreate: [],
+    review: null,
+  });
+  try {
+    check('F-003: express channel + disjoint -> canSkipPlanGuard TRUE', canSkipPlanGuard(ok.context) === true);
+  } finally {
+    rmSync(ok.root, { recursive: true, force: true });
+  }
+  // FAIL-OPEN companion: express channel + corrupt peer (gate throws) -> canSkipPlanGuard TRUE
+  const fo = buildRepo({
+    profile: 'balanced',
+    parallelMode: 'block',
+    selfPhase: 'INIT_CHECK',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'],
+    peerCreate: [],
+    review: null,
+    corruptPeerStory: true,
+  });
+  try {
+    check('F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE', canSkipPlanGuard(fo.context) === true);
+  } finally {
+    rmSync(fo.root, { recursive: true, force: true });
+  }
+}
+
+// ── F-002: signed review with blockerCount=-1 must NOT pass (the `> 0` bug would have let it through) ──
+function assertNegativeBlockerCountStillBlocks(): void {
+  const { root, store, context } = buildRepo({
+    parallelMode: 'off', // isolate the review gate; parallel must not interfere
+    selfParallelSafe: 'no',
+    peerParallelSafe: 'no',
+    selfModify: ['src/core/self-a.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/peer-a.ts'],
+    peerCreate: [],
+    review: signedReview(SELF_ID, 0, -1), // correctly signed, blockerCount = -1
+  });
+  try {
+    check('F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)',
+      canStartDevGuard(context) === false);
+    const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root);
+    check('F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)',
+      /unresolved blocker/.test(reason ?? ''));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ── F-004: when self overlaps BOTH a DONE peer (sorts earlier) and an ACTIVE peer, the message
+//          names the ACTIVE peer (gate's activePeers filter), never the terminal one. ──
+function assertTerminalPeerNotNamed(): void {
+  const DONE_PEER = 'B-aaaa'; // sorts before B-peer in listStoryIds()
+  const { root, store, context } = buildRepo({
+    parallelMode: 'block',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'], // active peer overlaps
+    peerCreate: [],
+    review: cleanReview(SELF_ID),
+    doneOverlapPeerId: DONE_PEER, // DONE peer ALSO overlaps on src/core/shared.ts and sorts earlier
+  });
+  try {
+    check('F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)', canStartDevGuard(context) === false);
+    const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root) ?? '';
+    check('F-004: message names the ACTIVE peer', reason.includes(PEER_ID));
+    check('F-004: message does NOT name the DONE/terminal peer', !reason.includes(DONE_PEER));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertOverlapBlocks();
 assertDisjointPasses();
 assertAdviseAndOffDoNotBlock();
@@ -415,5 +589,9 @@ assertUncleanReviewStillBlocks();
 assertFailOpen();
 assertParity();
 assertPeerContractUnreadableBlocks();
+assertLightProfileStillEnforces();
+assertExpressChannelEnforces();
+assertNegativeBlockerCountStillBlocks();
+assertTerminalPeerNotNamed();
 
 console.log(`parallel-decomposition-gate-integration smoke passed: ${passed} assertions`);
