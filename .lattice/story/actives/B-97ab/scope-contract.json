@@ -1,0 +1,25 @@
+{
+  "storyId": "B-97ab",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/adversarial-review-lens-runner.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/review-run.ts"
+  ],
+  "explicitExcludes": [
+    "docs/adversarial-review-spec.md",
+    "packages/main/src/core/machine.ts"
+  ],
+  "scopeChangeReason": "S1 lens runner: create the runner module + its hermetic smoke, register the smoke in lattice.config.json. S0 contract module and review-run.ts are imported read-only (protected, must not change). Verification/ledger (S2), critic (S3), escalation (S4) are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T13:35:48.559Z",
+  "updatedAt": "2026-06-20T13:35:48.559Z"
+}
