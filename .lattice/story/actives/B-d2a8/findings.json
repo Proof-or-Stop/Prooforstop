@@ -162,6 +162,25 @@
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-010",
+      "desc": "CHK-001:edge:0 and CHK-002:edge:0: both intents claim the smoke verifies that a warn is emitted to console when an invalid mode is supplied. The smoke never captures or asserts on console.warn output (no spy, no mock, no stderr capture). The warn side-effect is visible in the validate run output only because audit-config.ts calls console.warn unconditionally; the smoke does not include any assertion that the warning was actually emitted. The \"warns\" half of the warn+fallback contract is unverified by the smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:35:04.867Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "5c266cc229c41e901d143195e312c6c23eb3811b55f25206d6b9acf1f560df51",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts",
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "missing|ts|edge-edge-both",
+      "signatureTagSource": "auto"
     }
   ]
 }
