@@ -27,7 +27,7 @@
       "desc": "Verification evidence covers all nine reviewed intent refs, including CHK-003:adversarial:0 two-host review evidence, but eight evidence records are stale. lattice session_brief reports 8 stale verification intents after HEAD fe23feb, and checklist_get shows CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, and CHK-003 happy/edge evidence bound to older story/material hashes than the current review scope. Refresh stale verification evidence before REVIEW can rely on coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T07:09:40.348Z",
@@ -41,7 +41,11 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "signatureTag": "missing|md|verification-evidence-covers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ran verification_evidence_refresh_stale and updated CHK-003:adversarial:0 to fresh full-3x2 local review evidence; review_escalation_status reports ok=true assuranceLevel=full-3x2 on current materialHash.",
+      "resolvedAt": "2026-06-20T07:24:18.810Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a781:F-003",
