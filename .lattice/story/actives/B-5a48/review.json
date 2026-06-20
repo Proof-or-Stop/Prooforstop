@@ -57,6 +57,19 @@
         }
       ],
       "_hash": "afbcfc939d965a7576498f0145f144e53e8fef95a204967c987bedb7336393c7"
+    },
+    {
+      "timestamp": "2026-06-20T12:14:43.498Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Extract shared firing leaf core/experience-hint-surface.ts + refactor story-review.ts to use it (behavior-preserving) + Wire surfaceExperienceHints into buildNextSteps REVIEW branch (transition-effects.ts) so hints surface in the reviewer-launch text + fire the A/B event are performed simultaneously?)"
+        }
+      ],
+      "_hash": "6ff18c657f348f6fe599d8f3e84f6f42d90bbeb132d751bfad2379dd6543084b"
     }
   ]
 }
