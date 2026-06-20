@@ -249,7 +249,7 @@
       "desc": "CHK-002:adversarial:0: intent claims the smoke writes a temp audit-config.json with parallelGate set to null and verifies resolveAuditConfig returns profile defaults without throwing. The smoke only tests resolveParallelGate(null, PD) directly at the unit level (line 53); there is no tmpProject call with {parallelGate:null} feeding into resolveAuditConfig. The integration path from JSON config containing null parallelGate through the full resolveAuditConfig pipeline is not covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:35:44.743Z",
@@ -260,7 +260,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: integration case 12 'null config parallelGate -> profile default' writes parallelGate:null and asserts resolveAuditConfig returns the strict profile default without throwing.",
+      "resolvedAt": "2026-06-20T06:39:25.473Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-013",
