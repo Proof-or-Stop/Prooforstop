@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-20T10:48:11.176Z",
       "reviewRunId": "B-ac25:RR-018",
       "_hash": "646dd373e39f7a7b4f6ee8dd7eae2623489c0e5f284f558e1dae1288fcfe86bb"
+    },
+    {
+      "id": "B-ac25:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review. F-005 is resolved: AGENTS.md distinguishes routine lattice validate from opt-in done_required_validate and states no-policy is advisory/no full-suite assurance (AGENTS.md:10-12, 88-89, 142-143, 258-259, 566-567). Requirements docs also preserve the boundary: testing-infra.md:53-57 and story-lifecycle.md:7,93,191,275 describe opt-in/advisory behavior; done-full-test-gate-execution-plan.md:32,76-83,186-188,300 states no-policy is non-blocking/no full-suite claim and B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override. Targeted searches found no M9-M12 or M4-M8 implemented claims, and Authority/Layer4/customerKeyRef references are exclusions or non-Authority disclaimers, not completed implementation claims.",
+      "createdAt": "2026-06-20T11:04:06.569Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-019",
+      "_hash": "beb8af7e1a500a14eacc40d442f549ceaf12b571a7d7cd32804d0bc7b65eb268"
     }
   ]
 }
