@@ -181,6 +181,24 @@
       ],
       "signatureTag": "missing|ts|edge-edge-both",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-011",
+      "desc": "CHK-002:adversarial:1: intent claims the smoke writes an audit-config.json where parallelGate has extra unknown keys alongside valid ones and verifies valid keys are still applied. The smoke file has no assertion covering this scenario whatsoever — no tmpProject call with extra keys, no check for unknown-key tolerance. The 28 assertions account for all the checks in the smoke and none correspond to this intent. Evidence is false coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:35:21.240Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "d74abae489a8fda2bb926e2544ed17489a108eb939e29e777c96eaa7875e8f13",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
