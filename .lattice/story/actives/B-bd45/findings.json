@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-bd45:F-001",
+      "desc": "packages/main/src/core/lifecycle-readiness.ts:285 buildReviewGateRows does not mirror the real REVIEW→TEST gate for required active reviewer lanes. After any valid reviewer pass/finding exists, the readiness report only checks invalid bindings and open blocking findings, then emits no_open_blocking_review_findings at lines 335-344. The actual gate in packages/main/src/core/machine.ts:564-585 requires every opt-in reviewer lane in round 1 and quorum evaluation. This can make lifecycle_check report localReady or missing only validation while concept/quality/test-coverage lanes are still absent, violating the proof-or-stop contract and giving unsafe next-action guidance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T21:06:11.467Z",
+      "reviewRound": "2026-06-20T21:02:51.810Z",
+      "reviewRunId": "B-bd45:RR-002",
+      "_hash": "fa7705ccf8f4ec0b39a78ca3e522fb16908d0398dc2cc62429df7b7b717d51dc",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
