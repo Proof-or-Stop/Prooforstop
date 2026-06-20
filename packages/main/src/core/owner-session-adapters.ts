@@ -4,7 +4,6 @@ export type OwnerSessionHostProvider =
   | 'codex'
   | 'claude-code'
   | 'antigravity'
-  | 'agy'
   | 'fake'
   | 'unknown';
 
@@ -50,8 +49,7 @@ function normalizeProvider(value: string | undefined): OwnerSessionHostProvider 
   if (!normalized) return null;
   if (normalized === 'claude' || normalized === 'claude-code' || normalized === 'claude_code') return 'claude-code';
   if (normalized === 'codex') return 'codex';
-  if (normalized === 'antigravity') return 'antigravity';
-  if (normalized === 'agy') return 'agy';
+  if (normalized === 'antigravity' || normalized === 'agy') return 'antigravity';
   if (normalized === 'fake') return 'fake';
   return 'unknown';
 }
@@ -66,8 +64,7 @@ function detectProvider(env: OwnerSessionEnv): OwnerSessionHostProvider | null {
     ?? normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
     ?? (trimToNull(env.CLAUDE_CODE_SESSION_ID) || trimToNull(env.CLAUDE_SESSION_ID) ? 'claude-code' : null)
     ?? (trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
-    ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) ? 'antigravity' : null)
-    ?? (trimToNull(env.AGY_SESSION_ID) ? 'agy' : null);
+    ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) || trimToNull(env.AGY_SESSION_ID) ? 'antigravity' : null);
 }
 
 function candidate(provider: OwnerSessionHostProvider, key: string, value: string | undefined): AdapterSessionIdentity | null {
@@ -99,11 +96,7 @@ function nativeAdapterSession(env: OwnerSessionEnv, provider: OwnerSessionHostPr
 
   if (provider === 'antigravity') {
     return candidate(provider, 'LATTICE_ACTIVITY_SESSION', env.LATTICE_ACTIVITY_SESSION)
-      ?? candidate(provider, 'ANTIGRAVITY_SESSION_ID', env.ANTIGRAVITY_SESSION_ID);
-  }
-
-  if (provider === 'agy') {
-    return candidate(provider, 'LATTICE_ACTIVITY_SESSION', env.LATTICE_ACTIVITY_SESSION)
+      ?? candidate(provider, 'ANTIGRAVITY_SESSION_ID', env.ANTIGRAVITY_SESSION_ID)
       ?? candidate(provider, 'AGY_SESSION_ID', env.AGY_SESSION_ID);
   }
 
@@ -145,4 +138,3 @@ export function resolveAdapterOwnerSession(
 
   return null;
 }
-

@@ -157,7 +157,7 @@ try {
       inA,
     );
     assert.equal(rAgy.sessionId, 'agy-sess-1', 'agy alias still bridges as adapter input');
-    assert.equal(rAgy.hostProvider, 'agy', 'agy remains a diagnostic provider string');
+    assert.equal(rAgy.hostProvider, 'antigravity', 'agy alias normalizes to canonical Antigravity provider diagnostics');
 
     const rFuture = resolveSessionIdentity(
       { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake', LATTICE_OWNER_SESSION_ADAPTER_SESSION: 'future-sess-1' },

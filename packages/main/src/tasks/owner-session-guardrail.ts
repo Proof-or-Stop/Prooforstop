@@ -55,5 +55,22 @@ assert.deepEqual(
 const adapterPath = join(projectRoot, 'packages/main/src/core/owner-session-adapters.ts');
 assert.equal(existsSync(adapterPath), true, 'owner-session adapter boundary exists');
 
-console.log('✓ owner-session guardrail passed (raw host session envs confined to adapter/dispatch/test allowlist)');
+const dispatchPath = join(projectRoot, 'packages/main/src/core/lattice-dispatch.ts');
+const dispatch = readFileSync(dispatchPath, 'utf8');
+const boundedStart = dispatch.indexOf('function runBoundedRealLeafDispatch');
+const boundedEnd = dispatch.indexOf('function runCodexRealLeafDispatch', boundedStart);
+assert.notEqual(boundedStart, -1, 'runBoundedRealLeafDispatch exists');
+assert.notEqual(boundedEnd, -1, 'runCodexRealLeafDispatch follows runBoundedRealLeafDispatch');
+const boundedBody = dispatch.slice(boundedStart, boundedEnd);
+assert.match(
+  boundedBody,
+  /const providerEnv = buildCanonicalHostRuntimeEnv\(/,
+  'bounded codex/gemini dispatch must build canonical host runtime env',
+);
+assert.match(
+  boundedBody,
+  /runner\(\{[\s\S]*?env: providerEnv,[\s\S]*?\}\)/,
+  'bounded codex/gemini provider subprocess must receive providerEnv, not process.env',
+);
 
+console.log('✓ owner-session guardrail passed (raw host session envs confined to adapter/dispatch/test allowlist; bounded providers use canonical env)');
