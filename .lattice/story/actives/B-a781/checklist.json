@@ -54,6 +54,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:49:24.337Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"derived-ppid|ppid Degraded Fallback|last fallback|degraded\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "result": "pass",
+          "note": "The plan labels ppid identity as a degraded last fallback and requires user-visible source labeling when canonical host identity is absent.",
+          "headHash": "b63bf7f95471082524c3c7d04347a89e0ad8094f",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:49:30.736Z"
         }
       ]
     },
