@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Owner lease core should remain host-neutral and consume a canonical Lattice identity contract.",
+    "Host adapters own host-specific session discovery and bridging.",
+    "ppid-derived identity must be treated as degraded fallback for owner-gated mutations.",
+    "Documentation must distinguish local coordination identity from Authority or cryptographic identity."
+  ],
+  "drivers": [
+    "Parallel story development must not self-block when shell parent processes change.",
+    "Future hosts should have one onboarding rule instead of repeated core changes.",
+    "The first deliverable is an execution plan reviewed by two hosts, not runtime code."
+  ],
+  "options": [
+    {
+      "name": "A: Canonical LATTICE_SESSION_ID adapter contract",
+      "pros": [
+        "Keeps owner lease core stable and host-neutral",
+        "Gives Codex, Claude Code, Antigravity/agy, and future hosts one onboarding rule",
+        "Allows wrappers and dispatch to bridge or generate stable session ids without changing core each time"
+      ],
+      "cons": [
+        "Requires adapter/wrapper updates before full runtime protection exists",
+        "Requires migration guidance for existing CLAUDE_CODE_SESSION_ID fallback"
+      ]
+    },
+    {
+      "name": "B: Add every host-specific env variable directly to owner lease core",
+      "pros": [
+        "Fastest local patch for Codex and Antigravity if their env names are known",
+        "Minimal immediate wrapper changes"
+      ],
+      "cons": [
+        "Repeats the Claude-only special-case problem",
+        "Future hosts require core edits and new risk each time",
+        "Makes core responsible for host runtime discovery instead of owner lease semantics"
+      ]
+    },
+    {
+      "name": "C: Keep current behavior and document users should set LATTICE_SESSION_ID manually",
+      "pros": [
+        "No code changes needed after the document",
+        "Users can work around ppid instability immediately"
+      ],
+      "cons": [
+        "Operationally fragile for automated parallel dispatch",
+        "Does not protect default Codex/agy workflows",
+        "Leaves the same failure mode to appear under host scheduler changes"
+      ]
+    }
+  ],
+  "chosen": "A: Canonical LATTICE_SESSION_ID adapter contract",
+  "rationale": "Choose the canonical adapter contract because owner lease is a core concurrency primitive and should not depend on each host runtime implementation detail. Wrappers and dispatch are the correct layer to translate native session facts into LATTICE_SESSION_ID.",
+  "preMortem": [
+    {
+      "scenario": "A future host is added without setting LATTICE_SESSION_ID",
+      "trigger": "New host integration calls mutating Lattice commands but only exposes host-specific session env",
+      "consequence": "Owner lease falls back to ppid and may self-reject across command invocations",
+      "mitigation": "Execution plan requires host onboarding checklist and smoke test that stable host session bridges into LATTICE_SESSION_ID before owner-gated commands"
+    },
+    {
+      "scenario": "ppid fallback remains silent on owner-gated mutation",
+      "trigger": "No stable session env is available in Codex/agy or a manual terminal",
+      "consequence": "The system appears to work until process-parent behavior changes, then creates false foreign leases",
+      "mitigation": "Plan requires warning or eventual fail-closed policy for derived-ppid on owner-gated mutating commands while preserving read-only diagnostics"
+    },
+    {
+      "scenario": "The contract is confused with Authority identity",
+      "trigger": "Documentation uses identity/security language too strongly",
+      "consequence": "Users over-trust local session ids as authentication or production authority evidence",
+      "mitigation": "Plan explicitly states LATTICE_SESSION_ID is local coordination only, forgeable, non-cryptographic, and never Authority receipt evidence"
+    },
+    {
+      "scenario": "Two-host review is recorded as prose only",
+      "trigger": "Reviewers comment in chat but no durable evidence path is defined",
+      "consequence": "Implementation proceeds without auditable independent review",
+      "mitigation": "Plan requires reviewer evidence through Lattice review/finding/pass or host verdict events with material binding"
+    }
+  ],
+  "timestamp": "2026-06-20T06:34:12.841Z"
+}

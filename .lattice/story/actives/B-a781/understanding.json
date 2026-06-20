@@ -1,0 +1,31 @@
+{
+  "task": "Write an execution plan for a stable, host-neutral owner-session contract for Lattice story owner leases.",
+  "outcome": "User sees a committed execution document explaining that all hosts must bridge stable native session identity into LATTICE_SESSION_ID, with Codex/Claude Code/Antigravity examples, fallback rules, verification requirements, and two-host review requirements before implementation.",
+  "facts": [
+    "Story owner lease is already implemented and gate-consumed for story-scoped mutating commands.",
+    "Current owner lease identity resolves LATTICE_SESSION_ID, then CLAUDE_CODE_SESSION_ID, then derived ppid fallback.",
+    "Claude Code ppid instability was already recognized in code comments and smoke tests.",
+    "Codex wrapper currently sets LATTICE_ACTIVITY_SESSION from CODEX_SESSION_ID/OPENAI_SESSION_ID/TERM_SESSION_ID but does not bridge it to LATTICE_SESSION_ID.",
+    "The user wants a generic future-host contract, not another host-specific core special case."
+  ],
+  "constraints": [
+    "This story is documentation-only; no runtime implementation changes are authorized.",
+    "Do not read or write docs/story or tests/fixtures directly.",
+    "Do not use .omx.",
+    "The execution plan must preserve owner lease as local coordination, not cryptographic or Authority identity.",
+    "The plan must require two-host review before implementation proceeds."
+  ],
+  "unknowns": [
+    "Whether Antigravity/agy exposes a native stable session environment variable; the plan must support both native env and generated dispatch token cases."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/guide-scope-guard.md",
+    "bin/lattice-codex.js",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts"
+  ],
+  "timestamp": "2026-06-20T06:33:54.607Z"
+}
