@@ -435,9 +435,9 @@
         "Authority production receipts",
         "emergency override implementation"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T10:14:56.430Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/story-lifecycle.md",
@@ -471,7 +471,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"routine validation evidence|DONE-required evidence|done_required_validate\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
+          "result": "pass",
+          "note": "Docs distinguish lattice validate as routine TEST evidence from done_required_validate as separate DONE-required evidence.",
+          "headHash": "0ebb9970e38ce0e0008b4fab8fb85192e4078f1f",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:14:56.782Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"advisory/non-blocking|advisory and non-blocking|no full-suite claim\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
+          "result": "pass",
+          "note": "Docs state external projects without doneRequiredCommands are advisory/non-blocking and must not claim full-suite assurance.",
+          "headHash": "0ebb9970e38ce0e0008b4fab8fb85192e4078f1f",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:14:57.059Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
+          "result": "pass",
+          "note": "Changed docs explicitly say this story does not implement release approval, pre-push, Authority, or production receipt behavior; changed-file check confirms those implementation surfaces were not touched.",
+          "headHash": "0ebb9970e38ce0e0008b4fab8fb85192e4078f1f",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:14:57.336Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
