@@ -293,6 +293,19 @@
           "materialHash": "056fe6f6c67a56ae56b48cf83f86763ce31d94386d42ff14b38d951eed195dea",
           "storyFilesHash": "cb5f7f72a4e61977f75de9cc68acddb55e7dca0e4b3acdd46e1ceae7d4129bf4",
           "timestamp": "2026-06-20T07:20:33.164Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts every produced issue has severity exactly 'advisory' and type 'decomposition_advisory' (never blocker).",
+          "headHash": "0c6dba5190928bfbb65da2aba8880465f511e826",
+          "materialHash": "056fe6f6c67a56ae56b48cf83f86763ce31d94386d42ff14b38d951eed195dea",
+          "storyFilesHash": "cb5f7f72a4e61977f75de9cc68acddb55e7dca0e4b3acdd46e1ceae7d4129bf4",
+          "timestamp": "2026-06-20T07:20:33.743Z"
         }
       ]
     }
