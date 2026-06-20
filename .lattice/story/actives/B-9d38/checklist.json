@@ -172,9 +172,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke with a FAKE runCritic proving seam pass-through + provenance tagging; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-critic-smoke.ts (check+counter, explicit literals). Assert: runCompletenessCritic with a fake runCritic that records its input and returns a planted Finding[] -> returns exactly those findings unchanged, and the fake received exactly {change, confirmedFindings} (the confirmed set, not raw); an empty confirmedFindings still calls the critic. toCriticFindingAddArgs(finding,{reviewRunId,agent:'lattice-review-quality',category}) -> desc STARTS WITH '[completeness-critic] ' followed by the S2 composeDesc; severity is the mapped critical|high|medium|low (NOT an abstract BLOCKER/MAJOR/MINOR); agent==='lattice-review-quality' (a real lane, never 'completeness-critic'); files/category/reviewRunId pass through; works for 'lattice-review-behavior' too. COMPLETENESS_CRITIC_DESC_TAG==='[completeness-critic]'. Register node packages/main/dist/tasks/adversarial-review-critic-smoke.js in lattice.config.json validate.commands.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T15:37:01.828Z",
-      "endTime": null,
+      "endTime": "2026-06-20T15:37:08.767Z",
       "verificationIntent": {
         "happy": [
           {
