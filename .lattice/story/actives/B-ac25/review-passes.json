@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T10:34:15.912Z",
       "reviewRunId": "B-ac25:RR-009",
       "_hash": "88f9028622ba01c67fda213690fa42c681e85670dd8d5366a90eaf88517987c9"
+    },
+    {
+      "id": "B-ac25:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage re-review PASS. Verified the refreshed checklist has 21/21 passing verificationEvidence entries; smoke source covers external opt-in root npm test PASS without missing-build-proof, explicit self-host missing build proof blocking, and same-material packages/main build proof passing; commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/done-required-validation-smoke.js; npm test.",
+      "createdAt": "2026-06-20T10:38:55.569Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-011",
+      "_hash": "12ebb4c1cffc61ceccc1fedcccb87bc469b12a42016b7e3e814e2fcdb1f97afb"
     }
   ]
 }
