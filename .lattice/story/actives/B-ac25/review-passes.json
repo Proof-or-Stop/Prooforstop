@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-20T11:01:07.967Z",
       "reviewRunId": "B-ac25:RR-020",
       "_hash": "7280c45ca87ee8d287d5591d2a343757b8fa172fa5dc959d0c44634a701bab55"
+    },
+    {
+      "id": "B-ac25:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: scripts/verify-process-fact-contract.mjs:3300 accepts .lattice/story/actives/B-scope/done-required-evidence.json as a lifecycle artifact, and scripts/verify-process-fact-contract.mjs:3329 asserts the stable scope.lifecycle_artifact:B-scope:done-required-evidence.json row source/status/blocking contract. Verified commands PASS: npm --prefix packages/main run build; npm run test:process-fact-contract; npm run test:done-required-validation-smoke.",
+      "createdAt": "2026-06-20T11:28:17.245Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-025",
+      "_hash": "0efab2dea6a86d59257f167317deaa96ea1848a40afc8231919d322d3f37cf33"
     }
   ]
 }
