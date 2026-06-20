@@ -653,6 +653,50 @@
         "bindingHash": "409434b57a3d3f874cb9d24c18027abf761e899e3ffca54f68b6167421584f7e"
       },
       "_hash": "b0cf9c17e2ff627579fa2dcf1dfef066a0a69ae6ed0a0f39b568b5db9304cdd1"
+    },
+    {
+      "reviewRunId": "B-d2a8:RR-016",
+      "storyId": "B-d2a8",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "startedAt": "2026-06-20T06:28:55.648Z",
+      "headHash": "2876da3abfa5fb89fe16d162bc126ca500617a1c",
+      "materialHash": "4f3ea292ea9de3d485adca42f723a3923765b1c3fd9a73f8cf9145c71315839c",
+      "storyFilesHash": "c29b5f4beed9e49af5fb2a78bf647625b102917911004fe369512d29ebf0d881",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d0fd6be7b29de5c0d8be29ab1d77c4e582499f934a5ab94896e8e2e063d0fc8c",
+        "diffPackHash": "68f0d636c4461e458f2cf90e15e3ed0bdf0aae734a72175eb8b2e3dd64c70257",
+        "reviewedChangedFiles": [
+          "docs/parallel-decomposition-spec.md",
+          "lattice.config.json",
+          "packages/main/src/core/audit-config.ts",
+          "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "69d65277af5cc09fe031dd1cbf4741d0271ae6c78d21b2811571526a0ed9bfac",
+          "90912f5f68f832738bf337f981af5ec497a9d8d41ea62c780f75d0f48216b441",
+          "921d84419bd60d40bc4e1a9dbd9f472b899ad15719715a99384c67814804d61c",
+          "aaede03d38cf27a2f32556b0aa66675e47826aab1373c47f9a445ba7cffc7439",
+          "ef5ffa6d982ea6931612cfc713e098e9f9f6f238050a08ff3f1a3413413e0ce9"
+        ],
+        "bindingHash": "24e4b62fb806d28a7021b5bdc4ae91c9c8d1c60ff79fb7a9d8de6ea8ec333a3c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-d2a8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-d2a8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-d2a8",
+        "workspaceMode": "story-worktree",
+        "headHash": "2876da3abfa5fb89fe16d162bc126ca500617a1c",
+        "materialHash": "4f3ea292ea9de3d485adca42f723a3923765b1c3fd9a73f8cf9145c71315839c",
+        "storyFilesHash": "c29b5f4beed9e49af5fb2a78bf647625b102917911004fe369512d29ebf0d881",
+        "bindingHash": "12682ff75a9d27c4041aa97b2f60040d12cc9d1e851b75ab5ff394a369f3c9bd"
+      },
+      "_hash": "2a5f01de0724af57f22d4504f39e7e69917b9999c5f8ea37b1ccff3f334951d4"
     }
   ]
 }

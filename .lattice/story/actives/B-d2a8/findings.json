@@ -424,6 +424,24 @@
       "resolvedAt": "2026-06-20T06:27:55.957Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d2a8:F-024",
+      "desc": "quality-cleanup: audit-config.ts:250 uses 'as ParallelGateConfig' to strip undefined from profileDefaults.parallelGate, but the idiomatic form is the non-null assertion operator (!) which only removes undefined. The comment says non-null assertion but the code uses a full type cast, which is slightly misleading and weaker — a future shape mismatch would also be silenced.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:30:37.373Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-016",
+      "_hash": "2baad4eb9e29b86542548c4426f93d645053dce3097f6500957ab40d76634bf7",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "cleanup|ts|quality-cleanup-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
