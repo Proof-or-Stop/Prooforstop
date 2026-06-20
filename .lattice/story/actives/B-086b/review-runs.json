@@ -47,6 +47,54 @@
         "bindingHash": "411b02ccd4b74e28ef1b3305817cc57ecabc8e922a6e4785f07facbaec79d098"
       },
       "_hash": "51d221ce038e5b297d12eb4268af6abf664f9a5d6c206830e7b0c1da91a5e0c3"
+    },
+    {
+      "reviewRunId": "B-086b:RR-002",
+      "storyId": "B-086b",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "startedAt": "2026-06-20T09:37:25.654Z",
+      "headHash": "e549182ffc546f661f7b6d0df4761b32935cc640",
+      "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+      "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "175368cccff50048e824cb5104733c29ed9b651cffa30f7871f98d67da021a13",
+        "diffPackHash": "338f5832a41e98f844115817f7e37163144b10f7728b4892dc2e55d3ecbeb883",
+        "reviewedChangedFiles": [
+          "lattice.config.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/parallel-decomposition.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0a73c3a9e82b20121058c9287c864f1ad236d5628e1bb557bf524bdbc49baed6",
+          "0e1c4b2d1f6610c310f4ba7a4a70f4cd67ee7e427e55c3d86e4968838a54f1c3",
+          "5c9e6464a079c342375c38c40fed0b46fbe6694913edf129b038ca914f85b15c",
+          "7cb4fb9bc726b1b5c0313b610ef683f34b5984d69f453da9c4d55a5fa4e4d3a8",
+          "b1bdaad2b6708a1f81cf4916c8435e1b1f2fb847599b3098f092957ed28452ae",
+          "b401401a0cba8957e2f87dfee32c6b287ec00efbcda2021d20f631d6ef73cc50",
+          "c3ca9acf05e50896dcbf667a47b958455ff842d5c43200df3884b120417837ba",
+          "d1502331af13e7eb1e6d6af6bf8169dc8648849f37a91a290e3a3211a168a244",
+          "fd74e41fe97e30c0cee797a1cfaebbd374633ed7b9aea51288b321e442228d84"
+        ],
+        "bindingHash": "9a77982090c6a7e0410f803a1de3f7fcdb73bff74dc87016dd78d7c9e1b041e9"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-086b",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-086b",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-086b",
+        "workspaceMode": "story-worktree",
+        "headHash": "e549182ffc546f661f7b6d0df4761b32935cc640",
+        "materialHash": "c3b149fe3140b982e74c332a8f657051666f8169da80b6a46d1325b36a6b1ccc",
+        "storyFilesHash": "91cddddb3b85ea174d7e2f8cba8dd745f9be20ecbbac6bc4c305454921f4ef59",
+        "bindingHash": "5bc696cc4fb7ef1fe3b1f79af1c6b6d148921918cb53988737b6cbe813e4d937"
+      },
+      "_hash": "eef8e5c8b0c990ee3f783a732f4e0e20e8bb3a4e0ccd568744dabf68bc48976a"
     }
   ]
 }
