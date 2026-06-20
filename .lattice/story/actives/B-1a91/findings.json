@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: done-merge-experience-refresh-smoke.ts:174 — non-null assertion cache! is unsound (TypeScript cannot infer process.exit(1) as noreturn, so cache remains FindingSignalsCache|null at this point) and the as-number cast that follows is redundant (typeof cache?.coveredFindingCount === 'number' already narrows it). Fix: pull the null guard into a real branch before this line (e.g. if (!cache) { ... return; }), then drop both the non-null assertion and the cast.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T09:16:58.159Z",
@@ -16,7 +16,10 @@
         "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
       ],
       "signatureTag": "edge|ts|quality-cleanup-merge",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 94f529ec6; smoke null-guard replaces unsound cache! assertion + redundant cast. Confirmed by round-3 quality lane.",
+      "resolvedAt": "2026-06-20T09:43:08.310Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-1a91:F-002",
