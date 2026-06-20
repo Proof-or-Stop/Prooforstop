@@ -228,8 +228,10 @@ check('write from the worktree lands in main/.lattice/learning and a worktree re
 //
 // These are valid git layouts whose .git storage lives OUTSIDE the checkout. The
 // prior `dirname(--git-common-dir)` resolver pointed the learning dir at the
-// EXTERNAL storage parent instead of the checkout — this case guards that the
-// `git worktree list` resolver reports the actual checkout root in both shapes.
+// EXTERNAL storage parent instead of the checkout. For both shapes `git worktree
+// list --porcelain`'s first entry is the external/bare gitdir (== --git-common-dir),
+// so resolveLearningRoot detects mainWorktree == commonDir and falls back to
+// `git rev-parse --show-toplevel` (the actual checkout) — these cases guard that.
 
 check('separate-git-dir checkout resolves the learning dir under the CHECKOUT, not the external gitdir', () => {
   const base = mkTempRoot();
@@ -287,8 +289,10 @@ check('bare-backed worktree resolves the learning dir under the MAIN checkout, n
   // The bare gitdir is NOT under the worktree checkout (precondition for the bug).
   assert.equal(bareDir.startsWith(wtRoot), false, 'bare gitdir lives outside the worktree checkout');
 
-  // From a bare-backed worktree, `git worktree list` reports the worktree checkout
-  // as the first (main) entry — so the learning dir resolves under the checkout,
+  // From a bare-backed worktree, `git worktree list --porcelain`'s FIRST entry is
+  // the BARE REPO dir (it equals --git-common-dir), NOT a real checkout. resolveLearningRoot
+  // detects mainWorktree == commonDir and falls back to `git rev-parse --show-toplevel`
+  // (the actual checkout) — so the learning dir resolves under the checkout,
   // NOT under dirname(bareDir) (== base), the old regression.
   const resolved = resolveFindingSignalsPath(wtRoot);
   assert.ok(
