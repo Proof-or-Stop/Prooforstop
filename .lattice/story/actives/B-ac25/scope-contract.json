@@ -16,6 +16,7 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
     "packages/main/src/core/command-policy.ts",
     "package.json",
     "lattice.config.json",
@@ -31,11 +32,12 @@
   "allowedTest": [
     "packages/main/src/tasks/done-required-validation-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
     "package.json"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Root npm test is now a self-host DONE-required command in B-ac25. The full suite exposed a deterministic-session bug in the existing nested-worktree smoke, so this contract narrowly allows repairing that test harness without changing runtime owner-lease behavior.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -65,5 +67,5 @@
     }
   ],
   "createdAt": "2026-06-20T10:15:40.907Z",
-  "updatedAt": "2026-06-20T10:16:10.129Z"
+  "updatedAt": "2026-06-20T10:30:56.242Z"
 }
