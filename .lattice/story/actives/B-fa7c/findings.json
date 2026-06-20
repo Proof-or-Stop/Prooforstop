@@ -51,6 +51,23 @@
       ],
       "signatureTag": "edge|ts|major-smoke-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa7c:F-004",
+      "desc": "MINOR: scopeGlobOverlapDegradations is always passed explicitOverrideNote ' Explicit parallelSafe=yes is overridden by collection-level safety.', but this advisory does NOT change the safety tier, so nothing is overridden. Misleading human-facing text. Fix: pass '' (or an advisory-appropriate note).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "claude-quality",
+      "createdAt": "2026-06-20T07:34:38.376Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "c7e94d1f6eb0df79e645fc8526ab69cd451d8d570a51b726309664931cf78ac8",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "cleanup|ts|minor-scopegloboverlapdegradations-always",
+      "signatureTagSource": "auto"
     }
   ]
 }
