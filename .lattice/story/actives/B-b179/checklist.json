@@ -88,9 +88,38 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:05:03.379Z",
+      "endTime": null,
+      "userSees": "文本流程、Mermaid 与 SVG 的 READY 判定与 rollback 文案与 handoff 同步，图例和 next action 风格一致。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "检查文档、Mermaid 与 SVG 在关键判定词与 STOP 行为上保持一致",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "验证 rollback 在 V1 仅表现为主机可执行/非命令 next action 而非独立 stage",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证是否出现与 step 4 handoff 重复或冲突的描述，导致实现歧义",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
