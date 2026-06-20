@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T15:24:07.824Z",
       "reviewRunId": "B-6878:RR-006",
       "_hash": "9821d833bf36807bcde90d7b2da841aa7e1b318e1fdfd4e56109cb0abb08c2a3"
+    },
+    {
+      "id": "B-6878:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review complete. FIX A verified: all three adapters (anthropic, openai, gemini) project rawUsage via toOwnPropsNullProto for TOKEN READS but pass the ORIGINAL raw object to buildProviderReportedUsage for the digest — confirmed for the assemble.ts path. Streaming path passes projected objects to adapters (pre-existing behavior, unchanged by this commit, not claimed in FIX A). FIX B verified: dispatch-usage.ts and streaming.ts now use ownProp() guards on every external container read (envelope.usage, event.message, event.usage, chunk.usage, chunk.usageMetadata). FIX C verified: smoke label updated to NOT load-bearing for the estimate path. record.ts validator guards are mechanism-only. sanitize.ts is a pure leaf. One low-severity finding filed (F-006): duplicate local ANTHROPIC_USAGE_WHITELIST in dispatch-usage.ts instead of importing the exported one from adapters/anthropic.ts. No blockers. No dead imports. No type safety regressions. B-253e rules preserved.",
+      "createdAt": "2026-06-20T15:29:36.969Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "reviewRunId": "B-6878:RR-004",
+      "_hash": "e8b23e66837919e5a082ed82a803580439472078b597413e66f7bd52f5ea1919"
     }
   ]
 }
