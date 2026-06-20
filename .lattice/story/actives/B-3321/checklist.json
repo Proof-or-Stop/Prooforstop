@@ -66,7 +66,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document lists concrete implementation verification commands, expected artifacts, and smoke scenarios that prove subset validate cannot unlock DONE when full-suite evidence is missing or failing.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document defines in-flight story migration, emergency bypass/degraded handling, and stale evidence recovery without weakening DONE semantics.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document mandates 3 distinct rounds with 2 independent hosts over the final material hash for implementation of this high-risk gate change.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
