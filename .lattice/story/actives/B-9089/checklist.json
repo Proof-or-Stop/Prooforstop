@@ -189,7 +189,38 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Repeated lifecycle commands from the same canonical owner session no longer emit false DEV-claim or foreign-owner warnings merely because the shell parent PID changed."
+      "userSees": "A repeated `story_advance` or DEV-claim check with the same canonical session no longer prints \"already claimed for development\" solely because parent PID changed.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Lifecycle event collection records session id/source through the same owner-session resolver used by story owner leases.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When no canonical or adapter session exists, lifecycle diagnostics label the derived ppid path as degraded rather than treating it as a durable host session.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Transition/DEV-claim code no longer directly reads host-specific session env vars such as CLAUDE_SESSION_ID or provider-native names.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
