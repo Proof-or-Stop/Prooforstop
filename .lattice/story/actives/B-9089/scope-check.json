@@ -128,10 +128,12 @@
       "q": "Should B-9089 initialize a formal Lattice scope contract from the PLAN file boundary before DEV, or is the fail-open scope_contract state intentional for this story?",
       "evidence": "scope_contract_show reports no configured scope contract and scope_contract_check skips, while the story touches owner-lease/lifecycle paths where the execution boundary matters.",
       "sourcePointers": [
-        "scope_contract_show --storyId=B-9089",
-        "scope_contract_check --storyId=B-9089",
-        "plan.md Files sections"
-      ]
+        "docs/requirements/decisions/story-lifecycle.md#scope reviewer",
+        "CHK-006",
+        "scope_contract_init_from_plan"
+      ],
+      "resolution": "Yes. A formal enforce-mode scope contract must be initialized before DEV from the PLAN file set and explicit exclusions, so guard_session_check and lifecycle scope checks have a concrete boundary instead of skipping.",
+      "resolvedAt": "2026-06-20T10:40:11.932Z"
     },
     {
       "id": "OQ-003",
