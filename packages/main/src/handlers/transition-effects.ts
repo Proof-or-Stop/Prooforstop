@@ -312,11 +312,27 @@ ${agentLines}
       // it calls buildNextSteps (~line 509). If a future refactor moves that
       // writeStory AFTER buildNextSteps, hintRoundKey would fall back to
       // plan:<phase> and collide with the PLAN event (CHK-003 smoke guards this).
+      //
+      // F-001 PHASE GUARD: this whole REVIEW branch is a value in an object
+      // literal (see buildNextSteps' return), so JS EAGERLY evaluates it on
+      // EVERY buildNextSteps call — and transition-orchestrator.ts calls
+      // buildNextSteps for EVERY phase transition (then selects nextSteps[phase]).
+      // surfaceExperienceHints has a SIDE EFFECT (it appends the
+      // experience_hint_surfaced A/B event), so without a guard a NON-REVIEW
+      // transition (e.g. entering DEV) would fire a spurious event keyed on
+      // plan:<phase> even though no REVIEW hint guidance is ever shown,
+      // polluting the A/B measurement. We gate the firing on the story actually
+      // being in REVIEW. (Minimal fix; we deliberately do NOT restructure the
+      // object into lazy getters.) Because phase==='REVIEW' guarantees
+      // currentReviewRound is set, hintRoundKey is always the ISO round here
+      // (never plan:REVIEW).
       try {
         const story = store.readStory(storyId);
-        const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`; // BYTE-IDENTICAL to story-review.ts
-        const { renderedSection } = surfaceExperienceHints(root, { storyId, hintRoundKey });
-        if (renderedSection) base += `\n${renderedSection}`;
+        if (story.phase === 'REVIEW') {
+          const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`; // BYTE-IDENTICAL to story-review.ts
+          const { renderedSection } = surfaceExperienceHints(root, { storyId, hintRoundKey });
+          if (renderedSection) base += `\n${renderedSection}`;
+        }
       } catch { /* advisory-only: never block the transition */ }
       return base;
     })(),

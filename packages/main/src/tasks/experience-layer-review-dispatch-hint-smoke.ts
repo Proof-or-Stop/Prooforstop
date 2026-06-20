@@ -138,7 +138,7 @@ function writeLatticeConfig(root: string): void {
  * currentReviewRound (the ISO dedup key buildNextSteps reuses). PLAN-phase
  * stories have none, so the dedup key falls back to `plan:<phase>`.
  */
-function seedStory(store: StoryStore, storyId: string, phase: 'PLAN' | 'REVIEW'): void {
+function seedStory(store: StoryStore, storyId: string, phase: 'PLAN' | 'REVIEW' | 'DEV'): void {
   const now = PINNED_NOW;
   const story: StoryInfo = {
     storyId,
@@ -190,6 +190,17 @@ function runStoryReview(root: string, storyId: string): any {
 function reviewNextSteps(root: string, storyId: string): string {
   const store = new StoryStore(root);
   return buildNextSteps(store, root, storyId).REVIEW;
+}
+
+/**
+ * Select the DEV guidance from the SAME buildNextSteps object. Because the
+ * object literal eagerly evaluates ALL its values (including the REVIEW IIFE),
+ * this call exercises the exact eager-evaluation path the F-001 phase guard
+ * protects against (the REVIEW IIFE runs even though we only read .DEV).
+ */
+function devNextSteps(root: string, storyId: string): string {
+  const store = new StoryStore(root);
+  return buildNextSteps(store, root, storyId).DEV;
 }
 
 function surfacedEvents(root: string): Array<Record<string, unknown>> {
@@ -313,9 +324,53 @@ check('CHK-003 edge:0 — cross-site dedup: PLAN plan:<phase> event vs REVIEW IS
   assert.equal(events.length, 2, 'second REVIEW buildNextSteps in the same round adds NO event (dedup)');
 });
 
+// ─── F-001 REGRESSION: non-REVIEW transition must NOT fire the side-effecting ──
+// experience_hint_surfaced event ─────────────────────────────────────────────
+//
+// CHK-002 adversarial:1. The REVIEW branch of buildNextSteps is a value in an
+// object literal, so JS EAGERLY evaluates the REVIEW IIFE on EVERY buildNextSteps
+// call regardless of which phase's guidance the caller selects. Before the phase
+// guard, that eager evaluation called surfaceExperienceHints — a SIDE-EFFECTING
+// leaf that appends the experience_hint_surfaced A/B event — even when the story
+// was entering a NON-REVIEW phase (e.g. DEV), writing a spurious event keyed on
+// plan:DEV and polluting the A/B measurement. This check seeds an ON-arm story
+// WITH finding-signals in the DEV phase, calls buildNextSteps (which eagerly
+// evaluates the REVIEW IIFE) and asserts (1) ZERO experience_hint_surfaced events
+// were written and (2) the selected DEV guidance carries no hints section.
+// It FAILS against the pre-fix code (the event fires spuriously) and PASSES after
+// the `if (story.phase === 'REVIEW')` guard.
+
+check('CHK-002 adversarial:1 — buildNextSteps does NOT fire experience_hint_surfaced on a non-REVIEW phase (F-001 regression: REVIEW IIFE is eagerly evaluated)', () => {
+  const onId = findStoryIdForArm('on');
+  assert.equal(resolveHintMode(onId), 'on',
+    'precondition: onId is ON arm (would render + fire a hint if the REVIEW IIFE ran unguarded)');
+
+  const root = mkTempRoot();
+  writeLatticeConfig(root);
+  // Seed the story in a NON-REVIEW phase (DEV) WITH finding-signals: if the
+  // eager REVIEW IIFE fired surfaceExperienceHints, it would write an event keyed
+  // on plan:DEV and (on the ON arm) render a section.
+  seedStory(new StoryStore(root), onId, 'DEV');
+  seedSignals(root, hintYieldingSignals());
+
+  // buildNextSteps eagerly evaluates ALL branches (including the REVIEW IIFE);
+  // we select the DEV guidance the caller would actually use for a DEV transition.
+  const devText = devNextSteps(root, onId);
+
+  // (1) No side-effecting event fired on the non-REVIEW path.
+  assert.equal(surfacedEvents(root).length, 0,
+    'F-001: ZERO experience_hint_surfaced events on a non-REVIEW (DEV) buildNextSteps call (the eager REVIEW IIFE must not fire the event)');
+
+  // (2) The selected DEV guidance contains no hints section.
+  assert.ok(!devText.includes(SECTION_LABEL),
+    'F-001: DEV guidance contains no experience-hints section');
+  assert.ok(!devText.includes('[recAB]'),
+    'F-001: DEV guidance does not render any hint id');
+});
+
 // ─── (d) INVARIANT: resolveReviewPromptHash byte-identical ON vs OFF ───────────
 
-check('CHK-003 adversarial:4 — INVARIANT: resolveReviewPromptHash byte-identical for ON vs OFF (hint content never enters the signed prompt)', () => {
+check('CHK-003 adversarial:0 — INVARIANT: resolveReviewPromptHash byte-identical for ON vs OFF (hint content never enters the signed prompt)', () => {
   const onId = findStoryIdForArm('on');
   const offId = findStoryIdForArm('off');
 
