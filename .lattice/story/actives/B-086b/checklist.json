@@ -119,7 +119,35 @@
       "context": "New packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts (follow the evidence-state-gate-smoke.ts temp-repo pattern OR a hermetic mock-store pattern). Assert canStartDevGuard returns false for a tier-1 declared-parallel overlap under mode=block; returns true for the same under mode=advise and mode=off; returns true for a clean disjoint wave; FAILS OPEN (returns true) when the gate sub-check throws (e.g. a config that makes resolveAuditConfig/peer-load throw); and getGuardFailureReason returns a message naming the block for the blocked case and null for the clean case. Register in lattice.config.json.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the integration smoke runs green proving: overlap+mode=block -> canStartDevGuard false + getGuardFailureReason non-null naming the block; clean disjoint -> true + null; WHY: end-to-end proof the hard gate works and the message matches",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke asserts mode=advise and mode=off both allow the same overlap (guard true), and a missing/unclean review still blocks via the existing gate; WHY: mode semantics + no regression proven end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke asserts FAIL-OPEN: a parallelGate config that makes the sub-check throw -> canStartDevGuard true and getGuardFailureReason null (with the review otherwise clean); WHY: the single most important property (infra error never blocks) is proven, not just asserted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke is registered in lattice.config.json validate.commands and lattice validate stays all-green; WHY: the gate test runs in CI on every validate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
