@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the Motivation + Empirical Evidence section of docs/adversarial-review-spec.md",
+      "context": "Section 1: why single-pass review is insufficient for integration-level defects; the concrete evidence from the parallel-decomposition program — the completeness critic / multi-lens workflow found BLOCKER/MAJOR-class defects single-pass review missed (S4 corrupt-contract wave crash; S5 express-channel + REVIEW/TEST-rollback gate bypass doors; B-b29e read-only-command over-registration). Each with story id + finding.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write the Methodology specification (dimensional lenses + per-finding adversarial verification + completeness critic) with precise data shapes",
+      "context": "Section 2/3: define LENS (a facet review returning structured findings), FINDING (severity/file/line/issue/fix), VERDICT (isReal/agreedSeverity/reasoning), the per-finding adversarial verification rule (M skeptics, default-refute, majority-confirm threshold), the completeness-critic contract (what it inspects, reopen semantics), and the convergence criterion (a round is clean when all lenses pass, all surfaced findings are adversarially refuted-or-fixed, and the critic finds nothing new). Reference the Workflow patterns this generalizes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write the Lattice integration contract + MVP-vs-future split",
+      "context": "Section 4: how the capability composes Lattice's existing review substrate (lattice-review-* lanes, review_run_start/review_pass_set/finding_add, the full-3x2 escalation quorum). Define it as a review MODE / new escalation TIER: the data flow, how a critic-reopened round interacts with the escalation ledger and materialHash freshness, and what is MVP (a documented reusable orchestration + minimal hooks) vs future (a first-class CLI review mode). Be honest about not-yet-implemented surfaces.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Write the implementation-program breakdown (the build stories)",
+      "context": "Section 5: the contract-first story breakdown to BUILD the capability (mirroring the parallel-decomposition program shape: contract/types first, then the lens-runner, the adversarial-verifier, the completeness-critic lane, then integration into the escalation flow). Each with its scope, dependencies, and acceptance. This is the program the follow-on B-impl story/stories execute.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
