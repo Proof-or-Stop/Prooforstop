@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-086b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope PASS over final code (4f36f5c1e): the gate is wired into machine.ts and enforced on ALL FOUR START->DEV doors (PLAN/INIT_CHECK-express/REVIEW-rollback/TEST-rollback) via the shared fail-open parallelDevEntryBlock; contract re-export done; the hard block fires only under mode=block; no scope creep (frozen Stories 1-4 + out-of-scope lifecycle-registry/process-fact untouched). 3-round dual-host; round-3 Claude clean incl completeness-critic, no 5th door.",
+      "createdAt": "2026-06-20T09:37:25.235Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "reviewRunId": "B-086b:RR-001",
+      "_hash": "4d0caedef617a64483ec53a1443e62848554e147e24b54d5077cee2d7d17bf56"
+    }
+  ]
+}
