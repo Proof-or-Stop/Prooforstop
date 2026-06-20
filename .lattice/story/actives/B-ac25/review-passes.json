@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T10:34:15.912Z",
       "reviewRunId": "B-ac25:RR-013",
       "_hash": "fb91b40a44d915366be7540c6bedd400bee600466361711c1d9c9b8b45720b05"
+    },
+    {
+      "id": "B-ac25:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review PASS. Verified F-001 resolved: external opt-in root npm test no longer inherits packages/main build proof; self-host policy now uses explicit providesBuildProof/requiresBuildProof in lattice.config.json and gate logic only checks commands declaring requiresBuildProof. Scope extension is limited to scripts/verify-nested-worktree-bootstrap.mjs harness session env and does not change runtime owner-lease behavior. Commands run: npm --prefix packages/main run build; node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs; node scripts/verify-nested-worktree-bootstrap.mjs; npm test.",
+      "createdAt": "2026-06-20T10:38:41.808Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-009",
+      "_hash": "88f9028622ba01c67fda213690fa42c681e85670dd8d5366a90eaf88517987c9"
     }
   ]
 }
