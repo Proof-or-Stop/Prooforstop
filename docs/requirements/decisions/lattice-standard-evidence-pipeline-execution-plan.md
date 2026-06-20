@@ -258,21 +258,78 @@ Acceptance:
 - host does not manually copy command strings into checklist evidence;
 - stale evidence recovery produces a deterministic next action.
 
-### 3. Reviewer Lane Orchestration
+### 3. Validation, Transcript, And Delivery Context Preparation
 
-Goal: launch and collect reviewer lanes as a managed batch against final
-material-bound evidence.
+Goal: produce the artifacts that final reviewers and delivery reviewers must
+judge before any final REVIEW pass is consumed.
 
-Command shape:
+Command shapes:
 
 ```bash
-lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs
+lattice validate --story=B-xxxx --json
+lattice story_pipeline_live_smoke --storyId=B-xxxx
+lattice story_pipeline_delivery --storyId=B-xxxx --contextOnly=true
 ```
 
 Required behavior:
 
-- run required evidence planning/refresh before final reviewer pass/finding
-  collection;
+- run validation after material-bound verification evidence exists;
+- stop immediately when validation fails, preserving the validate blocker and
+  next command;
+- infer expected user outcome from PLAN/summary/user-value fields;
+- run configured validate commands and story-specific live smokes;
+- capture command, exit code, stdout/stderr digest, elapsed time, and material
+  binding;
+- write `.lattice/story/actives/<storyId>/evidence/transcript-diff.md`, or
+  require a signed metadata-only waiver;
+- collect docs promises from relatedDocs and decision docs;
+- inspect code diff and evidence refs;
+- read transcript diff, validation state, evidence freshness state, review
+  escalation state, and review assurance floor state;
+- generate a delivery-review context pack;
+- never write `delivery-check.json` from the main host.
+
+Transcript template:
+
+```markdown
+# <storyId> User-Value Verification Transcript
+
+## Expected
+...
+
+## Actual
+Command:
+...
+Result:
+...
+
+## Diff Notes
+...
+```
+
+Acceptance:
+
+- final reviewers see validation, transcript, and delivery context as stable
+  inputs;
+- TEST no longer depends on the host manually summarizing command output;
+- delivery reviewer can read one canonical context pack and transcript artifact;
+- real-machine evidence is linked to material hash and validation evidence.
+
+### 4. Reviewer Lane Orchestration
+
+Goal: launch and collect reviewer lanes as a managed batch against final
+material-bound evidence and artifacts.
+
+Command shape:
+
+```bash
+lattice story_pipeline_review --storyId=B-xxxx --lanes=concept,quality,test-coverage,docs,delivery
+```
+
+Required behavior:
+
+- run required evidence planning/refresh, validation, transcript, and delivery
+  context generation before final reviewer pass/finding collection;
 - start each lane with `review_run_start`;
 - require every finding/pass to include the lane `agent` and `reviewRunId`;
 - run lanes in parallel when host capacity allows;
@@ -282,6 +339,7 @@ Required behavior:
 - never convert a missing review into a pass;
 - run final coverage, docs, and delivery-adjacent lanes only after evidence,
   validation, transcript, and delivery context artifacts are current;
+- write `delivery-check.json` only through the delivery reviewer lane;
 - treat any lane pass as stale when new evidence, transcript, validation, or
   delivery context is written after that pass.
 
@@ -296,31 +354,41 @@ Output example:
 {
   "storyId": "B-xxxx",
   "reviewRound": "2026-06-20T10:00:00.000Z",
-  "evidenceSnapshot": {
+  "artifactSnapshot": {
     "headHash": "<current-head>",
     "materialHash": "<current-material>",
-    "storyFilesHash": "<current-story-files>"
+    "storyFilesHash": "<current-story-files>",
+    "validationRef": "<validation-artifact>",
+    "transcriptRef": "<transcript-artifact>",
+    "deliveryContextRef": "<delivery-context-artifact>"
   },
   "lanes": [
     {"lane":"concept","status":"pass","reviewRunId":"B-xxxx:RR-001"},
     {"lane":"quality","status":"finding","findingIds":["B-xxxx:F-001"]},
     {"lane":"test-coverage","status":"pass","reviewRunId":"B-xxxx:RR-003"},
-    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"}
+    {"lane":"docs","status":"pass","reviewRunId":"B-xxxx:RR-004"},
+    {"lane":"delivery","status":"pass","reviewRunId":"B-xxxx:RR-005"}
   ],
   "blocking": true,
-  "next": "Resolve B-xxxx:F-001, return to DEV, refresh evidence, then rerun affected lanes."
+  "next": "Resolve B-xxxx:F-001, return to DEV, refresh artifacts, then rerun affected lanes."
 }
 ```
 
 Acceptance:
 
-- a host does not manually spawn four reviewers and reconcile outputs;
+- a host does not manually spawn reviewers and reconcile outputs;
 - reviewer independence and signed run binding remain intact;
 - coverage reviewers never pass before the evidence they are asked to judge
   exists;
+- delivery reviewer spends time judging delivery, not collecting scattered
+  command output;
+- `delivery_check_set` is based on structured evidence refs and transcript
+  artifact;
+- `done_prepare` and DONE pre-checks can consume the signed delivery artifact
+  directly;
 - repeated REVIEW rounds only rerun lanes that are stale, affected, or required.
 
-### 4. Gate Preflight Aggregator
+### 5. Gate Preflight Aggregator
 
 Goal: show all current blockers before a host attempts the next phase.
 
@@ -376,88 +444,34 @@ Acceptance:
   readiness source;
 - the report prints exact commands for the next minimum action.
 
-### 5. Live Smoke And Transcript Diff
+### 6. TEST-to-DONE Readiness Delegation
 
-Goal: make user-value verification an artifact, not a hand-written summary.
-
-Command shape:
-
-```bash
-lattice story_pipeline_live_smoke --storyId=B-xxxx
-```
-
-Required behavior:
-
-- infer expected outcome from PLAN/summary/user-value fields;
-- run configured validate commands and story-specific live smokes;
-- capture command, exit code, stdout/stderr digest, elapsed time, and material
-  binding;
-- write `.lattice/story/actives/<storyId>/evidence/transcript-diff.md`;
-- include expected, actual, and diff notes;
-- fail when no concrete user-visible actual output exists for the story type,
-  unless the story is explicitly metadata-only.
-
-Transcript template:
-
-```markdown
-# <storyId> User-Value Verification Transcript
-
-## Expected
-...
-
-## Actual
-Command:
-...
-Result:
-...
-
-## Diff Notes
-...
-```
-
-Acceptance:
-
-- TEST no longer depends on the host manually summarizing command output;
-- delivery reviewer can read one canonical transcript artifact;
-- real-machine evidence is linked to material hash and validation evidence.
-
-### 6. Delivery Check Synthesis
-
-Goal: let the delivery reviewer consume existing evidence instead of repeating
-host bookkeeping.
+Goal: delegate conservative TEST-to-DONE readiness to B-fb36 `done_prepare`
+without creating a second DONE truth source.
 
 Command shape:
 
 ```bash
-lattice story_pipeline_delivery --storyId=B-xxxx
+lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
 ```
 
 Required behavior:
 
-- collect docs promises from relatedDocs and decision docs;
-- inspect code diff and evidence refs;
-- read transcript diff;
-- read validation and evidence freshness state;
-- read review escalation and review assurance floor status;
-- generate a delivery-review context pack;
-- spawn or instruct `lattice-review-delivery`;
-- write `delivery-check.json` only through the delivery reviewer lane.
-
-Rules:
-
-- main agent must not self-sign delivery;
-- delivery reviewer can pass with explicit advisory notes, but blockers remain
-  blockers;
-- delivery check must not claim Authority DONE or production DONE.
+- run only after final reviewer lanes, delivery check, validation, and evidence
+  freshness are current;
+- delegate main sync, stale TEST evidence refresh, validation, and
+  `done_closure` to `done_prepare`;
+- preserve `done_prepare` blocker names and next commands;
+- never reinterpret a `done_prepare` blocker as pass;
+- never claim Authority DONE, fullAuthorityDone, or productionDone.
 
 Acceptance:
 
-- delivery reviewer spends time judging delivery, not collecting scattered
-  command output;
-- `delivery_check_set` is based on structured evidence refs and transcript
-  artifact;
-- `done_prepare` and DONE pre-checks can consume the signed delivery artifact
-  directly.
+- local DONE blockers are visible before `story_advance --phase=DONE`;
+- stale host verdicts, missing delivery checks, dirty main checkout, and
+  main-sync conflicts appear in one report without creating a second DONE
+  readiness source;
+- the report prints exact commands for the next minimum action.
 
 ## Metadata-Only Waiver Policy
 
@@ -608,10 +622,7 @@ flowchart TD
   I -- no --> L["5 REVIEW / TEST preflight"]
   L --> M{"Gate blocked?"}
   M -- yes --> Z
-  M -- no --> P["6 Delivery reviewer"]
-  P --> Q{"Delivery check pass?"}
-  Q -- no --> Z
-  Q -- yes --> R{"Target DONE and story in TEST?"}
+  M -- no --> R{"Target DONE and story in TEST?"}
   R -- no --> S["Ready for requested non-DONE phase"]
   R -- yes --> T["6 Delegate to lattice done_prepare"]
   T --> U{"done_prepare PASS?"}
@@ -695,7 +706,9 @@ Deliverables:
 Dependencies:
 
 - benefits from Track A report model;
-- final coverage-lane gating depends on Track D evidence snapshot output.
+- final coverage and delivery-adjacent gating depends on Track D evidence
+  snapshot output, Track E transcript artifacts, and Track F delivery-context
+  artifacts.
 
 Parallel safety:
 
@@ -809,15 +822,16 @@ Parallel safety:
 | P1 | Add story pipeline preflight report | B-fb36 | read-only blocker report that imports DONE prepare output |
 | P2 | Generate PLAN skeletons for story pipeline | none | init/PLAN skeleton command |
 | P3 | Add verification evidence planner/refresh orchestrator | P1 optional | evidence dry-run, refresh command, and evidence snapshot |
-| P4 | Add reviewer batch orchestration | P1, P3 for final coverage semantics | review lane batch command |
+| P4 | Add reviewer batch orchestration | P1, P3, P5, P6 for final reviewer semantics | review lane batch command |
 | P5 | Add live smoke transcript artifact writer | none | transcript-diff generator |
 | P6 | Add delivery context pack and delivery pipeline command | P1, P5 | delivery context + reviewer flow |
 | P7 | Integrate top-level `story_pipeline` command | P1-P6, B-fb36 | end-to-end orchestration with DONE prepare delegation |
 
 P1, P2, P3, and P5 can start in parallel if file ownership is kept separate.
 P4 can prototype reviewer launch/status handling in parallel, but its final
-coverage-lane gate must wait for P3's evidence snapshot contract. P6 should wait
-for P5. P7 should wait for all prior tracks.
+coverage and delivery-adjacent gate must wait for P3's evidence snapshot, P5's
+transcript artifact, and P6's delivery-context contract. P6 should wait for P5.
+P7 should wait for all prior tracks.
 
 ## Evidence Requirements
 

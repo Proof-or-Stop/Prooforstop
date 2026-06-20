@@ -155,6 +155,138 @@
       "resolvedAt": "2026-06-20T06:36:54.678Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-008",
+      "desc": "Pipeline Stages section still orders reviewer orchestration and preflight before live smoke/transcript and delivery context sections. This contradicts the required final sequence: evidence -> validation/transcript/delivery context -> final reviewer lanes -> preflight -> done_prepare. Fix by reordering the Pipeline Stages sections to match the matrix and end-to-end flow.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T06:42:11.258Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-009",
+      "_hash": "a6d6714e0e678f78197abe7047d8e17151a1c1d7e0c02bb49c01c927e232a3b7",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|pipeline-stages-section",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reordered Pipeline Stages sections to match the final sequence: evidence, validation/transcript/delivery context, final reviewer lanes, preflight, done_prepare. Verified section headings with rg.",
+      "resolvedAt": "2026-06-20T06:45:04.568Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-009",
+      "desc": "Mermaid source still routes Delivery reviewer after REVIEW / TEST preflight and then to done_prepare, creating a contradictory post-preflight delivery step instead of treating delivery as part of final material-bound context before preflight.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T06:42:18.541Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-009",
+      "_hash": "aeb0ef8d36df3d61bc93bff2285d6557bb1d6ae016d601536d24773e2b1e9a63",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|mermaid-source-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated Mermaid source to remove post-preflight Delivery reviewer node. Delivery context and delivery review are now represented before final preflight; preflight flows directly to target-DONE decision and done_prepare.",
+      "resolvedAt": "2026-06-20T06:45:09.329Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-010",
+      "desc": "Pipeline Stages still lists reviewer orchestration before live smoke and delivery check, contradicting the updated matrix/flow where validation/transcript/delivery context must happen before final reviewers. Fix the section ordering and headings so implementers do not follow the stale order.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:42:25.332Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-010",
+      "_hash": "03686af849e0aeb211542ecacf9876f0603b1c243d99a46577ea4877d3b83664",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|pipeline-stages-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reordered Pipeline Stages so reviewer orchestration no longer appears before live smoke/transcript and delivery context. Stage 3 now prepares validation/transcript/context; Stage 4 runs final reviewers.",
+      "resolvedAt": "2026-06-20T06:45:14.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-011",
+      "desc": "Mermaid labels Delivery reviewer as step 6 and done_prepare as step 6, reintroducing sequence ambiguity for Mermaid-rendered readers. Fix Mermaid to match the matrix/SVG: delivery context and reviewer pass happen before REVIEW/TEST preflight, and step 6 is only done_prepare delegation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:42:34.279Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-010",
+      "_hash": "825532aa928603beb441a519a7949aa44e7312655d76fb3180b21d65ff1508c1",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|mermaid-labels-delivery",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the Mermaid Delivery reviewer step 6 ambiguity; Mermaid now has step 6 only as done_prepare delegation after REVIEW/TEST preflight.",
+      "resolvedAt": "2026-06-20T06:45:20.484Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-012",
+      "desc": "P4/Track C reviewer orchestration depends only on P1/P3, but final reviewer lanes require current transcript and delivery-context artifacts from P5/P6 before passing. Fix the dependency plan so final reviewer orchestration depends on P3 evidence snapshot plus P5/P6 artifact/context contracts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:42:40.365Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-010",
+      "_hash": "c2f46ee91b7cc6e032188365a61c29bfa1affe9ad04ac04ceb2eb691f543f3a2",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|track-reviewer-orchestration",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated Track C/P4 dependencies: final coverage and delivery-adjacent reviewer gates now depend on Track D evidence snapshot, Track E transcript artifacts, and Track F delivery-context artifacts. Suggested story breakdown lists P4 depends on P1, P3, P5, and P6 for final reviewer semantics.",
+      "resolvedAt": "2026-06-20T06:45:27.208Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-013",
+      "desc": "Mermaid source labels Delivery reviewer as step 6 while the Step Contract Matrix defines Step 6 as TEST-to-DONE readiness delegation and the SVG keeps delivery inside preflight/delivery check before done_prepare. This breaks markdown/SVG agreement and can mislead implementers about stage ownership.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T06:42:46.513Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-012",
+      "_hash": "8d927f4b65293d91e9dfa60e1240b6efb8acd8a302ad20020a33bfa330151097",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|mermaid-source-labels",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Aligned Mermaid with the Step Contract Matrix and SVG: delivery is part of artifact/context and final reviewer stages before preflight; Step 6 is only TEST-to-DONE done_prepare delegation.",
+      "resolvedAt": "2026-06-20T06:45:32.054Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
