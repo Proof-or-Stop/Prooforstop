@@ -66,6 +66,7 @@
 - [Testing Completeness Decisions](decisions/testing-completeness.md)
 - [Testing Infrastructure](decisions/testing-infra.md)
 - [Three-Round Two-Host Review Escalation Execution Plan](decisions/three-round-two-host-review-escalation-execution-plan.md)
+- [Truth-First Host Handoff Stale-Doc Guard Execution Plan](decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md)
 - [Source of Truth Management](decisions/truth-source.md)
 - [Unlock Layer 2 Engineering Baseline Suite](decisions/unlock-layer2-ENG-suite.md)
 - [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)

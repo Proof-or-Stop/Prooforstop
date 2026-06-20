@@ -228,6 +228,32 @@ The later `dispatch_plan` / `dispatch_prepare` / `dispatch_run` must also obey t
 
 For the detailed architecture, see [`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md).
 
+### Truth-First Host Handoff Guard
+
+Before a host tells the user a task is still missing, run a truth-first preflight:
+
+```bash
+lattice session_brief
+lattice story_get '{"storyId":"<storyId>"}'
+lattice checklist_get '{"storyId":"<storyId>"}'
+```
+
+When checking linked documents, inspect the `supersession` frontmatter fields in the
+decision docs:
+
+- `status`: `completed`, `superseded`, `historical`, or `draft`.
+- `completedByStory` + `completionCommit`: proof anchor to the live story outcome.
+- `supersededBy`: when set, users and hosts should prefer the newer story/document.
+
+Compatibility:
+- `sourceStoryId` / `sourceCompletionCommit` are accepted as legacy aliases for
+  back-compat, but hosts should treat `completedByStory` / `completionCommit` as
+  the authoritative fields.
+
+If live story/checklist facts say DONE but a referenced doc says pending, host responses
+must follow live facts first and should mark the doc as stale rather than re-assigning
+the work.
+
 ### Unattended dispatch — `dispatch_auto` (policy-authorized)
 
 `dispatch_auto` is the **policy-authorized unattended scheduler**, an extension path of `overflow_auto`. How it differs from `overflow_auto`:
