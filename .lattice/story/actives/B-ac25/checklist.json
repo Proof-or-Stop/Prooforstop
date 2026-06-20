@@ -179,9 +179,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T10:11:36.391Z",
       "files": {
         "modify": [
           "packages/main/src/core/done-oracle.ts",
@@ -217,7 +217,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies a fresh PASS done-required-evidence.json makes the dedicated DONE-required row pass.",
+          "headHash": "2bc2986dcdf0b93ec129532d0165d45442b663da",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:36.736Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies projects without a required policy render advisory/non-blocking DONE-required status.",
+          "headHash": "2bc2986dcdf0b93ec129532d0165d45442b663da",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:37.024Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies required policy blocks on missing artifact, failing artifact, stale material, policy drift, command-set drift, and missing build proof.",
+          "headHash": "2bc2986dcdf0b93ec129532d0165d45442b663da",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:37.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
