@@ -37,7 +37,45 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke standalone: runs the docs-drift preflight without TypeError, prints \"docs-drift wrapper-root smoke passed\", exit 0.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "makeStubStore now returns readReviewRuns: () => ({ runs: [] }) (plus readFindings/readReviewPasses/readScopeContract that collectReviewerEvidenceState transitively reads), so the gate reads .runs without throwing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Only the reviewer-evidence stub methods were added; the rest of makeStubStore and the smoke own docs-drift assertions are byte-identical and still pass.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -76,7 +114,43 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:docs-drift-wrapper-root",
+          "result": "pass",
+          "note": "test:docs-drift-wrapper-root passes (\"docs-drift wrapper-root smoke passed\") instead of throwing TypeError: store.readReviewRuns is not a function.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "git show --stat ca27d579",
+          "result": "pass",
+          "note": "git show --stat confirms exactly one changed file (the smoke); no production file (review-preflight.ts / review-run.ts) changed.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      ]
     }
   ]
 }
