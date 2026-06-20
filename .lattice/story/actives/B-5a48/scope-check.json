@@ -180,10 +180,11 @@
       "q": "CHK-001 verificationIntent happy and edge cases address ON-arm behavior and the leaf-extraction byte-equality golden assertion, but do not explicitly state that surfaceExperienceHints fires exactly one experience_hint_surfaced(hintMode:off) with full hintIds when called on an OFF-arm story (the lossless-measurement invariant required by the effectiveness-record). Is the CHK-001 leaf-unit verificationIntent gap acceptable because CHK-003 integration smoke covers it, or does CHK-001 need its own OFF-arm event-payload edge case to satisfy single-unit completeness?",
       "evidence": "lattice-experience-layer-effectiveness-record.md Operational Rules state both arms must accrue toward MIN_ARM_N. The leaf fires appendActivityLog on BOTH arms per plan.md CHK-001 description. But CHK-001.verificationIntent.happy tests only ON-arm (surfaceExperienceHints returns {hintMode, renderedSection, hintIds, fired}; ON-arm returns rendered hints + fires 1 event). CHK-001.verificationIntent.edge tests the golden byte-equality (refactor-preserving) NOT the OFF-arm event payload. CHK-001.verificationIntent.adversarial tests failure-swallowed path. The OFF-arm event-payload correctness (hintMode:off + full hintIds) is asserted only in CHK-003(b) and CHK-002 edge.",
       "sourcePointers": [
-        "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
-        ".lattice/story/actives/B-5a48/checklist.json CHK-001.verificationIntent.happy",
-        ".lattice/story/actives/B-5a48/checklist.json CHK-001.verificationIntent.edge"
-      ]
+        "CHK-001",
+        "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
+      ],
+      "resolution": "Resolved by STRENGTHENING coverage rather than waiving: CHK-001.verificationIntent now carries an explicit edge case asserting the leaf fires exactly one experience_hint_surfaced(hintMode:off) with the FULL hintIds on an OFF-arm story (renderedSection empty) — proven at the leaf unit level, not only at the CHK-003(b) integration level. This directly satisfies the effectiveness-record requirement that BOTH arms accrue toward MIN_ARM_N via lossless OFF-arm measurement (hintMode distinguishes arms; full hintIds on both). The leaf is the single firing implementation, so unit-proving its OFF-arm payload is the tightest possible guard on the hottest invariant.",
+      "resolvedAt": "2026-06-20T12:14:33.635Z"
     }
   ]
 }
