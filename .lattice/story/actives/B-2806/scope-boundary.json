@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2806",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json: register the smoke",
+    "packages/main/src/core/adversarial-review-verifier.ts: SEVERITY_TO_FINDING_KIND ledger map + composeDesc/toFindingAddArgs builder + verifyFinding/verifyFindings/confirmedFindings (M-skeptic injected seam, threshold-confirm)",
+    "packages/main/src/tasks/adversarial-review-verifier-smoke.ts: hermetic smoke with a fake runSkeptic"
+  ],
+  "excluded": [
+    "escalation-flow integration AND actually calling finding_add/review_run_start/review_pass_set — that is S4",
+    "the completeness critic — that is S3",
+    "the lens runner (S1 B-97ab) — frozen, imported only conceptually (S2 imports S0 directly, not S1)",
+    "the S0 contract module core/adversarial-review.ts (frozen, DONE) — imported read-only"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-impl S2 per docs/adversarial-review-spec.md §2.3 (M-skeptic refute-by-default threshold-confirm T=1-of-2) + §4.2 (ledger mapping BLOCKER/MAJOR/MINOR->critical/high/medium); pure-data + injected-seam, MVP, parallel on S0; disjoint from S1/S3.",
+  "createdAt": "2026-06-20T14:41:04.381Z",
+  "updatedAt": "2026-06-20T14:41:04.381Z",
+  "_hash": "37051c8291d32644da02cc9d7adfd4fc958e48ce11a61c434a4a4e96f3eb5842"
+}

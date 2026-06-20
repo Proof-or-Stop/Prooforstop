@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2806",
+  "checkedAt": "2026-06-20T14:45:15.996Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "37051c8291d32644da02cc9d7adfd4fc958e48ce11a61c434a4a4e96f3eb5842",
+  "executionBoundaryHash": "fb378ec0d94b45a8b26064ed45b811c4e9c3d4044a6ba5f29d659b2b28fcdeee",
+  "freshnessHash": "cf035c99eaf9c45f1e0d40d639c3a9c62eda2e614b34b5aae6b7cf059a53cb85",
+  "effectiveExcludedKeywords": [
+    "escalation-flow integration AND actually calling finding_add/review_run_start/review_pass_set — that is S4",
+    "the completeness critic — that is S3",
+    "the lens runner (S1 B-97ab) — frozen, imported only conceptually (S2 imports S0 directly, not S1)",
+    "the S0 contract module core/adversarial-review.ts (frozen, DONE) — imported read-only"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "escalation-flow integration AND actually calling finding_add/review_run_start/review_pass_set — that is S4",
+      "source": "scopeBoundary.excluded",
+      "text": "escalation-flow integration AND actually calling finding_add/review_run_start/review_pass_set — that is S4",
+      "excluded": true
+    },
+    {
+      "keyword": "the completeness critic — that is S3",
+      "source": "scopeBoundary.excluded",
+      "text": "the completeness critic — that is S3",
+      "excluded": true
+    },
+    {
+      "keyword": "the lens runner (S1 B-97ab) — frozen, imported only conceptually (S2 imports S0 directly, not S1)",
+      "source": "scopeBoundary.excluded",
+      "text": "the lens runner (S1 B-97ab) — frozen, imported only conceptually (S2 imports S0 directly, not S1)",
+      "excluded": true
+    },
+    {
+      "keyword": "the S0 contract module core/adversarial-review.ts (frozen, DONE) — imported read-only",
+      "source": "scopeBoundary.excluded",
+      "text": "the S0 contract module core/adversarial-review.ts (frozen, DONE) — imported read-only",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6b8af5a5caa2e3c9c99ba519495d3344127140562b938cb9093edd178a93140f"
+}
