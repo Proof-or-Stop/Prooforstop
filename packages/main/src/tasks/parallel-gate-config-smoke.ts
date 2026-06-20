@@ -230,6 +230,23 @@ void (() => {
       check('revoked-proxy RAW -> strict profile default (no crash)', eq(result, STRICT));
       check('revoked-proxy RAW warns (could not introspect)', warnings.length >= 1);
     }
+    // 8d-quater. (F-023) A hostile Proxy raw whose own-key introspection THROWS an exotic value (a
+    //            revoked Proxy) drives the outer catch with a non-Error `err` on which both
+    //            `instanceof` and `String()` would throw. The catch's reason rendering must itself
+    //            be total (describeInvalidValue), so the wrapper still degrades to the profile
+    //            default rather than re-throwing while formatting the error.
+    {
+      const hostile = new Proxy<Record<string, unknown>>({}, {
+        getOwnPropertyDescriptor(): never {
+          const inner = Proxy.revocable<Record<string, unknown>>({}, {});
+          inner.revoke();
+          throw inner.proxy; // a value on which instanceof / String() both throw
+        },
+      });
+      const { result, warnings } = captureWarn(() => resolveParallelGate(hostile, BALANCED));
+      check('hostile-trap-throwing RAW -> balanced default (no crash)', eq(result, BALANCED));
+      check('hostile-trap-throwing RAW warns (could not introspect)', warnings.length >= 1);
+    }
 
     // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
 

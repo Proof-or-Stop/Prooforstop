@@ -115,8 +115,13 @@ export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateCo
     // profile default. (readParallelGateFields' per-field describeInvalidValue path is itself
     // total, so this only catches a raw that cannot be inspected at all, not ordinary invalid
     // sub-field values, which still get their granular per-field warn + fallback.)
+    //
+    // The caught `err` is itself rendered with describeInvalidValue (NOT `instanceof`/`message`/
+    // `String`): a hostile trap can THROW a revoked Proxy, and `err instanceof Error`
+    // ([[GetPrototypeOf]]) or `String(err)` (ToPrimitive) would themselves throw on it. Routing
+    // every untrusted-input rendering through the one total primitive keeps this catch total too.
     console.warn(
-      `[audit-config] parallelGate config could not be introspected (${err instanceof Error ? err.message : String(err)}); using profile default.`,
+      `[audit-config] parallelGate config could not be introspected (${describeInvalidValue(err)}); using profile default.`,
     );
     return { ...profileDefault };
   }
