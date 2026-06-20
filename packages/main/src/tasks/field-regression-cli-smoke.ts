@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { digestCanonical } from '../core/authority-contracts.js';
-import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, DeliveryCheckData, StoryInfo, StorySummaryData, TestEvidenceData } from '../core/types.js';
 import { getRuntimeActivityLogPath } from '../core/activity-log.js';
@@ -585,6 +585,9 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.equal(runs[0].storyId, storyId);
     assert.ok(runs[0].headHash);
     assert.ok(runs[0].materialHash);
+    assert.ok(runs[0].storyFilesHash, 'review_run_start should persist top-level storyFilesHash');
+    assert.equal(runs[0].storyFilesHash, currentStoryFilesHash(root));
+    assert.equal(runs[0].workspaceBinding?.storyFilesHash, runs[0].storyFilesHash);
     assert.ok(runs[0].promptHash);
 
     write(root, 'packages/main/src/review-run-fresh.ts', 'export const reviewRunFresh = true;\n');
@@ -626,6 +629,47 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     });
     assert.equal(repairedLoop.code, 0);
     assert.match(repairedLoop.stdout + repairedLoop.stderr, /Review loop .* started/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift(): Promise<void> {
+  const root = initRepo('lattice-field-review-run-storyhash-');
+  try {
+    const storyId = 'B-storyhash';
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    writeReviewStory(store, storyId);
+    write(root, 'packages/main/src/story-owned-review.ts', 'export const storyOwnedReview = true;\n');
+    commit(root, 'story owned review change', 'lattice-implementer');
+
+    const reviewRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].reviewRunId, reviewRunId);
+    assert.ok(runs[0].storyFilesHash, 'story branch review run must persist storyFilesHash');
+    assert.equal(runs[0].storyFilesHash, runs[0].workspaceBinding?.storyFilesHash);
+    const originalStoryFilesHash = runs[0].storyFilesHash;
+    commit(root, 'record review run story hash', 'lattice-review-quality');
+
+    git(root, ['checkout', 'main']);
+    write(root, 'packages/main/src/unrelated-main-drift.ts', 'export const unrelatedMainDrift = true;\n');
+    commit(root, 'main unrelated material drift', 'lattice-implementer');
+
+    git(root, ['checkout', `story/${storyId}`]);
+    git(root, ['merge', '--no-edit', 'main']);
+    assert.equal(currentStoryFilesHash(root), originalStoryFilesHash);
+    assert.notEqual(currentMaterialHash(root), runs[0].materialHash, 'main merge should still change whole-tree materialHash');
+
+    const pass = await runLatticeRaw(root, 'review_pass_set', {
+      storyId,
+      agent: 'lattice-review-quality',
+      reviewRunId,
+      note: 'quality review pass remains valid after unrelated main drift because storyFilesHash matches.',
+    });
+    assert.equal(pass.code, 0, pass.stderr);
+    assert.match(pass.stderr, /whole-tree materialHash drift|storyFilesHash matches|re-attestation/i);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1907,6 +1951,7 @@ await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
 await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
+await assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift();
 await assertReviewRunStartWorkspaceDiagnostics();
 await assertReviewRunStartSplitRootGitRootBinding();
 await assertSessionBriefConfiguredGitRootWorkspaceStatus();

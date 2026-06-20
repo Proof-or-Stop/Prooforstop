@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-5a9a:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 15/15 must verificationIntent entries have matching non-failing verificationEvidence and source-backed smoke coverage for storyFilesHash behavior: unrelated main merge downgrade with advisory, story-owned file invalidation, legacy/no-storyFilesHash strict behavior, refresh writeback, session stale hint, portable evidence inspect, and review escalation fallback.",
+      "createdAt": "2026-06-19T22:16:37.851Z",
+      "reviewRound": "2026-06-19T22:12:48.433Z",
+      "reviewRunId": "B-5a9a:RR-004",
+      "_hash": "d1ccf2fb889ff96ecb4b076287b9ed18e88e571b7a51da1576153975bdae6588"
+    },
+    {
+      "id": "B-5a9a:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 15/15 must verificationIntent entries against verificationEvidence and current smoke coverage for producer writes, DONE test-evidence storyFilesHash, refresh writeback, session stale hints, review-preflight advisory surfacing, and review escalation/fallback; no blocker.",
+      "createdAt": "2026-06-19T22:40:19.292Z",
+      "reviewRound": "2026-06-19T22:35:13.478Z",
+      "reviewRunId": "B-5a9a:RR-008",
+      "_hash": "6c52bd7b90709e2bcb5bf84187d1d2155ac8ae6cfe3afa9dcde2fb70f996f0b4"
+    },
+    {
+      "id": "B-5a9a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after F-001/F-002/F-003/F-004 resolution. Checked main...HEAD diff for concept deletion/replacement residue; no blocking concept cleanup issue found. Verified F-002 active DONE/test-evidence storyFilesHash adoption via TestEvidenceData, phase-gates/verifier writers, done-oracle freshness consumer, and flow-stability smoke coverage; completed DONE snapshot remains material snapshot based per resolved finding. Verified F-004 reviewer evidence storyFilesHash advisories surface through review-preflight reviewer-evidence warn gate and REVIEW->TEST preflight logging when warnings exist. Residue greps for material-only command descriptions, identity/material verdict wording, silent all-pass preflight wording, and old express-channel wording found no blocking stale concept residue.",
+      "createdAt": "2026-06-19T22:41:17.272Z",
+      "reviewRound": "2026-06-19T22:35:13.478Z",
+      "reviewRunId": "B-5a9a:RR-005",
+      "_hash": "6c42a63727aacc21b2759839d6d9eed714a5b6861bb14d8c983eaabf6ec2bdcd"
+    },
+    {
+      "id": "B-5a9a:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed main...HEAD changed files after F-001/F-002/F-003/F-004 resolution. Checked producer writes for storyFilesHash on checklist/test evidence, review escalation fallback, host verdict events, and review-run workspace binding; checked signed/freshness consumers, review-preflight advisory surfacing, and no silent whole-tree drift downgrade. Targeted smokes passed: flow-stability, review-escalation, lattice-evidence, and verify-process-fact-contract. No blocking quality findings.",
+      "createdAt": "2026-06-19T22:42:10.809Z",
+      "reviewRound": "2026-06-19T22:35:13.478Z",
+      "reviewRunId": "B-5a9a:RR-006",
+      "_hash": "da52b5950891c4864b77bd488578ff5f3ac205048a0ff3bec4acbd3369e23919"
+    },
+    {
+      "id": "B-5a9a:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "No docs/process-fact blocker. Decision doc covers ReviewRun/storyFilesHash secondary freshness semantics, and process registry/contract verify runtime:review_run_story_files_hash_gate plus review-runs signature binding. Remaining advisory: F-005 stays medium docs advisory because Adopted Bindings still underlists DONE validation test-evidence adoption; not a REVIEW blocker.",
+      "createdAt": "2026-06-19T23:13:35.364Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-012",
+      "_hash": "aac60109a34db65855a841220c6a6b810a54f713cef69124c6212cf4af2605dc"
+    },
+    {
+      "id": "B-5a9a:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: storyFilesHash is captured from snapshot into workspaceBinding, top-level ReviewRun, signReviewRun, and durable persistence check; process-fact registry and contract include runtime storyFilesHash freshness facts; legacy no-storyFilesHash signatures remain compatible; dirty preflight runs before snapshot and no concurrency blocker found. Checks passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js.",
+      "createdAt": "2026-06-19T23:15:08.736Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-010",
+      "_hash": "7d63a39ba2243923542ab4de4a77b294c5070e38902313faa6643164d306f5c4"
+    },
+    {
+      "id": "B-5a9a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: field-regression CLI smoke covers top-level storyFilesHash persistence and old reviewRunId pass after unrelated main drift; flow/review-escalation/lattice-evidence smokes passed and retain checklist-intent coverage.",
+      "createdAt": "2026-06-19T23:15:21.845Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-011",
+      "_hash": "e9e35bb3a80cd5e3f7d111c22792d502b41ee403be01b64ace064c716c699ed5"
+    },
+    {
+      "id": "B-5a9a:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: review_run_start persists top-level ReviewRun.storyFilesHash, folds it into the review run signature with workspaceBinding.bindingHash, preserves materialHash as whole-tree freshness, uses workspaceBinding for signed workspace/root resolution, and downgrades matching storyFilesHash plus materialHash drift to explicit advisory while rejecting story-owned storyFilesHash drift or legacy records without storyFilesHash.",
+      "createdAt": "2026-06-19T23:16:18.266Z",
+      "reviewRound": "2026-06-19T23:11:19.016Z",
+      "reviewRunId": "B-5a9a:RR-009",
+      "_hash": "1b8a8eb16224b2eaf94cf188891f9ccf5a3f11f0a62dfbd2e47e1a2f187ee325"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
@@ -14,6 +14,9 @@ import {
   formatReviewEscalationReport,
 } from '../core/review-escalation.js';
 import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
+import { StoryStore } from '../core/store.js';
+import { createVerdictHandlers } from '../handlers/verdict.js';
+import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
@@ -114,6 +117,10 @@ function singleHostRounds(materialHash: string): ProcessEvent[] {
   ];
 }
 
+function withStoryFilesHash(events: ProcessEvent[], storyFilesHash: string): ProcessEvent[] {
+  return events.map(event => ({ ...event, storyFilesHash }));
+}
+
 function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
@@ -202,6 +209,50 @@ try {
     assert.equal(report.voluntaryLocalRounds.submittedRoundCount, REVIEW_ESCALATION_REQUIRED_ROUNDS);
     assert.equal(report.voluntaryLocalRounds.ignoredVerdicts.length, 0);
     assert.match(formatReviewEscalationReport(report), /voluntaryLocalRounds: 3\/3/);
+  });
+
+  check('producer commands persist storyFilesHash on host verdict and degraded fallback records', () => {
+    const commandRoot = makeRepo();
+    try {
+      write(commandRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(commandRoot, ['add', '.']);
+      git(commandRoot, ['commit', '-m', 'story file']);
+      const store = new StoryStore(commandRoot);
+      store.writeStory(STORY_ID, story());
+      const material = currentMaterialHash(commandRoot)!;
+      const storyFilesHash = currentStoryFilesHash(commandRoot)!;
+      const ctx = { store, root: commandRoot, scanRoot: join(commandRoot, 'packages/main') };
+
+      const verdict = createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-command',
+        hostId: 'codex-command',
+        provider: 'codex',
+        sessionId: 'codex-command-session',
+        keyId: 'codex-command-key',
+        decision: 'pass',
+        materialDigest: material,
+        validationDigest: 'validation-command',
+        promptDigest: 'prompt-command',
+        json: true,
+      }) as any;
+      assert.equal(verdict.storyFilesHash, storyFilesHash);
+
+      const fallbackResult = createReviewEscalationHandlers(ctx).review_escalation_fallback_set({
+        storyId: STORY_ID,
+        eligibility: 'explicit-human-approval',
+        reason: 'Operator approved degraded fallback because only one verifier host was available.',
+        evidenceRefs: ['manual-approval:ticket-456'],
+        json: true,
+      }) as any;
+      assert.equal(fallbackResult.storyFilesHash, storyFilesHash);
+
+      const events = store.readProcessEvents(STORY_ID);
+      assert.equal(events.find(event => event.type === 'host_verdict')?.storyFilesHash, storyFilesHash);
+      assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.storyFilesHash, storyFilesHash);
+    } finally {
+      rmSync(commandRoot, { recursive: true, force: true });
+    }
   });
 
   check('valid explicit high-risk policy fact requires 3x2 without first-round problems', () => {
@@ -367,6 +418,104 @@ try {
     assert.equal(report.degradedFallback.record?.valid, false);
     assert.equal(report.degradedFallback.record?.reasons.some(r => r.includes('materialHash is stale')), true);
     assert.equal(report.degradedFallback.record?.reasons.some(r => r.includes('evidenceRefs or approvalRef')), true);
+  });
+
+  check('unrelated main merge keeps escalation host verdicts valid with storyFilesHash advisory', () => {
+    const driftRoot = makeRepo();
+    try {
+      write(driftRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'story file']);
+      const recordedMaterial = currentMaterialHash(driftRoot)!;
+      const recordedStoryFiles = currentStoryFilesHash(driftRoot)!;
+
+      git(driftRoot, ['checkout', 'main']);
+      write(driftRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'unrelated main file']);
+      git(driftRoot, ['checkout', 'story/B-review-escalation']);
+      git(driftRoot, ['merge', 'main', '--no-edit']);
+
+      assert.notEqual(currentMaterialHash(driftRoot), recordedMaterial, 'unrelated main merge changes whole-tree materialHash');
+      assert.equal(currentStoryFilesHash(driftRoot), recordedStoryFiles, 'story-owned file hash remains stable after unrelated main merge');
+
+      const report = evaluateReviewEscalation({
+        projectRoot: driftRoot,
+        story: story(),
+        findings: [finding('050'), finding('051')],
+        processEvents: withStoryFilesHash(fullQuorum(recordedMaterial), recordedStoryFiles),
+      });
+      assert.equal(report.ok, true);
+      assert.equal(report.assuranceLevel, 'full-3x2');
+      assert.equal(report.advisories?.some(line => line.includes('storyFilesHash matches')), true);
+      assert.equal(report.fullQuorum.ignoredVerdicts.some(v => v.reasons.some(r => r.includes('stale'))), false);
+      assert.match(formatReviewEscalationReport(report), /advisory: .*storyFilesHash matches/);
+    } finally {
+      rmSync(driftRoot, { recursive: true, force: true });
+    }
+  });
+
+  check('story-owned file change still rejects escalation host verdicts despite storyFilesHash support', () => {
+    const driftRoot = makeRepo();
+    try {
+      write(driftRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'story file']);
+      const recordedMaterial = currentMaterialHash(driftRoot)!;
+      const recordedStoryFiles = currentStoryFilesHash(driftRoot)!;
+
+      write(driftRoot, 'packages/main/src/story.ts', 'export const story = 2;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'story file changed']);
+
+      assert.notEqual(currentStoryFilesHash(driftRoot), recordedStoryFiles, 'story-owned file change must change storyFilesHash');
+      const report = evaluateReviewEscalation({
+        projectRoot: driftRoot,
+        story: story(),
+        findings: [finding('060'), finding('061')],
+        processEvents: withStoryFilesHash(fullQuorum(recordedMaterial), recordedStoryFiles),
+      });
+      assert.equal(report.ok, false);
+      assert.equal(report.fullQuorum.ignoredVerdicts.some(v => v.reasons.some(r => r.includes('stale'))), true);
+      assert.equal(report.advisories?.length ?? 0, 0);
+    } finally {
+      rmSync(driftRoot, { recursive: true, force: true });
+    }
+  });
+
+  check('degraded fallback accepts whole-tree drift only with matching storyFilesHash advisory', () => {
+    const driftRoot = makeRepo();
+    try {
+      write(driftRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'story file']);
+      const recordedMaterial = currentMaterialHash(driftRoot)!;
+      const recordedStoryFiles = currentStoryFilesHash(driftRoot)!;
+
+      git(driftRoot, ['checkout', 'main']);
+      write(driftRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
+      git(driftRoot, ['add', '.']);
+      git(driftRoot, ['commit', '-m', 'unrelated main file']);
+      git(driftRoot, ['checkout', 'story/B-review-escalation']);
+      git(driftRoot, ['merge', 'main', '--no-edit']);
+
+      const report = evaluateReviewEscalation({
+        projectRoot: driftRoot,
+        story: story(),
+        findings: [finding('070'), finding('071')],
+        processEvents: [
+          ...withStoryFilesHash(singleHostRounds(recordedMaterial), recordedStoryFiles),
+          fallback(recordedMaterial, { storyFilesHash: recordedStoryFiles }),
+        ],
+      });
+      assert.equal(report.ok, true);
+      assert.equal(report.assuranceLevel, 'degraded-single-host');
+      assert.equal(report.degradedFallback.record?.valid, true);
+      assert.equal(report.degradedFallback.record?.advisories?.some(line => line.includes('storyFilesHash matches')), true);
+      assert.match(formatReviewEscalationReport(report), /fallback advisory: .*storyFilesHash matches/);
+    } finally {
+      rmSync(driftRoot, { recursive: true, force: true });
+    }
   });
 
   console.log(`\nreview-escalation smoke passed (${passed} checks)`);

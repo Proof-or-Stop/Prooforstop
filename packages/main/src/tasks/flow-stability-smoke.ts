@@ -28,7 +28,7 @@ import {
 } from '../core/dirty-gate-policy.js';
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
@@ -66,15 +66,19 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { collectReviewerEvidenceState, signReviewRun } from '../core/review-run.js';
+import { buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { findStaleEvidence } from '../core/evidence-stale-hint.js';
 import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
 import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
+import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { decorateResult } from '../handlers/hints.js';
@@ -1333,6 +1337,348 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertReviewRunStoryFilesHashBindingIsSigned(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-story-files-hash-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story change']);
+
+    const storyId = 'B-smoke';
+    const reviewRunId = `${storyId}:RR-001`;
+    const agent = 'lattice-review-quality';
+    const reviewRound = '2026-06-19T12:00:00.000Z';
+    const startedAt = '2026-06-19T12:01:00.000Z';
+    const headHash = currentGitHead(root)!;
+    const materialHash = currentMaterialHash(root)!;
+    const storyFilesHash = currentStoryFilesHash(root)!;
+    const workspaceBinding = buildReviewRunWorkspaceBinding({
+      metadataRoot: root,
+      invocationCwd: root,
+      repoRoot: root,
+      signedWorkspaceRoot: root,
+      workspaceMode: 'metadata-git-root',
+      headHash,
+      materialHash,
+    });
+    assert.equal(workspaceBinding.storyFilesHash, storyFilesHash, 'workspace binding must capture storyFilesHash when computable');
+
+    const run: ReviewRun = {
+      reviewRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt,
+      headHash,
+      materialHash,
+      promptHash: '',
+      workspaceBinding,
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, workspaceBinding.bindingHash),
+    };
+    assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
+
+    const tampered: ReviewRun = {
+      ...run,
+      workspaceBinding: {
+        ...workspaceBinding,
+        storyFilesHash: '0'.repeat(64),
+      },
+    };
+    assert.equal(verifyReviewRun(tampered), false, 'tampering storyFilesHash must invalidate the signed workspace binding');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-verification-story-files-hash-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story file']);
+
+    const recordedHead = currentGitHead(root)!;
+    const recordedMaterial = currentMaterialHash(root)!;
+    const recordedStoryFiles = currentStoryFilesHash(root)!;
+
+    git(root, ['checkout', 'main']);
+    write(root, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'unrelated main file']);
+    git(root, ['checkout', 'story/B-smoke']);
+    git(root, ['merge', 'main', '--no-edit']);
+
+    const storyId = 'B-smoke';
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Verify story behavior',
+        status: 'done',
+        startTime: '2026-06-19T12:00:00.000Z',
+        endTime: '2026-06-19T12:01:00.000Z',
+        verificationIntent: {
+          happy: [{ desc: 'story works', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          command: 'synthetic',
+          result: 'pass',
+          note: 'synthetic evidence',
+          headHash: recordedHead,
+          materialHash: recordedMaterial,
+          storyFilesHash: recordedStoryFiles,
+        }],
+      }],
+    };
+
+    const coverage = buildVerificationCoverage(
+      checklist,
+      currentGitHead(root),
+      (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
+      { deferredGateEvidence: 'missing' },
+    );
+    assert.equal(coverage.entries[0]?.status, 'covered', 'matching storyFilesHash must prevent unrelated material drift from marking evidence stale');
+    const store = new StoryStore(root);
+    store.writeChecklist(storyId, checklist);
+    assert.deepEqual(findStaleEvidence(root, storyId), [], 'session stale hint must also honor matching storyFilesHash');
+    const freshness = checkEvidenceFreshnessForGit(root, recordedHead, recordedMaterial, root, recordedStoryFiles);
+    assert.equal(freshness.fresh, true);
+    assert.equal(freshness.warnings?.some(line => line.includes('re-attestation')), true, 'downgraded material drift must expose a re-attestation warning');
+
+    write(root, 'packages/main/src/story.ts', 'export const story = 2;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story file changed']);
+    const staleCoverage = buildVerificationCoverage(
+      checklist,
+      currentGitHead(root),
+      (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
+      { deferredGateEvidence: 'missing' },
+    );
+    assert.equal(staleCoverage.entries[0]?.status, 'stale', 'story-owned file changes must still stale verification evidence');
+
+    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
+    const refreshResult = handlers.verification_evidence_refresh_stale({ storyId });
+    assert.match(refreshResult, /Refreshed 1\/1 stale evidence/, 'refresh helper should refresh the stale story-owned evidence');
+    const refreshed = store.readChecklist(storyId).items[0]?.verificationEvidence?.[0];
+    assert.equal(refreshed?.storyFilesHash, currentStoryFilesHash(root), 'refresh helper must preserve the current storyFilesHash binding');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-test-evidence-story-files-hash-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story file']);
+
+    const recordedHead = currentGitHead(root)!;
+    const recordedMaterial = currentMaterialHash(root)!;
+    const recordedStoryFiles = currentStoryFilesHash(root)!;
+
+    git(root, ['checkout', 'main']);
+    write(root, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'unrelated main file']);
+    git(root, ['checkout', 'story/B-smoke']);
+    git(root, ['merge', 'main', '--no-edit']);
+
+    const store = new StoryStore(root);
+    const storyId = 'B-smoke';
+    const now = '2026-06-19T12:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'test-evidence-story-files-hash',
+      title: 'Test evidence storyFilesHash smoke',
+      description: 'Synthetic story for active DONE evidence freshness.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+    });
+    store.writeChecklist(storyId, { items: [] });
+
+    const baseEvidence: TestEvidenceData = {
+      command: 'lattice validate --json',
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: now,
+      headHash: recordedHead,
+      materialHash: recordedMaterial,
+    };
+    store.writeTestEvidence(storyId, baseEvidence);
+    let rows = buildDoneChecklist(storyId, store, root);
+    let byId = new Map(rows.map(row => [row.id, row]));
+    assert.equal(byId.get('evidence-freshness')?.status, 'fail', 'legacy test-evidence without storyFilesHash must remain strict');
+    assert.match(byId.get('evidence-freshness')?.detail ?? '', /materialHash does not match/);
+
+    store.writeTestEvidence(storyId, { ...baseEvidence, storyFilesHash: recordedStoryFiles });
+    rows = buildDoneChecklist(storyId, store, root);
+    byId = new Map(rows.map(row => [row.id, row]));
+    assert.equal(byId.get('evidence-freshness')?.status, 'pass', 'matching storyFilesHash must downgrade unrelated active DONE material drift');
+    assert.match(byId.get('evidence-freshness')?.detail ?? '', /re-attestation advisory/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-preflight-story-files-hash-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story file']);
+
+    const storyId = 'B-smoke';
+    const reviewRound = '2026-06-19T12:00:00.000Z';
+    const agent = 'lattice-review-quality';
+    const reviewRunId = `${storyId}:RR-001`;
+    const startedAt = '2026-06-19T12:01:00.000Z';
+    const recordedHead = currentGitHead(root)!;
+    const recordedMaterial = currentMaterialHash(root)!;
+    const recordedStoryFiles = currentStoryFilesHash(root)!;
+
+    git(root, ['checkout', 'main']);
+    write(root, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'unrelated main file']);
+    git(root, ['checkout', 'story/B-smoke']);
+    git(root, ['merge', 'main', '--no-edit']);
+
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId,
+      name: 'review-preflight-story-files-hash',
+      title: 'Review preflight storyFilesHash smoke',
+      description: 'Synthetic story for REVIEW preflight advisory coverage.',
+      type: 'chore',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: reviewRound,
+      startedAt: reviewRound,
+      endedAt: null,
+      currentReviewRound: reviewRound,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Fast-channel item',
+        context: 'Keep the preflight smoke on the express path.',
+        status: 'done',
+        startTime: reviewRound,
+        endTime: reviewRound,
+      }],
+    });
+    const run: ReviewRun = {
+      reviewRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt,
+      headHash: recordedHead,
+      materialHash: recordedMaterial,
+      storyFilesHash: recordedStoryFiles,
+      promptHash: '',
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, '', undefined, undefined, recordedStoryFiles),
+    };
+    store.writeReviewRuns(storyId, { runs: [run] });
+    store.writeReviewPasses(storyId, {
+      passes: [makeReviewPass(storyId, agent, reviewRound, '099', reviewRunId)],
+    });
+
+    const preflight = runReviewCliGates(storyId, {
+      store,
+      projectRoot: root,
+      registryNames: new Set(),
+    });
+    assert.equal(preflight.ok, true, 'storyFilesHash reviewer drift advisory must be non-blocking');
+    const advisoryGate = preflight.gates.find(gate => gate.name === 'reviewer-evidence');
+    assert.equal(advisoryGate?.status, 'warn');
+    const rendered = renderPreflight(preflight);
+    assert.match(rendered, /reviewer-evidence freshness: warn/);
+    assert.match(rendered, /whole-tree materialHash drift/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }
 
@@ -3804,6 +4150,10 @@ assertManagedAssetExpandedDocsAndTrueDrift();
 assertDispatchPromptsPinImplementerCommitAuthor();
 assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
+assertReviewRunStoryFilesHashBindingIsSigned();
+assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift();
+assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness();
+assertReviewPreflightSurfacesStoryFilesHashAdvisories();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();

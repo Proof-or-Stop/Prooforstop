@@ -1,7 +1,7 @@
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
@@ -25,6 +25,7 @@ type ReviewEscalationFallbackSetArgs = {
   evidenceRefs?: string[];
   approvalRef?: string;
   materialHash?: string;
+  storyFilesHash?: string;
   actor?: string;
 } & FormatArgs;
 
@@ -185,6 +186,12 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       if (suppliedMaterialHash && suppliedMaterialHash !== freshMaterialHash) {
         throw new Error('review_escalation_fallback_set: supplied materialHash is stale and does not match current material hash');
       }
+      const freshStoryFilesHash = currentStoryFilesHash(ctx.root, 'HEAD', ctx.root);
+      const suppliedStoryFilesHash = normalizeString(args.storyFilesHash);
+      if (suppliedStoryFilesHash && freshStoryFilesHash && suppliedStoryFilesHash !== freshStoryFilesHash) {
+        throw new Error('review_escalation_fallback_set: supplied storyFilesHash is stale and does not match current story-owned file hash');
+      }
+      const storyFilesHash = freshStoryFilesHash || suppliedStoryFilesHash;
 
       const fallbackId = `${args.storyId}:REF-${Date.now().toString(36)}`;
       const actor = normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
@@ -198,6 +205,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         evidenceRefs,
         ...(approvalRef ? { approvalRef } : {}),
         materialHash: freshMaterialHash,
+        ...(storyFilesHash ? { storyFilesHash } : {}),
         assuranceLevel: 'degraded-single-host',
         actor,
         authorityDone: false,
@@ -216,6 +224,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
           schemaVersion: 'lattice.review_escalation_fallback_set.v1',
           fallbackId,
           materialHash: freshMaterialHash,
+          ...(storyFilesHash ? { storyFilesHash } : {}),
           assuranceLevel: 'degraded-single-host',
           authorityDone: false,
           fullAuthorityDone: false,
@@ -227,6 +236,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         `Review escalation fallback ${fallbackId} recorded`,
         `assuranceLevel: degraded-single-host`,
         `materialHash: ${freshMaterialHash}`,
+        ...(storyFilesHash ? [`storyFilesHash: ${storyFilesHash}`] : []),
         `reviewEscalationOk: ${report.ok}`,
         'authorityDone: false',
         'fullAuthorityDone: false',

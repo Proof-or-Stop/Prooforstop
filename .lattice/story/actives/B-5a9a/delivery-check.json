@@ -1,0 +1,63 @@
+{
+  "storyId": "B-5a9a",
+  "checkedAt": "2026-06-19T23:26:19.119Z",
+  "reviewRound": "2026-06-19T23:11:19.016Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "promise": "Decision doc defines storyFilesHash as a secondary binding signal, preserves whole-tree materialHash, and documents unrelated whole-tree drift as re-attestation warning rather than silent rebind.",
+      "status": "verified",
+      "verifiedBy": "lattice story_get; lattice validate; node scripts/verify-process-fact-contract.mjs",
+      "evidence": "CHK-001 docs_check evidence is fresh; process fact contract includes runtime:story_files_hash_freshness_gate and review_run_story_files_hash_gate; validate reports 15/15 verification intents covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Lifecycle gates continue to use signed gate evidence and TEST/DONE freshness; storyFilesHash only downgrades unrelated whole-tree material drift when story files are unchanged.",
+      "status": "verified",
+      "verifiedBy": "lattice validate; lattice evidence_inspect; lattice session_brief",
+      "evidence": "Fresh validate passed; evidence_inspect status=fresh with no staleRefs; session_brief DONE pre-check passes test evidence, verification coverage, evidence freshness, bugs, delivery-check, review escalation, review assurance floor, and summary."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "review_run_start bindings/signatures carry the storyFilesHash workspace signal without dropping existing materialHash semantics.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/field-regression-cli-smoke.js; node scripts/verify-process-fact-contract.mjs; lattice story_get",
+      "evidence": "field regression CLI smoke passed; process fact registry lists review_run_start and runtime:review_run_story_files_hash_gate; CHK-002 happy evidence covers review-run workspaceBinding.storyFilesHash and signature verification."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "promise": "Workspace diagnostics/freshness remain explicit when whole-tree materialHash drifts, including warning semantics instead of silent full freshness.",
+      "status": "verified",
+      "verifiedBy": "lattice validate; lattice evidence_inspect",
+      "evidence": "CHK-003 adversarial evidence covers explicit re-attestation advisories for whole-tree drift; evidence_inspect reports current materialHash f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721 and freshness status=fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "Gate-consumed artifacts remain structured/signed facts; review escalation verdict/fallback records reject story-owned file changes and preserve materialHash plus storyFilesHash semantics.",
+      "status": "verified",
+      "verifiedBy": "lattice review_escalation_status; lattice validate; node scripts/verify-process-fact-contract.mjs",
+      "evidence": "review_escalation_status ok=true with degraded-single-host fallback pass 3/3 and valid fallbackRecord B-5a9a:REF-mqljzo73; process fact contract lists review_escalation_fallback_set and autopilot_review_submit as L4 gate evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Review assurance/degraded fallback verdicts remain fresh and visible for DONE gating.",
+      "status": "verified",
+      "verifiedBy": "lattice review_escalation_status; lattice session_brief",
+      "evidence": "review_escalation_status reports degradedFallback pass 3/3 rounds x 1 host and stale/invalid voluntary verdicts are explicitly ignored; session_brief reports Review escalation and Review assurance floor PASS in DONE pre-check."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-5a9a-delivery-rerun",
+      "transcript": "lattice validate --story=B-5a9a PASS: build plus 6 configured smoke commands passed and verification intent coverage is 15/15 with 0 required missing. node packages/main/dist/tasks/field-regression-cli-smoke.js PASS. node scripts/verify-process-fact-contract.mjs PASS and lists review_run_start, runtime:review_run_story_files_hash_gate, runtime:story_files_hash_freshness_gate, delivery-check signed artifact, and lattice-review-delivery lane. lattice evidence_inspect --storyId=B-5a9a --sourceHost=codex --format=json reports freshness.status=fresh, staleRefs=[], and test-evidence fresh at HEAD 121873a93d16cfce09b2eafceb0ea2c203a46fdf. lattice review_escalation_status --storyId=B-5a9a reports ok=true, degradedFallback pass 3/3 rounds x 1 host, and valid fallbackRecord B-5a9a:REF-mqljzo73. git diff main...HEAD --name-only includes .lattice/story/actives/B-5a9a/evidence/transcript-diff.md, confirming the transcript diff artifact is present on the story branch."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer rerun found no product delivery blocker: fresh validate passed, field regression CLI smoke passed, process-fact contract passed, evidence inspection is fresh, transcript diff artifact is present, and review escalation fallback/verdict status is pass. Operational caveat: session_brief still reports branch-synced-main failing because story/B-5a9a is behind main by 2 commits; DONE flow must merge main before final completion."
+  },
+  "_hash": "1e0d9a7b7d056265fd70965b653fd84d063f7c6e32de56f457e67cae8b7ebe39"
+}

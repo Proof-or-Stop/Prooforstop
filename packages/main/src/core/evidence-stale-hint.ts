@@ -45,7 +45,7 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
   } catch {
     return [];
   }
-  let checklist: { items?: Array<{ id: string; verificationEvidence?: Array<{ intentRef: string; headHash?: string; materialHash?: string }> }> } | null = null;
+  let checklist: { items?: Array<{ id: string; verificationEvidence?: Array<{ intentRef: string; headHash?: string; materialHash?: string; storyFilesHash?: string }> }> } | null = null;
   try {
     checklist = store.readChecklist(storyId);
   } catch {
@@ -58,7 +58,7 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
     const evidences = Array.isArray(item.verificationEvidence) ? item.verificationEvidence : [];
     for (const ev of evidences) {
       if (!ev || typeof ev.intentRef !== 'string') continue;
-      const freshness = checkEvidenceFreshnessForGit(projectRoot, ev.headHash, ev.materialHash);
+      const freshness = checkEvidenceFreshnessForGit(projectRoot, ev.headHash, ev.materialHash, projectRoot, ev.storyFilesHash);
       if (!freshness.fresh) {
         out.push({
           intentRef: ev.intentRef,

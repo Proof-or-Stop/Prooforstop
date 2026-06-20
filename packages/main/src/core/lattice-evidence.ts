@@ -38,6 +38,7 @@ export interface LatticeEvidenceRef {
   testRefs: string[];
   headHash?: string;
   materialHash?: string;
+  storyFilesHash?: string;
   receiptRefs: string[];
   redaction: LatticeEvidenceRedaction;
   freshness: LatticeEvidenceFreshness;
@@ -141,6 +142,8 @@ function freshnessFor(root: string, record: Record<string, unknown>): LatticeEvi
     root,
     stringField(record, 'headHash'),
     stringField(record, 'materialHash'),
+    root,
+    stringField(record, 'storyFilesHash'),
   );
   return {
     ...result,
@@ -230,6 +233,7 @@ function buildEvidenceRefs(root: string, records: Array<Record<string, unknown>>
       testRefs: refs.testRefs,
       ...(stringField(record, 'headHash') ? { headHash: stringField(record, 'headHash') } : {}),
       ...(stringField(record, 'materialHash') ? { materialHash: stringField(record, 'materialHash') } : {}),
+      ...(stringField(record, 'storyFilesHash') ? { storyFilesHash: stringField(record, 'storyFilesHash') } : {}),
       receiptRefs: collectReceiptRefs(record),
       redaction: redactionForRecord(record),
       freshness: freshnessFor(root, record),

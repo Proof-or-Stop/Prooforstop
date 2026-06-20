@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5a9a",
+  "changes": "Added storyFilesHash secondary freshness binding across review runs, checklist verification evidence, validation test-evidence, escalation verdict/fallback records, stale hints, and portable evidence manifests while preserving whole-tree materialHash.",
+  "usage": "Use the normal Lattice flow. Evidence, review runs, validate, session_brief, and review_escalation_status now record or consume storyFilesHash automatically alongside materialHash.",
+  "expectedOutcome": "After unrelated main merges, bindings remain valid when the story-owned files are unchanged, with an explicit re-attestation warning instead of a hard stale refresh loop.",
+  "actualTranscript": "lattice validate --story=B-5a9a passed 7 configured validation commands and reported Verification intent coverage 15/15 covered with 0 required missing. review_escalation_status reported ok true with degraded-single-host fallback 3/3 rounds x 1 host.",
+  "outcomeDiff": "No functional difference from expected: unrelated whole-tree material drift is downgraded only when storyFilesHash matches, and story-owned changes still stale the binding.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Known advisory: B-5a9a:F-005 is a medium docs finding that the decision doc underlists validation test-evidence as an adopted binding; implementation and tests cover it.",
+  "pitfalls": "Review found producer gaps after the first implementation: escalation writers, DONE test-evidence, and reviewer advisory surfacing all had to be wired before validation could be trusted.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2715064
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12899
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2054618
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2657639
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 922316
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 149498
+    }
+  },
+  "totalDurationMs": 8512034,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T22:46:39.563Z",
+  "updatedAt": "2026-06-19T22:46:39.563Z"
+}

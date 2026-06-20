@@ -1,0 +1,301 @@
+{
+  "command": "lattice validate --story=B-5a9a --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.14 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check — Decision doc defines storyFilesHash as a secondary signal, keeps whole-tree materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.\",\"  ✓ CHK-001:happy:1 [happy/must/logic] covered via logic_test — Process-fact contract represents the new gate-consumed storyFilesHash/freshness semantics rather than relying on prompt prose.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check — Decision doc explains why story-diff-only is insufficient for transitive dependency or global gate-fact changes.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check — Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — review_run_start captures optional storyFilesHash alongside materialHash and signatures verify when the optional field is present.\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test — verificationEvidence records optional storyFilesHash alongside materialHash without dropping existing materialHash.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — Legacy records without storyFilesHash still use the existing strict materialHash freshness path.\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test — Missing or uncomputable storyFilesHash never silently passes a stale materialHash record.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — Tampering a recorded storyFilesHash invalidates the signed/bound record where signatures consume it.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — An unrelated main merge that leaves story-owned files unchanged keeps bindings valid via matching storyFilesHash and emits a whole-tree drift re-attestation warning.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — CLI/validation output no longer asks for recover_evidence solely because unrelated files changed when storyFilesHash matches.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — A change to a story-owned material file changes storyFilesHash and still invalidates the binding as stale.\",\"  ✓ CHK-003:edge:1 [edge/must/logic] covered via logic_test — Records without storyFilesHash keep existing strict materialHash stale behavior.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — Whole-tree materialHash drift is never hidden: the result includes an explicit warning rather than silently claiming full freshness.\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/logic] covered via logic_test — Review escalation verdict/fallback records with changed story files are rejected even if unrelated warning behavior exists.\"],\"warnings\":[],\"timestamp\":\"2026-06-19T23:24:43.572Z\",\"headSha\":\"121873a93d16cfce09b2eafceb0ea2c203a46fdf\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.14 build\\n> tsc\\n\\n\",\"durationMs\":5313},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":197},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":180},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12772},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":579},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4122},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":166}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Decision doc defines storyFilesHash as a secondary signal, keeps whole-tree materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Decision doc defines storyFilesHash as a secondary signal, keeps materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Process-fact contract represents the new gate-consumed storyFilesHash/freshness semantics rather than relying on prompt prose.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process-fact registry and verifier include runtime:story_files_hash_freshness_gate as an L4 gate-consumed freshness semantic.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Decision doc explains why story-diff-only is insufficient for transitive dependency or global gate-fact changes.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Decision doc explains story-diff-only is insufficient for transitive dependency, runtime policy, validation runner, and process-fact drift.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"review_run_start captures optional storyFilesHash alongside materialHash and signatures verify when the optional field is present.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow-stability smoke asserts review-run workspaceBinding captures storyFilesHash alongside materialHash and verifyReviewRun accepts the signed binding.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"verificationEvidence records optional storyFilesHash alongside materialHash without dropping existing materialHash.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/lattice-evidence-smoke.js\",\"result\":\"pass\",\"note\":\"checklist evidence normalization stamps storyFilesHash alongside materialHash, and lattice-evidence smoke proves portable evidence manifests preserve storyFilesHash through manifest/inspect so consumers do not fall back to materialHash-only freshness.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Legacy records without storyFilesHash still use the existing strict materialHash freshness path.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"checkEvidenceFreshnessForGit keeps legacy records without storyFilesHash on the existing strict materialHash path.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Missing or uncomputable storyFilesHash never silently passes a stale materialHash record.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"freshness only downgrades materialHash drift when recorded and current storyFilesHash both exist and match; missing/uncomputable storyFilesHash falls back to strict materialHash behavior.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Tampering a recorded storyFilesHash invalidates the signed/bound record where signatures consume it.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow-stability smoke tampers workspaceBinding.storyFilesHash and verifyReviewRun rejects the signed/bound record.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"An unrelated main merge that leaves story-owned files unchanged keeps bindings valid via matching storyFilesHash and emits a whole-tree drift re-attestation warning.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"review-escalation and flow-stability smokes cover unrelated main merge: matching storyFilesHash keeps records valid and emits re-attestation advisories.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"CLI/validation output no longer asks for recover_evidence solely because unrelated files changed when storyFilesHash matches.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"verifier/checklist freshness callbacks pass evidence.storyFilesHash, so matching story hashes avoid stale coverage/recover_evidence solely from unrelated materialHash drift.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A change to a story-owned material file changes storyFilesHash and still invalidates the binding as stale.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"smokes change a story-owned material file after recording evidence and assert storyFilesHash changes and records become stale/rejected.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Records without storyFilesHash keep existing strict materialHash stale behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"legacy evidence without storyFilesHash remains on strict materialHash freshness behavior because downgrade only occurs when recorded and current storyFilesHash exist and match.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Whole-tree materialHash drift is never hidden: the result includes an explicit warning rather than silently claiming full freshness.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"freshness, validation details, reviewer advisories, and review escalation reports expose explicit re-attestation advisories for whole-tree drift rather than silently claiming full freshness.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Review escalation verdict/fallback records with changed story files are rejected even if unrelated warning behavior exists.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js\",\"result\":\"pass\",\"note\":\"review escalation smoke rejects host verdict records after story-owned files change even though unrelated-drift warning behavior exists.\",\"headHash\":\"f66293e2ab6405f6d12506892269654665263650\",\"materialHash\":\"f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721\",\"timestamp\":\"2026-06-19T23:18:52.903Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T23:24:44.225Z",
+  "headHash": "121873a93d16cfce09b2eafceb0ea2c203a46fdf",
+  "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Decision doc defines storyFilesHash as a secondary signal, keeps whole-tree materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc defines storyFilesHash as a secondary signal, keeps materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Process-fact contract represents the new gate-consumed storyFilesHash/freshness semantics rather than relying on prompt prose.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry and verifier include runtime:story_files_hash_freshness_gate as an L4 gate-consumed freshness semantic.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Decision doc explains why story-diff-only is insufficient for transitive dependency or global gate-fact changes.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc explains story-diff-only is insufficient for transitive dependency, runtime policy, validation runner, and process-fact drift.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "review_run_start captures optional storyFilesHash alongside materialHash and signatures verify when the optional field is present.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability smoke asserts review-run workspaceBinding captures storyFilesHash alongside materialHash and verifyReviewRun accepts the signed binding.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "verificationEvidence records optional storyFilesHash alongside materialHash without dropping existing materialHash.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/lattice-evidence-smoke.js",
+          "result": "pass",
+          "note": "checklist evidence normalization stamps storyFilesHash alongside materialHash, and lattice-evidence smoke proves portable evidence manifests preserve storyFilesHash through manifest/inspect so consumers do not fall back to materialHash-only freshness.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Legacy records without storyFilesHash still use the existing strict materialHash freshness path.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "checkEvidenceFreshnessForGit keeps legacy records without storyFilesHash on the existing strict materialHash path.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Missing or uncomputable storyFilesHash never silently passes a stale materialHash record.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "freshness only downgrades materialHash drift when recorded and current storyFilesHash both exist and match; missing/uncomputable storyFilesHash falls back to strict materialHash behavior.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Tampering a recorded storyFilesHash invalidates the signed/bound record where signatures consume it.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability smoke tampers workspaceBinding.storyFilesHash and verifyReviewRun rejects the signed/bound record.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "An unrelated main merge that leaves story-owned files unchanged keeps bindings valid via matching storyFilesHash and emits a whole-tree drift re-attestation warning.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "review-escalation and flow-stability smokes cover unrelated main merge: matching storyFilesHash keeps records valid and emits re-attestation advisories.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "CLI/validation output no longer asks for recover_evidence solely because unrelated files changed when storyFilesHash matches.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "verifier/checklist freshness callbacks pass evidence.storyFilesHash, so matching story hashes avoid stale coverage/recover_evidence solely from unrelated materialHash drift.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A change to a story-owned material file changes storyFilesHash and still invalidates the binding as stale.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "smokes change a story-owned material file after recording evidence and assert storyFilesHash changes and records become stale/rejected.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Records without storyFilesHash keep existing strict materialHash stale behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "legacy evidence without storyFilesHash remains on strict materialHash freshness behavior because downgrade only occurs when recorded and current storyFilesHash exist and match.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Whole-tree materialHash drift is never hidden: the result includes an explicit warning rather than silently claiming full freshness.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "freshness, validation details, reviewer advisories, and review escalation reports expose explicit re-attestation advisories for whole-tree drift rather than silently claiming full freshness.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Review escalation verdict/fallback records with changed story files are rejected even if unrelated warning behavior exists.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review escalation smoke rejects host verdict records after story-owned files change even though unrelated-drift warning behavior exists.",
+          "headHash": "f66293e2ab6405f6d12506892269654665263650",
+          "materialHash": "f12999ec6f2e7330a537e13566913ca8bc3817b7c6ce6f0dd30b0c1f6493c721",
+          "timestamp": "2026-06-19T23:18:52.903Z"
+        }
+      }
+    ]
+  }
+}

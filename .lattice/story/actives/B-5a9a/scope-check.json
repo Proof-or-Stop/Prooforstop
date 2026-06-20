@@ -1,0 +1,101 @@
+{
+  "storyId": "B-5a9a",
+  "checkedAt": "2026-06-19T21:44:00.481Z",
+  "features": [
+    {
+      "feature": "Add storyFilesHash as a secondary signal for story binding freshness.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Compute storyFilesHash from the story-owned changed files relative to merge-base main.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record storyFilesHash alongside the existing whole-tree materialHash rather than replacing materialHash.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Adopt the secondary storyFilesHash signal for review-run bindings.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Adopt the secondary storyFilesHash signal for verificationEvidence freshness.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "Adopt the secondary storyFilesHash signal for review escalation verdict/fallback freshness.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "Keep bindings valid when storyFilesHash is unchanged even if whole-tree materialHash drifted due to unrelated main changes.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Surface whole-tree materialHash drift as an explicit re-attestation-required warning, not a silent pass.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "A change to story-owned material files must change storyFilesHash and still invalidate stale bindings.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Records without storyFilesHash keep the existing strict materialHash freshness behavior.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "Replace or remove whole-tree materialHash and rely only on story diff freshness.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision_get rejects option C: Replace materialHash with story diff only",
+      "source": "description"
+    },
+    {
+      "feature": "Leave strict materialHash behavior unchanged and rely only on recover_evidence UX.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision_get rejects option B: Keep strict materialHash and rely on recover_evidence UX",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 10,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "dc976e49f3a08e0c63eb7f6d78ff7221ea83748c814ee52b69272075d49fb7a0",
+  "openQuestions": []
+}

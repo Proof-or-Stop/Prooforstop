@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Surface escalation.advisories on the DONE Review-escalation pass path",
+      "context": "In done-oracle.ts the Review-escalation doneCheckRow (~706-713): when escalation.ok===true AND escalation.advisories?.length, append the advisories to the row DETAIL (the always-printed field; renderDoneChecklist skips the hint on pass rows) so a passing DONE still shows the whole-tree-drift re-attestation advisory. Keep status=pass and blocking unchanged. Verify renderDoneChecklist actually prints the advisory on the pass row. Also check the machine.ts DONE guard (~882) ok-path and the Review-assurance-floor row do not separately swallow the same advisory; surface where an operator would otherwise miss it. Do NOT change eventsWithStoryFilesHashDowngrade or block DONE.",
+      "userSees": "On a DONE where host verdicts were downgrade-accepted (materialHash drift + storyFilesHash match), the DONE checklist Review-escalation row PASSES but its detail now includes e.g. \"host verdict ...: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\" so the operator sees the drift. With no drift, no advisory text appears.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke: DONE surfaces the drift advisory on the pass path",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that builds an escalation report with a downgrade-accepted host verdict (materialHash drift + matching storyFilesHash) and asserts the rendered DONE checklist Review-escalation row is PASS AND contains the re-attestation advisory text; and a control where no drift -> pass with no advisory text. Prefer driving the real done-oracle render path.",
+      "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
