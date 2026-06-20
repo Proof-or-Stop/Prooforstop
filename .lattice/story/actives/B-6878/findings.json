@@ -131,6 +131,23 @@
       ],
       "signatureTag": "adversarial|ts|streaming-openai-gemini",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-008",
+      "desc": "dispatch-usage.ts:215 — resultText reads inherited envelope.result via prototype-chain; Object.prototype.result can replace the raw fallback text on a no-own-result envelope (same unguarded-container class as F-004, missed in round 2). Not a token surface, but same hardening class in the same file. Fix: own-prop guard the envelope.result read (ownProp(envelope,'result') ? ... : fallback). Add a smoke check that a polluted Object.prototype.result is not used when the envelope has no own result.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:31:06.481Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "_hash": "4b56c613f8715ba9214fbd05f9079324a46cfa55ebac0cfcc466ad82903319aa",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+      ],
+      "signatureTag": "adversarial|ts|dispatch-usage-resulttext",
+      "signatureTagSource": "auto"
     }
   ]
 }
