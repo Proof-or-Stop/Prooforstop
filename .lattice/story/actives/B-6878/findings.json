@@ -31,7 +31,7 @@
       "desc": "CHK-001:happy:0 and CHK-001:adversarial:0 are bound to evidence commands that do not directly exercise the toOwnPropsNullProto chokepoint or the pollution surface for those intents. CHK-001:happy:0 cites usage-ledger-adapter-smoke.js (a pre-existing round-trip smoke that does not call toOwnPropsNullProto directly or assert Object.getPrototypeOf===null). CHK-001:adversarial:0 cites usage-ledger-codex-gemini-smoke.js (codex/gemini path smoke, not the whitelist-drop or null-proto property assertions). The intent text explicitly requires asserting null-prototype and whitelist-drop behavior. The pollution smoke (usage-ledger-prototype-pollution-smoke.js) does assert these via checks 1-4 (helper direct tests) and checks 5/8/10 (billing preserved), but neither of the cited commands drives those assertions. This is a command-to-intent binding mismatch per the evidence-must-bind-literal-intent-command rule.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T15:09:43.907Z",
@@ -43,7 +43,10 @@
         "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-adversarial-bound",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded CHK-001:happy:0 + adversarial:0 (and all 9) bound to the smoke command that actually drives them (ef73b51).",
+      "resolvedAt": "2026-06-20T15:56:51.234Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-003",
