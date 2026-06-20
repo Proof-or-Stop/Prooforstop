@@ -253,6 +253,24 @@
       ],
       "signatureTag": "edge|ts|edge-priority-intent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-015",
+      "desc": "CHK-002:edge:1 (priority=should, type=cli) and CHK-002:edge:2 (priority=should, type=cli): both intents require the sub-field guards proven through the resolveAuditConfig integration path (via a tmpProject config file). CHK-002:edge:1 asks for non-integer maxConcurrentReview falling back via the integrated path; CHK-002:edge:2 asks for non-boolean broadGlobBlocks falling back via the integrated path. The smoke exercises both guards only through direct resolveParallelGate calls (lines 98-115), which satisfies the CHK-001 unit intents but not the CHK-002 cli/integration intents. No tmpProject({parallelGate:{maxConcurrentReview:2.5}}) or tmpProject({parallelGate:{broadGlobBlocks:'yes'}}) resolveAuditConfig call exists in the smoke.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:48:53.341Z",
+      "reviewRound": "2026-06-20T05:46:07.746Z",
+      "reviewRunId": "B-d2a8:RR-006",
+      "_hash": "85e1878e60e9b1f8e6106c7601545fa53535abd716b2c795e6e220ba38e2a36a",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-priority-type",
+      "signatureTagSource": "auto"
     }
   ]
 }
