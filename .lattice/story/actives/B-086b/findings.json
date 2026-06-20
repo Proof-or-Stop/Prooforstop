@@ -147,7 +147,7 @@
       "desc": "MINOR (OUT OF S5 SCOPE — lifecycle-registry.ts not in allowedModify): lifecycle/process-fact metadata still describes INIT_CHECK->DEV as quick-path-only and PLAN->DEV as plan-review/scope-check, not mentioning the new parallel-decomposition gate now consumed before DEV. Runtime gating is correct (Codex round-2 PASS); this is metadata-doc drift only. Follow-up: add a parallel-decomposition gate id to the DEV-transition lifecycle metadata + extend the lifecycle-contract smoke. Deferred (out of scope for S5).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T09:07:21.217Z",
@@ -157,7 +157,11 @@
         "packages/main/src/core/lifecycle-registry.ts"
       ],
       "signatureTag": "cleanup|ts|minor-scope-lifecycle",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "OUT OF S5 SCOPE: lifecycle-registry.ts is not in allowedModify (S5 modifies parallel-decomposition.ts/machine.ts/lattice.config.json/smoke). Runtime gating is correct (Codex round-2 PASS). This is metadata-doc drift only (lifecycle/process-fact metadata not naming the new gate). Deferred as a follow-up (add a parallel-decomposition gate id to the DEV-transition lifecycle metadata + extend the lifecycle-contract smoke) — would need its own story/scope.",
+      "resolvedAt": "2026-06-20T09:07:49.588Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
