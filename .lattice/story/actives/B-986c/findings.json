@@ -117,7 +117,7 @@
       "desc": "dead code: parallel-decomposition-gate-smoke.ts:45 uses async IIFE (void (async () => {) with no await expression inside; the async keyword is unnecessary dead modifier",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T23:39:11.461Z",
@@ -128,7 +128,11 @@
         "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
       ],
       "signatureTag": "missing|ts|dead-code-parallel",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the smoke IIFE is now synchronous (void (() => {...})()), no redundant async.",
+      "resolvedAt": "2026-06-20T00:03:18.825Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-986c:F-007",
