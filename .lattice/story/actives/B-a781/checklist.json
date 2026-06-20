@@ -235,6 +235,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:50:27.010Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "lattice autopilot_review_status --storyId=B-a781 --runId=two-host-doc-review-v3 --requiredHosts=2 --format=json",
+          "result": "pass",
+          "note": "Independent two-host local review completed on the current document material: Codex verdict-c268950499b75fbf PASS and Claude Code verdict-9a6cbb3d40660211 PASS; autopilot_review_status reported localReviewCertified=true, passingIndependentHosts=2, staleVerdicts=0. This is local non-Authority evidence, not production Authority completion.",
+          "headHash": "8eeedc663b137ee1cef37a31b9ec2dad310fe6cc",
+          "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+          "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+          "timestamp": "2026-06-20T07:05:21.211Z"
         }
       ]
     }
