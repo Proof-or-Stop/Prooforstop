@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-b29e:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 verify-fix: all 5 items confirmed. scope_contract_check gateConsumer reverted to pre-existing value (REVIEW/TEST/DONE scope gate only, no parallel-decomposition). The 3 producers (scope_contract_set, scope_contract_acknowledge, scope_contract_init_from_plan) all correctly name the parallel-decomposition DEV-entry gate. Handler audit confirms check is pure read (readScopeContract+buildScopeDiffPack, no writeScopeContract); all 3 producers call writeScopeContract. verify-process-fact-contract.mjs asserted-commands array contains exactly the 3 producers, pattern tests actual gateConsumer string (non-vacuous). spec §8.1 lists 3 producers and explicitly excludes check. lifecycle-registry 4 DEV-entry transitions (INIT_CHECK/PLAN/REVIEW/TEST ->DEV) have parallel-decomposition; legacy TEST_CASE/TEST_CASE_REVIEW rollbacks remain gates:[]. Zero BLOCKER/MAJOR findings.",
+      "createdAt": "2026-06-20T10:27:10.275Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-001",
+      "_hash": "bf545952fe7d2bfe462a770648aba153075b2c722529ce81e66429f189f39d76"
+    }
+  ]
+}
