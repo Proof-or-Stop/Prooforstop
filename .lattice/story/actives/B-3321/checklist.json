@@ -183,7 +183,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T06:58:41.689Z",
+      "endTime": "2026-06-20T07:08:55.173Z",
       "files": {
         "modify": [],
         "create": [
@@ -219,37 +219,37 @@
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"Implementation Validation Commands|Negative validation cases|Expected artifacts|configured `validate.commands` pass but DONE-required `npm test` fails\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Implementation Validation Commands|Negative validation cases|Expected artifacts|configured `validate.commands` pass but DONE-required `npm test` fails|build receipt\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
-          "note": "Document lists future validation commands, expected artifacts, and negative cases proving subset validate cannot unlock DONE when full-suite evidence is missing/failing/stale.",
-          "headHash": "fd23a94493c5729d2638f8e9f3227e8e0bbad844",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:41.867Z"
+          "note": "Document lists future validation commands, expected artifacts, negative cases, stale/missing/failing cases, and build receipt checks before root npm test.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.323Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"In-Flight Story Migration|Rollback/de-escalation policy|emergency override|degraded\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"In-Flight Story Migration|Rollback/de-escalation policy|emergency override|degraded|policy-hash-mismatch|command-set-changed\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
-          "note": "Document covers in-flight migration, rollback/de-escalation, emergency/degraded behavior, and stale policy/command-set transitions.",
-          "headHash": "fd23a94493c5729d2638f8e9f3227e8e0bbad844",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:41.981Z"
+          "note": "Document covers in-flight migration, rollback/de-escalation, emergency/degraded behavior, stale policy/command-set transitions, and no silent assurance upgrade.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.443Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"3 distinct review rounds|2 independent hosts|Codex CLI|Claude Code CLI|Antigravity CLI|agy|Gemini CLI\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"3 distinct review rounds|2 independent hosts|Codex CLI|Claude Code CLI|Antigravity CLI|agy|Deprecated third-host terminology\" docs/requirements/decisions/done-full-test-gate-execution-plan.md && ! rg -n \"Gemini CLI\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
-          "note": "Document mandates 3 distinct rounds with 2 independent hosts over final material hash and uses canonical host names Codex CLI, Claude Code CLI, and Antigravity CLI (agy), with no Gemini CLI terminology in the document body.",
-          "headHash": "fd23a94493c5729d2638f8e9f3227e8e0bbad844",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:42.095Z"
+          "note": "Document mandates 3 distinct rounds with 2 independent hosts over final material hash, uses canonical host names Codex CLI, Claude Code CLI, and Antigravity CLI (agy), and avoids Gemini CLI terminology.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.575Z"
         }
       ]
     }
