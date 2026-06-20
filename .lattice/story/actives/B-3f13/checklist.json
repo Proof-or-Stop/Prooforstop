@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename selected serve/debug runtime paths and user-facing docs from Koala to Lattice",
+      "context": "Replace .koala-serve.json and koala-debug.log current-surface references in CLAUDE.md, .gitignore, README/templates/hooks/code with Lattice equivalents. Preserve behavior through centralized runtime artifact registry and dev-host/serve code.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "README.md",
+        ".gitignore"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Remove the legacy alias claim from the Lattice prompt surface",
+      "context": ".lattice/Lattice.md must not tell hosts that koala is a legacy alias. If a generated/template source feeds this file, update that source too so the text does not come back.",
+      "relatedDocs": [
+        ".lattice/Lattice.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Rename handoff wire schemaVersion strings from koala.handoff_* to lattice.handoff_*",
+      "context": "Update lattice-handoff core/handlers/tests so accept/resume/inspect schemas are Lattice-named. Handle any tests or compatibility assertions deliberately; current user does not need Koala schema compatibility.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Rename draft-check integrity salt from koala-* to lattice-* and update contract tests",
+      "context": "Change draft-check salt and any process/runtime fact expectations that assert the old literal. Verify no selected current-surface Koala token remains in the requested files.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
