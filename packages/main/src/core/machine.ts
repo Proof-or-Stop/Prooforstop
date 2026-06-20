@@ -830,6 +830,22 @@ export function getGuardFailureReason(
     } catch {
       // config load failed — fall through (don't block on config error)
     }
+
+    // Parallel-decomposition block message — mirrors canStartDevGuard's decision via the SAME
+    // helper (parallelDecompositionEnforcedBlock) so the boolean and the message cannot drift.
+    // FAIL-OPEN: on ANY error (or missing projectRoot) fall through to null — never fabricate a
+    // block message on a gate/config error (spec §4.8). projectRoot is optional in this signature.
+    if (projectRoot) {
+      try {
+        const config = loadConfig(projectRoot);
+        const story = store.readStory(storyId);
+        const policy = resolveWorkflowPolicy(config, story);
+        const block = parallelDecompositionEnforcedBlock(store, projectRoot, story, policy.profile);
+        if (block !== null) {
+          return `Cannot enter DEV:\n  - ${formatParallelDecompositionBlock(block, story, store, projectRoot, policy.profile)}`;
+        }
+      } catch { /* fail-open: never fabricate a block message on a gate/config error */ }
+    }
   }
 
   if (targetPhase === 'REVIEW') {
