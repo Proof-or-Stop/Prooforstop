@@ -207,8 +207,8 @@
       "id": "CHK-004",
       "title": "Update hooks + docs to @lattice; run all self-host gates green",
       "context": "Update .codex/hooks + .claude/hooks, README.md, CLAUDE.md, CHANGELOG.md, and the couple of decision docs that name @lattice-agent as the current scope (NOT frozen .lattice/ history or docs/koala/ audits). Acceptance: `git grep -nE '@lattice-agent' -- . ':(exclude).lattice/**'` shows no LIVE current-scope reference (only intentional anti-residue assertions naming it as forbidden, if any, are justified); `git grep '@koala-agent/core'` shows only the residue-checker pattern + anti-residue assertions, no live fallback. Run green: full build + recursive tsc --noEmit, `lattice codex verify`, `lattice rollout check`, the koala-residue + runtime-fact + entrypoints verifiers, and confirm .githooks/pre-push now executes its build+tsc path under @lattice/core.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T23:58:15.513Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
