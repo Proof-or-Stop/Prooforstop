@@ -35,6 +35,25 @@
       ],
       "signatureTag": "edge|ts|quality-cleanup-learning",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1a91:F-003",
+      "desc": "CHK-001:happy:0 — applyDoneMergeEffects passes no `now` to deriveFindingSignalsFromStore so the written cache always has updatedAt=\\\"1970-01-01T00:00:00.000Z\\\" (epoch) instead of the current wall-clock time. The intent says \\\"updatedAt advances\\\"; the implementation regresses it. The smoke (assertHappyRefreshesCacheOnMain) never asserts cache.updatedAt, so this bug passes all 15 checks undetected. Fix: add `now: new Date().toISOString()` to the deriveFindingSignalsFromStore opts at done-effects.ts line 927. Add a smoke assertion: assert cache.updatedAt > \\\"2020-01-01\\\" (or similar recent floor).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T09:18:00.100Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-002",
+      "_hash": "6a069df4559680e198b3d4dc442f227e8c14dbe3ba8d666e847782de0cf60e9a",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-applydonemergeeffects-passes",
+      "signatureTagSource": "auto"
     }
   ]
 }
