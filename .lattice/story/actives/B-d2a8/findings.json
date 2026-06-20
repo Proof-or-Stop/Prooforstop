@@ -126,6 +126,24 @@
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-008",
+      "desc": "CHK-001:adversarial:3: intent claims the input is resolveParallelGate({mode:123,maxConcurrentReview:\"abc\",broadGlobBlocks:99}, balancedDefault) with mode as a number (123). The smoke (line 92-95) uses {mode:\"bad\",maxConcurrentReview:\"x\",broadGlobBlocks:1} with mode as a string (\"bad\"). A string mode hits the VALID_PARALLEL_MODES check path; a numeric mode may hit a typeof guard or toString path differently. The specific numeric-mode input named in the intent is not tested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:34:35.008Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "39b158df23e8827a6292f76cf8f6f6826a972ee2dd7eb44fd2aa35859e74b875",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
