@@ -7,7 +7,30 @@
       "userSees": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the docs-drift preflight without TypeError and exits 0 (no \"store.readReviewRuns is not a function\").",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the preflight without TypeError and exits 0.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The stub readReviewRuns returns { runs: [] } so collectReviewerEvidenceState reads .runs without throwing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Only the readReviewRuns method is added; every other stub field and the smoke own docs-drift assertions stay byte-identical (no perturbation).",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
