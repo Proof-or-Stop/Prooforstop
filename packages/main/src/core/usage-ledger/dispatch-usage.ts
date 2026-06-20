@@ -45,7 +45,7 @@ import {
   type UsageLedgerRecordInput,
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
-import { toOwnPropsNullProto } from './sanitize.js';
+import { ownProp, toOwnPropsNullProto } from './sanitize.js';
 
 /**
  * B-6878: the Anthropic token keys extractAnthropicUsage reads off a parsed
@@ -150,13 +150,18 @@ function extractAnthropicUsage(usage: unknown): AnthropicUsage | null {
  * `.usage.model`, else null. Only a non-empty string is accepted; any other type
  * (number, object, empty string) yields null so the seam falls back to the
  * best-effort default rather than recording a bad model id. Never throws.
+ *
+ * B-6878: every CONTAINER read (envelope.model, envelope.usage, the nested
+ * usage.model) is own-property guarded. An inherited (prototype-polluted)
+ * `model` / `usage` is treated as ABSENT, so a polluted Object.prototype.model
+ * can never become the recorded served model.
  */
 function extractModel(envelope: Record<string, unknown>): string | null {
-  const top = envelope.model;
+  const top = ownProp(envelope, 'model') ? envelope.model : undefined;
   if (typeof top === 'string' && top.length > 0) return top;
-  const usage = envelope.usage;
+  const usage = ownProp(envelope, 'usage') ? envelope.usage : undefined;
   if (typeof usage === 'object' && usage !== null && !Array.isArray(usage)) {
-    const nested = (usage as Record<string, unknown>).model;
+    const nested = ownProp(usage, 'model') ? (usage as Record<string, unknown>).model : undefined;
     if (typeof nested === 'string' && nested.length > 0) return nested;
   }
   return null;
@@ -196,7 +201,12 @@ export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
   }
 
   const envelope = parsed as Record<string, unknown>;
-  const anthropicUsage = extractAnthropicUsage(envelope.usage);
+  // B-6878: own-property guard the CONTAINER read of `usage`. An inherited
+  // (prototype-polluted) Object.prototype.usage on an envelope that has no OWN
+  // usage is treated as ABSENT, so the polluted container never reaches the
+  // extractor (whose own-prop whitelist would otherwise accept its own props).
+  const usageContainer = ownProp(envelope, 'usage') ? envelope.usage : undefined;
+  const anthropicUsage = extractAnthropicUsage(usageContainer);
   const model = extractModel(envelope);
 
   // `.result` is the human-facing text. When it is a string, use it; otherwise

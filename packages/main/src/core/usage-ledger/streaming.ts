@@ -139,17 +139,24 @@ export function extractAnthropicStreamUsage(
 
   for (const event of events) {
     // message_start: message.usage carries input_tokens + cache fields.
-    const startUsage = event.message && isUsableUsageObject(event.message.usage)
-      ? (event.message.usage as Record<string, unknown>)
+    // B-6878: own-property guard EVERY container read (event.message, the nested
+    // message.usage, event.usage). An inherited (prototype-polluted) container is
+    // treated as ABSENT, so a polluted Object.prototype.message / .usage can never
+    // supply a usage block.
+    const message = ownProp(event, 'message') ? event.message : undefined;
+    const messageUsage = message && ownProp(message, 'usage') ? (message as { usage?: unknown }).usage : undefined;
+    const startUsage = isUsableUsageObject(messageUsage)
+      ? (messageUsage as Record<string, unknown>)
       : undefined;
-    // B-6878 (belt): own-property checks, not prototype-chain `in`, on the
-    // stream-parsed usage objects. A polluted Object.prototype token key never
-    // makes a usage block look like it carried that field.
+    // Own-property checks (not prototype-chain `in`) on the stream-parsed usage
+    // objects. A polluted Object.prototype token key never makes a usage block
+    // look like it carried that field.
     if (startUsage && (ownProp(startUsage, 'input_tokens') || ownProp(startUsage, 'cache_read_input_tokens') || ownProp(startUsage, 'cache_creation_input_tokens'))) {
       inputUsage = startUsage;
     }
     // message_delta (or any event) with a usage block carrying output_tokens.
-    const deltaUsage = isUsableUsageObject(event.usage) ? (event.usage as Record<string, unknown>) : undefined;
+    const eventUsage = ownProp(event, 'usage') ? event.usage : undefined;
+    const deltaUsage = isUsableUsageObject(eventUsage) ? (eventUsage as Record<string, unknown>) : undefined;
     if (deltaUsage && ownProp(deltaUsage, 'output_tokens')) {
       outputUsage = deltaUsage; // keep the LAST one (terminal event wins).
     }
@@ -209,7 +216,11 @@ export function extractOpenAiStreamUsage(
 ): LedgerUsage {
   let lastUsage: unknown;
   for (const chunk of chunks) {
-    if (isUsableUsageObject(chunk.usage)) lastUsage = chunk.usage; // terminal wins.
+    // B-6878: own-property guard the CONTAINER read. An inherited (prototype-
+    // polluted) Object.prototype.usage on a chunk with no OWN usage is treated as
+    // ABSENT, so a polluted container never becomes the terminal usage block.
+    const container = ownProp(chunk, 'usage') ? chunk.usage : undefined;
+    if (isUsableUsageObject(container)) lastUsage = container; // terminal wins.
   }
 
   if (!isUsableUsageObject(lastUsage)) {
@@ -258,7 +269,12 @@ export function extractGeminiStreamUsage(
 ): LedgerUsage {
   let lastMeta: unknown;
   for (const chunk of chunks) {
-    if (isUsableUsageObject(chunk.usageMetadata)) lastMeta = chunk.usageMetadata; // terminal wins.
+    // B-6878: own-property guard the CONTAINER read. An inherited (prototype-
+    // polluted) Object.prototype.usageMetadata on a chunk with no OWN
+    // usageMetadata is treated as ABSENT, so a polluted container never becomes
+    // the terminal usageMetadata block.
+    const container = ownProp(chunk, 'usageMetadata') ? chunk.usageMetadata : undefined;
+    if (isUsableUsageObject(container)) lastMeta = container; // terminal wins.
   }
 
   if (!isUsableUsageObject(lastMeta)) {

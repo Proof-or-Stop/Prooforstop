@@ -9,11 +9,15 @@
  * ledger record. Only OWN-property, whitelisted token fields appear; an absent
  * field stays absent/unavailable.
  *
- * Each pollution assertion is LOAD-BEARING: it FAILS against pre-hardening code
- * (the null-proto whitelist chokepoint at the entry points + the own-property
- * belt). It also covers the chokepoint helper directly (null prototype + drops
- * non-whitelisted own keys) and a legitimate (un-polluted) own-property positive
- * case per provider, so the hardening preserves real billing data byte-for-byte.
+ * The provider/streaming/container/digest assertions are LOAD-BEARING: each FAILS
+ * against pre-hardening code (the null-proto whitelist projection on the adapter
+ * READS, the own-property CONTAINER guards, and — for the digest checks — the
+ * original-payload digest invariant). The estimate-path check is explicitly NOT
+ * load-bearing (the estimate never reads provider token keys), so it is labeled as
+ * a plain property assertion, not as a pollution defense. The smoke also covers the
+ * chokepoint helper directly (null prototype + drops non-whitelisted own keys) and
+ * a legitimate (un-polluted) own-property positive case per provider, so the
+ * hardening preserves real billing data byte-for-byte.
  *
  * Every pollution is inside a try { ... } finally { delete ... } so the prototype
  * is ALWAYS restored; the smoke asserts Object.prototype is clean again at the end.
@@ -27,6 +31,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
+  parseClaudeCliOutput,
   recordDispatchFinal,
   recordDispatchFinalForProvider,
   recordDispatchPreflight,
@@ -40,6 +45,7 @@ import {
   extractGeminiStreamUsage,
 } from '../core/usage-ledger/streaming.js';
 import { toOwnPropsNullProto } from '../core/usage-ledger/sanitize.js';
+import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
 import type { UsageLedgerRecord } from '../core/usage-ledger/record.js';
 
 let passed = 0;
@@ -156,6 +162,13 @@ function assertNoPollution(usage: UsageLedgerRecord['usage']): void {
       assert.notEqual(v, POLLUTION_VALUE, `a canonical field carried the polluted value ${POLLUTION_VALUE}`);
     }
   }
+}
+
+/** The persisted record's raw.payloadDigest (provider-reported finals only). */
+function finalPayloadDigest(subRoot: string): string {
+  const usage = finalRecord(subRoot).usage as { raw?: { payloadDigest?: string } };
+  assert.ok(usage.raw && typeof usage.raw.payloadDigest === 'string', 'expected a provider-reported raw.payloadDigest');
+  return usage.raw!.payloadDigest!;
 }
 
 /** Assert a LedgerUsage carries the expected own-property counts (positive case). */
@@ -350,7 +363,7 @@ async function main(): Promise<void> {
   // ======================================================================
   // (F) Estimate path — preflight estimate record.
   // ======================================================================
-  await check('estimate (LOAD-BEARING): polluted prototype -> persisted estimate carries no inherited 999', () => {
+  await check('estimate (NOT load-bearing: estimate never reads provider token keys) — property assertion: persisted estimate carries no inherited 999', () => {
     const sub = freshRoot();
     const handle = withPollutedPrototype(() =>
       recordDispatchPreflight(sub, ctx(), 'a short prompt for the offline floor estimate', opts()),
@@ -370,10 +383,152 @@ async function main(): Promise<void> {
   });
 
   // ======================================================================
+  // (H) DIGEST-PRESERVED (B-6878 F-005, LOAD-BEARING): raw.payloadDigest is
+  // computed over the ORIGINAL provider payload, NOT a whitelist projection.
+  //
+  // A legitimate, un-polluted payload carrying EXTRA non-read fields (openai
+  // total_tokens, gemini totalTokenCount, an extra nested detail key, etc.) must
+  // yield a digest BYTE-IDENTICAL to the digest of the original payload — i.e. the
+  // same value a pre-this-story build persisted. FAILS against a projected-digest
+  // build (the projection drops the extra fields, changing the digest).
+  // ======================================================================
+  await check('digest-preserved anthropic (LOAD-BEARING): digest is over the ORIGINAL payload incl. extra non-read fields', () => {
+    const sub = freshRoot();
+    // Extra non-read fields: anthropic carries no top-level total, but a payload
+    // may legitimately carry e.g. service_tier and a nested details blob.
+    const usage = {
+      input_tokens: 11,
+      output_tokens: 22,
+      cache_creation_input_tokens: 3,
+      cache_read_input_tokens: 4,
+      service_tier: 'standard',
+      server_tool_use: { web_search_requests: 2 },
+    };
+    recordDispatchFinal(sub, ctx(), null, null, usage as unknown as AnthropicUsage, 'test-model', opts());
+    assert.equal(finalPayloadDigest(sub), payloadDigest(usage), 'digest must equal the ORIGINAL-payload digest (extra fields preserved)');
+    // The counts are still read correctly through the projection.
+    assertCounts(finalRecord(sub).usage, { input: 11, output: 22, cacheCreation: 3, cacheRead: 4 });
+  });
+
+  await check('digest-preserved openai (LOAD-BEARING): digest is over the ORIGINAL payload incl. total_tokens + extra nested key', () => {
+    const sub = freshRoot();
+    const usage = {
+      prompt_tokens: 31,
+      completion_tokens: 42,
+      total_tokens: 73, // legitimate extra field the adapter never reads
+      prompt_tokens_details: { cached_tokens: 9, audio_tokens: 1 }, // extra nested key
+    };
+    recordDispatchFinalForProvider(sub, ctx(), null, null, 'openai', usage, 'test-model', opts());
+    assert.equal(finalPayloadDigest(sub), payloadDigest(usage), 'digest must equal the ORIGINAL-payload digest (total_tokens + nested extra preserved)');
+    assertCounts(finalRecord(sub).usage, { input: 31, output: 42, cacheCreation: null, cacheRead: 9 });
+  });
+
+  await check('digest-preserved gemini (LOAD-BEARING): digest is over the ORIGINAL payload incl. totalTokenCount', () => {
+    const sub = freshRoot();
+    const usage = {
+      promptTokenCount: 51,
+      candidatesTokenCount: 62,
+      cachedContentTokenCount: 7,
+      totalTokenCount: 120, // legitimate extra field excluded from the record by design
+    };
+    recordDispatchFinalForProvider(sub, ctx(), null, null, 'gemini', usage, 'test-model', opts());
+    assert.equal(finalPayloadDigest(sub), payloadDigest(usage), 'digest must equal the ORIGINAL-payload digest (totalTokenCount preserved)');
+    assertCounts(finalRecord(sub).usage, { input: 51, output: 62, cacheCreation: null, cacheRead: 7 });
+  });
+
+  // ======================================================================
+  // (I) CONTAINER-POLLUTION (B-6878 F-004, LOAD-BEARING): an inherited
+  // (prototype-polluted) CONTAINER (envelope.usage / chunk.usage /
+  // chunk.usageMetadata) on an object with NO own container is treated as ABSENT.
+  //
+  // FAILS against a build that only guards the LEAF fields: the container read
+  // (`envelope.usage`, `chunk.usage`, `chunk.usageMetadata`) would resolve the
+  // inherited object whose OWN props (input_tokens:999, ...) then pass the
+  // whitelist, surfacing 999 as a provider-reported count.
+  // ======================================================================
+  await check('container-pollution dispatch (LOAD-BEARING): inherited envelope.usage is NOT accepted (final is unavailable)', () => {
+    const sub = freshRoot();
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'usage'), 'precondition: no own Object.prototype.usage');
+    try {
+      // A polluted CONTAINER carrying own leaf props that WOULD pass the whitelist.
+      proto.usage = { input_tokens: 999, output_tokens: 999 };
+      // Drive the claude dispatch path with an envelope that has NO own usage.
+      const stdout = JSON.stringify({ type: 'result', result: 'hi', model: 'srv-model' });
+      const parsed = parseClaudeCliOutput(stdout);
+      // The parser must not pick up the inherited container -> no anthropicUsage.
+      assert.equal(parsed.anthropicUsage, null, 'inherited envelope.usage container must be treated as absent');
+      // And the recorded final (driven from the parsed usage) is unavailable.
+      recordDispatchFinal(sub, ctx(), null, null, parsed.anthropicUsage, parsed.model, opts());
+    } finally {
+      delete proto.usage;
+    }
+    const final = finalRecord(sub);
+    assert.equal(final.usage.source, 'unavailable', 'final must be unavailable, not provider-reported with inherited 999');
+    assertNoPollution(final.usage);
+  });
+
+  await check('container-pollution streaming openai (LOAD-BEARING): inherited chunk.usage container is NOT accepted', () => {
+    const usage = (() => {
+      const proto = Object.prototype as unknown as Record<string, unknown>;
+      assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'usage'), 'precondition: no own Object.prototype.usage');
+      try {
+        proto.usage = { prompt_tokens: 999, completion_tokens: 999 };
+        // A chunk with NO own usage: the container read must not resolve the
+        // inherited object.
+        const chunks = [{} as { usage?: unknown }];
+        return extractOpenAiStreamUsage(chunks);
+      } finally {
+        delete proto.usage;
+      }
+    })();
+    assert.equal(usage.source, 'unavailable', 'inherited chunk.usage container must be treated as absent (unavailable)');
+    assertNoPollution(usage);
+  });
+
+  await check('container-pollution streaming gemini (LOAD-BEARING): inherited chunk.usageMetadata container is NOT accepted', () => {
+    const usage = (() => {
+      const proto = Object.prototype as unknown as Record<string, unknown>;
+      assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'usageMetadata'), 'precondition: no own Object.prototype.usageMetadata');
+      try {
+        proto.usageMetadata = { promptTokenCount: 999, candidatesTokenCount: 999 };
+        const chunks = [{} as { usageMetadata?: unknown }];
+        return extractGeminiStreamUsage(chunks);
+      } finally {
+        delete proto.usageMetadata;
+      }
+    })();
+    assert.equal(usage.source, 'unavailable', 'inherited chunk.usageMetadata container must be treated as absent (unavailable)');
+    assertNoPollution(usage);
+  });
+
+  await check('container-pollution streaming anthropic (LOAD-BEARING): inherited event.usage / event.message containers are NOT accepted', () => {
+    const usage = (() => {
+      const proto = Object.prototype as unknown as Record<string, unknown>;
+      assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'usage'), 'precondition: no own Object.prototype.usage');
+      assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'message'), 'precondition: no own Object.prototype.message');
+      try {
+        proto.usage = { output_tokens: 999 };
+        proto.message = { usage: { input_tokens: 999 } };
+        // Events with NO own usage / message: both container reads must be absent.
+        const events = [{ type: 'message_start' }, { type: 'message_delta' }];
+        return extractAnthropicStreamUsage(events);
+      } finally {
+        delete proto.usage;
+        delete proto.message;
+      }
+    })();
+    assert.equal(usage.source, 'unavailable', 'inherited event containers must be treated as absent (unavailable)');
+    assertNoPollution(usage);
+  });
+
+  // ======================================================================
   // (G) Object.prototype is clean again.
   // ======================================================================
-  await check('Object.prototype is clean again (no leftover token keys)', () => {
-    for (const k of ALL_TOKEN_KEYS) {
+  await check('Object.prototype is clean again (no leftover token keys or container keys)', () => {
+    // Token leaf keys (sections B-F) AND the container keys the container-pollution
+    // checks (section I) set must all be restored.
+    for (const k of [...ALL_TOKEN_KEYS, 'usage', 'usageMetadata', 'message'] as const) {
       assert.ok(
         !Object.prototype.hasOwnProperty.call(Object.prototype, k),
         `Object.prototype must not carry leftover key ${k}`,

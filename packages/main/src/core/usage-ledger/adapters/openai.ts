@@ -30,8 +30,27 @@ import {
   readPrimaryDimension,
   readReportedDimension,
 } from './shared.js';
+import { toOwnPropsNullProto } from '../sanitize.js';
 
 export const OPENAI_PROVIDER_UNITS = 'openai-usage-v1';
+
+/**
+ * B-6878: the ONLY token keys this adapter reads off an OpenAI usage object at the
+ * top level. prompt_tokens_details is read for its nested cached_tokens (see
+ * OPENAI_NESTED_DETAIL_WHITELIST). The reads below go through a null-proto,
+ * whitelist-only PROJECTION; the ORIGINAL raw usage is fed to the digest so
+ * raw.payloadDigest stays byte-identical to pre-B-6878 for any un-polluted
+ * payload, including one carrying legitimate extra non-read fields (e.g.
+ * total_tokens).
+ */
+export const OPENAI_USAGE_WHITELIST = [
+  'prompt_tokens',
+  'completion_tokens',
+  'prompt_tokens_details',
+] as const;
+
+/** The ONLY nested key this adapter reads off prompt_tokens_details. */
+export const OPENAI_NESTED_DETAIL_WHITELIST = ['cached_tokens'] as const;
 
 /** The OpenAI usage shape (only the fields we read). */
 export interface OpenAiUsage {
@@ -52,9 +71,12 @@ export function adaptOpenAiUsage(rawUsage: unknown): LedgerUsage {
     return buildUnavailableUsage('openai: response carried no usage object');
   }
 
-  const usage = rawUsage as OpenAiUsage;
-  const input = readPrimaryDimension(usage.prompt_tokens);
-  const output = readPrimaryDimension(usage.completion_tokens);
+  // B-6878: read token fields through a null-proto, whitelist-only projection so
+  // an inherited (prototype-polluted) token key can never be resolved. The
+  // ORIGINAL rawUsage is passed to the digest below (extra non-read fields kept).
+  const projected = toOwnPropsNullProto(rawUsage, OPENAI_USAGE_WHITELIST);
+  const input = readPrimaryDimension(projected.prompt_tokens);
+  const output = readPrimaryDimension(projected.completion_tokens);
 
   if (!hasBothPrimaries(input, output)) {
     return buildUnavailableUsage('openai: usage object did not report both prompt and completion token counts');
@@ -64,11 +86,13 @@ export function adaptOpenAiUsage(rawUsage: unknown): LedgerUsage {
   const cacheCreation: TokenDimension = null;
   // cacheRead comes ONLY from prompt_tokens_details.cached_tokens. Absent
   // details object OR missing cached_tokens key -> null (per-dimension absence).
-  const cacheRead = readOpenAiCacheRead(usage.prompt_tokens_details);
+  const cacheRead = readOpenAiCacheRead(projected.prompt_tokens_details);
 
   return buildProviderReportedUsage(
     { input, output, cacheCreation, cacheRead },
     OPENAI_PROVIDER_UNITS,
+    // Digest the ORIGINAL raw usage, NOT the projection: byte-identical to
+    // pre-B-6878 (canonicalJson uses own-enumerable keys, so already pollution-safe).
     rawUsage,
   );
 }
@@ -81,10 +105,12 @@ export function adaptOpenAiUsage(rawUsage: unknown): LedgerUsage {
  */
 function readOpenAiCacheRead(details: unknown): TokenDimension {
   if (!isUsableUsageObject(details)) return null;
-  // B-6878 (belt): own-property check, not a prototype-chain `in`, so a polluted
-  // Object.prototype.cached_tokens is never treated as present on a details object
-  // that lacks its own cached_tokens. Behavior for legitimate own-property data is
-  // identical (the chokepoint already null-protos this object; this is the belt).
-  if (!Object.prototype.hasOwnProperty.call(details, 'cached_tokens')) return null;
-  return readReportedDimension(details.cached_tokens);
+  // B-6878: project the nested details to a null-proto, cached_tokens-only object
+  // so a prototype-polluted Object.prototype.cached_tokens can never be resolved
+  // via inheritance on a details object that lacks its own cached_tokens. An
+  // absent own cached_tokens projects to undefined -> readReportedDimension -> null
+  // (per-dimension absence, never an inferred 0). A genuine own 0 is preserved.
+  const nested = toOwnPropsNullProto(details, OPENAI_NESTED_DETAIL_WHITELIST);
+  if (nested.cached_tokens === undefined) return null;
+  return readReportedDimension(nested.cached_tokens);
 }
