@@ -148,6 +148,24 @@
       ],
       "signatureTag": "adversarial|ts|dispatch-usage-resulttext",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-009",
+      "desc": "doc-promise-undelivered: streaming.ts block comment (lines 39-44) says the projection makes every downstream read INCLUDING the adapter call operate on a null-proto whitelist-only object, but after F-007 the adapter call receives the ORIGINAL (not the projection) — the comment was not updated and now actively misleads: it implies the adapter sees a projection when in reality the adapter does its own internal project-for-reads and digests the original",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T15:42:48.849Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-009",
+      "_hash": "23357d4ddaa0beea306d26e6e5a14baefe6b859bb79031d21ab8aebebfcd701a",
+      "files": [
+        "packages/main/src/core/usage-ledger/streaming.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-streaming",
+      "signatureTagSource": "auto"
     }
   ]
 }
