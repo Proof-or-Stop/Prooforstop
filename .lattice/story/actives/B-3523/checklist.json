@@ -60,9 +60,9 @@
       "id": "CHK-002",
       "title": "Flip the 27 internal imports + self-host name constants to @lattice/core",
       "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T23:48:05.449Z",
-      "endTime": null,
+      "endTime": "2026-06-20T23:52:06.935Z",
       "verificationIntent": {
         "happy": [
           {
