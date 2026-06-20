@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename and reposition the design around lifecycle readiness instead of pipeline execution",
+      "context": "The current document title and command/model names imply an execution pipeline. Reframe the doc as Lattice Lifecycle Proof-Or-Stop Readiness Check, with Lifecycle Readiness Check as the short name, Full Vision separated from V1, and StoryReadinessReport replacing StoryPipelineReport in the design language.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Constrain V1 to a read-only readiness control tower with exact next actions",
+      "context": "The external host review correctly identified that the first useful slice should read state, artifacts, freshness, review lanes, validation, delivery context, and done_prepare dry-run output without writing evidence, launching reviewers, advancing phases, or claiming Authority completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Patch the concrete contract gaps found in review",
+      "context": "Address the verified gaps: REVIEW/TEST to DEV rollback must have exact commands; delivery blockers must distinguish artifact-only from material rework; default options must not masquerade as executable DONE automation; done_prepare reuse must distinguish pre/post merge HEAD; refresh-only loops need a bound and escalation path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
