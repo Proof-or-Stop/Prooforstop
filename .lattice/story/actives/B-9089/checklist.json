@@ -102,7 +102,8 @@
         "modify": [
           "packages/main/src/core/story-owner-lease.ts",
           "packages/main/src/handlers/context.ts",
-          "packages/main/src/handlers/transition-orchestrator.ts"
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/lattice-dispatch.ts"
         ],
         "create": [
           "packages/main/src/core/owner-session-adapters.ts"
@@ -114,19 +115,19 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Claude Code, Codex, Antigravity/agy, and fake future host adapter inputs map into the canonical resolver result without changing generic owner-lease call sites.",
+            "desc": "Claude Code, Codex, Antigravity/agy, and fake future host adapter inputs map into the canonical resolver result without changing generic owner-lease call sites, and dispatch/provider launch paths preserve or set LATTICE_SESSION_ID at the adapter/env boundary.",
             "type": "logic"
           }
         ],
         "edge": [
           {
-            "desc": "Provider labels are diagnostic only; two providers with the same canonical session id are treated as the same local owner session.",
+            "desc": "Provider labels are diagnostic only; two providers with the same canonical session id are treated as the same local owner session, while broader Gemini-to-Antigravity migration remains out of scope.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "A new host-native env name appearing in generic owner-lease/lifecycle/gate/cli-engine files fails the guardrail check.",
+            "desc": "A new host-native env name appearing in generic owner-lease/lifecycle/gate/cli-engine files fails the guardrail check; adapter and dispatch boundary files remain the only allowed provider-specific session bridge locations.",
             "type": "cli"
           }
         ]
