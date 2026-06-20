@@ -287,6 +287,151 @@
       "resolvedAt": "2026-06-20T06:45:32.054Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-014",
+      "desc": "Text flowchart lets refreshable stale evidence fall through to validation, while Mermaid and SVG loop refreshable evidence back through Step 2 for reclassification.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:07:34.171Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-016",
+      "_hash": "2a214d4e7502357df3eee8b0d16f75073cc75ca2937a1d99f0daccd5887a735a",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|text-flowchart-lets",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-015",
+      "desc": "Text flowchart asks whether the story is still in PLAN but omits the explicit non-PLAN branch to DEV implementation that Mermaid and SVG include.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:07:34.759Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-016",
+      "_hash": "e30725d5bb1f9888c56d5ace26f34388a4cf911eaecb578b09e4e38e63dc631f",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|text-flowchart-asks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-016",
+      "desc": "Checklist verificationEvidence is stale after final doc/SVG/checklist commit; recorded evidence does not prove the current HEAD artifacts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T07:07:35.492Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-014",
+      "_hash": "44719e1c79c9a555c4e1d50dd472e517afa5e0584488a455228171f19eaf410e",
+      "files": [
+        ".lattice/story/actives/B-0a29/checklist.json"
+      ],
+      "signatureTag": "missing|json|checklist-verificationevidence-stale",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-017",
+      "desc": "Checklist verificationEvidence uses single rg alternation checks that can pass if any one marker exists instead of proving every required row, branch, and artifact marker exists.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T07:07:36.069Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-014",
+      "_hash": "15aef846ea90053b6cb1f289ff1b2e3b3f628e38457a27ba0ca602b78bae0f55",
+      "files": [
+        ".lattice/story/actives/B-0a29/checklist.json"
+      ],
+      "signatureTag": "missing|json|checklist-verificationevidence-uses",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-018",
+      "desc": "CHK-001 acceptance wording still says users see Step 0 through Step 7, but the final matrix defines Step 0 through Step 6.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T07:07:36.673Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-014",
+      "_hash": "08be821a69d9096db4263ce344a192e6952bb2108c8455e1e6eb831ba6b6cb19",
+      "files": [
+        ".lattice/story/actives/B-0a29/checklist.json",
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|acceptance-wording-still",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-019",
+      "desc": "The plan treats delivery as a reviewer batch lane requiring review_run_start, but current review-run lanes exclude lattice-review-delivery; delivery evidence is produced through delivery_check_set.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:07:37.435Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-015",
+      "_hash": "3c9eec8b7362a6e8e467c05f01a2c7238b91072f2fe0f6b45351a6c9d3944cfe",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|plan-treats-delivery",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-020",
+      "desc": "--to=REVIEW says it may launch reviewers and the flow reaches reviewer batch before an explicit DEV to REVIEW transition, but review_run_start rejects non-REVIEW stories.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:07:38.231Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-015",
+      "_hash": "f199a0928e080f2f0cf61f7c52efab64126190a4c16d85fe99530eb727316e5d",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|review-says-launch",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0a29:F-021",
+      "desc": "Canonical report schema leaves freshness, gates, and next as untyped arrays, allowing duplicate row shapes or local freshness predicates across P3/P4/P6.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:07:38.838Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-015",
+      "_hash": "b72774fb01605e35b5df8ec4aaeb0c49c393ac8c50ff83f7f24c4f658eb7c87b",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|canonical-report-schema",
+      "signatureTagSource": "auto"
     }
   ]
 }
