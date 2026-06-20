@@ -176,7 +176,7 @@
       "desc": "MAJOR (Codex R3, OUT OF S5 SCOPE): LIFECYCLE_TRANSITIONS metadata records INIT_CHECK->DEV as quick-path-only, PLAN->DEV as plan-review/scope-check/cwd-worktree, REVIEW/TEST->DEV as cwd-worktree-only — none mention the new parallel-decomposition hard gate the live machine now enforces on all four DEV doors. Descriptive contract drift (the .gates arrays are not read for DEV-entry enforcement; machine.ts xstate guards do that — runtime verified correct by both hosts). Fix (follow-up): add a parallel-decomposition gate id to all four DEV-transition metadata + update flow/lifecycle contract checks. lifecycle-registry.ts is NOT in S5 allowedModify.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T09:25:18.566Z",
@@ -186,7 +186,11 @@
         "packages/main/src/core/lifecycle-registry.ts"
       ],
       "signatureTag": "adversarial|ts|major-codex-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a follow-up story (operator decision 2026-06-20). lifecycle-registry.ts is OUT of S5 allowedModify; the .gates arrays are descriptive (NOT read for DEV-entry enforcement — machine.ts xstate guards enforce, verified complete+correct by both hosts). Runtime gate ships now; the descriptive metadata/contract sync (register the parallel gate on all 4 DEV transitions + flow/lifecycle contract checks) is a separate story.",
+      "resolvedAt": "2026-06-20T09:36:43.522Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-086b:F-010",
