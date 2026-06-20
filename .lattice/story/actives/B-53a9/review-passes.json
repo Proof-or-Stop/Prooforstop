@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T05:22:43.119Z",
       "reviewRunId": "B-53a9:RR-002",
       "_hash": "e594530f42c51f22e76411079ea51c8c1b0d457d1098589b4ef6e27e2036eb48"
+    },
+    {
+      "id": "B-53a9:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check: (1) Four stubs added — readReviewRuns/readFindings/readReviewPasses/readScopeContract — exactly match the four store reads made by collectReviewerEvidenceState (review-run.ts:868-870) and currentScopeContextForStory (review-run.ts:904 → guard-utils.ts:477). (2) Return shapes are correct: { runs: [] }.runs=[], { findings: [] }.findings=[], { passes: [] }.passes=[], null is the documented unprotected-story sentinel (guard-utils.ts:478 if(!contract) return null). (3) No production code modified; change is confined to the fixture stub. (4) No concept deleted/replaced — no concept residue check required. (5) No dead/leftover code. Clean, 0 findings.",
+      "createdAt": "2026-06-20T05:24:26.429Z",
+      "reviewRound": "2026-06-20T05:22:43.119Z",
+      "reviewRunId": "B-53a9:RR-003",
+      "_hash": "ae34290123f6dbdf5996e2cfba4e9d6dfa4b5d66bc687cd81937f3900c0546fe"
     }
   ]
 }
