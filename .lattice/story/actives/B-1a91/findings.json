@@ -154,7 +154,7 @@
       "desc": "CHK-003:edge filtered-view branch lacks a load-bearing assertion: learning-validate.ts:154-162 adds a new filtered branch that returns coverage:{filtered:true} (JSON) and the human line \"coverage: n/a (filtered view...)\" when --story is active. experience-layer-revalidation-cli-smoke.ts lines 115-119 exercise this path but only assert typeof report.total === number — the new coverage.filtered field is never asserted. A regression that erroneously emits a numeric gap on the filtered path instead (e.g., reverts the filtered branch) would pass the existing check undetected. Add an assertion: assert.equal(report.coverage?.filtered, true) for the JSON path and/or assert the human output contains the n/a advisory string.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T09:31:25.470Z",
@@ -166,7 +166,10 @@
         "packages/main/src/handlers/learning-validate.ts"
       ],
       "signatureTag": "missing|ts|edge-filtered-view",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e5304bf35; cli smoke now asserts coverage.filtered===true and absence of gapFindings/gapStories/known on the --story path (load-bearing regression guard). Confirmed by all 3 lanes + codex r3.",
+      "resolvedAt": "2026-06-20T09:43:12.122Z",
+      "resolutionType": "fixed"
     }
   ]
 }
