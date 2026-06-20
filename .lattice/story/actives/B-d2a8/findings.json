@@ -442,6 +442,24 @@
       ],
       "signatureTag": "cleanup|ts|quality-cleanup-audit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-025",
+      "desc": "quality-cleanup: audit-config.ts:108-128 — the outer try/catch in resolveParallelGate catches everything readParallelGateFields throws, including hypothetical future TypeError from a coding mistake (wrong variable access). The warn message 'could not be introspected' would look like a config issue rather than a code bug. Currently not a real risk (readParallelGateFields only uses typeof checks that don't throw on JSON values, and TS catches shape errors at compile time), but worth noting for future maintainers as the function grows.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:30:54.092Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-016",
+      "_hash": "621490d75a67c1112e1922805ad40d957c8a8a43d9f6ef4265e30630fe99f0e0",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "cleanup|ts|quality-cleanup-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
