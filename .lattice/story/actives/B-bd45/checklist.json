@@ -55,7 +55,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Blocked stories show rows with code, category, owner, source, reason, and an exact next command when available; warn rows remain visible without making localReady false.",
+      "userSees": "Terminal shows `localReady: false`, `code: missing_delivery_check`, `category: missing`, `owner: delivery-reviewer`, and `next: run delivery_check_set` while advisory rows remain non-blocking.",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-readiness.ts",
