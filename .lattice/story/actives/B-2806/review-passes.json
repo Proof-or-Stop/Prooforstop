@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2806:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope CLEAN over round-2 hash: diff touches only verifier.ts + verifier-smoke.ts + lattice.config.json; S0 (adversarial-review.ts) and S1 (adversarial-review-lens-runner.ts) byte-unmodified; no completeness critic (S3), no finding_add/review_run_start call or escalation (S4), no lens runner duplication (S1). Module is exactly §2.3 verification + §4.2 ledger mapping. Confirmed by round-2 multi-lens concept lens + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:15:20.016Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-001",
+      "_hash": "6226415d55c4f959002e2521e3501509ce64b134ec6b9c45fb37f390f52d09be"
+    }
+  ]
+}
