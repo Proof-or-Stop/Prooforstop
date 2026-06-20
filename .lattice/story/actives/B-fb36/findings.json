@@ -125,7 +125,7 @@
       "desc": "done_prepare incorrectly reclassifies matching-storyFilesHash evidence as stale after unrelated main/material drift. Evidence: packages/main/src/handlers/done-prepare.ts:241-245 calls checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root) and omits evidence?.storyFilesHash. The freshness helper only accepts whole-tree materialHash drift when evidenceStoryFilesHash is provided and matches (packages/main/src/core/evidence-freshness.ts:293-304). The established verifier and refresh paths pass evidence?.storyFilesHash (packages/main/src/handlers/verifier.ts:340-342 and packages/main/src/handlers/checklist.ts:1002-1006), and flow-stability smoke asserts matching storyFilesHash must keep coverage covered after unrelated drift (packages/main/src/tasks/flow-stability-smoke.ts:1473-1483). Because done_prepare uses its own stalePlan to block command-backed evidence at packages/main/src/handlers/done-prepare.ts:622-630, a TEST story with fresh story-owned evidence can be falsely blocked after merging unrelated main changes, violating the preserved storyFilesHash freshness boundary.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T00:14:16.202Z",
@@ -140,7 +140,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "edge|ts|prepare-incorrectly-reclassifies",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Passed evidence.storyFilesHash into done_prepare checkEvidenceFreshnessForGit stale classifier and added focused smoke: matching storyFilesHash command evidence survives unrelated main material drift. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-prepare-smoke.js, node scripts/verify-process-fact-contract.mjs, command catalog smoke, and command ownership contract.",
+      "resolvedAt": "2026-06-20T00:21:59.391Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
