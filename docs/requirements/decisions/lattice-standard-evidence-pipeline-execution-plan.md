@@ -243,7 +243,7 @@ story or rewrite stale proof into fresh proof.
 |---|---|---|---|---|---|
 | 0. State intake and phase preflight | `storyId`, current cwd, `session_brief`, story phase, git branch/status, worktree path, target phase | pipeline state snapshot, allowed next stage, immediate blocker list | command transcript or structured result from `session_brief`; git status; resolved story/worktree identity | stop before mutation; print `cd`, clean-tree, phase, or worktree repair command; never stash/revert unrelated files | pipeline preflight plus lifecycle handler |
 | 1. Story init / PLAN skeleton | title, description, optional checklist titles, `aux_doc_list`, risk signals, duplicate-story scan | checklist title/context/relatedDocs, understanding snapshot, decision skeleton, verificationIntent skeleton, initial scope proposal | story metadata write through Lattice command; `understanding_set`; decision record when required; `story_review` report | remain in PLAN/INIT_CHECK; print missing skeleton fields or story_review blockers; do not start code changes | `story_review`, verification-intent reviewer, concept reviewer |
-| 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; producer actor/runner identity; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as rerun-required or refreshable; auto-run only with explicit `executeEvidence`; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
+| 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; producer actor/runner identity; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as `rerun_required` or refreshable; auto-run only with explicit `executeEvidence`; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
 | 3. Validation, transcript, and delivery context preparation | validation command set, expected user outcome, story-specific smoke commands, relatedDocs, decision promises, current material binding | validation result, transcript-diff artifact or metadata-only waiver, delivery-review context pack | command transcript with exit code/digest; HEAD/material/storyFilesHash binding; context pack artifact; signed metadata-only waiver when applicable | block before reviewer pass; print validation, smoke, waiver, or context-pack next action | validation runner, live smoke owner, delivery reviewer |
 | 4. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence, validation, transcript, and delivery-context snapshot | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per review-run lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence/artifact bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings; rerun stale lanes when artifacts change | independent reviewer lanes and REVIEW gate |
 | 5. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
@@ -342,7 +342,7 @@ Evidence execution modes:
 | Mode | Writes `verificationEvidence`? | Preconditions | Output when blocked |
 |---|---|---|---|
 | plan-only default | no | none beyond readable story state | evidence plan plus exact rerun command |
-| refresh-only | yes, via existing refresh writer only | stale row is classified refresh-only and writer supports the evidence kind | refresh blocker and next command |
+| refresh_only | yes, via existing refresh writer only | stale row is classified `refresh_only` and writer supports the evidence kind | refresh blocker and next command |
 | execute evidence | yes, via existing metadata writer after command pass | `executeEvidence=true`, clean worktree, idempotent command catalog match, producer actor, transcript capture | command, owner, verifier, and reason execution is unsafe |
 
 Freshness classification:
@@ -350,10 +350,10 @@ Freshness classification:
 | Classification | Predicate | Pipeline action |
 |---|---|---|
 | fresh | evidence head/material/storyFilesHash match the current canonical snapshot | consume as evidence |
-| advisory drift | whole-tree material changes but storyFilesHash and evidence inputs match, such as unrelated main merges | warn; do not force rerun; do not rewrite hashes directly |
-| refresh-only | legacy or metadata-only binding lacks the current wrapper fields, but transcript ref, command digest, producer, and storyFilesHash still match and an existing refresh writer supports the kind | call the refresh writer or print its command |
-| rerun-required | command transcript/digest/producer is missing, command is not idempotent, external/authority result cannot be rebound, or source inputs for that evidence kind changed | stop unless `executeEvidence=true`; rerun command and record a new transcript |
-| hard stale | story-owned files, verificationIntent, checklist scope, validation command set, transcript, or delivery context changed after evidence/reviewer pass | block gate/reviewer consumption and rerun affected evidence or lanes |
+| advisory_drift | whole-tree material changes but storyFilesHash and evidence inputs match, such as unrelated main merges | warn; do not force rerun; do not rewrite hashes directly |
+| refresh_only | legacy or metadata-only binding lacks the current wrapper fields, but transcript ref, command digest, producer, and storyFilesHash still match and an existing refresh writer supports the kind | call the refresh writer or print its command |
+| rerun_required | command transcript/digest/producer is missing, command is not idempotent, external/authority result cannot be rebound, or source inputs for that evidence kind changed | stop unless `executeEvidence=true`; rerun command and record a new transcript |
+| hard_stale | story-owned files, verificationIntent, checklist scope, validation command set, transcript, or delivery context changed after evidence/reviewer pass | block gate/reviewer consumption and rerun affected evidence or lanes |
 
 Evidence mapping examples:
 
@@ -751,7 +751,9 @@ flowchart TD
   N --> O{"Validation and user-value proof pass?"}
   O -- no --> Z
   O -- yes --> W["Clean commit + enter REVIEW phase"]
-  W --> H["4 Reviewer lane batch"]
+  W --> WX{"Dirty or still not REVIEW?"}
+  WX -- yes --> Z
+  WX -- no --> H["4 Reviewer lane batch"]
   H --> I{"Missing lane, finding, or stale pass?"}
   I -- missing lane --> H
   I -- finding --> G
@@ -996,13 +998,13 @@ Minimum smoke matrix:
 | Scenario | Required replay command | Fixture/task id | Expected artifacts and fields | Expected result |
 |---|---|---|---|---|
 | clean story, all gates pass | `npm --prefix packages/main run build && node packages/main/dist/tasks/story-pipeline-contract-smoke.js --case=clean-pass` | `story-pipeline:clean-pass` | `StoryPipelineReport` with `headHash`, `materialHash`, `storyFilesHash`, validation ref, transcript ref, delivery context ref, all exit codes `0`, stdout/stderr digests | pipeline reports ready |
-| stale verification evidence | `node packages/main/dist/tasks/story-pipeline-contract-smoke.js --case=stale-verification-evidence` | `story-pipeline:stale-verification-evidence` | freshness row with classification `refresh-only` or `rerun-required`, owner, verifier, next command, no direct hash rewrite | pipeline reports refresh/rerun next action |
+| stale verification evidence | `node packages/main/dist/tasks/story-pipeline-contract-smoke.js --case=stale-verification-evidence` | `story-pipeline:stale-verification-evidence` | freshness row with classification `refresh_only` or `rerun_required`, owner, verifier, next command, no direct hash rewrite | pipeline reports refresh/rerun next action |
 | reviewer finding open | `node packages/main/dist/tasks/story-pipeline-review-smoke.js --case=open-finding` | `story-pipeline-review:open-finding` | signed `reviewRunId`, finding id, review round, material/storyFilesHash binding | pipeline blocks before TEST |
 | delivery check missing | `node packages/main/dist/tasks/story-pipeline-delivery-smoke.js --case=missing-delivery-check` | `story-pipeline-delivery:missing-delivery-check` | delivery context ref, missing delivery-check blocker, owner `delivery reviewer`, next command | pipeline blocks before DONE |
 | main branch behind | `node packages/main/dist/tasks/story-pipeline-preflight-smoke.js --case=main-behind` | `story-pipeline-preflight:main-behind` | imported `done_prepare --dryRun` blocker with `blockedAt` and `next` preserved | pipeline reports merge requirement |
 | dirty main checkout overlap | `node packages/main/dist/tasks/story-pipeline-preflight-smoke.js --case=dirty-overlap` | `story-pipeline-preflight:dirty-overlap` | dirty path list, no stash/revert event, exact clean-tree next action | pipeline blocks, no stash/revert |
-| storyFilesHash match with whole-tree drift | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-files-hash-advisory` | `story-pipeline-evidence:story-files-hash-advisory` | freshness row `advisory drift`, unchanged `storyFilesHash`, whole-tree material drift note | advisory, not hard stale |
-| story-owned file changed | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-owned-hard-stale` | `story-pipeline-evidence:story-owned-hard-stale` | freshness row `hard stale`, changed source path, rerun command, no fresh evidence write | hard stale |
+| storyFilesHash match with whole-tree drift | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-files-hash-advisory` | `story-pipeline-evidence:story-files-hash-advisory` | freshness row `advisory_drift`, unchanged `storyFilesHash`, whole-tree material drift note | advisory, not hard stale |
+| story-owned file changed | `node packages/main/dist/tasks/story-pipeline-evidence-smoke.js --case=story-owned-hard-stale` | `story-pipeline-evidence:story-owned-hard-stale` | freshness row `hard_stale`, changed source path, rerun command, no fresh evidence write | hard stale |
 | Authority receipts missing | `node packages/main/dist/tasks/story-pipeline-authority-smoke.js --case=missing-receipt` | `story-pipeline-authority:missing-receipt` | `authorityDone=false`, `fullAuthorityDone=false`, `productionDone=false`, local-only label | no production/authority DONE claim |
 
 Each smoke must assert the command exit code, stdout/stderr digest fields,
