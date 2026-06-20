@@ -1,0 +1,23 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-20T06:56:23.748Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Resolve the learning-store finding-signals cache from the main repo root (worktree-safe), read + write + Smoke: hints load + experience_hint_surfaced fires from a worktree whose cache lives in the main checkout are performed simultaneously?)"
+        }
+      ],
+      "_hash": "4fb6c036a4d8f9a11ea0de48f058610fd845757ea32b2b957035ffc69df040c9"
+    }
+  ]
+}

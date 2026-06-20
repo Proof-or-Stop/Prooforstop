@@ -1,0 +1,39 @@
+{
+  "task": "Write a detailed execution-plan document for the DONE/full npm test gate gap.",
+  "outcome": "User can read docs/requirements/decisions/done-full-test-gate-execution-plan.md and see the current failure mode, the target DONE/release validation design, rollout milestones, validation commands, and mandatory 3-round/2-host audit requirements before code implementation starts.",
+  "facts": [
+    "lattice.config.json currently defines validate.commands as 8 configured commands, not the full root npm test chain.",
+    "Root package.json defines npm test as a 22-step chain covering broader smokes and scripts.",
+    "packages/main/src/handlers/verifier.ts uses configured validate.commands when present and only discovers npm test fallback when no configured commands exist.",
+    "packages/main/src/handlers/phase-gates.ts writes test-evidence.json from lattice validate --story output.",
+    "packages/main/src/core/done-oracle.ts consumes test-evidence.json for DONE and does not independently require a fresh full npm test receipt.",
+    ".githooks/pre-push runs build plus recursive tsc for the self-host repo, not root npm test."
+  ],
+  "constraints": [
+    "Documentation-only story: do not implement runtime gate code.",
+    "Do not modify lattice.config.json validation commands in this story.",
+    "Do not run full npm test for this planning task.",
+    "Do not directly read or write docs/story or tests/fixtures.",
+    "The execution plan must preserve external project configurability and avoid making all Lattice users pay self-host full-suite cost by default.",
+    "The implementation story must use process-fact/gate-consumed evidence rather than prompt-only policy."
+  ],
+  "unknowns": [
+    "Exact final config key names for DONE-required validation must be chosen during implementation after schema inspection.",
+    "Whether release_approve_push should also consume the same full-suite evidence or remain separate needs implementation design validation.",
+    "Final timeout/runtime budget for root npm test must be measured by the implementation story."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/done-oracle.ts",
+    ".githooks/pre-push"
+  ],
+  "timestamp": "2026-06-20T06:49:19.026Z"
+}
