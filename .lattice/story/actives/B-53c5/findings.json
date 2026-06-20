@@ -73,7 +73,7 @@
       "desc": "MAJOR: the lens-id smoke is vacuous for exactness — it asserts CANONICAL_LENS_SET ids === LENS_IDS, but both come from the same module, so if LENS_IDS drifts from the spec the smoke still passes. It does not pin the contract to the spec's literal ids. Fix: assert BOTH LENS_IDS and CANONICAL_LENS_SET.map(id) against an EXPLICIT literal expected tuple (the spec §2.1 slash-form ids) so any drift in the 6 canonical ids fails hermetically. (Verify the severity-union + phase-order assertions are likewise pinned to literal expected arrays, not self-referential.)",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T12:21:18.297Z",
@@ -83,7 +83,11 @@
         "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|major-lens-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke de-vacuumed: explicit literal EXPECTED_LENS_IDS/EXPECTED_FINDING_SEVERITIES/EXPECTED_AGREED_SEVERITIES/EXPECTED_REVIEW_MODE_PHASES declared in the smoke; both LENS_IDS and CANONICAL_LENS_SET.map(id) asserted deep-eq the literal expected (no longer self-referential), so contract drift fails hermetically. commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:44.487Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
