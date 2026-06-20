@@ -62,7 +62,70 @@
       "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All 27 source imports rewritten: git grep -rn \"from .@lattice-agent\" -- packages/ returns 0 hits; git grep -rn \"from .@lattice/\" -- packages/ returns >= 27 hits -> WHY: confirms every import path flipped to new scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts equals @lattice/core -> grep the constant assignment; WHY: self-host detection key used at runtime to identify this repo",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "handlers/test-auto.ts and handlers/worktree.ts reference @lattice/core (not @lattice-agent/core) in their self-host detection -> grep both files; WHY: worktree creation and test-auto flows use this to find the workspace root",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "rollout-check.ts mainPackageName comparison uses @lattice/core -> grep isSelfLayout line; WHY: rollout check gates deploy readiness on correct self-host name",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Full tsc --noEmit across all packages exits 0 (npx tsc --noEmit -p packages/utils && npx tsc --noEmit -p packages/main && npx tsc --noEmit -p packages/lab) -> WHY: type-checks that all rewritten imports resolve under the new scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node bin/lattice.js --version runs successfully and prints a version string -> WHY: end-to-end self-host proof that the CLI loads under @lattice/core",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "cli-init.ts dev-host import path uses @lattice/core (not @lattice-agent/core) -> grep cli-init.ts for the import; WHY: cli-init is the entry point that bootstraps the dev-host path and is sensitive to scope mismatch",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "prompt-registry and runtime-fact-registry reference @lattice/core in their canonical name exports -> grep both files; WHY: these registries advertise the canonical package name to other subsystems",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No require() calls reference @lattice-agent anywhere in packages/: git grep -rn \"require.*@lattice-agent\" -- packages/ returns 0; WHY: catches CJS-style refs that the from-import grep would miss",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After rebuild, run node -e \"require(\\\"@lattice/core\\\")\" from repo root -> should resolve without error; WHY: proves the rebuilt dist is loadable under the new scope",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify no .ts/.js file in packages/ contains a string literal @lattice-agent/core or @lattice-agent/utils or @lattice-agent/lab (excluding test fixtures that assert its absence): git grep -nE \"@lattice-agent/(core|utils|lab)\" -- packages/ should return 0 hits; WHY: adversarial sweep for partial rename in non-import contexts (comments, string constants, error messages)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
