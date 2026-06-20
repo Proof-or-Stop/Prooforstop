@@ -66,6 +66,25 @@
       ],
       "signatureTag": "missing|ts|required-evidence-actually",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ac25:F-004",
+      "desc": "CHK-003 adversarial verificationIntent requires the DONE-required gate to block stale storyFilesHash evidence, but the refreshed smoke coverage does not assert that path. Source: packages/main/src/tasks/done-required-validation-smoke.ts:272-287 only checks stale-material, policy-drift, and command-set-drift; rg finds no stale-storyFilesHash or missing-storyFilesHash assertion in the smoke. The evaluator branch exists at packages/main/src/core/done-required-validation.ts:539-540, but without a smoke assertion a DONE-required evidence artifact with stale storyFilesHash is not protected by the recorded validation coverage. Add a focused smoke case that writes fresh PASS done-required-evidence.json, changes story files hash without relying on material drift, and asserts evaluateDoneRequiredEvidence returns stale-storyFilesHash/blocking.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T10:52:53.895Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-016",
+      "_hash": "0b41c4dcf20a054dea5a3c6fc5e1621eb19ed2ae4ee0f14d421c4a158108581d",
+      "files": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationintent-requires",
+      "signatureTagSource": "auto"
     }
   ]
 }
