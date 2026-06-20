@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees the execution plan state: LATTICE_SESSION_ID is the canonical owner lease identity; host-specific session variables are bridged before core owner lease logic; ppid is last-resort degraded fallback only.",
+      "userSees": "User sees this line in the execution plan: \"Canonical owner session: LATTICE_SESSION_ID is the only normal owner-lease identity; derived-ppid is degraded fallback only.\"",
       "files": {
         "modify": [
           "docs/requirements/decisions/session-ownership-and-write-leases.md"
