@@ -60,7 +60,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "excludes": [
+        "Executing evidence commands in V1",
+        "Writing verification evidence in V1",
+        "Launching reviewer lanes in V1",
+        "Advancing story phases in V1",
+        "Claiming remote or production status"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "V1 is explicitly defined as a read-only readiness control tower that reads state/artifacts/freshness/gates and prints blockers plus exact next actions.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Artifact producer, reviewer batching, refresh delegation, and phase handoff are staged after the read-only report proves stable, not included in V1 default behavior.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The V1 command surface cannot be read as mutating evidence, signing delivery checks, advancing REVIEW/TEST/DONE, or replacing done_prepare.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
