@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9089",
+  "mode": "feature",
+  "allowed": [
+    "Implement the owner-session canonical resolver/adapters required by docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "Record pre-runtime transcript evidence, two-host plan review evidence, validation evidence, and documentation updates directly tied to the owner-session contract",
+    "Update owner-lease, lifecycle event, DEV-claim warning, doctor/session diagnostics, runtime artifact registry, and focused smoke/guardrail tests needed for the owner-session contract"
+  ],
+  "excluded": [
+    "Do not add host-specific session env reads to generic core owner-lease, lifecycle, gate, or cli-engine paths",
+    "Do not claim Authority Server completion or use local session ids as cryptographic identity",
+    "Do not push remote branches or modify unrelated active stories",
+    "Do not redesign unrelated lifecycle gates, review escalation policy, or main write lock semantics"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested executing code from the B-a781 owner-session contract document; INIT scope is limited to that runtime implementation and direct verification.",
+  "createdAt": "2026-06-20T10:23:15.757Z",
+  "updatedAt": "2026-06-20T10:23:15.757Z",
+  "_hash": "3cdbb2595525dff5f51a32b48b7db204032b01aec02d5a2066f53ff46cd0bd20"
+}
