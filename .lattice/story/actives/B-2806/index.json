@@ -4,7 +4,7 @@
   "title": "Adversarial-review S2: per-finding verifier (M-skeptic refute-by-default threshold-confirm) + finding_add ledger mapping",
   "description": "Story S2 (PARALLEL, MVP) of the adversarial-review build program (docs/adversarial-review-spec.md §2.3 + §4.2). Implement the PER-FINDING ADVERSARIAL VERIFIER + the LEDGER MAPPING in a new pure-data + injected-seam module packages/main/src/core/adversarial-review-verifier.ts importing S0's frozen contract (core/adversarial-review.ts: Finding, FindingSeverity, Verdict). (1) VERIFIER: an injected runSkeptic:(finding,change)=>Verdict seam; verifyFinding runs M skeptics (default M=2), counts isReal verdicts, and CONFIRMS iff confirms>=T (threshold-confirm, default T=1-of-2 — NOT majority); a finding with confirms=0 is dropped. verifyFindings maps over a Finding[]; confirmedFindings filters the survivors. Refute-by-default is the skeptic role's behavior; the module only counts+thresholds. (2) LEDGER MAPPING: SEVERITY_TO_FINDING_KIND (BLOCKER->critical, MAJOR->high, MINOR->medium; low for cosmetic) typed to finding_add's critical|high|medium|low enum; composeDesc(finding)=\"<title> — <issue> Fix: <fix>\" citing line; toFindingAddArgs(finding,{reviewRunId,agent,category}) returns the finding_add arg object (severity mapped, desc composed, files '[\"<file>\"]', category in happy|edge|adversarial|missing, reviewRunId, a real lattice-review-* agent) — NEVER passing an abstract BLOCKER/MAJOR/MINOR to the ledger (that is a Zod error). Order is verify->MAP->finding_add; only CONFIRMED findings are mapped. NO behavior beyond verify+threshold+map (pure; no I/O — calling finding_add is S4). A hermetic smoke with a FAKE runSkeptic proves: refute-by-default counting; T=1-of-2 keeps a 1-confirm finding and drops a 0-confirm finding; T=2-of-2 strict; each severity maps to the right finding_add kind; composeDesc + toFindingAddArgs shape; no abstract severity leaks to the ledger. NO lens runner (S1), NO completeness critic (S3), NO escalation/finding_add call (S4). Registered in lattice.config.json. Depends [B-53c5]; disjoint from S1 (B-97ab) and S3.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "adversarial-review",
@@ -65,6 +65,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-20T15:05:25.779Z",
+      "branch": "story/B-2806",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:16:18.297Z",
       "branch": "story/B-2806",
       "user": "Harmonygo",
       "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",

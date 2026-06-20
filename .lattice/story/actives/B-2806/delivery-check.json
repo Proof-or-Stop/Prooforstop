@@ -1,0 +1,68 @@
+{
+  "storyId": "B-2806",
+  "checkedAt": "2026-06-20T15:18:46.136Z",
+  "reviewRound": "2026-06-20T15:05:25.779Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-2806/plan.md#CHK-001",
+      "promise": "adversarial-review-verifier.ts exports SEVERITY_TO_FINDING_KIND: Record<FindingSeverity,FindingAddSeverity> = {BLOCKER:critical, MAJOR:high, MINOR:medium}, Object.frozen, plus FindingAddSeverity type",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "New file packages/main/src/core/adversarial-review-verifier.ts lines 25-35: SEVERITY_TO_FINDING_KIND typed Record<FindingSeverity,FindingAddSeverity>, Object.freeze applied, exact mapping BLOCKER->critical/MAJOR->high/MINOR->medium confirmed. FindingAddSeverity type at line 26."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2806/plan.md#CHK-002",
+      "promise": "composeDesc(finding) produces <title> — <issue> Fix: <fix> (line N) with em-dash; toFindingAddArgs shapes finding_add args (pure, no call, severity always from ledger map)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "adversarial-review-verifier.ts lines 44-48: composeDesc uses em-dash U+2014 template literal. toFindingAddArgs lines 67-77: pure function, returns FindingAddArgs, severity = SEVERITY_TO_FINDING_KIND[finding.severity], no I/O import, JSDoc line 16-17 explicitly states OUT of scope (S4) and never performs the call."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2806/plan.md#CHK-003",
+      "promise": "verifyFinding (M skeptics default 2, strict isReal===true, threshold floored at Math.max(1,T), confirms>=T) + verifyFindings + confirmedFindings exported",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "adversarial-review-verifier.ts lines 87-115: verifyFinding implements exact semantics — threshold = Math.max(1,requested) (line 93), verdicts collected in loop of skeptics runs, confirms = filter isReal===true, confirmed = confirms>=threshold. verifyFindings maps over array. confirmedFindings filters confirmed+maps to Finding. DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1 exported."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2806/plan.md#CHK-004",
+      "promise": "Hermetic smoke packages/main/src/tasks/adversarial-review-verifier-smoke.ts with 68 assertions; registered in lattice.config.json validate.commands[14]",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "adversarial-review-verifier-smoke.ts is a new file with 325 lines, 68 check() calls confirmed by running the smoke which printed adversarial-review-verifier smoke passed: 68 assertions. lattice.config.json diff adds the smoke as the last entry in validate.commands (index 14)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2806/plan.md#honesty",
+      "promise": "Protected files packages/main/src/core/adversarial-review.ts and packages/main/src/core/adversarial-review-lens-runner.ts are unmodified (no S1/S3/S4 scope creep)",
+      "status": "verified",
+      "verifiedBy": "diff",
+      "evidence": "git diff 0f3ac27...HEAD -- those two paths returns empty output: neither file was touched by this story."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build: exit 0 (tsc clean). node adversarial-review-verifier-smoke.js: printed adversarial-review-verifier smoke passed: 68 assertions, exit 0. Smoke section 1 covers: BLOCKER->critical, MAJOR->high, MINOR->medium, all values in ledger kinds, exact key set equals FINDING_SEVERITIES, invalid key NOPE->undefined, Object.isFrozen===true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke section 2+3: composeDesc exact literal with em dash verified; special chars pass through verbatim; line=0 boundary cited. toFindingAddArgs shape verified for MAJOR/BLOCKER/MINOR — severity always a ledger kind, never abstract; spaced file paths preserved; idempotent; fresh object each call; exact 6-key shape."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke sections 4-7: DEFAULT_SKEPTICS===2, DEFAULT_CONFIRM_THRESHOLD===1. Threshold-confirm (not majority): 1-of-2@T=1 confirmed; 1-of-2@T=2 not confirmed; 0-of-2 always dropped; 2-of-2@T=2 confirmed; default opts case. Refute-by-default strictness: isReal=false with agreedSeverity=MAJOR not counted. T=0 clamped: all-false@T=0 dropped (confirms=0, confirmed=false). M=1,T=1 single confirm; M=3,T=2 sequence [T,F,T]->2 confirms confirmed; [T,F,F]->1 not confirmed. verifyFindings over list; confirmedFindings returns only f2; empty input->empty output."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js printed: adversarial-review-verifier smoke passed: 68 assertions (exit 0). Observed directly in this review session. lattice.config.json smoke entry present at validate.commands index 14."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docs promises verified in code and by direct test execution. The smoke ran and printed 68 assertions, exit 0. Protected files adversarial-review.ts and adversarial-review-lens-runner.ts are untouched. The verifier module is a pure library (no I/O imports, no finding_add call) per the MVP S2 scope. Edge cases covered: T=0 floor, confirms=0 always dropped, isReal=false not counted, line=0 cited, special chars verbatim, spaced file paths, empty list input."
+  },
+  "_hash": "e255e491c199f9ccbb3963f73116fbfc225e515b3925a3dcb694859845b898fd"
+}
