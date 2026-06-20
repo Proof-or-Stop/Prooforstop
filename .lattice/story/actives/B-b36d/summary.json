@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b36d",
+  "changes": "Renamed and reframed the former standard evidence pipeline plan as Lattice Lifecycle Proof-Or-Stop Readiness Check; added read-only V1 lifecycle_check/story_readiness positioning, StoryReadinessReport code/category semantics, delivery blocker codes, bounded refresh-only rules, done_prepare pre/post-merge binding, updated SVG flow, NAV link, and transcript evidence.",
+  "usage": "Open docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md or docs/requirements/NAV.md and read the Lifecycle Readiness Check plan; future implementation stories should start with the read-only StoryReadinessReport/lifecycle_check layer before any Full Vision orchestration.",
+  "expectedOutcome": "The user sees the document titled Lattice Lifecycle Proof-Or-Stop Readiness Check, with V1 clearly read-only and exact next-action proof-or-stop semantics instead of a pipeline conveyor.",
+  "actualTranscript": "sed showed the new title, short name Lifecycle Readiness Check, and V1 report model StoryReadinessReport. rg found runCommands:false, writeEvidence:false, readiness[*].code, missing_delivery_check, delivery_check_blocking, preMergeHead/postMergeHead, one refresh pass, and deferred story_pipeline. xmllint validated the SVG. stale old pipeline command framing returned no matches.",
+  "outcomeDiff": "No difference: expected naming, V1 read-only boundary, delivery code/detail schema, and old pipeline demotion are all visible in the transcript.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No CLI/runtime implementation was changed in this story; implementation is intentionally deferred to later Lifecycle Readiness Check stories.",
+  "pitfalls": "A quality reviewer found the first schema version had only broad category and no stable delivery code; fixed by adding readiness[*].code. apply_patch first wrote transcript to main checkout, then it was moved into the B-b36d worktree before commit.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 534848
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9335
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 399462
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 721753
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1087457
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 327512
+    }
+  },
+  "totalDurationMs": 3080368,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T12:31:52.838Z",
+  "updatedAt": "2026-06-20T12:31:52.838Z"
+}

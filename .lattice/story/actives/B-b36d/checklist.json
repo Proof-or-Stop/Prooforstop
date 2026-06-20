@@ -9,9 +9,84 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T11:57:02.844Z",
+      "endTime": "2026-06-20T12:03:11.055Z",
+      "excludes": [
+        "CLI command implementation",
+        "runtime schema implementation",
+        "Authority server behavior"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/NAV.md",
+          "docs/guide.md",
+          "README.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The primary document title, purpose, report model, and command language use Lifecycle Proof-Or-Stop Readiness Check / Lifecycle Readiness Check / StoryReadinessReport instead of presenting story_pipeline as the V1 concept.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The full lifecycle automation vision remains available as a later/full-vision section so prior planning is not erased, only staged safely.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reader cannot reasonably infer that V1 auto-writes evidence, launches reviewers, advances phases, or claims Authority completion from the renamed sections.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "The revised document opens with Lattice Lifecycle Proof-Or-Stop Readiness Check and describes V1 as Lifecycle Readiness Check, with StoryReadinessReport as the core report model.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Lattice Lifecycle Proof-Or-Stop Readiness Check|Lifecycle Readiness Check|StoryReadinessReport|lattice lifecycle_check|lattice story_readiness|runCommands|writeEvidence|Full Vision\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The plan, flow image, and navigation now use Lifecycle Readiness Check positioning, StoryReadinessReport, and Full Vision staging.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"lattice-standard-evidence-pipeline|Lattice Standard Evidence Pipeline|standard evidence pipeline|story_pipeline --|lattice story_pipeline|Target Command Surface|Recommended operator path\" README.md docs/guide.md docs/requirements/NAV.md docs/requirements/decisions docs/requirements/decisions/assets",
+          "result": "pass",
+          "note": "No stale old filename/title or V1 story_pipeline command framing remains; rg returned no matches.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Full Vision: Later Staged Layers|previous full-flow pipeline is not V1|P8|Top-level orchestration\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The rewritten plan preserves the former full-flow automation only as Full Vision/later staged layers, including future top-level orchestration outside V1.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +97,82 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:02:37.478Z",
+      "endTime": "2026-06-20T12:03:23.921Z",
+      "excludes": [
+        "Executing evidence commands in V1",
+        "Writing verification evidence in V1",
+        "Launching reviewer lanes in V1",
+        "Advancing story phases in V1",
+        "Claiming remote or production status"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "V1 is explicitly defined as a read-only readiness control tower that reads state/artifacts/freshness/gates and prints blockers plus exact next actions.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Artifact producer, reviewer batching, refresh delegation, and phase handoff are staged after the read-only report proves stable, not included in V1 default behavior.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The V1 command surface cannot be read as mutating evidence, signing delivery checks, advancing REVIEW/TEST/DONE, or replacing done_prepare.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "The V1 section states that lifecycle_check is read-only by default, reports blockers and exact next actions, and does not write evidence, launch reviewers, advance phases, or replace done_prepare.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"V1 must not|lattice lifecycle_check|lattice story_readiness|runCommands|writeEvidence|StoryReadinessReport|read-only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "result": "pass",
+          "note": "V1 is constrained to read-only readiness reporting with lifecycle_check/story_readiness, StoryReadinessReport, and runCommands:false/writeEvidence:false.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story_pipeline --|lattice story_pipeline|Target Command Surface|Recommended operator path\" README.md docs/guide.md docs/requirements/NAV.md docs/requirements/decisions docs/requirements/decisions/assets",
+          "result": "pass",
+          "note": "No V1 primary story_pipeline examples or old target-command framing remain; rg returned no matches.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"PLAN skeleton assistant|Evidence refresh/execution|Reviewer batch|Top-level orchestration|outside V1|future\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The staged-layer table keeps artifact producers, refresh execution, reviewer batching, and phase handoff outside V1 with explicit future defaults.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +183,81 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:02:37.174Z",
+      "endTime": "2026-06-20T12:03:33.794Z",
+      "excludes": [
+        "Changing story_advance implementation",
+        "Changing done_prepare implementation",
+        "Changing evidence refresh implementation",
+        "Changing delivery-check implementation"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document prints exact next-action semantics for REVIEW/TEST to DEV rollback, delivery blocker categories, dry-run/default options, done_prepare pre/post-merge binding, and refresh-only loop bounds.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When blockers can be artifact-only, material rework, external, or manual, the document assigns different owners and commands instead of a single vague STOP path.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The revised text does not allow direct hash rewriting, unbounded refresh loops, pre-merge done_prepare reports to masquerade as post-merge readiness, or degraded single-host gate consumption in V1.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "The contract section lists exact rollback commands, separate delivery blocker categories, dry-run default options, pre/post-merge done_prepare reuse rules, and one-pass refresh escalation.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Exact Rollback Commands|lattice story_advance .*phase.*DEV|missing_delivery_check|delivery_check_blocking|preMergeHead|postMergeHead|refresh-only path|metadata-only waiver waives only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The plan now documents exact REVIEW/TEST to DEV rollback, delivery blocker categories, done_prepare HEAD binding, one-pass refresh-only escalation, and metadata-only waiver scope.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "xmllint --noout docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "result": "pass",
+          "note": "Updated lifecycle readiness SVG is well-formed XML.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"V1 never refreshes hashes|one refresh pass|preMergeHead|postMergeHead|Single-host fallback semantics are deferred|no fallback readiness claim\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The contract blocks direct hash refresh, caps refresh-only to one pass, requires post-merge done_prepare binding, and defers single-host fallback readiness claims from V1.",
+          "headHash": "6d1121e9cbe441b095090492259b56f2034c0631",
+          "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+          "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+          "timestamp": "2026-06-20T12:17:27.224Z"
+        }
+      ]
     }
   ]
 }

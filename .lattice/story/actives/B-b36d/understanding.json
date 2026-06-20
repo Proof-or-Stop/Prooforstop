@@ -1,0 +1,28 @@
+{
+  "task": "Refine the existing evidence pipeline design into a Lifecycle Proof-Or-Stop Readiness Check that reads readiness and prints exact next actions before any future automation.",
+  "outcome": "The user opens the revised Lattice readiness document and sees it titled Lifecycle Proof-Or-Stop Readiness Check, with V1 clearly read-only, blockers tied to owners, and no implication that Lattice secretly auto-advances stories.",
+  "facts": [
+    "The current document is titled Lattice Standard Evidence Pipeline Execution Plan and uses story_pipeline / StoryPipelineReport terminology.",
+    "External host review found the full flow is directionally useful but too broad for V1.",
+    "Verified gaps include rollback command ambiguity, delivery blocker asymmetry, dry-run defaults labelled as execution options, done_prepare head binding around mergeMain, and an unbounded refresh-only loop.",
+    "B-0a29 is a zombie TEST story with its branch deleted, so this follow-up story must carry the document refinement instead of mutating that story directly."
+  ],
+  "constraints": [
+    "Documentation-only scope: no CLI/runtime implementation changes.",
+    "Use Lattice CLI for story metadata; do not directly edit docs/story or tests/fixtures.",
+    "Preserve proof-or-stop discipline and reviewer independence.",
+    "DONE readiness must remain delegated to done_prepare, not reimplemented in this document.",
+    "The revised naming should use Lifecycle, not Lifestyle."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+    "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+    "docs/requirements/NAV.md",
+    "docs/guide.md",
+    "README.md"
+  ],
+  "timestamp": "2026-06-20T11:50:09.360Z"
+}

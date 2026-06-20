@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-53c5",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json: register the smoke",
+    "packages/main/src/core/adversarial-review.ts: the frozen contract (Finding/Verdict/Lens-set/critic-IO types + the review-mode interface + canonical-order constant); types/interface only, no behavior",
+    "packages/main/src/tasks/adversarial-review-contract-smoke.ts: hermetic contract smoke"
+  ],
+  "excluded": [
+    "any BEHAVIOR — the lens runner (S1), verifier (S2), critic (S3), escalation wiring (S4) are later stories",
+    "any change to existing review code (lattice-review-* lanes, machine.ts, review-run.ts)",
+    "the finding_add ledger mapping (critical|high|medium|low) — that is S2"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-impl Story S0 per docs/adversarial-review-spec.md §5: frozen contract (types + mode interface), SERIAL-first, no behavior.",
+  "createdAt": "2026-06-20T12:03:33.573Z",
+  "updatedAt": "2026-06-20T12:03:33.573Z",
+  "_hash": "f03ca938980fee9f3c7dc839f55ef29091fb730878377235b76627f565ae2721"
+}

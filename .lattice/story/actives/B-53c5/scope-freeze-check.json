@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-53c5",
+  "checkedAt": "2026-06-20T12:03:34.141Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "f03ca938980fee9f3c7dc839f55ef29091fb730878377235b76627f565ae2721",
+  "executionBoundaryHash": "6e1f2da4a15d5a1bce7296d608698e6c2c368f8dae9929ed3777f9f3eca8f43b",
+  "freshnessHash": "4da50a54fb5a4ffeb7b12992f52cfffa4fd45e8a5702217e7173320fcfb11ec3",
+  "effectiveExcludedKeywords": [
+    "any BEHAVIOR — the lens runner (S1), verifier (S2), critic (S3), escalation wiring (S4) are later stories",
+    "any change to existing review code (lattice-review-* lanes, machine.ts, review-run.ts)",
+    "the finding_add ledger mapping (critical|high|medium|low) — that is S2"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any BEHAVIOR — the lens runner (S1), verifier (S2), critic (S3), escalation wiring (S4) are later stories",
+      "source": "scopeBoundary.excluded",
+      "text": "any BEHAVIOR — the lens runner (S1), verifier (S2), critic (S3), escalation wiring (S4) are later stories",
+      "excluded": true
+    },
+    {
+      "keyword": "any change to existing review code (lattice-review-* lanes, machine.ts, review-run.ts)",
+      "source": "scopeBoundary.excluded",
+      "text": "any change to existing review code (lattice-review-* lanes, machine.ts, review-run.ts)",
+      "excluded": true
+    },
+    {
+      "keyword": "the finding_add ledger mapping (critical|high|medium|low) — that is S2",
+      "source": "scopeBoundary.excluded",
+      "text": "the finding_add ledger mapping (critical|high|medium|low) — that is S2",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "efe6b8c2da9c62dc018ec30e830ed3d22286047d53149a6d3aa8a107b2ef493f"
+}
