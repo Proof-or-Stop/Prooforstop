@@ -1,0 +1,54 @@
+{
+  "storyId": "B-9089",
+  "checkedAt": "2026-06-20T11:45:45.294Z",
+  "reviewRound": "2026-06-20T11:23:51.740Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "promise": "B-9089 implements the canonical owner-session runtime contract: generic owner-lease/lifecycle code consumes a host-neutral resolver, while Claude Code, Codex, Antigravity/agy, and future host signals are bridged at adapter/dispatch boundaries; resolution order is LATTICE_SESSION_ID, host adapter, generated token, then degraded ppid fallback.",
+      "status": "verified",
+      "verifiedBy": "manual source inspection plus transcript/summary evidence",
+      "evidence": "Docs lines 9-15 and 27-34 state the contract. Verified owner-session.ts resolves through resolveAdapterOwnerSession before derived-ppid; owner-session-adapters.ts implements explicit-env, host-adapter, generated-token; story-owner-lease.ts imports the facade; context.ts/transition-orchestrator.ts use getSessionId."
+    },
+    {
+      "docPath": "docs/guide-scope-guard.md",
+      "promise": "Scope guard provider strings are diagnostic only; owner-session identity flows through the canonical LATTICE_SESSION_ID host-adapter contract, and host-specific session envs stay only in adapter, dispatch, or test code.",
+      "status": "verified",
+      "verifiedBy": "guardrail source inspection and recorded guardrail test evidence",
+      "evidence": "Docs lines 29-36 make the promise. owner-session-guardrail.ts scans TS sources for raw host-specific session env reads outside adapter/dispatch/tasks and asserts bounded provider subprocesses receive providerEnv; transcript-diff records test:owner-session-guardrail passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "High-risk escalated stories require 3 quorum rounds with 2 independent PASS hosts per round for full-3x2; degraded single-host review must be explicit and lower-assurance, not reported as full-3x2 or Authority completion.",
+      "status": "verified",
+      "verifiedBy": "review_escalation_status JSON plus document inspection",
+      "evidence": "Docs lines 12-24, 100-138, and 271-294 define the rule. review_escalation_status --storyId=B-9089 --json reports assuranceLevel full-3x2, ok true, three valid rounds, each with codex and antigravity PASS hosts, degradedFallback allowed false, authorityDone false/fullAuthorityDone false/productionDone false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002/CHK-004/CHK-006",
+      "transcript": "npm --prefix packages/main run test:story-owner-lease-smoke passed per transcript-diff and summary. It covers LATTICE_SESSION_ID precedence, Claude/Codex/Antigravity/agy host adapters, generated-token reuse across ppid changes, non-collision by boundary/provider/root, derived-ppid fallback, sessionSource lease recording, runtime-artifact hygiene for owner lease and token store, stale/takeover behavior, and owner gate rendering."
+    },
+    {
+      "featureId": "CHK-003/CHK-006",
+      "transcript": "npm --prefix packages/main run test:owner-session-guardrail passed per transcript-diff and summary. The guardrail confines raw host session env names to owner-session-adapters.ts, core/lattice-dispatch.ts, init-assets.ts, and task tests; it also asserts bounded provider subprocesses use buildCanonicalHostRuntimeEnv/providerEnv rather than process.env."
+    },
+    {
+      "featureId": "TEST-gate",
+      "transcript": "lattice session_brief reports last test run at 2026-06-20T11:30:29.055Z with result PASS, DONE pre-check Test evidence PASS, verification intent coverage 21/21 covered, evidence materialHash fresh, and no bugs. transcript-diff and summary_get both record lattice validate --story=B-9089 --json status pass/allPass true with 21/21 coverage."
+    },
+    {
+      "featureId": "CHK-001-review-assurance",
+      "transcript": "lattice review_escalation_status --storyId=B-9089 --json returned ok true and assuranceLevel full-3x2. fullQuorum validRounds are round-1, round-2, and round-3, each with antigravity and codex passing host IDs; degradedFallback.allowed is false, and Authority/production completion flags remain false as documented caveats."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are matched by source, docs, validation PASS, guardrail/smoke evidence, and full-3x2 local review assurance; no unresolved owner-session blocker found."
+  },
+  "_hash": "565157a48ab0abf12c025307d6987cec19e75d46be42979cbaa0ccede287ffd7"
+}
