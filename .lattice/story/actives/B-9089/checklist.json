@@ -123,7 +123,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "Commit 65297c217 adds packages/main/src/core/owner-session.ts facade and story-owner-lease re-exports/use; build plus smoke passed with explicit-env owner lease acquisition through the facade.",
+          "headHash": "b4ce9990b1f594795def803bad1c84e2c22f06aa",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:08.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
