@@ -53,7 +53,7 @@
       "desc": "CHK-003:adversarial:0 evidence note honestly discloses that the estimate path pollution assertion (check 17 in the smoke, labeled LOAD-BEARING) passes even pre-hardening by design, because the estimate path computes inputTokens from prompt bytes and sets output/cache to literal null — it never reads any token key off an externally-derived usage object. However, the smoke labels this check LOAD-BEARING in the check label string itself (line 353: estimate (LOAD-BEARING): ...). This label is inaccurate at the source level: a reader inspecting the smoke code sees a LOAD-BEARING label for an assertion that the evidence note concedes is not load-bearing. The CHK-003:adversarial:0 intent requires ALL pollution assertions to be load-bearing. The evidence note provides accurate disclosure but the smoke label creates a contradiction that must be resolved: either remove the LOAD-BEARING label from check 17 and add a clear NOT-LOAD-BEARING annotation, or remove the check from the load-bearing count and add an advisory note in the smoke. The current state where the code says LOAD-BEARING and the note says it is not is a honesty gap.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T15:09:56.093Z",
@@ -64,7 +64,10 @@
         "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-evidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Estimate-path smoke check relabeled honestly (NOT load-bearing) in round 2 (392fd563), matching the evidence note.",
+      "resolvedAt": "2026-06-20T15:56:51.763Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-004",
