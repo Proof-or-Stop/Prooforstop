@@ -108,7 +108,65 @@
       "context": "Imports S2 toFindingAddArgs + FindingAddArgs (core/adversarial-review-verifier.js) and ReviewRunLane (core/review-run.js, read-only). toCriticFindingAddArgs(finding: Finding, opts:{reviewRunId:string, agent:ReviewRunLane, category:FindingAddArgs['category']}): FindingAddArgs computes base=toFindingAddArgs(finding,opts) then returns {...base, desc: COMPLETENESS_CRITIC_DESC_TAG+' '+base.desc}. agent is typed ReviewRunLane so the compiler REJECTS 'completeness-critic' (a real lane only — §4.3). Severity is still the S2-mapped critical|high|medium|low (no abstract leak). Pure — no finding_add call (that is S4).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "toCriticFindingAddArgs(finding,{reviewRunId:\"run-1\",agent:\"lattice-review-quality\",category:\"adversarial\"}) -> result.desc STARTS WITH \"[completeness-critic] \" (tag + space) followed by the S2 composeDesc(finding) output; WHY: decision pre-mortem risk (a) -- provenance MUST be in desc, not agent",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs result.agent === \"lattice-review-quality\" (the passed-in real lane, NOT \"completeness-critic\"); WHY: decision pre-mortem risk (a) -- agent stays a real lattice-review-* lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs result.severity === SEVERITY_TO_FINDING_KIND[finding.severity] for each abstract severity (BLOCKER->critical, MAJOR->high, MINOR->medium); WHY: decision pre-mortem risk (c) -- keeps the S2-mapped critical|high|medium|low, never the abstract BLOCKER/MAJOR/MINOR",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs result matches toFindingAddArgs(finding,opts) in every field EXCEPT desc (which has the prefix); WHY: toCriticFindingAddArgs is a thin wrapper, all other fields (files, category, reviewRunId, agent, severity) must pass through from S2",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "toCriticFindingAddArgs with agent:\"lattice-review-behavior\" -> result.agent === \"lattice-review-behavior\"; WHY: works for both recommended lanes, not just quality",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs with a finding whose title/issue/fix contain the tag string \"[completeness-critic]\" -> desc has exactly ONE prefix (not double-tagged); WHY: edge case where the finding text already contains the tag",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs result.severity is never \"BLOCKER\"|\"MAJOR\"|\"MINOR\" (the abstract set) for any input severity; WHY: confirms the S2 map is always applied, abstract severities never leak to FindingAddArgs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "TypeScript compiler rejects toCriticFindingAddArgs(finding,{reviewRunId:\"r\",agent:\"completeness-critic\" as any,category:\"happy\"}) at compile time when agent is typed ReviewRunLane (not string) -- verify the type signature restricts agent to ReviewRunLane; WHY: decision pre-mortem risk (a) -- compiler-level enforcement that completeness-critic can never be the agent",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs result.desc never equals the bare composeDesc (without prefix) -- assert desc.length > composeDesc(finding).length; WHY: a regression that drops the prefix silently loses all critic provenance",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toCriticFindingAddArgs with finding.severity set to an unexpected string (e.g. \"LOW\" which is not in FindingSeverity) -> either throws or produces undefined severity (documents the boundary); WHY: adversarial input -- ensures no silent pass-through of non-abstract severities that would bypass the S2 map",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
