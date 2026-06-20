@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5a48",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Proposal-1-only: REVIEW next-steps hint surface + shared firing leaf. review-run.ts/core/review-run.ts EXCLUDED (resolveReviewPromptHash invariant must stay untouched). No new command (no registry/policy/process-fact edits).",
+  "createdAt": "2026-06-20T12:05:56.949Z",
+  "updatedAt": "2026-06-20T12:05:56.949Z",
+  "_hash": "6ebb15e97afbf5dd023f64cb42157478b3ea73d90136bf1f29ed33838556da85"
+}

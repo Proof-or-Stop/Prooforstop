@@ -1,0 +1,26 @@
+{
+  "storyId": "B-5a48",
+  "checkedAt": "2026-06-20T12:04:40.808Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T12:02:07.626Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights paragraph uses `MIN_ARM_N=20` without any definition or context (\"cannot accrue toward MIN_ARM_N=20\"). A standalone reader with no conversation history cannot tell what this constant represents, where it lives, or its role in the A/B learning-effectiveness system. At minimum, one sentence should define it (e.g., \"minimum samples per arm required before declaring statistical significance, defined in core/learning-effectiveness.ts\")."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T12:04:40.808Z",
+      "issues": []
+    }
+  ],
+  "_hash": "086036791154321350e3e89e1d8ab4e49b4749d29d3a0f962000a79010703d90"
+}

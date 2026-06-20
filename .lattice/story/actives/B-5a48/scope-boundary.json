@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5a48",
+  "mode": "feature",
+  "allowed": [
+    "packages/main/package.json (add test:experience-layer-review-dispatch-hint script alias)",
+    "packages/main/src/core/experience-hint-surface.ts (NEW shared firing leaf surfaceExperienceHints)",
+    "packages/main/src/handlers/story-review.ts (refactor firing block to call the leaf; byte-preserving)",
+    "packages/main/src/handlers/transition-effects.ts (buildNextSteps REVIEW branch: append-only advisory hint surfacing + fire A/B event)",
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts (optional: extend with the golden byte-equality assertion for the leaf refactor)",
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts (NEW smoke)"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator approved Proposal-1-only scope (2026-06-20): next-steps REVIEW hint surface + shared firing leaf; dispatch-path injection deferred.",
+  "createdAt": "2026-06-20T12:05:13.995Z",
+  "updatedAt": "2026-06-20T12:05:13.995Z",
+  "_hash": "3b2264172c3688dd27f1a48c96224373e2a96fc8db841c42dcfb89d3b5be2fa7"
+}
