@@ -1,0 +1,206 @@
+{
+  "command": "lattice validate --story=B-3321 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.19 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document cites the verified current failure mode: validate.commands subset, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document clearly states that this does not prove current main npm test is red; it proves the gate can miss failures outside validate.commands.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document keeps runtime implementation, lattice.config.json command edits, and running full npm test out of this planning story scope.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document specifies a target DONE/release validation profile or equivalent doneRequiredCommands design with fresh hash-bound evidence and a dedicated DONE row.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The design distinguishes Orchestrate self-host defaults from external project opt-in/configurable behavior so ordinary users are not forced into root npm test cost.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The design rejects prompt-only policy and requires schema, runner, process-fact, done-oracle, smoke, docs, and migration touchpoints for implementation.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document lists concrete implementation verification commands, expected artifacts, and smoke scenarios that prove subset validate cannot unlock DONE when full-suite evidence is missing or failing.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document defines in-flight story migration, emergency bypass/degraded handling, and stale evidence recovery without weakening DONE semantics.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/done-full-test-gate-execution-plan.md) — The document mandates 3 distinct rounds with 2 independent hosts over the final material hash for implementation of this high-risk gate change.\"],\"warnings\":[],\"timestamp\":\"2026-06-20T07:26:12.059Z\",\"headSha\":\"c8152a5e1949741d36ddbca76ed50c6ec0dc2258\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.19 build\\n> tsc\\n\\n\",\"durationMs\":6446},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":286},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":249},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":15266},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":966},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4102},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":174},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":109}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document cites the verified current failure mode: validate.commands subset, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"validate.commands|test-evidence|pre-push|22-step|8 entries|@koala-agent/core|@lattice-agent/core\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Updated document states the 8 configured validate commands, 22-step root npm test chain, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and corrected pre-push boundary: current @koala-agent/core detection does not enter build+tsc for @lattice-agent/core.\",\"headHash\":\"bc66cec1bf51dd04679b6645106928a98949e7ec\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:28.609Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document clearly states that this does not prove current main npm test is red; it proves the gate can miss failures outside validate.commands.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"not that current main `npm test` is red|gate coverage gap\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Problem statement retains the explicit caveat that this proves gate coverage, not current main red status.\",\"headHash\":\"bc66cec1bf51dd04679b6645106928a98949e7ec\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:28.752Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The document keeps runtime implementation, lattice.config.json command edits, and running full npm test out of this planning story scope.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"Do not implement the runtime gate|Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`|No runtime implementation\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Scope and non-goal sections still exclude runtime implementation, config/package/hook edits, and full-test execution in this planning story.\",\"headHash\":\"bc66cec1bf51dd04679b6645106928a98949e7ec\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:28.883Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The document specifies a target DONE/release validation profile or equivalent doneRequiredCommands design with fresh hash-bound evidence and a dedicated DONE row.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence|npm --prefix packages/main run build|npm test\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Updated document proposes a dedicated DONE/release-required validation profile, dedicated DONE row, and requires same-material build evidence before root npm test for self-host full-suite proof.\",\"headHash\":\"3a1448042c8d6f35534c7edef61c7525f507c565\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:40.444Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The design distinguishes Orchestrate self-host defaults from external project opt-in/configurable behavior so ordinary users are not forced into root npm test cost.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"External Project Behavior|opt-in|configurable|Self-host behavior|advisory\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document separates external project opt-in/advisory behavior from Orchestrate self-host required policy.\",\"headHash\":\"3a1448042c8d6f35534c7edef61c7525f507c565\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:40.555Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The design rejects prompt-only policy and requires schema, runner, process-fact, done-oracle, smoke, docs, and migration touchpoints for implementation.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"process-fact-registry|process-fact-levels|verify-process-fact-contract|Do not simply append|schema/config|runner|done-oracle|smoke\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document now explicitly requires process fact registry, process-fact-levels, and contract verifier updates, and still rejects appending npm test to routine validate.commands as the final fix.\",\"headHash\":\"3a1448042c8d6f35534c7edef61c7525f507c565\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:40.679Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The document lists concrete implementation verification commands, expected artifacts, and smoke scenarios that prove subset validate cannot unlock DONE when full-suite evidence is missing or failing.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"Implementation Validation Commands|Negative validation cases|Expected artifacts|configured `validate.commands` pass but DONE-required `npm test` fails|build receipt\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document lists future validation commands, expected artifacts, negative cases, stale/missing/failing cases, and build receipt checks before root npm test.\",\"headHash\":\"fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:55.323Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The document defines in-flight story migration, emergency bypass/degraded handling, and stale evidence recovery without weakening DONE semantics.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"In-Flight Story Migration|Rollback/de-escalation policy|emergency override|degraded|policy-hash-mismatch|command-set-changed\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document covers in-flight migration, rollback/de-escalation, emergency/degraded behavior, stale policy/command-set transitions, and no silent assurance upgrade.\",\"headHash\":\"fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:55.443Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The document mandates 3 distinct rounds with 2 independent hosts over the final material hash for implementation of this high-risk gate change.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"command\":\"rg -n \\\"3 distinct review rounds|2 independent hosts|Codex CLI|Claude Code CLI|Antigravity CLI|agy|Deprecated third-host terminology\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md && ! rg -n \\\"Gemini CLI\\\" docs/requirements/decisions/done-full-test-gate-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document mandates 3 distinct rounds with 2 independent hosts over final material hash, uses canonical host names Codex CLI, Claude Code CLI, and Antigravity CLI (agy), and avoids Gemini CLI terminology.\",\"headHash\":\"fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2\",\"materialHash\":\"021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc\",\"storyFilesHash\":\"e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d\",\"timestamp\":\"2026-06-20T07:08:55.575Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T07:26:12.906Z",
+  "headHash": "c8152a5e1949741d36ddbca76ed50c6ec0dc2258",
+  "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+  "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document cites the verified current failure mode: validate.commands subset, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"validate.commands|test-evidence|pre-push|22-step|8 entries|@koala-agent/core|@lattice-agent/core\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Updated document states the 8 configured validate commands, 22-step root npm test chain, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and corrected pre-push boundary: current @koala-agent/core detection does not enter build+tsc for @lattice-agent/core.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.609Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document clearly states that this does not prove current main npm test is red; it proves the gate can miss failures outside validate.commands.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"not that current main `npm test` is red|gate coverage gap\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Problem statement retains the explicit caveat that this proves gate coverage, not current main red status.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.752Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The document keeps runtime implementation, lattice.config.json command edits, and running full npm test out of this planning story scope.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Do not implement the runtime gate|Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`|No runtime implementation\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Scope and non-goal sections still exclude runtime implementation, config/package/hook edits, and full-test execution in this planning story.",
+          "headHash": "bc66cec1bf51dd04679b6645106928a98949e7ec",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:28.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The document specifies a target DONE/release validation profile or equivalent doneRequiredCommands design with fresh hash-bound evidence and a dedicated DONE row.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence|npm --prefix packages/main run build|npm test\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Updated document proposes a dedicated DONE/release-required validation profile, dedicated DONE row, and requires same-material build evidence before root npm test for self-host full-suite proof.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.444Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The design distinguishes Orchestrate self-host defaults from external project opt-in/configurable behavior so ordinary users are not forced into root npm test cost.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"External Project Behavior|opt-in|configurable|Self-host behavior|advisory\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document separates external project opt-in/advisory behavior from Orchestrate self-host required policy.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The design rejects prompt-only policy and requires schema, runner, process-fact, done-oracle, smoke, docs, and migration touchpoints for implementation.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"process-fact-registry|process-fact-levels|verify-process-fact-contract|Do not simply append|schema/config|runner|done-oracle|smoke\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document now explicitly requires process fact registry, process-fact-levels, and contract verifier updates, and still rejects appending npm test to routine validate.commands as the final fix.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.679Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The document lists concrete implementation verification commands, expected artifacts, and smoke scenarios that prove subset validate cannot unlock DONE when full-suite evidence is missing or failing.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Implementation Validation Commands|Negative validation cases|Expected artifacts|configured `validate.commands` pass but DONE-required `npm test` fails|build receipt\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document lists future validation commands, expected artifacts, negative cases, stale/missing/failing cases, and build receipt checks before root npm test.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.323Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The document defines in-flight story migration, emergency bypass/degraded handling, and stale evidence recovery without weakening DONE semantics.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"In-Flight Story Migration|Rollback/de-escalation policy|emergency override|degraded|policy-hash-mismatch|command-set-changed\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document covers in-flight migration, rollback/de-escalation, emergency/degraded behavior, stale policy/command-set transitions, and no silent assurance upgrade.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.443Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The document mandates 3 distinct rounds with 2 independent hosts over the final material hash for implementation of this high-risk gate change.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"3 distinct review rounds|2 independent hosts|Codex CLI|Claude Code CLI|Antigravity CLI|agy|Deprecated third-host terminology\" docs/requirements/decisions/done-full-test-gate-execution-plan.md && ! rg -n \"Gemini CLI\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document mandates 3 distinct rounds with 2 independent hosts over final material hash, uses canonical host names Codex CLI, Claude Code CLI, and Antigravity CLI (agy), and avoids Gemini CLI terminology.",
+          "headHash": "fa2ab118ba4b438fd370d459a5447a2b9bcb7ee2",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:55.575Z"
+        }
+      }
+    ]
+  }
+}
