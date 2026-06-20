@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T12:47:41.244Z",
       "reviewRunId": "B-5a48:RR-003",
       "_hash": "8b93b510784902294d68b9d092ad6fa6da9adbec733a236dcdd9be22d8afc41b"
+    },
+    {
+      "id": "B-5a48:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. New regression check CHK-002:adversarial:1 is load-bearing: seeds ON-arm story with signals in DEV phase, calls devNextSteps (which eagerly evaluates the REVIEW IIFE), asserts ZERO experience_hint_surfaced events and no hints section in DEV guidance — fails without the phase===REVIEW guard. All 10 original intents map to named checks; CHK-003:adversarial:4 typo corrected to adversarial:0 and now matches the intent ref. Smoke runs 11 checks, exits 0.",
+      "createdAt": "2026-06-20T13:03:57.632Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-005",
+      "_hash": "522bca626ff4025ede528b18f56f217633113e3725575de10024a53b81df6a37"
     }
   ]
 }
