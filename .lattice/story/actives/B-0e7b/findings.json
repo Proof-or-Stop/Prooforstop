@@ -107,6 +107,23 @@
       ],
       "signatureTag": "doc-code-drift|md|codex-major-full",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0e7b:F-007",
+      "desc": "Codex+docs MAJOR (Finding schema not wired to finding_add): §2.2/§2.3 use severity BLOCKER|MAJOR|MINOR and fields file/line/issue/fix, but finding_add expects critical|high|medium|low + desc + category + optional files + reviewRunId. §4/S4 says confirmed findings flow to finding_add but defines no mapping. Fix §2.2/§4.2: add an explicit ledger mapping (BLOCKER->critical/MAJOR->high/MINOR->medium-or-low; file+line+issue+fix -> desc + files; category selection; reviewRunId/agent attribution) — keep the abstract methodology severity but document the conversion at the integration boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:16.849Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "a77cada1037171259d8b00d41a893629ded07099889e1764cc42850d5626a96f",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-docs-major",
+      "signatureTagSource": "auto"
     }
   ]
 }
