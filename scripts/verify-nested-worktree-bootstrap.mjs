@@ -23,6 +23,11 @@ import { join } from 'path';
 
 const root = process.cwd();
 const cli = join(root, 'packages/main/dist/cli.js');
+const sessionEnv = {
+  ...process.env,
+  LATTICE_SESSION_ID: 'nested-worktree-bootstrap-smoke',
+  LATTICE_AGENT: 'nested-worktree-bootstrap-smoke',
+};
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -37,6 +42,7 @@ function run(projectRoot, command, payload, cwd = root) {
   if (payload !== undefined) args.push(JSON.stringify(payload));
   return execFileSync('node', args, {
     cwd,
+    env: sessionEnv,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
