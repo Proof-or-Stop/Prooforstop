@@ -186,6 +186,23 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-streaming",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-011",
+      "desc": "record.ts validator still uses prototype-chain presence reads on the record being validated: :357 (required top-level fields), :369 (storyId in), :381 (supersedesRecordIds in), :527 (optional estimator.confidence in). The record input is internally assembled (lower risk than external JSON), but the story goal is a SYSTEMATIC sweep — leaving these inconsistent with the :493 conversion. Fix: convert ALL these to Object.prototype.hasOwnProperty.call (MECHANISM only; B-253e validation RULES unchanged), and grep the whole core/usage-ledger module to confirm NO 'key in obj' prototype-chain presence read remains (except genuinely-internal-table bracket lookups in diagnostics, which the spec marks optional). Add a smoke: pollute Object.prototype.storyId/supersedesRecordIds with a record MISSING that own field → validation still fails (load-bearing).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:45:04.257Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "_hash": "f45d0135f64c20fe72005ff5a263f605fd51bdfc837e3877d2c80f5e1a5831f9",
+      "files": [
+        "packages/main/src/core/usage-ledger/record.ts"
+      ],
+      "signatureTag": "adversarial|ts|record-validator-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
