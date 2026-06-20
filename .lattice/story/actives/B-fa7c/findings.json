@@ -111,7 +111,7 @@
       "desc": "MINOR: computeScopeGlobOverlaps guards self.parallelSafe==='yes' but not self's terminal phase — a DONE story still asserting parallelSafe=yes could emit live overlap advisories. Fix: add self.phase and skip when TERMINAL_PHASES.has(self.phase) (symmetry with the peer filter).",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-critic",
       "createdAt": "2026-06-20T07:34:39.167Z",
@@ -121,7 +121,11 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "signatureTag": "edge|ts|minor-computescopegloboverlaps-guards",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "computeScopeGlobOverlaps self param gained phase:StoryPhase and returns [] when TERMINAL_PHASES.has(self.phase); storyRef passes canonical phase; smoke asserts terminal self yields []. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:24.762Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
