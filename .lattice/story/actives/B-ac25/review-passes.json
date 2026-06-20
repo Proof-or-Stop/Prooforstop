@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-20T11:01:07.967Z",
       "reviewRunId": "B-ac25:RR-021",
       "_hash": "aeea75c33623e4d8469adc59bf7026a50c57dd495998beebac37714461829b5f"
+    },
+    {
+      "id": "B-ac25:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: F-003 is fixed at DONE gate time because evaluateDoneRequiredEvidence compares done-required-evidence.json headHash to currentGitHead and smoke asserts stale-headHash with material/story hashes unchanged. F-001 remains fixed because packages-main build proof is only enforced for commands with explicit requiresBuildProof, so external root npm test policy is not overblocked. F-002 remains fixed because receipt count/order/command/args/cwd/shell/status/exit/timedOut are rechecked against policy commands before PASS. No changed implementation path adds release_approve_push, pre-push, Authority, customerKeyRef, or M4-M12/Layer4 production capability; done_required_validate is local DONE gate evidence only. Verified with node packages/main/dist/tasks/done-required-validation-smoke.js and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-20T11:06:25.634Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-020",
+      "_hash": "7280c45ca87ee8d287d5591d2a343757b8fa172fa5dc959d0c44634a701bab55"
     }
   ]
 }
