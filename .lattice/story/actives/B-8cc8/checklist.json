@@ -220,6 +220,17 @@
           "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
           "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
           "timestamp": "2026-06-20T23:09:44.637Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "git diff --stat shows only CHANGELOG.md modified (no other files touched)",
+          "result": "pass",
+          "note": "Verified pass on current worktree: scope confined to single file",
+          "headHash": "48426e0cb71b9e7937db0eb027e238b7aeeaeaaa",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:45.061Z"
         }
       ]
     }
