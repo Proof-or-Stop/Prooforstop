@@ -29,7 +29,7 @@
       "desc": "packages/main/src/core/done-required-validation.ts:459-478 evaluates only artifact-level status/hash fields and build-proof requirements for receipts that exist. It never verifies evidence.receipts.length or receipt identity against policy.commands. Verified with a /tmp fixture configured with two doneRequiredCommands (packages/main build providesBuildProof + root npm test requiresBuildProof): writing done-required-evidence.json with status=PASS, current policyHash/commandSetHash/materialHash/storyFilesHash, and receipts=[] makes evaluateDoneRequiredEvidence return ok=true/status=pass/detail=PASS with 0 required commands. This lets DONE accept a full-test proof artifact that contains no required command receipts, so the new DONE-required gate can be bypassed/corrupted instead of failing closed. Add a gate check that receipt count and each receipt label/command/args/cwd/shell/status correspond to the normalized policy command set before accepting PASS evidence, and cover empty/truncated/mismatched receipts in the smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T10:38:48.256Z",
@@ -41,7 +41,11 @@
         "packages/main/src/tasks/done-required-validation-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 89224d04d by adding receipt coverage and identity validation before accepting DONE-required PASS evidence. The evaluator now fails closed when receipts are missing, have the wrong count, mismatch command/args/cwd/shell, or report failed/nonzero/timedOut status, while preserving explicit self-host requiresBuildProof behavior. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/done-required-validation-smoke.js, node scripts/verify-process-fact-contract.mjs, node scripts/verify-nested-worktree-bootstrap.mjs, and npm test.",
+      "resolvedAt": "2026-06-20T10:49:49.434Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
