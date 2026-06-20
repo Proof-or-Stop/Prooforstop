@@ -1,0 +1,122 @@
+{
+  "storyId": "B-fb36",
+  "checkedAt": "2026-06-19T22:50:10.506Z",
+  "features": [
+    {
+      "feature": "done_prepare command surface and handler registration",
+      "covered_by": "CHK-001; plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "preflight fails closed for wrong cwd, non-TEST phase, dirty tree, wrong branch, missing story/root/main before mutation",
+      "covered_by": "CHK-001 verificationIntent happy/edge/adversarial; plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "ordered mergeMain, staleEvidenceRefresh, validate, and doneClosure runner",
+      "covered_by": "CHK-002; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "stale evidence dry-run classification, safe refresh path, refreshStale=false block, and rerun-command block",
+      "covered_by": "CHK-002 and CHK-005 verificationIntent; plan.md CHK-002/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "validation failure stops before DONE guidance",
+      "covered_by": "CHK-002 and CHK-005 verificationIntent; plan.md CHK-002/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "done_closure is reused for local DONE readiness and done_prepare never calls story_advance DONE",
+      "covered_by": "CHK-002 and CHK-004; plan.md CHK-002/CHK-004; Out of Scope",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+    },
+    {
+      "feature": "runtime-change and version-state reporting without package, lockfile, or LATTICE_CLI_VERSION mutation",
+      "covered_by": "CHK-003; plan.md CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "optional worktree-local build/version check remains pre-DONE and avoids global lattice version checks",
+      "covered_by": "CHK-001 command contract and plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "final clean-tree check blocks on prepare-produced metadata and lists exact commit-required files",
+      "covered_by": "CHK-004 and CHK-005 verificationIntent; plan.md CHK-004/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "host-neutral output separates localDoneReady from authorityDone, fullAuthorityDone, productionDone, receiptVerified, and two-host quorum",
+      "covered_by": "CHK-004; plan.md CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "dryRun reports planned steps and blockers without mutating git, evidence, version files, or build outputs",
+      "covered_by": "CHK-001 and CHK-005 verificationIntent; plan.md CHK-001/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "focused smoke coverage for ready path, dirty preflight, merge conflict, stale evidence, validate fail, runtime/docs classification, degraded wording, cleanTree, and dryRun",
+      "covered_by": "CHK-005; plan.md CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "truth-source decision doc is read for scope but not modified by this implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes docs/requirements/decisions/done-prepare-automation-execution-plan.md; relatedDocs only",
+      "source": "relatedDocs:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "post-DONE runtime version bump or done_finalize command",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision chosen option A and plan.md Out of Scope: separate post-DONE finalization story/command",
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "automatic story_advance DONE, remote push, production completion, Authority DONE, receipt verification, or two-host quorum claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "done_prepare output boundary, plan.md Out of Scope, and Authority boundary docs",
+      "source": "decisions:docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5ad41e03fbf4651551ed9f1553d29f4f458585bf587e16dae8347cbc1397eb13",
+  "openQuestions": []
+}

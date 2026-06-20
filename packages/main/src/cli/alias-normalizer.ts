@@ -79,6 +79,7 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'planner source-manifest': 'planner_source_manifest',
   'story resolve': 'story_resolve',
   'done closure': 'done_closure',
+  'done prepare': 'done_prepare',
   'conduit status': 'conduit_status',
   'conduit explain': 'conduit_explain',
   'story authority resolve': 'story_authority_resolve',

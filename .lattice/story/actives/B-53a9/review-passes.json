@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-53a9:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 4 must-priority intents (CHK-001:happy:0, CHK-001:edge:0, CHK-002:happy:0, CHK-002:edge:0) have concrete matching evidence with result=pass at headHash ca27d579. Smoke executed live: docs-drift-wrapper-root-smoke.js exits 0; test:docs-drift-wrapper-root exits 0. Commit ca27d579 confirms single-file change (smoke only, no production files touched).",
+      "createdAt": "2026-06-20T05:24:24.755Z",
+      "reviewRound": "2026-06-20T05:22:43.119Z",
+      "reviewRunId": "B-53a9:RR-002",
+      "_hash": "e594530f42c51f22e76411079ea51c8c1b0d457d1098589b4ef6e27e2036eb48"
+    },
+    {
+      "id": "B-53a9:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check: (1) Four stubs added — readReviewRuns/readFindings/readReviewPasses/readScopeContract — exactly match the four store reads made by collectReviewerEvidenceState (review-run.ts:868-870) and currentScopeContextForStory (review-run.ts:904 → guard-utils.ts:477). (2) Return shapes are correct: { runs: [] }.runs=[], { findings: [] }.findings=[], { passes: [] }.passes=[], null is the documented unprotected-story sentinel (guard-utils.ts:478 if(!contract) return null). (3) No production code modified; change is confined to the fixture stub. (4) No concept deleted/replaced — no concept residue check required. (5) No dead/leftover code. Clean, 0 findings.",
+      "createdAt": "2026-06-20T05:24:26.429Z",
+      "reviewRound": "2026-06-20T05:22:43.119Z",
+      "reviewRunId": "B-53a9:RR-003",
+      "_hash": "ae34290123f6dbdf5996e2cfba4e9d6dfa4b5d66bc687cd81937f3900c0546fe"
+    },
+    {
+      "id": "B-53a9:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed single changed file docs-drift-wrapper-root-smoke.ts (ca27d579). Four new stub methods: readReviewRuns->{ runs:[] }, readFindings->{ findings:[] }, readReviewPasses->{ passes:[] }, readScopeContract->null. Shapes exactly match FindingData/ReviewPassData/ReviewRunData/ScopeContractData interfaces in types.ts. Parameter-dropping lambdas are TypeScript-valid (structural subtyping). `as unknown as StoryStore` cast remains appropriate for a partial stub. TSC --noEmit clean. No dead code or unused imports introduced. Placement in stub block mirrors review-incremental-context-smoke.ts pattern. No other stub fields perturbed.",
+      "createdAt": "2026-06-20T05:24:44.125Z",
+      "reviewRound": "2026-06-20T05:22:43.119Z",
+      "reviewRunId": "B-53a9:RR-001",
+      "_hash": "28d187bcdff897455bce5f1d8466fe13fb6148579195dd75247c02612f86cca4"
+    }
+  ]
+}

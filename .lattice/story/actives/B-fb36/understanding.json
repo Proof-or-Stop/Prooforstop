@@ -1,0 +1,32 @@
+{
+  "task": "Implement lattice done_prepare as a pre-DONE readiness assistant for TEST-phase story closure.",
+  "outcome": "When a user runs lattice done_prepare {\"storyId\":\"B-xxxx\"}, the terminal shows DONE prepare: PASS with mergeMain, staleEvidenceRefresh, validate, doneClosure, worktreeClean, postDoneRuntimeVersionBumpRequired, localDoneReady, authorityDone=false, fullAuthorityDone=false, productionDone=false, and the exact next command lattice story_advance {\"storyId\":\"B-xxxx\",\"phase\":\"DONE\"}; if blocked, it shows DONE prepare: BLOCKED, blockedAt, reason, and the next corrective command.",
+  "facts": [
+    "B-fb36 implements docs/requirements/decisions/done-prepare-automation-execution-plan.md.",
+    "done_prepare must prepare local DONE only and must not claim Authority DONE or production DONE.",
+    "Existing done_closure handler already projects DONE oracle rows and Authority boundary status.",
+    "Existing verification_evidence_refresh_stale supports dryRun and non-dryRun stale evidence metadata refresh; it does not expose a separate rerun-required schema.",
+    "Existing validate handler can be called in-process and writes test evidence.",
+    "Runtime version files must not be mutated by done_prepare before DONE.",
+    "Command schema entries live in packages/main/src/cli/command-catalog.ts and handler registration lives in packages/main/src/registry.ts."
+  ],
+  "constraints": [
+    "Use Lattice story/worktree lifecycle and do not modify unrelated active stories.",
+    "Do not touch senior credential files or .omx.",
+    "Do not push remote branches.",
+    "Do not relax REVIEW/TEST/DONE gates or evidence freshness checks.",
+    "Do not implement post-DONE version mutation inside done_prepare.",
+    "If done_prepare creates metadata changes, it must block at cleanTree with exact files rather than printing a false PASS."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-19T22:45:18.930Z"
+}

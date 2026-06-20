@@ -1,0 +1,141 @@
+{
+  "command": "lattice validate --story=B-53a9 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.17 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts) — node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the preflight without TypeError and exits 0.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts) — The stub readReviewRuns returns { runs: [] } so collectReviewerEvidenceState reads .runs without throwing.\",\"  ✓ CHK-001:adversarial:0 [adversarial/should/logic] covered via logic_test (packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts) — Only the readReviewRuns method is added; every other stub field and the smoke own docs-drift assertions stay byte-identical (no perturbation).\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — test:docs-drift-wrapper-root no longer throws TypeError: store.readReviewRuns is not a function.\",\"  ✓ CHK-002:adversarial:0 [adversarial/should/logic] covered via logic_test (packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts) — No production file (review-preflight/review-run) changed; the fix is test-fixture only.\"],\"warnings\":[],\"timestamp\":\"2026-06-20T05:28:26.586Z\",\"headSha\":\"34beea65050b1fd9b3a51d02dcc48d083a10252b\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.17 build\\n> tsc\\n\\n\",\"durationMs\":4990},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":196},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":176},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12107},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":542},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4086},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":159},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":102}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":4,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the preflight without TypeError and exits 0.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts\",\"command\":\"node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js\",\"result\":\"pass\",\"note\":\"Ran the smoke standalone: runs the docs-drift preflight without TypeError, prints \\\"docs-drift wrapper-root smoke passed\\\", exit 0.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The stub readReviewRuns returns { runs: [] } so collectReviewerEvidenceState reads .runs without throwing.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts\",\"command\":\"node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js\",\"result\":\"pass\",\"note\":\"makeStubStore now returns readReviewRuns: () => ({ runs: [] }) (plus readFindings/readReviewPasses/readScopeContract that collectReviewerEvidenceState transitively reads), so the gate reads .runs without throwing.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Only the readReviewRuns method is added; every other stub field and the smoke own docs-drift assertions stay byte-identical (no perturbation).\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts\",\"command\":\"node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js\",\"result\":\"pass\",\"note\":\"Only the reviewer-evidence stub methods were added; the rest of makeStubStore and the smoke own docs-drift assertions are byte-identical and still pass.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm test\",\"result\":\"pass\",\"note\":\"Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"test:docs-drift-wrapper-root no longer throws TypeError: store.readReviewRuns is not a function.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:docs-drift-wrapper-root\",\"result\":\"pass\",\"note\":\"test:docs-drift-wrapper-root passes (\\\"docs-drift wrapper-root smoke passed\\\") instead of throwing TypeError: store.readReviewRuns is not a function.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No production file (review-preflight/review-run) changed; the fix is test-fixture only.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts\",\"command\":\"git show --stat ca27d579\",\"result\":\"pass\",\"note\":\"git show --stat confirms exactly one changed file (the smoke); no production file (review-preflight.ts / review-run.ts) changed.\",\"headHash\":\"ca27d579923420b24a133f538a8968fb82b39cc2\",\"materialHash\":\"137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac\",\"storyFilesHash\":\"9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31\",\"timestamp\":\"2026-06-20T05:22:42.406Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T05:28:27.142Z",
+  "headHash": "34beea65050b1fd9b3a51d02dcc48d083a10252b",
+  "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+  "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 4,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js runs the preflight without TypeError and exits 0.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Ran the smoke standalone: runs the docs-drift preflight without TypeError, prints \"docs-drift wrapper-root smoke passed\", exit 0.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The stub readReviewRuns returns { runs: [] } so collectReviewerEvidenceState reads .runs without throwing.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "makeStubStore now returns readReviewRuns: () => ({ runs: [] }) (plus readFindings/readReviewPasses/readScopeContract that collectReviewerEvidenceState transitively reads), so the gate reads .runs without throwing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Only the readReviewRuns method is added; every other stub field and the smoke own docs-drift assertions stay byte-identical (no perturbation).",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Only the reviewer-evidence stub methods were added; the rest of makeStubStore and the smoke own docs-drift assertions are byte-identical and still pass.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "test:docs-drift-wrapper-root no longer throws TypeError: store.readReviewRuns is not a function.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:docs-drift-wrapper-root",
+          "result": "pass",
+          "note": "test:docs-drift-wrapper-root passes (\"docs-drift wrapper-root smoke passed\") instead of throwing TypeError: store.readReviewRuns is not a function.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No production file (review-preflight/review-run) changed; the fix is test-fixture only.",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "git show --stat ca27d579",
+          "result": "pass",
+          "note": "git show --stat confirms exactly one changed file (the smoke); no production file (review-preflight.ts / review-run.ts) changed.",
+          "headHash": "ca27d579923420b24a133f538a8968fb82b39cc2",
+          "materialHash": "137ef046d916908fd03cbadc3d23a4324eb9c4990b2779b8ca5520874182fdac",
+          "storyFilesHash": "9cedaaae019e7c69ba8837ecd4a6cf38abc9cd8372eaaab1b5cf7ce5e51faf31",
+          "timestamp": "2026-06-20T05:22:42.406Z"
+        }
+      }
+    ]
+  }
+}

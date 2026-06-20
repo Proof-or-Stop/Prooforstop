@@ -59,6 +59,7 @@ import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { createGapLogHandlers } from './handlers/gap-log.js';
 import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
+import { createDonePrepareHandlers } from './handlers/done-prepare.js';
 import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
@@ -226,6 +227,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // whose phase was persisted but whose branch did not merge back to main.
   registry.registerBatch(createDoneRecoverHandlers(ctx));
   registry.registerBatch(createDoneClosureHandlers(ctx));
+  registry.registerBatch(createDonePrepareHandlers(ctx));
   registry.registerBatch(createDecisionDocQuorumHandlers(ctx));
   registry.registerBatch(createDecisionDocPromotionHandlers(ctx));
 

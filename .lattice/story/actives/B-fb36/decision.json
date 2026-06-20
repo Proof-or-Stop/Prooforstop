@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Keep DONE/REVIEW/TEST gates unchanged and fail closed.",
+    "Keep local lifecycle readiness separate from Authority and production completion.",
+    "Automate only mechanical steps that already exist today.",
+    "Avoid pre-DONE mutations that change material hash after readiness is computed."
+  ],
+  "drivers": [
+    "Reduce repeated manual closure sequencing time.",
+    "Prevent false DONE-ready output after metadata or version file mutation.",
+    "Reuse existing done_closure, validate, and stale evidence machinery.",
+    "Make blocked states actionable with exact next commands."
+  ],
+  "options": [
+    {
+      "name": "A: Pre-DONE readiness assistant only",
+      "pros": [
+        "Preserves lifecycle boundaries and avoids material hash invalidation from version changes.",
+        "Can reuse existing validate and done_closure semantics.",
+        "Keeps Authority and production claims out of local automation."
+      ],
+      "cons": [
+        "Does not fully automate post-DONE version bump in this story.",
+        "Some stale evidence cases may still require a second run after committing metadata."
+      ]
+    },
+    {
+      "name": "B: One command that prepares DONE and bumps runtime version before DONE",
+      "pros": [
+        "Looks faster from a single-command operator perspective.",
+        "Could reduce one extra manual finalization step."
+      ],
+      "cons": [
+        "Version file mutation changes material hash and can stale the evidence that made DONE ready.",
+        "High risk of dirty worktree blocking story_advance DONE after done_prepare says PASS.",
+        "Blurs pre-DONE readiness with post-DONE main finalization."
+      ]
+    },
+    {
+      "name": "C: Documentation-only runbook with no command implementation",
+      "pros": [
+        "Lowest implementation risk.",
+        "No chance of changing lifecycle behavior."
+      ],
+      "cons": [
+        "Does not reduce the repeated manual steps that caused the delay.",
+        "Leaves agents to keep sequencing merge, refresh, validate, and done_closure manually."
+      ]
+    }
+  ],
+  "chosen": "A: Pre-DONE readiness assistant only",
+  "rationale": "Choose A because it fixes the real workflow problem while preserving evidence correctness. It automates merge-main, stale evidence handling, validate, done_closure, clean-tree checks, and runtime-change reporting, but deliberately leaves version mutation for post-DONE local main finalization.",
+  "preMortem": [
+    {
+      "scenario": "done_prepare prints PASS after validate refreshes metadata and leaves the worktree dirty.",
+      "trigger": "Handler does not run a final git status check after validate or stale evidence refresh.",
+      "consequence": "story_advance DONE immediately fails or, worse, operator trusts a false ready state.",
+      "mitigation": "Always run final clean-tree check; block at cleanTree with exact files and commit guidance."
+    },
+    {
+      "scenario": "done_prepare mutates version files before DONE and invalidates material evidence.",
+      "trigger": "Runtime-change detection is implemented as a version bump inside the pre-DONE command.",
+      "consequence": "materialHash changes after done_closure, making evidence stale and undermining the strong-evidence flow.",
+      "mitigation": "Do not accept versionBump in done_prepare; only report postDoneRuntimeVersionBumpRequired."
+    },
+    {
+      "scenario": "Local DONE readiness is mistaken for Authority DONE or production DONE.",
+      "trigger": "Output collapses done_closure local audit, degraded-single-host fallback, Authority receipt status, and production completion into one PASS line.",
+      "consequence": "Users overclaim completion and downstream systems trust local-only evidence as remote proof.",
+      "mitigation": "Render authorityDone=false, fullAuthorityDone=false, productionDone=false unless verified Authority receipt paths explicitly say otherwise; never claim them in this command."
+    },
+    {
+      "scenario": "Stale evidence is silently refreshed when real rerun is needed.",
+      "trigger": "Handler hides dryRun transcript and always runs refresh without showing what changed.",
+      "consequence": "Evidence may appear fresh without enough operator context.",
+      "mitigation": "Run dryRun first, surface stale transcript, reuse existing refresh only when enabled, and preserve validate/done_closure as final gates."
+    }
+  ],
+  "timestamp": "2026-06-19T22:39:40.460Z"
+}

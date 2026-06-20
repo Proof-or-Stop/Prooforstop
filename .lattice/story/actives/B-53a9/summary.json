@@ -1,0 +1,56 @@
+{
+  "storyId": "B-53a9",
+  "changes": "docs-drift-wrapper-root-smoke.ts makeStubStore: added four stub StoryStore methods (readReviewRuns/readFindings/readReviewPasses/readScopeContract returning empty shapes) that the review-preflight reviewerEvidenceAdvisoryGate -> collectReviewerEvidenceState transitively reads. Restores full npm test to green after a B-5a9a regression. Test-fixture only; no production change.",
+  "usage": "No new command; transparent test-fixture fix. Verify: npm run test:docs-drift-wrapper-root (or full npm test).",
+  "expectedOutcome": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js prints \"docs-drift wrapper-root smoke passed\" exit 0 (no TypeError: store.readReviewRuns is not a function); full npm test exits 0 (ALL PASS).",
+  "actualTranscript": "docs-drift smoke standalone -> \"docs-drift wrapper-root smoke passed\", exit 0. npm test -> ALL PASS, exit 0. recover_evidence validate: 6/6 intents covered, 8 configured smokes pass.",
+  "outcomeDiff": "none — expected and actual match (smoke + full npm test green; regression resolved).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Hand-rolled stub stores must be kept in sync with any future store method the review-preflight gate reads; siblings were audited (review-incremental-context already complete; review-convergence/authority-enforce-matrix do not hit the gate).",
+  "pitfalls": "Root cause was B-5a9a adding store.readReviewRuns to the preflight gate without updating this stub; it self-DONEd because the DONE gate runs only the configured validate.commands subset (excludes this smoke), leaving full npm test RED. The gate transitively reads four store methods (readReviewRuns/readFindings/readReviewPasses/readScopeContract), not just one — all four were needed. The DONE merge auto-bumps the version + auto-rebuilds dist; do NOT do those manually.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 169144
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 669
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 148048
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 207136
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 197136
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 210619
+    }
+  },
+  "totalDurationMs": 932753,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T05:29:30.875Z",
+  "updatedAt": "2026-06-20T05:29:30.875Z"
+}

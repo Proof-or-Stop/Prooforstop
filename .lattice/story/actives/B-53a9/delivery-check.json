@@ -1,0 +1,24 @@
+{
+  "storyId": "B-53a9",
+  "checkedAt": "2026-06-20T05:27:20.527Z",
+  "reviewRound": "2026-06-20T05:22:43.119Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js -> \"docs-drift wrapper-root smoke passed\", exit 0. Confirms readReviewRuns/readFindings/readReviewPasses/readScopeContract stubs registered; review-preflight gate (collectReviewerEvidenceState) no longer throws TypeError. Null scope contract path (unprotected story) exercised."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:docs-drift-wrapper-root -> \"docs-drift wrapper-root smoke passed\", exit 0. B-5a9a regression fully resolved; full npm test suite returns to green via same smoke entrypoint."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Diff adds 4 stub methods (readReviewRuns, readFindings, readReviewPasses, readScopeContract) to the docs-drift-wrapper-root-smoke StoryStore stub. No docs changed; docsPromises is empty. Both real-machine runs confirmed exit 0 with expected output. Edge case covered: null scope contract path (unprotected story) exercises the advisory gate without crashing. No unresolved TODOs in diff."
+  },
+  "_hash": "2c1e6d4f1d1b6d80521ac68ec0ef57d0d0e7d3082f043dad6f0801d6ac7d74f3"
+}

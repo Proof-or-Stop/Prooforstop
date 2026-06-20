@@ -4,17 +4,567 @@
       "id": "CHK-001",
       "title": "Implement evaluateDecompositionGate in new core/parallel-decomposition-gate.ts: pure verdict (advisories plus first block) over story/peers/contracts/cfg per spec 4.3/4.4, consuming the Story-1 overlap engine; no cfg.mode enforcement",
       "context": "new file core/parallel-decomposition-gate.ts; import computeWriteSet/globsOverlap/classifyBroadness from parallel-decomposition-overlap.js plus types from parallel-decomposition.js; filter active peers via terminalPhases = {DONE, DISCARDED} (reuse parallel-policy.ts); the four block reasons with tier-1 vs tier-2 (advisory) split, broadGlobBlocks config-gating, fake_dependency_chain falsifiable-only, peer_contract_unreadable_parallel",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T23:30:27.366Z",
+      "endTime": "2026-06-19T23:35:22.256Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/parallel-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/parallel-decomposition-gate.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateDecompositionGate with two disjoint parallel peers (no overlapping paths, no broad globs, all contracts present) -> block=null AND advisories is empty array; WHY: proves the clean-path baseline",
+            "type": "cli"
+          },
+          {
+            "desc": "Two parallel stories with literal exact-path intersection in allowedCreate -> block=overlap_declared_parallel citing the colliding path and peer storyId; WHY: proves tier-1 hard block fires on provable file collision",
+            "type": "cli"
+          },
+          {
+            "desc": "TERMINAL_PHASES is exported from parallel-policy.ts as a ReadonlySet containing DONE and DISCARDED; WHY: proves the single-source refactor landed and the gate can import it",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer with missing contract AND parallelSafe=yes -> block=peer_contract_unreadable_parallel citing that peer; WHY: proves unreadable peer contract triggers fail-closed block",
+            "type": "cli"
+          },
+          {
+            "desc": "Story with broad glob in writeSet AND broadGlobBlocks=true -> block=broad_glob_unprovable_parallel; WHY: proves config-gated broad-glob blocking",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Peer in phase DONE is excluded from activePeers even if it has overlapping path -> block=null; WHY: proves TERMINAL_PHASES filtering for DONE",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer in phase DISCARDED is excluded from activePeers even if it has overlapping path -> block=null; WHY: proves TERMINAL_PHASES filtering for DISCARDED",
+            "type": "cli"
+          },
+          {
+            "desc": "Non-parallel story (parallelSafe=no) overlapping a parallel peer -> block=null (no parallel-specific block); WHY: proves gate does not hard-block non-parallel story even on overlap",
+            "type": "cli"
+          },
+          {
+            "desc": "Broad glob with broadGlobBlocks=false -> block=null AND advisory mentions broad glob; WHY: proves config-gating degrades broad-glob to advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "Tier-2 shared-prefix overlap (dir/* vs dir/other.ts, no literal collision) -> block=null AND advisory mentioning shared-prefix; WHY: proves tier-2 never hard-blocks",
+            "type": "cli"
+          },
+          {
+            "desc": "depends edge citing storyId NOT among peers -> advisory (fake_dependency_chain), never a block; WHY: proves fake_dependency_chain is advise-only per spec 4.5",
+            "type": "cli"
+          },
+          {
+            "desc": "Gate never reads cfg.mode -> function returns block reasons regardless of mode value; WHY: proves separation of concerns (mode enforcement is Story 5 caller)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simultaneous overlap AND broad glob: literal path collision AND broad glob present -> block=overlap_declared_parallel (higher precedence); WHY: proves precedence ordering per plan step 9",
+            "type": "cli"
+          },
+          {
+            "desc": "Peer with parallelSafe=no has overlapping path -> no overlap_declared_parallel block (peer must also assert parallel); WHY: proves block requires BOTH sides to assert parallel",
+            "type": "cli"
+          },
+          {
+            "desc": "Story own contract missing from Map -> fail-open (block=null, NOT peer_contract_unreadable); WHY: proves self-contract-missing does not self-block per spec 4.8",
+            "type": "cli"
+          },
+          {
+            "desc": "Multiple peers: one DONE (ignored), one active with overlap, one active with missing contract -> block=overlap_declared_parallel (highest precedence); WHY: proves multi-peer precedence with mixed terminal/active",
+            "type": "cli"
+          },
+          {
+            "desc": "Zero active peers (all DONE/DISCARDED) with broad glob -> block=null empty advisories; WHY: proves lone-story trivially passes even with broad scope per spec 4.8 no-op",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: evaluateDecompositionGate with two disjoint parallel peers (no overlapping paths, no broad globs, all contracts present) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Two parallel stories with literal exact-path intersection in allowedCreate -> block=overlap_declared_parallel citing the -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: TERMINAL_PHASES is exported from parallel-policy.ts as a ReadonlySet containing DONE and DISCARDED -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Peer with missing contract AND parallelSafe=yes -> block=peer_contract_unreadable_parallel citing that peer -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Story with broad glob in writeSet AND broadGlobBlocks=true -> block=broad_glob_unprovable_parallel -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Peer in phase DONE is excluded from activePeers even if it has overlapping path -> block=null -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Peer in phase DISCARDED is excluded from activePeers even if it has overlapping path -> block=null -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Non-parallel story (parallelSafe=no) overlapping a parallel peer -> block=null (no parallel-specific block) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Broad glob with broadGlobBlocks=false -> block=null AND advisory mentions broad glob -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Tier-2 shared-prefix overlap (dir/* vs dir/other.ts, no literal collision) -> block=null AND advisory mentioning shared- -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: depends edge citing storyId NOT among peers -> advisory (fake_dependency_chain), never a block -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Gate never reads cfg.mode -> function returns block reasons regardless of mode value -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Simultaneous overlap AND broad glob: literal path collision AND broad glob present -> block=overlap_declared_parallel (h -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Peer with parallelSafe=no has overlapping path -> no overlap_declared_parallel block (peer must also assert parallel) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Story own contract missing from Map -> fail-open (block=null, NOT peer_contract_unreadable) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Multiple peers: one DONE (ignored), one active with overlap, one active with missing contract -> block=overlap_declared_ -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Zero active peers (all DONE/DISCARDED) with broad glob -> block=null empty advisories -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Hermetic smoke for the gate verdict: each block reason fires on its provable case plus degrades to advisory on the non-provable case; clean disjoint decomposition returns no block",
       "context": "new task smoke under packages/main/src/tasks/; build StoryInfo/ScopeContractData fixtures in-memory; assert overlap_declared_parallel (tier-1) vs advisory (tier-2), broad block only when broadGlobBlocks, fake_dependency_chain only when symbol absent, peer_contract_unreadable, and a clean parallel set returning block null; register in lattice.config.json",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T23:35:22.709Z",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke task runs to completion (exit 0) with all assertions passing when evaluateDecompositionGate is correctly implemented; WHY: proves the smoke harness itself works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts clean disjoint parallel set (two parallel stories with non-overlapping paths, all contracts present) -> block=null and no overlap advisory; WHY: baseline happy-path fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts tier-1 literal overlap (both parallel, same file) -> block=overlap_declared_parallel citing path+peer; WHY: core provable-collision fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts peer_contract_unreadable_parallel when active parallel peer contract is absent from Map; WHY: proves unreadable-peer detection fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts broad_glob_unprovable_parallel fires when broadGlobBlocks=true; WHY: proves strict-profile broad-glob blocking fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke is registered in lattice.config.json validate.commands so it runs during lattice validate; WHY: proves CI integration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke asserts tier-2 shared-prefix only (dir/* vs dir/literal, no literal collision) -> block=null plus a shared-prefix advisory; WHY: proves tier-2 advisory-only fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts broad glob with broadGlobBlocks=false -> block=null plus advisory; WHY: proves config-downgrade fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts fake_dependency_chain with depends citing non-existent peer -> advisory only, never a block; WHY: proves advise-only nature per spec 4.5",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts DONE peer is ignored (not counted as active) even with overlapping path; WHY: proves terminal-phase exclusion fixture",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts non-parallel story (parallelSafe=no) yields no parallel block even on overlap; WHY: proves gate skips blocks for non-parallel stories",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts TERMINAL_PHASES imported from parallel-policy.ts (not redefined locally); WHY: proves single-source reuse",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts precedence: story simultaneously overlapping AND broad -> block=overlap_declared_parallel (not broad_glob); WHY: proves precedence ordering per plan step 9",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts precedence: overlap > peer_contract_unreadable > broad_glob when multiple conditions fire simultaneously; WHY: proves full three-way precedence chain",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke fixtures use in-memory StoryInfo/ScopeContractData only (no file I/O, no network, no disk reads) -> hermetic; WHY: proves the smoke is truly hermetic and cannot flake on filesystem state",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke task runs to completion (exit 0) with all assertions passing when evaluateDecompositionGate is correctly implement -- verified by the full validate suite; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts clean disjoint parallel set (two parallel stories with non-overlapping paths, all contracts present) -> bl -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts tier-1 literal overlap (both parallel, same file) -> block=overlap_declared_parallel citing path+peer -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts peer_contract_unreadable_parallel when active parallel peer contract is absent from Map -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts broad_glob_unprovable_parallel fires when broadGlobBlocks=true -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke is registered in lattice.config.json validate.commands so it runs during lattice validate -- verified by the full validate suite; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts tier-2 shared-prefix only (dir/* vs dir/literal, no literal collision) -> block=null plus a shared-prefix  -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts broad glob with broadGlobBlocks=false -> block=null plus advisory -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts fake_dependency_chain with depends citing non-existent peer -> advisory only, never a block -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts DONE peer is ignored (not counted as active) even with overlapping path -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts non-parallel story (parallelSafe=no) yields no parallel block even on overlap -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts TERMINAL_PHASES imported from parallel-policy.ts (not redefined locally) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts precedence: story simultaneously overlapping AND broad -> block=overlap_declared_parallel (not broad_glob) -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke asserts precedence: overlap > peer_contract_unreadable > broad_glob when multiple conditions fire simultaneously -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+          "result": "pass",
+          "note": "parallel-decomposition gate verdict: Smoke fixtures use in-memory StoryInfo/ScopeContractData only (no file I/O, no network, no disk reads) -> hermetic -- verified by the hermetic 18-assertion gate smoke; PASS.",
+          "headHash": "51d889b2679be3d050fae163485c25b665d69a9a",
+          "materialHash": "c311b5dde59803e74075d4a34961bff33f0c9be92bb4fcd52c756291e908ff9c",
+          "storyFilesHash": "8fb5500b8ff0376bd4db86e3e46fbca7ca4c56054d06be436e1f1f4cbcdc2eb2",
+          "timestamp": "2026-06-20T00:03:33.707Z"
+        }
+      ]
     }
   ]
 }

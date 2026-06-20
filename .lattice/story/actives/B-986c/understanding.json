@@ -1,0 +1,28 @@
+{
+  "task": "The parallel-decomposition gate has its static overlap engine (Story 1) but no verdict; evaluateDecompositionGate is a NotImplemented skeleton. Build the pure verdict mapping scope facts to advisories plus an optional provable block reason.",
+  "outcome": "Running node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js prints parallel-decomposition-gate smoke passed: N assertions and lattice validate stays green. The smoke shows overlap_declared_parallel (tier-1 literal) blocking while a tier-2 shared-prefix only advises; broad_glob_unprovable_parallel blocking only when cfg.broadGlobBlocks else advising; peer_contract_unreadable_parallel blocking on a missing peer contract; and a clean disjoint parallel decomposition returning block=null. The verdict brain is ready for Story 5 to enforce via canStartDevGuard.",
+  "facts": [
+    "Story 1 core/parallel-decomposition-overlap.ts exports computeWriteSet, globsOverlap (returns overlap/pairs/broadSide but does NOT label tier-1 vs tier-2), classifyBroadness (narrow|broad), validateWriteSetGrammar.",
+    "The frozen contract core/parallel-decomposition.ts defines ParallelGateConfig, ParallelDecompositionBlock (4 reasons), DecompositionGateResult and a NotImplemented evaluateDecompositionGate at line 88 with a FROZEN signature (story, peers, contracts Map, cfg).",
+    "StoryInfo.parallelSafe is yes|no|plan_only; StoryInfo.depends is string[] of storyIds only with NO citedSymbol field (spec 4.5 recommends adding none). ScopeContractData has allowedCreate/allowedModify/allowedTest/protectedFiles/explicitExcludes.",
+    "terminalPhases DONE,DISCARDED is a LOCAL const in parallel-policy.ts (not exported); S2 hoists and exports TERMINAL_PHASES as the single source (INIT-001).",
+    "globsOverlap.pairs mixes tier-1 literal intersection and tier-2 shared-prefix; the hard block needs tier-1 ONLY, so S2 computes its own literal-path intersection for the block and uses globsOverlap for the tier-2 advisory."
+  ],
+  "constraints": [
+    "Signature frozen: evaluateDecompositionGate(story, peers, contracts Map, cfg) returns {advisories, block}. Pure, no I/O.",
+    "Block ONLY on provable contradictions: overlap_declared_parallel needs a tier-1 literal-path intersection with an active parallel peer (tier-2 shared-prefix is advisory); broad block only when cfg.broadGlobBlocks; peer_contract_unreadable_parallel when an active parallel peer contract is missing from the Map.",
+    "fake_dependency_chain falsifiable sub-case needs a cited symbol that the frozen signature and the depends string[] model do NOT carry (spec 4.5 add-no-field), so S2 implements it as NOT-firable / advise-only in the current model and documents this, rather than a fabricated check.",
+    "Emit the first and most-severe block but ALL advisories. Do NOT consult cfg.mode for enforcement (Story 5 does).",
+    "New file parallel-decomposition-gate.ts disjoint from S3 (audit-config.ts) and S4; reuse the single TERMINAL_PHASES."
+  ],
+  "unknowns": [
+    "None material remaining: the data model (parallelSafe, depends string[], ScopeContractData), the overlap engine API, and the tier-1-vs-tier-2 gap are all resolved by reading types.ts, parallel-policy.ts, parallel-decomposition-overlap.ts, and spec 4.2/4.3."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/parallel-decomposition-gate.ts (NEW: evaluateDecompositionGate)",
+    "packages/main/src/core/parallel-policy.ts (hoist + export TERMINAL_PHASES)",
+    "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts (NEW hermetic smoke)",
+    "lattice.config.json (register smoke)"
+  ],
+  "timestamp": "2026-06-19T23:21:24.466Z"
+}

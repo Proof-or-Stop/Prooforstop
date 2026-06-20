@@ -182,6 +182,12 @@ function makeStubStore(metadataRoot: string): StoryStore {
   const stub = {
     readStory: () => story,
     readChecklist: () => ({ items }),
+    // reviewerEvidenceAdvisoryGate → collectReviewerEvidenceState reads these
+    // (empty fixture has no reviewer evidence; null scope contract = unprotected).
+    readReviewRuns: () => ({ runs: [] }),
+    readFindings: () => ({ findings: [] }),
+    readReviewPasses: () => ({ passes: [] }),
+    readScopeContract: () => null,
     readDecision: () => null,
     readProcessEvents: () => [],
     storyExists: () => true,

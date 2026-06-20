@@ -200,6 +200,7 @@ export type { ToolDef };
  * name: 'dispatch_watch'
  * name: 'doctor'
  * name: 'done_closure'
+ * name: 'done_prepare'
  * name: 'done_recover'
  * name: 'draft_check_set'
  * name: 'draft_issue_resolve'

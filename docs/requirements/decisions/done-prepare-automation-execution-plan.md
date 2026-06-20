@@ -1,6 +1,6 @@
 # DONE Prepare Automation Execution Plan
 
-Status: proposed
+Status: implemented in B-fb36 for the conservative pre-DONE readiness assistant
 Created: 2026-06-19
 
 ## Purpose
@@ -78,6 +78,9 @@ Out of scope:
 - handling unrelated dirty files by stashing, reverting, or deleting them;
 - replacing reviewer, coverage, or delivery gates.
 - mutating CLI runtime version files before DONE.
+- automatically rebinding, rewriting, refreshing, or re-endorsing review
+  escalation / host verdict material. Stale or missing review verdicts must
+  block and point to the real review, re-escalation, or fresh host verdict path.
 
 ## Command Contract
 
@@ -112,6 +115,12 @@ The post-DONE finalization surface can be a later `lattice version_bump --patch`
 or `lattice done_finalize` command. It is intentionally not part of
 `done_prepare`.
 
+`done_prepare` also must not accept a review-verdict rebind mode. Review
+assurance and escalation material is only valid when the relevant host actually
+reviewed the current material. If `done_closure` reports stale or missing
+review-assurance / escalation verdicts, `done_prepare` blocks and prints the
+real diagnostic and re-review commands instead of rewriting verdict records.
+
 Supported `dryRun` behavior:
 
 - inspect current state;
@@ -137,11 +146,16 @@ Dirty-file policy:
 - the first implementation requires `git status --porcelain` to be clean before
   mutation;
 - no pre-existing dirty files are allowed, including Lattice metadata files;
-- if `done_prepare` itself produces metadata changes, the command must stop in a
-  `requiresCommit` state and list the exact files to commit before DONE;
+- if prepare work leaves uncommitted metadata changes, the command must stop at
+  `cleanTree` and list the exact files to commit before DONE;
+- if prepare work advances HEAD by delegating to an existing metadata writer that
+  auto-commits, the command must stop at `cleanTree`, list the generated
+  commit(s), and tell the operator to review them and rerun `done_prepare` from
+  the new HEAD;
 - a successful `DONE prepare: PASS` requires the worktree to be clean.
 
-This keeps the first implementation simple and avoids implicit git behavior.
+This keeps the first implementation conservative while allowing already-existing
+metadata writers to retain their established auto-commit semantics.
 
 ### 2. Merge Main
 
@@ -177,6 +191,13 @@ evidence machinery and `refreshStale=true`, run:
 ```bash
 lattice verification_evidence_refresh_stale --storyId=B-xxxx
 ```
+
+That delegated command may auto-commit story metadata through the existing
+`verification_evidence_refresh_stale` metadata auto-commit path. `done_prepare`
+must not hide that HEAD movement. When refresh creates prepare-generated
+commit(s), `done_prepare` stops with `DONE prepare: BLOCKED`, `blockedAt:
+cleanTree`, a commit list, and rerun guidance before any DONE guidance is
+printed.
 
 If the dry run reports evidence commands that must be rerun, stop and print
 those commands. The command must not convert stale evidence to fresh solely by
@@ -296,7 +317,24 @@ files:
 next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
 ```
 
-The command must not auto-commit in the first implementation.
+If delegated prepare work already created commit(s), stop with:
+
+```text
+DONE prepare: BLOCKED
+blockedAt: cleanTree
+reason: done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE
+commits:
+  - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
+commands:
+  - git log --oneline <old-head>..HEAD
+  - lattice done_prepare '{"storyId":"B-xxxx"}'
+next: review the generated commit(s), then rerun lattice done_prepare from the new HEAD
+```
+
+`done_prepare` must not invent a separate auto-commit path. The only
+prepare-generated commit expected in this implementation is a delegated
+story-metadata commit from existing commands such as
+`verification_evidence_refresh_stale`.
 
 ### 9. Output Final Next Step
 
@@ -345,7 +383,7 @@ reason: CHK-003 verification evidence stale
 next: lattice verification_evidence_refresh_stale --storyId=B-xxxx
 ```
 
-Commit-required output:
+Uncommitted metadata output:
 
 ```text
 DONE prepare: BLOCKED
@@ -355,6 +393,21 @@ reason: done_prepare produced metadata changes that must be committed before DON
 files:
   - .lattice/story/actives/B-xxxx/test-evidence.json
 next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
+```
+
+Generated commit output:
+
+```text
+DONE prepare: BLOCKED
+storyId: B-xxxx
+blockedAt: cleanTree
+reason: done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE
+commits:
+  - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
+commands:
+  - git log --oneline <old-head>..HEAD
+  - lattice done_prepare '{"storyId":"B-xxxx"}'
+next: review the generated commit(s), then rerun lattice done_prepare from the new HEAD
 ```
 
 The output must explicitly distinguish:
@@ -469,13 +522,17 @@ Required smokes:
 - dirty worktree blocks before mutation;
 - merge-main conflict blocks at `mergeMain`;
 - stale evidence after main merge triggers refresh when enabled;
+- safe stale evidence refresh may auto-commit story metadata through
+  `verification_evidence_refresh_stale`, then blocks at `cleanTree` with
+  generated commit list and rerun guidance;
 - stale evidence that requires command rerun blocks and prints rerun commands;
 - stale evidence blocks when refresh is disabled;
 - validate fail stops before DONE guidance;
 - runtime source diff reports post-DONE patch finalization required without
   modifying version files;
 - docs-only diff reports no post-DONE patch finalization required;
-- metadata changes produced by prepare block at `cleanTree` until committed;
+- validate-created metadata changes produced by prepare block at `cleanTree`
+  until committed;
 - degraded-single-host readiness prints local-only status and does not claim
   Authority DONE;
 - `dryRun=true` reports planned steps without changing files.
@@ -506,10 +563,12 @@ Acceptance:
 
 - a story that previously required manual merge/refresh/validate reaches
   `canAttemptDone=true` through `done_prepare` when no files were mutated, or
-  stops at `cleanTree` with exact commit-required files when refresh/validate
-  produced metadata changes;
-- after those commit-required files are committed, rerunning `done_prepare`
-  reaches `DONE prepare: PASS`;
+  stops at `cleanTree` with exact commit-required files when validate produced
+  uncommitted metadata changes, or with a generated commit list when safe stale
+  refresh auto-committed story metadata through
+  `verification_evidence_refresh_stale`;
+- after commit-required files are committed, or after generated commits are
+  reviewed, rerunning `done_prepare` reaches `DONE prepare: PASS`;
 - failure modes stop at the correct step.
 
 ### Wave 3. Runtime Change Detection
@@ -585,15 +644,15 @@ The implementation is accepted only when:
 - `done_prepare` can turn a clean TEST story with no required metadata writes
   into a ready-to-DONE state;
 - `done_prepare` can handle stale evidence after main merge by either refreshing
-  safely and stopping with exact commit-required files, or by blocking with
-  rerun commands when evidence must be regenerated;
+  safely and stopping with a generated metadata commit list plus rerun guidance,
+  or by blocking with rerun commands when evidence must be regenerated;
 - all existing DONE gates still run and still block when invalid;
 - runtime behavior stories report post-DONE patch finalization required without
   modifying version files before DONE;
 - docs-only stories do not request post-DONE patch finalization;
 - blocked states report exactly where the process stopped;
-- prepare-generated metadata changes block with a clear commit-required state
-  instead of printing a false DONE-ready result;
+- prepare-generated metadata changes or commit(s) block with a clear
+  `cleanTree` state instead of printing a false DONE-ready result;
 - degraded-single-host local readiness is never rendered as Authority DONE;
 - no remote push or production claim happens automatically.
 
