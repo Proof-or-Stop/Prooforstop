@@ -4,7 +4,7 @@
   "title": "Tighten Lifecycle Readiness Check localReady, binding, and flow semantics",
   "description": "Refine the Lifecycle Proof-Or-Stop Readiness Check execution plan after external review. The current document needs contract-level clarification for localReady, blocking versus advisory readiness predicates, manual/external next actions, done_prepare current-main binding, and rollback-as-next-action flow consistency across text, Mermaid, and SVG. Scope is documentation and diagram contract only; no CLI/runtime implementation changes.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-20T14:53:36.596Z",
   "startedAt": "2026-06-20T14:53:36.596Z",
@@ -45,11 +45,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-fe30f5ecba6c4597",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T18:07:13.817Z",
+      "branch": "story/B-b179",
+      "user": "Harmonygo",
+      "sessionId": "sess-fe30f5ecba6c4597",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-b179",
     "branch": "story/B-b179",
     "createdAt": "2026-06-20T18:04:30.715Z"
-  }
+  },
+  "currentReviewRound": "2026-06-20T18:07:13.817Z"
 }
