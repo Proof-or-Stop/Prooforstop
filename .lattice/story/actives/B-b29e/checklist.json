@@ -65,6 +65,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:12:48.322Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/cli.js validate",
+          "result": "pass",
+          "note": "lattice validate all green incl. the unchanged 50-assertion integration smoke -> runtime behavior provably unchanged by the metadata edit.",
+          "headHash": "ea2fab56339584d2b623be42f0d0dad477590ee5",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:48.811Z"
         }
       ]
     },
