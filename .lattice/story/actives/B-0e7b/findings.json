@@ -116,7 +116,7 @@
       "desc": "Codex MAJOR (full-3x2 over-specified): stated as claude-code host + codex host, but the protocol is '3 rounds x 2 INDEPENDENT PASS hosts' with identity/material/session/key bindings; provider names are diagnostic/example. Fix §4: define full-3x2 abstractly (3 rounds x 2 independent hosts + the binding requirements); use Claude+Codex only as THIS review's example.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T11:08:16.396Z",
@@ -126,7 +126,11 @@
         "docs/adversarial-review-spec.md"
       ],
       "signatureTag": "doc-code-drift|md|codex-major-full",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "renamed to threshold-confirm (NOT majority), default T=1-of-2, consistent in §2.3/§4.4/§5 S2. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:47.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0e7b:F-007",
