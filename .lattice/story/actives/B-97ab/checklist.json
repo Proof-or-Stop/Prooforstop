@@ -111,22 +111,22 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "The subset assertion (section 1) reads the LIVE REVIEW_RUN_LANES import, not a hardcoded copy: adding a 7th lane to REVIEW_RUN_LANES that is not in LENS_TO_LANE keeps every mapped value still a member, so the subset check still passes — exactly the intent's property.",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "Smoke section 1 now asserts (runtime) that REVIEW_RUN_LANES contains a real lane NOT among Object.values(LENS_TO_LANE) (lattice-review-channel) — proving the section-1 mapping check is subset-direction (includes), not a bijection/equality, exactly the intent's property.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "Because the subset check uses includes() against the live REVIEW_RUN_LANES, removing lattice-review-behavior would make the two behavior-mapped values fail includes() and the smoke would FAIL — the subset assertion is structurally bound to the real lane list.",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "Smoke section 1 now simulates removal: it builds lanesMinusBehavior (REVIEW_RUN_LANES without lattice-review-behavior) and asserts the subset predicate FAILS for the behavior-mapped values — a real runtime assertion demonstrating drift/removal detection.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
         }
       ]
     },
@@ -353,11 +353,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "Smoke section 6 + 10/11 assert collectRawFindings flattens LensRunResults to the exact finding list (sections cover the 1-, 2-, 3-, and 6-finding flatten cases).",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "Smoke section 4 now calls collectRawFindings(results1) and asserts length===1 with the single element === codeQualityFinding (the 1-finding flatten case); sections 6/10/11/12 cover the 2-, 3-, 6-, and 0-finding flatten cases. All flatten arities exercised.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -419,11 +419,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "Smoke section 5 asserts the two same-lane lenses (behavior/correctness + crash-safety/edge) yield distinct results, each carrying its OWN finding, not merged or mis-attributed.",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "Smoke section 5 covers BOTH the both-planted distinctness case AND a one-only sub-case (plant on crash-safety/edge only -> behavior/correctness result EMPTY, crash carries its own finding) — proving no cross-attribution when only one of the two same-lane lenses fires, matching the intent exactly.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
