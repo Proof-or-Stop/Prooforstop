@@ -143,7 +143,70 @@
       "context": "runReopenLoop(initialChange:string, seams:RoundSeams, applyFix:(change:string, confirmed:Finding[], roundIndex:number)=>string, config?:RoundConfig & {maxRounds?:number}): {rounds:AdversarialRoundResult[], converged:boolean, finalChange:string}. Runs runAdversarialRound; if converged return; else apply applyFix(change, [...confirmedFindings,...criticFindings], i) -> new change (new material) and re-run a NEW round (models reopen->new reviewRunId+re-bind to fresh materialHash); bound by maxRounds (default 10), converged:false if exhausted. buildHostVerdictPayloads(opts:{storyId, runId, materialDigest, validationDigest, hosts:Array<{hostId,provider,sessionId,keyId,promptDigest, decision?:'pass'|'fail'|'blocked'}>}): HostVerdictPayload[] shaping the §4.1 full-3x2 autopilot_review_submit args (two INDEPENDENT hosts, distinct hostId/sessionId/keyId, each bound to the SAME materialDigest+validationDigest, decision default 'pass'). Pure: no CLI call, no Authority receipt (local-only §4.5).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runReopenLoop B-086b trace: round 1 produces a confirmed critic finding -> applyFix is called with change + confirmed findings + roundIndex=0 -> round 2 is clean (all refuted) -> result has rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true, finalChange is the post-fix change; WHY: the canonical reopen trace proving loop-until-dry terminates on the second round",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with a clean first round (no confirmed findings) -> returns immediately with rounds.length===1, converged===true, finalChange===initialChange, applyFix never called; WHY: proves the no-reopen happy path terminates in one round",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with 2 hosts -> yields 2 HostVerdictPayload objects with distinct hostId, sessionId, keyId; both share the same materialDigest and validationDigest; decision defaults to pass; WHY: proves the 3x2 payload shape with independent host identities bound to the same digests",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runReopenLoop with maxRounds=1 and a non-converging round -> returns rounds.length===1, converged===false; applyFix is never called (no second round possible); WHY: boundary — maxRounds=1 means only one attempt, no loop",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with maxRounds=3 and a change that never converges (every round produces confirmed findings) -> returns rounds.length===3, converged===false; applyFix called exactly 2 times (after rounds 1 and 2, not after the last); WHY: proves the maxRounds bound terminates an infinite-reopen scenario",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with explicit decision=fail on one host -> that payload carries decision=fail while the other defaults to pass; WHY: proves per-host decision override works",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop with maxRounds=0 or negative -> returns immediately with rounds.length===0 or 1, converged computed correctly; WHY: boundary — degenerate maxRounds values do not cause infinite loop or crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runReopenLoop where applyFix returns the SAME change (no actual fix) -> the loop still re-runs a new round on the unchanged material (does not detect identity and short-circuit); eventually hits maxRounds with converged===false; WHY: adversarial — a no-op fix must not cause infinite loop; the maxRounds bound is the safety net",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop where applyFix throws on round 2 -> the error propagates (does not silently converge or return partial rounds); WHY: adversarial — a broken fix seam must not produce a false converged=true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "buildHostVerdictPayloads with two hosts having the SAME hostId (duplicate) -> the function either rejects the duplicate or returns 2 payloads that are distinguishable by sessionId/keyId; WHY: adversarial — the 3x2 contract requires INDEPENDENT hosts; duplicate hostIds violate the independence proof",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runReopenLoop where round 1 has confirmed LENS findings (no critic findings) -> applyFix receives the lens confirmed findings; round 2 is clean -> converged===true; WHY: adversarial — reopen is not only triggered by critic findings; confirmed lens findings also trigger reopen (converged requires BOTH lens AND critic empty)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
