@@ -51,7 +51,7 @@
       "desc": "CHK-001:adversarial:3 claims evidence proves \"Multiple peers: one DONE (ignored), one active with overlap, one active with missing contract -> block=overlap_declared_parallel (highest precedence).\" No single smoke fixture combines all three conditions: a DONE peer (filtered), an active parallel peer with a literal collision, AND an active parallel peer with no contract. The three conditions are each proven in isolation (blocks 7, 2, 5 respectively) but never simultaneously, so the multi-peer precedence interaction with mixed terminal/active peers is not exercised. CHK-002:adversarial:1 also claims \"overlap > peer_contract_unreadable > broad_glob\" three-way precedence is asserted, but no fixture combines all three firing conditions simultaneously; only overlap > broad is tested (smoke block 9, line 162).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T23:38:55.324Z",
@@ -62,7 +62,11 @@
         "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-claims-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke #15 covers 3-way precedence (overlap > peer_unreadable > broad, all triggered) and #16 covers multi-peer mixed (terminal ignored, active overlaps).",
+      "resolvedAt": "2026-06-20T00:03:17.508Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-986c:F-004",
