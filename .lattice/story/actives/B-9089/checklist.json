@@ -11,7 +11,34 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The story records two independent host review verdicts bound to the owner-session execution plan document hash/HEAD before any runtime code is changed, and both verdicts explicitly pass the local-boundary, generated-token, ppid-degraded, and no-core-host-exception checks."
+      "userSees": "The evidence summary contains \"PASS owner-session plan-review evidence: 2 independent hosts reviewed the bound plan and found no blocking contract issue\" before runtime code changes begin.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9089/checklist.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two independent host providers review the current owner-session execution plan hash/HEAD and both return PASS for local-boundary, generated-token, ppid-degraded, and no-core-host-exception checks.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A duplicate review from the same host provider or same local session is not counted as satisfying the two-host evidence requirement.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A review that claims local owner-session evidence is Authority/full production proof is rejected or recorded as non-passing for this pre-code gate.",
+            "type": "manual"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
