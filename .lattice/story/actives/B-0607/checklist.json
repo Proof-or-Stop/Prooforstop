@@ -95,8 +95,8 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:32:29.989Z",
       "endTime": null,
       "userSees": "The execution plan contains a section named \"Implementation Stories and Gates\" with concrete follow-up stories for supersession metadata, handoff preflight fact packs, dev-memory injection, stale-plan warnings, and their verification commands.",
       "files": {
@@ -152,6 +152,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start host handoff contract definition content"
+    },
+    {
+      "timestamp": "2026-06-20T18:32:29.989Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation stories + gates section"
     }
   ]
 }
