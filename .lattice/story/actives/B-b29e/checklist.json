@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Register the parallel-decomposition gate on all four DEV-entry transitions in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
       "context": "core/lifecycle-registry.ts: add a parallel-decomposition gate id (e.g. 'parallel-decomposition') to the gates metadata of the INIT_CHECK->DEV, PLAN->DEV, REVIEW->DEV, and TEST->DEV transitions, matching the runtime guards (canSkipPlanGuard/canStartDevGuard/canReenterDevGuard). Match the existing gate-id naming/shape used by sibling gates (e.g. cwd-worktree, plan-review, scope-check).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T10:06:27.044Z",
       "endTime": null,
       "files": {
         "modify": [
