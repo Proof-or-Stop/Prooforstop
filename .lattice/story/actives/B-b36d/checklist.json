@@ -20,7 +20,10 @@
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/NAV.md",
+          "docs/guide.md",
+          "README.md"
         ],
         "create": [
           "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
@@ -47,7 +50,8 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "userSees": "The revised document opens with Lattice Lifecycle Proof-Or-Stop Readiness Check and describes V1 as Lifecycle Readiness Check, with StoryReadinessReport as the core report model."
     },
     {
       "id": "CHK-002",
