@@ -13,7 +13,7 @@
  * Run: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js
  */
 
-import { computeScopeGlobOverlaps } from '../core/lattice-parallel-wave.js';
+import { computeScopeGlobOverlaps, scopeGlobOverlapDegradations } from '../core/lattice-parallel-wave.js';
 import { decompositionAdvisoryIssues } from '../handlers/story-review.js';
 import type { StoryInfo, ScopeContractData, StoryPhase } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
@@ -82,10 +82,6 @@ void (() => {
     }
 
     // (happy/shape) the ScopeGlobOverlap shape carries exactly peerStoryId + pairExample.
-    // The degradation wired in resolveWaveSafety (private) is built from this — its capability
-    // is 'scope_glob_overlap', severity 'warn', authorityImpact 'none' (asserted by reading the
-    // source; the helper output is the input that drives it). Here we assert the helper output
-    // is non-empty and well-formed so a regression in the helper is caught.
     {
       const out = computeScopeGlobOverlaps(
         { storyId: 'B-self', parallelSafe: 'yes', writeSet: ['core/foo.ts'] },
@@ -93,6 +89,24 @@ void (() => {
       );
       check('shape: keys are peerStoryId + pairExample only', JSON.stringify(Object.keys(out[0]).sort()) === JSON.stringify(['pairExample', 'peerStoryId']));
       check('shape: pairExample is a non-empty string', typeof out[0].pairExample === 'string' && out[0].pairExample.length > 0);
+    }
+
+    // (happy:2 — RUNTIME) the overlap, fed through scopeGlobOverlapDegradations (the exact pure
+    // helper resolveWaveSafety calls), produces a ParallelWaveDegradation with the frozen shape:
+    // capability scope_glob_overlap, severity warn, visible true, authorityImpact none, an id
+    // carrying the kind + lower-cased peerStoryId, and a reason naming the peer.
+    {
+      const degs = scopeGlobOverlapDegradations('B-self', [{ peerStoryId: 'B-p1', pairExample: 'core/foo.ts ↔ core/foo.ts' }]);
+      check('degradation: exactly one emitted', degs.length === 1);
+      check('degradation: capability is scope_glob_overlap', degs[0].capability === 'scope_glob_overlap');
+      check('degradation: severity is warn', degs[0].severity === 'warn');
+      check('degradation: visible is true', degs[0].visible === true);
+      check('degradation: authorityImpact is none', degs[0].authorityImpact === 'none');
+      check('degradation: id contains scope-glob-overlap', degs[0].id.includes('scope-glob-overlap'));
+      check('degradation: id contains lower-cased peer id', degs[0].id.includes('b-p1'));
+      check('degradation: reason names the peer', degs[0].reason.includes('B-p1'));
+      check('degradation: reason mentions the pairExample', degs[0].reason.includes('core/foo.ts ↔ core/foo.ts'));
+      check('degradation: empty overlaps -> []', scopeGlobOverlapDegradations('B-self', []).length === 0);
     }
 
     // (edge) self.parallelSafe !== 'yes' -> [] even with an overlapping active parallel peer.

@@ -335,6 +335,30 @@ export function computeScopeGlobOverlaps(
   return out;
 }
 
+/** Pure: build the advisory-only scope_glob_overlap wave degradations from precomputed
+ *  ScopeGlobOverlaps. Exported so resolveWaveSafety's emitted degradation shape is
+ *  runtime-testable (resolveWaveSafety itself is private). NOTE: `capability` is
+ *  'scope_glob_overlap' (NOT the sibling 'parallel-scheduling' label the schedulingDegradation
+ *  factory hardcodes) on purpose — it makes this advisory distinguishable in the degradation
+ *  stream and matches the frozen verificationIntent. It is not consumed by any capability
+ *  filter, so the divergent label is safe. Advisory-only: severity 'warn', authorityImpact 'none'. */
+export function scopeGlobOverlapDegradations(
+  storyId: string,
+  overlaps: ScopeGlobOverlap[],
+  explicitOverrideNote = '',
+): ParallelWaveDegradation[] {
+  return overlaps.map((o) => ({
+    id: degradationId(storyId, 'scope-glob-overlap', o.peerStoryId),
+    host: 'parallel-wave',
+    capability: 'scope_glob_overlap',
+    severity: 'warn',
+    visible: true,
+    reason: `Write-set overlaps active parallel peer ${o.peerStoryId} (e.g. ${o.pairExample}); independence is not statically provable.${explicitOverrideNote}`,
+    fallback: 'Coordinate the two scope contracts (disjoint allowedModify/allowedCreate) or sequence the stories so they do not DEV simultaneously.',
+    authorityImpact: 'none',
+  }));
+}
+
 function uniqueStrings(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
 }
@@ -868,21 +892,10 @@ function resolveWaveSafety(
     ));
   }
   // scope_glob_overlap (advisory-only, Story 4): a STATIC write-set collision with an active
-  // parallel peer. capability is 'scope_glob_overlap' (not the generic 'parallel-scheduling'),
-  // so it is distinguishable in the degradation stream; severity 'warn'/authorityImpact 'none'.
-  // Advisory-only: it does NOT change the safety tier here (a hard block is Story 5).
-  for (const o of scopeGlobOverlaps) {
-    degradations.push({
-      id: degradationId(story.storyId, 'scope-glob-overlap', o.peerStoryId),
-      host: 'parallel-wave',
-      capability: 'scope_glob_overlap',
-      severity: 'warn',
-      visible: true,
-      reason: `Write-set overlaps active parallel peer ${o.peerStoryId} (e.g. ${o.pairExample}); independence is not statically provable.${explicitOverrideNote}`,
-      fallback: 'Coordinate the two scope contracts (disjoint allowedModify/allowedCreate) or sequence the stories so they do not DEV simultaneously.',
-      authorityImpact: 'none',
-    });
-  }
+  // parallel peer. Built via the pure exported scopeGlobOverlapDegradations() so the exact
+  // degradation shape is runtime-testable (resolveWaveSafety itself is private). Advisory-only:
+  // it does NOT change the safety tier here (a hard block is Story 5).
+  degradations.push(...scopeGlobOverlapDegradations(story.storyId, scopeGlobOverlaps, explicitOverrideNote));
 
   if (dependencies.active.length > 0 || dependencies.blockingForActive.length > 0 || explicit === 'no') {
     return { safety: 'no', degradations };
