@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-010",
       "_hash": "524df424cf489f8066bb1a1630700cc357719fbb24bcd61ea573b27ec105475b"
+    },
+    {
+      "id": "B-d2a8:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "VERIFY round 4: F-019 and F-020 fixes are behaviorally correct and complete. F-019: Object.hasOwn correctly treats own-undefined as present-invalid (hasOwn true, type-guard false -> warn+advise fallback) and inherited sub-fields as absent (hasOwn false -> profile default kept, no warn). F-020: describeInvalidValue is provably non-throwing for all inputs: bigint handled first via template literal, JSON.stringify in try/catch for circular and throwing-toJSON, Object.prototype.toString.call fallback cannot throw. Fallback VALUES are correct: advise for mode, profileDefault for maxConcurrentReview/broadGlobBlocks. __proto__-via-JSON.parse creates an own __proto__ key but no own mode key, so Object.hasOwn(r,mode) is false -> profile default kept, Object.prototype not polluted. Smoke (72 assertions, all pass) exercises every claimed case including bigint, circular, throwing-toJSON, inherited-prototype, and __proto__-via-JSON.parse directly.",
+      "createdAt": "2026-06-20T06:13:07.814Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-011",
+      "_hash": "a3acceba0c449238dd74e3d75a1d4714b84a1347cba90238559074b153531b54"
     }
   ]
 }
