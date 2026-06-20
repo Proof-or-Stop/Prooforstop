@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T05:22:43.119Z",
       "reviewRunId": "B-53a9:RR-003",
       "_hash": "ae34290123f6dbdf5996e2cfba4e9d6dfa4b5d66bc687cd81937f3900c0546fe"
+    },
+    {
+      "id": "B-53a9:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed single changed file docs-drift-wrapper-root-smoke.ts (ca27d579). Four new stub methods: readReviewRuns->{ runs:[] }, readFindings->{ findings:[] }, readReviewPasses->{ passes:[] }, readScopeContract->null. Shapes exactly match FindingData/ReviewPassData/ReviewRunData/ScopeContractData interfaces in types.ts. Parameter-dropping lambdas are TypeScript-valid (structural subtyping). `as unknown as StoryStore` cast remains appropriate for a partial stub. TSC --noEmit clean. No dead code or unused imports introduced. Placement in stub block mirrors review-incremental-context-smoke.ts pattern. No other stub fields perturbed.",
+      "createdAt": "2026-06-20T05:24:44.125Z",
+      "reviewRound": "2026-06-20T05:22:43.119Z",
+      "reviewRunId": "B-53a9:RR-001",
+      "_hash": "28d187bcdff897455bce5f1d8466fe13fb6148579195dd75247c02612f86cca4"
     }
   ]
 }
