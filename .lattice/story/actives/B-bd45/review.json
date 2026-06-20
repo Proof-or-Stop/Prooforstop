@@ -28,6 +28,24 @@
         }
       ],
       "_hash": "e06fbc64e2965fe95205c4f70b65ac830a667bac9e3d00e2fe2783b844a14a01"
+    },
+    {
+      "timestamp": "2026-06-20T20:44:43.587Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add StoryReadinessReport model and read-only lifecycle_check command + Classify readiness rows using blocking semantics and exact next actions are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-bd45 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "606f9d1c308269dcac07b6979f44981368cb4dd04e1a25c7d612daec267e2437"
     }
   ]
 }
