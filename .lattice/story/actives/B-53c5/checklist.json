@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Define the frozen Finding and Verdict schemas in packages/main/src/core/adversarial-review.ts exactly per spec §2.2/§2.3",
       "context": "New module core/adversarial-review.ts. Finding = {severity: 'BLOCKER'|'MAJOR'|'MINOR', title: string, file: string, line: number, issue: string, fix: string}. Verdict = {isReal: boolean, agreedSeverity: 'BLOCKER'|'MAJOR'|'MINOR'|'NOT_A_DEFECT', reasoning: string}. Use exported types + the severity union as a const tuple/type so it matches §2.2/§2.3 verbatim. Note: these are the ABSTRACT methodology severities (BLOCKER/MAJOR/MINOR) — the finding_add ledger mapping (critical|high|medium|low) is S2's concern, not S0's.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:12:53.406Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:15:41.853Z",
       "files": {
         "modify": [],
         "create": [
