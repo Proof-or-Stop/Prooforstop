@@ -27,7 +27,7 @@
       "desc": "MAJOR: storyRef() calls store.readScopeContract for self + each peer with NO try/catch. readScopeContract returns null only for a MISSING contract and RE-THROWS (SyntaxError) for a corrupt/unparseable scope-contract.json. The flatMap only handles null, so a single corrupt contract anywhere (peers=allStories) crashes the entire parallel_wave_create command — a NEW crash surface (the wave never read contracts pre-S4). Sibling story-review.ts wraps the identical reads in try/catch. Fix: read all contracts once via a safe try/catch helper into a Map in createParallelWave, pass to storyRef; treat a throw as a missing contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-quality",
       "createdAt": "2026-06-20T07:34:37.509Z",
@@ -37,7 +37,11 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "signatureTag": "adversarial|ts|major-storyref-calls",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeReadScopeContract(store,id) try/catch->null added; createParallelWave builds contractsByStoryId Map once over allStories and threads it to storyRef which does pure Map lookups (no I/O, no throw); story-review reads switched to safeReadScopeContract too. Corrupt contract no longer crashes the wave. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.110Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-003",
