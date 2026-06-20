@@ -3,7 +3,7 @@
 ## Status
 
 Adopted design; rollout fully implemented. This document is the canonical, adopted
-design for Koala's multi-session coordination rules and is treated as a process truth
+design for Lattice's multi-session coordination rules and is treated as a process truth
 source — agents and the scope-plan reviewer should honor it.
 
 Owner-session identity amendment: B-a781 adds
@@ -14,7 +14,7 @@ runtime behavior; future owner-lease/session work should treat the B-a781 plan
 as the migration target.
 
 - **Main write lock (rollout step 3) — implemented (B-f60c)**: a unified lock in
-  `core/main-write-lock.ts` over the canonical `.koala/locks/main-write.lock/` path, held by
+  `core/main-write-lock.ts` over the canonical `.lattice/locks/main-write.lock/` path, held by
   DONE / done_recover / gap_log / audit / story_create / B-META finding writes, with
   idempotency enforced inside the lock and a doctor stuck-lock check.
 - **Story owner lease (rollout step 2) — implemented (B-c55d)**: the per-story owner lease
@@ -24,11 +24,13 @@ as the migration target.
   ownership-aware rejection errors, and `session_brief` ownership rendering.
 
 Current implementation resolves `sessionId` by a 3-source priority chain:
-`LATTICE_SESSION_ID` (`sessionSource: koala-env`) → `CLAUDE_CODE_SESSION_ID`
-(`sessionSource: claude-code-env`) → `deriveLocalSessionId(hostname,
-worktree-root, ppid)` (`sessionSource: derived-ppid`). It is a local
-process-coordination id, never a cryptographic identity; ppid is only the
-last-resort fallback because each Claude Code Bash call spawns a fresh shell.
+`LATTICE_SESSION_ID` → `CLAUDE_CODE_SESSION_ID` → `deriveLocalSessionId(hostname,
+worktree-root, ppid)` (`sessionSource: derived-ppid`). The first two paths still
+carry legacy implementation labels in current runtime metadata; replacing those
+labels with host-neutral Lattice source names is part of the B-a781 migration
+target. The id is a local process-coordination id, never a cryptographic
+identity; ppid is only the last-resort fallback because each Claude Code Bash
+call can spawn a fresh shell.
 The target migration is documented in
 `owner-session-contract-execution-plan.md`: core owner-lease/lifecycle code
 should consume only canonical `LATTICE_SESSION_ID`, while Claude Code, Codex,
@@ -39,16 +41,16 @@ the rollout is now fully implemented.
 
 ## Problem
 
-Koala supports parallel story worktrees, but it does not yet mechanically own write coordination across sessions.
+Lattice supports parallel story worktrees, but it does not yet mechanically own write coordination across sessions.
 
 Observed failures:
 
 - Two sessions can mutate the same story metadata and confuse phase or evidence state.
 - Two DONE flows can race on main and leave partial-DONE recovery work.
 - Shared B-META writes such as `gap_log` can duplicate findings.
-- Agents currently rely on human chat coordination instead of Koala-enforced ownership.
+- Agents currently rely on human chat coordination instead of Lattice-enforced ownership.
 
-Koala must allow parallel work while making write authority explicit.
+Lattice must allow parallel work while making write authority explicit.
 
 ## Goals
 
@@ -146,19 +148,19 @@ Examples:
 3. The lock scope must cover the whole critical section, not just the final write.
 4. DONE must hold the main write lock from pre-merge final check through merge and worktree cleanup.
 5. B-META finding writes must hold the main write lock and perform idempotency checks inside the lock.
-6. Lock acquisition failure is blocking. Koala must not proceed optimistically.
+6. Lock acquisition failure is blocking. Lattice must not proceed optimistically.
 
 ## Storage
 
 Preferred storage:
 
-- story lease: `.koala/story/actives/<storyId>/owner-lease.json`
-- main write lock: `.koala/locks/main-write.lock/`
+- story lease: `.lattice/story/actives/<storyId>/owner-lease.json`
+- main write lock: `.lattice/locks/main-write.lock/`
 - command event trail: existing process-events/activity stream
 
-> Runtime note (B-f60c): `.koala/locks/main-write.lock/` is the single canonical
+> Runtime note (B-f60c): `.lattice/locks/main-write.lock/` is the single canonical
 > main write lock path. The former DONE-specific merge serialization lock
-> `.koala/runtime/done-main-merge.lock` has been retired with no back-compat
+> `.lattice/runtime/done-main-merge.lock` has been retired with no back-compat
 > alias — the DONE merge / `done_recover` critical sections now acquire the
 > unified lock at the path above. `story-lifecycle.md` references the same
 > canonical path; the two docs are synchronized.
@@ -183,7 +185,7 @@ read-only / wait / `--forceTakeover`.
 Example (active foreign lease):
 
 ```text
-B-6974 is owned by Koala session abc123, heartbeat 8m ago (owner cwd: /repo/.worktrees/B-6974).
+B-6974 is owned by Lattice session abc123, heartbeat 8m ago (owner cwd: /repo/.worktrees/B-6974).
 "checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
 cannot run it. The owner lease is still ACTIVE. Use read-only commands, wait for the owner,
 or rerun with --forceTakeover to seize the active lease (a deliberate human override).
@@ -192,7 +194,7 @@ or rerun with --forceTakeover to seize the active lease (a deliberate human over
 Example (stale foreign lease):
 
 ```text
-B-6974 is owned by Koala session abc123, heartbeat 45m ago (owner cwd: /repo/.worktrees/B-6974).
+B-6974 is owned by Lattice session abc123, heartbeat 45m ago (owner cwd: /repo/.worktrees/B-6974).
 "checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
 cannot run it. The owner lease is STALE (no heartbeat for 30+ minutes). Use read-only
 commands, wait for the owner, or rerun with --takeover to transfer the stale lease.
