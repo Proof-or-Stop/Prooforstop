@@ -22,7 +22,8 @@
     "lattice.config.json",
     "docs/requirements/decisions/story-lifecycle.md",
     "docs/requirements/decisions/testing-infra.md",
-    "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "AGENTS.md"
   ],
   "allowedCreate": [
     "packages/main/src/core/done-required-validation.ts",
@@ -37,7 +38,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Root npm test is now a self-host DONE-required command in B-ac25. The full suite exposed a deterministic-session bug in the existing nested-worktree smoke, so this contract narrowly allows repairing that test harness without changing runtime owner-lease behavior.",
+  "scopeChangeReason": "Extend scope after verified REVIEW findings F-003/F-004/F-005. AGENTS.md is added only to correct the project-level validation-flow truth source so it distinguishes routine lattice validate from opt-in DONE-required validation; this does not add release, pre-push, Authority, Layer4, or external-project blocking behavior.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -67,5 +68,5 @@
     }
   ],
   "createdAt": "2026-06-20T10:15:40.907Z",
-  "updatedAt": "2026-06-20T10:30:56.242Z"
+  "updatedAt": "2026-06-20T10:55:09.795Z"
 }
