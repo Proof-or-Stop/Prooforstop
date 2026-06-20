@@ -1,0 +1,206 @@
+{
+  "command": "lattice validate --story=B-6878 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.32 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"✓ configured validate.commands[14]: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js\",\"  adversarial-review-verifier smoke passed: 68 assertions\",\"✓ configured validate.commands[15]: node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"  adversarial-review-critic smoke passed: 52 assertions\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — The chokepoint helper toOwnPropsNullProto(obj, whitelist) returns an Object.create(null) object (Object.getPrototypeOf === null) carrying ONLY whitelisted own keys; applied at extractRawUsage (assemble.ts) + anthropic extract (dispatch-usage.ts), a normal provider response yields a record byte-identical to pre-change (legitimate own-property data preserved) for anthropic/openai/gemini.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — With Object.prototype polluted by each token key (try/finally), the chokepoint-projected object exposes NONE of the inherited values; a downstream adapter read sees only own whitelisted keys.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — The whitelist does not silently drop a legitimate own-property token field (incl. nested cached_tokens for openai); per-provider un-polluted record is unchanged.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — A grep over assemble/dispatch/adapters/streaming/record shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects — each is Object.prototype.hasOwnProperty.call or routed through the chokepoint.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — record.ts validator `in`-conversion (493/546) preserves identical validation behavior for legitimate own-property usage data (B-253e rules unchanged); full npm test (which exercises the validator) green.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator, streaming merge) do NOT treat an inherited key as present.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js exits 0 and prints its check count; auto-discovered + npm-wired; full npm test exits 0.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — For EACH of anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally, restored) → NO inherited value reaches a persisted record (only own-property whitelisted fields; absent fields stay absent/unavailable); Object.prototype is clean again at the end.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts) — Each pollution assertion is load-bearing: it FAILS against the pre-hardening code (or with the chokepoint/own-prop guard removed), proving it is not vacuous.\"],\"warnings\":[],\"timestamp\":\"2026-06-20T16:07:24.687Z\",\"headSha\":\"f14caeadfde3f88f15c623634c247756271c0010\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.32 build\\n> tsc\\n\\n\",\"durationMs\":4992},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":198},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":178},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12099},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":550},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4108},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":2954},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":163},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":101},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":110},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":111},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1253},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":99},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":107},{\"label\":\"configured validate.commands[14]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-verifier-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-verifier smoke passed: 68 assertions\\n\",\"durationMs\":101},{\"label\":\"configured validate.commands[15]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-critic-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-critic smoke passed: 52 assertions\\n\",\"durationMs\":109}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The chokepoint helper toOwnPropsNullProto(obj, whitelist) returns an Object.create(null) object (Object.getPrototypeOf === null) carrying ONLY whitelisted own keys; applied at extractRawUsage (assemble.ts) + anthropic extract (dispatch-usage.ts), a normal provider response yields a record byte-identical to pre-change (legitimate own-property data preserved) for anthropic/openai/gemini.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke helper + per-provider checks: toOwnPropsNullProto returns a null-proto (Object.getPrototypeOf===null) whitelist-only object; applied at the entry points a normal provider response yields a record byte-identical to pre-change for anthropic/openai/gemini (legitimate own-property data preserved). Driven through the real assemble/dispatch/record path.\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"With Object.prototype polluted by each token key (try/finally), the chokepoint-projected object exposes NONE of the inherited values; a downstream adapter read sees only own whitelisted keys.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"With Object.prototype polluted by each token key (try/finally restored), the projected object exposes none of the inherited values; the downstream adapter read sees only own whitelisted keys (anthropic/openai/gemini + streaming load-bearing checks).\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The whitelist does not silently drop a legitimate own-property token field (incl. nested cached_tokens for openai); per-provider un-polluted record is unchanged.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"Whitelist does not drop a legitimate own-property token field incl. nested openai cached_tokens; DIGEST-PRESERVED checks assert a legit payload WITH extra non-read fields (total_tokens/totalTokenCount/audio_tokens) yields raw.payloadDigest === payloadDigest(original).\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A grep over assemble/dispatch/adapters/streaming/record shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects — each is Object.prototype.hasOwnProperty.call or routed through the chokepoint.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"Exhaustive grep + smoke: no remaining key-in-obj prototype-chain presence read on externally-derived objects across assemble/dispatch/adapters/streaming/record (own-prop guarded or routed through the chokepoint).\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"record.ts validator `in`-conversion (493/546) preserves identical validation behavior for legitimate own-property usage data (B-253e rules unchanged); full npm test (which exercises the validator) green.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"record.ts validator in→hasOwnProperty conversion preserves identical B-253e validation behavior for legitimate own-property data (baseline-validates-clean check); full npm test green.\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator, streaming merge) do NOT treat an inherited key as present.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator storyId/supersedesRecordIds, container reads, envelope.result) do NOT treat an inherited key/container as present (CONTAINER-POLLUTION + validator-pollution + result-pollution load-bearing checks).\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js exits 0 and prints its check count; auto-discovered + npm-wired; full npm test exits 0.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"node usage-ledger-prototype-pollution-smoke.js prints \\\"usage-ledger-prototype-pollution smoke passed (30 checks)\\\" and exits 0; auto-discovered by run-all-smokes; full npm test exits 0.\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"For EACH of anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally, restored) → NO inherited value reaches a persisted record (only own-property whitelisted fields; absent fields stay absent/unavailable); Object.prototype is clean again at the end.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"For anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally restored) yields NO inherited value in the persisted record; Object.prototype asserted clean again at the end (section G).\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Each pollution assertion is load-bearing: it FAILS against the pre-hardening code (or with the chokepoint/own-prop guard removed), proving it is not vacuous.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts\",\"command\":\"node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\"result\":\"pass\",\"note\":\"Each pollution assertion is load-bearing: verified by revert-experiment that the digest-preserved/container/validator/result checks FAIL against pre-hardening code. The estimate-path check is honestly labeled NOT load-bearing (estimate never reads provider token keys) — a property assertion only.\",\"headHash\":\"9683e96484ab65591118679202ab53ccc04d3d32\",\"materialHash\":\"f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059\",\"storyFilesHash\":\"a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568\",\"timestamp\":\"2026-06-20T16:06:57.197Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T16:07:25.523Z",
+  "headHash": "f14caeadfde3f88f15c623634c247756271c0010",
+  "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+  "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The chokepoint helper toOwnPropsNullProto(obj, whitelist) returns an Object.create(null) object (Object.getPrototypeOf === null) carrying ONLY whitelisted own keys; applied at extractRawUsage (assemble.ts) + anthropic extract (dispatch-usage.ts), a normal provider response yields a record byte-identical to pre-change (legitimate own-property data preserved) for anthropic/openai/gemini.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Smoke helper + per-provider checks: toOwnPropsNullProto returns a null-proto (Object.getPrototypeOf===null) whitelist-only object; applied at the entry points a normal provider response yields a record byte-identical to pre-change for anthropic/openai/gemini (legitimate own-property data preserved). Driven through the real assemble/dispatch/record path.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "With Object.prototype polluted by each token key (try/finally), the chokepoint-projected object exposes NONE of the inherited values; a downstream adapter read sees only own whitelisted keys.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "With Object.prototype polluted by each token key (try/finally restored), the projected object exposes none of the inherited values; the downstream adapter read sees only own whitelisted keys (anthropic/openai/gemini + streaming load-bearing checks).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The whitelist does not silently drop a legitimate own-property token field (incl. nested cached_tokens for openai); per-provider un-polluted record is unchanged.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Whitelist does not drop a legitimate own-property token field incl. nested openai cached_tokens; DIGEST-PRESERVED checks assert a legit payload WITH extra non-read fields (total_tokens/totalTokenCount/audio_tokens) yields raw.payloadDigest === payloadDigest(original).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "A grep over assemble/dispatch/adapters/streaming/record shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects — each is Object.prototype.hasOwnProperty.call or routed through the chokepoint.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Exhaustive grep + smoke: no remaining key-in-obj prototype-chain presence read on externally-derived objects across assemble/dispatch/adapters/streaming/record (own-prop guarded or routed through the chokepoint).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "record.ts validator `in`-conversion (493/546) preserves identical validation behavior for legitimate own-property usage data (B-253e rules unchanged); full npm test (which exercises the validator) green.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "record.ts validator in→hasOwnProperty conversion preserves identical B-253e validation behavior for legitimate own-property data (baseline-validates-clean check); full npm test green.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator, streaming merge) do NOT treat an inherited key as present.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator storyId/supersedesRecordIds, container reads, envelope.result) do NOT treat an inherited key/container as present (CONTAINER-POLLUTION + validator-pollution + result-pollution load-bearing checks).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js exits 0 and prints its check count; auto-discovered + npm-wired; full npm test exits 0.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "node usage-ledger-prototype-pollution-smoke.js prints \"usage-ledger-prototype-pollution smoke passed (30 checks)\" and exits 0; auto-discovered by run-all-smokes; full npm test exits 0.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "For EACH of anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally, restored) → NO inherited value reaches a persisted record (only own-property whitelisted fields; absent fields stay absent/unavailable); Object.prototype is clean again at the end.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "For anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally restored) yields NO inherited value in the persisted record; Object.prototype asserted clean again at the end (section G).",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Each pollution assertion is load-bearing: it FAILS against the pre-hardening code (or with the chokepoint/own-prop guard removed), proving it is not vacuous.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Each pollution assertion is load-bearing: verified by revert-experiment that the digest-preserved/container/validator/result checks FAIL against pre-hardening code. The estimate-path check is honestly labeled NOT load-bearing (estimate never reads provider token keys) — a property assertion only.",
+          "headHash": "9683e96484ab65591118679202ab53ccc04d3d32",
+          "materialHash": "f36ce335c2a1fdf533b72aac6198ebb2737bbe4bf03d6ae695a708f23b703059",
+          "storyFilesHash": "a51bca630b1bee75d9e7de76ca5373d6b59d8bdb03957bbdf33a87bdc0408568",
+          "timestamp": "2026-06-20T16:06:57.197Z"
+        }
+      }
+    ]
+  }
+}

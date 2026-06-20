@@ -1,0 +1,178 @@
+{
+  "storyId": "B-6878",
+  "checkedAt": "2026-06-20T14:43:41.418Z",
+  "features": [
+    {
+      "feature": "assemble.ts extractRawUsage chokepoint (null-proto whitelist projection at the most load-bearing entry surface, assemble.ts:125)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "assemble.ts options.usage ?? {} default hardening (options.usage prototype-chain read at assemble.ts:146)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "dispatch-usage.ts anthropic extract path hardening (u.input_tokens/output_tokens/cache_* reads + envelope.usage; dispatch-usage.ts:112/121/124/137/139/141/181)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "adapters/anthropic.ts usage-field dot-reads (input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens at :54/:55/:64/:65) — covered by chokepoint safe-by-construction",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "adapters/openai.ts usage-field reads (prompt_tokens/completion_tokens/prompt_tokens_details at :56/:57/:67) — covered by chokepoint",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "adapters/openai.ts cached_tokens in details in-operator belt (openai.ts:84/:85)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "adapters/gemini.ts usage-field dot-reads (promptTokenCount/candidatesTokenCount/cachedContentTokenCount at :60/:61/:70) — covered by chokepoint safe-by-construction; listed in spec surface inventory but no belt needed (no in operators)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "adapters/shared.ts cached_tokens in details in-operator belt (:84)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "streaming.ts start/delta merge in-checks and dot-reads (:122/:127/:135/:139/:144/:190/:197/:198/:236/:243)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "record.ts:493 validator in-operator belt (if (!(field in usage)) -> own-property check; mechanism only, not rules)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "diagnostics.ts internal-table bracket lookups (lower priority / optional — internal enums/model ids, not external parsed data)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec explicitly marks this lower priority / optional (not external parsed data; harden only if trivial); decision.json constraints carry this forward",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "codex/gemini provider extractors (providers/codex-cli.ts, providers/gemini-cli.ts) — already hardened in B-30c3, do not redo",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec explicitly excludes: Already hardened in B-30c3; scope-contract protects these files",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "NON-GOAL: B-253e validator RULES (reject non-numeric/negative logic) must not change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec NON-GOALS section; CHK-002 edge verificationIntent explicitly requires validator behavior unchanged; decision.json constraints",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "NON-GOAL: four-field strict accounting must not change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec NON-GOALS section; decision.json constraints",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "NON-GOAL: anthropic/openai/gemini record shapes must not change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec NON-GOALS section; decision.json constraints",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "NON-GOAL: primaryReportedTotal visibility logic must not change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec NON-GOALS section",
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Smoke: per-provider (anthropic/openai/gemini) + streaming + estimate paths: pollute Object.prototype with each token key (try/finally), assert no inherited value reaches persisted record",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Smoke: chokepoint helper asserts null-prototype (Object.getPrototypeOf===null) and drops non-whitelisted own keys (parallel to B-30c3 codex/gemini smoke)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "npm run build clean + full npm test green",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Legitimate own-property usage records are byte-identical after hardening (billing regression guard; each provider un-polluted record unchanged)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Pollution assertions are load-bearing: each FAILS against pre-hardening code / with chokepoint removed (no vacuous assertions)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Object.prototype restored clean after each pollution test (try/finally; no cross-test contamination)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    },
+    {
+      "feature": "Single null-prototype whitelist chokepoint helper is a leaf (no cross-module imports beyond node builtins)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/usage-ledger-prototype-pollution-hardening.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 19,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "214144ec708c8f96cb2cea20288f8044573b6fefa73f2985a062c2c446f08631",
+  "openQuestions": []
+}

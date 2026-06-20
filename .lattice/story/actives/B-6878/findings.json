@@ -1,0 +1,241 @@
+{
+  "findings": [
+    {
+      "id": "B-6878:F-001",
+      "desc": "6/9 verificationIntent entries are stale (headHash mismatch): CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0. All six carry evidence whose headHash predates the current HEAD (a2efffe). validate reports 3/9 covered, 6 required missing. The evidence commands for the stale intents were recorded against earlier commits and have not been re-bound after the final hardening commit. Until re-stamped they do not satisfy the must-coverage requirement for a normal-channel story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T15:09:32.500Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "reviewRunId": "B-6878:RR-003",
+      "_hash": "2d2b9565bda878edbc4b1d17b567156034296d4e5d6ac6ff43731e18348ab666",
+      "files": [
+        "packages/main/src/core/usage-ledger/sanitize.ts",
+        "packages/main/src/core/usage-ledger/assemble.ts",
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/usage-ledger/streaming.ts",
+        "packages/main/src/core/usage-ledger/record.ts",
+        "packages/main/src/core/usage-ledger/adapters/openai.ts"
+      ],
+      "signatureTag": "missing|ts|verificationintent-entries-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded all 9 verificationIntent evidence entries bound to usage-ledger-prototype-pollution-smoke.js at the current material (ef73b51); recover_evidence re-stamps freshness before TEST.",
+      "resolvedAt": "2026-06-20T15:56:50.692Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-002",
+      "desc": "CHK-001:happy:0 and CHK-001:adversarial:0 are bound to evidence commands that do not directly exercise the toOwnPropsNullProto chokepoint or the pollution surface for those intents. CHK-001:happy:0 cites usage-ledger-adapter-smoke.js (a pre-existing round-trip smoke that does not call toOwnPropsNullProto directly or assert Object.getPrototypeOf===null). CHK-001:adversarial:0 cites usage-ledger-codex-gemini-smoke.js (codex/gemini path smoke, not the whitelist-drop or null-proto property assertions). The intent text explicitly requires asserting null-prototype and whitelist-drop behavior. The pollution smoke (usage-ledger-prototype-pollution-smoke.js) does assert these via checks 1-4 (helper direct tests) and checks 5/8/10 (billing preserved), but neither of the cited commands drives those assertions. This is a command-to-intent binding mismatch per the evidence-must-bind-literal-intent-command rule.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T15:09:43.907Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "reviewRunId": "B-6878:RR-003",
+      "_hash": "a9a737f0799144226d76a1aa65ce176e1469b07db015e710048f9057d7ffc262",
+      "files": [
+        "packages/main/src/core/usage-ledger/sanitize.ts",
+        "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-adversarial-bound",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded CHK-001:happy:0 + adversarial:0 (and all 9) bound to the smoke command that actually drives them (ef73b51).",
+      "resolvedAt": "2026-06-20T15:56:51.234Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-003",
+      "desc": "CHK-003:adversarial:0 evidence note honestly discloses that the estimate path pollution assertion (check 17 in the smoke, labeled LOAD-BEARING) passes even pre-hardening by design, because the estimate path computes inputTokens from prompt bytes and sets output/cache to literal null — it never reads any token key off an externally-derived usage object. However, the smoke labels this check LOAD-BEARING in the check label string itself (line 353: estimate (LOAD-BEARING): ...). This label is inaccurate at the source level: a reader inspecting the smoke code sees a LOAD-BEARING label for an assertion that the evidence note concedes is not load-bearing. The CHK-003:adversarial:0 intent requires ALL pollution assertions to be load-bearing. The evidence note provides accurate disclosure but the smoke label creates a contradiction that must be resolved: either remove the LOAD-BEARING label from check 17 and add a clear NOT-LOAD-BEARING annotation, or remove the check from the load-bearing count and add an advisory note in the smoke. The current state where the code says LOAD-BEARING and the note says it is not is a honesty gap.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T15:09:56.093Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "reviewRunId": "B-6878:RR-003",
+      "_hash": "29d2db9fd81144e54cc7a4ef27402d6bb92ae3fba5515fa03163768c76942054",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-note",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Estimate-path smoke check relabeled honestly (NOT load-bearing) in round 2 (392fd563), matching the evidence note.",
+      "resolvedAt": "2026-06-20T15:56:51.763Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-004",
+      "desc": "dispatch-usage.ts:199 + streaming.ts container reads — the CONTAINER read is unguarded: extractAnthropicUsage(envelope.usage) reads envelope.usage via prototype-chain BEFORE the in-function chokepoint; if Object.prototype.usage={input_tokens:999,...} and envelope lacks own usage, the inherited container object is passed in and its OWN props pass the whitelist. Same for streaming.ts stream containers (usage/usageMetadata). Fix: own-prop guard the container read (ownProp(envelope,'usage') / ownProp(container,'usage'|'usageMetadata')) before projecting; only treat an OWN-property container as present.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:13:07.423Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "_hash": "dc937c25e622fbafa8e82da3366c544150593ce35f08d5582372268c8c978a85",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/usage-ledger/streaming.ts"
+      ],
+      "signatureTag": "adversarial|ts|dispatch-usage-streaming",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 2 (392fd563): own-prop guard every external container read (envelope.usage/model, stream usage/usageMetadata/message); inherited-only container treated absent. CONTAINER-POLLUTION smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:52.299Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-005",
+      "desc": "assemble.ts:76 (sanitizeRawUsage) — BILLING/DIGEST REGRESSION for legitimate data: the projected whitelist-only object REPLACES the raw payload that flows to the adapter, and buildProviderReportedUsage computes raw.payloadDigest = sha256(canonicalJson(rawUsage)) over THAT projected object. So a normal un-polluted provider payload carrying legitimate extra fields the adapter does not read (openai total_tokens, gemini totalTokenCount, service_tier, nested non-read details) now produces a DIFFERENT payloadDigest than pre-hardening — a silent change to persisted records. Note canonicalJson uses Object.keys (own-only), so digesting the ORIGINAL raw payload is already pollution-safe AND preserves extra fields. Fix: compute payloadDigest from the ORIGINAL raw payload; use the projected/guarded object ONLY for the token-field READS (do not let projection feed the digest). Add a smoke: a legitimate payload WITH extra fields (total_tokens etc.) yields a payloadDigest byte-identical to pre-hardening.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:13:08.029Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "_hash": "34f1a0e1e531ef5b112bd76e0e23b12f61a1cd9db79c9bd46b777a1ed9a2f21e",
+      "files": [
+        "packages/main/src/core/usage-ledger/assemble.ts",
+        "packages/main/src/core/usage-ledger/adapters/shared.ts"
+      ],
+      "signatureTag": "adversarial|ts|assemble-sanitizerawusage-billing",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 2 (392fd563): adapters digest the ORIGINAL raw payload (canonicalJson own-only), project only for reads; payloadDigest byte-identical for legit data incl extra fields. DIGEST-PRESERVED smoke.",
+      "resolvedAt": "2026-06-20T15:56:52.829Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-006",
+      "desc": "quality-cleanup: dispatch-usage.ts:56 defines a local ANTHROPIC_USAGE_WHITELIST that duplicates the exported ANTHROPIC_USAGE_WHITELIST from adapters/anthropic.ts but does not import it — if the adapter whitelist ever gains or loses a field the dispatch extractAnthropicUsage path silently stays on the stale local copy",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T15:28:45.191Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "reviewRunId": "B-6878:RR-004",
+      "_hash": "8c618c12426bede9e9dce082a9dfd2aec8a59497ea16000cf69eb3497cc85439",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-dispatch",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812) / round 4 (6f719cd2): single shared whitelist — dispatch imports ANTHROPIC_USAGE_WHITELIST; streaming imports OPENAI/GEMINI whitelists from the adapters.",
+      "resolvedAt": "2026-06-20T15:56:53.361Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-007",
+      "desc": "streaming.ts:231 (openai) + :285 (gemini) — STREAMING digest regression (same class as F-005, on the streaming path FIX A missed): the streaming extractor pre-projects the terminal stream usage via sanitizeOpenAiStreamUsage / toOwnPropsNullProto BEFORE calling adaptOpenAiUsage/adaptGeminiUsage, so the adapter digests the PROJECTION → legitimate extra fields (openai total_tokens / nested audio_tokens, gemini totalTokenCount) are dropped from raw.payloadDigest vs the original terminal usage payload. The pre-projection was added by THIS story (CHK-002), so it is a regression. Fix: digest the ORIGINAL terminal stream usage (own-prop-guarded container), project ONLY for the token reads — mirror FIX A. Add a streaming DIGEST-PRESERVED smoke (legit stream terminal usage WITH extra fields → payloadDigest === original).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:31:05.933Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "_hash": "299a8ed27c5064c22fb71bc776b6517e204565d57a6330c478a6910393937365",
+      "files": [
+        "packages/main/src/core/usage-ledger/streaming.ts"
+      ],
+      "signatureTag": "adversarial|ts|streaming-openai-gemini",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812): streaming openai/gemini digest the ORIGINAL terminal usage (pass original to adapter), project only for reads. Streaming DIGEST-PRESERVED smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:53.893Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-008",
+      "desc": "dispatch-usage.ts:215 — resultText reads inherited envelope.result via prototype-chain; Object.prototype.result can replace the raw fallback text on a no-own-result envelope (same unguarded-container class as F-004, missed in round 2). Not a token surface, but same hardening class in the same file. Fix: own-prop guard the envelope.result read (ownProp(envelope,'result') ? ... : fallback). Add a smoke check that a polluted Object.prototype.result is not used when the envelope has no own result.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:31:06.481Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "_hash": "4b56c613f8715ba9214fbd05f9079324a46cfa55ebac0cfcc466ad82903319aa",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+      ],
+      "signatureTag": "adversarial|ts|dispatch-usage-resulttext",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 3 (cb956812): own-prop guard envelope.result in parseClaudeCliOutput. result-pollution smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:54.423Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-009",
+      "desc": "doc-promise-undelivered: streaming.ts block comment (lines 39-44) says the projection makes every downstream read INCLUDING the adapter call operate on a null-proto whitelist-only object, but after F-007 the adapter call receives the ORIGINAL (not the projection) — the comment was not updated and now actively misleads: it implies the adapter sees a projection when in reality the adapter does its own internal project-for-reads and digests the original",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T15:42:48.849Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-009",
+      "_hash": "23357d4ddaa0beea306d26e6e5a14baefe6b859bb79031d21ab8aebebfcd701a",
+      "files": [
+        "packages/main/src/core/usage-ledger/streaming.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-streaming",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 4 (6f719cd2): corrected the stale streaming block comment to reflect the adapter receiving the ORIGINAL terminal usage (projection only for local reads).",
+      "resolvedAt": "2026-06-20T15:56:54.947Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-010",
+      "desc": "concept-cleanup: streaming.ts defines local OPENAI_STREAM_WHITELIST / OPENAI_STREAM_NESTED_DETAIL_WHITELIST / GEMINI_STREAM_WHITELIST as manual copies of the exported OPENAI_USAGE_WHITELIST / OPENAI_NESTED_DETAIL_WHITELIST / GEMINI_USAGE_WHITELIST from adapters/openai.ts and adapters/gemini.ts instead of importing them — the same DRY divergence risk that F-006 fixed for the anthropic whitelist in dispatch-usage.ts remains unaddressed for openai and gemini in streaming.ts; the misleading comment Enumerated directly from the adapters implies import not manual copy",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T15:42:56.721Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-009",
+      "_hash": "97389b5c82dc380d7e4b4d85f317c3a98497eadbc45622414b5fae76615c8eca",
+      "files": [
+        "packages/main/src/core/usage-ledger/streaming.ts",
+        "packages/main/src/core/usage-ledger/adapters/openai.ts",
+        "packages/main/src/core/usage-ledger/adapters/gemini.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-streaming",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 4 (6f719cd2): DRY'd the openai/gemini stream whitelists — import the exported adapter constants, dropped local copies.",
+      "resolvedAt": "2026-06-20T15:56:55.473Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-6878:F-011",
+      "desc": "record.ts validator still uses prototype-chain presence reads on the record being validated: :357 (required top-level fields), :369 (storyId in), :381 (supersedesRecordIds in), :527 (optional estimator.confidence in). The record input is internally assembled (lower risk than external JSON), but the story goal is a SYSTEMATIC sweep — leaving these inconsistent with the :493 conversion. Fix: convert ALL these to Object.prototype.hasOwnProperty.call (MECHANISM only; B-253e validation RULES unchanged), and grep the whole core/usage-ledger module to confirm NO 'key in obj' prototype-chain presence read remains (except genuinely-internal-table bracket lookups in diagnostics, which the spec marks optional). Add a smoke: pollute Object.prototype.storyId/supersedesRecordIds with a record MISSING that own field → validation still fails (load-bearing).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:45:04.257Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "_hash": "f45d0135f64c20fe72005ff5a263f605fd51bdfc837e3877d2c80f5e1a5831f9",
+      "files": [
+        "packages/main/src/core/usage-ledger/record.ts"
+      ],
+      "signatureTag": "adversarial|ts|record-validator-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 4 (6f719cd2): converted ALL remaining record.ts validator presence reads to hasOwnProperty (storyId/supersedesRecordIds/subagentId/threadId/confidence), mechanism-only; exhaustive grep confirms zero key-in-obj reads remain in core/usage-ledger. validator-pollution smoke load-bearing.",
+      "resolvedAt": "2026-06-20T15:56:56.003Z",
+      "resolutionType": "fixed"
+    }
+  ]
+}

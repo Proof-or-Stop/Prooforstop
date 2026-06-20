@@ -21,7 +21,7 @@
  *     when the output is not the Claude Code JSON envelope.
  */
 
-import { type AnthropicUsage } from './adapters/anthropic.js';
+import { type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
 import {
   buildProviderRecord,
   type RecordAttribution,
@@ -45,6 +45,17 @@ import {
   type UsageLedgerRecordInput,
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
+import { ownProp, toOwnPropsNullProto } from './sanitize.js';
+
+/**
+ * B-6878 (F-006 fix): the Anthropic token keys extractAnthropicUsage reads off a
+ * parsed `.usage` object are the SAME chokepoint whitelist the anthropic adapter
+ * uses. Reuse the single exported ANTHROPIC_USAGE_WHITELIST (adapters/anthropic.ts)
+ * rather than a local duplicate so a future whitelist change cannot silently
+ * diverge between the dispatch extract entry and the adapter. Projecting through
+ * toOwnPropsNullProto before the u.* reads makes a polluted Object.prototype token
+ * key unreachable via the prototype chain.
+ */
 
 /**
  * Re-export the opt-in gate so the dispatch seam imports ONLY this module from
@@ -107,7 +118,11 @@ function extractAnthropicUsage(usage: unknown): AnthropicUsage | null {
   if (typeof usage !== 'object' || usage === null || Array.isArray(usage)) {
     return null;
   }
-  const u = usage as Record<string, unknown>;
+  // B-6878: project to a null-proto, whitelist-only object BEFORE any u.* read so
+  // a polluted Object.prototype token key can never be resolved via inheritance
+  // on a usage object that lacks that key as an own property. Legitimate
+  // own-property counts are copied verbatim, so the extracted usage is unchanged.
+  const u = toOwnPropsNullProto(usage, ANTHROPIC_USAGE_WHITELIST);
   // Both primaries must be finite non-negative integers to be a usable usage.
   if (!isFiniteNonNegativeInteger(u.input_tokens) || !isFiniteNonNegativeInteger(u.output_tokens)) {
     return null;
@@ -132,13 +147,18 @@ function extractAnthropicUsage(usage: unknown): AnthropicUsage | null {
  * `.usage.model`, else null. Only a non-empty string is accepted; any other type
  * (number, object, empty string) yields null so the seam falls back to the
  * best-effort default rather than recording a bad model id. Never throws.
+ *
+ * B-6878: every CONTAINER read (envelope.model, envelope.usage, the nested
+ * usage.model) is own-property guarded. An inherited (prototype-polluted)
+ * `model` / `usage` is treated as ABSENT, so a polluted Object.prototype.model
+ * can never become the recorded served model.
  */
 function extractModel(envelope: Record<string, unknown>): string | null {
-  const top = envelope.model;
+  const top = ownProp(envelope, 'model') ? envelope.model : undefined;
   if (typeof top === 'string' && top.length > 0) return top;
-  const usage = envelope.usage;
+  const usage = ownProp(envelope, 'usage') ? envelope.usage : undefined;
   if (typeof usage === 'object' && usage !== null && !Array.isArray(usage)) {
-    const nested = (usage as Record<string, unknown>).model;
+    const nested = ownProp(usage, 'model') ? (usage as Record<string, unknown>).model : undefined;
     if (typeof nested === 'string' && nested.length > 0) return nested;
   }
   return null;
@@ -178,13 +198,23 @@ export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
   }
 
   const envelope = parsed as Record<string, unknown>;
-  const anthropicUsage = extractAnthropicUsage(envelope.usage);
+  // B-6878: own-property guard the CONTAINER read of `usage`. An inherited
+  // (prototype-polluted) Object.prototype.usage on an envelope that has no OWN
+  // usage is treated as ABSENT, so the polluted container never reaches the
+  // extractor (whose own-prop whitelist would otherwise accept its own props).
+  const usageContainer = ownProp(envelope, 'usage') ? envelope.usage : undefined;
+  const anthropicUsage = extractAnthropicUsage(usageContainer);
   const model = extractModel(envelope);
 
-  // `.result` is the human-facing text. When it is a string, use it; otherwise
-  // fall back to the raw stdout (a JSON-with-usage-but-no-result envelope still
-  // surfaces its usage, but its result text is the raw blob).
-  const resultText = typeof envelope.result === 'string' ? envelope.result : raw;
+  // `.result` is the human-facing text. When it is an OWN string property, use it;
+  // otherwise fall back to the raw stdout (a JSON-with-usage-but-no-result envelope
+  // still surfaces its usage, but its result text is the raw blob).
+  // B-6878 (F-008 fix): own-property guard the CONTAINER read. An inherited
+  // (prototype-polluted) Object.prototype.result on an envelope with NO own
+  // `result` is treated as ABSENT, so a polluted prototype can never replace the
+  // raw-stdout fallback text.
+  const ownResult = ownProp(envelope, 'result') ? envelope.result : undefined;
+  const resultText = typeof ownResult === 'string' ? ownResult : raw;
 
   return { resultText, anthropicUsage, model };
 }

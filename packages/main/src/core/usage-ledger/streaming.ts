@@ -25,8 +25,13 @@
 
 import type { LedgerUsage, TokenDimension, UsageCanonical } from './record.js';
 import { adaptAnthropicUsage, ANTHROPIC_PROVIDER_UNITS } from './adapters/anthropic.js';
-import { adaptOpenAiUsage, OPENAI_PROVIDER_UNITS } from './adapters/openai.js';
-import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS } from './adapters/gemini.js';
+import {
+  adaptOpenAiUsage,
+  OPENAI_PROVIDER_UNITS,
+  OPENAI_USAGE_WHITELIST,
+  OPENAI_NESTED_DETAIL_WHITELIST,
+} from './adapters/openai.js';
+import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS, GEMINI_USAGE_WHITELIST } from './adapters/gemini.js';
 import {
   buildUnavailableUsage,
   hasBothPrimaries,
@@ -34,6 +39,33 @@ import {
   payloadDigest,
   readReportedDimension,
 } from './adapters/shared.js';
+import { ownProp, toOwnPropsNullProto } from './sanitize.js';
+
+/**
+ * B-6878: per-provider token-key whitelists for the streaming path. The streaming
+ * extractors do NOT route through the assemble chokepoint, so each stream-parsed
+ * usage object is projected through toOwnPropsNullProto here for the LOCAL
+ * pollution-safe token READS (primaries + the partial cacheRead belt), making
+ * those reads operate on a null-proto, whitelist-only object — safe by
+ * construction, mirroring assemble. (The COMPLETE path defers to the adapter,
+ * which is fed the ORIGINAL terminal usage and does its own internal
+ * project-for-reads + digest-original; see the F-007 note at each call site.)
+ *
+ * F-010 (DRY): these whitelists are NOT re-declared here — they are the SAME
+ * exported constants the adapters use (OPENAI_USAGE_WHITELIST /
+ * OPENAI_NESTED_DETAIL_WHITELIST / GEMINI_USAGE_WHITELIST), imported above, so a
+ * future adapter whitelist change can never silently diverge from streaming.
+ */
+
+/** Project an openai stream usage object (incl. nested details) to null-proto. */
+function sanitizeOpenAiStreamUsage(raw: unknown): Record<string, unknown> {
+  const projected = toOwnPropsNullProto(raw, OPENAI_USAGE_WHITELIST);
+  const nested = projected.prompt_tokens_details;
+  if (nested !== null && typeof nested === 'object' && !Array.isArray(nested)) {
+    projected.prompt_tokens_details = toOwnPropsNullProto(nested, OPENAI_NESTED_DETAIL_WHITELIST);
+  }
+  return projected;
+}
 
 /** Default reason used when a stream produced no usage at all. */
 function noUsageReason(provider: string, errorReason?: string): string {
@@ -116,27 +148,41 @@ export function extractAnthropicStreamUsage(
 
   for (const event of events) {
     // message_start: message.usage carries input_tokens + cache fields.
-    const startUsage = event.message && isUsableUsageObject(event.message.usage)
-      ? (event.message.usage as Record<string, unknown>)
+    // B-6878: own-property guard EVERY container read (event.message, the nested
+    // message.usage, event.usage). An inherited (prototype-polluted) container is
+    // treated as ABSENT, so a polluted Object.prototype.message / .usage can never
+    // supply a usage block.
+    const message = ownProp(event, 'message') ? event.message : undefined;
+    const messageUsage = message && ownProp(message, 'usage') ? (message as { usage?: unknown }).usage : undefined;
+    const startUsage = isUsableUsageObject(messageUsage)
+      ? (messageUsage as Record<string, unknown>)
       : undefined;
-    if (startUsage && ('input_tokens' in startUsage || 'cache_read_input_tokens' in startUsage || 'cache_creation_input_tokens' in startUsage)) {
+    // Own-property checks (not prototype-chain `in`) on the stream-parsed usage
+    // objects. A polluted Object.prototype token key never makes a usage block
+    // look like it carried that field.
+    if (startUsage && (ownProp(startUsage, 'input_tokens') || ownProp(startUsage, 'cache_read_input_tokens') || ownProp(startUsage, 'cache_creation_input_tokens'))) {
       inputUsage = startUsage;
     }
     // message_delta (or any event) with a usage block carrying output_tokens.
-    const deltaUsage = isUsableUsageObject(event.usage) ? (event.usage as Record<string, unknown>) : undefined;
-    if (deltaUsage && 'output_tokens' in deltaUsage) {
+    const eventUsage = ownProp(event, 'usage') ? event.usage : undefined;
+    const deltaUsage = isUsableUsageObject(eventUsage) ? (eventUsage as Record<string, unknown>) : undefined;
+    if (deltaUsage && ownProp(deltaUsage, 'output_tokens')) {
       outputUsage = deltaUsage; // keep the LAST one (terminal event wins).
     }
   }
 
   // Build the merged native-shaped usage object for the adapter / partial path.
-  const merged: Record<string, unknown> = {};
+  // B-6878: null-proto so a downstream adapter read of a dimension that was never
+  // merged (e.g. the source carried no output_tokens) resolves to undefined, not
+  // an inherited Object.prototype value. Own-property copies preserve legitimate
+  // counts unchanged.
+  const merged = Object.create(null) as Record<string, unknown>;
   if (inputUsage) {
-    if ('input_tokens' in inputUsage) merged.input_tokens = inputUsage.input_tokens;
-    if ('cache_creation_input_tokens' in inputUsage) merged.cache_creation_input_tokens = inputUsage.cache_creation_input_tokens;
-    if ('cache_read_input_tokens' in inputUsage) merged.cache_read_input_tokens = inputUsage.cache_read_input_tokens;
+    if (ownProp(inputUsage, 'input_tokens')) merged.input_tokens = inputUsage.input_tokens;
+    if (ownProp(inputUsage, 'cache_creation_input_tokens')) merged.cache_creation_input_tokens = inputUsage.cache_creation_input_tokens;
+    if (ownProp(inputUsage, 'cache_read_input_tokens')) merged.cache_read_input_tokens = inputUsage.cache_read_input_tokens;
   }
-  if (outputUsage && 'output_tokens' in outputUsage) {
+  if (outputUsage && ownProp(outputUsage, 'output_tokens')) {
     merged.output_tokens = outputUsage.output_tokens;
   }
 
@@ -179,27 +225,47 @@ export function extractOpenAiStreamUsage(
 ): LedgerUsage {
   let lastUsage: unknown;
   for (const chunk of chunks) {
-    if (isUsableUsageObject(chunk.usage)) lastUsage = chunk.usage; // terminal wins.
+    // B-6878: own-property guard the CONTAINER read. An inherited (prototype-
+    // polluted) Object.prototype.usage on a chunk with no OWN usage is treated as
+    // ABSENT, so a polluted container never becomes the terminal usage block.
+    const container = ownProp(chunk, 'usage') ? chunk.usage : undefined;
+    if (isUsableUsageObject(container)) lastUsage = container; // terminal wins.
   }
 
   if (!isUsableUsageObject(lastUsage)) {
     return buildUnavailableUsage(noUsageReason('openai', errorReason));
   }
 
-  const usage = lastUsage as Record<string, unknown>;
-  const input = readReportedDimension(usage.prompt_tokens);
-  const output = readReportedDimension(usage.completion_tokens);
+  // B-6878 (F-007 fix): keep a reference to the ORIGINAL terminal stream usage. The
+  // whitelist PROJECTION is used ONLY for the local pollution-safe token READS
+  // (primaries + the partial cacheRead belt). The COMPLETE path defers to
+  // adaptOpenAiUsage, which itself project-for-reads + digests-the-ORIGINAL
+  // internally (round-2 FIX A) — so we pass the ORIGINAL (not the projection) to
+  // the adapter. This keeps raw.payloadDigest === payloadDigest(original terminal
+  // usage): a pre-projection here would have dropped legitimate extra non-read
+  // fields (total_tokens, nested audio_tokens) from the digest (a regression this
+  // story introduced).
+  const original = lastUsage;
+  const projected = sanitizeOpenAiStreamUsage(original);
+  const input = readReportedDimension(projected.prompt_tokens);
+  const output = readReportedDimension(projected.completion_tokens);
 
   if (hasBothPrimaries(input, output)) {
-    return adaptOpenAiUsage(usage);
+    // Pass the ORIGINAL: the adapter does the internal project-for-reads +
+    // digest-original, so the digest covers the original terminal usage.
+    return adaptOpenAiUsage(original);
   }
 
-  const cacheRead = isUsableUsageObject(usage.prompt_tokens_details) && 'cached_tokens' in (usage.prompt_tokens_details as Record<string, unknown>)
-    ? readReportedDimension((usage.prompt_tokens_details as Record<string, unknown>).cached_tokens)
+  // B-6878 (belt): own-property checks, not prototype-chain `in`, on the
+  // (already null-proto) projected details object.
+  const cacheRead = isUsableUsageObject(projected.prompt_tokens_details) && ownProp(projected.prompt_tokens_details, 'cached_tokens')
+    ? readReportedDimension((projected.prompt_tokens_details as Record<string, unknown>).cached_tokens)
     : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
   if (anyCount(dims)) {
-    return buildPartialProviderUsage(dims, OPENAI_PROVIDER_UNITS, usage);
+    // Partial path also digests the ORIGINAL terminal usage (not the projection),
+    // so a partial record's raw.payloadDigest matches the original payload too.
+    return buildPartialProviderUsage(dims, OPENAI_PROVIDER_UNITS, original);
   }
   return buildUnavailableUsage(noUsageReason('openai', errorReason));
 }
@@ -225,25 +291,46 @@ export function extractGeminiStreamUsage(
 ): LedgerUsage {
   let lastMeta: unknown;
   for (const chunk of chunks) {
-    if (isUsableUsageObject(chunk.usageMetadata)) lastMeta = chunk.usageMetadata; // terminal wins.
+    // B-6878: own-property guard the CONTAINER read. An inherited (prototype-
+    // polluted) Object.prototype.usageMetadata on a chunk with no OWN
+    // usageMetadata is treated as ABSENT, so a polluted container never becomes
+    // the terminal usageMetadata block.
+    const container = ownProp(chunk, 'usageMetadata') ? chunk.usageMetadata : undefined;
+    if (isUsableUsageObject(container)) lastMeta = container; // terminal wins.
   }
 
   if (!isUsableUsageObject(lastMeta)) {
     return buildUnavailableUsage(noUsageReason('gemini', errorReason));
   }
 
-  const meta = lastMeta as Record<string, unknown>;
+  // B-6878 (F-007 fix): keep a reference to the ORIGINAL terminal usageMetadata.
+  // The whitelist PROJECTION is used ONLY for the local pollution-safe token READS
+  // (primaries + the partial cacheRead belt). The COMPLETE path defers to
+  // adaptGeminiUsage, which itself project-for-reads + digests-the-ORIGINAL
+  // internally (round-2 FIX A) — so we pass the ORIGINAL (not the projection) to
+  // the adapter. This keeps raw.payloadDigest === payloadDigest(original terminal
+  // usageMetadata): a pre-projection here would have dropped a legitimate extra
+  // non-read field (totalTokenCount) from the digest (a regression this story
+  // introduced).
+  const original = lastMeta;
+  const meta = toOwnPropsNullProto(original, GEMINI_USAGE_WHITELIST);
   const input = readReportedDimension(meta.promptTokenCount);
   const output = readReportedDimension(meta.candidatesTokenCount);
 
   if (hasBothPrimaries(input, output)) {
-    return adaptGeminiUsage(meta);
+    // Pass the ORIGINAL: the adapter does the internal project-for-reads +
+    // digest-original, so the digest covers the original terminal usageMetadata.
+    return adaptGeminiUsage(original);
   }
 
-  const cacheRead = 'cachedContentTokenCount' in meta ? readReportedDimension(meta.cachedContentTokenCount) : null;
+  // B-6878 (belt): own-property check, not a prototype-chain `in`, on the
+  // (already null-proto) projected usageMetadata object.
+  const cacheRead = ownProp(meta, 'cachedContentTokenCount') ? readReportedDimension(meta.cachedContentTokenCount) : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
   if (anyCount(dims)) {
-    return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, meta);
+    // Partial path also digests the ORIGINAL terminal usageMetadata (not the
+    // projection), so a partial record's raw.payloadDigest matches the original.
+    return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, original);
   }
   return buildUnavailableUsage(noUsageReason('gemini', errorReason));
 }

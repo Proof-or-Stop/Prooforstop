@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Safe by construction: one null-proto whitelist chokepoint at the entry points makes every downstream read inheritance-proof, instead of guarding ~30 reads individually.",
+    "Generalize, do not reinvent: mirror the exact own-prop + Object.create(null) projection B-30c3 shipped for codex/gemini.",
+    "Honest scope: defense-in-depth + consistency, not a live-vuln fix; preserve all billing semantics (validator rules, four-field accounting, record shapes) byte-for-byte for legitimate data.",
+    "Cheap belt where the chokepoint does not reach: convert residual `in` operators (record validator, openai/shared, streaming) to own-property checks.",
+    "Leaf discipline + load-bearing tests: the helper is a pure leaf; a prototype-pollution smoke proves no inherited value reaches a persisted record on every path."
+  ],
+  "drivers": [
+    "The ledger reads token fields off externally-derived objects (JSON.parse of provider/CLI stdout, options) via prototype-chain access that would resolve an INHERITED value if Object.prototype were ever polluted; the ledger is billing/usage truth so a silent bogus count is high-consequence.",
+    "B-30c3 hardened only the provider extractors; the adapters/assemble/dispatch/streaming/record remainder is inconsistent and a latent foot-gun for the next maintainer.",
+    "A genuine Codex host-2 review (B-30c3 F-001/F-002) proved the pattern was worth a systematic sweep; the spec inventoried 48 surfaces and recommended the chokepoint."
+  ],
+  "options": [
+    {
+      "name": "single-null-proto-chokepoint-plus-in-operator-belt",
+      "pros": [
+        "Collapses ~30 surfaces to a handful; downstream reads safe by construction.",
+        "Generalizes the shipped B-30c3 strategy; consistent + auditable.",
+        "Future new reads are safe automatically; one place to lint."
+      ],
+      "cons": [
+        "Must enumerate the per-provider whitelist (already known from the adapters)."
+      ]
+    },
+    {
+      "name": "per-read-own-property-guards-everywhere",
+      "pros": [
+        "Minimal/local; mirrors B-30c3 literally per site."
+      ],
+      "cons": [
+        "~30+ edit sites; no structural guarantee; easy to forget on the next new read."
+      ]
+    },
+    {
+      "name": "object-freeze-object-prototype-at-process-start",
+      "pros": [
+        "Blunt global mitigation."
+      ],
+      "cons": [
+        "Risks breaking deps that legitimately write prototypes; far outside the ledger boundary — rejected."
+      ]
+    }
+  ],
+  "chosen": "single-null-proto-chokepoint-plus-in-operator-belt",
+  "rationale": "Per the spec recommendation: a single null-prototype whitelist chokepoint applied at extractRawUsage (assemble.ts) and the anthropic extract (dispatch-usage.ts) makes every downstream adapter/streaming read operate on a null-proto, whitelist-only object — generalizing the exact own-prop/null-proto strategy B-30c3 shipped for codex/gemini and collapsing ~30 prototype-chain surfaces into a handful that are safe by construction. The residual `in` operators (record validator, openai/shared adapters, streaming merge) get the cheap own-property belt. Per-read guards lack a structural guarantee; Object.freeze is out of boundary. Billing semantics are untouched for legitimate own-property data.",
+  "preMortem": [
+    {
+      "scenario": "The chokepoint drops a legitimate own-property token field (whitelist too narrow), changing a real persisted record.",
+      "trigger": "Whitelist omits a provider field (e.g. a nested detail key or a newer field).",
+      "consequence": "A legitimate token count goes missing from a record — a real billing regression.",
+      "mitigation": "Enumerate the whitelist directly from the existing adapters (anthropic/openai/gemini incl. nested cached_tokens); a smoke asserts a normal (un-polluted) record for each provider is byte-identical before/after the chokepoint (legitimate data preserved)."
+    },
+    {
+      "scenario": "The smoke pollutes Object.prototype but does not restore it, corrupting later tests in the same process.",
+      "trigger": "No try/finally around the pollution.",
+      "consequence": "Cross-test contamination / flaky suite.",
+      "mitigation": "Every pollution is inside try/finally that deletes the key in finally; the smoke asserts Object.prototype is clean again at the end."
+    },
+    {
+      "scenario": "A pollution assertion is vacuous (passes even without the hardening) because the test path never actually reads the polluted key.",
+      "trigger": "Asserting on a path the chokepoint already bypassed, or a key no adapter reads.",
+      "consequence": "False confidence; the hardening could regress undetected.",
+      "mitigation": "Each assertion targets a real token key the path reads, and is verified load-bearing (must FAIL against pre-hardening code / with the chokepoint removed)."
+    },
+    {
+      "scenario": "Converting record.ts `in` to own-prop subtly changes validator behavior for legitimate data.",
+      "trigger": "Touching validation rules while converting the `in` mechanism.",
+      "consequence": "Billing validation regression (NON-GOAL violation).",
+      "mitigation": "Convert ONLY the `in` mechanism, not the rules; full npm test (which exercises the B-253e validator) stays green; the smoke asserts legitimate records validate identically."
+    }
+  ],
+  "timestamp": "2026-06-20T14:41:12.034Z"
+}
