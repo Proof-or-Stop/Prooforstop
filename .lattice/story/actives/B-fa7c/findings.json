@@ -154,7 +154,7 @@
       "desc": "MINOR: the safeReadScopeContract smoke proves the helper returns null on a throwing store, but does not exercise the createParallelWave -> contractsByStoryId -> storyRef end-to-end crash site. Fix: add a minimal end-to-end assertion (if feasible without heavy fakes) that createParallelWave completes when one story's readScopeContract throws, preserving readable peers; otherwise document that the helper-level coverage + source-verified usage is sufficient.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T07:50:21.197Z",
@@ -164,7 +164,11 @@
         "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
       ],
       "signatureTag": "edge|ts|minor-safereadscopecontract-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeReadScopeContract helper tested (throw->null, both error kinds); a full hermetic createParallelWave e2e was judged disproportionate (its storyRef path runs buildCanonicalStory ~13 store reads + real git probes). Mitigation: createParallelWave routes EVERY contract read through safeReadScopeContract (contractsByStoryId build) and storyRef only does pure Map.get lookups — no direct store.readScopeContract in that path — so a corrupt contract cannot throw out of createParallelWave; documented with a source-cited smoke note + helper assertion. commit 4612174fa.",
+      "resolvedAt": "2026-06-20T07:55:03.277Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
