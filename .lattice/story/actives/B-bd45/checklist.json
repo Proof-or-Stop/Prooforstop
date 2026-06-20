@@ -54,7 +54,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Blocked stories show rows with code, category, owner, source, reason, and an exact next command when available; warn rows remain visible without making localReady false.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/lifecycle-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "localReady is true iff no readiness row has blocking:true",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "warn/advisory rows are visible and do not block localReady",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manual/external/Authority claims are not promoted to authorityDone/fullAuthorityDone/productionDone without verified receipt facts",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
