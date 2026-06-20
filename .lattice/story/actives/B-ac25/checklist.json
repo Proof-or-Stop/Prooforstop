@@ -93,9 +93,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T10:11:24.897Z",
       "files": {
         "modify": [
           "packages/main/src/core/done-required-validation.ts",
@@ -134,7 +134,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke exercises done_required_validate runner writing done-required-evidence.json with PASS receipts for configured required commands.",
+          "headHash": "1efa0a2828f8492827ac3c156ba938e27d9db4a0",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:25.226Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke runs a failing required command and asserts a FAIL artifact with exit code and blocking evaluation.",
+          "headHash": "1efa0a2828f8492827ac3c156ba938e27d9db4a0",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:25.540Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves root npm test receipt without preceding same-material packages/main build proof is rejected with missing-build-proof.",
+          "headHash": "1efa0a2828f8492827ac3c156ba938e27d9db4a0",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:11:25.853Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
