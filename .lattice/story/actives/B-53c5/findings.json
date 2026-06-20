@@ -5,7 +5,7 @@
       "desc": "smoke-coverage-gap: adversarial-review-contract-smoke.ts does not import or construct CompletenessCriticIO — the wrapper interface is exported (adversarial-review.ts:144) but never referenced in the smoke, so the runtime coverage claim in CHK-002:edge evidence relies solely on tsc, not a smoke assertion",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T12:19:59.228Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/adversarial-review.ts"
       ],
       "signatureTag": "missing|ts|smoke-coverage-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke now constructs + asserts a runtime CompletenessCriticIO value (3 assertions). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:39.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-53c5:F-002",
