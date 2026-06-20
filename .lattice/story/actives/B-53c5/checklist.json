@@ -86,7 +86,39 @@
       "context": "Export an interface/types for the review MODE round: the canonical order is run lenses -> adversarially verify lens raw findings -> run critic on {change, CONFIRMED lens findings} -> verify critic raw findings -> converge-or-reopen. Encode the order as a declared constant (e.g. an ordered phase enum/tuple REVIEW_MODE_PHASES) AND a round/result interface (lenses, confirmedFindings, criticFindings, reopen: boolean, converged: boolean) so S1-S4 wire to a single declared surface and cannot drift from the spec. Types + interface only — NO behavior/implementation.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke asserts REVIEW_MODE_PHASES equals the canonical 5-step order [lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen]; WHY: the single declared source of truth for the round order",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a Round/RoundResult interface is exported with fields covering lenses, confirmedFindings, criticFindings, reopen:boolean, converged:boolean; WHY: S4 wires the round/reopen loop to this surface",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the interface/const carry NO implementation (types + a const data tuple only); WHY: types-only contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
