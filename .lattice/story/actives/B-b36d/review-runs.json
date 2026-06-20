@@ -320,6 +320,102 @@
         "bindingHash": "408ada71b280fc38e51ea59c518f63346adcdebdfb8e46177d33d3b7cfd38baf"
       },
       "_hash": "d5aaf109eab3f6e57536c457da2268f69fafb60036557a33c9880dba82aea313"
+    },
+    {
+      "reviewRunId": "B-b36d:RR-008",
+      "storyId": "B-b36d",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "startedAt": "2026-06-20T12:21:46.683Z",
+      "headHash": "6ee68bc492e10b146aac7fb2cd02c5587ebf9bb6",
+      "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+      "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "46743f2ac01351995fc4b08db04aff62332d6b414a3102cbedccb8ea7c942b2f",
+        "diffPackHash": "34e5bceb1a8e01940d0e0ffa1777458b148a0cb8e797c50fa875b066b3e5d842",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "3462301672f8498f053a21e13e7fb588ebf2b1b752fb654238f9849bace31b4a",
+          "56aff9b20ffd566d27a2683196802cb2fe5e727ec8eb96386c5d49b9693cc686",
+          "c0054c0921144baeb415428ae765d553cd8cd2e273fc58d18a2807e4b0391603"
+        ],
+        "bindingHash": "e51cee0c4d7635fe49ce19d389d7308c1e9a879b8dbc879091e1f83fc03f81ab"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "workspaceMode": "story-worktree",
+        "headHash": "6ee68bc492e10b146aac7fb2cd02c5587ebf9bb6",
+        "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+        "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+        "bindingHash": "2db80aee734f7f828f67092f86ab309f80ea0c0b0b198fa958f8827de28b8625"
+      },
+      "_hash": "0a0db3571b7902fc3fecc77dda96b51afd95fba882baee0bcf4eef801b1c1262"
+    },
+    {
+      "reviewRunId": "B-b36d:RR-009",
+      "storyId": "B-b36d",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "startedAt": "2026-06-20T12:21:56.309Z",
+      "headHash": "6ee68bc492e10b146aac7fb2cd02c5587ebf9bb6",
+      "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+      "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "46743f2ac01351995fc4b08db04aff62332d6b414a3102cbedccb8ea7c942b2f",
+        "diffPackHash": "34e5bceb1a8e01940d0e0ffa1777458b148a0cb8e797c50fa875b066b3e5d842",
+        "reviewedChangedFiles": [
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3462301672f8498f053a21e13e7fb588ebf2b1b752fb654238f9849bace31b4a",
+          "56aff9b20ffd566d27a2683196802cb2fe5e727ec8eb96386c5d49b9693cc686",
+          "c0054c0921144baeb415428ae765d553cd8cd2e273fc58d18a2807e4b0391603"
+        ],
+        "bindingHash": "2aafbe53601e5ff1f9ee1b400ce8a7a62b017ab50b60418544134b546f9383ba"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b36d",
+        "workspaceMode": "story-worktree",
+        "headHash": "6ee68bc492e10b146aac7fb2cd02c5587ebf9bb6",
+        "materialHash": "f1a392f546bb4174a96d899f38080f3dd4f86baec9eb1fc19a308e3c45fc7277",
+        "storyFilesHash": "216ea7d391516e2acb19443ec64429371a83801489c90931f92eee9e106f80d8",
+        "bindingHash": "2db80aee734f7f828f67092f86ab309f80ea0c0b0b198fa958f8827de28b8625"
+      },
+      "_hash": "34affcc8db92696a7dd79cc6c384f616826bcce60f5b9a153f3456c01916be04"
     }
   ]
 }
