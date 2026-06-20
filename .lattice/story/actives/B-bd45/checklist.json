@@ -120,7 +120,21 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke asserts localReady equals !readiness.some(row.blocking === true).",
+          "headHash": "7ef76fc23f28004b42a8483afad6fb5daea347bc",
+          "materialHash": "c867a57dac5f4c06aca8402b85bb0912f98237a30a8f29a722bc652dea930ab1",
+          "storyFilesHash": "6be48627477b6866f5e61981b05a237d1df3a322283488712c1c61f252054fc5",
+          "timestamp": "2026-06-20T21:02:16.312Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
