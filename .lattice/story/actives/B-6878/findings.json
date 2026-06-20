@@ -59,6 +59,24 @@
       ],
       "signatureTag": "missing|ts|adversarial-evidence-note",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-004",
+      "desc": "dispatch-usage.ts:199 + streaming.ts container reads — the CONTAINER read is unguarded: extractAnthropicUsage(envelope.usage) reads envelope.usage via prototype-chain BEFORE the in-function chokepoint; if Object.prototype.usage={input_tokens:999,...} and envelope lacks own usage, the inherited container object is passed in and its OWN props pass the whitelist. Same for streaming.ts stream containers (usage/usageMetadata). Fix: own-prop guard the container read (ownProp(envelope,'usage') / ownProp(container,'usage'|'usageMetadata')) before projecting; only treat an OWN-property container as present.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-20T15:13:07.423Z",
+      "reviewRound": "2026-06-20T15:05:06.680Z",
+      "_hash": "dc937c25e622fbafa8e82da3366c544150593ce35f08d5582372268c8c978a85",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/usage-ledger/streaming.ts"
+      ],
+      "signatureTag": "adversarial|ts|dispatch-usage-streaming",
+      "signatureTagSource": "auto"
     }
   ]
 }
