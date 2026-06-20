@@ -1,0 +1,71 @@
+{
+  "storyId": "B-5a48",
+  "checkedAt": "2026-06-20T13:13:28.384Z",
+  "reviewRound": "2026-06-20T13:01:17.206Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/experience-hint-surface.ts (new file)",
+      "promise": "A shared firing leaf surfaceExperienceHints exists in core/experience-hint-surface.ts holding the firing+dedup+arm logic; imports only experience-hint-loader/hint-mode/activity-log",
+      "verifiedBy": "diff/grep",
+      "evidence": "File added in diff with exactly 4 imports: experience-hint-loader.js, activity-log.js, hint-mode.js (+ HintMode type). No other imports. surfaceExperienceHints exported with full firing+dedup+arm+try-catch logic."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts (refactored)",
+      "promise": "handlers/story-review.ts refactored to call the leaf (byte-preserving); inline firing block removed, single surfaceExperienceHints call replaces it; ab-shadow-gate-smoke still passes 14/14",
+      "verifiedBy": "diff/grep",
+      "evidence": "Diff removes 31 lines of inline firing code and replaces with single surfaceExperienceHints call. Golden assertions in smoke (CHK-001 edge:0 and edge:1) verify _reviewPrompt bytes byte-identical on both arms. resolveReviewPromptHash never called with renderedHintsSection."
+    },
+    {
+      "docPath": "packages/main/src/handlers/transition-effects.ts (new REVIEW wiring)",
+      "promise": "buildNextSteps REVIEW branch surfaces rendered+gated hints after Agent({lattice-review-*}) lines, gated on story.phase===REVIEW inside try/catch (advisory-only), with F-001 phase guard",
+      "verifiedBy": "diff/grep",
+      "evidence": "Diff adds 49 lines: imports surfaceExperienceHints, wraps in try/catch, guards on phase===REVIEW before calling surfaceExperienceHints. Smoke CHK-002 adversarial:1 asserts zero events on non-REVIEW buildNextSteps. CHK-002 happy:0 asserts section follows Agent lines."
+    },
+    {
+      "docPath": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts (new) + package.json alias",
+      "promise": "A smoke file with 11 checks plus package.json alias test:experience-layer-review-dispatch-hint",
+      "verifiedBy": "diff/grep",
+      "evidence": "622-line file added with exactly 11 check() calls covering ON/OFF arms, cross-site dedup, F-001 regression, resolveReviewPromptHash invariant, golden _reviewPrompt, direct leaf, try/catch swallow, corrupt-cache and EISDIR adversarial cases. package.json alias confirmed in diff."
+    },
+    {
+      "docPath": "invariant: handlers/review-run.ts and core/review-run.ts NOT in diff",
+      "promise": "Protected files handlers/review-run.ts and core/review-run.ts are NOT in the diff",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "git diff main...HEAD produces zero lines for either file. resolveReviewPromptHash defined only in core/review-run.ts (unchanged), called only in handlers/review-run.ts (unchanged). No new invocation in story-review.ts or transition-effects.ts."
+    },
+    {
+      "docPath": "invariant: no new CLI command (no command-policy/process-fact/registry/catalog edits)",
+      "promise": "No new CLI command introduced — no edits to command-policy, process-fact, registry, or catalog files",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "Changed file list: story metadata + packages/main/package.json (alias only) + experience-hint-surface.ts + story-review.ts + transition-effects.ts + smoke task. No registry/catalog/command-policy/process-fact files present."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-5a48/evidence/transcript-diff.md",
+      "promise": "Real-machine evidence documents B-5a48 REVIEW transitions (OFF-arm) fired lossless experience_hint_surfaced events keyed on ISO currentReviewRound; non-REVIEW transitions fired none (F-001 fix live)",
+      "verifiedBy": "file read",
+      "evidence": "transcript-diff.md section 1: resolveHintMode(B-5a48)=off; two REVIEW transitions wrote events hintMode=off hintIds=3 in live activity log; DEV transitions fired zero events. Section 2: smoke 11/11 exit 0 + ab-shadow-gate 14/14. Section 3: npm test ALL PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke CHK-001: direct leaf ON-arm returns rendered section + fires on-event (happy:0); golden _reviewPrompt bytes byte-identical ON arm (edge:0) and OFF arm lossless (edge:1); try/catch swallows load/track failure renderedSection empty fired=false no throw no partial event (adversarial:0). Smoke TOTAL 11 | PASS 11 | FAIL 0 exit 0. npm test ALL PASS. Confirmed by transcript-diff.md section 2."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke CHK-002: ON-arm REVIEW guidance contains hints section after Agent lines + one on-event (happy:0); OFF-arm REVIEW guidance byte-identical to no-hints baseline + one off-event lossless (edge:0); hint-path failure through buildNextSteps never blocks transition — corrupt cache + EISDIR injection (adversarial:0); F-001 regression: non-REVIEW buildNextSteps fires ZERO events (adversarial:1). Live: B-5a48 own REVIEW transitions fired lossless OFF-arm events in live activity log (transcript-diff.md section 1). Smoke 11/11 exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke CHK-003: cross-site dedup PLAN plan:<phase> + REVIEW ISO-key events disjoint; second REVIEW buildNextSteps in same round adds no event; REVIEW reviewRound equals ISO currentReviewRound (edge:0); resolveReviewPromptHash byte-identical ON vs OFF (adversarial:0). npm test ALL PASS exit 0. lifecycle-registry-contract smoke pass (no new command). Transcript-diff.md section 3."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 doc promises verified against diff and source. The leaf exists with correct imports and behavior, story-review.ts is refactored with byte-preserving golden assertions, transition-effects.ts wires hints with F-001 phase guard and advisory try/catch, and the 11-check smoke covers ON/OFF arms, cross-site dedup, F-001 regression, invariants, and adversarial failure injection. Protected files untouched (zero diff lines), no new CLI commands. Real-machine evidence in transcript-diff.md confirms live OFF-arm events from B-5a48 own REVIEW transitions and full test suite 11/11 + 14/14 + ALL PASS."
+  },
+  "_hash": "f98570e30ca482c65c8d516cf7be47c61ae482b655f4cbd1835083852ff4473e"
+}

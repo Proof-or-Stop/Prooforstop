@@ -30,9 +30,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { loadExperienceHints, formatExperienceHintsSection, hasExperienceHints, experienceHintIds } from '../core/experience-hint-loader.js';
-import { appendActivityLog, readActivityLogTail } from '../core/activity-log.js';
-import { resolveHintMode } from '../core/hint-mode.js';
+import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -601,52 +599,21 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // The `_reviewPrompt` section still renders on every call — only the EVENT is
       // deduped — so a NEW round (or a different story) yields a new event.
       const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`;
-      // B-06b3 CHK-002: deterministic A/B arm for the advisory experience-hint
-      // SHADOW gate. The arm only governs whether the advisory section is
-      // RENDERED into `_reviewPrompt` (see `renderedHintsSection` below) — hints
-      // are ALWAYS computed and the experience_hint_surfaced event ALWAYS fires
-      // (with this hintMode) on BOTH arms, so measurement is lossless. The arm
-      // must NEVER enter the issues/blocker computation or resolveReviewPromptHash.
-      const hintMode = resolveHintMode(args.storyId);
-      let experienceHintsSection = '';
-      try {
-        const experienceHints = loadExperienceHints(ctx.root);
-        // ALWAYS compute the section (independent of arm); the OFF arm hides it
-        // from the prompt via the render-gate below, but the event still records
-        // the full would-have-surfaced set.
-        experienceHintsSection = formatExperienceHintsSection(experienceHints);
-        if (hasExperienceHints(experienceHints)) {
-          // Skip the append if an experience_hint_surfaced event already exists for
-          // this (storyId, hintRoundKey) — repeated calls in the same round => one event.
-          const alreadySurfaced = readActivityLogTail(ctx.root, 1000).some(
-            (e) => e.event === 'experience_hint_surfaced'
-              && e.storyId === args.storyId
-              && e.reviewRound === hintRoundKey,
-          );
-          if (!alreadySurfaced) {
-            // USAGE TRACKING: exactly one event per (storyId, review round).
-            // Fires on BOTH arms; the hintMode field records which arm surfaced
-            // (ON) or shadow-suppressed (OFF) the section.
-            appendActivityLog(ctx.root, {
-              timestamp: new Date().toISOString(),
-              event: 'experience_hint_surfaced',
-              storyId: args.storyId,
-              reviewRound: hintRoundKey,
-              hintMode,
-              hintIds: experienceHintIds(experienceHints),
-            });
-          }
-        }
-      } catch (e) {
-        // Advisory-only: never let hint loading/tracking break story_review.
-        console.warn(`[experience-hints] surface failed for ${args.storyId}:`, (e as Error).message);
-        experienceHintsSection = '';
-      }
-      // RENDER-GATE: the value the `_reviewPrompt` IIFE uses. ON arm renders the
-      // computed section; OFF arm uses '' so the OFF-arm prompt is byte-identical
-      // to the no-hints case. `experienceHintsSection` (used for the event above)
-      // is deliberately left untouched so measurement is unaffected by the arm.
-      const renderedHintsSection = hintMode === 'on' ? experienceHintsSection : '';
+      // B-5a48 CHK-001: the firing + per-round dedup + A/B arm + render-gate logic
+      // moved VERBATIM into the shared core leaf surfaceExperienceHints so the PLAN
+      // site (here) and the REVIEW site (transition-effects.ts buildNextSteps)
+      // share ONE implementation with no drift. The CALLER supplies hintRoundKey
+      // (computed just above); the leaf never computes the
+      // `currentReviewRound || plan:<phase>` formula. The leaf fires the
+      // experience_hint_surfaced event on BOTH arms (lossless measurement) and
+      // returns the render-gated section — ON arm renders the computed section,
+      // OFF arm returns '' so the OFF-arm `_reviewPrompt` is byte-identical to the
+      // no-hints case. ADVISORY-ONLY: renderedHintsSection is NEVER fed to
+      // resolveReviewPromptHash (see the `_reviewPrompt` assembly below).
+      const { renderedSection: renderedHintsSection } = surfaceExperienceHints(ctx.root, {
+        storyId: args.storyId,
+        hintRoundKey,
+      });
 
       return {
         storyId: args.storyId,

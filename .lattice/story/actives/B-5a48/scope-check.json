@@ -1,0 +1,190 @@
+{
+  "storyId": "B-5a48",
+  "checkedAt": "2026-06-20T12:13:03.742Z",
+  "features": [
+    {
+      "feature": "Extract shared firing leaf core/experience-hint-surface.ts exporting surfaceExperienceHints(root, {storyId, hintRoundKey}): {hintMode, renderedSection, hintIds, fired}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Refactor story-review.ts to call surfaceExperienceHints (behavior-preserving / byte-identical on both arms)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Experience hints must be advisory-only; never enter resolveReviewPromptHash / promptHash domain (Determinism Guardrail 3)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Wire surfaceExperienceHints into buildNextSteps REVIEW branch of transition-effects.ts so hints reach REVIEW lane reviewers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-effectiveness-record.md"
+    },
+    {
+      "feature": "Fire experience_hint_surfaced event for REVIEW rounds (both ON and OFF arms) to accrue toward learning_effectiveness ON/OFF arm N",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-effectiveness-record.md"
+    },
+    {
+      "feature": "OFF arm must append NOTHING to REVIEW guidance (byte-identical to today) — honest A/B, no placeholder",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-effectiveness-record.md"
+    },
+    {
+      "feature": "Per-review-round accrual using ISO currentReviewRound key (disjoint from PLAN plan:<phase> key)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-effectiveness-record.md"
+    },
+    {
+      "feature": "Cross-site dedup: same-round repeat buildNextSteps calls must not append a second experience_hint_surfaced event",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No new CLI command (zero command-policy / process-fact-levels / READ_ONLY_COMMANDS / registry / lifecycle-registry-contract edits)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "advisory try/catch block in transition-effects.ts REVIEW branch — hint surfacing never blocks or alters the transition",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Golden byte-equality assertion: story-review.ts _reviewPrompt bytes + event payload unchanged before vs after leaf extraction on both arms",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "New smoke auto-discovered by run-all-smokes (no manifest/aggregator edit needed)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Load/track failure inside the leaf swallowed via try/catch (renderedSection empty, no throw, no partial event)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Leaf imports only existing core leaves (experience-hint-loader, hint-mode, activity-log) — zero new cross-layer edges",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Dispatch-path (story-dispatch.ts buildItemPrompt) hint injection is explicitly out of scope (deferred by operator)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json constraints: DEFERRED by operator: dispatch-path (story-dispatch.ts buildItemPrompt) injection is OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Hints placed in buildNextSteps AFTER the Agent({lattice-review-*}) launch lines so hints follow reviewer-launch text",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Ordering dependency: transition-orchestrator persists currentReviewRound BEFORE buildNextSteps runs (code comment + smoke assertion)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Caller (not leaf) computes hintRoundKey — leaf never computes the currentReviewRound||plan:<phase> formula",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full hintIds carried in OFF-arm event payload (lossless measurement for learning_effectiveness)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-effectiveness-record.md"
+    },
+    {
+      "feature": "REVIEW event.reviewRound must equal ISO currentReviewRound, not plan:<phase>",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verificationIntent must cover happy / edge / adversarial paths per testing-completeness policy",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:test-intent-review.md"
+    },
+    {
+      "feature": "Protected files review-run.ts and core/review-run.ts must not be touched (scope-contract protectedFiles)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Build (tsc) must pass after changes; package.json script alias test:experience-layer-review-dispatch-hint added",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 22,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2d5b2b340ed70765018ef157cf6b5e8d6d659571572b2b8c472417daf1bcb1f4",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "CHK-001 verificationIntent happy and edge cases address ON-arm behavior and the leaf-extraction byte-equality golden assertion, but do not explicitly state that surfaceExperienceHints fires exactly one experience_hint_surfaced(hintMode:off) with full hintIds when called on an OFF-arm story (the lossless-measurement invariant required by the effectiveness-record). Is the CHK-001 leaf-unit verificationIntent gap acceptable because CHK-003 integration smoke covers it, or does CHK-001 need its own OFF-arm event-payload edge case to satisfy single-unit completeness?",
+      "evidence": "lattice-experience-layer-effectiveness-record.md Operational Rules state both arms must accrue toward MIN_ARM_N. The leaf fires appendActivityLog on BOTH arms per plan.md CHK-001 description. But CHK-001.verificationIntent.happy tests only ON-arm (surfaceExperienceHints returns {hintMode, renderedSection, hintIds, fired}; ON-arm returns rendered hints + fires 1 event). CHK-001.verificationIntent.edge tests the golden byte-equality (refactor-preserving) NOT the OFF-arm event payload. CHK-001.verificationIntent.adversarial tests failure-swallowed path. The OFF-arm event-payload correctness (hintMode:off + full hintIds) is asserted only in CHK-003(b) and CHK-002 edge.",
+      "sourcePointers": [
+        "CHK-001",
+        "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
+      ],
+      "resolution": "Resolved by STRENGTHENING coverage rather than waiving: CHK-001.verificationIntent now carries an explicit edge case asserting the leaf fires exactly one experience_hint_surfaced(hintMode:off) with the FULL hintIds on an OFF-arm story (renderedSection empty) — proven at the leaf unit level, not only at the CHK-003(b) integration level. This directly satisfies the effectiveness-record requirement that BOTH arms accrue toward MIN_ARM_N via lossless OFF-arm measurement (hintMode distinguishes arms; full hintIds on both). The leaf is the single firing implementation, so unit-proving its OFF-arm payload is the tightest possible guard on the hottest invariant.",
+      "resolvedAt": "2026-06-20T12:14:33.635Z"
+    }
+  ]
+}

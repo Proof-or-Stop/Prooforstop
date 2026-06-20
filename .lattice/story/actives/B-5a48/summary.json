@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5a48",
+  "changes": "Extracted a single shared firing leaf core/experience-hint-surface.ts (surfaceExperienceHints: hintMode+dedup+appendActivityLog+render-gate), refactored handlers/story-review.ts to call it (byte-preserving), and surfaced the rendered+A/B-gated experience hints in handlers/transition-effects.ts buildNextSteps REVIEW branch (after the Agent({lattice-review-*}) lines), gated on story.phase===REVIEW so the eagerly-evaluated REVIEW IIFE only fires the event on the real REVIEW path (F-001). + an 11-check smoke.",
+  "usage": "When a story enters REVIEW, the reviewer-launch guidance printed by story_advance now ENDS with a \"Project experience hints (advisory only)\" section (ON arm only) right after the Agent({lattice-review-*}) lines — paste it into each lane reviewer prompt so the ON arm influences review. Every REVIEW round now fires an experience_hint_surfaced event on BOTH arms (hintMode distinguishes; full hintIds = lossless), keyed on the ISO currentReviewRound, so lattice learning_effectiveness ON/OFF accrues from REVIEW (was 0). OFF-arm guidance is byte-identical to before.",
+  "expectedOutcome": "ON-arm REVIEW guidance shows the hints section + one on-event; OFF-arm guidance unchanged + one off-event (lossless); learning_effectiveness REVIEW-arm N grows per round.",
+  "actualTranscript": "LIVE on B-5a48 itself (an OFF-arm story): its REVIEW transitions fired real experience_hint_surfaced events hintMode=off hintIds=3 keyed on the ISO currentReviewRound (2026-06-20T12:47/13:01) in .lattice/activity.jsonl, with no rendered section (OFF byte-identical) and NO events from DEV transitions (F-001 fix live). 11-check smoke + ab-shadow-gate 14/14 + full npm test ALL PASS prove the ON-arm rendering + invariants.",
+  "outcomeDiff": "No diff: actual matches expected (lossless OFF event, ISO-round keying, no spurious non-REVIEW events, byte-identical OFF guidance).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The CLI HANDS the hints to the agent in the REVIEW guidance, but the agent still pastes them into each hand-written lane-reviewer prompt (the per-item lattice dispatch buildItemPrompt injection was deliberately deferred by operator decision). learning_effectiveness needs >=20 samples/arm to report a non-insufficient-N verdict; REVIEW-arm N now accrues per round.",
+  "pitfalls": "buildNextSteps returns an object literal whose REVIEW value is an IIFE → JS EAGERLY evaluates it on every buildNextSteps call regardless of target phase; any write side-effect added there MUST be guarded (here: story.phase===REVIEW) or it fires on non-REVIEW transitions (F-001, caught by codex host-2). The hintRoundKey formula (currentReviewRound || plan:phase) must stay byte-identical between story-review.ts and transition-effects.ts so PLAN/REVIEW keys stay disjoint. Hint content must never enter resolveReviewPromptHash (review-run.ts protected) or the A/B arms would differ in the signed prompt.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 350504
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23981
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 496342
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2232782
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 961210
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 505125
+    }
+  },
+  "totalDurationMs": 4569945,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T13:16:23.176Z",
+  "updatedAt": "2026-06-20T13:16:23.176Z"
+}

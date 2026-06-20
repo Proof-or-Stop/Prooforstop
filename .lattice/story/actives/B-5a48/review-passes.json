@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-5a48:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: all imports in all 5 changed files are used (leaf, story-review.ts, transition-effects.ts, smoke, package.json). Type safety: one as any in smoke test runStoryReview return (established pattern, pre-existing in sister smokes). one (e as Error).message (verbatim from original). No unnecessary as any in production code. I/O isolation: experience-hint-surface.ts imports ONLY experience-hint-loader.js, activity-log.js, hint-mode.js — zero handler/store edges. Error handling: leaf try/catch is truly never-throw and returns a safe default on any failure; transition-effects.ts hint block is wrapped in its own try/catch (advisory-only, never blocks). Behavioral drift: story-review.ts refactor is byte-preserving — original catch set experienceHintsSection= then render-gate yielded renderedHintsSection=; leaf early-returns renderedSection= after catch — both paths produce identical renderedHintsSection/. Call site only destructures renderedSection so hintIds/fired differences are irrelevant. Return type {hintMode,renderedSection,hintIds,fired} is sound: fired is set true only after appendActivityLog succeeds (line 113); on dedup skip or no-hints path fired stays false; on catch path early-return fired=false. transition-effects block is append-only (base += only when renderedSection truthy, inside try/catch). No findings.",
+      "createdAt": "2026-06-20T12:51:11.749Z",
+      "reviewRound": "2026-06-20T12:47:41.244Z",
+      "reviewRunId": "B-5a48:RR-002",
+      "_hash": "d3e67c23cf3db230c7636cec2d1fb7c5e832123625979d0a38d3d827be7f63d0"
+    },
+    {
+      "id": "B-5a48:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept completeness check passed. (a) Single firing site confirmed: story-review.ts has zero residual inline imports (loadExperienceHints, resolveHintMode, appendActivityLog, readActivityLogTail all removed from the handler; only surfaceExperienceHints remains). (b) Leaf imports only 3 pre-existing core leaves: experience-hint-loader, activity-log, hint-mode — zero new cross-layer edges. (c) hintRoundKey formula in transition-effects.ts line 317 is byte-identical to story-review.ts line 601 (`story.currentReviewRound || plan:${story.phase}`); the BYTE-IDENTICAL comment and the ordering-dependency comment (writeStory before buildNextSteps confirmed at transition-orchestrator.ts lines 482-509) are accurate. (d) No dangling references to the removed code path. The `~lines 610-649` in the leaf module comment is a historical provenance note (tilde-prefixed, not a live pointer). renderedHintsSection is correctly placed in the _reviewPrompt assembly string and confirmed not passed to resolveReviewPromptHash. Only 3 callers of experience-hint-surface: the two production handlers and the new smoke test. No doc-promise-undelivered items found. 0 findings.",
+      "createdAt": "2026-06-20T12:51:19.677Z",
+      "reviewRound": "2026-06-20T12:47:41.244Z",
+      "reviewRunId": "B-5a48:RR-001",
+      "_hash": "a97df9eac31474d6dd079bad82c11fdf214f4214a23739d1a8e267a4cc220726"
+    },
+    {
+      "id": "B-5a48:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 10 must-intents have concrete, non-vacuous assertions. CHK-001:adversarial:0 EISDIR injection confirmed non-vacuous (removing the try/catch makes the check fail). CHK-001:edge:0/edge:1 goldens are real 1158/917-byte captured strings, not self-referential. CHK-003:adversarial:0 resolveReviewPromptHash identity check is narrow but accurate (proves advisory-only isolation via no-global-state-contamination). CHK-003:edge:0 cross-site dedup covers all 4 sub-claims. Smoke runs 10/10 PASS. One cosmetic label typo at smoke line 318 (adversarial:4 should be adversarial:0) has no evidence-binding impact.",
+      "createdAt": "2026-06-20T12:54:28.753Z",
+      "reviewRound": "2026-06-20T12:47:41.244Z",
+      "reviewRunId": "B-5a48:RR-003",
+      "_hash": "8b93b510784902294d68b9d092ad6fa6da9adbec733a236dcdd9be22d8afc41b"
+    },
+    {
+      "id": "B-5a48:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. New regression check CHK-002:adversarial:1 is load-bearing: seeds ON-arm story with signals in DEV phase, calls devNextSteps (which eagerly evaluates the REVIEW IIFE), asserts ZERO experience_hint_surfaced events and no hints section in DEV guidance — fails without the phase===REVIEW guard. All 10 original intents map to named checks; CHK-003:adversarial:4 typo corrected to adversarial:0 and now matches the intent ref. Smoke runs 11 checks, exits 0.",
+      "createdAt": "2026-06-20T13:03:57.632Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-005",
+      "_hash": "522bca626ff4025ede528b18f56f217633113e3725575de10024a53b81df6a37"
+    },
+    {
+      "id": "B-5a48:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Guard is type-safe: story.phase is StoryPhase (union literal including REVIEW), so === comparison is TypeScript-sound. REVIEW-path behavior is preserved: when story.phase===REVIEW the guard passes and surfaceExperienceHints fires exactly as before. DEV IIFE has no write side effects (only readStory/readChecklist/readDecision + computeChannel). Other REVIEW IIFE side-callers (assessReviewConvergenceAtEntry, reviewIncrementalContext) are documented/confirmed read-only. Regression smoke (CHK-002 adversarial:1) is non-vacuous: seeds a DEV-phase ON-arm story with yielding signals and asserts 0 surfaced events + no hints section in DEV text — will fail against pre-fix code. Label fix CHK-003 adversarial:4->adversarial:0 is a description-only typo correction. No dead code, no type holes, no unguarded write side effects found.",
+      "createdAt": "2026-06-20T13:04:02.264Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-004",
+      "_hash": "55ca5c97867c5e251ea35a7908bb6b54067c89b0fc4ae0c45c96b7c47ad9d0a4"
+    },
+    {
+      "id": "B-5a48:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness check PASS. The phase guard (`if (story.phase === \"REVIEW\")`) is the correct placement: it sits inside the REVIEW IIFE which JS eagerly evaluates for all phases, and it gates the ONLY call to surfaceExperienceHints (the sole side-effecting function) in that IIFE. The F-001 comment accurately explains the eager-IIFE root cause, why the spurious firing occurred, and the deliberate choice not to restructure to lazy getters. The claim that phase===REVIEW guarantees currentReviewRound is set is verified by transition-orchestrator.ts: currentReviewRound is stamped (line 483) and writeStory called (line 484) strictly BEFORE buildNextSteps (line 509). No other IIFE branches in buildNextSteps have write/side-effect operations — the DEV IIFE is read-only (store.readStory/readChecklist/readDecision), and PLAN/TEST/DONE are plain string/template literals. The regression smoke (CHK-002 adversarial:1) correctly seeds a DEV-phase story, calls devNextSteps (which returns .DEV but triggers the eager REVIEW IIFE), and asserts zero experience_hint_surfaced events. No dangling or contradictory references introduced by the round-2 commit. Pre-existing issues noted but not introduced by this diff: (a) outer JSDoc says computed lazily while the internal comment says EAGERLY (pre-existing before B-5a48, not touched by round-2); (b) duplicate CHK-002 adversarial:0 labels at lines 526 and 568 (pre-existing before round-2, round-2 only adds adversarial:1). Zero concept deletions or replacements this round. No blocker.",
+      "createdAt": "2026-06-20T13:04:29.528Z",
+      "reviewRound": "2026-06-20T13:01:17.206Z",
+      "reviewRunId": "B-5a48:RR-006",
+      "_hash": "c752fab625df1bde844bff005fd5e4b4828aeda3d283bf6f6d9170dc3dcf9e8d"
+    }
+  ]
+}

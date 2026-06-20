@@ -1,0 +1,27 @@
+{
+  "task": "Structurally wire the Experience-Layer A/B-gated advisory hints into the REVIEW loop: (1) extract a single shared firing leaf core/experience-hint-surface.ts (surfaceExperienceHints) so the hint firing+dedup+arm logic lives in ONE place; (2) refactor handlers/story-review.ts to call it (byte-preserving); (3) surface the rendered+gated hints in handlers/transition-effects.ts buildNextSteps REVIEW branch so they appear in the reviewer-launch text the main agent reads and fire experience_hint_surfaced for REVIEW rounds. Advisory-only; no new command; per-review-round accrual; OFF arm byte-identical to today.",
+  "outcome": "After `lattice story_advance --storyId=<S> --phase=REVIEW` on a story whose hint arm is ON and which has finding-signals, the printed reviewer-launch guidance now ENDS with, right after the `Agent({ subagent_type: \"lattice-review-concept\", ... })` lines:\n\n---\nProject experience hints (advisory only):\nRecurring:\n  [docs|doc-code-mismatch] <summary>\n  ...\nFalse positives:\n  [<sig>] <summary>\n\n...and exactly one experience_hint_surfaced event with hintMode:\"on\" is recorded for that review round (visible via the activity log / learning_effectiveness). On an OFF-arm story the guidance is BYTE-IDENTICAL to today (no hints block) and exactly one event with hintMode:\"off\" (full hintIds, lossless) is recorded. Over future stories `lattice learning_effectiveness` ON/OFF arm N now grows from REVIEW rounds (previously 0), accruing toward MIN_ARM_N=20. node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js exits 0; full npm test exits 0.",
+  "facts": [
+    "transition-orchestrator.ts persists story.currentReviewRound via writeStory (~lines 482-484) BEFORE buildNextSteps runs (~line 509), so the REVIEW hintRoundKey (currentReviewRound) equals the ISO round stamp story_review uses (story-review.ts ~603).",
+    "story-review.ts firing block (~610-649): hintMode=resolveHintMode(storyId); loadExperienceHints+formatExperienceHintsSection; if hasExperienceHints, dedup-scan readActivityLogTail(root,1000) for event===experience_hint_surfaced && storyId && reviewRound===hintRoundKey; appendActivityLog on miss (fires BOTH arms); renderedHintsSection = hintMode===on ? section : empty (only render is gated; the event is not).",
+    "Leaf deps already exist as core leaves: experience-hint-loader.ts (loadExperienceHints/formatExperienceHintsSection/hasExperienceHints/experienceHintIds), hint-mode.ts (resolveHintMode = sha256 first-byte parity), activity-log.ts (appendActivityLog/readActivityLogTail). The new leaf imports ONLY these — zero new cross-layer edges.",
+    "learning-effectiveness reads experience_hint_surfaced events {timestamp,event,storyId,reviewRound,hintMode,hintIds}; MIN_ARM_N=20 in core/experience-effectiveness.ts. The new REVIEW-phase events are byte-shape-identical so they are read unchanged.",
+    "resolveReviewPromptHash lives in core/review-run.ts (~109) and must NOT receive hint content — it is the signed REVIEW reviewer-prompt hash that must stay byte-identical between ON and OFF arms. review-run.ts / core/review-run.ts are PROTECTED (not in the change set).",
+    "run-all-smokes.ts auto-discovers any *-smoke.js in packages/main/dist/tasks (no manifest/aggregator edit needed). No new CLI command, so command-policy/process-fact-levels/READ_ONLY_COMMANDS/registry/command-catalog and lifecycle-registry-contract are untouched."
+  ],
+  "constraints": [
+    "ADVISORY-ONLY: review-run.ts and core/review-run.ts:resolveReviewPromptHash untouched; ON vs OFF reviewer-prompt hash byte-identical (hint content never enters the signed prompt). The new transition-effects block is append-only to the returned guidance STRING inside try/catch — never blocks/alters the transition; no gate reads it.",
+    "SINGLE firing implementation: both the PLAN site (story-review.ts) and the new REVIEW site call the ONE leaf surfaceExperienceHints; the caller supplies hintRoundKey (the leaf never computes the currentReviewRound||plan:<phase> formula). The story-review.ts refactor MUST be behavior-preserving (golden byte-equality on _reviewPrompt + event payload, both arms).",
+    "OFF arm appends NOTHING → REVIEW next-steps text byte-identical to today (honest A/B, no placeholder). Accrual is per REVIEW ROUND (consistent with story_review dedup). PLAN keys on plan:<phase>, REVIEW on the ISO currentReviewRound → disjoint namespaces → no cross-phase double-count; same-round repeats collapse via the identical readActivityLogTail dedup scan.",
+    "NO new command (zero registration burden). Leaf stays a pure-ish core module (imports only experience-hint-loader/hint-mode/activity-log). DEFERRED by operator: dispatch-path (story-dispatch.ts buildItemPrompt) injection is OUT of scope."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-20T12:08:04.887Z"
+}

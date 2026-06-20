@@ -1,0 +1,26 @@
+{
+  "storyId": "B-5a48",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experience-hint-surface.ts",
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts"
+  ],
+  "explicitExcludes": [],
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T12:09:24.536Z",
+  "updatedAt": "2026-06-20T12:09:24.536Z"
+}
