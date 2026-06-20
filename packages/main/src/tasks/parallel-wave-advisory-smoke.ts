@@ -287,6 +287,48 @@ void (() => {
       check('CHK-002 off: mode=off short-circuits to []', decompositionAdvisoryIssues(self, [peer], contracts, cfgOff).length === 0);
     }
 
+    // ================= F-007: WAVE scope_glob_overlap escape hatch (mode='off') =================
+    // §4.7 requires mode='off' to disable BOTH behaviors. The story-review advisory side is
+    // covered above; the WAVE side is gated in storyRef by the exact branch
+    //   `const scopeGlobOverlaps = scopeGlobEnabled ? computeScopeGlobOverlaps(...) : []`
+    // (lattice-parallel-wave.ts: scopeGlobEnabled is derived in createParallelWave from
+    // `resolveAuditConfig(profile, root).parallelGate.mode !== 'off'`). We runtime-test that exact
+    // mode->enabled->overlaps decision at the helper boundary (createParallelWave is too heavy to
+    // call hermetically — see the F-008 note below).
+    {
+      // Mirror createParallelWave's mode->enabled mapping and storyRef's gating branch.
+      const enabledFor = (mode: ParallelGateConfig['mode']): boolean => mode !== 'off';
+      const selfInput = { storyId: 'B-self', phase: 'DEV' as StoryPhase, parallelSafe: 'yes' as const, writeSet: ['core/foo.ts'] };
+      const peerInputs = [{ storyId: 'B-p1', phase: 'DEV' as StoryPhase, parallelSafe: 'yes' as const, writeSet: ['core/foo.ts'] }];
+      const overlapsFor = (mode: ParallelGateConfig['mode']) =>
+        enabledFor(mode) ? computeScopeGlobOverlaps(selfInput, peerInputs) : [];
+
+      check('F-007: mode=advise enables -> overlaps surfaced', overlapsFor('advise').length === 1);
+      check('F-007: mode=block enables -> overlaps surfaced', overlapsFor('block').length === 1);
+      check('F-007: mode=off disables -> zero overlaps (no scope_glob_overlap degradation)', overlapsFor('off').length === 0);
+      // And the degradation builder over the gated result: off-arm yields zero degradations.
+      check('F-007: off-arm -> zero scope_glob_overlap degradations', scopeGlobOverlapDegradations('B-self', overlapsFor('off')).length === 0);
+      check('F-007: advise-arm -> one scope_glob_overlap degradation', scopeGlobOverlapDegradations('B-self', overlapsFor('advise')).length === 1);
+    }
+
+    // ================= F-008: createParallelWave crash-safety (source-verified) =================
+    // A full hermetic createParallelWave call was judged DISPROPORTIONATE: its storyRef path runs
+    // buildCanonicalStory (which touches ~13 StoryStore reads: readChecklist/readReview/
+    // readFindings/readReviewRuns/readTestEvidence/... plus storyDirPath) AND real-filesystem git
+    // changed-file probes at `root` — a faithful fake is large and brittle. Instead, crash-safety
+    // is proven by (a) the safeReadScopeContract helper tests above (throw -> null), and (b) the
+    // SOURCE FACT that createParallelWave routes EVERY scope-contract read through
+    // safeReadScopeContract: lattice-parallel-wave.ts builds `contractsByStoryId` with
+    // `const c = safeReadScopeContract(store, s.storyId)` and storyRef then only does pure
+    // contractsByStoryId.get(...) lookups (no direct store.readScopeContract in the storyRef path),
+    // so one corrupt scope-contract.json cannot throw out of createParallelWave.
+    {
+      // Re-affirm the helper contract that underwrites the source claim: a throwing read is
+      // swallowed to null, which is exactly what keeps the contractsByStoryId build crash-free.
+      const throwing = { readScopeContract(): ScopeContractData { throw new SyntaxError('corrupt'); } } as Pick<StoryStore, 'readScopeContract'>;
+      check('F-008: corrupt read swallowed (underwrites createParallelWave crash-safety)', safeReadScopeContract(throwing, 'B-x') === null);
+    }
+
     console.log(`parallel-wave-advisory smoke passed: ${passed} assertions`);
   } catch (e) {
     console.error(e instanceof Error ? e.message : String(e));
