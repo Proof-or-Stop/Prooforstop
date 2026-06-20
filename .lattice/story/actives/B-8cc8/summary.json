@@ -1,0 +1,55 @@
+{
+  "storyId": "B-8cc8",
+  "changes": "Fully rebranded CHANGELOG.md from Koala to Lattice via case-preserving substitution (49 -> 0 koala), including version titles (Koala 0.3.x -> Lattice 0.3.x), product-name prose, koala-lab, and all historical technical tokens (@koala-agent, koala commands, .koala paths, bin/koala.js, koala.config).",
+  "usage": "CHANGELOG.md now reads as a fully Lattice-branded changelog for OSS. Run `git grep -i koala CHANGELOG.md` to confirm 0 hits.",
+  "expectedOutcome": "git grep -i koala CHANGELOG.md returns nothing; build + validate green; markdown intact.",
+  "actualTranscript": "git grep -i koala CHANGELOG.md -> 0 (exit 1); npm run build -> exit 0; lattice validate -> ALL PASS; 5 version headings preserved as Lattice 0.x.x.",
+  "outcomeDiff": "none - expected matches actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The CHANGELOG history is now intentionally non-literal (it describes past changes using current lattice names, e.g. .lattice/ where the past was actually .koala/) - a deliberate user choice for a clean OSS changelog over truthful history. One entry (B-3d39) became tautological after the rebrand.",
+  "pitfalls": "CHANGELOG.md is excluded from the koala-residue gate, so a future koala re-introduction there is NOT caught by the gate - rely on review/grep for CHANGELOG specifically.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 206644
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 26217
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 196641
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 176768
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 183254
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 152586
+    }
+  },
+  "totalDurationMs": 942121,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T23:16:05.937Z",
+  "updatedAt": "2026-06-20T23:16:05.937Z"
+}
