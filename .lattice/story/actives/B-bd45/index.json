@@ -4,7 +4,7 @@
   "title": "Implement read-only Lifecycle Readiness Check V1",
   "description": "Add the first implementation slice from the Lifecycle Proof-Or-Stop Readiness Check plan: a read-only StoryReadinessReport and CLI command that classifies current story readiness without mutating lifecycle state.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-06-20T20:37:02.822Z",
   "startedAt": "2026-06-20T20:37:02.822Z",
@@ -26,6 +26,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-5409b611e2fc3bd5",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T20:40:12.460Z",
+      "branch": "story/B-bd45",
+      "user": "Harmonygo",
+      "sessionId": "sess-3edc176c9656f9ab",
       "agent": "main"
     }
   ],

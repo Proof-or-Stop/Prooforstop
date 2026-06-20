@@ -1,0 +1,27 @@
+{
+  "task": "Implement the first read-only Lifecycle Proof-Or-Stop Readiness Check command.",
+  "outcome": "User runs `lattice lifecycle_check --storyId=B-xxxx --target=DONE --json` and sees a StoryReadinessReport with localReady, readiness rows, exact next actions, and no evidence/phase mutations.",
+  "facts": [
+    "B-b179 landed the design document and named P1 as StoryReadinessReport plus lifecycle_check.",
+    "V1 must be read-only and must not run commands or write evidence.",
+    "Existing DONE gate facts are centralized in done-oracle and should not be reimplemented as a competing truth source.",
+    "Command schemas and command policy are registered under packages/main/src/cli.",
+    "Assembler will live in core/lifecycle-readiness.ts and reuse buildDoneChecklist for DONE-target rows."
+  ],
+  "constraints": [
+    "Do not implement story_pipeline or Full Vision orchestration.",
+    "Do not launch reviewers, run validation, run done_prepare, write evidence, or advance phases from lifecycle_check.",
+    "localReady must equal no readiness row with blocking:true.",
+    "Authority/fullAuthority/production claims remain false unless verified receipt readers exist."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "timestamp": "2026-06-20T20:42:12.969Z"
+}

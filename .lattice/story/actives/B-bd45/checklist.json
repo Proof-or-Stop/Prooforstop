@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice lifecycle_check --storyId=B-xxxx --target=DONE --json` prints a StoryReadinessReport JSON object with storyId, target, phase, mode, readiness, next, and claims.localReady.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/lifecycle-check.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lifecycle_check command exists, is registered as readOnly, and returns StoryReadinessReport JSON for a real story",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "format=json and --json produce the same top-level report shape without changing story files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runCommands:true or writeEvidence:true fail closed and do not run child commands or write metadata",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
