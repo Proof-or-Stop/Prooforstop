@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-017",
       "_hash": "396625d9344558d9cb04f457f2f42638bd8aaecc481d9e7a67580fad9b27bf3a"
+    },
+    {
+      "id": "B-d2a8:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 confirmation pass: (1) mode and broadGlobBlocks are each read once into a const before both guard and assign/warn — describeInvalidValue and result.mode/broadGlobBlocks all reference the captured const, not r.mode/r.broadGlobBlocks. Behavior-preserving for ordinary inputs. (2) profileDefaults.parallelGate! is sound: the field is set unconditionally at construction before the non-null assertion site; ParallelGateConfig and ParallelGateMode remain actively used (5 and 2 use-sites respectively). No unused import. (3) Smoke 8e: both flaky-getter sub-cases are type-clean and genuinely discriminating — a double-read implementation would store the invalid second-call return value, failing the equality check. (4) No new dead code: describeInvalidValue, readParallelGateFields, PARALLEL_MODE_FALLBACK, PARALLEL_GATE_PROFILE_DEFAULTS, and VALID_PARALLEL_MODES are all referenced. No type holes introduced.",
+      "createdAt": "2026-06-20T06:36:53.141Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-018",
+      "_hash": "53a169b3bee055d58edcf86f411b06698642fa519851047d9572d68f0a197b25"
     }
   ]
 }
