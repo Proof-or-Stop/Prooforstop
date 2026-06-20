@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-086b",
+  "checkedAt": "2026-06-20T08:14:10.919Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "6922411a485f14e1f8093d871c507834f14dfa0db09115d83263a2aae22c304f",
+  "executionBoundaryHash": "7d5a7cd74e84c65f3502707bddfcb93c178488e9d2aacd9060c533a908e27988",
+  "freshnessHash": "5682341001f47b2a0c8da85ccf9e398f9812d69f0b8e6d9e1a88442bebf5d35a",
+  "effectiveExcludedKeywords": [
+    "any change to the overlap engine (parallel-decomposition-overlap.ts), the gate verdict (parallel-decomposition-gate.ts), audit-config.ts, or lattice-parallel-wave.ts/story-review.ts (Stories 1-4, frozen/DONE)",
+    "changing the existing review-gate fail-closed semantics of canStartDevGuard",
+    "enforcing the block under mode=advise or mode=off (block only under mode=block)",
+    "making the new sub-check FAIL-CLOSED (it MUST be fail-open per §4.8)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any change to the overlap engine (parallel-decomposition-overlap.ts), the gate verdict (parallel-decomposition-gate.ts), audit-config.ts, or lattice-parallel-wave.ts/story-review.ts (Stories 1-4, frozen/DONE)",
+      "source": "scopeBoundary.excluded",
+      "text": "any change to the overlap engine (parallel-decomposition-overlap.ts), the gate verdict (parallel-decomposition-gate.ts), audit-config.ts, or lattice-parallel-wave.ts/story-review.ts (Stories 1-4, frozen/DONE)",
+      "excluded": true
+    },
+    {
+      "keyword": "changing the existing review-gate fail-closed semantics of canStartDevGuard",
+      "source": "scopeBoundary.excluded",
+      "text": "changing the existing review-gate fail-closed semantics of canStartDevGuard",
+      "excluded": true
+    },
+    {
+      "keyword": "enforcing the block under mode=advise or mode=off (block only under mode=block)",
+      "source": "scopeBoundary.excluded",
+      "text": "enforcing the block under mode=advise or mode=off (block only under mode=block)",
+      "excluded": true
+    },
+    {
+      "keyword": "making the new sub-check FAIL-CLOSED (it MUST be fail-open per §4.8)",
+      "source": "scopeBoundary.excluded",
+      "text": "making the new sub-check FAIL-CLOSED (it MUST be fail-open per §4.8)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b4b2e922b0acabcd36560cee6dc4266a318ac64409abab66763a7d436edf7d2e"
+}

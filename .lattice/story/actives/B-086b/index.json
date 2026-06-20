@@ -4,7 +4,7 @@
   "title": "Parallel-decomposition hard PLAN->DEV gate + contract reconcile (program Story 5, serial integration)",
   "description": "Story 5 (serial, last) of the parallel-decomposition gate program (spec §4.4 + §8 line 721): the two coordinated edits that turn the gate into a real PLAN->DEV hard block, plus reconciling the frozen contract. (1) Reconcile core/parallel-decomposition.ts to re-export the real computeWriteSet/globsOverlap/evaluateDecompositionGate impls (Story 0 froze them as NotImplemented skeletons). (2) Wire evaluateDecompositionGate into canStartDevGuard (machine.ts, the real decision oracle) as a FAIL-OPEN sub-check that enforces gateResult.block only under parallelGate.mode==='block'. (3) Mirror the block reason in getGuardFailureReason (the message), sharing one predicate. Consumes the merged Stories 0-4: types (B-59c7), computeWriteSet/globsOverlap (B-4033), evaluateDecompositionGate (B-986c), resolveAuditConfig().parallelGate (B-d2a8), safeReadScopeContract (B-fa7c). CRITICAL: the new sub-check is FAIL-OPEN (own try/catch, falls through to allow) — opposite of the surrounding fail-closed review guard — so a gate/config infra error never blocks PLAN->DEV (spec §4.8). New hermetic integration smoke; registered in lattice.config.json.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "depends": [
     "B-59c7"
@@ -34,6 +34,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T08:16:48.309Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-086b",
+    "branch": "story/B-086b",
+    "createdAt": "2026-06-20T08:16:47.343Z"
+  }
 }

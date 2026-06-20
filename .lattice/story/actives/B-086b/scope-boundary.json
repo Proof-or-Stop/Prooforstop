@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-086b",
+  "mode": "feature",
+  "allowed": [
+    "core/machine.ts: canStartDevGuard parallel-decomposition FAIL-OPEN hard-block sub-check (enforce only under mode=block)",
+    "core/machine.ts: getGuardFailureReason mirror message for the parallel block + shared block->message helper",
+    "core/parallel-decomposition.ts: replace the 3 NotImplemented skeletons with re-exports of the real impls",
+    "lattice.config.json: register the new smoke",
+    "packages/main/src/tasks/<new>-integration-smoke.ts: hermetic end-to-end gate smoke"
+  ],
+  "excluded": [
+    "any change to the overlap engine (parallel-decomposition-overlap.ts), the gate verdict (parallel-decomposition-gate.ts), audit-config.ts, or lattice-parallel-wave.ts/story-review.ts (Stories 1-4, frozen/DONE)",
+    "changing the existing review-gate fail-closed semantics of canStartDevGuard",
+    "enforcing the block under mode=advise or mode=off (block only under mode=block)",
+    "making the new sub-check FAIL-CLOSED (it MUST be fail-open per §4.8)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Program Story 5 per spec §4.4 + §8 line 721: the serial integration that turns the gate into a real PLAN->DEV hard block + contract reconcile.",
+  "createdAt": "2026-06-20T08:14:03.006Z",
+  "updatedAt": "2026-06-20T08:14:03.006Z",
+  "_hash": "6922411a485f14e1f8093d871c507834f14dfa0db09115d83263a2aae22c304f"
+}
