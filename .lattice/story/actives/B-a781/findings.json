@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/session-ownership-and-write-leases.md has contradictory current-state wording: lines 5-14 and 16-40 say the owner/write-lease baseline is implemented and B-a781 is only a future migration target, while line 44 still says in present tense that Lattice does not yet mechanically own write coordination across sessions. This makes the touched doc internally inconsistent; rename that section as historical/original problem or update the sentence to describe the pre-B-c55d problem.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:09:15.339Z",
@@ -16,7 +16,11 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed session-ownership-and-write-leases.md Problem section to Original Problem with historical/pre-rollout wording and explicit B-a781 migration-target boundary; old present-tense contradiction no longer exists.",
+      "resolvedAt": "2026-06-20T07:24:08.217Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a781:F-002",
