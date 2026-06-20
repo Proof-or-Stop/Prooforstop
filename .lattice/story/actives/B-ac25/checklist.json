@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add DONE-required validation config schema and normalization",
+      "context": "Support validationProfiles.done or doneRequiredCommands while preserving ordinary validate.commands behavior; invalid required config must fail closed only for opted-in projects.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement DONE-required runner and evidence artifact",
+      "context": "Execute required commands separately from ordinary validate, record bounded command receipts, headHash/materialHash/storyFilesHash, policy hash, command-set hash, output digest/tail, and status.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Consume DONE-required evidence in DONE oracle",
+      "context": "Add a dedicated done-required-validation row that blocks self-host required policy on missing/failing/stale evidence and remains advisory for projects without policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Register DONE-required gate facts in process-fact contract",
+      "context": "Update process-fact registry, levels, and contract verifier so the new gate-consumed artifact is mechanically protected, not only described in prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Configure self-host policy and update lifecycle docs",
+      "context": "Configure Orchestrate to require packages/main build plus root npm test or equivalent same-material build receipt before DONE, and document external project opt-in/advisory behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add regression smoke coverage for gate behavior",
+      "context": "Cover configured validate pass but DONE-required fail, missing artifact, stale material/policy/command-set, stale or missing build receipt, and external project without policy advisory behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

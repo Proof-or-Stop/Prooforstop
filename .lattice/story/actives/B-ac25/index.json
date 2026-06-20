@@ -1,0 +1,36 @@
+{
+  "storyId": "B-ac25",
+  "name": "done-required-full-test-gate",
+  "title": "Implement DONE-required full-test validation gate",
+  "description": "Implement the runtime gate described by docs/requirements/decisions/done-full-test-gate-execution-plan.md. The verified B-3321 gap is that local DONE currently consumes ordinary lattice validate evidence only; when validate.commands is configured, root full npm test can sit outside DONE proof. Add an opt-in DONE-required validation policy/evidence path so self-host can require a fresh packages/main build plus root npm test before DONE, while external projects without policy remain advisory. This is a high-risk lifecycle gate change and must preserve routine validate speed, evidence freshness, process-fact registration, and 3 round / 2 host review requirements.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "DONE gate",
+    "doneRequiredCommands",
+    "full npm test",
+    "validation evidence",
+    "process fact",
+    "self-host"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-06-20T09:45:33.915Z",
+  "startedAt": "2026-06-20T09:45:33.915Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T09:45:33.926Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

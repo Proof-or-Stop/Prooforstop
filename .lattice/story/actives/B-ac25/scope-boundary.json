@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ac25",
+  "mode": "feature",
+  "allowed": [
+    "DONE oracle consumption of DONE-required evidence",
+    "DONE-required validation config and evidence",
+    "process-fact registry and contract coverage",
+    "self-host opt-in build plus root npm test policy",
+    "smoke tests and lifecycle docs"
+  ],
+  "excluded": [
+    ".githooks/pre-push behavior changes",
+    "Authority remote receipts",
+    "customerKeyRef",
+    "emergency override implementation",
+    "forcing external projects to run root npm test by default",
+    "Layer4 production rollout",
+    "release_approve_push implementation"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User confirmed executing the B-3321 plan; scope is the runtime DONE-required validation gate, excluding release/pre-push/Authority production expansion.",
+  "createdAt": "2026-06-20T09:45:33.915Z",
+  "updatedAt": "2026-06-20T09:45:33.915Z",
+  "_hash": "92f61fe3c8f35c937147b6a2698f6bd254fd53c161968b1324ee547492f56060"
+}
