@@ -28,7 +28,7 @@
       "desc": "smoke-coverage-gap: adversarial-review-contract-smoke.ts does not import or construct ReviewModeRound — the interface is exported (adversarial-review.ts:182-184) but never referenced in the smoke, so CHK-003:edge evidence note claim \"ReviewModeRound exported\" is only backed by tsc, not a runtime assertion",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T12:20:04.759Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/adversarial-review.ts"
       ],
       "signatureTag": "missing|ts|smoke-coverage-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke now constructs + asserts a runtime ReviewModeRound value with phases===REVIEW_MODE_PHASES (2 assertions). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:41.516Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-53c5:F-003",
