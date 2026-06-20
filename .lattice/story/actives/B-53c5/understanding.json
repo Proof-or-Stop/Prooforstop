@@ -1,0 +1,26 @@
+{
+  "task": "Codify the adversarial-review capabilitys FROZEN contract (docs/adversarial-review-spec.md sections 2/3, section 5 S0) into a single types-only module + the review-mode interface, so S1-S4 import a stable surface. No behavior.",
+  "outcome": "Importing packages/main/src/core/adversarial-review.ts gives the frozen types: Finding (severity BLOCKER/MAJOR/MINOR + title + file + line + issue + fix), Verdict (isReal + agreedSeverity BLOCKER/MAJOR/MINOR/NOT_A_DEFECT + reasoning), the 6-entry CANONICAL_LENS_SET (concept-scope, code-quality, behavior-correctness, test-coverage, crash-safety-edge, docs-consistency) with a task-tunable note, the CompletenessCritic IO type (input change + confirmedFindings Finding-array, output Finding-array), and the review-mode interface (REVIEW_MODE_PHASES = the canonical 5-step order: lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen, plus a Round/RoundResult interface). Running node packages/main/dist/tasks/adversarial-review-contract-smoke.js prints the smoke pass line (exit 0); tsc compiles clean; lattice validate stays all-green. No runtime behavior is added.",
+  "facts": [
+    "The spec (docs/adversarial-review-spec.md, merged ac8e644d2) sections 2/3 FREEZE the schemas: Finding (2.2), Verdict (2.3), the 6 canonical lenses + task-tunable (2.1), the completeness-critic IO (2.4), and ONE canonical round order (2.4/3.2/4.2): run lenses, adversarially verify lens raw findings, run critic on the CONFIRMED lens findings + change, verify critic raw findings, converge-or-reopen.",
+    "S0 is SERIAL-first; S1 lens-runner, S2 verifier + finding_add ledger mapping, S3 critic role, S4 escalation wiring all import S0. S1/S2/S3 are disjoint/parallel after S0.",
+    "The ABSTRACT methodology severity is BLOCKER/MAJOR/MINOR; the finding_add ledger mapping to critical/high/medium/low is S2 concern, NOT S0 (S0 only defines the abstract severity union).",
+    "No adversarial-review file exists yet (clean start, confirmed by the INIT reviewers)."
+  ],
+  "constraints": [
+    "Types + the mode interface ONLY, NO behavior (no lens running, no verification logic, no finding_add, no escalation).",
+    "Schemas must match spec 2.2/2.3/2.1/2.4 EXACTLY so no downstream story needs a schema change (the acceptance).",
+    "The canonical order must be a DECLARED constant (REVIEW_MODE_PHASES) so S1-S4 wire to one surface and cannot drift from 2.4/3.2/4.2.",
+    "Only touch core/adversarial-review.ts (new), the new smoke, lattice.config.json. Do NOT touch existing review code."
+  ],
+  "unknowns": [
+    "Whether to model the lens set as a typed list of id/facet/asks objects or just an id union plus a doc table, decide in DEV (favor a typed list so S1 can iterate it).",
+    "Exact shape of the Round/RoundResult interface (fields for lenses, confirmedFindings, criticFindings, reopen, converged), finalize in DEV against 3.1/3.2."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-20T12:08:16.033Z"
+}

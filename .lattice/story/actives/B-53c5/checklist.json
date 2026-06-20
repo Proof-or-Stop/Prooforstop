@@ -6,7 +6,39 @@
       "context": "New module core/adversarial-review.ts. Finding = {severity: 'BLOCKER'|'MAJOR'|'MINOR', title: string, file: string, line: number, issue: string, fix: string}. Verdict = {isReal: boolean, agreedSeverity: 'BLOCKER'|'MAJOR'|'MINOR'|'NOT_A_DEFECT', reasoning: string}. Use exported types + the severity union as a const tuple/type so it matches §2.2/§2.3 verbatim. Note: these are the ABSTRACT methodology severities (BLOCKER/MAJOR/MINOR) — the finding_add ledger mapping (critical|high|medium|low) is S2's concern, not S0's.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke constructs a valid Finding {severity,title,file,line,issue,fix} and Verdict {isReal,agreedSeverity,reasoning} and asserts every field is present + typed; WHY: the frozen schemas are the contract S1-S4 import",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke asserts the severity unions are EXACTLY {BLOCKER,MAJOR,MINOR} (Finding) and {BLOCKER,MAJOR,MINOR,NOT_A_DEFECT} (Verdict.agreedSeverity) — no extra/missing member; WHY: a wrong union breaks the abstract->ledger mapping in S2",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tsc build is clean (the types compile) and lattice validate stays green; WHY: a non-compiling contract blocks every later story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
