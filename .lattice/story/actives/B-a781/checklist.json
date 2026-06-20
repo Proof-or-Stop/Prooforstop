@@ -40,7 +40,22 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"LATTICE_SESSION_ID|core owner-lease|canonical\" docs/requirements/decisions/owner-session-contract-execution-plan.md docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "result": "pass",
+          "note": "The execution plan and linked lease decision document state that LATTICE_SESSION_ID is canonical and that core owner-lease logic should consume the canonical id.",
+          "headHash": "078380cd1dffdcecb01fcfe54b923da510b42f82",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:49:24.337Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
