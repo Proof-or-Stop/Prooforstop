@@ -23,6 +23,25 @@
       "resolvedAt": "2026-06-20T10:34:31.558Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-002",
+      "desc": "packages/main/src/core/done-required-validation.ts:459-478 evaluates only artifact-level status/hash fields and build-proof requirements for receipts that exist. It never verifies evidence.receipts.length or receipt identity against policy.commands. Verified with a /tmp fixture configured with two doneRequiredCommands (packages/main build providesBuildProof + root npm test requiresBuildProof): writing done-required-evidence.json with status=PASS, current policyHash/commandSetHash/materialHash/storyFilesHash, and receipts=[] makes evaluateDoneRequiredEvidence return ok=true/status=pass/detail=PASS with 0 required commands. This lets DONE accept a full-test proof artifact that contains no required command receipts, so the new DONE-required gate can be bypassed/corrupted instead of failing closed. Add a gate check that receipt count and each receipt label/command/args/cwd/shell/status correspond to the normalized policy command set before accepting PASS evidence, and cover empty/truncated/mismatched receipts in the smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T10:38:48.256Z",
+      "reviewRound": "2026-06-20T10:34:15.912Z",
+      "reviewRunId": "B-ac25:RR-010",
+      "_hash": "8389b3df52e6a643c10e2700d78b567cf96405b02e8d4521c5200f2af7d4077e",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
