@@ -47,35 +47,38 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "toOwnPropsNullProto applied at extractRawUsage (per-provider whitelist incl. nested openai prompt_tokens_details->cached_tokens) + options.usage own-prop guard; extractAnthropicUsage projects before u.* reads. 7 existing usage-ledger smokes pass => legitimate own-property records byte-unchanged.",
-          "headHash": "170219942deab91c88cb30e5d1f10cbf74839cbc",
-          "materialHash": "e282e6ff683b16c0fe93aa5a569683ffc491778936b77d8a3ad43b78ba651918",
-          "storyFilesHash": "203ad64de47ad75db898fbbede08556746e3dc283349362e9f826946a8eb3390",
-          "timestamp": "2026-06-20T14:48:38.690Z"
+          "note": "Smoke helper + per-provider checks: toOwnPropsNullProto returns a null-proto (Object.getPrototypeOf===null) whitelist-only object; applied at the entry points a normal provider response yields a record byte-identical to pre-change for anthropic/openai/gemini (legitimate own-property data preserved). Driven through the real assemble/dispatch/record path.",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "Chokepoint returns Object.create(null) (getPrototypeOf===null) carrying only whitelisted own keys; full load-bearing pollution proof lands in CHK-003 smoke.",
-          "headHash": "170219942deab91c88cb30e5d1f10cbf74839cbc",
-          "materialHash": "e282e6ff683b16c0fe93aa5a569683ffc491778936b77d8a3ad43b78ba651918",
-          "storyFilesHash": "203ad64de47ad75db898fbbede08556746e3dc283349362e9f826946a8eb3390",
-          "timestamp": "2026-06-20T14:48:38.810Z"
+          "note": "With Object.prototype polluted by each token key (try/finally restored), the projected object exposes none of the inherited values; the downstream adapter read sees only own whitelisted keys (anthropic/openai/gemini + streaming load-bearing checks).",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "Whitelist enumerated from adapters; openai nested cached_tokens preserved; un-polluted per-provider records unchanged (existing smokes green).",
-          "headHash": "170219942deab91c88cb30e5d1f10cbf74839cbc",
-          "materialHash": "e282e6ff683b16c0fe93aa5a569683ffc491778936b77d8a3ad43b78ba651918",
-          "storyFilesHash": "203ad64de47ad75db898fbbede08556746e3dc283349362e9f826946a8eb3390",
-          "timestamp": "2026-06-20T14:48:38.929Z"
+          "note": "Whitelist does not drop a legitimate own-property token field incl. nested openai cached_tokens; DIGEST-PRESERVED checks assert a legit payload WITH extra non-read fields (total_tokens/totalTokenCount/audio_tokens) yields raw.payloadDigest === payloadDigest(original).",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         }
       ]
     },
@@ -126,35 +129,38 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "command": "grep -rn \" in \" packages/main/src/core/usage-ledger/",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "No prototype-chain in on externally-derived usage objects remain: openai.ts cached_tokens, record.ts:493/546, streaming.ts (all 7 sites) converted to hasOwnProperty/ownProp or routed through chokepoint. Remaining matches are a comment + record.ts storyId/supersedesRecordIds/confidence presence checks on the locally-assembled record input (NOT external usage token surfaces; out of inventory scope). shared.ts had no in operator.",
-          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
-          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
-          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
-          "timestamp": "2026-06-20T14:51:45.796Z"
+          "note": "Exhaustive grep + smoke: no remaining key-in-obj prototype-chain presence read on externally-derived objects across assemble/dispatch/adapters/streaming/record (own-prop guarded or routed through the chokepoint).",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "record.ts 493/546 converted MECHANISM-only; B-253e rules unchanged. Existing usage-ledger smokes (validator + streaming) green => legitimate own-property data behavior identical.",
-          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
-          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
-          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
-          "timestamp": "2026-06-20T14:51:45.944Z"
+          "note": "record.ts validator in→hasOwnProperty conversion preserves identical B-253e validation behavior for legitimate own-property data (baseline-validates-clean check); full npm test green.",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "Streaming usage objects now null-proto-projected before adapter reads; merged stream object is Object.create(null); inherited keys not treated as present. Load-bearing pollution proof in CHK-003 smoke.",
-          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
-          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
-          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
-          "timestamp": "2026-06-20T14:51:46.088Z"
+          "note": "With Object.prototype polluted, the converted own-property checks (openai cached_tokens, record validator storyId/supersedesRecordIds, container reads, envelope.result) do NOT treat an inherited key/container as present (CONTAINER-POLLUTION + validator-pollution + result-pollution load-bearing checks).",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         }
       ]
     },
@@ -204,35 +210,38 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "Exit 0; prints 'usage-ledger-prototype-pollution smoke passed (18 checks)'. Auto-discovered by run-all-smokes (filename *-smoke.js) and present in the suite (PASS usage-ledger-prototype-pollution). package.json alias test:usage-ledger-prototype-pollution added. Full smoke suite 197/200 (3 fails are pre-existing parallel-load flakiness in english-open-source-surface/story-capsule/story-create-concurrency, all PASS standalone, none touch usage-ledger). npm test ALL PASS (exit 0).",
-          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
-          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
-          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
-          "timestamp": "2026-06-20T15:02:25.032Z"
+          "note": "node usage-ledger-prototype-pollution-smoke.js prints \"usage-ledger-prototype-pollution smoke passed (30 checks)\" and exits 0; auto-discovered by run-all-smokes; full npm test exits 0.",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "For anthropic/openai/gemini (provider final via recordDispatchFinal[ForProvider] persisted+read back), streaming (extract*StreamUsage), and estimate (recordDispatchPreflight persisted), each token key is polluted onto Object.prototype inside try/finally and the persisted/surfaced record carries NO 999; absent cache fields stay null. Object.prototype asserted clean at end (final check passes).",
-          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
-          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
-          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
-          "timestamp": "2026-06-20T15:02:25.201Z"
+          "note": "For anthropic/openai/gemini + streaming + estimate, polluting Object.prototype with each token key (try/finally restored) yields NO inherited value in the persisted record; Object.prototype asserted clean again at the end (section G).",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "git checkout <pre-hardening> -- assemble/dispatch/openai/record/streaming && build && run smoke",
+          "file": "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
           "result": "pass",
-          "note": "Load-bearing verified by reverting the source hardening (keeping the smoke): smoke FAILED 6/18 with 'a usage field carried the polluted value 999' on exactly the anthropic/openai/gemini + 3 streaming pollution assertions; legitimate-data positive cases still passed. Restored hardening -> 18/18 pass. (Estimate pollution case passes even pre-hardening by design: that path computes input from prompt text and sets output/cache to literal null, so it was never a pollution surface; included per spec to assert the property holds.)",
-          "headHash": "b13c1cbf876e5f6ef8cd4448b9d1e700c3ba38d0",
-          "materialHash": "cac158bf2f31fe49360a535843d515aa11ea260f8a4811fbc6a7c59cf9b5dcd6",
-          "storyFilesHash": "46e099a0e6ea3bfa2c482389f8f74a107933f0a8010ada1840ffad6b5fd7631e",
-          "timestamp": "2026-06-20T15:02:25.376Z"
+          "note": "Each pollution assertion is load-bearing: verified by revert-experiment that the digest-preserved/container/validator/result checks FAIL against pre-hardening code. The estimate-path check is honestly labeled NOT load-bearing (estimate never reads provider token keys) — a property assertion only.",
+          "headHash": "b451fca033865f54f899194c8604414faf1ef58b",
+          "materialHash": "67ec64dbf538df0ff4c938a485a4d6bb6f9d5796e1c11eca4c53ec94c8eaa504",
+          "storyFilesHash": "c7ef6d7d1e5afaabd586a33e963d440b06f811dfbff3493804a6efc1d23ae34d",
+          "timestamp": "2026-06-20T15:56:27.566Z"
         }
       ]
     }
