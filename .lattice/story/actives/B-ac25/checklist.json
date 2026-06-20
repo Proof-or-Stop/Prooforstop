@@ -111,7 +111,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/artifact-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE checklist renders a separate done-required-validation row that passes when fresh required evidence matches current material and policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Projects without a required DONE policy render an advisory/non-blocking row and do not block DONE solely for missing done-required evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Self-host required policy blocks DONE on missing, failing, stale material, stale storyFilesHash, or changed command/policy evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
