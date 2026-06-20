@@ -232,6 +232,18 @@
           "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
           "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
           "timestamp": "2026-06-20T18:33:19.216Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"host-level manual check\\|DONE summary\\|live facts\\|legacy completion\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Acceptance section includes negative live-vs-doc mismatch check where stale pending claims must not be accepted.",
+          "headHash": "ba0d297fe7562080086d899435eaa20380666487",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.737Z"
         }
       ]
     }
