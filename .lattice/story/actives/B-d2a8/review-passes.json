@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-008",
       "_hash": "7ea50dc5aa34f6133aae883ff22c9b43ae876e165cd5eeb871212c0d63c8a5f5"
+    },
+    {
+      "id": "B-d2a8:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 27 intents (CHK-001 16 intents + CHK-002 11 intents). F-018/F-021 (invalid mode/non-integer max/non-boolean broadGlobBlocks integration warn) confirmed closed — all three cases wrapped in captureWarn asserting both value and warn key emission, plus a valid-mode no-warn assertion at lines 236-242. F-019 (prototype safety) confirmed closed — Object.create inherited sub-fields correctly treated as absent with zero warnings (lines 155-163), and __proto__-via-JSON case asserts own mode absent plus no Object.prototype pollution (lines 165-172). F-020 (never-throw) confirmed closed — bigint mode (lines 178-181), bigint max (183-187), circular-object mode (188-194), and throwing-toJSON broadGlobBlocks (195-200) all assert warn+fallback; reaching assertions proves no crash. All must-priority intents in both CHK-001 and CHK-002 are covered by genuine non-tautological assertions. 72 smoke assertions total, smoke passes. No coverage gaps, no tautologies found.",
+      "createdAt": "2026-06-20T06:12:37.164Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-010",
+      "_hash": "524df424cf489f8066bb1a1630700cc357719fbb24bcd61ea573b27ec105475b"
     }
   ]
 }
