@@ -50,8 +50,8 @@ Recommended configuration shape:
     "done": {
       "required": true,
       "commands": [
-        { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000 },
-        { "command": "npm", "args": ["test"], "timeoutMs": 1200000 }
+        { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000, "providesBuildProof": "packages-main-build" },
+        { "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
       ]
     }
   }
@@ -63,13 +63,13 @@ Equivalent acceptable shape:
 ```json
 {
   "doneRequiredCommands": [
-    { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000 },
-    { "command": "npm", "args": ["test"], "timeoutMs": 1200000 }
+    { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 600000, "providesBuildProof": "packages-main-build" },
+    { "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
   ]
 }
 ```
 
-The exact schema can differ, but the behavior must preserve the distinction between routine validation and DONE/release-required validation. Because root tests execute built `packages/main/dist` tasks and `dist` is untracked, the DONE-required proof must include a fresh `npm --prefix packages/main run build` receipt before root `npm test`, or a root `pretest` / equivalent receipt proving the build output matches the same `headHash` and `materialHash`.
+The exact schema can differ, but the behavior must preserve the distinction between routine validation and DONE/release-required validation. The `packages-main-build` proof is a self-host policy requirement that must be explicitly enabled on the command that needs it. External projects that opt into `doneRequiredCommands: [{ "command": "npm", "args": ["test"] }]` do not inherit this rule. Because this repository's root tests execute built `packages/main/dist` tasks and `dist` is untracked, the self-host DONE-required proof must include a fresh `npm --prefix packages/main run build` receipt before the root `npm test`, or a root `pretest` / equivalent receipt proving the build output matches the same `headHash` and `materialHash`.
 
 ## External Project Behavior
 
@@ -176,7 +176,7 @@ Self-host required policy:
 - Failing DONE-required evidence blocks DONE.
 - Stale DONE-required evidence blocks DONE.
 - Evidence from a different HEAD, material hash, story files hash, command set, or policy hash blocks DONE.
-- Evidence that runs root `npm test` without a same-material build receipt, or equivalent proof of current `packages/main/dist`, blocks DONE for the self-host required policy.
+- Evidence for a command with `requiresBuildProof: "packages-main-build"` without a same-material build receipt, or equivalent proof of current `packages/main/dist`, blocks DONE for the self-host required policy.
 - A skipped command in the required set is a failure unless the policy explicitly defines it as optional.
 - The DONE checklist gets a dedicated row separate from ordinary `test-evidence`, for example `done-required-validation`.
 
@@ -226,13 +226,13 @@ Exit criteria:
 - Persist command receipts with bounded output.
 - Mark overall status PASS only when all required commands PASS.
 - Ensure execution failures produce a FAIL artifact when possible.
-- Ensure the root `npm test` receipt is tied to a preceding same-material package build receipt, or to an equivalent root `pretest` / build receipt.
+- Ensure commands that explicitly declare `requiresBuildProof: "packages-main-build"` are tied to a preceding same-material package build receipt, or to an equivalent root `pretest` / build receipt.
 
 Exit criteria:
 
 - A passing full-suite run writes fresh PASS evidence.
 - A failing command writes FAIL evidence with output digest and tail.
-- A root `npm test` run without current `packages/main/dist` proof cannot write full-assurance PASS evidence.
+- A self-host command that declares `requiresBuildProof: "packages-main-build"` cannot write full-assurance PASS evidence without current `packages/main/dist` proof.
 
 ### M3. DONE Oracle Row
 
@@ -250,14 +250,14 @@ Exit criteria:
 
 ### M4. Self-Host Config
 
-- Configure Orchestrate/Lattice self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, or an equivalent full-suite command with a same-material build receipt.
+- Configure Orchestrate/Lattice self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, with `requiresBuildProof: "packages-main-build"` on the root test command, or an equivalent full-suite command with a same-material build receipt.
 - Pick a timeout high enough for the current root chain.
 - Document the command cost and when to run it.
 
 Exit criteria:
 
 - Self-host DONE cannot pass with only the 8 configured `validate.commands` entries.
-- Self-host DONE cannot pass with stale or missing `packages/main/dist` proof before root `npm test`.
+- Self-host DONE cannot pass with stale or missing `packages/main/dist` proof before any command that explicitly requires `packages-main-build` proof.
 
 ### M5. Docs
 

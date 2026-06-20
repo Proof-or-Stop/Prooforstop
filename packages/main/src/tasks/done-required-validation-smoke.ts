@@ -84,6 +84,16 @@ function fixture(doneRequiredCommands?: unknown): { root: string; store: StorySt
   return { root, store };
 }
 
+function addPassingNpmTestPackage(root: string): void {
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({ scripts: { test: "node -e 'process.exit(0)'" } }, null, 2),
+    'utf-8',
+  );
+  git(root, ['add', 'package.json']);
+  git(root, ['commit', '-m', 'add passing npm test']);
+}
+
 function hashes(root: string) {
   return {
     headHash: currentGitHead(root),
@@ -208,9 +218,36 @@ function writeDoneEvidence(root: string, store: StoryStore, receipts: DoneRequir
   }
 }
 
-// Missing build receipt blocks self-host proof for root npm test.
+// External opt-in root npm test does not inherit the self-host build-proof requirement.
 {
   const { root, store } = fixture([{ label: 'root full test suite', command: 'npm', args: ['test'] }]);
+  try {
+    addPassingNpmTestPackage(root);
+    const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
+    assert.equal(
+      evidence.reasons.some(reason => reason.includes('missing-build-proof')),
+      false,
+      `external root npm test must not inherit self-host proof: ${evidence.reasons.join(', ')}`,
+    );
+    const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evaluation.ok, true, evaluation.reasons.join(', '));
+    assert.equal(
+      evaluation.reasons.some(reason => reason.includes('missing-build-proof')),
+      false,
+      `DONE evaluation must not report missing-build-proof: ${evaluation.reasons.join(', ')}`,
+    );
+    const row = doneRow(buildDoneChecklist(STORY_ID, store, root, { gitCwd: root, auditWriter: null }), 'done-required-validation');
+    assert.equal(row.status, 'pass');
+    assert.equal(row.blocking, false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Explicit self-host proof requirement still blocks without a preceding build receipt.
+{
+  const { root, store } = fixture([{ label: 'root full test suite', command: 'npm', args: ['test'], requiresBuildProof: 'packages-main-build' }]);
   try {
     writeDoneEvidence(root, store, [
       baseReceipt(root, { label: 'root full test suite', command: 'npm', args: ['test'] }),
@@ -222,11 +259,11 @@ function writeDoneEvidence(root: string, store: StoryStore, receipts: DoneRequir
   }
 }
 
-// Preceding same-material packages/main build receipt satisfies self-host proof.
+// Preceding same-material packages/main build receipt satisfies explicit self-host proof.
 {
   const { root, store } = fixture([
-    { label: 'packages/main build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'] },
-    { label: 'root full test suite', command: 'npm', args: ['test'] },
+    { label: 'packages/main build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], providesBuildProof: 'packages-main-build' },
+    { label: 'root full test suite', command: 'npm', args: ['test'], requiresBuildProof: 'packages-main-build' },
   ]);
   try {
     const materialHash = hashes(root).materialHash;

@@ -23,6 +23,24 @@ export interface LatticeFlowConfig {
   patterns: Array<{ field: string; regex: string }>;
 }
 
+export type DoneRequiredBuildProof = 'packages-main-build';
+
+export interface DoneRequiredCommandConfig {
+  label?: string;
+  command: string;
+  args?: string[];
+  shell?: boolean;
+  cwd?: string;
+  env?: Record<string, string>;
+  timeoutMs?: number;
+  /** Explicitly require a preceding same-material proof before this command can satisfy DONE. */
+  requiresBuildProof?: DoneRequiredBuildProof;
+  /** Explicitly mark this command as providing a build proof. */
+  providesBuildProof?: DoneRequiredBuildProof;
+  /** Legacy/provider alias for providesBuildProof. */
+  proof?: DoneRequiredBuildProof;
+}
+
 export interface LatticeConfig {
   scanRoot: string;
   /** 源码子目录（相对 scanRoot，对应 tsconfig rootDir，默认和 scanRoot 相同） */
@@ -60,34 +78,10 @@ export interface LatticeConfig {
    * Opt-in DONE-required validation commands. Missing config is advisory only;
    * malformed opted-in config is consumed by the DONE gate as fail-closed.
    */
-  doneRequiredCommands?: Array<string | {
-    label?: string;
-    command: string;
-    args?: string[];
-    shell?: boolean;
-    cwd?: string;
-    env?: Record<string, string>;
-    timeoutMs?: number;
-  }>;
+  doneRequiredCommands?: Array<string | DoneRequiredCommandConfig>;
   validationProfiles?: {
-    done?: Array<string | {
-      label?: string;
-      command: string;
-      args?: string[];
-      shell?: boolean;
-      cwd?: string;
-      env?: Record<string, string>;
-      timeoutMs?: number;
-    }> | {
-      commands?: Array<string | {
-        label?: string;
-        command: string;
-        args?: string[];
-        shell?: boolean;
-        cwd?: string;
-        env?: Record<string, string>;
-        timeoutMs?: number;
-      }>;
+    done?: Array<string | DoneRequiredCommandConfig> | {
+      commands?: Array<string | DoneRequiredCommandConfig>;
     };
   };
   /** 浏览器测试配置 */

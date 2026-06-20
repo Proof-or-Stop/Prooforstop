@@ -17,9 +17,18 @@ export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
 
 const SHELL_META_RE = /[;&|<>$()`]/;
 const OUTPUT_TAIL_CHARS = 4000;
+const PACKAGES_MAIN_BUILD_PROOF = 'packages-main-build' as const;
 
 export interface DoneRequiredCommand extends ValidationCommand {
-  proof?: 'packages-main-build';
+  /**
+   * Command-local opt-in for the Orchestrate self-host policy. External
+   * projects can require root npm test without inheriting this build proof.
+   */
+  requiresBuildProof?: typeof PACKAGES_MAIN_BUILD_PROOF;
+  /** Explicit marker for a command that produces the packages/main build proof. */
+  providesBuildProof?: typeof PACKAGES_MAIN_BUILD_PROOF;
+  /** Legacy/provider alias retained for existing evidence policy compatibility. */
+  proof?: typeof PACKAGES_MAIN_BUILD_PROOF;
 }
 
 export interface DoneRequiredPolicy {
@@ -107,6 +116,17 @@ function commandFromString(label: string, value: string): DoneRequiredCommand | 
   return { label, command: parts[0], args: parts.slice(1) };
 }
 
+function normalizePackagesMainBuildProof(
+  field: string,
+  value: unknown,
+  errors: string[],
+): typeof PACKAGES_MAIN_BUILD_PROOF | undefined {
+  if (value === undefined) return undefined;
+  if (value === PACKAGES_MAIN_BUILD_PROOF) return PACKAGES_MAIN_BUILD_PROOF;
+  errors.push(`${field} must be "${PACKAGES_MAIN_BUILD_PROOF}" when present`);
+  return undefined;
+}
+
 function normalizeCommandEntry(entry: unknown, index: number, errors: string[]): DoneRequiredCommand | null {
   if (typeof entry === 'string') {
     const command = commandFromString(`doneRequiredCommands[${index}]`, entry);
@@ -143,6 +163,21 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
   if (raw.env !== undefined && !env) {
     errors.push(`doneRequiredCommands[${index}].env must be an object when present`);
   }
+  const requiresBuildProof = normalizePackagesMainBuildProof(
+    `doneRequiredCommands[${index}].requiresBuildProof`,
+    raw.requiresBuildProof,
+    errors,
+  );
+  const providesBuildProof = normalizePackagesMainBuildProof(
+    `doneRequiredCommands[${index}].providesBuildProof`,
+    raw.providesBuildProof,
+    errors,
+  );
+  const proof = normalizePackagesMainBuildProof(
+    `doneRequiredCommands[${index}].proof`,
+    raw.proof,
+    errors,
+  );
   return {
     label: typeof raw.label === 'string' && raw.label.trim() ? raw.label.trim() : `doneRequiredCommands[${index}]`,
     command: raw.command.trim(),
@@ -151,7 +186,9 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
     ...(typeof raw.cwd === 'string' && raw.cwd.trim() ? { cwd: raw.cwd.trim() } : {}),
     ...(env ? { env } : {}),
     ...(typeof raw.timeoutMs === 'number' && Number.isFinite(raw.timeoutMs) && raw.timeoutMs > 0 ? { timeoutMs: raw.timeoutMs } : {}),
-    ...(raw.proof === 'packages-main-build' ? { proof: 'packages-main-build' } : {}),
+    ...(requiresBuildProof ? { requiresBuildProof } : {}),
+    ...(providesBuildProof ? { providesBuildProof } : {}),
+    ...(proof ? { proof } : {}),
   };
 }
 
@@ -209,6 +246,8 @@ export function resolveDoneRequiredPolicy(projectRoot: string): DoneRequiredPoli
     cwd: cmd.cwd ?? '',
     env: cmd.env ?? {},
     timeoutMs: cmd.timeoutMs ?? null,
+    requiresBuildProof: cmd.requiresBuildProof ?? '',
+    providesBuildProof: cmd.providesBuildProof ?? '',
     proof: cmd.proof ?? '',
   }));
   return {
@@ -239,17 +278,9 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
   return `${receipt.status} ${receipt.label}: ${receipt.command} ${receipt.args.join(' ')}`.trim();
 }
 
-function isRootNpmTest(receipt: DoneRequiredCommandReceipt, projectRoot: string): boolean {
-  const cwd = receipt.cwd.replace(/\\/g, '/');
-  const root = projectRoot.replace(/\\/g, '/');
-  if (cwd !== root) return false;
-  if (receipt.command === 'npm' && receipt.args.length === 1 && receipt.args[0] === 'test') return true;
-  return receipt.command === 'npm' && receipt.args.length === 2 && receipt.args[0] === 'run' && receipt.args[1] === 'test';
-}
-
 function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
   if (receipt.status !== 'PASS') return false;
-  if (command?.proof === 'packages-main-build') return true;
+  if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
   const cwd = receipt.cwd.replace(/\\/g, '/');
   const packagesMain = resolve(projectRoot, 'packages/main').replace(/\\/g, '/');
   const args = receipt.args;
@@ -268,6 +299,10 @@ function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: s
   return false;
 }
 
+function requiresPackagesMainBuildProof(command?: DoneRequiredCommand): boolean {
+  return command?.requiresBuildProof === PACKAGES_MAIN_BUILD_PROOF;
+}
+
 export function validateSelfHostBuildProof(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
@@ -276,7 +311,8 @@ export function validateSelfHostBuildProof(
   const reasons: string[] = [];
   for (let i = 0; i < evidence.receipts.length; i++) {
     const receipt = evidence.receipts[i];
-    if (!isRootNpmTest(receipt, projectRoot)) continue;
+    const command = commands[i];
+    if (!requiresPackagesMainBuildProof(command)) continue;
     const build = evidence.receipts.slice(0, i).find((candidate, candidateIndex) => (
       isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex]) &&
       candidate.materialHash &&
@@ -284,7 +320,7 @@ export function validateSelfHostBuildProof(
       candidate.materialHash === receipt.materialHash
     ));
     if (!build) {
-      reasons.push('missing-build-proof: root npm test requires a preceding PASS receipt for npm --prefix packages/main run build, or equivalent packages/main build proof, with the same materialHash');
+      reasons.push(`missing-build-proof: ${receipt.label} requires a preceding PASS receipt for npm --prefix packages/main run build, or equivalent packages/main build proof, with the same materialHash`);
     }
   }
   return reasons;

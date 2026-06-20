@@ -54,7 +54,7 @@ The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` imp
 
 Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`.
 
-For this self-host repository, the required policy includes `npm --prefix packages/main run build` before root `npm test`. A root `npm test` receipt without a preceding same-material packages/main build receipt, or equivalent packages/main build proof, cannot satisfy DONE-required full assurance.
+For this self-host repository, the required policy explicitly marks the root `npm test` command with `requiresBuildProof: "packages-main-build"`, so it must be preceded by `npm --prefix packages/main run build` or an equivalent same-material packages/main build proof. This build-proof rule is a self-host policy requirement; external projects that only configure root `npm test` as a DONE-required command do not inherit it.
 
 The validation-related process facts must be registered in `packages/main/src/core/process-fact-registry.ts`:
 `validate` represents `validation-status`, `verification_evidence_*` represents
