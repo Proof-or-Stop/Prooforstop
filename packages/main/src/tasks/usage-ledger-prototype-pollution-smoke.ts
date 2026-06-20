@@ -437,6 +437,64 @@ async function main(): Promise<void> {
   });
 
   // ======================================================================
+  // (H2) STREAMING DIGEST-PRESERVED (B-6878 F-007, LOAD-BEARING): the streaming
+  // openai/gemini extractors must digest the ORIGINAL terminal stream usage, NOT a
+  // pre-projection. A legitimate terminal stream usage carrying EXTRA non-read
+  // fields (openai total_tokens + nested audio_tokens; gemini totalTokenCount) must
+  // yield raw.payloadDigest === payloadDigest(original terminal usage).
+  //
+  // FAILS against the pre-fix streaming code (which pre-projected the terminal usage
+  // via sanitizeOpenAiStreamUsage / toOwnPropsNullProto BEFORE the adapter, so the
+  // adapter digested the projection — dropping the extra fields and changing the
+  // digest).
+  // ======================================================================
+  await check('streaming digest-preserved openai (LOAD-BEARING): digest over ORIGINAL terminal usage incl. total_tokens + nested audio_tokens', () => {
+    // A legit terminal stream usage WITH extra non-read fields the adapter ignores.
+    const terminalUsage = {
+      prompt_tokens: 21,
+      completion_tokens: 22,
+      total_tokens: 43, // extra non-read top-level field
+      prompt_tokens_details: { cached_tokens: 5, audio_tokens: 2 }, // extra nested key
+    };
+    const chunks = [{ usage: terminalUsage }];
+    const usage = extractOpenAiStreamUsage(chunks);
+    assert.equal(usage.source, 'provider-reported');
+    const digest = (usage as { raw?: { payloadDigest?: string } }).raw?.payloadDigest;
+    assert.ok(typeof digest === 'string', 'expected a provider-reported raw.payloadDigest');
+    assert.equal(
+      digest,
+      payloadDigest(terminalUsage),
+      'streaming digest must equal the ORIGINAL terminal usage digest (total_tokens + nested audio_tokens preserved)',
+    );
+    // Counts are still read correctly through the projection.
+    assert.equal(usage.inputTokens, 21);
+    assert.equal(usage.outputTokens, 22);
+    assert.equal(usage.cacheReadInputTokens, 5);
+  });
+
+  await check('streaming digest-preserved gemini (LOAD-BEARING): digest over ORIGINAL terminal usageMetadata incl. totalTokenCount', () => {
+    const terminalMeta = {
+      promptTokenCount: 31,
+      candidatesTokenCount: 32,
+      cachedContentTokenCount: 4,
+      totalTokenCount: 67, // extra non-read field excluded from the record by design
+    };
+    const chunks = [{ usageMetadata: terminalMeta }];
+    const usage = extractGeminiStreamUsage(chunks);
+    assert.equal(usage.source, 'provider-reported');
+    const digest = (usage as { raw?: { payloadDigest?: string } }).raw?.payloadDigest;
+    assert.ok(typeof digest === 'string', 'expected a provider-reported raw.payloadDigest');
+    assert.equal(
+      digest,
+      payloadDigest(terminalMeta),
+      'streaming digest must equal the ORIGINAL terminal usageMetadata digest (totalTokenCount preserved)',
+    );
+    assert.equal(usage.inputTokens, 31);
+    assert.equal(usage.outputTokens, 32);
+    assert.equal(usage.cacheReadInputTokens, 4);
+  });
+
+  // ======================================================================
   // (I) CONTAINER-POLLUTION (B-6878 F-004, LOAD-BEARING): an inherited
   // (prototype-polluted) CONTAINER (envelope.usage / chunk.usage /
   // chunk.usageMetadata) on an object with NO own container is treated as ABSENT.
@@ -466,6 +524,24 @@ async function main(): Promise<void> {
     const final = finalRecord(sub);
     assert.equal(final.usage.source, 'unavailable', 'final must be unavailable, not provider-reported with inherited 999');
     assertNoPollution(final.usage);
+  });
+
+  await check('result-pollution dispatch (LOAD-BEARING): inherited envelope.result is NOT used (falls back to raw stdout)', () => {
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'result'), 'precondition: no own Object.prototype.result');
+    try {
+      // Pollute Object.prototype.result with an inherited value that must NEVER
+      // become the resolved result text.
+      proto.result = 'INHERITED-EVIL';
+      // A valid JSON envelope (object) with NO own `result` key. The raw stdout is
+      // the human-facing fallback; the inherited prototype.result must be ignored.
+      const stdout = JSON.stringify({ type: 'result', model: 'srv-model' });
+      const parsed = parseClaudeCliOutput(stdout);
+      assert.notEqual(parsed.resultText, 'INHERITED-EVIL', 'inherited envelope.result must NOT be used as the result text');
+      assert.equal(parsed.resultText, stdout, 'result text must fall back to the raw stdout when there is no OWN result');
+    } finally {
+      delete proto.result;
+    }
   });
 
   await check('container-pollution streaming openai (LOAD-BEARING): inherited chunk.usage container is NOT accepted', () => {
@@ -526,9 +602,9 @@ async function main(): Promise<void> {
   // (G) Object.prototype is clean again.
   // ======================================================================
   await check('Object.prototype is clean again (no leftover token keys or container keys)', () => {
-    // Token leaf keys (sections B-F) AND the container keys the container-pollution
-    // checks (section I) set must all be restored.
-    for (const k of [...ALL_TOKEN_KEYS, 'usage', 'usageMetadata', 'message'] as const) {
+    // Token leaf keys (sections B-F) AND the container/result keys the
+    // container-pollution + result-pollution checks (section I) set must all be restored.
+    for (const k of [...ALL_TOKEN_KEYS, 'usage', 'usageMetadata', 'message', 'result'] as const) {
       assert.ok(
         !Object.prototype.hasOwnProperty.call(Object.prototype, k),
         `Object.prototype must not carry leftover key ${k}`,

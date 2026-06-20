@@ -227,23 +227,36 @@ export function extractOpenAiStreamUsage(
     return buildUnavailableUsage(noUsageReason('openai', errorReason));
   }
 
-  // B-6878: project to a null-proto, whitelist-only object before any read.
-  const usage = sanitizeOpenAiStreamUsage(lastUsage);
-  const input = readReportedDimension(usage.prompt_tokens);
-  const output = readReportedDimension(usage.completion_tokens);
+  // B-6878 (F-007 fix): keep a reference to the ORIGINAL terminal stream usage. The
+  // whitelist PROJECTION is used ONLY for the local pollution-safe token READS
+  // (primaries + the partial cacheRead belt). The COMPLETE path defers to
+  // adaptOpenAiUsage, which itself project-for-reads + digests-the-ORIGINAL
+  // internally (round-2 FIX A) — so we pass the ORIGINAL (not the projection) to
+  // the adapter. This keeps raw.payloadDigest === payloadDigest(original terminal
+  // usage): a pre-projection here would have dropped legitimate extra non-read
+  // fields (total_tokens, nested audio_tokens) from the digest (a regression this
+  // story introduced).
+  const original = lastUsage;
+  const projected = sanitizeOpenAiStreamUsage(original);
+  const input = readReportedDimension(projected.prompt_tokens);
+  const output = readReportedDimension(projected.completion_tokens);
 
   if (hasBothPrimaries(input, output)) {
-    return adaptOpenAiUsage(usage);
+    // Pass the ORIGINAL: the adapter does the internal project-for-reads +
+    // digest-original, so the digest covers the original terminal usage.
+    return adaptOpenAiUsage(original);
   }
 
   // B-6878 (belt): own-property checks, not prototype-chain `in`, on the
-  // (already null-proto) details object.
-  const cacheRead = isUsableUsageObject(usage.prompt_tokens_details) && ownProp(usage.prompt_tokens_details, 'cached_tokens')
-    ? readReportedDimension((usage.prompt_tokens_details as Record<string, unknown>).cached_tokens)
+  // (already null-proto) projected details object.
+  const cacheRead = isUsableUsageObject(projected.prompt_tokens_details) && ownProp(projected.prompt_tokens_details, 'cached_tokens')
+    ? readReportedDimension((projected.prompt_tokens_details as Record<string, unknown>).cached_tokens)
     : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
   if (anyCount(dims)) {
-    return buildPartialProviderUsage(dims, OPENAI_PROVIDER_UNITS, usage);
+    // Partial path also digests the ORIGINAL terminal usage (not the projection),
+    // so a partial record's raw.payloadDigest matches the original payload too.
+    return buildPartialProviderUsage(dims, OPENAI_PROVIDER_UNITS, original);
   }
   return buildUnavailableUsage(noUsageReason('openai', errorReason));
 }
@@ -281,21 +294,34 @@ export function extractGeminiStreamUsage(
     return buildUnavailableUsage(noUsageReason('gemini', errorReason));
   }
 
-  // B-6878: project to a null-proto, whitelist-only object before any read.
-  const meta = toOwnPropsNullProto(lastMeta, GEMINI_STREAM_WHITELIST);
+  // B-6878 (F-007 fix): keep a reference to the ORIGINAL terminal usageMetadata.
+  // The whitelist PROJECTION is used ONLY for the local pollution-safe token READS
+  // (primaries + the partial cacheRead belt). The COMPLETE path defers to
+  // adaptGeminiUsage, which itself project-for-reads + digests-the-ORIGINAL
+  // internally (round-2 FIX A) — so we pass the ORIGINAL (not the projection) to
+  // the adapter. This keeps raw.payloadDigest === payloadDigest(original terminal
+  // usageMetadata): a pre-projection here would have dropped a legitimate extra
+  // non-read field (totalTokenCount) from the digest (a regression this story
+  // introduced).
+  const original = lastMeta;
+  const meta = toOwnPropsNullProto(original, GEMINI_STREAM_WHITELIST);
   const input = readReportedDimension(meta.promptTokenCount);
   const output = readReportedDimension(meta.candidatesTokenCount);
 
   if (hasBothPrimaries(input, output)) {
-    return adaptGeminiUsage(meta);
+    // Pass the ORIGINAL: the adapter does the internal project-for-reads +
+    // digest-original, so the digest covers the original terminal usageMetadata.
+    return adaptGeminiUsage(original);
   }
 
   // B-6878 (belt): own-property check, not a prototype-chain `in`, on the
-  // stream-parsed usageMetadata object.
+  // (already null-proto) projected usageMetadata object.
   const cacheRead = ownProp(meta, 'cachedContentTokenCount') ? readReportedDimension(meta.cachedContentTokenCount) : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
   if (anyCount(dims)) {
-    return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, meta);
+    // Partial path also digests the ORIGINAL terminal usageMetadata (not the
+    // projection), so a partial record's raw.payloadDigest matches the original.
+    return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, original);
   }
   return buildUnavailableUsage(noUsageReason('gemini', errorReason));
 }

@@ -21,7 +21,7 @@
  *     when the output is not the Claude Code JSON envelope.
  */
 
-import { type AnthropicUsage } from './adapters/anthropic.js';
+import { type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
 import {
   buildProviderRecord,
   type RecordAttribution,
@@ -48,17 +48,14 @@ import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
 import { ownProp, toOwnPropsNullProto } from './sanitize.js';
 
 /**
- * B-6878: the Anthropic token keys extractAnthropicUsage reads off a parsed
- * `.usage` object — the chokepoint whitelist for the anthropic extract entry.
- * Projecting through toOwnPropsNullProto before the u.* reads makes a polluted
- * Object.prototype token key unreachable via the prototype chain.
+ * B-6878 (F-006 fix): the Anthropic token keys extractAnthropicUsage reads off a
+ * parsed `.usage` object are the SAME chokepoint whitelist the anthropic adapter
+ * uses. Reuse the single exported ANTHROPIC_USAGE_WHITELIST (adapters/anthropic.ts)
+ * rather than a local duplicate so a future whitelist change cannot silently
+ * diverge between the dispatch extract entry and the adapter. Projecting through
+ * toOwnPropsNullProto before the u.* reads makes a polluted Object.prototype token
+ * key unreachable via the prototype chain.
  */
-const ANTHROPIC_USAGE_WHITELIST = [
-  'input_tokens',
-  'output_tokens',
-  'cache_creation_input_tokens',
-  'cache_read_input_tokens',
-] as const;
 
 /**
  * Re-export the opt-in gate so the dispatch seam imports ONLY this module from
@@ -209,10 +206,15 @@ export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
   const anthropicUsage = extractAnthropicUsage(usageContainer);
   const model = extractModel(envelope);
 
-  // `.result` is the human-facing text. When it is a string, use it; otherwise
-  // fall back to the raw stdout (a JSON-with-usage-but-no-result envelope still
-  // surfaces its usage, but its result text is the raw blob).
-  const resultText = typeof envelope.result === 'string' ? envelope.result : raw;
+  // `.result` is the human-facing text. When it is an OWN string property, use it;
+  // otherwise fall back to the raw stdout (a JSON-with-usage-but-no-result envelope
+  // still surfaces its usage, but its result text is the raw blob).
+  // B-6878 (F-008 fix): own-property guard the CONTAINER read. An inherited
+  // (prototype-polluted) Object.prototype.result on an envelope with NO own
+  // `result` is treated as ABSENT, so a polluted prototype can never replace the
+  // raw-stdout fallback text.
+  const ownResult = ownProp(envelope, 'result') ? envelope.result : undefined;
+  const resultText = typeof ownResult === 'string' ? ownResult : raw;
 
   return { resultText, anthropicUsage, model };
 }
