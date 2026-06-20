@@ -241,11 +241,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts the tag is NOT in REVIEW_RUN_LANES — it can never be mistaken for a reviewer agent/lane (so provenance stays in --desc).",
-          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
-          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
-          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
-          "timestamp": "2026-06-20T15:41:23.232Z"
+          "note": "Smoke asserts the §4.3 not-a-lane invariant against the BARE dangerous value: !REVIEW_RUN_LANES.includes('completeness-critic') AND !REVIEW_RUN_LANES.includes('lattice-review-completeness') (plus the bracketed-tag check) — so the critic provenance can never be a real --agent/lane and a confirmed critic finding must reuse a real review lane (quality/behavior) with the tag in --desc. (Round-1 Codex MAJOR: the prior assertion only checked the bracketed tag, which is vacuous.)",
+          "headHash": "c5833db6f29c5e4f98614adfb8dfa239ed67341a",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:48:23.553Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
