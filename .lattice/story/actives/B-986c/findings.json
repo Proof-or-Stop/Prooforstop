@@ -5,7 +5,7 @@
       "desc": "CHK-001:adversarial:1 claims evidence proves \"Peer with parallelSafe=no has overlapping path -> no overlap_declared_parallel block (peer must also assert parallel),\" but the smoke block 8 (line 142-151 of parallel-decomposition-gate-smoke.ts) tests the CONVERSE scenario: story parallelSafe=no with a parallel peer. No smoke fixture exercises story=parallel + peer=non-parallel + overlapping paths. The gate code at line 73 does implement this correctly (assertsParallel(peer) check), but the smoke evidence does not directly assert the stated claim. CHK-002:edge:4 claims the same scenario is covered by the smoke, compounding the mismatch.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T23:38:41.736Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/parallel-decomposition-gate.ts"
       ],
       "signatureTag": "missing|ts|adversarial-claims-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: smoke #12 covers parallel S + non-parallel peer (overlapping) -> block null (peer must also assert parallel).",
+      "resolvedAt": "2026-06-20T00:03:16.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-986c:F-002",
