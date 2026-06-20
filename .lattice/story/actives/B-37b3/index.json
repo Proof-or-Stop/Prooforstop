@@ -1,0 +1,22 @@
+{
+  "storyId": "B-37b3",
+  "name": "experience-hint-cache-resolve-main-root",
+  "title": "Resolve the Experience Layer finding-signals cache from the main repo root so hints load during worktree-based review",
+  "description": "The finding-signals cache lives only in the main checkout (.lattice/learning is gitignored), but story DEV/REVIEW runs in worktrees where loadExperienceHints(ctx.root) cannot find it — so hints never surface and experience_hint_surfaced never fires (Experience Layer operationally dormant, nOn=2). Resolve the learning-store cache root to the main repo root via git rev-parse --git-common-dir (fallback to the passed root on failure) for both read and write, so one canonical cache is reachable from every worktree. Advisory-only; no gate/schema change. + smoke.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-06-20T06:47:18.705Z",
+  "startedAt": "2026-06-20T06:47:18.705Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T06:47:18.706Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
