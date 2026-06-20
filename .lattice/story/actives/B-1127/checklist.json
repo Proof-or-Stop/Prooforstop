@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "runAdversarialRound(change, seams, config?) — the frozen 5-phase canonical round; AdversarialRoundResult extends RoundResult + confirmedByLane, in core/adversarial-review-round.ts",
       "context": "New module importing S0 (RoundResult, REVIEW_MODE_PHASES, Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict), S1 (runLenses, collectRawFindings, LensLane, LensRunRequest), S2 (verifyFindings, confirmedFindings), S3 (runCompletenessCritic). RoundSeams={runLens:(req:LensRunRequest)=>Finding[], runSkeptic:(f:Finding,change:string)=>Verdict, runCritic:(input:CompletenessCriticInput)=>Finding[]}. RoundConfig={lensSet?:readonly LensDef[] (default CANONICAL_LENS_SET), skeptics?:number, threshold?:number}. runAdversarialRound runs the §3.2 FROZEN order: runLenses (S1) -> verify each lens findings keeping its lane (S2 verifyFindings+confirmedFindings PER LENS so confirmedByLane preserves {lane,lensId,findings}) -> runCompletenessCritic (S3) on {change, confirmedFindings: the flattened confirmed lens set} -> verify critic raw (S2) -> converged (no confirmed lens AND no confirmed critic), reopen=!converged. Returns AdversarialRoundResult extends RoundResult {lensFindings:rawLens, confirmedFindings:confirmedLensFlat, criticFindings:confirmedCritic, reopen, converged} with confirmedByLane added. The critic MUST receive the VERIFIED (confirmed) lens set, never raw (proves §2.4 order).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T17:38:51.535Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
