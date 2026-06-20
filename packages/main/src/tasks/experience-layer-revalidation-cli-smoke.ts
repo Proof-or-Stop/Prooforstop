@@ -116,6 +116,18 @@ function run(): void {
     const report = parseJsonObject(runCli('learning_validate', `{"json":true,"story":"${REAL_STORY_ID}"}`));
     assert.equal(typeof report.total, 'number', 'total numeric for restricted derivation');
     assert.ok(!Number.isNaN(report.total as number), 'total not NaN');
+    // F-008: load-bearing protection for the F-002/F-005 filtered-view fix. The
+    // --story (filtered) JSON path must emit coverage:{filtered:true} and must NOT
+    // carry the numeric CoverageGapReport (gapFindings/gapStories/known) — a
+    // per-story subset compared against the GLOBAL cache would collapse to a false
+    // "0 gap" that hides a stale global cache. These assertions FAIL if anyone
+    // reverts the filtered branch back to the numeric `coverage: gap` shape.
+    const coverage = report.coverage as Record<string, unknown> | undefined;
+    assert.ok(coverage !== null && typeof coverage === 'object', 'filtered view carries a coverage object');
+    assert.equal(coverage.filtered, true, 'filtered view coverage.filtered === true');
+    assert.equal(typeof coverage.gapFindings, 'undefined', 'filtered view carries NO numeric findings gap');
+    assert.equal(typeof coverage.gapStories, 'undefined', 'filtered view carries NO numeric stories gap');
+    assert.equal(typeof coverage.known, 'undefined', 'filtered view carries NO numeric-gap "known" flag');
   });
 
   // ─── --story <nonexistent>: empty derivation edge (no crash, all-zero) ───────

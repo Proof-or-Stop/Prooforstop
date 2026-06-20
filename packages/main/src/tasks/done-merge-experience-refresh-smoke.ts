@@ -169,7 +169,7 @@ async function assertHappyRefreshesCacheOnMain(): Promise<void> {
     // The advisory refresh line is present with a signal count.
     const m = report.match(/experience cache refreshed \((\d+) signals\)/);
     check('happy: report carries "experience cache refreshed (N signals)"', !!m, `report:\n${report}`);
-    check('happy: refreshed signal count >= 1 (the resolved finding was folded in)', !!m && Number(m![1]) >= 1, `count=${m?.[1]}`);
+    check('happy: refreshed signal count >= 1 (the resolved finding was folded in)', !!m && Number(m[1]) >= 1, `count=${m?.[1]}`);
 
     // The merge itself completed.
     check('happy: story branch merged into main', git(root, ['log', '--oneline', 'main']).split('\n').some(l => /story metadata|merge: B-expref-happy/.test(l)), 'merge did not land');
@@ -184,7 +184,6 @@ async function assertHappyRefreshesCacheOnMain(): Promise<void> {
       console.error('✗ happy: finding-signals cache absent on the MAIN checkout after the DONE merge');
       process.exit(1);
     }
-    check('happy: finding-signals cache written on the MAIN checkout (no separate learning_scan)', cache !== null, 'cache absent on main after merge');
     check('happy: cache carries a coverage watermark (>=1 finding considered)', typeof cache.coveredFindingCount === 'number' && cache.coveredFindingCount >= 1, `watermark=${cache.coveredFindingCount}`);
     check('happy: cache has at least one derived signal', Array.isArray(cache.signals) && cache.signals.length >= 1, `signals=${cache.signals?.length}`);
     // F-003: the refreshed cache.updatedAt must be a recent wall-clock time, NOT the
@@ -238,7 +237,7 @@ async function assertMetadataOnlyMergeStillRefreshes(): Promise<void> {
     // The refresh is NOT gated on that predicate, so it STILL fired.
     const m = report.match(/experience cache refreshed \((\d+) signals\)/);
     check('meta-only: report STILL carries "experience cache refreshed (N signals)"', !!m, `report:\n${report}`);
-    check('meta-only: refreshed signal count >= 1 (folded in despite no code change)', !!m && Number(m![1]) >= 1, `count=${m?.[1]}`);
+    check('meta-only: refreshed signal count >= 1 (folded in despite no code change)', !!m && Number(m[1]) >= 1, `count=${m?.[1]}`);
 
     // The merge completed and the cache was (re)written on MAIN.
     check('meta-only: story worktree removed on success', !existsSync(worktreePath));
@@ -247,7 +246,6 @@ async function assertMetadataOnlyMergeStillRefreshes(): Promise<void> {
       console.error('✗ meta-only: finding-signals cache absent on the MAIN checkout after the metadata-only merge');
       process.exit(1);
     }
-    check('meta-only: finding-signals cache (re)written on MAIN despite no material-code change', cache !== null, 'cache absent on main after metadata-only merge');
     check('meta-only: cache.updatedAt advanced (not epoch)', typeof cache.updatedAt === 'string' && cache.updatedAt > '2020-01-01', `updatedAt=${cache.updatedAt}`);
 
     console.log('  ✓ META-ONLY: a metadata-only DONE merge (build skipped) STILL refreshed the experience cache');
