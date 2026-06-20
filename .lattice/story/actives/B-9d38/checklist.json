@@ -49,7 +49,86 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: runCompletenessCritic({change,confirmedFindings}, fake) returns EXACTLY the planted [pf1,pf2] (same refs), seam called once.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3: runCompletenessCriticOn('CHG2', onArr, fake) forwards {change,confirmedFindings} to the seam and returns [pf1,pf2].",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: an EMPTY confirmedFindings:[] still calls the critic (capture increments) and returns its output unchanged.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a fake returning a 100-element Finding[] is returned unchanged: length===100, out[0]/out[99] same element refs in order.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: the captured input has Object.keys===['change','confirmedFindings'] and input.change/confirmedFindings exactly the passed values (seam got only the confirmed set).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts pass-by-reference (capturedRef===the exact input object; a mutating fake's push is reflected on the caller's array) — the module forwards by reference with no defensive clone (pure pass-through).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a returned array containing a finding with an EXTRA property (as unknown as Finding) is returned by reference, extra prop intact — the seam output is unprivileged/unfiltered.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -100,7 +179,86 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]' (exact).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals ['lattice-review-quality','lattice-review-behavior'] (length 2, both entries).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: every recommended lane is in REVIEW_RUN_LANES (a real ReviewRunLane).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "CRITIC_PROVENANCE_RECOMMENDED_LANES is `as const` (readonly tuple); tsc compiling the smoke's deep-equal + .includes usage proves the tuple shape.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts !COMPLETENESS_CRITIC_DESC_TAG.startsWith('lattice-review-') — the desc tag is not a lane prefix.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the tag is NOT in REVIEW_RUN_LANES — it can never be mistaken for a reviewer agent/lane (so provenance stays in --desc).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts CRITIC_PROVENANCE_RECOMMENDED_LANES excludes 'completeness-critic' and both entries start with 'lattice-review-'.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -166,7 +324,119 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: toCriticFindingAddArgs(majorFinding,{reviewRunId:'RR-1',agent:'lattice-review-quality',category:'missing'}) yields the tagged-desc + mapped args.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic.agent === 'lattice-review-quality' (a real lane).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic.severity === 'high' (the S2-mapped value for MAJOR; a ledger kind, not abstract).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic minus desc deep-equals toFindingAddArgs base (severity/files/category/reviewRunId/agent each === base); exact key set {severity,desc,files,category,reviewRunId,agent}.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 6: toCriticFindingAddArgs with agent:'lattice-review-behavior' -> agent==='lattice-review-behavior', desc still tagged.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a finding with special chars (quotes,&,<t>,em dash,%,backticks) -> critic.desc === '[completeness-critic] ' + base.desc (chars pass through verbatim under the prefix).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke sections 4/5: critic.severity is a ledger kind and NEVER an abstract BLOCKER/MAJOR/MINOR (for MAJOR/BLOCKER/MINOR inputs).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "agent is typed ReviewRunLane; tsc compiling the smoke (which only ever passes real lanes) proves 'completeness-critic' is structurally rejected at the type level.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts critic.desc !== base.desc (explicitly distinct — the [completeness-critic] prefix is always present, never the bare composeDesc).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "finding.severity is typed FindingSeverity; SEVERITY_TO_FINDING_KIND (S2) is total over it, so the mapped severity is always a ledger kind (smoke asserts this for all 3 severities).",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -227,7 +497,108 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 runs runCompletenessCritic with a FAKE runCritic recording its input + returning planted findings; the smoke is the artifact proving it.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 runs toCriticFindingAddArgs with agent:'lattice-review-quality' and asserts the tagged desc + mapped severity.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]'.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Registered as node packages/main/dist/tasks/adversarial-review-critic-smoke.js in lattice.config.json validate.commands[15]; lattice validate runs it green.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 exercises runCompletenessCritic with confirmedFindings:[] (empty) — still calls the critic.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 6 exercises toCriticFindingAddArgs with agent:'lattice-review-behavior'.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke sections 4/5 assert for BLOCKER/MAJOR/MINOR the critic severity is the mapped critical/high/medium and NEVER an abstract severity.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 asserts files/category/reviewRunId pass through from toFindingAddArgs base unchanged.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses the check+counter pattern (process.exit(1) on fail) and prints 'adversarial-review-critic smoke passed: 50 assertions'.",
+          "headHash": "dcf519c1b5a9428d180a9a49b729e90548d93e3c",
+          "materialHash": "b2ec6445e5af944a718bb6c8674d16a2a28164f5d68c27bc20a6d18df131040f",
+          "storyFilesHash": "d146a893b1f8d9278fc9932f36d3d4040bb8ec970564db97cd21fe8ffd013d8a",
+          "timestamp": "2026-06-20T15:41:23.232Z"
+        }
+      ]
     }
   ]
 }
