@@ -261,9 +261,10 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
   Those reviewers operate without `LATTICE_REVIEWER_READONLY=1` set and must be able to call
   `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
 
-The full usage contract — including which reviewer roles should and should not use this mode —
-is documented in `docs/requirements/decisions/role-separation.md` under
-"Advisory Read-Only Reviewer Mode".
+This section is the current active contract for reviewer read-only mode. Older
+reviewer-role background may describe the same separation concept, but must not
+override the `LATTICE_REVIEWER_READONLY=1` env name or the command class rules
+documented here.
 
 ## Out of Scope
 

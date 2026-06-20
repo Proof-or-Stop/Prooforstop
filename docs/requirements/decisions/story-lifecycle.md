@@ -250,7 +250,7 @@ The CLI layer filters the available commands by the current story phase. When th
 | `story_advance -> TEST` | Advance after blockers are resolved and preflight passes |
 | `story_advance -> DEV` | Return to implementation when there is a problem |
 
-`lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `koala` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
+`lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `lattice` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
 
 ### TEST
 
