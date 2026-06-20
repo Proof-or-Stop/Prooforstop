@@ -325,7 +325,7 @@
       "desc": "resolveParallelGate uses 'key in r' which traverses the prototype chain: an Object.create({mode:'block',...})-shaped raw (no own keys) silently overrides profile defaults to block with NO warn, violating the absent-key-keeps-profile-default invariant. Fix: Object.hasOwn for all 3 subfields.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T06:05:48.056Z",
@@ -335,7 +335,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "adversarial|ts|resolveparallelgate-uses-traverses",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "audit-config.ts: presence now tested with Object.hasOwn(r,'mode'|'maxConcurrentReview'|'broadGlobBlocks') — inherited/prototype-shaped sub-fields are treated as absent. Smoke 8c (Object.create with mode:'block' -> LIGHT kept, no warn) and 8c-bis (__proto__-keyed JSON -> own mode absent, no Object.prototype pollution) prove it. build+validate green, 72 assertions.",
+      "resolvedAt": "2026-06-20T06:09:20.910Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-020",
