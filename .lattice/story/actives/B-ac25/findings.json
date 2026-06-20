@@ -118,6 +118,25 @@
       "resolvedAt": "2026-06-20T11:01:28.479Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ac25:F-006",
+      "desc": "scripts/verify-process-fact-contract.mjs:2014 adds DONE-required command/process-fact checks, and scripts/verify-process-fact-contract.mjs:3330 adds a scope-classifier row, but the script never asserts packages/main/src/core/lifecycle-registry.ts:393 TEST.produces, packages/main/src/core/lifecycle-registry.ts:398 DONE.consumes, or packages/main/src/core/lifecycle-registry.ts:432 LIFECYCLE_ORACLE_ARTIFACT_REFS[done-required-validation]. The implementation currently has the right lifecycle values, but the requested contract regression would still pass if those phase artifact/oracle-ref entries drifted while the process registry and scope classifier stayed intact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T11:29:12.494Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-023",
+      "_hash": "d249927a00e7f9c5cf3f718c17cce43f384d9e00ee305ffaeef33b97dd7a3c13",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
     }
   ]
 }
