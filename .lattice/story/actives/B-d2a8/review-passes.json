@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T05:46:07.746Z",
       "reviewRunId": "B-d2a8:RR-005",
       "_hash": "12e07c3189879d7ee2bd64566f56621f05ade18609a8e6934b625b4cc612abdd"
+    },
+    {
+      "id": "B-d2a8:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. F-001 spec drift resolved: docs/parallel-decomposition-spec.md line 372 now documents the two-param resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig signature matching the code exactly. No residue of the old one-param form (raw?: unknown) found in packages/ or docs/ source files (the old text exists only in the main worktree on main, which is expected). No duplicate definitions of PARALLEL_GATE_PROFILE_DEFAULTS, VALID_PARALLEL_MODES, or PARALLEL_MODE_FALLBACK — each defined exactly once in audit-config.ts or parallel-decomposition.ts. S3 disjoint verified: audit-config.ts and parallel-gate-config-smoke.ts contain zero references to S4 files (lattice-parallel-wave.ts, story-review.ts) or S5 files (machine.ts, transition-orchestrator.ts). Smoke has 39 callable assertions (40 grep hits minus the function definition line). No concept deletion/replacement found that was left incomplete.",
+      "createdAt": "2026-06-20T05:48:45.469Z",
+      "reviewRound": "2026-06-20T05:46:07.746Z",
+      "reviewRunId": "B-d2a8:RR-004",
+      "_hash": "117d562d89beb8e478521ca6594632cbfff75b325bc8d94a2a8ac30dc92942ae"
     }
   ]
 }
