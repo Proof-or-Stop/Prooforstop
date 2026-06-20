@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4620",
+  "allowedCommands": [
+    "cat *",
+    "git *",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs/requirements/decisions/lattice-experiment-protocol.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Design-doc landing only: create the protocol decision doc + optional CHANGELOG note. No build, no harness, no agent runs, no packages/ changes.",
+  "createdAt": "2026-06-20T18:17:43.943Z",
+  "updatedAt": "2026-06-20T18:17:43.943Z",
+  "_hash": "79f32d4001235495a339f3068e6d0012a6e751bee0442c8ecf6f43ac14fdc0da"
+}
