@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "SEVERITY_TO_FINDING_KIND ledger severity map (BLOCKER->critical, MAJOR->high, MINOR->medium) + FindingAddSeverity type, in core/adversarial-review-verifier.ts",
       "context": "New module importing S0 (core/adversarial-review.js: Finding, FindingSeverity, Verdict). FindingAddSeverity = 'critical'|'high'|'medium'|'low' (finding_add's enum). SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = {BLOCKER:'critical', MAJOR:'high', MINOR:'medium'} per §4.2 table (low is reserved for cosmetic MINOR; the default map uses medium). The point is that the abstract methodology severities NEVER reach finding_add (which would be a Zod error).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T14:57:05.194Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
