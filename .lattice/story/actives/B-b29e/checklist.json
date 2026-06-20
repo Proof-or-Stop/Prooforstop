@@ -281,7 +281,22 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "spec section 8.1 notes the gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs (grep confirms the note present).",
+          "headHash": "070b50e170fd973825545991029ac6a84d059e61",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:13:41.229Z"
+        }
+      ]
     }
   ]
 }
