@@ -139,7 +139,7 @@
       "desc": "CHK-001:adversarial:4 intent claims block=null with EMPTY advisories when all supplied peers are terminal (DONE/DISCARDED) and story has a broad glob. Smoke block-5 (lines 97-107) tests peers=[] (truly no peers, not all-terminal) and checks that a broad advisory IS emitted. Smoke block-10/11 (lines 164-171) tests isolated DONE/DISCARDED peers but uses a literal-collision contract (not broad), and asserts only block=null without touching advisories. Neither block covers the exact scenario: (a) non-empty peer list where every peer is DONE/DISCARDED, (b) broad-glob story, (c) advisories is empty. The evidence command node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js correctly points to the smoke, but the smoke does not assert the three-way conjunction required by this intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T23:50:51.582Z",
@@ -150,7 +150,11 @@
         "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: gate change makes no-active-peers a TRUE §4.8 no-op (broad advisory gated on activePeers>0); smoke #5b asserts all-terminal-peers + broad -> block null AND empty advisories (the CHK-001:adversarial:4 intent).",
+      "resolvedAt": "2026-06-20T00:03:19.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
