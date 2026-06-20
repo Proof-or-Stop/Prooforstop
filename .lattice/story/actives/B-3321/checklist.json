@@ -92,7 +92,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T06:58:29.354Z",
+      "endTime": "2026-06-20T07:08:40.300Z",
       "files": {
         "modify": [],
         "create": [
@@ -139,37 +139,37 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence|npm --prefix packages/main run build|npm test\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
-          "note": "Document proposes a dedicated DONE/release-required validation profile or equivalent doneRequiredCommands, with fresh hash-bound evidence and a dedicated DONE row.",
-          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:29.529Z"
+          "note": "Updated document proposes a dedicated DONE/release-required validation profile, dedicated DONE row, and requires same-material build evidence before root npm test for self-host full-suite proof.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.444Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"External Project Behavior|opt-in|configurable|Self-host behavior\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"External Project Behavior|opt-in|configurable|Self-host behavior|advisory\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
           "note": "Document separates external project opt-in/advisory behavior from Orchestrate self-host required policy.",
-          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:29.656Z"
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.555Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-          "command": "rg -n \"Do not simply append|schema/config|runner|process-fact|done-oracle|smoke\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"process-fact-registry|process-fact-levels|verify-process-fact-contract|Do not simply append|schema/config|runner|done-oracle|smoke\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "result": "pass",
-          "note": "Document rejects appending npm test to routine validate.commands as the final fix and lists mechanical implementation touchpoints including schema, runner, done-oracle row, config, docs, smokes, and migration.",
-          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
-          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
-          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
-          "timestamp": "2026-06-20T06:58:29.769Z"
+          "note": "Document now explicitly requires process fact registry, process-fact-levels, and contract verifier updates, and still rejects appending npm test to routine validate.commands as the final fix.",
+          "headHash": "3a1448042c8d6f35534c7edef61c7525f507c565",
+          "materialHash": "021f1e2865adb1c1c32c1d270b5d37f008a4b292ea33cdfb7ff21db46bb5a4bc",
+          "storyFilesHash": "e9730b7ebe2be868cd47aa8e89d4c0695600152dbf9d136aa781396b7af2457d",
+          "timestamp": "2026-06-20T07:08:40.679Z"
         }
       ]
     },
