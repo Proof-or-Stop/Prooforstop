@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-20T15:39:00.671Z",
       "reviewRunId": "B-6878:RR-007",
       "_hash": "34fd80a4e6b0c694efd8427de5905863052b1d30e908a659386c7296ef8966df"
+    },
+    {
+      "id": "B-6878:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality pass clean. F-006: local ANTHROPIC_USAGE_WHITELIST duplicate fully removed from dispatch-usage.ts; single imported constant from adapters/anthropic.ts used at the one call site — no divergence possible. F-007: streaming digest-original verified for openai (complete path: adaptOpenAiUsage(original); partial path: buildPartialProviderUsage(..., original)) and gemini (complete: adaptGeminiUsage(original); partial: buildPartialProviderUsage(..., original)) — both adapters internally project-for-reads and digest the original, confirmed by reading adapters/openai.ts:94-96 and adapters/gemini.ts:94-96. sanitizeOpenAiStreamUsage is NOT orphaned (still used at streaming.ts:240 for local projection reads only). F-008: ownProp(envelope, result) guard is type-safe (ownProp accepts unknown, envelope is Record<string,unknown>); ownResult is unknown then narrowed by typeof === string before use. No new as-any, no empty catch blocks, no unused imports. Smoke tests for H2 (streaming digest) and result-pollution (F-008) are correct and the Object.prototype cleanup check now includes result key.",
+      "createdAt": "2026-06-20T15:43:25.665Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-008",
+      "_hash": "4569a47f2cd0c289c2eb6e9344d2d2e5c00c2b655899f439c6d044e0944f6bc2"
     }
   ]
 }
