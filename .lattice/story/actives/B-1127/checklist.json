@@ -75,9 +75,9 @@
       "id": "CHK-002",
       "title": "deriveRoundLedgerOps(round, opts) -> LedgerOp[]: finding_add per confirmed finding (lens via S2, critic via S3) + review_pass_set per lane on converge",
       "context": "LedgerOp = {kind:'finding_add', lane:ReviewRunLane, source:'lens'|'critic', args:FindingAddArgs} | {kind:'review_pass_set', lane:ReviewRunLane, reviewRunId:string}. deriveRoundLedgerOps(round:AdversarialRoundResult, opts:{reviewRunIdByLane:Partial<Record<ReviewRunLane,string>>, criticLane:ReviewRunLane, criticReviewRunId:string, category?:'happy'|'edge'|'adversarial'|'missing'}): for each confirmedByLane group, one finding_add op via S2 toFindingAddArgs(f,{reviewRunId:reviewRunIdByLane[lane], agent:lane, category}) (agent=the real lane); for each round.criticFindings, one finding_add op via S3 toCriticFindingAddArgs(f,{reviewRunId:criticReviewRunId, agent:criticLane, category}) (tagged desc + real lane); if round.converged, a review_pass_set op per lane that ran. PURE — derives op descriptors, performs NO finding_add call. No abstract severity in any op (S2/S3 own the mapping).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T17:40:12.940Z",
-      "endTime": null,
+      "endTime": "2026-06-20T17:40:13.338Z",
       "verificationIntent": {
         "happy": [
           {
