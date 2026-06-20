@@ -56,6 +56,23 @@
       ],
       "signatureTag": "doc-code-drift|md|codex-major-lane",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0e7b:F-004",
+      "desc": "Codex MAJOR (critic data-flow contradiction): §2.4 says critic input={change,confirmedFindings} but §3.2 runs the critic BEFORE verifying raw lens findings and §4.2 shows verify/finding_add before the critic — contradictory, loop unbuildable. Fix: one canonical order (run lenses -> verify lens raw findings -> pass confirmed to critic -> verify critic findings -> converge/reopen) and make §2.4/§3.2/§4.2 consistent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T11:08:15.443Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "_hash": "af0ba370cc9aee8943a5814d93fe925d493b9052188933bbc6ead9df5a34c457",
+      "files": [
+        "docs/adversarial-review-spec.md"
+      ],
+      "signatureTag": "doc-code-drift|md|codex-major-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
