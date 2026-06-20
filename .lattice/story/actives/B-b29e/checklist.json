@@ -44,9 +44,9 @@
       "id": "CHK-002",
       "title": "Register the parallel DEV-entry gate as a consumer of scope-contract facts in process-fact-levels.ts",
       "context": "core/process-fact-levels.ts: scope_contract_set / scope_contract_init_from_plan facts currently list REVIEW/TEST/DONE changed-file gates as consumers; add the parallel DEV-entry gate (machine.ts consumes scope contracts before every DEV entry) as an L4 consumer, matching the existing consumer-registration shape.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T10:07:39.476Z",
-      "endTime": null,
+      "endTime": "2026-06-20T10:08:32.298Z",
       "files": {
         "modify": [
           "packages/main/src/core/process-fact-levels.ts"
