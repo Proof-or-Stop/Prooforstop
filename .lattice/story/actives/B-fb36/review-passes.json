@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T00:09:52.542Z",
       "reviewRunId": "B-fb36:RR-009",
       "_hash": "34f20a79e7d38596fb2b36584a0b5abc8ac3c891e0e01fc9890c57233d654242"
+    },
+    {
+      "id": "B-fb36:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: verification coverage reviewed for done_prepare. Evidence: lattice test_list shows latest lattice validate PASS at 2026-06-20T00:09:27.429Z with 20/20 verificationIntent coverage and no source changes after validated head e261d1b. Targeted command node packages/main/dist/tasks/done-prepare-smoke.js passed, covering clean ready exact one DONE command, dirty/wrong cwd/wrong branch/missing main/non-TEST blocks, stale safe refresh and command-rerun blocker, validate failure, generated metadata cleanTree blocker, stale review material without overclaim, dryRun no mutation, and receiptVerified=true runbook boundary without receiptVerified:true or Authority overclaim.",
+      "createdAt": "2026-06-20T00:14:11.778Z",
+      "reviewRound": "2026-06-20T00:09:52.542Z",
+      "reviewRunId": "B-fb36:RR-011",
+      "_hash": "c7068b15df10315ab6a6289de1cf092b6503c466c98fd7ed8c81244cc45b4ecf"
     }
   ]
 }
