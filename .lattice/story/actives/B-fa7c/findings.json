@@ -69,7 +69,7 @@
       "desc": "MINOR: scopeGlobOverlapDegradations is always passed explicitOverrideNote ' Explicit parallelSafe=yes is overridden by collection-level safety.', but this advisory does NOT change the safety tier, so nothing is overridden. Misleading human-facing text. Fix: pass '' (or an advisory-appropriate note).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-quality",
       "createdAt": "2026-06-20T07:34:38.376Z",
@@ -79,7 +79,11 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "signatureTag": "cleanup|ts|minor-scopegloboverlapdegradations-always",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "scopeGlobOverlapDegradations call in resolveWaveSafety now passes no override note (defaults '') since the advisory doesn't change the safety tier. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:23.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-005",
