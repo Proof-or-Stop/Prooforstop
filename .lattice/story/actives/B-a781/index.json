@@ -4,7 +4,7 @@
   "title": "Owner session contract for stable multi-host leases",
   "description": "Write an execution plan for a canonical LATTICE_SESSION_ID owner-session contract so Codex, Claude Code, Antigravity/agy, and future hosts do not rely on per-command parent process ids for story owner lease identity. This is high impact for parallel Lattice development because unstable owner-session derivation can make the same worktree look foreign across shell command invocations.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-06-20T06:30:36.768Z",
   "startedAt": "2026-06-20T06:30:36.768Z",
@@ -17,6 +17,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T06:33:25.020Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-a781",
+    "branch": "story/B-a781",
+    "createdAt": "2026-06-20T06:33:24.127Z"
+  }
 }
