@@ -44,6 +44,8 @@ export interface StoryOwnerLeaseScanItem {
   terminal: boolean;
   /** Owning session id (`null` when there is no readable lease). */
   ownerSessionId: string | null;
+  /** How the owner session was resolved when the lease was written. */
+  ownerSessionSource: string | null;
   /** Owning session's cwd (`null` when there is no readable lease). */
   ownerCwd: string | null;
   /** Age of the last heartbeat in ms (0 when absent / unparseable). */
@@ -128,6 +130,7 @@ export function scanStoryOwnerLeases(
       phase,
       terminal,
       ownerSessionId: lease.sessionId,
+      ownerSessionSource: lease.sessionSource ?? null,
       ownerCwd: lease.cwd,
       heartbeatAgeMs,
       heartbeatAgeLabel: Number.isFinite(heartbeatMs) ? formatLeaseAge(heartbeatAgeMs) : 'unknown',
@@ -174,7 +177,8 @@ export function renderStoryOwnerLeaseScan(scan: StoryOwnerLeaseScan): string[] {
 
   for (const item of scan.stale) {
     lines.push(
-      `  ⚠ STALE owner lease for ${item.storyId}: owned by session ${item.ownerSessionId ?? 'unknown'}, ` +
+      `  ⚠ STALE owner lease for ${item.storyId}: owned by session ${item.ownerSessionId ?? 'unknown'}` +
+      `${item.ownerSessionSource ? ` [${item.ownerSessionSource}]` : ''}, ` +
       `heartbeat ${item.heartbeatAgeLabel} ago (owner cwd: ${item.ownerCwd ?? 'unknown'}).`,
     );
     lines.push(`  → path: ${item.leasePath}`);

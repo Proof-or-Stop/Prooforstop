@@ -1,0 +1,115 @@
+{
+  "storyId": "B-9089",
+  "checkedAt": "2026-06-20T10:45:05.249Z",
+  "features": [
+    {
+      "feature": "Canonical LATTICE_SESSION_ID contract for generic core owner-lease and lifecycle consumers",
+      "covered_by": "CHK-002, CHK-005, CHK-006, plan.md CHK-002/CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Canonical Contract"
+    },
+    {
+      "feature": "Resolver priority: explicit canonical env, host adapter bridge, generated-token fallback, then degraded ppid fallback",
+      "covered_by": "CHK-002, CHK-003, CHK-004, CHK-006, plan.md Execution Order",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Resolution Priority"
+    },
+    {
+      "feature": "Local/non-cryptographic owner-session boundary is preserved and not used as Authority or reviewer proof",
+      "covered_by": "CHK-001, CHK-002, CHK-004, CHK-006, decision.json local-session identity preMortem",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Local Boundary"
+    },
+    {
+      "feature": "Host-specific session signals move to adapter boundary, with generic core protected by guardrail",
+      "covered_by": "CHK-003, CHK-006, scope-contract explicit excludes/protected files",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Host Adapter Bridge"
+    },
+    {
+      "feature": "Claude Code, Codex, Antigravity/agy, and fake future-host adapter coverage",
+      "covered_by": "CHK-003, CHK-006, plan.md CHK-003/CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Host Adapter Bridge"
+    },
+    {
+      "feature": "Generated-token fallback is stable, scoped, runtime-artifact registered, ignored, and material-safe",
+      "covered_by": "CHK-004, CHK-006, decision.json generated-token preMortem",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Generated-Token Fallback"
+    },
+    {
+      "feature": "ppid fallback remains last-resort degraded path with transcript and smoke coverage",
+      "covered_by": "CHK-002, CHK-006, CHK-007, plan.md CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#ppid Degraded Fallback"
+    },
+    {
+      "feature": "Lifecycle event collection and DEV-claim warning logic use the shared owner-session resolver",
+      "covered_by": "CHK-005, CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Migration Away From Core Host Exceptions"
+    },
+    {
+      "feature": "Pre-code two-host review evidence bound to current plan/document hash",
+      "covered_by": "CHK-001, plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Two-Host Review Evidence Before Implementation"
+    },
+    {
+      "feature": "Pre-code parent-PID-changing transcript evidence with canonical and degraded comparisons",
+      "covered_by": "CHK-007, plan.md CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Manual Transcript Evidence"
+    },
+    {
+      "feature": "Verification matrix covers canonical env, blank env, host bridges, generated-token, ppid, owner gate, lifecycle, local boundary, guardrail, material hygiene",
+      "covered_by": "CHK-002, CHK-003, CHK-004, CHK-005, CHK-006, CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Verification Matrix"
+    },
+    {
+      "feature": "Scope contract enforces planned implementation file boundary before DEV",
+      "covered_by": "scope_contract_show mode=enforce; scope_contract_check pass; plan.md Scope Decisions",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-9089 PLAN artifacts"
+    },
+    {
+      "feature": "Broader Gemini-to-Antigravity provider migration outside owner-session env bridging",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Scope Decisions; scope-contract explicitExcludes; understanding.constraints says B-fbb6 owns migration",
+      "source": "B-9089 PLAN artifacts"
+    },
+    {
+      "feature": "Authority Server completion, fullAuthorityDone, production completion, or cryptographic identity claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "owner-session plan Non-Goals; CHK-001 adversarial intent; CHK-006 edge/adversarial intent; scope-contract explicitExcludes",
+      "source": "docs/requirements/decisions/owner-session-contract-execution-plan.md#Non-Goals"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 12,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "eba53d272615e6307cd94bebca01071fa25ec926970b91faf8236662a271eb57",
+  "openQuestions": []
+}

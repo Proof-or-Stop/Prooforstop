@@ -36,6 +36,7 @@ import {
 } from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { getSessionId } from './owner-session.js';
 // B-ceed: codex + legacy gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
@@ -1515,6 +1516,36 @@ function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Recor
 
   for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
   for (const name of policy.envAllowlist) copyIfAllowed(name);
+  if (!denied.has('LATTICE_SESSION_ID')) {
+    env.LATTICE_SESSION_ID = getSessionId();
+  }
+  return env;
+}
+
+function ownerSessionProviderForHostRuntime(host: HostRuntimeId): 'codex' | 'claude-code' | 'antigravity' | 'fake' | null {
+  if (host === 'codex') return 'codex';
+  if (host === 'claude-code') return 'claude-code';
+  if (host === 'antigravity') return 'antigravity';
+  if (host === 'fake') return 'fake';
+  return null;
+}
+
+function buildCanonicalHostRuntimeEnv(
+  policy: DispatchCommandExecutionPolicy,
+  host: HostRuntimeId,
+  adapterBoundary: string,
+): NodeJS.ProcessEnv {
+  const env = buildRequiredCommandEnv(policy) as NodeJS.ProcessEnv;
+  const sessionId = getSessionId();
+  env.LATTICE_SESSION_ID = sessionId;
+  env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY = adapterBoundary;
+  env.LATTICE_ACTIVITY_SOURCE = host;
+  env.LATTICE_ACTIVITY_SESSION = sessionId;
+  const provider = ownerSessionProviderForHostRuntime(host);
+  if (provider !== null) {
+    env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
+    env.LATTICE_OWNER_SESSION_ADAPTER_SESSION = sessionId;
+  }
   return env;
 }
 
@@ -2059,6 +2090,11 @@ function runBoundedRealLeafDispatch(
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
   const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
+  const providerEnv = buildCanonicalHostRuntimeEnv(
+    executionPolicy,
+    record.selectedHost,
+    `${record.storyId}:${record.dispatchId}:${hostKind}`,
+  );
 
   // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
   // All new work below is inside `if (ledgerOn)` blocks, so when the flag is OFF
@@ -2102,7 +2138,7 @@ function runBoundedRealLeafDispatch(
     cwd: record.worktree.worktreePath,
     timeoutMs,
     maxAttempts: 1,
-    env: process.env,
+    env: providerEnv,
   });
 
   if (ledgerOn) {

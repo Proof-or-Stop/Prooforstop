@@ -26,7 +26,7 @@
  * scope (they are CHK-002 / CHK-003).
  *
  * F-008-CLASS DIRTY-WRITE PREVENTION: `owner-lease.json` is a runtime artifact.
- * It lives under the git-tracked `.koala/story/actives/<id>/` subtree, so an
+ * It lives under the git-tracked `.lattice/story/actives/<id>/` subtree, so an
  * un-ignored lease file would show up as an uncommitted change and could block
  * the DONE `git merge story/<id>` (the same failure mode as B-f60c F-008). The
  * file is therefore registered in `core/runtime-artifact-registry.ts` (entry
@@ -35,7 +35,6 @@
  * produces a dirty write before DONE.
  */
 
-import { createHash } from 'crypto';
 import { hostname } from 'os';
 import { join, resolve } from 'path';
 import {
@@ -45,12 +44,38 @@ import {
   rmSync,
   writeFileSync,
 } from 'fs';
-import { gitProbe } from './git-probe.js';
 import { appendActivityLog } from './activity-log.js';
+import {
+  deriveLocalSessionId,
+  getSessionId,
+  getSessionIdentity,
+  normalizeSessionSource,
+  resetSessionIdForTest,
+  resolveSessionIdentity,
+  type SessionDerivationInputs,
+  type SessionEnv,
+  type SessionIdentity,
+  type SessionSource,
+} from './owner-session.js';
+
+export {
+  deriveLocalSessionId,
+  getSessionId,
+  getSessionIdentity,
+  resetSessionIdForTest,
+  resolveSessionIdentity,
+};
+
+export type {
+  SessionDerivationInputs,
+  SessionEnv,
+  SessionIdentity,
+  SessionSource,
+};
 
 /**
  * Filename of the per-story owner lease, written under the story directory
- * (`.koala/story/actives/<storyId>/owner-lease.json`).
+ * (`.lattice/story/actives/<storyId>/owner-lease.json`).
  *
  * Kept as an exported constant so the runtime-artifact registry, doctor checks,
  * and tests all reference the SAME literal instead of re-typing the string.
@@ -73,10 +98,11 @@ export interface StoryOwnerLease {
    */
   sessionId: string;
   /**
-   * How `sessionId` was identified — `koala-env` / `claude-code-env` /
-   * `derived-ppid`. Surfaced by `session_brief` and debugging so an operator
-   * can see whether the session came from an explicit override, the Claude
-   * Code adapter env, or the ppid-fallback derivation.
+   * How `sessionId` was identified — `explicit-env` / `host-adapter` /
+   * `generated-token` / `derived-ppid`. Surfaced by `session_brief` and
+   * debugging so an operator can see whether the session came from the
+   * canonical env, a host adapter, a local generated token, or the degraded
+   * ppid fallback.
    *
    * Optional: leases written before this field existed (pre-amendment) simply
    * omit it; `readOwnerLease` still accepts them. New leases always populate it.
@@ -98,116 +124,6 @@ export interface StoryOwnerLease {
   label?: string;
 }
 
-/*
- * sessionId derivation — implementation note (B-c55d CHK-001, user-ruled,
- * supersedes the earlier ppid-anchor design).
- *
- *   sessionId =
- *     LATTICE_SESSION_ID                                       (sessionSource: koala-env)
- *     ?? CLAUDE_CODE_SESSION_ID                              (sessionSource: claude-code-env)
- *     ?? deriveLocalSessionId(hostname, root, process.ppid)  (sessionSource: derived-ppid)
- *
- * WHY ppid is NOT the primary anchor. An earlier revision anchored the derived
- * id on `process.ppid` (the parent shell), on the assumption the shell is
- * stable across `lattice` invocations. That assumption is FALSE in the Claude
- * Code environment: each Bash tool call spawns a FRESH shell, so `process.ppid`
- * changes on every `lattice` command (empirically observed 89439 -> 89466 ->
- * 89513 -> 89529 across 4 consecutive calls). A ppid-anchored id therefore
- * changes every command, so an agent's 2nd mutating command self-rejects its
- * own lease as "foreign" — the lease bricks the session. ppid is consequently
- * demoted to the LAST-RESORT fallback only, for plain terminals / CI /
- * non-Claude environments where the parent shell genuinely IS persistent.
- *
- * PRIMARY sources are env vars that are stable per real session:
- *   1. `LATTICE_SESSION_ID` — canonical Lattice override; the future Lattice
- *      adapter / server injection entry point. Highest priority.
- *   2. `CLAUDE_CODE_SESSION_ID` — already present in the Claude Code
- *      environment and verified stable for the lifetime of a Claude Code
- *      session. Used verbatim.
- *
- * Claude Code env is a KNOWN ADAPTER ENVIRONMENT — it is NOT a Lattice strong
- * identity and provides NO anti-spoofing. This is LOCAL session coordination
- * only (hard boundary 1): no keys, no signatures, no server authority. A
- * session could trivially set either env var to any value; the lease relies on
- * these only to detect accidental concurrent authoring, never to authenticate.
- *
- * ROOT in the fallback derivation = the worktree / project root, so two story
- * worktrees driven from the SAME parent shell still derive DISTINCT ids.
- *
- * DEGRADATION: in the ppid-fallback path a dead parent shell's pid can be
- * reused by an unrelated later shell — two genuine sessions could then collide
- * on one derived id. Acceptable: the collision window is covered by stale-lease
- * detection + takeover (CHK-003) — a heartbeat that stops advancing is detected
- * as stale and can be taken over.
- */
-
-/** How `getSessionId()` identified the current session (recorded in the lease). */
-export type SessionSource = 'koala-env' | 'claude-code-env' | 'derived-ppid';
-
-/** Resolved session identity: the id plus how it was determined. */
-export interface SessionIdentity {
-  /** Process-local session coordination id. */
-  sessionId: string;
-  /** Which of the 3 prioritized sources produced `sessionId`. */
-  sessionSource: SessionSource;
-}
-
-/** The subset of environment variables `resolveSessionIdentity` consults. */
-export interface SessionEnv {
-  LATTICE_SESSION_ID?: string | undefined;
-  CLAUDE_CODE_SESSION_ID?: string | undefined;
-}
-
-/** Synthetic process inputs for the fallback derivation (host / root / ppid). */
-export interface SessionDerivationInputs {
-  hostname: string;
-  root: string;
-  ppid: number;
-}
-
-/**
- * Derive a stable local-coordination session id from synthetic inputs.
- *
- * Pure and unit-testable: it takes `(host, root, ppid)` explicitly instead of
- * reading `process.ppid` internally, so tests can feed synthetic inputs to
- * exercise stability (same inputs → same id) and uniqueness (different parent
- * shell / different worktree root → different id) without spawning real
- * shells.
- *
- * The id is `sess-<sha256(host root ppid)[:16]>` — a short hash, NOT a
- * cryptographic identity. The hash only makes the id compact and free of path
- * separators; it provides no authentication.
- */
-export function deriveLocalSessionId(host: string, root: string, ppid: number): string {
-  const material = `${host} ${root} ${ppid}`;
-  const digest = createHash('sha256').update(material).digest('hex');
-  return `sess-${digest.slice(0, 16)}`;
-}
-
-/**
- * Pure session-identity resolver — the testable core of getSessionId().
- *
- * Applies the 3-source priority chain over a supplied `env` snapshot and
- * synthetic derivation `inputs`, so tests can feed any combination without
- * touching real process.env / process.ppid. Empty / whitespace-only env values
- * are treated as absent and fall through to the next source.
- */
-export function resolveSessionIdentity(
-  env: SessionEnv,
-  inputs: SessionDerivationInputs,
-): SessionIdentity {
-  const koala = trimToNull(env.LATTICE_SESSION_ID);
-  if (koala !== null) return { sessionId: koala, sessionSource: 'koala-env' };
-
-  const claude = trimToNull(env.CLAUDE_CODE_SESSION_ID);
-  if (claude !== null) return { sessionId: claude, sessionSource: 'claude-code-env' };
-
-  return {
-    sessionId: deriveLocalSessionId(inputs.hostname, inputs.root, inputs.ppid),
-    sessionSource: 'derived-ppid',
-  };
-}
-
 /** Trim a possibly-undefined string; empty / whitespace-only becomes null. */
 function trimToNull(value: string | undefined): string | null {
   if (typeof value !== 'string') return null;
@@ -216,71 +132,10 @@ function trimToNull(value: string | undefined): string | null {
 }
 
 /**
- * Resolve the worktree / project root used as the derivation anchor.
- *
- * Uses the git worktree top-level of the current working directory so each
- * story worktree resolves to its own root. When the cwd is not inside a git
- * repository the cwd itself is the anchor — still a stable per-process value.
- */
-function resolveSessionRoot(): string {
-  const probe = gitProbe('git rev-parse --show-toplevel');
-  const top = probe.ok ? probe.output.trim() : '';
-  return top.length > 0 ? top : process.cwd();
-}
-
-/**
- * Process-local cache of the resolved session identity (id + source).
- *
- * `getSessionIdentity()` resolves it once per process and memoizes it here, so
- * every later call returns the identical value (the process-internal
- * consistency requirement). Exactly one session exists per process.
- */
-let cachedSessionIdentity: SessionIdentity | null = null;
-
-/**
- * Resolve the stable, process-local session identity (id + source).
- *
- * Wraps the pure resolveSessionIdentity over real process.env, hostname(), the
- * resolved worktree root, and process.ppid. Memoized for the whole process.
- * This is a LOCAL coordination identity, never a crypto identity — see the
- * implementation note above.
- */
-export function getSessionIdentity(): SessionIdentity {
-  if (cachedSessionIdentity !== null) return cachedSessionIdentity;
-  cachedSessionIdentity = resolveSessionIdentity(
-    {
-      LATTICE_SESSION_ID: process.env.LATTICE_SESSION_ID,
-      CLAUDE_CODE_SESSION_ID: process.env.CLAUDE_CODE_SESSION_ID,
-    },
-    { hostname: hostname(), root: resolveSessionRoot(), ppid: process.ppid },
-  );
-  return cachedSessionIdentity;
-}
-
-/**
- * Resolve the stable, process-local `sessionId`.
- *
- * Convenience accessor for getSessionIdentity().sessionId — the signature is
- * unchanged so existing consumers (cli-engine.ts) are unaffected.
- */
-export function getSessionId(): string {
-  return getSessionIdentity().sessionId;
-}
-
-/**
- * Test-only: clear the memoized session id so a subsequent `getSessionId()`
- * re-resolves from the environment. Not part of the production control flow —
- * a real process has exactly one session for its whole lifetime.
- */
-export function resetSessionIdForTest(): void {
-  cachedSessionIdentity = null;
-}
-
-/**
  * Resolve the absolute path of a story's `owner-lease.json`.
  *
  * `storyDir` MUST be the absolute story directory
- * (`.koala/story/actives/<storyId>`). Runtime re-validation rejects an empty
+ * (`.lattice/story/actives/<storyId>`). Runtime re-validation rejects an empty
  * path rather than silently joining onto `''` — mirrors the "Handler Coding Conventions"
  * rule that load-bearing invariants are re-checked at every consumer instead of
  * trusting an upstream schema.
@@ -356,22 +211,14 @@ function normalizeLease(value: unknown): StoryOwnerLease | null {
     acquiredAt,
     heartbeatAt,
   };
-  // sessionSource is optional (absent on pre-amendment leases). Only carry it
-  // when it is one of the canonical values; an unknown / malformed value is
+  // sessionSource is optional (absent on pre-amendment leases). Legacy values
+  // are normalized to the current vocabulary; an unknown / malformed value is
   // dropped rather than rejecting the whole lease.
-  if (isSessionSource(v.sessionSource)) lease.sessionSource = v.sessionSource;
+  const sessionSource = normalizeSessionSource(v.sessionSource);
+  if (sessionSource !== null) lease.sessionSource = sessionSource;
   const label = nonEmptyString(v.label);
   if (label !== null) lease.label = label;
   return lease;
-}
-
-/** Runtime type guard for the `SessionSource` enum. */
-function isSessionSource(value: unknown): value is SessionSource {
-  return (
-    value === 'koala-env' ||
-    value === 'claude-code-env' ||
-    value === 'derived-ppid'
-  );
 }
 
 /** Return a trimmed non-empty string, or `null`. */
@@ -632,7 +479,7 @@ export interface TakeoverOptions extends OwnerLeaseWriteOptions {
   kind: TakeoverKind;
   /**
    * Project root used to locate the activity log the takeover event is
-   * appended to (`<projectRoot>/.koala/activity.jsonl`). When omitted, the
+   * appended to (`<projectRoot>/.lattice/activity.jsonl`). When omitted, the
    * takeover still transfers the lease but skips the audit record — callers
    * that need the event MUST supply this.
    */

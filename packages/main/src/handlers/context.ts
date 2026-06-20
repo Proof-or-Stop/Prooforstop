@@ -21,6 +21,7 @@ import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
 import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifecycle-registry.js';
 import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
+import { getSessionId } from '../core/owner-session.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -70,9 +71,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   if (branch.ok) event.branch = branch.output;
   const user = gitProbe('git config user.name');
   if (user.ok) event.user = user.output;
-  event.sessionId = process.env.LATTICE_SESSION_ID
-    || process.env.CLAUDE_SESSION_ID
-    || undefined;
+  event.sessionId = getSessionId();
   event.agent = process.env.LATTICE_AGENT || 'main';
   return event;
 }
