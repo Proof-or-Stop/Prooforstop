@@ -1,6 +1,6 @@
 # Lattice Lifecycle Proof-Or-Stop Readiness Check
 
-Status: execution plan
+Status: execution plan; V1 P1 landed in `B-bd45`
 Created: 2026-06-20
 Short name: Lifecycle Readiness Check
 V1 report model: `StoryReadinessReport`
@@ -21,6 +21,40 @@ gates.
 V1 does not reduce evidence requirements. It makes missing proof visible early
 and stops with exact commands instead of letting hosts infer them from scattered
 state.
+
+## V1 Landed Scope
+
+Story `B-bd45` shipped the first read-only slice:
+
+- command: `lattice lifecycle_check --storyId=B-xxxx --target=REVIEW|TEST|DONE`;
+- report: `StoryReadinessReport` with phase, hashes, artifacts, readiness rows,
+  next actions, and local/Authority/production claims;
+- invariant: `claims.localReady` is true iff no readiness row has
+  `blocking:true`;
+- safety: `runCommands:true` or `writeEvidence:true` fails closed in V1;
+- boundary: V1 does not run commands, write evidence, launch reviewers, move
+  phases, run `done_prepare`, sign delivery, or claim Authority/production
+  completion.
+
+Use it before REVIEW, TEST, or DONE when the host needs to know why a story is
+not ready:
+
+```bash
+lattice lifecycle_check --storyId=B-xxxx --target=DONE
+```
+
+Use JSON output when another tool needs to consume the same readiness facts:
+
+```bash
+lattice lifecycle_check --storyId=B-xxxx --target=DONE --format=json
+```
+
+The expected time saving is host-cycle reduction, not code generation speed.
+The command replaces repeated manual inspection of story state, evidence
+freshness, reviewer lanes, validation, delivery status, and DONE blockers with
+one read-only report. It should reduce blind `story_advance` attempts and late
+gate surprises. It does not skip lifecycle gates or shorten the required
+review/evidence work itself.
 
 ## V1 Positioning
 
