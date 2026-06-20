@@ -4,7 +4,7 @@
   "title": "Implement truth-first host handoff fact preflight and stale-doc supersession guard",
   "description": "Move the execution plan into host handoff code so handoff starts always include deterministic truth and stale-doc signals.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "host-handoff",
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-06-20T18:53:33.448Z",
   "startedAt": "2026-06-20T18:53:33.448Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T19:44:47.288Z",
   "events": [
     {
       "phase": "INIT",
@@ -73,12 +73,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-3931fedcd8d49b0c",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T19:44:47.288Z",
+      "branch": "story/B-1d4c",
+      "user": "Harmonygo",
+      "sessionId": "sess-3931fedcd8d49b0c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1d4c",
-    "branch": "story/B-1d4c",
-    "createdAt": "2026-06-20T18:53:58.422Z"
-  },
   "currentReviewRound": "2026-06-20T19:28:53.673Z"
 }
