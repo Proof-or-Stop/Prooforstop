@@ -4,7 +4,7 @@
   "title": "Parallel-decomposition wave/REVIEW advisory wiring (program Story 4)",
   "description": "Story 4 of the parallel-decomposition gate program (docs/parallel-decomposition-spec.md §8). Wires the two ADVISORY (non-blocking) surfaces of §4.3: (1) core/lattice-parallel-wave.ts resolveWaveSafety gains a 'scope_glob_overlap' degradation kind populated from globsOverlap (S1) over active parallel peers' write-sets, so the operator sees the static overlap fact in the wave projection before the PLAN→DEV block; (2) handlers/story-review.ts calls evaluateDecompositionGate (S2) and injects its advisories[] as severity 'advisory' issues that do NOT raise blockerCount and never affect the signed review.json. The hard PLAN→DEV block is Story 5 (machine.ts) and is explicitly out of scope here. Consumes already-merged functions: computeWriteSet/globsOverlap (B-4033), evaluateDecompositionGate (B-986c), resolveAuditConfig().parallelGate (B-d2a8). New hermetic smoke proves both advisory surfaces; registered in lattice.config.json.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "depends": [
     "B-59c7"
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-06-20T06:57:07.090Z",
   "startedAt": "2026-06-20T06:57:07.090Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T08:09:19.814Z",
   "events": [
     {
       "phase": "INIT",
@@ -73,12 +73,15 @@
       "branch": "story/B-fa7c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T08:09:19.814Z",
+      "branch": "story/B-fa7c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fa7c",
-    "branch": "story/B-fa7c",
-    "createdAt": "2026-06-20T07:00:28.813Z"
-  },
   "currentReviewRound": "2026-06-20T07:21:12.232Z"
 }
