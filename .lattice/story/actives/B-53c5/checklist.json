@@ -124,9 +124,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke proving the contract compiles + matches the spec; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-contract-smoke.ts: construct a valid Finding and a valid Verdict (assert shape/fields), assert the canonical lens set has exactly the 6 spec entries with the right ids, assert REVIEW_MODE_PHASES is the canonical 5-step order, and assert the severity unions are exactly {BLOCKER,MAJOR,MINOR} / {...,NOT_A_DEFECT}. tsc compiling is itself part of the proof. Register the smoke in lattice.config.json validate.commands.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:15:45.016Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:15:45.573Z",
       "files": {
         "modify": [
           "lattice.config.json"
