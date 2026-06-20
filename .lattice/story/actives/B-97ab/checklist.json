@@ -55,8 +55,8 @@
       "id": "CHK-002",
       "title": "buildLensRunPlan(change, lensSet) -> one INDEPENDENT LensRunRequest per lens (no cross-lens data)",
       "context": "LensRunRequest = {lensId: LensId, lane, change: string} (the isolated input a lens gets). buildLensRunPlan(change, lensSet=CANONICAL_LENS_SET) returns one request per lens in the (possibly-subset) set, each carrying ONLY the change + its mapped lane — NEVER another lens's findings/outputs (independence, §2.1). Accepts a subset lens set (task-tunable). No behavior beyond plan construction.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T13:41:57.906Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
