@@ -197,7 +197,7 @@
       "desc": "MAJOR (Codex R3, OUT OF S5 SCOPE): process-fact metadata says scope-contract facts are consumed only by REVIEW/TEST/DONE changed-file gates, but machine.ts now consumes scope contracts before EVERY DEV entry; verify-process-fact-contract.mjs (a separate script, NOT in lattice validate — currently passes) does not assert the new guard surface (canSkipPlan/canReenterDev/parallelDevEntryBlock), so the new gate is not mechanically protected against drift. Descriptive/CI-contract drift, not a runtime defect. Fix (follow-up): register the parallel DEV-entry gate as an L4 consumer + extend verify-process-fact-contract.mjs. Both files NOT in S5 allowedModify.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T09:25:19.071Z",
@@ -208,7 +208,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|major-codex-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a follow-up story (operator decision 2026-06-20). process-fact-levels.ts + verify-process-fact-contract.mjs are OUT of S5 allowedModify; the script is NOT in lattice validate and currently passes. Descriptive/CI-contract drift, not a runtime defect. Follow-up: register the parallel DEV-entry gate as an L4 consumer + extend verify-process-fact-contract.mjs to assert canSkipPlan/canReenterDev/parallelDevEntryBlock.",
+      "resolvedAt": "2026-06-20T09:36:44.016Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
