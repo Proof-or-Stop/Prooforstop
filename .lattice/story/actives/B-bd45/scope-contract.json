@@ -37,8 +37,30 @@
       "phase": "DEV",
       "headHash": "5a8ed54aa045fd9e84d6f551b23f9419bcb94c61",
       "materialHash": "55b668425f7e9dda025ba00eab5c192b84691562c67d70ad0c4826ce89b7b6b9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to close the process-fact double contract for lifecycle_check: the new read-only command must be registered as an L0 process fact, and the process-fact contract scanner must read the current command catalog source instead of the legacy cli-engine location.",
+      "timestamp": "2026-06-20T21:29:53.792Z",
+      "paths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1785096041781456d04bfd894b9ae8c36feea428",
+      "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+      "anchors": [
+        "lifecycle_check.process_fact_registration",
+        "main_tools.command_catalog_scanner"
+      ]
     }
   ],
   "createdAt": "2026-06-20T20:45:14.659Z",
-  "updatedAt": "2026-06-20T20:59:25.526Z"
+  "updatedAt": "2026-06-20T21:29:53.792Z"
 }
