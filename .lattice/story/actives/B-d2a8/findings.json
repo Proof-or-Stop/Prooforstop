@@ -90,6 +90,24 @@
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-006",
+      "desc": "parallel-gate-config-smoke.ts:126 empty catch {} in finally cleanup swallows rmSync errors silently; add at least a console.warn to surface unexpected temp-dir cleanup failures during CI runs",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T05:34:28.759Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-001",
+      "_hash": "5c08d89e59d25100e6e2e5865c8e30f1fa5dc7496d67bb25b9c7efaf0336ce17",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|parallel-gate-config",
+      "signatureTagSource": "auto"
     }
   ]
 }
