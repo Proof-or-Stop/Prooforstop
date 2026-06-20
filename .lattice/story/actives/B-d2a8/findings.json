@@ -293,7 +293,7 @@
       "desc": "CHK-001:edge:1 (priority=should): intent specifies resolveParallelGate({maxConcurrentReview:0}, balancedDefault) returning maxConcurrentReview=3 (balanced profile default), but the smoke at line 98 calls resolveParallelGate({maxConcurrentReview:0}, LIGHT) and asserts result === 2 (light profile default). Profile name and expected fallback value both differ from the intent. The fallback behaviour is proven but not against the named profile. Similarly CHK-001:edge:2 (priority=should): intent says resolveParallelGate({maxConcurrentReview:-1}, balancedDefault) but line 99 uses LIGHT asserting 2; and CHK-001:edge:4 (priority=should): intent says broadGlobBlocks:'yes' against balancedDefault but line 112 uses LIGHT. And CHK-001:adversarial:3 (priority=should): intent says all-wrong-types against balancedDefault but line 121-124 uses STRICT asserting the strict sub-field defaults (4, true). In all four cases the behaviour is tested but with a different named profile than the intent specifies.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:48:46.132Z",
@@ -304,7 +304,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "edge|ts|edge-priority-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: expectMaxFallback(0, BALANCED, 3, 'zero-balanced') and (2.5, BALANCED, 3, 'float-balanced') bind the fallback to the BALANCED profile default the intent names.",
+      "resolvedAt": "2026-06-20T06:39:26.359Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-015",
