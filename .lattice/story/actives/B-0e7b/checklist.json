@@ -120,7 +120,37 @@
       "context": "Section 5: the contract-first story breakdown to BUILD the capability (mirroring the parallel-decomposition program shape: contract/types first, then the lens-runner, the adversarial-verifier, the completeness-critic lane, then integration into the escalation flow). Each with its scope, dependencies, and acceptance. This is the program the follow-on B-impl story/stories execute.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/adversarial-review-spec.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "§5 gives the contract-first implementation-program breakdown — each build story with a scope, dependencies, and acceptance, mirroring the parallel-decomposition §8 shape; WHY: enables parallel contract-first implementation",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "§5 freezes enough (schemas from §2/§3 + the story deps) that the follow-on B-impl program can proceed WITHOUT re-designing the contract; WHY: the spec must settle the design decisions",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the breakdown distinguishes the MVP stories from optional/future ones; WHY: bounded build",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
