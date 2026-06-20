@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T15:24:07.824Z",
       "reviewRunId": "B-6878:RR-005",
       "_hash": "66d32ce0c3e8d5c14e1fb4abbf3919b141bfa7a5af1aa76f8d6eedb05ab800fc"
+    },
+    {
+      "id": "B-6878:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept-completeness check passed. (1) sanitizeRawUsage fully removed from assemble.ts — zero live references in packages/ source; only appears in historical findings.json and review-passes.json metadata. (2) Digest-original vs project-for-reads split is consistent across all three adapters: each calls toOwnPropsNullProto(rawUsage, WHITELIST) for reads, then passes the ORIGINAL rawUsage/rawUsageMetadata to buildProviderReportedUsage for the digest — no adapter digests a projection. (3) All container reads (envelope.usage, stream chunk.usage, chunk.usageMetadata, event.message, message.usage) are own-prop guarded via ownProp() in dispatch-usage.ts and streaming.ts. (4) All leaf token reads go through null-proto projection inside each adapter. (5) No remaining prototype-chain in operator on external usage objects. (6) estimate label honestly relabeled NOT load-bearing in smoke. (7) No half-done edits, no dangling refs to removed helpers, honest comments throughout. (8) OPENAI_NESTED_DETAIL_WHITELIST correctly moved to and exported from openai adapter. No concept deletion/replacement issues found; no blocker.",
+      "createdAt": "2026-06-20T15:29:12.533Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "reviewRunId": "B-6878:RR-006",
+      "_hash": "9821d833bf36807bcde90d7b2da841aa7e1b318e1fdfd4e56109cb0abb08c2a3"
     }
   ]
 }
