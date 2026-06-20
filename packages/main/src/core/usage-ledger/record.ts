@@ -490,7 +490,11 @@ function validateUsage(usage: unknown, errors: string[]): void {
     'cacheCreationInputTokens',
     'cacheReadInputTokens',
   ] as const) {
-    if (!(field in usage)) {
+    // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+    // MECHANISM ONLY — the B-253e rule is unchanged: the field is "present" iff it
+    // is an OWN property; a polluted Object.prototype.<field> must not satisfy the
+    // required-field rule. For a legitimate record (own fields) behavior is identical.
+    if (!Object.prototype.hasOwnProperty.call(usage, field)) {
       errors.push(`usage.${field} is required (use null for an unavailable dimension, never omit it)`);
     } else {
       validateTokenDimension(usage[field], `usage.${field}`, errors);
@@ -543,7 +547,9 @@ function validateCanonical(canonical: unknown, errors: string[]): void {
     return;
   }
   for (const field of ['input', 'output', 'cacheCreation', 'cacheRead'] as const) {
-    if (!(field in canonical)) {
+    // B-6878 (belt): own-property presence check, not a prototype-chain `in`.
+    // MECHANISM ONLY — the B-253e rule is unchanged.
+    if (!Object.prototype.hasOwnProperty.call(canonical, field)) {
       errors.push(`usage.canonical.${field} is required (use null for an unavailable dimension)`);
     } else {
       validateTokenDimension(canonical[field], `usage.canonical.${field}`, errors);

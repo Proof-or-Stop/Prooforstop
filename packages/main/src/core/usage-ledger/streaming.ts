@@ -34,6 +34,29 @@ import {
   payloadDigest,
   readReportedDimension,
 } from './adapters/shared.js';
+import { ownProp, toOwnPropsNullProto } from './sanitize.js';
+
+/**
+ * B-6878: per-provider token-key whitelists for the streaming path. The streaming
+ * extractors do NOT route through the assemble chokepoint, so each stream-parsed
+ * usage object is projected through toOwnPropsNullProto here before any dot-read,
+ * making every downstream read (primaries, cacheRead, the adapter call) operate on
+ * a null-proto, whitelist-only object — safe by construction, mirroring assemble.
+ * Enumerated directly from the adapters.
+ */
+const OPENAI_STREAM_WHITELIST = ['prompt_tokens', 'completion_tokens', 'prompt_tokens_details'] as const;
+const OPENAI_STREAM_NESTED_DETAIL_WHITELIST = ['cached_tokens'] as const;
+const GEMINI_STREAM_WHITELIST = ['promptTokenCount', 'candidatesTokenCount', 'cachedContentTokenCount'] as const;
+
+/** Project an openai stream usage object (incl. nested details) to null-proto. */
+function sanitizeOpenAiStreamUsage(raw: unknown): Record<string, unknown> {
+  const projected = toOwnPropsNullProto(raw, OPENAI_STREAM_WHITELIST);
+  const nested = projected.prompt_tokens_details;
+  if (nested !== null && typeof nested === 'object' && !Array.isArray(nested)) {
+    projected.prompt_tokens_details = toOwnPropsNullProto(nested, OPENAI_STREAM_NESTED_DETAIL_WHITELIST);
+  }
+  return projected;
+}
 
 /** Default reason used when a stream produced no usage at all. */
 function noUsageReason(provider: string, errorReason?: string): string {
@@ -119,24 +142,31 @@ export function extractAnthropicStreamUsage(
     const startUsage = event.message && isUsableUsageObject(event.message.usage)
       ? (event.message.usage as Record<string, unknown>)
       : undefined;
-    if (startUsage && ('input_tokens' in startUsage || 'cache_read_input_tokens' in startUsage || 'cache_creation_input_tokens' in startUsage)) {
+    // B-6878 (belt): own-property checks, not prototype-chain `in`, on the
+    // stream-parsed usage objects. A polluted Object.prototype token key never
+    // makes a usage block look like it carried that field.
+    if (startUsage && (ownProp(startUsage, 'input_tokens') || ownProp(startUsage, 'cache_read_input_tokens') || ownProp(startUsage, 'cache_creation_input_tokens'))) {
       inputUsage = startUsage;
     }
     // message_delta (or any event) with a usage block carrying output_tokens.
     const deltaUsage = isUsableUsageObject(event.usage) ? (event.usage as Record<string, unknown>) : undefined;
-    if (deltaUsage && 'output_tokens' in deltaUsage) {
+    if (deltaUsage && ownProp(deltaUsage, 'output_tokens')) {
       outputUsage = deltaUsage; // keep the LAST one (terminal event wins).
     }
   }
 
   // Build the merged native-shaped usage object for the adapter / partial path.
-  const merged: Record<string, unknown> = {};
+  // B-6878: null-proto so a downstream adapter read of a dimension that was never
+  // merged (e.g. the source carried no output_tokens) resolves to undefined, not
+  // an inherited Object.prototype value. Own-property copies preserve legitimate
+  // counts unchanged.
+  const merged = Object.create(null) as Record<string, unknown>;
   if (inputUsage) {
-    if ('input_tokens' in inputUsage) merged.input_tokens = inputUsage.input_tokens;
-    if ('cache_creation_input_tokens' in inputUsage) merged.cache_creation_input_tokens = inputUsage.cache_creation_input_tokens;
-    if ('cache_read_input_tokens' in inputUsage) merged.cache_read_input_tokens = inputUsage.cache_read_input_tokens;
+    if (ownProp(inputUsage, 'input_tokens')) merged.input_tokens = inputUsage.input_tokens;
+    if (ownProp(inputUsage, 'cache_creation_input_tokens')) merged.cache_creation_input_tokens = inputUsage.cache_creation_input_tokens;
+    if (ownProp(inputUsage, 'cache_read_input_tokens')) merged.cache_read_input_tokens = inputUsage.cache_read_input_tokens;
   }
-  if (outputUsage && 'output_tokens' in outputUsage) {
+  if (outputUsage && ownProp(outputUsage, 'output_tokens')) {
     merged.output_tokens = outputUsage.output_tokens;
   }
 
@@ -186,7 +216,8 @@ export function extractOpenAiStreamUsage(
     return buildUnavailableUsage(noUsageReason('openai', errorReason));
   }
 
-  const usage = lastUsage as Record<string, unknown>;
+  // B-6878: project to a null-proto, whitelist-only object before any read.
+  const usage = sanitizeOpenAiStreamUsage(lastUsage);
   const input = readReportedDimension(usage.prompt_tokens);
   const output = readReportedDimension(usage.completion_tokens);
 
@@ -194,7 +225,9 @@ export function extractOpenAiStreamUsage(
     return adaptOpenAiUsage(usage);
   }
 
-  const cacheRead = isUsableUsageObject(usage.prompt_tokens_details) && 'cached_tokens' in (usage.prompt_tokens_details as Record<string, unknown>)
+  // B-6878 (belt): own-property checks, not prototype-chain `in`, on the
+  // (already null-proto) details object.
+  const cacheRead = isUsableUsageObject(usage.prompt_tokens_details) && ownProp(usage.prompt_tokens_details, 'cached_tokens')
     ? readReportedDimension((usage.prompt_tokens_details as Record<string, unknown>).cached_tokens)
     : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
@@ -232,7 +265,8 @@ export function extractGeminiStreamUsage(
     return buildUnavailableUsage(noUsageReason('gemini', errorReason));
   }
 
-  const meta = lastMeta as Record<string, unknown>;
+  // B-6878: project to a null-proto, whitelist-only object before any read.
+  const meta = toOwnPropsNullProto(lastMeta, GEMINI_STREAM_WHITELIST);
   const input = readReportedDimension(meta.promptTokenCount);
   const output = readReportedDimension(meta.candidatesTokenCount);
 
@@ -240,7 +274,9 @@ export function extractGeminiStreamUsage(
     return adaptGeminiUsage(meta);
   }
 
-  const cacheRead = 'cachedContentTokenCount' in meta ? readReportedDimension(meta.cachedContentTokenCount) : null;
+  // B-6878 (belt): own-property check, not a prototype-chain `in`, on the
+  // stream-parsed usageMetadata object.
+  const cacheRead = ownProp(meta, 'cachedContentTokenCount') ? readReportedDimension(meta.cachedContentTokenCount) : null;
   const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
   if (anyCount(dims)) {
     return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, meta);

@@ -81,6 +81,10 @@ export function adaptOpenAiUsage(rawUsage: unknown): LedgerUsage {
  */
 function readOpenAiCacheRead(details: unknown): TokenDimension {
   if (!isUsableUsageObject(details)) return null;
-  if (!('cached_tokens' in details)) return null;
+  // B-6878 (belt): own-property check, not a prototype-chain `in`, so a polluted
+  // Object.prototype.cached_tokens is never treated as present on a details object
+  // that lacks its own cached_tokens. Behavior for legitimate own-property data is
+  // identical (the chokepoint already null-protos this object; this is the belt).
+  if (!Object.prototype.hasOwnProperty.call(details, 'cached_tokens')) return null;
   return readReportedDimension(details.cached_tokens);
 }
