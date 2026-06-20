@@ -5,7 +5,7 @@
       "desc": "codex host-2: resolveLearningRoot (learning-store.ts:~85) uses dirname(resolve(searchOrigin, git rev-parse --git-common-dir)), which assumes the git common dir lives inside the main checkout (<main>/.git). True for normal checkout + linked worktrees (Orchestrate normal usage), but FALSE for .git-file layouts: git init --separate-git-dir and bare-backed worktrees point --git-common-dir at external git storage, so the resolver returns <storage-parent>/.lattice/learning instead of the checkout root — a correctness regression for those valid git layouts (changes plain-checkout behavior). Fix: resolve the MAIN worktree root via git worktree list --porcelain (first worktree entry), fallback to searchOrigin; that reports actual checkout paths in all layouts.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T07:09:06.070Z",
@@ -15,7 +15,11 @@
         "packages/main/src/core/learning-store.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-resolvelearningroot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e4e278b2: resolveLearningRoot now resolves the main root via git worktree list --porcelain (first entry) when it is a genuine working tree (differs from --git-common-dir; covers normal + linked worktrees -> MAIN root), and falls back to git rev-parse --show-toplevel for separate-git-dir / bare-backed layouts (the actual checkout), with a final fallback to searchOrigin. Smoke extended to 6 checks incl. separate-git-dir + bare-backed; RED/GREEN verified.",
+      "resolvedAt": "2026-06-20T07:17:57.278Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
