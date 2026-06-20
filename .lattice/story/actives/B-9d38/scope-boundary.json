@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9d38",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json: register the smoke",
+    "packages/main/src/core/adversarial-review-critic.ts: runCompletenessCritic injected-seam + COMPLETENESS_CRITIC_DESC_TAG + CRITIC_PROVENANCE_RECOMMENDED_LANES + toCriticFindingAddArgs (wraps S2 toFindingAddArgs)",
+    "packages/main/src/tasks/adversarial-review-critic-smoke.ts: hermetic smoke with a fake runCritic"
+  ],
+  "excluded": [
+    "a dedicated lattice-review-completeness lane + structured provenance field — FUTURE (§4.4)",
+    "escalation/reopen loop AND actually running verification on critic output / calling finding_add/review_run_start / re-binding reopened rounds — that is S4",
+    "the lens runner (S1 B-97ab) — done, not modified",
+    "the S0 contract module + review-run.ts — imported read-only, not modified",
+    "the verifier/threshold itself (S2 B-2806) — imported read-only (toFindingAddArgs), not modified"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-impl S3 per docs/adversarial-review-spec.md §2.4 (completeness-critic contract) + §4.3 (MVP real-lane provenance); pure-data + injected-seam, MVP; depends [S0,S2], composes S2 toFindingAddArgs.",
+  "createdAt": "2026-06-20T15:24:47.588Z",
+  "updatedAt": "2026-06-20T15:24:47.588Z",
+  "_hash": "b1c3773eae90f77b4815cbbf574e90e737452613ad58923f74a225ba3733923f"
+}
