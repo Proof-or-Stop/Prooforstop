@@ -17,6 +17,23 @@
       ],
       "signatureTag": "edge|ts|review-advisory-injection",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa7c:F-002",
+      "desc": "MAJOR: storyRef() calls store.readScopeContract for self + each peer with NO try/catch. readScopeContract returns null only for a MISSING contract and RE-THROWS (SyntaxError) for a corrupt/unparseable scope-contract.json. The flatMap only handles null, so a single corrupt contract anywhere (peers=allStories) crashes the entire parallel_wave_create command — a NEW crash surface (the wave never read contracts pre-S4). Sibling story-review.ts wraps the identical reads in try/catch. Fix: read all contracts once via a safe try/catch helper into a Map in createParallelWave, pass to storyRef; treat a throw as a missing contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "claude-quality",
+      "createdAt": "2026-06-20T07:34:37.509Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "0a0962be2f71fc9f64b0218cdfc8eb227edc9d27d33bd3ddc5d600994ec88c61",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-storyref-calls",
+      "signatureTagSource": "auto"
     }
   ]
 }
