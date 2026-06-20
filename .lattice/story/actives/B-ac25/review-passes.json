@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-20T11:01:07.967Z",
       "reviewRunId": "B-ac25:RR-019",
       "_hash": "beb8af7e1a500a14eacc40d442f549ceaf12b571a7d7cd32804d0bc7b65eb268"
+    },
+    {
+      "id": "B-ac25:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: rechecked B-ac25 after F-003/F-004 fixes. F-004 is covered by packages/main/src/tasks/done-required-validation-smoke.ts lines 310-323: it rewrites only storyFilesHash on otherwise current PASS evidence, asserts stale-storyFilesHash blocks, and asserts stale-material and stale-headHash are absent. F-003 is covered by lines 293-304 plus core evaluator lines 533-541: stale top-level headHash now blocks. Process contract coverage is mechanical in scripts/verify-process-fact-contract.mjs lines 1995-2047 and registries/policy keep done_required_validate plus artifact:done-required-evidence.json as L4 DONE gate evidence. verification_evidence_refresh_stale --dryRun reports no stale verification evidence for B-ac25. Full npm test/build/process-contract execution is recorded in resolved finding evidence as strong; TEST/DONE still must create normal test-evidence and done-required evidence, but no REVIEW coverage blocker remains.",
+      "createdAt": "2026-06-20T11:04:38.590Z",
+      "reviewRound": "2026-06-20T11:01:07.967Z",
+      "reviewRunId": "B-ac25:RR-022",
+      "_hash": "ecd7626e2499bf055d87513ab0447de27c2faa94aa09f27c8e3c28a7246d6419"
     }
   ]
 }
