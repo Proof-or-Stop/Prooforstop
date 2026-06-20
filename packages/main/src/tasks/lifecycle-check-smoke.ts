@@ -8,6 +8,9 @@ import { join, relative } from 'node:path';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { signReviewRun } from '../core/review-run.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { buildStoryReadinessReport, type StoryReadinessReport } from '../core/lifecycle-readiness.js';
@@ -101,8 +104,50 @@ function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext
       }],
     }],
   });
+  writeReviewerPass(root, store, 'lattice-review-concept');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   return { root, store, ctx };
+}
+
+function writeReviewerPass(root: string, store: StoryStore, lane: string): void {
+  const story = store.readStory(STORY_ID);
+  const reviewRound = story.currentReviewRound ?? 'round-1';
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'fixture git HEAD is available for reviewer run signing');
+  assert.ok(materialHash, 'fixture material hash is available for reviewer run signing');
+
+  const reviewRunId = `${STORY_ID}:RR-001`;
+  const startedAt = '2026-06-20T00:01:00.000Z';
+  store.writeReviewRuns(STORY_ID, {
+    runs: [{
+      reviewRunId,
+      storyId: STORY_ID,
+      agent: lane,
+      lane,
+      reviewRound,
+      startedAt,
+      headHash,
+      materialHash,
+      promptHash: '',
+      _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, reviewRound, startedAt, headHash, materialHash, ''),
+    }],
+  });
+
+  const id = `${STORY_ID}:RP-001`;
+  const note = 'concept reviewer checked lifecycle smoke fixture and found no blocker';
+  const createdAt = '2026-06-20T00:02:00.000Z';
+  store.writeReviewPasses(STORY_ID, {
+    passes: [{
+      id,
+      agent: lane,
+      note,
+      createdAt,
+      reviewRound,
+      reviewRunId,
+      _hash: signReviewPass(STORY_ID, id, lane, note, createdAt, reviewRound, reviewRunId),
+    }],
+  });
 }
 
 function snapshotDir(root: string, dir: string): Record<string, string> {
@@ -140,6 +185,20 @@ function assertReportShape(report: StoryReadinessReport): void {
   assert.equal(report.claims.productionDone, false);
 }
 
+function topLevelReportShape(report: StoryReadinessReport) {
+  return {
+    storyId: report.storyId,
+    target: report.target,
+    phase: report.phase,
+    mode: report.mode,
+    readiness: report.readiness.map((row) => Object.keys(row).sort()),
+    next: report.next.map((action) => Object.keys(action).sort()),
+    claims: {
+      localReady: typeof report.claims.localReady,
+    },
+  };
+}
+
 assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'lifecycle_check'), 'MAIN_TOOLS exposes lifecycle_check');
 assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'lifecycle_check policy is readOnly');
 
@@ -155,14 +214,26 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
     const beforeStatus = gitStatus(root);
     const jsonReport = handler!({ storyId: STORY_ID, target: 'DONE', json: true }) as StoryReadinessReport;
     assertReportShape(jsonReport);
+    const formatJsonReport = handler!({ storyId: STORY_ID, target: 'DONE', format: 'json' }) as StoryReadinessReport;
+    assertReportShape(formatJsonReport);
+    assert.deepEqual(
+      topLevelReportShape(formatJsonReport),
+      topLevelReportShape(jsonReport),
+      'json:true and format:json return the same top-level report shape',
+    );
     assert.equal(jsonReport.claims.localReady, false, 'missing DONE proof blocks localReady');
     assert.equal(jsonReport.readiness.some((row) => row.blocking), true, 'blocking rows are present');
 
     const codes = readinessCodes(jsonReport);
+    assert.ok(codes.has('missing_required_review_lane'), 'one valid reviewer pass does not satisfy all required round-1 lanes');
     assert.ok(codes.has('missing_delivery_check'), 'missing delivery check is classified distinctly');
     assert.ok(codes.has('missing_story_summary'), 'missing summary is classified distinctly');
     assert.ok(codes.has('missing_done_required_validation'), 'missing done-required validation is classified distinctly');
     assert.ok(codes.has('missing_done_prepare_report'), 'missing done_prepare report is visible');
+    assert.ok(
+      jsonReport.next.some((action) => action.command === `lattice review_run_start '{"storyId":"${STORY_ID}","agent":"lattice-review-quality"}'`),
+      'missing required reviewer lanes print exact review_run_start next command guidance',
+    );
     assert.ok(
       jsonReport.next.some((action) => action.command?.includes('delivery_check_set')),
       'missing delivery check prints an exact delivery_check_set next command',

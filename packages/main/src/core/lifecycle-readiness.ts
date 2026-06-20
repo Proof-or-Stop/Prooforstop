@@ -6,6 +6,10 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking, resolveReviewRoundCount } from './advisory.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { evaluateReviewerQuorum, type ReviewerEvidenceEntry } from './reviewer-quorum.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import type { StoryStore } from './store.js';
 import type { Finding, StoryPhase, VerificationEvidence } from './types.js';
 
@@ -129,6 +133,37 @@ function currentBlockingSeverities(store: StoryStore, storyId: string, projectRo
   if (roundCount >= 3) return { severities: ['critical'], roundCount };
   if (roundCount >= 2) return { severities: ['critical', 'high'], roundCount };
   return { severities: [...policy.review.blockingSeverities], roundCount };
+}
+
+function activeReviewersForStory(store: StoryStore, storyId: string, projectRoot: string) {
+  const story = store.readStory(storyId);
+  let checklist: { items: unknown[] } = { items: [] };
+  try { checklist = store.readChecklist(storyId); } catch { /* missing checklist is handled by review target rows */ }
+  let decision = null;
+  try { decision = store.readDecision(storyId); } catch { /* decision is optional for reviewer routing */ }
+  const understanding = store.readUnderstanding(storyId);
+  const touchpoints = understanding?.touchpoints
+    ?? detectMdTouchpointsFromGit(projectRoot);
+  return computeActiveReviewers(story, checklist, decision, touchpoints);
+}
+
+function reviewerLane(name: string): string {
+  return name.startsWith('lattice-review-') ? name : `lattice-review-${name}`;
+}
+
+function reviewerRunStartCommand(storyId: string, lane: string): string {
+  return `lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+}
+
+function quorumEvidence(evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[]): ReviewerEvidenceEntry[] {
+  return evidenceRecords.map((evidence) => ({
+    lane: evidence.agent,
+    agent: evidence.agent,
+    // Match canPassReviewGuard: lane coverage is enough here; blocking finding
+    // severity is evaluated by the existing review.findings readiness row.
+    kind: 'pass',
+    signatureValid: evidence.signatureValid,
+  }));
 }
 
 function verificationEvidenceArtifacts(evidence: Array<VerificationEvidence & { itemId: string }>) {
@@ -315,6 +350,115 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
   }
 
   const { severities, roundCount } = currentBlockingSeverities(store, storyId, projectRoot);
+  if (policy.review.requireReviewerFinding) {
+    const currentRoundReviewerEvidence = evidenceState.valid.map((record) => ({
+      agent: record.agent,
+      kind: record.kind,
+      signatureValid: record.signatureValid,
+    }));
+    if (roundCount <= 1) {
+      const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
+      const missing = activeReviewers.filter((reviewer) => !currentRoundReviewerEvidence.some(
+        (evidence) => findingAgentMatchesReviewer(evidence.agent, reviewer.name),
+      ));
+      if (missing.length > 0) {
+        for (const reviewer of missing) {
+          const lane = reviewerLane(reviewer.name);
+          rows.push(row({
+            id: `review.required_lane.${reviewer.name}`,
+            status: 'blocked',
+            source: 'review',
+            sourceRef: 'reviewer_list/computeActiveReviewers',
+            owner: 'reviewer',
+            category: 'missing',
+            code: 'missing_required_review_lane',
+            reason: `Round ${roundCount} requires reviewer lane ${lane} (${reviewer.reason}); no valid current-round finding or review pass is recorded`,
+            nextCommand: reviewerRunStartCommand(storyId, lane),
+          }));
+        }
+      } else {
+        rows.push(row({
+          id: 'review.required_lanes',
+          status: 'pass',
+          source: 'review',
+          sourceRef: 'reviewer_list/computeActiveReviewers',
+          owner: 'reviewer',
+          category: 'advisory',
+          code: 'required_review_lanes_covered',
+          reason: `Round ${roundCount} reviewer evidence covers all ${activeReviewers.length} active lane(s): ${activeReviewers.map((reviewer) => reviewer.name).join(', ')}`,
+          blocking: false,
+        }));
+      }
+
+      const quorum = evaluateReviewerQuorum({
+        activeReviewers: activeReviewers.map((reviewer) => reviewer.name),
+        evidence: quorumEvidence(currentRoundReviewerEvidence),
+        profile: policy.profile as 'light' | 'balanced' | 'strict',
+      });
+      if (!quorum.ok) {
+        rows.push(row({
+          id: 'review.quorum',
+          status: 'blocked',
+          source: 'review',
+          sourceRef: 'reviewer-quorum.evaluateReviewerQuorum',
+          owner: 'reviewer',
+          category: 'blocking',
+          code: 'reviewer_quorum_not_met',
+          reason: `Round ${roundCount} reviewer quorum not met: ${quorum.blocking.slice(0, 3).join('; ')}`,
+          nextCommand: rollbackToDevCommand(storyId),
+        }));
+      } else if (quorum.warnings.length > 0) {
+        rows.push(row({
+          id: 'review.quorum',
+          status: 'warn',
+          source: 'review',
+          sourceRef: 'reviewer-quorum.evaluateReviewerQuorum',
+          owner: 'reviewer',
+          category: 'advisory',
+          code: 'reviewer_quorum_advisory',
+          reason: `Round ${roundCount} reviewer quorum warnings: ${quorum.warnings.slice(0, 3).join('; ')}`,
+          blocking: false,
+        }));
+      } else {
+        rows.push(row({
+          id: 'review.quorum',
+          status: 'pass',
+          source: 'review',
+          sourceRef: 'reviewer-quorum.evaluateReviewerQuorum',
+          owner: 'reviewer',
+          category: 'advisory',
+          code: 'reviewer_quorum_met',
+          reason: `Round ${roundCount} reviewer quorum is met`,
+          blocking: false,
+        }));
+      }
+    } else if (currentRoundReviewerEvidence.length === 0) {
+      rows.push(row({
+        id: 'review.current_round_evidence',
+        status: 'blocked',
+        source: 'review',
+        sourceRef: 'findings.json + review-passes.json',
+        owner: 'reviewer',
+        category: 'missing',
+        code: 'missing_current_round_review_evidence',
+        reason: `Round ${roundCount} requires at least one valid current-round reviewer finding or review pass`,
+        nextCommand: `lattice reviewer_list '{"storyId":"${storyId}"}'`,
+      }));
+    } else {
+      rows.push(row({
+        id: 'review.current_round_evidence',
+        status: 'pass',
+        source: 'review',
+        sourceRef: 'findings.json + review-passes.json',
+        owner: 'reviewer',
+        category: 'advisory',
+        code: 'current_round_review_evidence_present',
+        reason: `Round ${roundCount} has ${currentRoundReviewerEvidence.length} valid reviewer evidence record(s)`,
+        blocking: false,
+      }));
+    }
+  }
+
   const blockingFindings = evidenceState.valid
     .map((record) => record.finding)
     .filter((finding): finding is Finding => !!finding)
