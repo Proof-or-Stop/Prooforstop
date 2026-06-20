@@ -7,7 +7,30 @@
       "userSees": "A new leaf core/experience-hint-surface.ts exists with a single surfaceExperienceHints implementation; story_review still produces byte-identical _reviewPrompt and experience_hint_surfaced events on both arms (proven by a golden assertion). node packages/main/dist/tasks/<smoke>.js and full npm test exit 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "surfaceExperienceHints(root,{storyId,hintRoundKey}) returns {hintMode,renderedSection,hintIds,fired}; ON-arm returns the rendered hints section and fires exactly one experience_hint_surfaced event (hintMode:on) on a dedup miss.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "GOLDEN: story_review _reviewPrompt bytes AND the experience_hint_surfaced event payload are byte-identical before vs after the leaf extraction, on BOTH arms (refactor is behavior-preserving).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hint load/track failure inside the leaf is swallowed (try/catch) → renderedSection is empty, no throw, no partial event.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

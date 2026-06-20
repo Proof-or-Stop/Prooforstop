@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "One firing implementation: extract a single shared leaf so the dedup-key formula + event payload exist in exactly ONE place (no drift between PLAN and REVIEW sites).",
+    "Hand the agent the hints in the text it already reads (REVIEW reviewer-launch guidance) — turn \"remember to surface hints\" into \"the CLI surfaces them\".",
+    "Advisory-only + measurement-honest: never touch the signed prompt hash; fire on BOTH arms (hintMode distinguishes) once per review round; OFF byte-identical.",
+    "Minimal blast radius: no new command (zero registration/contract burden); leaf imports only existing core leaves; behavior-preserving refactor proven by a golden assertion."
+  ],
+  "drivers": [
+    "REVIEW lane reviewers are launched by the main agent with hand-written prompts that bypass story_review _reviewPrompt, so the ON arm never influences review and REVIEW rounds emit zero experience_hint_surfaced — learning_effectiveness ON/OFF cannot accrue.",
+    "transition-orchestrator persists currentReviewRound before buildNextSteps, so the REVIEW branch can reuse the exact hintRoundKey story_review uses → automatic cross-site dedup + disjoint PLAN/REVIEW namespaces.",
+    "A code-verified design workflow chose this hybrid over a new command (registration tax + relies on the agent remembering) and over touching the signed reviewer prompt (invariant risk)."
+  ],
+  "options": [
+    {
+      "name": "next-steps-surface-plus-shared-leaf",
+      "pros": [
+        "Hints appear in the text the agent already reads (most forceful without forcing).",
+        "Single shared firing leaf = no dedup/payload drift.",
+        "Zero command registration burden; advisory-only; OFF byte-identical."
+      ],
+      "cons": [
+        "Indirect: the CLI hands hints over but the agent still pastes them into each lane prompt (accepted limitation; dispatch-path deferred)."
+      ]
+    },
+    {
+      "name": "new-read-only-review_hints-command",
+      "pros": [
+        "Explicit copy-paste-ready output."
+      ],
+      "cons": [
+        "5-surface + lifecycle-registry-contract tax; the agent must REMEMBER to run it — less forceful than putting hints in the text it already reads."
+      ]
+    },
+    {
+      "name": "inject-into-signed-reviewer-prompt",
+      "pros": [
+        "Reaches reviewers directly."
+      ],
+      "cons": [
+        "Risks the resolveReviewPromptHash byte-identical-arms invariant; couples hints to the signed prompt — rejected."
+      ]
+    }
+  ],
+  "chosen": "next-steps-surface-plus-shared-leaf",
+  "rationale": "Surfacing the rendered+A/B-gated hints in buildNextSteps REVIEW reviewer-launch guidance puts them in the exact text the main agent reads to launch lane reviewers, and a single shared leaf (surfaceExperienceHints) makes the firing+dedup+arm logic single-source-of-truth across PLAN and REVIEW. The REVIEW key reuses currentReviewRound (persisted before buildNextSteps) so PLAN (plan:<phase>) and REVIEW (ISO round) are disjoint and never double-count. Zero command-registration burden, signed reviewer prompt hash untouched (byte-identical arms), OFF arm byte-identical to today — the smallest correct change that makes the ON arm reach reviewers and lets learning_effectiveness accrue from REVIEW rounds.",
+  "preMortem": [
+    {
+      "scenario": "The story-review.ts refactor subtly changes PLAN behavior (drops always-compute-hints or the failure console.warn), altering _reviewPrompt bytes or the event.",
+      "trigger": "Rewriting the firing block instead of moving it verbatim into the leaf.",
+      "consequence": "PLAN-phase A/B behavior silently changes; existing smokes may pass while real output drifts.",
+      "mitigation": "Move the block VERBATIM into the leaf; CHK-001 golden assertion captures _reviewPrompt bytes + event payload before/after and asserts byte-equality on BOTH arms."
+    },
+    {
+      "scenario": "A future refactor moves writeStory(currentReviewRound) AFTER buildNextSteps, so the REVIEW key falls back to plan:<phase> and collides with the PLAN event.",
+      "trigger": "Reordering transition-orchestrator without knowing buildNextSteps depends on currentReviewRound being persisted first.",
+      "consequence": "REVIEW events vanish or collide → learning_effectiveness mismeasures.",
+      "mitigation": "Code comment documenting the ordering dependency; CHK-003 smoke asserts the REVIEW event.reviewRound equals the ISO currentReviewRound (not plan:<phase>) and PLAN+REVIEW are disjoint single events."
+    },
+    {
+      "scenario": "Hint content leaks into the signed reviewer prompt or a gate, breaking byte-identical arms.",
+      "trigger": "Wiring hints into review-run.ts or feeding renderedSection into resolveReviewPromptHash.",
+      "consequence": "ON vs OFF reviewer-prompt hashes differ → A/B contamination + possible gate dependency on hint content.",
+      "mitigation": "review-run.ts / core/review-run.ts PROTECTED (excluded); hints live only in the buildNextSteps guidance STRING; CHK-003 asserts resolveReviewPromptHash/review-run byte-identical ON vs OFF."
+    },
+    {
+      "scenario": "The new hint surfacing throws and blocks/garbles a REVIEW transition.",
+      "trigger": "Not wrapping the buildNextSteps hint block in try/catch, or heavy work on the transition path.",
+      "consequence": "A story cannot enter REVIEW because of an advisory hint surface — unacceptable.",
+      "mitigation": "Wrap the whole block in try/catch (same posture as the existing round-2 advisory); the leaf returns fast on no-signals; CHK-002 asserts the transition still succeeds + active-reviewer set unchanged with hints present."
+    }
+  ],
+  "timestamp": "2026-06-20T12:08:44.705Z"
+}
