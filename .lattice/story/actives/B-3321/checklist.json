@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T06:58:18.148Z",
       "files": {
         "modify": [],
         "create": [
@@ -41,7 +41,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"validate.commands|test-evidence|pre-push|22-step|8 entries\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document lines state the 8 configured validate commands, 22-step root npm test chain, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.",
+          "headHash": "f0260da52e7f43429bbd5f78ce94e9fc9572fa98",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:18.287Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"not that current main `npm test` is red|gate coverage gap\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Problem statement includes the explicit caveat that this proves gate coverage, not current main red status.",
+          "headHash": "f0260da52e7f43429bbd5f78ce94e9fc9572fa98",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:18.398Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"No runtime implementation|Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`|Do not implement the runtime gate\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Scope and non-goal sections exclude runtime implementation, config/package/hook edits, and full-test execution in this planning story.",
+          "headHash": "f0260da52e7f43429bbd5f78ce94e9fc9572fa98",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:18.520Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -138,6 +176,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-20T06:58:18.148Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Document committed in f0260da5 and verified against CHK-001 intents."
     }
   ]
 }
