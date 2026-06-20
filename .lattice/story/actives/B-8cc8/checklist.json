@@ -242,6 +242,17 @@
           "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
           "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
           "timestamp": "2026-06-20T23:09:45.485Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "after the rebrand, run git grep -i koala across the entire repo and confirm CHANGELOG.md does NOT appear in results",
+          "result": "pass",
+          "note": "Empirically verified: appending a koala token to CHANGELOG.md made `git grep -i koala -- CHANGELOG.md` return a hit; after `git checkout CHANGELOG.md` revert it was 0 again. (CHANGELOG is gate-excluded, so this is grep-level verification.)",
+          "headHash": "59bf52b65fe843ded6117f84562802a0a89913c3",
+          "materialHash": "783d910db24ed77de76be78444248bf7e3b0ddbe87ce42d6d7c83a6895a34ab2",
+          "storyFilesHash": "55d2a229fd82490954c5e5f9fbd482f631d734610ee6928310cf3d7a59890d5a",
+          "timestamp": "2026-06-20T23:09:45.913Z"
         }
       ]
     }
