@@ -8,8 +8,15 @@
  * worktrees. Before the fix, the learning-store resolved the learning dir relative
  * to the (worktree) root, so `loadExperienceHints` read `${worktree}/.lattice/...`
  * — which is absent — and the Experience Layer stayed dormant. The learning-store
- * now resolves the learning dir to the parent of `git rev-parse --git-common-dir`
- * (the main worktree root), with a never-throw fallback to the passed root.
+ * now resolves the learning dir to the FIRST `git worktree list --porcelain` entry
+ * (the main/primary worktree root), with a never-throw fallback to the passed root.
+ *
+ * B-37b3 F-001 (Codex host-2, medium): the earlier fix used
+ * `dirname(--git-common-dir)`, which equals the checkout root ONLY when the common
+ * dir is `<main>/.git`. For `git init --separate-git-dir` and bare-backed worktrees
+ * the common dir points at EXTERNAL git storage, so `dirname(commonDir)` resolved to
+ * the storage parent — NOT the checkout. `git worktree list` reports the actual
+ * checkout path in every layout; case 4 below guards exactly that regression.
  *
  * Coverage (named `check:` lines; exits non-zero on any failure; prints
  * `✓ experience-hint-worktree-cache smoke passed (N checks)` at the very end):
@@ -22,6 +29,10 @@
  *   3. Write-then-read parity: writing the cache via the learning-store FROM THE
  *      WORKTREE lands it under `main/.lattice/learning/`, and a subsequent worktree
  *      read hits it.
+ *   4. separate-git-dir / bare-backed regression (B-37b3 F-001): a checkout whose
+ *      git storage lives OUTSIDE the checkout (external `--separate-git-dir`, plus a
+ *      worktree off a bare clone) resolves the learning dir under the CHECKOUT's
+ *      `.lattice/learning`, NOT the external gitdir's parent.
  *
  * Runs entirely in an OS temp dir (hermetic, no network); cleans up after itself.
  */
@@ -211,6 +222,88 @@ check('write from the worktree lands in main/.lattice/learning and a worktree re
   const cache = readFindingSignals(worktreeRoot);
   assert.ok(cache, 'worktree read sees the cache it just wrote');
   assert.equal(cache!.signals[0].localSignature, signature, 'round-trip content matches');
+});
+
+// ─── 4. separate-git-dir / bare-backed regression (B-37b3 F-001) ──────────────
+//
+// These are valid git layouts whose .git storage lives OUTSIDE the checkout. The
+// prior `dirname(--git-common-dir)` resolver pointed the learning dir at the
+// EXTERNAL storage parent instead of the checkout — this case guards that the
+// `git worktree list` resolver reports the actual checkout root in both shapes.
+
+check('separate-git-dir checkout resolves the learning dir under the CHECKOUT, not the external gitdir', () => {
+  const base = mkTempRoot();
+  const checkoutRoot = join(base, 'checkout');
+  const externalGitDir = join(base, 'external-git'); // git storage lives OUTSIDE the checkout
+  // `git init --separate-git-dir` puts the repo's git storage at externalGitDir and
+  // leaves only a `.git` FILE (gitdir pointer) inside the checkout.
+  git(base, ['init', '-q', `--separate-git-dir=${externalGitDir}`, 'checkout']);
+
+  // The external git storage is NOT under the checkout (precondition for the bug).
+  assert.equal(externalGitDir.startsWith(checkoutRoot), false, 'git storage lives outside the checkout');
+
+  // resolveFindingSignalsPath must land under the CHECKOUT's .lattice/learning,
+  // NOT under dirname(externalGitDir) (== base) — the old regression.
+  const resolved = resolveFindingSignalsPath(checkoutRoot);
+  assert.ok(
+    resolved.startsWith(join(checkoutRoot, '.lattice', 'learning')),
+    `separate-git-dir resolves under the checkout's learning dir (got ${resolved})`,
+  );
+  assert.equal(
+    resolved.startsWith(externalGitDir),
+    false,
+    'resolved path must NOT live under the external gitdir',
+  );
+
+  // Round-trip: a write from the checkout lands inside the checkout and reads back.
+  const signature = 'edge||ts|separate-git-dir';
+  const writtenPath = writeFindingSignals(checkoutRoot, recurringCache(signature, 'B-sgd'));
+  assert.ok(writtenPath.startsWith(checkoutRoot), 'separate-git-dir write lands inside the checkout');
+  const cache = readFindingSignals(checkoutRoot);
+  assert.ok(cache, 'separate-git-dir read sees the cache');
+  assert.equal(cache!.signals[0].localSignature, signature, 'separate-git-dir round-trip content matches');
+});
+
+check('bare-backed worktree resolves the learning dir under the MAIN checkout, not the bare gitdir', () => {
+  const base = mkTempRoot();
+  const bareDir = join(base, 'repo.git'); // bare clone: git storage, no working tree
+  const seedRoot = join(base, 'seed');
+
+  // Seed a tiny repo with one commit so the bare clone has a branch to check out.
+  git(base, ['init', '-q', 'seed']);
+  git(seedRoot, ['config', 'user.email', 'smoke@example.com']);
+  git(seedRoot, ['config', 'user.name', 'smoke']);
+  git(seedRoot, ['config', 'commit.gpgsign', 'false']);
+  execFileSync('git', ['commit', '-q', '--allow-empty', '-m', 'init'], {
+    cwd: seedRoot,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  git(base, ['clone', '-q', '--bare', seedRoot, bareDir]);
+
+  // Add a worktree off the BARE repo — its git storage lives in bareDir (external).
+  const wtRoot = join(base, 'bare-wt');
+  git(bareDir, ['worktree', 'add', '-q', wtRoot]);
+
+  // The bare gitdir is NOT under the worktree checkout (precondition for the bug).
+  assert.equal(bareDir.startsWith(wtRoot), false, 'bare gitdir lives outside the worktree checkout');
+
+  // From a bare-backed worktree, `git worktree list` reports the worktree checkout
+  // as the first (main) entry — so the learning dir resolves under the checkout,
+  // NOT under dirname(bareDir) (== base), the old regression.
+  const resolved = resolveFindingSignalsPath(wtRoot);
+  assert.ok(
+    resolved.startsWith(join(wtRoot, '.lattice', 'learning')),
+    `bare-backed worktree resolves under the checkout's learning dir (got ${resolved})`,
+  );
+  assert.equal(resolved.startsWith(bareDir), false, 'resolved path must NOT live under the bare gitdir');
+
+  // Round-trip from the bare-backed worktree.
+  const signature = 'adversarial||ts|bare-backed';
+  const writtenPath = writeFindingSignals(wtRoot, recurringCache(signature, 'B-bare'));
+  assert.ok(writtenPath.startsWith(wtRoot), 'bare-backed write lands inside the checkout');
+  const cache = readFindingSignals(wtRoot);
+  assert.ok(cache, 'bare-backed read sees the cache');
+  assert.equal(cache!.signals[0].localSignature, signature, 'bare-backed round-trip content matches');
 });
 
 // ─── summary ──────────────────────────────────────────────────────────────────

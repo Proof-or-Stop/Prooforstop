@@ -52,12 +52,31 @@ export const PROPOSALS_DIRNAME = 'proposals';
  * story DEV/REVIEW runs in linked worktrees where those files are absent. If the
  * learning dir were resolved relative to the worktree root, every read would miss
  * the single shared cache and the Experience Layer would stay dormant (hints never
- * surface). Routing through the git common dir's parent points every worktree at
- * the one main-checkout cache so reads and writes always agree.
+ * surface). Routing every worktree at the one main-checkout root makes reads and
+ * writes always agree.
  *
- * `git rev-parse --git-common-dir` returns the shared `.git` directory:
- *   - main checkout  => `.git` (relative)  => dirname(resolve(root, '.git')) === root  (byte-identical, no behavior change)
- *   - linked worktree => `<main>/.git` (absolute) => dirname(...) === the main worktree root
+ * Resolution prefers `git worktree list --porcelain`, whose FIRST `worktree <path>`
+ * entry is the main (primary) worktree — the single root every linked worktree must
+ * share — and falls back to `git rev-parse --show-toplevel` (this checkout's actual
+ * working tree) for the layouts where `worktree list` does not report a real
+ * working tree. Across the layouts that matter:
+ *   - normal main checkout   => `worktree list` first entry === the checkout root
+ *                               (byte-identical to the pre-fix non-worktree behavior)
+ *   - linked worktree        => `worktree list` first entry === the MAIN checkout
+ *                               root (so all linked worktrees share one cache)
+ *   - `git init --separate-git-dir` / bare-backed worktree => `worktree list`
+ *                               reports the EXTERNAL git storage dir (no distinct
+ *                               main working tree), which equals --git-common-dir;
+ *                               we detect that and use --show-toplevel (the actual
+ *                               checkout root, NOT the external git storage)
+ *
+ * B-37b3 F-001 (Codex host-2, medium): the prior approach took
+ * `dirname(resolve(origin, --git-common-dir))`. That equals the checkout root only
+ * when the common dir is `<main>/.git`. For `separate-git-dir` and bare-backed
+ * layouts the common dir points at EXTERNAL storage, so `dirname(commonDir)` was
+ * the storage parent — NOT the checkout — a correctness regression. Note that for
+ * those same layouts `git worktree list` ALSO reports the external storage dir (it
+ * equals --git-common-dir), so we additionally fall back to --show-toplevel there.
  *
  * NEVER throws: any failure (non-git temp dir, missing git, empty output) falls
  * back to the passed origin unchanged, so the existing experience-layer smokes
@@ -72,17 +91,43 @@ export const PROPOSALS_DIRNAME = 'proposals';
  * gitroot-cwd-contract reads it as a resolved search origin, not a laundered
  * metadataRoot. Leaf-isolation is preserved: node builtins only.
  */
+function gitProbe(searchOrigin: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: searchOrigin,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 function resolveLearningRoot(searchOrigin: string): string {
   try {
-    const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-      cwd: searchOrigin,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!commonDir) return searchOrigin;
-    // commonDir may be relative (e.g. `.git`) or absolute (`<main>/.git`); resolve
-    // it against the origin, then take its parent — the main worktree root.
-    return dirname(resolve(searchOrigin, commonDir));
+    // The main (primary) worktree root is the FIRST `worktree <path>` entry.
+    let mainWorktree = '';
+    try {
+      const out = gitProbe(searchOrigin, ['worktree', 'list', '--porcelain']);
+      for (const line of out.split('\n')) {
+        const m = line.match(/^worktree (.+)$/);
+        if (m) { mainWorktree = m[1].trim(); break; }
+      }
+    } catch { /* fall through to --show-toplevel */ }
+
+    if (mainWorktree) {
+      // For separate-git-dir / bare-backed layouts git reports the EXTERNAL git
+      // storage dir here (it equals --git-common-dir), not a real working tree. A
+      // genuine main-worktree entry differs from the storage dir; only then is it
+      // the root to use (normal + linked-worktree). Otherwise prefer the checkout's
+      // own working tree below.
+      let commonDir = '';
+      try {
+        commonDir = resolve(searchOrigin, gitProbe(searchOrigin, ['rev-parse', '--git-common-dir']).trim());
+      } catch { /* leave commonDir empty => treat the worktree entry as genuine */ }
+      if (!commonDir || resolve(mainWorktree) !== commonDir) return mainWorktree;
+    }
+
+    // separate-git-dir / bare-backed: the actual working tree of THIS checkout.
+    const top = gitProbe(searchOrigin, ['rev-parse', '--show-toplevel']).trim();
+    if (top) return top;
+    return mainWorktree || searchOrigin;
   } catch {
     return searchOrigin;
   }
