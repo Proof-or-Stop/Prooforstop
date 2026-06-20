@@ -1,0 +1,37 @@
+{
+  "storyId": "B-0607",
+  "checkedAt": "2026-06-20T18:35:25.619Z",
+  "reviewRound": "2026-06-20T18:33:30.154Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "promise": "Document stale-doc failure case and execution plan with 3 host-verification stories",
+      "status": "verified",
+      "verifiedBy": "reviewevidence",
+      "evidence": "verificationEvidence entries for CHK-001/2/3 in checklist.json cover all must lanes."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Document host handoff guard command sequence and supersession field priority",
+      "status": "verified",
+      "verifiedBy": "reviewevidence",
+      "evidence": "Guide section added under Host Handoff and updated frontmatter alias text."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Add navigation entry for new stale-doc guard execution plan",
+      "status": "verified",
+      "verifiedBy": "reviewevidence",
+      "evidence": "NAV index updated to include this plan under decisions."
+    }
+  ],
+  "realMachineTests": [],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only story validated with checklist evidence coverage and reviewer pass artifacts; no production-level behavior changed."
+  },
+  "_hash": "3d08ecf554172a366d45af8088fd2b04b6852db87dc7d80c8c15f5d2e89ec5ee"
+}

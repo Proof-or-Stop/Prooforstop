@@ -1,0 +1,206 @@
+{
+  "command": "lattice validate --story=B-0607 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.33 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"✓ configured validate.commands[14]: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js\",\"  adversarial-review-verifier smoke passed: 68 assertions\",\"✓ configured validate.commands[15]: node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"  adversarial-review-critic smoke passed: 52 assertions\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The new execution plan documents the stale-doc misclassification using the verified backfill case: plan-only doc, completed outcome doc, commit 2750aadef, and 656 backfilled signatures.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The failure-mode section distinguishes completed backfill data from the deferred causal/RCT parts of the Experience Layer record, so the plan does not overclaim that every experience-layer idea is complete.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The plan explicitly says hosts must not use old plan-only prose as proof that work is missing without checking current Lattice facts first.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The plan defines a source priority order where current Lattice state, DONE summaries, accepted outcome records, code/data evidence, and fresh validation outrank stale plan prose.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The contract preserves dev-memory and learning hints as advisory context, not gate evidence or Authority/production proof.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The contract includes a fail-closed wording rule: if a host only has stale plan prose, it must say it needs to verify current facts rather than telling the user to redo the task.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The plan breaks the solution into concrete implementation stories with owner, scope, deliverables, and acceptance checks for each story.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The implementation plan handles historical/reference documents that should not be treated as stale active backlog, avoiding noisy false positives.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md) — The verification gates include a negative case where an old plan-only document says future work, but current DONE summary/data evidence proves completion, and the host must not ask the user to redo it.\"],\"warnings\":[],\"timestamp\":\"2026-06-20T18:35:02.948Z\",\"headSha\":\"1ccd010f6176018c2ccc0fbf8c08e59159264292\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.33 build\\n> tsc\\n\\n\",\"durationMs\":5210},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":203},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":178},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12652},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":584},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4103},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":3396},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":169},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":107},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":115},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":118},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1424},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":104},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":114},{\"label\":\"configured validate.commands[14]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-verifier-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-verifier smoke passed: 68 assertions\\n\",\"durationMs\":103},{\"label\":\"configured validate.commands[15]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-critic-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-critic smoke passed: 52 assertions\\n\",\"durationMs\":112}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The new execution plan documents the stale-doc misclassification using the verified backfill case: plan-only doc, completed outcome doc, commit 2750aadef, and 656 backfilled signatures.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"Verified failure mode snapshot\\\\|2750aadef\\\\|656\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Failure-mode section documents the verified stale-doc incident and proof anchor (commit 2750aadef, 656 signatures).\",\"headHash\":\"cb9bb117110e486faeae020807d08ff44c42e905\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:12.272Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The failure-mode section distinguishes completed backfill data from the deferred causal/RCT parts of the Experience Layer record, so the plan does not overclaim that every experience-layer idea is complete.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"stale\\\\|re-?assign\\\\|plan-only\\\\|deferred\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Plan-only status is explicitly separated from proof and causal completion context.\",\"headHash\":\"68877971c6da87ad3e2959715e7737499c00d975\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:12.792Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The plan explicitly says hosts must not use old plan-only prose as proof that work is missing without checking current Lattice facts first.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"host.*must.*not.*treat\\\\|uncertain\\\\|proof\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Adversarial safeguard in doc requires revalidation before declaring pending work when only stale plan prose exists.\",\"headHash\":\"3b9726fcc1d661123476bc4c5e48e68b76c6cfb6\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:13.317Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The plan defines a source priority order where current Lattice state, DONE summaries, accepted outcome records, code/data evidence, and fresh validation outrank stale plan prose.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"truth-first contract\\\\|source priority\\\\|active story\\\\|done-summary\\\\|completionCommit\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"The contract section defines explicit source-priority order with done-completion facts above memory/advisory context.\",\"headHash\":\"c3dad9a9e2ad1bf938f046ee686d3aae148cd88c\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:15.462Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The contract preserves dev-memory and learning hints as advisory context, not gate evidence or Authority/production proof.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"dev-memory\\\\|learning_validate\\\\|advisory\\\\|not definitive\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"The contract explicitly marks dev-memory/learning signals as advisory only, not gate evidence.\",\"headHash\":\"b4a1363c8c26cf81131135ec3b5679e53bb42e12\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:15.990Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The contract includes a fail-closed wording rule: if a host only has stale plan prose, it must say it needs to verify current facts rather than telling the user to redo the task.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"should not ask\\\\|uncertain\\\\|must state uncertainty\\\\|legacy prose\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Contains fail-closed rule when only stale memory/doc prose is present; requires verification before asking to redo.\",\"headHash\":\"68b105f6260a8ddfcade9407ce6f35ac3f356004\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:16.519Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The plan breaks the solution into concrete implementation stories with owner, scope, deliverables, and acceptance checks for each story.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"Execution stories derived\\\\|Define parsing/consumption schema\\\\|Add one reusable preflight\\\\|Add explicit \\\\\\\"uncertain\\\\|acceptance checks\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Execution Stories section enumerates concrete follow-up stories, owners, scope, and delivery checks.\",\"headHash\":\"b69fbe123b39d6fa4da13febff16c177d44444e0\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:18.647Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The implementation plan handles historical/reference documents that should not be treated as stale active backlog, avoiding noisy false positives.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"historical\\\\|reference docs\\\\|noisy false positives\\\\|negative case\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Edge intent satisfied by handling historical docs explicitly to avoid noise while preserving references.\",\"headHash\":\"8d9445bdc8e1828baa2165cfcda174289be7b7cd\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:19.216Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The verification gates include a negative case where an old plan-only document says future work, but current DONE summary/data evidence proves completion, and the host must not ask the user to redo it.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"command\":\"rg -n \\\"host-level manual check\\\\|DONE summary\\\\|live facts\\\\|legacy completion\\\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md\",\"result\":\"pass\",\"note\":\"Acceptance section includes negative live-vs-doc mismatch check where stale pending claims must not be accepted.\",\"headHash\":\"ba0d297fe7562080086d899435eaa20380666487\",\"materialHash\":\"07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470\",\"storyFilesHash\":\"09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d\",\"timestamp\":\"2026-06-20T18:33:19.737Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T18:35:03.844Z",
+  "headHash": "1ccd010f6176018c2ccc0fbf8c08e59159264292",
+  "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+  "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The new execution plan documents the stale-doc misclassification using the verified backfill case: plan-only doc, completed outcome doc, commit 2750aadef, and 656 backfilled signatures.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Verified failure mode snapshot\\|2750aadef\\|656\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Failure-mode section documents the verified stale-doc incident and proof anchor (commit 2750aadef, 656 signatures).",
+          "headHash": "cb9bb117110e486faeae020807d08ff44c42e905",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The failure-mode section distinguishes completed backfill data from the deferred causal/RCT parts of the Experience Layer record, so the plan does not overclaim that every experience-layer idea is complete.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"stale\\|re-?assign\\|plan-only\\|deferred\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Plan-only status is explicitly separated from proof and causal completion context.",
+          "headHash": "68877971c6da87ad3e2959715e7737499c00d975",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.792Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The plan explicitly says hosts must not use old plan-only prose as proof that work is missing without checking current Lattice facts first.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"host.*must.*not.*treat\\|uncertain\\|proof\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Adversarial safeguard in doc requires revalidation before declaring pending work when only stale plan prose exists.",
+          "headHash": "3b9726fcc1d661123476bc4c5e48e68b76c6cfb6",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:13.317Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The plan defines a source priority order where current Lattice state, DONE summaries, accepted outcome records, code/data evidence, and fresh validation outrank stale plan prose.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"truth-first contract\\|source priority\\|active story\\|done-summary\\|completionCommit\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract section defines explicit source-priority order with done-completion facts above memory/advisory context.",
+          "headHash": "c3dad9a9e2ad1bf938f046ee686d3aae148cd88c",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.462Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The contract preserves dev-memory and learning hints as advisory context, not gate evidence or Authority/production proof.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"dev-memory\\|learning_validate\\|advisory\\|not definitive\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract explicitly marks dev-memory/learning signals as advisory only, not gate evidence.",
+          "headHash": "b4a1363c8c26cf81131135ec3b5679e53bb42e12",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.990Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The contract includes a fail-closed wording rule: if a host only has stale plan prose, it must say it needs to verify current facts rather than telling the user to redo the task.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"should not ask\\|uncertain\\|must state uncertainty\\|legacy prose\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Contains fail-closed rule when only stale memory/doc prose is present; requires verification before asking to redo.",
+          "headHash": "68b105f6260a8ddfcade9407ce6f35ac3f356004",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:16.519Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The plan breaks the solution into concrete implementation stories with owner, scope, deliverables, and acceptance checks for each story.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Execution stories derived\\|Define parsing/consumption schema\\|Add one reusable preflight\\|Add explicit \\\"uncertain\\|acceptance checks\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Execution Stories section enumerates concrete follow-up stories, owners, scope, and delivery checks.",
+          "headHash": "b69fbe123b39d6fa4da13febff16c177d44444e0",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:18.647Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The implementation plan handles historical/reference documents that should not be treated as stale active backlog, avoiding noisy false positives.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"historical\\|reference docs\\|noisy false positives\\|negative case\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Edge intent satisfied by handling historical docs explicitly to avoid noise while preserving references.",
+          "headHash": "8d9445bdc8e1828baa2165cfcda174289be7b7cd",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.216Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The verification gates include a negative case where an old plan-only document says future work, but current DONE summary/data evidence proves completion, and the host must not ask the user to redo it.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"host-level manual check\\|DONE summary\\|live facts\\|legacy completion\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Acceptance section includes negative live-vs-doc mismatch check where stale pending claims must not be accepted.",
+          "headHash": "ba0d297fe7562080086d899435eaa20380666487",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.737Z"
+        }
+      }
+    ]
+  }
+}
