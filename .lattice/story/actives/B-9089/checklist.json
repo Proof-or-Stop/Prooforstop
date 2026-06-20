@@ -233,7 +233,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The verification output includes passing smoke/guardrail checks for canonical env, host adapter bridge, generated token fallback, ppid degradation, lifecycle events, and material hygiene."
+      "userSees": "Verification prints \"✓ story-owner-lease smoke passed\" and \"PASS owner-session host-native env guardrail\" after `npm --prefix packages/main run build` succeeds.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/owner-session-guardrail.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build and focused smoke tests pass for canonical env, adapter bridge, generated token fallback, ppid degradation, owner gate, lifecycle events, and material hygiene.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The guardrail allows host-native env names only in adapter files, adapter tests/tasks, and documentation while blocking generic core matches.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A deliberately broad grep for CLAUDE/CODEX/AGY/ANTIGRAVITY session env names reports no forbidden generic-core matches.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
