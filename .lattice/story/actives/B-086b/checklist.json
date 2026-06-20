@@ -144,8 +144,8 @@
       "id": "CHK-004",
       "title": "Hermetic smoke proving the hard gate end-to-end: parallel overlap BLOCKS under mode=block, broad glob blocks (strict), clean disjoint passes, mode=off/advise do NOT block, config/gate-infra failure FAILS OPEN, unreadable peer contract under block refuses the parallel assertion",
       "context": "New packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts (follow the evidence-state-gate-smoke.ts temp-repo pattern OR a hermetic mock-store pattern). Assert canStartDevGuard returns false for a tier-1 declared-parallel overlap under mode=block; returns true for the same under mode=advise and mode=off; returns true for a clean disjoint wave; FAILS OPEN (returns true) when the gate sub-check throws (e.g. a config that makes resolveAuditConfig/peer-load throw); and getGuardFailureReason returns a message naming the block for the blocked case and null for the clean case. Register in lattice.config.json.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T08:27:07.084Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
