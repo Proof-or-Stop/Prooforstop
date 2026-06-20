@@ -1,0 +1,26 @@
+{
+  "task": "AuditConfig.parallelGate is declared but resolveAuditConfig does not populate it, so no operator config reaches the gate. Resolve it: per-profile defaults plus nested-object validation with soft fallbacks.",
+  "outcome": "Running node packages/main/dist/tasks/parallel-gate-config-smoke.js prints parallel-gate-config smoke passed: N assertions and lattice validate stays green. The smoke shows the 3 profile defaults (light advise/2/false, balanced advise/3/false, strict block/4/true), each sub-field override honored, mode off accepted, and each malformed sub-field warning and falling back without crashing.",
+  "facts": [
+    "audit-config.ts resolveAuditConfig(profile, projectRoot) computes profileDefaults then merges readUserConfig overrides per-field, with an early return of profileDefaults when there is no user config.",
+    "The existing flat per-scalar pattern (auditTriggerWindow/deprecatedGcThreshold positive-integer guard; mode against VALID_MODES) does NOT recurse into nested objects.",
+    "AuditConfig.parallelGate is an optional ParallelGateConfig (Story 0); resolveAuditConfig must populate it (Story 3).",
+    "VALID_PARALLEL_MODES, ParallelGateConfig and ParallelGateMode are exported from parallel-decomposition.ts (single source).",
+    "spec 4.7 table: light advise/2/false, balanced advise/3/false, strict block/4/true; an invalid mode falls back to advise (NOT the profile default); an invalid maxConcurrentReview falls back to the profile default; a missing or non-object parallelGate yields all profile defaults."
+  ],
+  "constraints": [
+    "Reuse the existing positive-integer guard and console.warn-fallback discipline; a config-load failure fails SOFT to profile defaults and never crashes or DoSes resolution.",
+    "mode validated against VALID_PARALLEL_MODES (NOT VALID_MODES, which is typed ReadonlySet<AuditMode> and cannot validate advise|block|off); an invalid mode falls back to the advise PARALLEL_MODE_FALLBACK.",
+    "A dedicated resolveParallelGate helper validates the nested object field-by-field; the flat per-scalar path would silently skip every nested sub-field check.",
+    "Only touch audit-config.ts plus the smoke plus lattice.config.json (disjoint from Story 4 and Story 5)."
+  ],
+  "unknowns": [
+    "resolveParallelGate signature: spec 4.7 illustrates one param (raw?), but a two-param form resolveParallelGate(raw, profileDefault) keeps the helper pure and decoupled from the profile-default table (INIT-001). Decided: use the two-param form and document the deliberate improvement."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/audit-config.ts (PARALLEL_GATE_PROFILE_DEFAULTS table + resolveParallelGate helper + populate merged.parallelGate)",
+    "packages/main/src/tasks/parallel-gate-config-smoke.ts (NEW hermetic smoke)",
+    "lattice.config.json (register smoke)"
+  ],
+  "timestamp": "2026-06-20T05:20:14.717Z"
+}
