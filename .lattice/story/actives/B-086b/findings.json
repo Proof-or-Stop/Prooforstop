@@ -69,6 +69,23 @@
       ],
       "signatureTag": "cleanup|ts|minor-formatparalleldecompositionblock-overlap",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-086b:F-005",
+      "desc": "MINOR (migration hazard, gate is FROZEN/Story-2 so DOCUMENT only): a legacy active peer carrying parallelSafe='yes' but with NO scope-contract.json (never ran scope_contract_set) is absent from the contracts map, so under mode=block the gate fires peer_contract_unreadable_parallel and hard-blocks an UNRELATED self story sharing the wave. This is fail-closed by §4.8 design (closes the corrupt-peer bypass) but is a real migration surprise when flipping mode=block in an existing repo. Out of S5 scope to change the frozen gate; resolve by documenting the hazard (e.g. in the spec/release notes: mode=block requires every active parallelSafe=yes story to carry a scope contract).",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "claude-completeness-critic",
+      "createdAt": "2026-06-20T08:46:08.299Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "219a6f59be3c660b4e083f43ea0a7d029f7c2ba931acbb9102757a49f2c0033e",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-gate.ts"
+      ],
+      "signatureTag": "adversarial|ts|minor-migration-hazard",
+      "signatureTagSource": "auto"
     }
   ]
 }
