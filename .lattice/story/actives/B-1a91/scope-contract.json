@@ -1,0 +1,25 @@
+{
+  "storyId": "B-1a91",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/experience-revalidation.ts",
+    "packages/main/src/handlers/learning-validate.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+    "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/version-bump.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Auto-refresh hook in done-effects + watermark in finding-signals/types + gap report in experience-revalidation/learning-validate + 2 smokes; learning-store resolver (B-37b3) and version-bump must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T08:55:00.064Z",
+  "updatedAt": "2026-06-20T08:55:00.064Z"
+}

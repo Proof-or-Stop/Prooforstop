@@ -1,0 +1,122 @@
+{
+  "storyId": "B-1a91",
+  "checkedAt": "2026-06-20T08:56:12.052Z",
+  "features": [
+    {
+      "feature": "Add never-throw advisory finding-signals cache re-derive to applyDoneMergeEffects after the DONE merge",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Run the cache re-derive on EVERY DONE merge (no code-change gate; not conditional on shouldBuildDoneMainPackageForChangedPaths)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Write derived cache to canonical MAIN checkout via resolveLearningRoot (B-37b3), not a worktree-local path",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrap re-derive in try/catch so a failure is swallowed and never blocks/throws during the DONE merge",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Append an advisory mergeLines status line (\"experience cache refreshed (N signals)\" or \"experience cache refresh skipped: <reason>\")",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not modify learning-store.ts (B-37b3 resolver) or version-bump.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test for DONE merge auto-refresh: cache updatedAt advances, advisory line appears, derive failure is swallowed (never-block control)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke integrates into full npm test suite (npm test exits 0 with new smoke in the chain)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Coverage watermark on the cache: coveredStoryCount, coveredFindingCount, coveredThrough fields on FindingSignalsCache type",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "learning_validate reports coverage gap by comparing persisted watermark vs current store counts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Back-compat: cache without watermark fields degrades to \"coverage unknown — run learning_scan\" (never crashes)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke for coverage gap: after adding a finding without re-scan gap is non-zero; after learning_scan gap=0",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Cron or CI schedule as the cache-refresh trigger (rejected alternative)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json: cron-or-CI-schedule option rejected (cons: unreliable, misses the just-merged story, lag, out-of-band like today)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Pre-REVIEW agent step as the cache-refresh trigger (rejected alternative)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json: pre-review-agent-step option rejected (cons: depends on agent remembering — the exact failure we are removing)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Proactive CI/cron gap notification when cache falls behind (noted future follow-up, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "init-check I-1 (severity: low): acceptable for this story scope (detectable+recoverable); flagged as a future consideration only",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4a12153c220f612026a4a20db9dfc08b0bcece88432a88df0c2664df9580b012",
+  "openQuestions": []
+}
