@@ -204,7 +204,7 @@
       "desc": "CHK-001:edge:0 and CHK-002:edge:0: both intents claim the smoke verifies that a warn is emitted to console when an invalid mode is supplied. The smoke never captures or asserts on console.warn output (no spy, no mock, no stderr capture). The warn side-effect is visible in the validate run output only because audit-config.ts calls console.warn unconditionally; the smoke does not include any assertion that the warning was actually emitted. The \"warns\" half of the warn+fallback contract is unverified by the smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:35:04.867Z",
@@ -216,7 +216,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "missing|ts|edge-edge-both",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: captureWarn() helper added; CHK-001:edge:0 + CHK-002:edge:0 now assert warn emission at both the direct helper (cases 4-6) and the resolveAuditConfig integration path (cases 13/13c/13d).",
+      "resolvedAt": "2026-06-20T06:39:24.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-011",
