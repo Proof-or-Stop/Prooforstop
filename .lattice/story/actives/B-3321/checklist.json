@@ -90,9 +90,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T06:58:29.354Z",
       "files": {
         "modify": [],
         "create": [
@@ -133,7 +133,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"doneRequiredCommands|validationProfiles|done-required-validation|hash-bound evidence\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document proposes a dedicated DONE/release-required validation profile or equivalent doneRequiredCommands, with fresh hash-bound evidence and a dedicated DONE row.",
+          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:29.529Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"External Project Behavior|opt-in|configurable|Self-host behavior\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document separates external project opt-in/advisory behavior from Orchestrate self-host required policy.",
+          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:29.656Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "command": "rg -n \"Do not simply append|schema/config|runner|process-fact|done-oracle|smoke\" docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Document rejects appending npm test to routine validate.commands as the final fix and lists mechanical implementation touchpoints including schema, runner, done-oracle row, config, docs, smokes, and migration.",
+          "headHash": "96a5a7b2f91754b2867d7d819cca6871a4e54c9d",
+          "materialHash": "8c0ad51318fbcccd609d81506e750e45f67832766859b04a66e0e455f2146216",
+          "storyFilesHash": "abb15a8c4ed0650fb4da3f9a33428ba3e019dced0f5f335e9e78d957af116798",
+          "timestamp": "2026-06-20T06:58:29.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -187,6 +225,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Document committed in f0260da5 and verified against CHK-001 intents."
+    },
+    {
+      "timestamp": "2026-06-20T06:58:29.354Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Document committed in f0260da5 and verified against CHK-002 intents."
     }
   ]
 }
