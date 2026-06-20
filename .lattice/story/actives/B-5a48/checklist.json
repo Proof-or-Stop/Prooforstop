@@ -182,9 +182,9 @@
       "title": "Smoke: ON renders + OFF byte-identical + lossless events + cross-site dedup + resolveReviewPromptHash invariant",
       "context": "Add packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts (auto-discovered by run-all-smokes.ts; mirror experience-layer-ab-shadow-gate-smoke.ts structure) asserting: (a) ON-arm story (storyId whose sha256 first byte is even) WITH finding-signals → buildNextSteps REVIEW text CONTAINS the rendered hints section AND exactly one experience_hint_surfaced event with hintMode:'on' + full hintIds; (b) OFF-arm story → REVIEW text BYTE-IDENTICAL to the no-hints baseline (no rendered section) AND exactly one event hintMode:'off' carrying full hintIds (lossless measurement); (c) CROSS-SITE DEDUP: run story_review (PLAN, plan:<phase> event) then advance to REVIEW + buildNextSteps for the SAME story → assert the REVIEW round fires its OWN single event under the ISO currentReviewRound key (disjoint from plan:<phase>), and re-running buildNextSteps in the same REVIEW round adds NO second event; assert the REVIEW event.reviewRound equals the ISO currentReviewRound (NOT plan:<phase>) — guards the ordering dependency; (d) INVARIANT: capture resolveReviewPromptHash / review-run output for an ON vs OFF story (same inputs except arm) and assert BYTE-IDENTICAL. Add a golden assertion (here or extend experience-layer-ab-shadow-gate-smoke.ts) that story-review.ts _reviewPrompt bytes + event payload are byte-unchanged before/after the leaf extraction. Add package.json script alias test:experience-layer-review-dispatch-hint. Build (tsc) + run full smoke suite + lifecycle-registry-contract (must stay green WITHOUT edits — no new command).",
       "userSees": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js prints lines ending with \"✓ experience-layer-review-dispatch-hint smoke passed (N checks)\" and exits 0; `npm test` prints \"✓ ALL PASS\" and exits 0 with the new smoke auto-discovered; the lifecycle-registry-contract smoke prints its pass line UNCHANGED (no new command).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:19:37.067Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:34:23.063Z",
       "verificationIntent": {
         "happy": [
           {
@@ -219,7 +219,45 @@
         "test": [
           "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "Smoke exits 0 (7/7 checks); auto-discovered by run-all-smokes (PASS experience-layer-review-dispatch-hint 1.7s); full npm test exits 0 with ALL PASS.",
+          "headHash": "5ced0400c2434b6d5f56ceacb80de109ffd485ff",
+          "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
+          "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
+          "timestamp": "2026-06-20T12:34:23.255Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "Cross-site dedup check: PLAN story_review fires plan:PLAN event; same story advanced to REVIEW + buildNextSteps fires one event under the ISO currentReviewRound key (disjoint); second buildNextSteps adds no event; REVIEW event.reviewRound equals the ISO key (not plan:<phase>).",
+          "headHash": "5ced0400c2434b6d5f56ceacb80de109ffd485ff",
+          "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
+          "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
+          "timestamp": "2026-06-20T12:34:23.434Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-registry-contract.js",
+          "result": "pass",
+          "note": "resolveReviewPromptHash byte-identical ON vs OFF (smoke check d); lifecycle-registry-contract green WITHOUT edits (0 divergences); no command-policy/registry/catalog files in the diff; process-fact-contract green in npm test.",
+          "headHash": "5ced0400c2434b6d5f56ceacb80de109ffd485ff",
+          "materialHash": "f6c336545f8f3f9187fe0bbc4d54a27e3c40eca5993e1c42525a5a0df2abc897",
+          "storyFilesHash": "3f1ad0f3ad452fe789f92a85250aa4e7ece2e7e9b8addf4bc0ff041263b1302d",
+          "timestamp": "2026-06-20T12:34:23.611Z"
+        }
+      ]
     }
   ]
 }
