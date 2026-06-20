@@ -85,6 +85,27 @@
       ],
       "signatureTag": "missing|ts|adversarial-verificationintent-requires",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ac25:F-005",
+      "desc": "AGENTS.md remains a stale truth source for validation flow: AGENTS.md:561 says current validation is unified through `lattice validate`, while B-ac25 adds a separate opt-in DONE-required evidence path (`done_required_validate`) documented in testing-infra.md:53-57 and story-lifecycle.md:191/274-275. Because AGENTS.md is the project-level instruction file, later agents can be told to rely only on ordinary `lattice validate` and miss the DONE-required evidence command or overstate full-suite assurance. Update AGENTS.md to distinguish routine TEST `lattice validate` from opted-in DONE-required `lattice done_required_validate --storyId=<id>`, including advisory/no-full-suite behavior when no policy exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T10:53:17.487Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-015",
+      "_hash": "8a80368e2a35a767616d16794bfa986308966973ea83ee86d9b877b255bf39ff",
+      "files": [
+        "AGENTS.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|agents-remains-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
