@@ -97,7 +97,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The execution plan contains a section named \"Implementation Stories and Gates\" with concrete follow-up stories for supersession metadata, handoff preflight fact packs, dev-memory injection, stale-plan warnings, and their verification commands.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md",
+          "docs/guide.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The plan breaks the solution into concrete implementation stories with owner, scope, deliverables, and acceptance checks for each story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The implementation plan handles historical/reference documents that should not be treated as stale active backlog, avoiding noisy false positives.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification gates include a negative case where an old plan-only document says future work, but current DONE summary/data evidence proves completion, and the host must not ask the user to redo it.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
