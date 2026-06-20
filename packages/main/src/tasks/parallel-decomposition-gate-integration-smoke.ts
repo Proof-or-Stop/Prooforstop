@@ -28,7 +28,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { canStartDevGuard, canSkipPlanGuard, getGuardFailureReason } from '../core/machine.js';
+import { canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, getGuardFailureReason } from '../core/machine.js';
 import type { StoryMachineContext } from '../core/machine.js';
 import type { ChecklistData, ReviewData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { ParallelGateMode } from '../core/parallel-decomposition.js';
@@ -148,6 +148,9 @@ function buildRepo(opts: {
   /** An optional EXTRA terminal (DONE) parallel peer that also overlaps self — used to prove the
    *  failure message names the ACTIVE peer, not the terminal one. Sorts earlier than B-peer. */
   doneOverlapPeerId?: string;
+  /** Additional ACTIVE (phase=DEV) parallelSafe=yes peers with explicit write-sets — for F-007
+   *  (a tier-2-wildcard-only peer that must NOT be named as a literal collision). */
+  extraPeers?: Array<{ id: string; modify: string[]; create: string[] }>;
 }): { root: string; store: StoryStore; context: StoryMachineContext } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-pdgi-'));
   write(root, 'lattice.config.json', JSON.stringify({
@@ -189,6 +192,11 @@ function buildRepo(opts: {
     // A DONE (terminal) parallelSafe=yes peer whose write-set ALSO literally overlaps self.
     store.writeStory(opts.doneOverlapPeerId, story(opts.doneOverlapPeerId, 'DONE', 'yes'));
     store.writeScopeContract(opts.doneOverlapPeerId, contract(opts.doneOverlapPeerId, opts.selfModify, []));
+  }
+
+  for (const extra of opts.extraPeers ?? []) {
+    store.writeStory(extra.id, story(extra.id, 'DEV', 'yes'));
+    store.writeScopeContract(extra.id, contract(extra.id, extra.modify, extra.create));
   }
 
   if (opts.corruptPeerStory) {
@@ -581,6 +589,99 @@ function assertTerminalPeerNotNamed(): void {
   }
 }
 
+// ── F-006: ROLLBACK doors REVIEW→DEV and TEST→DEV must enforce the parallel block too ──
+function assertRollbackDoorsEnforce(): void {
+  for (const phase of ['REVIEW', 'TEST'] as const) {
+    // overlap + mode=block => canReenterDevGuard FALSE AND getGuardFailureReason renders the block.
+    const { root, store, context } = buildRepo({
+      parallelMode: 'block',
+      selfPhase: phase,
+      selfParallelSafe: 'yes',
+      peerParallelSafe: 'yes',
+      selfModify: ['src/core/shared.ts'],
+      selfCreate: [],
+      peerModify: ['src/core/shared.ts'], // tier-1 literal collision
+      peerCreate: [],
+      review: cleanReview(SELF_ID), // a real rollback story may carry a clean review; must be IGNORED
+    });
+    try {
+      check(`F-006: ${phase}→DEV rollback + overlap -> canReenterDevGuard FALSE`, canReenterDevGuard(context) === false);
+      const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root);
+      check(`F-006: ${phase}→DEV rollback -> getGuardFailureReason renders the parallel block + names peer`,
+        /overlap_declared_parallel/.test(reason ?? '') && (reason ?? '').includes(PEER_ID));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+    // disjoint => allowed (no phantom block on a clean rollback).
+    const ok = buildRepo({
+      parallelMode: 'block',
+      selfPhase: phase,
+      selfParallelSafe: 'yes',
+      peerParallelSafe: 'yes',
+      selfModify: ['src/core/self-a.ts'],
+      selfCreate: [],
+      peerModify: ['src/core/peer-a.ts'],
+      peerCreate: [],
+      review: cleanReview(SELF_ID),
+    });
+    try {
+      check(`F-006: ${phase}→DEV rollback + disjoint -> canReenterDevGuard TRUE`, canReenterDevGuard(ok.context) === true);
+      const reason = getGuardFailureReason(SELF_ID, ok.store, 'DEV', ok.root);
+      check(`F-006: ${phase}→DEV rollback + disjoint -> no parallel message`, !/parallel-decomposition/.test(reason ?? ''));
+    } finally {
+      rmSync(ok.root, { recursive: true, force: true });
+    }
+  }
+  // FAIL-OPEN on the rollback door: corrupt peer (gate throws) + REVIEW phase => allowed.
+  const fo = buildRepo({
+    parallelMode: 'block',
+    selfPhase: 'REVIEW',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'],
+    peerCreate: [],
+    review: cleanReview(SELF_ID),
+    corruptPeerStory: true,
+  });
+  try {
+    check('F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE', canReenterDevGuard(fo.context) === true);
+    const reason = getGuardFailureReason(SELF_ID, fo.store, 'DEV', fo.root);
+    check('F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch', reason === null);
+  } finally {
+    rmSync(fo.root, { recursive: true, force: true });
+  }
+}
+
+// ── F-007: the formatter must name the TIER-1 LITERAL-collision peer, not a tier-2 wildcard peer ──
+// A wildcard-only peer (B-aaaa, sorts earliest) shares an identical wildcard with self (src/x/*) —
+// a tier-2 pair where a===b — but has NO literal collision. The real block is B-peer's literal
+// collision. The old `pairs.find(([a,b])=>a===b)` would mis-name B-aaaa; the fix names B-peer.
+function assertFormatterNamesLiteralPeer(): void {
+  const WILDCARD_PEER = 'B-aaaa'; // sorts before B-peer; shares src/x/* (tier-2 only)
+  const { root, store, context } = buildRepo({
+    parallelMode: 'block',
+    selfParallelSafe: 'yes',
+    peerParallelSafe: 'yes',
+    selfModify: ['src/x/*', 'src/core/shared.ts'],
+    selfCreate: [],
+    peerModify: ['src/core/shared.ts'], // B-peer: genuine tier-1 literal collision
+    peerCreate: [],
+    review: cleanReview(SELF_ID),
+    extraPeers: [{ id: WILDCARD_PEER, modify: ['src/x/*'], create: [] }], // tier-2 wildcard only, no literal
+  });
+  try {
+    check('F-007: literal-collision -> canStartDevGuard FALSE', canStartDevGuard(context) === false);
+    const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root) ?? '';
+    check('F-007: message names the LITERAL-collision peer (B-peer)', reason.includes(PEER_ID));
+    check('F-007: message cites the literal path, not the wildcard', reason.includes('src/core/shared.ts'));
+    check('F-007: message does NOT name the tier-2 wildcard-only peer', !reason.includes(WILDCARD_PEER));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertOverlapBlocks();
 assertDisjointPasses();
 assertAdviseAndOffDoNotBlock();
@@ -593,5 +694,7 @@ assertLightProfileStillEnforces();
 assertExpressChannelEnforces();
 assertNegativeBlockerCountStillBlocks();
 assertTerminalPeerNotNamed();
+assertRollbackDoorsEnforce();
+assertFormatterNamesLiteralPeer();
 
 console.log(`parallel-decomposition-gate-integration smoke passed: ${passed} assertions`);

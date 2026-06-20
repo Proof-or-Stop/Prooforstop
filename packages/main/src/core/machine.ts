@@ -6,7 +6,7 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
 import { resolveAuditConfig } from './audit-config.js';
-import { evaluateDecompositionGate, globsOverlap, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
+import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './lattice-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
@@ -337,10 +337,58 @@ function parallelDecompositionEnforcedBlock(
 }
 
 /**
+ * F-006: the SINGLE fail-open wrapper applied to EVERY door into DEV. There are four START→DEV
+ * doors (lifecycle-registry PHASE_EVENT_BY_TARGET DEV:'START'): INIT_CHECK→DEV (canSkipPlanGuard),
+ * PLAN→DEV (canStartDevGuard), and the rollback transitions REVIEW→DEV + TEST→DEV
+ * (canReenterDevGuard). All four must enforce the same parallel hard-block under mode='block'.
+ *
+ * Returns the enforced block to refuse DEV entry, or null (allow). NEVER throws and NEVER blocks
+ * on an infra error: a missing projectRoot or any gate/config/store error degrades to null
+ * (fail-open, spec §4.8) so a gate/config infra error can never strand ANY door into DEV.
+ */
+function parallelDevEntryBlock(
+  store: StoryStore,
+  projectRoot: string | undefined,
+  story: StoryInfo,
+  profile: WorkflowProfile,
+): ParallelDecompositionBlock | null {
+  if (!projectRoot) return null;
+  try {
+    return parallelDecompositionEnforcedBlock(store, projectRoot, story, profile);
+  } catch {
+    return null; // FAIL-OPEN: a gate/config/store error must NEVER block any DEV door (spec §4.8)
+  }
+}
+
+/**
+ * F-007: a write-set entry is LITERAL (tier-1 eligible) iff it carries no trailing `/*` or `/**`.
+ * Local mirror of parallel-decomposition-gate.ts's internal `isLiteralPath` (that module is frozen
+ * and the predicate is not exported) so the formatter names the peer the gate ACTUALLY blocked on.
+ */
+function isLiteralWriteSetEntry(entry: string): boolean {
+  return !entry.endsWith('/*') && !entry.endsWith('/**');
+}
+
+/**
+ * F-007: the FIRST entry that is present-and-literal in BOTH write-sets — i.e. a genuine tier-1
+ * literal collision (zero false positives), the only tier the gate hard-blocks on. Returns null
+ * when there is no literal collision (so the formatter skips a peer with only tier-2 wildcard/
+ * shared-prefix overlap). Mirrors the gate's `literalCollisions`.
+ */
+function firstLiteralCollision(a: string[], b: string[]): string | null {
+  const litB = new Set(b.filter(isLiteralWriteSetEntry));
+  for (const e of a) {
+    if (isLiteralWriteSetEntry(e) && litB.has(e)) return e;
+  }
+  return null;
+}
+
+/**
  * Map an enforced parallel-decomposition block to an actionable PLAN→DEV failure message.
  * Names the colliding peer / broad glob where it is cheap to recompute (overlap recomputes
- * the literal collision against active parallel peers via the same write-sets/globsOverlap
- * the gate used). Never throws: any recompute failure degrades to a general message.
+ * the TIER-1 LITERAL collision against active parallel peers, mirroring the gate, so it never
+ * cites a tier-2 wildcard pair or names the wrong peer). Never throws: any recompute failure
+ * degrades to a general message.
  */
 function formatParallelDecompositionBlock(
   block: ParallelDecompositionBlock,
@@ -366,10 +414,11 @@ function formatParallelDecompositionBlock(
             if (peer.parallelSafe !== 'yes') continue;
             const pContract = safeReadScopeContract(store, id);
             if (!pContract) continue;
-            const res = globsOverlap(sWriteSet, computeWriteSet(pContract));
-            const literalPair = res.pairs.find(([a, b]) => a === b);
-            if (literalPair) {
-              detail = ` with parallel peer ${id} (e.g. ${literalPair[0]})`;
+            // F-007: only a genuine TIER-1 literal collision (not a tier-2 wildcard/shared-prefix
+            // pair) is what the gate hard-blocks on — name only a peer that actually has one.
+            const literal = firstLiteralCollision(sWriteSet, computeWriteSet(pContract));
+            if (literal !== null) {
+              detail = ` with parallel peer ${id} (e.g. ${literal})`;
               break;
             }
           }
@@ -436,13 +485,11 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
       // NOT be treated as clean. This restores the original `=== 0` semantics exactly.
       if ((lastRound.blockerCount ?? lastRound.issueCount) !== 0) return false;
     }
-    // Parallel-decomposition hard block (spec §4.8): a FAIL-OPEN sub-check in its OWN nested
-    // try/catch, ALWAYS reached (regardless of requireStoryReview). A gate/config infra error
-    // must NEVER block PLAN→DEV, so the catch falls through to `return true` below — it must
-    // NOT return false. The outer review gate stays fail-closed.
-    try {
-      if (parallelDecompositionEnforcedBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
-    } catch { /* FAIL-OPEN: a gate/config infra error must NEVER block PLAN→DEV (spec §4.8) */ }
+    // Parallel-decomposition hard block (spec §4.8) via the shared FAIL-OPEN wrapper, ALWAYS
+    // reached (regardless of requireStoryReview). The wrapper never throws and returns null on any
+    // infra error, so this can never block PLAN→DEV on a gate/config error. The review gate above
+    // stays fail-closed.
+    if (parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
     return true;
   } catch {
     return false;
@@ -460,14 +507,30 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
     // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
-    // SAME parallel-decomposition hard block (otherwise an express story bypasses the gate).
-    // Same FAIL-OPEN discipline: a gate/config infra error must never strand the express channel.
-    try {
-      if (parallelDecompositionEnforcedBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
-    } catch { /* FAIL-OPEN: a gate/config infra error must NEVER block the express channel into DEV (spec §4.8) */ }
+    // SAME parallel hard-block (otherwise an express story bypasses the gate). Shared FAIL-OPEN
+    // wrapper: a gate/config infra error must never strand the express channel.
+    if (parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
+ * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
+ * ARE doors into DEV, so they must enforce the SAME parallel hard-block under mode='block'.
+ * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
+ * must never be stranded by a gate/config error), via parallelDevEntryBlock + the outer catch.
+ */
+export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = context.store.readStory(context.storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+    return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
+  } catch {
+    return true; // FAIL-OPEN: an infra error must never block a rollback into DEV (spec §4.8)
   }
 }
 
@@ -607,9 +670,11 @@ export function canSendStoryEventWithoutSnapshotCan(
     case 'DEV':
       return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
     case 'REVIEW':
-      return eventType === 'START' || (eventType === 'REVIEW_PASS' && canPassReviewGuard(context));
+      // F-006: REVIEW→DEV rollback must consult canReenterDevGuard so this non-xstate path agrees
+      // with the machine guard (the parallel block holds on the rollback door too).
+      return (eventType === 'START' && canReenterDevGuard(context)) || (eventType === 'REVIEW_PASS' && canPassReviewGuard(context));
     case 'TEST':
-      return eventType === 'START' || (eventType === 'FINISH' && canFinishGuard(context));
+      return (eventType === 'START' && canReenterDevGuard(context)) || (eventType === 'FINISH' && canFinishGuard(context));
     default:
       return false;
   }
@@ -639,6 +704,8 @@ export const storyMachine = setup({
     canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
     canStartDev: ({ context }) => canStartDevGuard(context),
     canSkipPlan: ({ context }) => canSkipPlanGuard(context),
+    // F-006: REVIEW→DEV and TEST→DEV rollbacks are also doors into DEV — enforce the parallel block.
+    canReenterDev: ({ context }) => canReenterDevGuard(context),
     canPassReview: ({ context }) => canPassReviewGuard(context),
     canFinish: ({ context }) => canFinishGuard(context),
   },
@@ -690,6 +757,7 @@ export const storyMachine = setup({
         },
         START: {
           target: 'DEV',
+          guard: 'canReenterDev', // F-006: rollback REVIEW→DEV must still enforce the parallel block
         },
       },
     },
@@ -701,6 +769,7 @@ export const storyMachine = setup({
         },
         START: {
           target: 'DEV',
+          guard: 'canReenterDev', // F-006: rollback TEST→DEV must still enforce the parallel block
         },
       },
     },
@@ -797,6 +866,10 @@ export function getGuardFailureReason(
     // story-review record gate does NOT apply (express skips review), so the review-reason block
     // below must be skipped — otherwise an eligible express story shows a spurious "no review
     // record" message instead of the real (parallel-decomposition) reason it was blocked on.
+    // F-006: the same holds for the REVIEW→DEV and TEST→DEV ROLLBACK doors — a rollback does not
+    // re-demand a clean review (canReenterDevGuard applies ONLY the parallel check), so the review
+    // block must be skipped for those phases too, leaving the parallel reason to render below.
+    const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
     let tookExpressChannel = false;
     if (story.phase === 'INIT_CHECK') {
       // Express channel failure reasons — read WorkflowPolicy
@@ -830,8 +903,9 @@ export function getGuardFailureReason(
     }
 
     // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it).
-    // Skipped entirely for an express-channel story (review does not apply there).
-    if (!tookExpressChannel) try {
+    // Skipped entirely for an express-channel story AND for a rollback door (review does not apply
+    // to either) — both fall straight through to the parallel-decomposition message below.
+    if (!tookExpressChannel && !isRollbackDoor) try {
       const config2 = loadConfig(projectRoot);
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
