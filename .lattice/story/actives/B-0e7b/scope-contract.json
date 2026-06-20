@@ -1,0 +1,21 @@
+{
+  "storyId": "B-0e7b",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/adversarial-review-spec.md"
+  ],
+  "allowedCreate": [
+    "docs/adversarial-review-spec.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/machine.ts",
+    "any lattice-review-* lane code",
+    "packages/main/src/core/parallel-decomposition.ts"
+  ],
+  "scopeChangeReason": "Spec/doc-only story: the single deliverable is docs/adversarial-review-spec.md; no code.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T10:52:13.303Z",
+  "updatedAt": "2026-06-20T10:52:13.303Z"
+}

@@ -1,0 +1,25 @@
+{
+  "task": "Produce docs/adversarial-review-spec.md — a contract-first design spec for an adversarial multi-lens review capability (dimensional lenses + per-finding adversarial verification + completeness critic) for Lattice, with the implementation-program breakdown.",
+  "outcome": "Opening docs/adversarial-review-spec.md shows a complete design spec: §1 Motivation + Empirical Evidence (citing, with correct attribution, the defects found during the parallel-decomposition program — S4/B-fa7c corrupt-contract wave crash found by the quality+crashsafe dimensional lenses; S5/B-086b express-channel + REVIEW/TEST-rollback gate-bypass doors found by the completeness critic; B-b29e read-only over-registration found by the critic); §2/§3 the Methodology with precise data shapes (lens, finding{severity,file,line,issue,fix}, verdict{isReal,agreedSeverity,reasoning}, the M-skeptic default-refute majority-confirm rule, the completeness-critic contract, the convergence criterion); §4 the Lattice integration contract composing lattice-review-* lanes + review_run/pass/finding + the full-3x2 escalation, with an explicit MVP-vs-future split + the local-host-verdicts-are-not-Authority-receipts honesty note; §5 the contract-first implementation-program breakdown (the build stories with deps + acceptance). A reader finishing it can execute the build program. lattice validate stays green (no code changed).",
+  "facts": [
+    "The methodology was run via a multi-agent Workflow during B-fa7c/B-086b/B-b29e REVIEW and repeatedly out-found single-pass review. Correct attribution (per the merged findings): B-fa7c F-002 (corrupt-contract wave crash) filed by claude-quality (a dimensional lens); the completeness critic filed the test-coverage gap. B-086b F-003 (express bypass) + F-006 (REVIEW/TEST rollback bypass) filed by claude-completeness-critic. B-b29e F-001 (read-only over-registration) by claude-completeness-critic.",
+    "Lattice review substrate already exists: lattice-review-* lanes, review_run_start/review_pass_set/finding_add, and the full-3x2 escalation = 3 rounds x 2 independent PASS hosts (claude-code + codex) via autopilot_review_submit. Local host verdicts are NOT Authority Server receipts (must be stated honestly in the spec).",
+    "The Workflow patterns this generalizes: dimensions->find->adversarially-verify; completeness critic; loop-until-dry. The spec must define these as a Lattice review MODE, not depend on the harness Workflow tool.",
+    "full-3x2 = 3 distinct review rounds x 2 independent PASS hosts; the spec must define how a critic-reopened round interacts with that escalation ledger + materialHash freshness."
+  ],
+  "constraints": [
+    "Spec/doc-only: the ONLY deliverable is docs/adversarial-review-spec.md; NO code, no change to existing Lattice review code or the frozen parallel-decomposition code.",
+    "The spec must be standalone-readable: define full-3x2, the lens set, map S4/S5 to story IDs, attribute each cited defect to the component that actually found it (INIT-003).",
+    "Must be contract-first: §5 freezes the build program (data shapes + story breakdown).",
+    "Must honestly separate MVP from not-yet-implemented future surfaces, and note local verdicts != Authority receipts."
+  ],
+  "unknowns": [
+    "The exact MVP boundary (documented reusable orchestration + minimal hooks vs a first-class CLI review mode) — resolve in §4.",
+    "How a critic-reopened round binds to the full-3x2 escalation ledger (new runId vs annotation) — resolve in §4.",
+    "Whether to build atop the existing lattice-review-* lanes or a new lane type — resolve in §3/§4."
+  ],
+  "touchpoints": [
+    "docs/adversarial-review-spec.md"
+  ],
+  "timestamp": "2026-06-20T10:56:00.745Z"
+}

@@ -12,4 +12,4 @@ Spec-first (this story) vs build-first: the methodology has real design decision
 
 ## Conversation Texture
 
-The operator explicitly observed that the 5-lens Workflow + completeness critic was '更狠' (materially stronger) than single-pass lanes, and asked to both flag it and build it as a story, with documentation, to completion. They confirmed the concept = dimensional lenses + adversarial verification (+ the completeness critic). This spec story is the documentation deliverable; it must be standalone-readable, cite the concrete S4/S5/B-b29e evidence, and define the build program so implementation can proceed contract-first.
+The operator explicitly observed that the 5-lens Workflow + completeness critic was materially stronger than single-pass lanes, and asked to both flag it and build it as a story, with documentation, to completion. They confirmed the concept = dimensional lenses + adversarial verification (+ the completeness critic). This spec story is the documentation deliverable; it must be standalone-readable, cite the concrete S4/S5/B-b29e evidence, and define the build program so implementation can proceed contract-first.

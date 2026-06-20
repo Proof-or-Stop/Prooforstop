@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-0e7b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Completeness/buildability review passed. All 5 dimensions checked: (1) FINDING and VERDICT schemas fully typed in §2.2/§2.3; LENS left as a table (not a frozen type) but S0 explicitly codifies it — MINOR, not a blocker. (2) Adversarial verification rule precise: M skeptics, refute-by-default, 1-of-2 threshold default with explicit tradeoff, NOT_A_DEFECT drop rule, all unambiguous. Completeness-critic contract (input/job/output) fully stated. Convergence criterion (§3.1) three conditions listed unambiguously. (3) §5 fully buildable: each of S0–S4 has scope, dependency, and acceptance criterion; none are title-only; MVP/FUTURE boundary frozen in §4.4. (4) §3.3 explicitly states mode is composed of agents, not tied to a specific harness tool. (5) All 4 promised sections (§1 motivation+evidence, §2 methodology+shapes, §3+§4 integration+MVP, §5 build-program) present and substantive. Promised CLI primitives (review_run_start, finding_add, review_pass_set, autopilot_review_submit) all verified to exist in packages/main/src/cli/command-catalog.ts and handlers. No doc-promise-undelivered found. Zero BLOCKER or MAJOR issues. VERDICT: PASS.",
+      "createdAt": "2026-06-20T11:03:37.473Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-001",
+      "_hash": "45edfe2d7647f63f4991208e71aaafb50dfa65c4d88d8ab8d2012b09cf838ffe"
+    },
+    {
+      "id": "B-0e7b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs review: 5 verification points all pass. (1) §4.2 ledger mapping correct+complete vs real finding_add args: BLOCKER->critical/MAJOR->high/MINOR->medium, {title,issue,fix}->desc, file->files[], category, reviewRunId, agent — no abstract severity reaches Zod enum. storyId is ambient context, not a methodology Finding field. (2) §4.1 lists exactly the 6 real review_run_start --lane values (concept/quality/test-coverage/behavior/docs/channel); scope-plan and delivery correctly described as PLAN/DONE phase artifacts not review_run_start lanes. (3) Attribution verified against findings.json: B-fa7c F-002=claude-quality, F-003=claude-critic, F-007/F-008=codex; B-086b F-003/F-006=claude-completeness-critic, F-001/F-002=codex; B-b29e F-001=claude-completeness-critic — all match spec. (4) §4.4 FUTURE rows marked not-yet-implemented; §4.5 explicitly disavows Authority receipts from local verdicts. (5) No new doc-code drift: new §4.2/§4.3/§3.2/§2.4 content consistent with real CLI (review_run_start/finding_add/review_pass_set/autopilot_review_submit). Zero BLOCKER/MAJOR findings.",
+      "createdAt": "2026-06-20T11:16:23.677Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-003",
+      "_hash": "cdce8ad5920eb1944bda6046aec0351eb09c4ded9d141b75557132e4ab16a511"
+    },
+    {
+      "id": "B-0e7b:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 convergence check PASSED. Extracted 0 code symbols (pure-docs story, Fallback 1 path). Compared 13 doc cross-check targets across §1.2, §2.3, §2.4, §3.2, §4.1, §4.2, §4.3, §4.4, §4.5, §5 S0-S4. No BLOCKER/MAJOR findings. Specific verifications: (1) Zero residual --agent completeness-critic in the entire doc — all --agent guidance consistently points to real lattice-review-* lanes. (2) claude-completeness-critic in §1.2 is accurate historical agent attribution (findings.json), explicitly separated from the MVP --agent specification — not a lane claim. (3) §4.3 MVP critic provenance correctly specifies --agent = lattice-review-quality or lattice-review-behavior, [completeness-critic] tag in --desc/signatureTag only. (4) §5 S3 implementation spec is fully consistent with §4.3 on critic provenance. (5) Canonical loop order (lenses → verify lens findings → critic → verify critic findings → converge) is identical in §2.4, §3.2, §4.2. (6) Six REVIEW lane names in §4.1 exactly match REVIEW_RUN_LANES in packages/main/src/core/review-run.ts. (7) threshold-confirm T=1-of-2 NOT majority stated consistently in §2.3, §4.4, §5 S2. (8) abstract full-3x2 definition in §4.1 uses hostId/sessionId/keyId not provider names — consistent with §5 S4. (9) §4.4 MVP/FUTURE table correctly classifies critic provenance as MVP and dedicated lattice-review-completeness lane as FUTURE. (10) §4.5 honesty note correctly forbids local-to-Authority conflation. Minor: §4.4 rows 439+442 are slightly redundant (both reference lattice-review-completeness as FUTURE) but not inconsistent — no finding warranted.",
+      "createdAt": "2026-06-20T11:21:53.344Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-004",
+      "_hash": "0e0b5dc8e39d3c3ed35f1c7a0b8818af4eca40d69595f871b4082f23ec55b7c0"
+    },
+    {
+      "id": "B-0e7b:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept/buildability PASS over final spec (c710947c7): the 4 promised sections present, §5 build-program (S0-S4) buildable with scope/deps/acceptance, methodology defined as a Lattice review MODE (not a harness dependency). 3-round dual-host converged.",
+      "createdAt": "2026-06-20T11:22:50.351Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-005",
+      "_hash": "fcc7432e675708b33d2be293d59d778115ba54bb178eebe1fe68fdb1318a9aee"
+    },
+    {
+      "id": "B-0e7b:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS over final spec: data shapes (Lens/Finding/Verdict) precise, threshold-confirm rule unambiguous, canonical loop order consistent across §2.4/§3.2/§4.2, finding_add ledger mapping complete. Round-3 both hosts clean.",
+      "createdAt": "2026-06-20T11:22:51.432Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-006",
+      "_hash": "af1b4d9280d930dc15ce309f00b5fa7f78d3ecbc5d4fbf3e04fb8d4bd93d304a"
+    },
+    {
+      "id": "B-0e7b:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 12 verificationIntent items covered; the spec's acceptance (§5 per-story) is concrete; lattice validate green (no code). 0 open findings (9 review findings all resolved).",
+      "createdAt": "2026-06-20T11:22:52.530Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-007",
+      "_hash": "ee41e75191180d310a7bb36c5a6128fbfd91e023e523c9087fd0b943b9a0475d"
+    },
+    {
+      "id": "B-0e7b:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS over final spec: empirical attribution accurate vs findings.json (S4 crash=quality lens, S5 doors=critic, B-b29e=critic), the 6 real review lanes match review-run.ts, finding_add severity/field mapping correct, MVP critic provenance coherent (real lane + [completeness-critic] desc), honesty (MVP/future + local-not-Authority) intact.",
+      "createdAt": "2026-06-20T11:22:53.610Z",
+      "reviewRound": "2026-06-20T11:01:57.808Z",
+      "reviewRunId": "B-0e7b:RR-008",
+      "_hash": "eccbda48ceeba8e8727cb239b74b4a6eb8579bce46d7b0cc5d94af790bc80c1e"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Contract-first: §5 freezes the data shapes + story breakdown so the build can proceed in parallel, mirroring the parallel-decomposition program.",
+    "Honest MVP/future split: clearly separate what the MVP builds from not-yet-implemented surfaces; never overclaim.",
+    "Compose, do not reinvent: define the capability ON TOP of the existing lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation.",
+    "Evidence-grounded + precisely attributed: cite the real S4/S5/B-b29e defects and attribute each to the component (dimensional lens vs completeness critic) that actually found it.",
+    "Standalone-readable: define every term (full-3x2, the lens set) inline."
+  ],
+  "drivers": [
+    "the spec must let a reader build the capability contract-first",
+    "must compose Lattice existing review substrate, not depend on the harness Workflow tool",
+    "must be honest about MVP vs future and precisely attribute the empirical evidence"
+  ],
+  "options": [
+    {
+      "name": "spec-with-build-program",
+      "pros": [
+        "one design doc that both motivates AND freezes a buildable contract+story breakdown",
+        "contract-first enables parallel implementation later",
+        "bounded doc-only deliverable"
+      ],
+      "cons": [
+        "does not itself build the capability (that is the follow-on B-impl program)"
+      ]
+    },
+    {
+      "name": "build-first-no-spec",
+      "pros": [
+        "immediate code"
+      ],
+      "cons": [
+        "no frozen contract -> the build churns; the methodology design decisions (data shapes, convergence rule, escalation binding) get made ad hoc; contradicts the contract-first lesson the methodology itself proved"
+      ]
+    }
+  ],
+  "chosen": "spec-with-build-program",
+  "rationale": "A design spec that motivates (evidence), specifies (methodology + data shapes), defines the Lattice integration contract (MVP vs future), and freezes the implementation-program breakdown lets the capability be built contract-first — the exact lesson the parallel-decomposition program (and this methodology) proved. Building first without the frozen contract would churn on the very design decisions (convergence rule, escalation-ledger binding, lens/finding/verdict shapes) the spec exists to settle.",
+  "preMortem": [
+    {
+      "scenario": "The spec overclaims — describes a CLI review mode / escalation tier as if it exists, when only the methodology + a reusable orchestration is realistic for MVP",
+      "trigger": "§4 blurs MVP and future, presenting aspirational surfaces as built",
+      "consequence": "a reader/operator believes a feature exists that does not — the exact dishonesty the methodology is meant to prevent",
+      "mitigation": "§4 has an explicit MVP-vs-future table; every future surface is labeled not-yet-implemented; the deliverable is a SPEC and says so"
+    },
+    {
+      "scenario": "The empirical evidence is mis-attributed (e.g. crediting the completeness critic for a defect a dimensional lens found), undermining the spec credibility",
+      "trigger": "copying the loose background framing without checking the merged findings",
+      "consequence": "the central motivation is factually wrong; reviewers reject it",
+      "mitigation": "§1 cites each defect with its story id + the EXACT filing component (per the INIT-review correction: S4 crash = quality/crashsafe lens; S5 doors + B-b29e = completeness critic); verifiable against findings.json"
+    },
+    {
+      "scenario": "The frozen data shapes / story breakdown in §5 are too vague to build from, so the follow-on program cannot proceed contract-first",
+      "trigger": "§5 lists story titles without scopes/deps/acceptance or without concrete lens/finding/verdict schemas",
+      "consequence": "the build still has to design the contract -> the spec failed its one job",
+      "mitigation": "§2/§3 give concrete schemas; §5 gives each build story a scope + dependencies + acceptance, mirroring the parallel-decomposition §8 breakdown"
+    }
+  ],
+  "timestamp": "2026-06-20T10:51:24.753Z"
+}
