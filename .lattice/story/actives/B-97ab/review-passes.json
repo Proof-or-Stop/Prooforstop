@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T13:49:38.269Z",
       "reviewRunId": "B-97ab:RR-004",
       "_hash": "511ec5e189728fd2b1d77e07c127f6a7b7899b037ea761227e7293849a0c8120"
+    },
+    {
+      "id": "B-97ab:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs-consistency CLEAN over round-2 hash: module JSDoc accurately describes plan-level lensId-dedup vs finding-level no-dedup (distinct, non-contradictory); buildLensRunPlan first-wins/order-preserved claim matches code; round-1 LOW (smoke header overstated \"every assertion pinned to literals\") FIXED in round 2 with a precise header; lattice.config.json registers node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js (path matches dist); §4.2 mapping matches spec. Confirmed by round-2 multi-lens docs lens (0 confirmed) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:17.942Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-005",
+      "_hash": "68cb1afcfac149795a48bd76b32a05850c4397687b3a121830722fc8897374a4"
     }
   ]
 }
