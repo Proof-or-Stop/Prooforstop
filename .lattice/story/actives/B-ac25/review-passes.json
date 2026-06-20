@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-20T10:34:15.912Z",
       "reviewRunId": "B-ac25:RR-011",
       "_hash": "12ebb4c1cffc61ceccc1fedcccb87bc469b12a42016b7e3e814e2fcdb1f97afb"
+    },
+    {
+      "id": "B-ac25:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "quality pass: no blocker found. F-002 verified in packages/main/src/core/done-required-validation.ts:316 receipt coverage rechecks count/order plus command,args,cwd,shell,status,exitCode,timedOut; lines 523-541 fail closed on schema/story/status/policyHash/commandSetHash/materialHash/storyFilesHash and self-host build proof. Runner records receipts and hashes at lines 392-470. DONE oracle consumes a separate done-required-validation row at packages/main/src/core/done-oracle.ts:328. Self-host proof is explicit-only via requiresBuildProof/providesBuildProof in packages/main/src/core/done-required-validation.ts:368 and lattice.config.json:25. Smoke coverage in packages/main/src/tasks/done-required-validation-smoke.ts:196 covers forged receipts, drift, and external no-inheritance. Verified with node scripts/verify-process-fact-contract.mjs and node packages/main/dist/tasks/done-required-validation-smoke.js.",
+      "createdAt": "2026-06-20T10:53:50.659Z",
+      "reviewRound": "2026-06-20T10:48:11.176Z",
+      "reviewRunId": "B-ac25:RR-018",
+      "_hash": "646dd373e39f7a7b4f6ee8dd7eae2623489c0e5f284f558e1dae1288fcfe86bb"
     }
   ]
 }
