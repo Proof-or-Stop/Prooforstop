@@ -160,6 +160,24 @@
         }
       ],
       "_hash": "20d9292e47c884f9f049b478898118c13e8a0691cfeca32671ca81d97f7e87a3"
+    },
+    {
+      "timestamp": "2026-06-20T06:37:48.629Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Document the canonical owner-session contract + Define host adapter bridge and future-host onboarding rules are performed simultaneously?)"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"verification/two-host review rollout\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "cc615b0cf80bb89e05083608c94cd8e19719787252cd5f41b529c42bff32130a"
     }
   ]
 }

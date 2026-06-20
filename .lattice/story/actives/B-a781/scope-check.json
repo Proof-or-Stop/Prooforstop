@@ -1,38 +1,38 @@
 {
   "storyId": "B-a781",
-  "checkedAt": "2026-06-20T06:36:46.519Z",
+  "checkedAt": "2026-06-20T06:38:09.500Z",
   "features": [
     {
-      "feature": "canonical owner-session contract doc",
-      "covered_by": "CHK-001 plus plan_get CHK-001 cover LATTICE_SESSION_ID as canonical owner lease identity, host-specific session bridging before core logic, ppid as degraded fallback, and the new owner-session-contract execution doc. decision_get option A supports the canonical adapter contract.",
+      "feature": "canonical owner-session contract",
+      "covered_by": "CHK-001, plan_get CHK-001, and understanding_get cover LATTICE_SESSION_ID as the canonical owner-lease identity, host-specific session variables bridged before core owner-lease logic, ppid as degraded fallback only, local/non-cryptographic boundary language, and documentation-only touchpoints for the execution plan and related contract docs.",
       "status": "covered",
       "excluded_by": "",
-      "source": "story_get/checklist_get/plan_get/decision_get"
+      "source": "checklist_get/understanding_get/plan_get"
     },
     {
-      "feature": "host adapter bridge/future-host onboarding",
-      "covered_by": "CHK-002 plus plan_get CHK-002 cover Codex, Claude Code, Antigravity/agy, and future hosts; native-session and generated-token cases; precedence; migration of legacy fallback; and no owner-lease core host special cases. decision_get rejects adding every host env variable to owner lease core.",
+      "feature": "host adapter/future-host onboarding",
+      "covered_by": "CHK-002, plan_get CHK-002, and understanding_get cover Codex, Claude Code, Antigravity/agy, and future hosts bridging native or generated stable session identity into LATTICE_SESSION_ID before owner-gated commands, including generated dispatch tokens when a host lacks a known native stable env and a rule against adding host-specific discovery to owner-lease core.",
       "status": "covered",
       "excluded_by": "",
-      "source": "story_get/checklist_get/plan_get/decision_get"
+      "source": "checklist_get/understanding_get/plan_get"
     },
     {
       "feature": "verification/two-host review rollout",
-      "covered_by": "Plan CHK-003 covers ppid-changing smoke, wrapper/dispatch bridge checks, owner lease refresh behavior, session_brief source rendering, fallback warnings, and two-host review evidence; CHK-003 title/context/userSees name the rollout boundary.",
-      "status": "gap",
-      "excluded_by": "Gap: checklist_get shows CHK-003 is missing verificationIntent, so the PLAN checklist/evidence boundary for this feature is incomplete even though plan.md describes the rollout.",
+      "covered_by": "CHK-003 now has happy, edge, and adversarial verificationIntent covering ppid-changing command invocation smoke, wrapper environment bridging, owner lease refresh behavior, session_brief owner/source rendering, documentation grep checks, manual transcript evidence across invocation shapes, and independent two-host review evidence before implementation proceeds. plan_get CHK-003 also defines rollout slices and durable review evidence expectations.",
+      "status": "covered",
+      "excluded_by": "",
       "source": "checklist_get/plan_get"
     }
   ],
   "summary": {
     "total": 3,
-    "covered": 2,
+    "covered": 3,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "9e8c976243ffde25be1c9c13834e2943966cda1e0bf0f43343f676f5decb9825",
+  "_hash": "820d7fcc210ba055a0612e338b4b969e31d3653f227a655f87a88800080bed2f",
   "openQuestions": []
 }
