@@ -400,6 +400,19 @@
           "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
           "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
           "timestamp": "2026-06-20T08:33:30.005Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "smoke registered as lattice.config.json validate.commands[10]; lattice validate stays all-green (11 commands).",
+          "headHash": "14dd516f38efbb14d874c797475ebfbf2be8d7d8",
+          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
+          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
+          "timestamp": "2026-06-20T08:33:30.519Z"
         }
       ]
     }
