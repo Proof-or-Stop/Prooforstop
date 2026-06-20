@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "The new sub-check is FAIL-OPEN (own try/catch -> allow); never let a gate/config infra error block PLAN->DEV (spec 4.8).",
+    "Enforce the block ONLY under mode===block; advise/off never hard-block (they are Story 4 advisory surfaces).",
+    "One shared predicate/helper feeds BOTH canStartDevGuard (boolean) and getGuardFailureReason (message) so they cannot drift.",
+    "Reuse merged primitives unchanged (evaluateDecompositionGate, resolveAuditConfig, safeReadScopeContract, computeWriteSet) — add no overlap/gate logic.",
+    "Preserve the existing review-gate fail-closed semantics; the parallel sub-check is additive and isolated."
+  ],
+  "drivers": [
+    "A config/infra error must not strand every story at PLAN (fail-open)",
+    "decision and message must not diverge (shared predicate)",
+    "must not regress the existing fail-closed review gate"
+  ],
+  "options": [
+    {
+      "name": "shared-helper-fail-open",
+      "pros": [
+        "single source for the block decision + message (no drift)",
+        "fail-open isolated in its own try/catch",
+        "minimal additive change to machine.ts"
+      ],
+      "cons": [
+        "machine.ts gains a small helper + peer/contract loading"
+      ]
+    },
+    {
+      "name": "duplicate-inline-both",
+      "pros": [
+        "follows machine.ts existing duplicated-guard style"
+      ],
+      "cons": [
+        "decision and message can drift (the exact failure the two-coordinated-edits spec warns about)",
+        "easy to make one fail-open and the other not"
+      ]
+    }
+  ],
+  "chosen": "shared-helper-fail-open",
+  "rationale": "A shared helper computing the parallel block (peers + contracts + evaluateDecompositionGate, gated on mode===block) is called by BOTH canStartDevGuard (returns false when block is non-null) and getGuardFailureReason (renders the message), so the boolean decision and the human reason stay in sync. Each call site wraps it in its OWN try/catch that fails OPEN (guard -> allow; reason -> null), isolating the fail-open boundary from the surrounding fail-closed review gate. Reuses merged Stories 0-4 primitives, no new overlap logic.",
+  "preMortem": [
+    {
+      "scenario": "A config typo or transient read error makes the gate sub-check fail CLOSED, bricking PLAN->DEV for EVERY story",
+      "trigger": "the sub-check is placed inside the outer fail-closed try, or its own catch returns false",
+      "consequence": "the team is stranded at PLAN by a config mistake — the inversion the gate must avoid",
+      "mitigation": "the sub-check is in its OWN nested try/catch that on ANY error falls through to allow; a smoke asserts a throwing gate-config => canStartDevGuard returns true (fail-open)"
+    },
+    {
+      "scenario": "canStartDevGuard blocks but getGuardFailureReason returns null (or vice-versa)",
+      "trigger": "the boolean decision and the message are computed by separate drifting code paths",
+      "consequence": "operator sees a silent block or a phantom message — undebuggable",
+      "mitigation": "both call the ONE shared block-predicate helper; a smoke asserts that when the guard is false for a parallel block, the reason is a non-null message naming the block, and both pass together for a clean wave"
+    },
+    {
+      "scenario": "The gate hard-blocks under mode=advise or mode=off, breaking the advisory-only contract and the reversible escape hatch",
+      "trigger": "the mode===block guard is missing or wrong (e.g. mode!==off instead of mode===block)",
+      "consequence": "advise/off operators get unexpected hard blocks; the escape hatch is broken",
+      "mitigation": "enforce the block strictly under cfg.mode===block; smoke asserts the same overlap that blocks under mode=block returns true under both advise and off"
+    }
+  ],
+  "timestamp": "2026-06-20T08:18:21.998Z"
+}

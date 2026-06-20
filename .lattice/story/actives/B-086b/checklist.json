@@ -6,7 +6,30 @@
       "context": "core/parallel-decomposition.ts currently THROWS 'NotImplemented' for computeWriteSet (lines ~68-71), globsOverlap (~77-81), evaluateDecompositionGate (~88-99). Replace each with a re-export of the real impl: `export { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js'` and `export { evaluateDecompositionGate } from './parallel-decomposition-gate.js'`. The contract's TYPES (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) stay defined here and are still imported (type-only) by the impl modules — type-only imports are erased at runtime so there is no runtime cycle. No current caller imports the functions from the contract (they import directly from -overlap.js/-gate.js), so the re-export is non-breaking; optionally migrate those importers to the contract path IF it stays clean (no circular-import breakage), else leave them.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "importing computeWriteSet/globsOverlap/evaluateDecompositionGate from core/parallel-decomposition.js returns the REAL functions (computeWriteSet on a contract returns its write-set; globsOverlap detects an overlap; evaluateDecompositionGate returns {advisories,block}) — NOT a NotImplemented throw; WHY: the frozen contract now re-exports the real impls",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the contract still EXPORTS the types (ParallelGateConfig/GlobOverlapResult/DecompositionGateResult/ParallelDecompositionBlock) and the tsc build is clean (no circular-import runtime break); WHY: type-only imports by the impl modules must not create a runtime cycle",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no caller is broken by the re-export: full lattice validate (all configured smokes + build) stays green; WHY: re-export must be non-breaking for every existing importer",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
