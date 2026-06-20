@@ -254,6 +254,19 @@
           "materialHash": "056fe6f6c67a56ae56b48cf83f86763ce31d94386d42ff14b38d951eed195dea",
           "storyFilesHash": "cb5f7f72a4e61977f75de9cc68acddb55e7dca0e4b3acdd46e1ceae7d4129bf4",
           "timestamp": "2026-06-20T07:20:31.267Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-wave-advisory-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts a config where evaluateDecompositionGate returns advisories=[] yields decompositionAdvisoryIssues -> [].",
+          "headHash": "5436b5eae1cd0acb8aa1f246a409d71c03d678a8",
+          "materialHash": "056fe6f6c67a56ae56b48cf83f86763ce31d94386d42ff14b38d951eed195dea",
+          "storyFilesHash": "cb5f7f72a4e61977f75de9cc68acddb55e7dca0e4b3acdd46e1ceae7d4129bf4",
+          "timestamp": "2026-06-20T07:20:32.011Z"
         }
       ]
     }
