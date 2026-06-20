@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: §2.2 FINDING schema declares severity as BLOCKER|MAJOR|MINOR, but §4.2 flow feeds confirmed Findings into finding_add, which only accepts severity critical|high|medium|low (cli/command-catalog.ts:1451, core/types.ts:532 Finding interface). BLOCKER/MAJOR/MINOR are not valid Lattice Finding severity values and would cause a Zod validation error at finding_add call time. The spec schema should either (a) use the actual Lattice severity enum critical|high|medium|low, or (b) explicitly state this is a methodological label layer that maps to Lattice severity before finding_add is called.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T11:04:38.953Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "missing|md|code-drift-finding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.2 LEDGER-MAPPING subsection added: BLOCKER->critical/MAJOR->high/MINOR->medium; abstract methodology severity never reaches finding_add. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:45.621Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0e7b:F-002",
