@@ -51,10 +51,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "Smoke: a real DONE merge runs applyDoneMergeEffects which re-derives+persists the cache and appends an advisory \"experience cache refreshed (N signals)\" line. 15 checks pass.",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "The refresh runs on every DONE merge (unconditional, not gated on material-code).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "Forced derive failure control: the refresh is wrapped in try/catch -> advisory skip line, the DONE merge still SUCCEEDS (never blocked/thrown).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -87,10 +87,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "Cache written to canonical MAIN: refresh uses new StoryStore(mainMergeRoot) + resolveLearningRoot (worktree already removed by post-merge effects — real bug the implementer caught + fixed).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         }
       ]
     },
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "node done-merge-experience-refresh-smoke.js exits 0 (15 checks).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,10 +151,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test exits 0 (ALL PASS) with both new smokes in the chain; existing experience smokes green.",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
           "result": "pass",
           "note": "The smoke drives the real applyDoneMergeEffects path incl. the forced-failure-never-blocks control (RED/GREEN verified).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         }
       ]
     },
@@ -229,10 +229,10 @@
           "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
           "result": "pass",
           "note": "Cache carries watermark (coveredFindingCount/coveredStoryCount/coveredThrough); learning_validate/computeCoverageGap reports gap=0 right after a scan. 15 checks pass.",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,10 +241,10 @@
           "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
           "result": "pass",
           "note": "After adding a finding without re-scan, the gap is non-zero (delta findings/stories); after learning_scan, gap=0.",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -253,10 +253,10 @@
           "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
           "result": "pass",
           "note": "A watermark-less/absent cache degrades to known:false -> \"coverage: unknown — run learning_scan\"; learning_validate never crashes (back-compat).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -265,10 +265,10 @@
           "command": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
           "result": "pass",
           "note": "coveredFindingCount counted with the same method as deriveFindingSignalsFromStore so gap=0 immediately after a scan (no false positive).",
-          "headHash": "86376794af994e806cc1ffe636e54211a08f4a54",
-          "materialHash": "121972e9f02729461761ed1defc0f3162488cac4fbec18a559cf856108f03f5b",
-          "storyFilesHash": "4255f2ca27d874905405fca46d1a754c7faee95b21d90453934d1015de0c56fa",
-          "timestamp": "2026-06-20T09:46:07.738Z"
+          "headHash": "704f60d72b6f8c047ff8b2103958bd9305c7fe3a",
+          "materialHash": "29138ff11f9de82968037e442a3cb50a70befe75af026546fc1123fdb2097e90",
+          "storyFilesHash": "c965c4879d75da60373eb5b37f0a316279347ab44891369d452c752f85a1093c",
+          "timestamp": "2026-06-20T09:54:35.978Z"
         }
       ]
     }
