@@ -1,0 +1,40 @@
+{
+  "storyId": "B-1d4c",
+  "checkedAt": "2026-06-20T18:55:24.977Z",
+  "features": [
+    {
+      "feature": "handoff preflight schema",
+      "covered_by": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md#4",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "supersession parsing",
+      "covered_by": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md#2",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "host precheck gating",
+      "covered_by": "packages/main/src/core/lattice-handoff.ts",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "status/probe manifest output",
+      "covered_by": "packages/main/src/handlers/lattice-cli.ts",
+      "status": "covered",
+      "excluded_by": ""
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0a7f0096d764ec6c40b9055ccc2e071a7ba33ad2e3c4ff9348148898e63e4672"
+}
