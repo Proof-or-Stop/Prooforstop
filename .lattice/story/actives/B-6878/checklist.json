@@ -163,8 +163,8 @@
       "title": "Smoke: prototype-pollution defense across all paths + the chokepoint helper",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wired) that: (a) for EACH of anthropic / openai / gemini AND the streaming and estimate paths, pollutes Object.prototype with each token key inside a try/finally (ALWAYS restore in finally) and asserts NO inherited value reaches a persisted ledger record — the surfaced record carries only own-property, whitelisted token fields; absent fields stay absent/unavailable (drive the REAL assemble/dispatch/record path, not a stub); (b) asserts the chokepoint helper returns a null-prototype object (Object.getPrototypeOf === null) and DROPS non-whitelisted own keys (parallel to the B-30c3 codex/gemini smoke). Each pollution assertion must be load-bearing (fail if the chokepoint/own-prop guard were removed). Bump the printed check count.",
       "userSees": "node packages/main/dist/tasks/<proto-pollution smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; the pollution assertions fail against the pre-hardening code.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T14:51:51.527Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
