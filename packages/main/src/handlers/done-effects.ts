@@ -924,7 +924,11 @@ export async function applyDoneMergeEffects(
       // any silently-skipped refresh DETECTABLE and recoverable (run learning_scan).
       try {
         const refreshStore = new StoryStore(mainMergeRoot);
-        const signalsCache = deriveFindingSignalsFromStore(refreshStore, { projectRoot: mainMergeRoot });
+        // F-003: pass a wall-clock `now` so the persisted cache's updatedAt advances
+        // on every DONE-merge auto-refresh. Without it, deriveFindingSignals falls
+        // back to the epoch sentinel ('1970-01-01...'), defeating the userSees
+        // "updatedAt advances" guarantee. (learning_scan passes `now` the same way.)
+        const signalsCache = deriveFindingSignalsFromStore(refreshStore, { projectRoot: mainMergeRoot, now: new Date().toISOString() });
         const n = Array.isArray(signalsCache.signals) ? signalsCache.signals.length : 0;
         mergeLines.push(`✓ experience cache refreshed (${n} signals)`);
       } catch (e: any) {

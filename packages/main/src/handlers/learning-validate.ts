@@ -142,6 +142,25 @@ export function createLearningValidateHandlers(ctx: HandlerContext) {
       // positive). A persisted cache without a watermark (legacy/absent) degrades to
       // "coverage: unknown". Advisory only; readFindingSignals never throws (returns
       // null on absent/malformed) so the report can never crash learning_validate.
+      //
+      // F-002/F-005: the coverage gap compares the GLOBAL persisted-cache watermark
+      // against the GLOBAL live store, so it is only meaningful for the unfiltered
+      // (whole-corpus) derivation. When `--story` is active, `cache` holds the
+      // per-story SUBSET counts while `readFindingSignals` still reads the GLOBAL
+      // cache, so max(subset - global, 0) collapses to a false "0 gap" that hides a
+      // stale global cache. Suppress the numeric gap for the filtered view and emit a
+      // clear advisory line instead; the validity/valid-rate report above stays
+      // per-story (legitimately scoped). Still advisory; never throws.
+      const filtered = storyIds !== undefined;
+      if (filtered) {
+        const coverageLine =
+          'coverage: n/a (filtered view — run learning_validate without --story for the coverage gap)';
+        if (args.json) {
+          return JSON.stringify({ head, ...report, coverage: { filtered: true } }, null, 2);
+        }
+        return renderHuman(head, report, coverageLine);
+      }
+
       const persisted = readFindingSignals(cwd);
       const gap = computeCoverageGap(persisted, {
         currentFindingCount: typeof cache.coveredFindingCount === 'number' ? cache.coveredFindingCount : 0,

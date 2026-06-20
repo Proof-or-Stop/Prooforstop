@@ -17,7 +17,15 @@
  *     completes (branch merged into main, worktree removed, branch deleted), the
  *     finding-signals cache now exists on MAIN with the story's signal present and
  *     a watermark, and the merge report carries an advisory
- *     "experience cache refreshed (N signals)" line.
+ *     "experience cache refreshed (N signals)" line whose cache.updatedAt is a
+ *     recent wall-clock time (NOT the epoch sentinel).
+ *
+ *   METADATA-ONLY (F-004) — the story branch touches ONLY .lattice/ story metadata
+ *     (no packages/main/ runtime input), so the changed-paths build predicate does
+ *     NOT fire (the report shows the build SKIPPED). The refresh is NOT gated on
+ *     that predicate ("EVERY merge"), so the advisory refresh line STILL appears and
+ *     the cache is (re)written on MAIN — proving the "not gated on material-code
+ *     change" guarantee.
  *
  *   FAILURE CONTROL — the finding-signals derive is forced to throw (a store proxy
  *     whose listStoryIds throws, the FIRST thing deriveFindingSignalsFromStore
@@ -170,11 +178,79 @@ async function assertHappyRefreshesCacheOnMain(): Promise<void> {
 
     // The cache now exists on MAIN (canonical resolveLearningRoot) with the watermark.
     const cache = readFindingSignals(root);
+    // F-001: real null guard instead of an unsound `cache!` non-null assertion +
+    // redundant `as number` cast — narrows `cache` so the assertions below are sound.
+    if (cache === null) {
+      console.error('✗ happy: finding-signals cache absent on the MAIN checkout after the DONE merge');
+      process.exit(1);
+    }
     check('happy: finding-signals cache written on the MAIN checkout (no separate learning_scan)', cache !== null, 'cache absent on main after merge');
-    check('happy: cache carries a coverage watermark (>=1 finding considered)', typeof cache?.coveredFindingCount === 'number' && (cache!.coveredFindingCount as number) >= 1, `watermark=${cache?.coveredFindingCount}`);
-    check('happy: cache has at least one derived signal', Array.isArray(cache?.signals) && cache!.signals.length >= 1, `signals=${cache?.signals?.length}`);
+    check('happy: cache carries a coverage watermark (>=1 finding considered)', typeof cache.coveredFindingCount === 'number' && cache.coveredFindingCount >= 1, `watermark=${cache.coveredFindingCount}`);
+    check('happy: cache has at least one derived signal', Array.isArray(cache.signals) && cache.signals.length >= 1, `signals=${cache.signals?.length}`);
+    // F-003: the refreshed cache.updatedAt must be a recent wall-clock time, NOT the
+    // epoch sentinel deriveFindingSignals falls back to when `now` is omitted. This
+    // FAILS against the pre-fix code (epoch) and PASSES after the wall-clock fix.
+    check('happy: cache.updatedAt advanced (not epoch)', typeof cache.updatedAt === 'string' && cache.updatedAt > '2020-01-01', `updatedAt=${cache.updatedAt}`);
 
     console.log('  ✓ HAPPY: DONE merge auto-refreshed the experience cache on main (no manual learning_scan)');
+  } finally {
+    try { process.chdir(savedCwd); } catch { /* best-effort */ }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// METADATA-ONLY MERGE (F-004): the story branch carries ONLY .lattice/ story
+// metadata — no packages/main/ runtime input — so the changed-paths build
+// predicate does NOT fire (the merge report shows the build SKIPPED). The refresh
+// is NOT gated on that predicate ("EVERY merge"), so the advisory
+// "experience cache refreshed (N signals)" line STILL appears and the cache is
+// (re)written on MAIN. This proves the "not gated on material-code change"
+// guarantee — a build-gated refresh would silently skip here.
+// ---------------------------------------------------------------------------
+
+async function assertMetadataOnlyMergeStillRefreshes(): Promise<void> {
+  const storyId = 'B-expref-metaonly';
+  const { root, worktreePath } = buildDoneReadyStoryWithLinkedWorktree(storyId);
+  const savedCwd = process.cwd();
+  try {
+    check('meta-only: no finding-signals cache on main before the DONE merge', readFindingSignals(root) === null);
+
+    process.chdir(worktreePath);
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktreePath);
+    const story0 = worktreeStore.readStory(storyId);
+
+    const result = await applyDoneMergeEffects(storyId, worktreeStore, story0, undefined);
+    process.chdir(savedCwd);
+
+    const report = result.doneMergeReport;
+
+    // The story branch touched ONLY .lattice/ metadata vs main, so the build
+    // predicate did NOT fire — the merge report must show the build SKIPPED. This
+    // is what makes the scenario a genuine metadata-only ("not material code") merge.
+    check(
+      'meta-only: packages/main build was SKIPPED (no watched runtime inputs changed)',
+      /packages\/main build skipped after DONE merge \(no watched runtime inputs changed\)/.test(report),
+      `report:\n${report}`,
+    );
+
+    // The refresh is NOT gated on that predicate, so it STILL fired.
+    const m = report.match(/experience cache refreshed \((\d+) signals\)/);
+    check('meta-only: report STILL carries "experience cache refreshed (N signals)"', !!m, `report:\n${report}`);
+    check('meta-only: refreshed signal count >= 1 (folded in despite no code change)', !!m && Number(m![1]) >= 1, `count=${m?.[1]}`);
+
+    // The merge completed and the cache was (re)written on MAIN.
+    check('meta-only: story worktree removed on success', !existsSync(worktreePath));
+    const cache = readFindingSignals(root);
+    if (cache === null) {
+      console.error('✗ meta-only: finding-signals cache absent on the MAIN checkout after the metadata-only merge');
+      process.exit(1);
+    }
+    check('meta-only: finding-signals cache (re)written on MAIN despite no material-code change', cache !== null, 'cache absent on main after metadata-only merge');
+    check('meta-only: cache.updatedAt advanced (not epoch)', typeof cache.updatedAt === 'string' && cache.updatedAt > '2020-01-01', `updatedAt=${cache.updatedAt}`);
+
+    console.log('  ✓ META-ONLY: a metadata-only DONE merge (build skipped) STILL refreshed the experience cache');
   } finally {
     try { process.chdir(savedCwd); } catch { /* best-effort */ }
     rmSync(root, { recursive: true, force: true });
@@ -240,6 +316,7 @@ async function main(): Promise<void> {
   const savedEnv = { ...process.env };
   try {
     await assertHappyRefreshesCacheOnMain();
+    await assertMetadataOnlyMergeStillRefreshes();
     await assertForcedDeriveFailureNeverBlocksMerge();
   } finally {
     for (const key of Object.keys(process.env)) {
