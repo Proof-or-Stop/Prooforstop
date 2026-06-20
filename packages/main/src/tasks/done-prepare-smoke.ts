@@ -2,14 +2,18 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import {
+  upsertAuthorityGateReceiptRef,
+  type AuthorityGateDecisionReceiptRef,
+} from '../core/authority-gate-receipts.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, ProcessEvent, RealMachineTest, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,11 +44,20 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runLattice(cwd: string, command: string, args: Record<string, unknown>): string {
+function runLattice(
+  cwd: string,
+  command: string,
+  args: Record<string, unknown>,
+  envOverrides: Record<string, string | undefined> = {},
+): string {
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
   for (const key of Object.keys(env)) {
     if (key.startsWith('LATTICE_AUTHORITY_')) delete (env as Record<string, string | undefined>)[key];
+  }
+  for (const [key, value] of Object.entries(envOverrides)) {
+    if (value === undefined) delete (env as Record<string, string | undefined>)[key];
+    else env[key] = value;
   }
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
@@ -120,6 +133,54 @@ function appendHostVerdict(store: StoryStore, root: string, storyId: string): vo
     promptDigest: `${storyId}-prompt`,
   };
   store.appendProcessEvent(storyId, event);
+}
+
+function authorityDoneRefFor(root: string, storyId: string): AuthorityGateDecisionReceiptRef {
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'smoke repo must have git HEAD');
+  assert.ok(materialHash, 'smoke repo must have material hash');
+  return {
+    receiptId: 'AR-DONE-PREPARE',
+    receiptKind: 'gate_decision',
+    classification: 'production-gate-decision',
+    authorityUrl: 'https://authority.example',
+    authorityKeyId: 'server-key-1',
+    authorityPublicKeyDigest: 'sha256:key',
+    decisionId: 'GD-DONE-PREPARE',
+    stateVersion: 7,
+    gateInputDigest: 'sha256:input-done-prepare',
+    decisionDigest: 'sha256:decision-done-prepare',
+    decisionVerdict: 'pass',
+    storyId,
+    targetPhase: 'DONE',
+    headHash,
+    materialHash,
+    policyMode: 'light',
+    authorityMode: 'enforce',
+    producerRunIds: ['run-producer-1'],
+    verifierRunIds: ['run-verifier-1'],
+    runnerSessionIds: ['session-1'],
+    evidenceDigests: ['sha256:evidence-1'],
+    verifiedAt: new Date().toISOString(),
+    verifiedBy: 'lattice authority receipt verify',
+    eligibleGates: ['DONE'],
+    status: 'active',
+    consumptionEvents: [],
+  };
+}
+
+function ignoreWorktreePath(root: string, relPath: string): void {
+  const excludePath = git(root, ['rev-parse', '--git-path', 'info/exclude']);
+  appendFileSync(isAbsolute(excludePath) ? excludePath : join(root, excludePath), `\n/${relPath}\n`, 'utf-8');
+}
+
+function writeIgnoredAuthorityDoneRef(root: string, storyId: string): void {
+  const relPath = `.lattice/story/actives/${storyId}/authority-receipt-refs.json`;
+  ignoreWorktreePath(root, relPath);
+  const store = new StoryStore(root);
+  const ref = authorityDoneRefFor(root, storyId);
+  store.writeAuthorityReceiptRefs(storyId, upsertAuthorityGateReceiptRef(undefined, ref, ref.verifiedAt!));
 }
 
 function writeStaleChecklistEvidence(store: StoryStore, root: string, storyId: string, mode: 'safe' | 'command'): void {
@@ -265,6 +326,38 @@ withRepo('clean ready path prints exactly one DONE next command', { storyId: 'B-
   assert.match(output, /productionDone: false/);
   const matches = output.match(/lattice story_advance/g) || [];
   assert.equal(matches.length, 1, output);
+});
+
+withRepo('authority receipt verified runbook still prints local-only PASS boundary', {
+  storyId: 'B-dp-receipt-boundary',
+}, ({ worktreePath }) => {
+  writeIgnoredAuthorityDoneRef(worktreePath, 'B-dp-receipt-boundary');
+  assert.equal(status(worktreePath), '', 'precondition: ignored receipt ref must not make done_prepare preflight dirty');
+
+  const runbook = JSON.parse(runLattice(
+    worktreePath,
+    'done_closure',
+    { storyId: 'B-dp-receipt-boundary', json: true },
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
+  ));
+  assert.equal(runbook.authorityServerPath.receiptVerified, true, 'precondition: done_closure runbook reaches receiptVerified=true');
+
+  const output = runLattice(
+    worktreePath,
+    'done_prepare',
+    { storyId: 'B-dp-receipt-boundary', validate: false },
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
+  );
+  assert.match(output, /DONE prepare: PASS/);
+  assert.match(output, /authorityReceiptRequired: true/);
+  assert.doesNotMatch(output, /receiptVerified: true/);
+  assert.match(output, /receiptVerified: false \(not evaluated by done_prepare; Authority receipt verification is outside done_prepare\)/);
+  assert.match(output, /authorityDone: false/);
+  assert.match(output, /fullAuthorityDone: false/);
+  assert.match(output, /productionDone: false/);
+  assert.doesNotMatch(output, /authorityDone: true/);
+  assert.doesNotMatch(output, /fullAuthorityDone: true/);
+  assert.doesNotMatch(output, /productionDone: true/);
 });
 
 withRepo('dirty preflight blocks before mutation', { storyId: 'B-dp-dirty' }, ({ worktreePath }) => {

@@ -452,7 +452,7 @@ function renderPass(args: {
     '  fullAuthorityDone: false',
     '  productionDone: false',
     `  authorityReceiptRequired: ${args.runbook.authorityServerPath.required}`,
-    `  receiptVerified: ${args.runbook.authorityServerPath.receiptVerified}`,
+    '  receiptVerified: false (not evaluated by done_prepare; Authority receipt verification is outside done_prepare)',
     `  reviewAssurance: ${reviewAssuranceText(args.runbook)}`,
     '',
     'Next:',
