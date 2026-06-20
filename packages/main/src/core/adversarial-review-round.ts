@@ -87,10 +87,15 @@ export interface ConfirmedLaneGroup {
 /**
  * The result of one adversarial-review round: the S0 RoundResult surface plus
  * the per-lane grouping of confirmed lens findings (needed to derive the §4.2
- * per-lane ledger ops without re-running verification).
+ * per-lane ledger ops without re-running verification), and the UNIQUE set of
+ * lanes that actually RAN in this round (first-seen order, deduped — two lenses
+ * share lattice-review-behavior). ranLanes is what a clean round records PASSes
+ * over (§4.1/§5): every participating lane ends a converged round with a PASS,
+ * not just lanes that happened to surface a confirmed finding.
  */
 export interface AdversarialRoundResult extends RoundResult {
   confirmedByLane: ConfirmedLaneGroup[];
+  ranLanes: LensLane[];
 }
 
 /**
@@ -108,6 +113,14 @@ export function runAdversarialRound(
 
   // PHASE 1 — lenses (S1): run every lens in isolation through the seam.
   const lensResults = runLenses(change, lensSet, seams.runLens);
+
+  // The UNIQUE lanes that participated this round (first-seen order). Two lenses
+  // can map to the same lane (behavior), so dedupe. These are the lanes a clean
+  // round records PASSes over (§4.1/§5).
+  const ranLanes: LensLane[] = [];
+  for (const lr of lensResults) {
+    if (!ranLanes.includes(lr.lane)) ranLanes.push(lr.lane);
+  }
 
   // PHASE 2 — verify-lens-findings (S2): adversarially verify EACH lens's raw
   // findings independently, keeping the lane grouping. Only lenses with >=1
@@ -141,6 +154,7 @@ export function runAdversarialRound(
     reopen,
     converged,
     confirmedByLane,
+    ranLanes,
   };
 }
 
@@ -160,10 +174,15 @@ export type LedgerOp =
  * confirmed lens finding (under its real lane, S2 arg shape), one finding_add per
  * confirmed critic finding (under criticLane, [completeness-critic]-tagged desc,
  * S3 arg shape), and — only when the round CONVERGED — one review_pass_set per
- * lane that had confirmed findings.
+ * lane that PARTICIPATED in the round (round.ranLanes), NOT just lanes that
+ * surfaced a confirmed finding. A clean converged round records a PASS for every
+ * ran lane (§4.1/§5: "a clean round records lane PASSes").
  *
- * No abstract severity leaks into any op (S2/S3 own the ledger mapping). PURE —
- * derives op descriptors only; performs NO finding_add / review_pass_set call.
+ * Every op needs a real reviewRunId: a confirmed-finding lane or a participating
+ * (ran) lane with no reviewRunId is a HARD ERROR (throws), never a silent empty
+ * reviewRunId. No abstract severity leaks into any op (S2/S3 own the ledger
+ * mapping). PURE — derives op descriptors only; performs NO finding_add /
+ * review_pass_set call.
  */
 export function deriveRoundLedgerOps(
   round: AdversarialRoundResult,
@@ -177,15 +196,20 @@ export function deriveRoundLedgerOps(
   const ops: LedgerOp[] = [];
   const cat = opts.category;
 
-  // Confirmed lens findings → finding_add under the real lane (§4.2).
+  // Confirmed lens findings → finding_add under the real lane (§4.2). A confirmed
+  // lane MUST have a reviewRunId — a missing one is a hard error, not an empty id.
   for (const group of round.confirmedByLane) {
+    const rid = opts.reviewRunIdByLane[group.lane];
+    if (!rid) {
+      throw new Error('deriveRoundLedgerOps: lane ' + group.lane + ' has confirmed findings but no reviewRunId');
+    }
     for (const f of group.findings) {
       ops.push({
         kind: 'finding_add',
         lane: group.lane,
         source: 'lens',
         args: toFindingAddArgs(f, {
-          reviewRunId: opts.reviewRunIdByLane[group.lane] ?? '',
+          reviewRunId: rid,
           agent: group.lane,
           category: cat ?? 'adversarial',
         }),
@@ -207,16 +231,17 @@ export function deriveRoundLedgerOps(
     });
   }
 
-  // On convergence each lane that ran findings ends the round with a
-  // review_pass_set. A fully-clean round has an empty confirmedByLane, so it
-  // emits no pass ops — matching the spec's "lane ends round with review_pass_set".
+  // On convergence EVERY lane that participated ends the round with a
+  // review_pass_set (§4.1/§5) — a clean round records a PASS per ran lane, not
+  // just lanes that had a confirmed finding. A ran lane with no reviewRunId is a
+  // hard error.
   if (round.converged) {
-    for (const group of round.confirmedByLane) {
-      ops.push({
-        kind: 'review_pass_set',
-        lane: group.lane,
-        reviewRunId: opts.reviewRunIdByLane[group.lane] ?? '',
-      });
+    for (const lane of round.ranLanes) {
+      const rid = opts.reviewRunIdByLane[lane];
+      if (!rid) {
+        throw new Error('deriveRoundLedgerOps: ran lane ' + lane + ' has no reviewRunId for its PASS');
+      }
+      ops.push({ kind: 'review_pass_set', lane, reviewRunId: rid });
     }
   }
 

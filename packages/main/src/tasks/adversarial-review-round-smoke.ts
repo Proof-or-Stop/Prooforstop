@@ -6,8 +6,9 @@
  * completeness critic always sees the VERIFIED (confirmed) lens set, never the
  * raw set; the converge/reopen + loop-until-dry + maxRounds bound semantics; the
  * no-abstract-leak ledger-op derivation (lens under a real lane, critic
- * desc-tagged, severity a ledger kind not BLOCKER/MAJOR/MINOR, pass ops only on
- * converge); and the §4.1 full-3x2 host-verdict payload shape. All expectations
+ * desc-tagged, severity a ledger kind not BLOCKER/MAJOR/MINOR, a PASS per
+ * PARTICIPATING/ran lane on a clean converge, hard error on a missing run id);
+ * and the §4.1 full-3x2 host-verdict payload shape. All expectations
  * are pinned to EXPLICIT literals declared IN THIS SMOKE, against FAKE seams.
  *
  * Run: node packages/main/dist/tasks/adversarial-review-round-smoke.js
@@ -208,17 +209,86 @@ if (criticOp.kind === 'finding_add') {
   check("ledger-ops: critic op.args.category === 'missing' (default)", criticOp.args.category === 'missing');
 }
 
-// ── 8. deriveRoundLedgerOps on a CLEAN converged round → zero ops ─────────────
+// ── 8. deriveRoundLedgerOps on a CLEAN converged round → a PASS per ran lane ──
+// A clean converged round over CANONICAL_LENS_SET runs 5 UNIQUE lanes (two lenses
+// share lattice-review-behavior). The spec (§4.1/§5) requires a review_pass_set
+// for EVERY participating lane, NOT just lanes that surfaced a confirmed finding.
 const cleanLedgerRound = runAdversarialRound('CHG-clean2', cleanSeams);
 check('clean-ledger: round converged', cleanLedgerRound.converged === true);
+
+const EXPECTED_RAN_LANES = [
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-behavior',
+  'lattice-review-test-coverage',
+  'lattice-review-docs',
+];
+check(
+  'clean-ledger: ranLanes deep-equals [concept,quality,behavior,test-coverage,docs] (first-seen, deduped)',
+  cleanLedgerRound.ranLanes.length === EXPECTED_RAN_LANES.length
+    && cleanLedgerRound.ranLanes.every((l, i) => l === EXPECTED_RAN_LANES[i]),
+);
+
+const cleanRunIdByLane = {
+  'lattice-review-concept': 'RR-c',
+  'lattice-review-quality': 'RR-q',
+  'lattice-review-behavior': 'RR-b',
+  'lattice-review-test-coverage': 'RR-t',
+  'lattice-review-docs': 'RR-d',
+} as const;
+const EXPECTED_PASS_RUN_IDS = ['RR-c', 'RR-q', 'RR-b', 'RR-t', 'RR-d'];
+
 const cleanOps = deriveRoundLedgerOps(cleanLedgerRound, {
-  reviewRunIdByLane: { 'lattice-review-concept': 'RR-L' },
-  criticLane: 'lattice-review-quality',
-  criticReviewRunId: 'RR-C',
+  reviewRunIdByLane: { ...cleanRunIdByLane },
+  criticLane: 'lattice-review-docs',
+  criticReviewRunId: 'RR-d',
 });
+const cleanPassOps = cleanOps.filter((o) => o.kind === 'review_pass_set');
 check('clean-ledger: zero finding_add ops', cleanOps.filter((o) => o.kind === 'finding_add').length === 0);
-check('clean-ledger: zero review_pass_set ops (confirmedByLane empty)', cleanOps.filter((o) => o.kind === 'review_pass_set').length === 0);
-check('clean-ledger: zero ops total', cleanOps.length === 0);
+check('clean-ledger: exactly 5 review_pass_set ops (one per ran lane)', cleanPassOps.length === 5);
+check('clean-ledger: 5 ops total (all pass ops)', cleanOps.length === 5);
+check(
+  'clean-ledger: pass ops cover the ran lanes in order',
+  cleanPassOps.every((o, i) => o.kind === 'review_pass_set' && o.lane === EXPECTED_RAN_LANES[i]),
+);
+check(
+  'clean-ledger: each pass op carries its lane reviewRunId',
+  cleanPassOps.every((o, i) => o.kind === 'review_pass_set' && o.reviewRunId === EXPECTED_PASS_RUN_IDS[i]),
+);
+
+// A converged round MISSING a ran lane's reviewRunId → hard error.
+let missingRanThrew = false;
+try {
+  deriveRoundLedgerOps(cleanLedgerRound, {
+    // omit lattice-review-docs run id
+    reviewRunIdByLane: {
+      'lattice-review-concept': 'RR-c',
+      'lattice-review-quality': 'RR-q',
+      'lattice-review-behavior': 'RR-b',
+      'lattice-review-test-coverage': 'RR-t',
+    },
+    criticLane: 'lattice-review-docs',
+    criticReviewRunId: 'RR-d',
+  });
+} catch {
+  missingRanThrew = true;
+}
+check('clean-ledger: converged round missing a ran-lane run id throws', missingRanThrew === true);
+
+// A round with a CONFIRMED lens finding whose lane has no run id → hard error.
+const confirmedNoRunIdRound = runAdversarialRound('CHG-noid', ledgerSeams);
+check('clean-ledger: precondition — confirmedNoRunIdRound has a confirmed lens finding', confirmedNoRunIdRound.confirmedFindings.length === 1);
+let missingConfirmedThrew = false;
+try {
+  deriveRoundLedgerOps(confirmedNoRunIdRound, {
+    reviewRunIdByLane: {}, // no run id for the confirmed concept lane
+    criticLane: 'lattice-review-quality',
+    criticReviewRunId: 'RR-C',
+  });
+} catch {
+  missingConfirmedThrew = true;
+}
+check('clean-ledger: confirmed lens lane with no run id throws', missingConfirmedThrew === true);
 
 // ── 9. buildHostVerdictPayloads (full-3x2 shape) ──────────────────────────────
 const payloads = buildHostVerdictPayloads({
