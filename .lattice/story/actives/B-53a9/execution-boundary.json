@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-53a9",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-20T05:14:45.270Z",
+  "updatedAt": "2026-06-20T05:14:45.270Z",
+  "_hash": "3060bfd2978de4ae1f99dc7b28d8c1296771d3da74c8f15b87cbd9cb74209bdc"
+}
