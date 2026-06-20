@@ -17,13 +17,90 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "resolveParallelGate({mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true}, lightDefault) -> returns {mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true}; WHY: proves valid overrides are applied field-by-field",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate(undefined, balancedDefault) -> returns balancedDefault {advise,3,false}; WHY: proves missing/undefined raw yields full profile defaults without crash",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveAuditConfig(\"light\", projectRoot) with NO user config file -> returned config.parallelGate equals {advise,2,false}; WHY: proves the no-user-config early-return path carries a populated parallelGate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveAuditConfig for each profile (light/balanced/strict) with no user overrides -> parallelGate matches PARALLEL_GATE_PROFILE_DEFAULTS: light={advise,2,false}, balanced={advise,3,false}, strict={block,4,true}; WHY: proves per-profile default table is wired correctly",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({mode:\"off\"}, balancedDefault) -> returns {mode:\"off\",maxConcurrentReview:3,broadGlobBlocks:false}; WHY: proves mode off is accepted as a valid escape hatch (not rejected as invalid)",
             "type": "logic",
             "priority": "must"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "resolveParallelGate({mode:\"nope\"}, strictDefault) -> warns to console and returns {mode:\"advise\",...} (NOT block); WHY: proves invalid mode degrades to safe non-blocking advise fallback, not the profile default block",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:0}, balancedDefault) -> warns and returns maxConcurrentReview=3 (profile default); WHY: boundary -- zero is not a valid positive integer",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:-1}, balancedDefault) -> warns and returns profile default; WHY: negative integer boundary",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:2.5}, strictDefault) -> warns and returns 4 (profile default); WHY: non-integer float boundary",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({broadGlobBlocks:\"yes\"}, balancedDefault) -> returns broadGlobBlocks=false (profile default); WHY: string is not boolean, must fall back",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate with only mode set (no maxConcurrentReview/broadGlobBlocks keys) -> missing sub-fields inherit from profileDefault; WHY: proves partial override merges correctly",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveParallelGate(\"not-an-object\", lightDefault) -> returns full lightDefault with no throw; WHY: string input must not crash the resolver",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate([1,2,3], balancedDefault) -> returns full balancedDefault; WHY: array is typeof object but not a valid config; Array.isArray guard must catch it",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate(null, strictDefault) -> returns full strictDefault; WHY: null is typeof object, must be guarded",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({mode:123,maxConcurrentReview:\"abc\",broadGlobBlocks:99}, balancedDefault) -> all three sub-fields fall back to profile defaults with warnings; WHY: every sub-field receives wrong type simultaneously",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:Infinity}, lightDefault) -> falls back to profile default 2; WHY: Infinity is a number but not finite/integer, must be rejected",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
