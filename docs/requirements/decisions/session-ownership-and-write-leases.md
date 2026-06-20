@@ -6,12 +6,13 @@ Adopted design; rollout fully implemented. This document is the canonical, adopt
 design for Lattice's multi-session coordination rules and is treated as a process truth
 source — agents and the scope-plan reviewer should honor it.
 
-Owner-session identity amendment: B-a781 adds
+Owner-session identity amendment: B-a781 added
 `owner-session-contract-execution-plan.md` as the execution plan for migrating
 session identity to the canonical `LATTICE_SESSION_ID` host-adapter contract.
-Until that plan is implemented, the implemented baseline below remains the
-runtime behavior; future owner-lease/session work should treat the B-a781 plan
-as the migration target.
+B-9089 implements that runtime contract: generic owner-lease and lifecycle code
+consume the host-neutral resolver facade, while Claude Code, Codex,
+Antigravity/agy, and future host signals are bridged at the adapter/dispatch
+boundary.
 
 - **Main write lock (rollout step 3) — implemented (B-f60c)**: a unified lock in
   `core/main-write-lock.ts` over the canonical `.lattice/locks/main-write.lock/` path, held by
@@ -23,21 +24,18 @@ as the migration target.
   `CommandPolicy.ownershipClass`, stale-lease detection + `--takeover` / `--forceTakeover`,
   ownership-aware rejection errors, and `session_brief` ownership rendering.
 
-Current implementation resolves `sessionId` by a 3-source priority chain:
-`LATTICE_SESSION_ID` → `CLAUDE_CODE_SESSION_ID` → `deriveLocalSessionId(hostname,
-worktree-root, ppid)` (`sessionSource: derived-ppid`). The first two paths still
-carry legacy implementation labels in current runtime metadata; replacing those
-labels with host-neutral Lattice source names is part of the B-a781 migration
-target. The id is a local process-coordination id, never a cryptographic
-identity; ppid is only the last-resort fallback because each Claude Code Bash
-call can spawn a fresh shell.
-The target migration is documented in
-`owner-session-contract-execution-plan.md`: core owner-lease/lifecycle code
-should consume only canonical `LATTICE_SESSION_ID`, while Claude Code, Codex,
-Antigravity/agy, and future host-specific signals are bridged by adapters. The
-doctor stale story-owner-lease check (step 5) and the multi-session
+Current implementation resolves `sessionId` through the owner-session facade:
+`LATTICE_SESSION_ID` (`sessionSource: explicit-env`) → host adapter bridge
+(`host-adapter`) → local generated token fallback (`generated-token`) →
+`deriveLocalSessionId(hostname, worktree-root, ppid)` (`derived-ppid`). Legacy
+lease labels such as `koala-env` and `claude-code-env` remain readable and are
+normalized on read. The id is a local process-coordination id, never a
+cryptographic identity; ppid is only the degraded last-resort fallback because
+each tool call can spawn a fresh parent process under some hosts.
+
+The doctor stale story-owner-lease check (step 5) and the multi-session
 convergence/regression smoke (step 6) were both delivered by B-c55d (CHK-005);
-the rollout is now fully implemented.
+B-9089 extends them with the host-neutral owner-session contract.
 
 ## Original Problem
 

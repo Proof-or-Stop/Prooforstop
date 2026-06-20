@@ -60,6 +60,7 @@ import {
   runValidateGate,
 } from './phase-gates.js';
 import { runGuardSessionGate } from './guard-session.js';
+import { getSessionId } from '../core/owner-session.js';
 import {
   recomputeProcessMetrics,
   runPhaseChangeHooks,
@@ -291,7 +292,7 @@ async function runStoryTransitionInner(
       const devEvents = story.events.filter(e => e.phase === 'DEV' && e.action === 'advance');
       if (devEvents.length > 0) {
         const lastDev = devEvents[devEvents.length - 1];
-        const currentSession = process.env.LATTICE_SESSION_ID || process.env.CLAUDE_SESSION_ID || '';
+        const currentSession = getSessionId();
         if (lastDev.sessionId && lastDev.sessionId !== currentSession) {
           const who = lastDev.user || lastDev.agent || 'unknown';
           const when = lastDev.timestamp;

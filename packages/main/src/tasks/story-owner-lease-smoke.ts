@@ -76,6 +76,7 @@ import {
   isVolatileRuntimeArtifactPath,
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
+import { OWNER_SESSION_TOKEN_DIR } from '../core/owner-session-token-store.js';
 import {
   renderStoryOwnerLeaseScan,
   scanStoryOwnerLeases,
@@ -91,7 +92,7 @@ const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Da
 mkdirSync(root, { recursive: true });
 
 try {
-  // ── 1. sessionId — 3-source chain (LATTICE_SESSION_ID / CLAUDE_CODE / derive) ─
+  // ── 1. sessionId — canonical facade (env / adapter / token / derive) ─
   {
     // Synthetic derivation inputs reused across the sub-tests.
     const inA = { hostname: 'host-1', root: '/repo/.worktrees/B-c55d', ppid: 4242 };
@@ -108,8 +109,9 @@ try {
     assert.equal(r1.sessionId, 'claude-sess-AAA', 'CLAUDE_CODE_SESSION_ID is used verbatim');
     assert.equal(r1.sessionId, r2.sessionId, 'ppid variation does NOT change sessionId when CLAUDE_CODE_SESSION_ID is set (ppid-bricking regression guard)');
     assert.equal(r1.sessionId, r3.sessionId, 'ppid variation does NOT change sessionId across a 3rd fresh shell either');
-    assert.equal(r1.sessionSource, 'claude-code-env', 'sessionSource is claude-code-env when CLAUDE_CODE_SESSION_ID drives the id');
-    assert.equal(r2.sessionSource, 'claude-code-env', 'sessionSource stays claude-code-env across ppid changes');
+    assert.equal(r1.sessionSource, 'host-adapter', 'sessionSource is host-adapter when the Claude Code adapter drives the id');
+    assert.equal(r1.hostProvider, 'claude-code', 'Claude Code bridge records provider diagnostics');
+    assert.equal(r2.sessionSource, 'host-adapter', 'sessionSource stays host-adapter across ppid changes');
 
     // 1b. Two DIFFERENT CLAUDE_CODE_SESSION_ID values → two DIFFERENT sessionIds,
     // so two genuinely different Claude Code sessions never collide.
@@ -118,21 +120,64 @@ try {
     assert.notEqual(rClaudeA.sessionId, rClaudeB.sessionId, 'different CLAUDE_CODE_SESSION_ID values → different sessionIds');
 
     // 1c. LATTICE_SESSION_ID WINS over CLAUDE_CODE_SESSION_ID — it is the
-    // highest-priority canonical override; sessionSource = koala-env.
+    // highest-priority canonical override; sessionSource = explicit-env.
     const rBoth = resolveSessionIdentity(
-      { LATTICE_SESSION_ID: 'koala-override-1', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
+      { LATTICE_SESSION_ID: 'lattice-override-1', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
       inA,
     );
-    assert.equal(rBoth.sessionId, 'koala-override-1', 'LATTICE_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
-    assert.equal(rBoth.sessionSource, 'koala-env', 'sessionSource is koala-env when LATTICE_SESSION_ID drives the id');
+    assert.equal(rBoth.sessionId, 'lattice-override-1', 'LATTICE_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
+    assert.equal(rBoth.sessionSource, 'explicit-env', 'sessionSource is explicit-env when LATTICE_SESSION_ID drives the id');
     // Empty / whitespace-only env values are treated as absent (fall through).
     const rEmptyKoala = resolveSessionIdentity(
       { LATTICE_SESSION_ID: '   ', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
       inA,
     );
-    assert.equal(rEmptyKoala.sessionSource, 'claude-code-env', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
+    assert.equal(rEmptyKoala.sessionSource, 'host-adapter', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
 
-    // 1d. BOTH env vars absent → deriveLocalSessionId(hostname, root, ppid) is
+    // 1d. Codex, Antigravity/agy, and a fake future host reach the same
+    // canonical contract through adapters. Provider labels are diagnostics;
+    // ownership keys on the returned sessionId.
+    const rCodex = resolveSessionIdentity(
+      { LATTICE_ACTIVITY_SOURCE: 'codex', CODEX_SESSION_ID: 'codex-sess-1' },
+      inA,
+    );
+    assert.equal(rCodex.sessionId, 'codex-sess-1', 'Codex native session is bridged through the adapter');
+    assert.equal(rCodex.sessionSource, 'host-adapter', 'Codex bridge is reported as host-adapter');
+    assert.equal(rCodex.hostProvider, 'codex', 'Codex bridge reports provider diagnostics');
+
+    const rAntigravity = resolveSessionIdentity(
+      { LATTICE_ACTIVITY_SOURCE: 'antigravity', ANTIGRAVITY_SESSION_ID: 'ag-sess-1' },
+      inA,
+    );
+    assert.equal(rAntigravity.sessionId, 'ag-sess-1', 'Antigravity native session is bridged through the adapter');
+    assert.equal(rAntigravity.hostProvider, 'antigravity', 'Antigravity is the canonical third-host provider label');
+
+    const rAgy = resolveSessionIdentity(
+      { LATTICE_ACTIVITY_SOURCE: 'agy', AGY_SESSION_ID: 'agy-sess-1' },
+      inA,
+    );
+    assert.equal(rAgy.sessionId, 'agy-sess-1', 'agy alias still bridges as adapter input');
+    assert.equal(rAgy.hostProvider, 'agy', 'agy remains a diagnostic provider string');
+
+    const rFuture = resolveSessionIdentity(
+      { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake', LATTICE_OWNER_SESSION_ADAPTER_SESSION: 'future-sess-1' },
+      inA,
+    );
+    assert.equal(rFuture.sessionId, 'future-sess-1', 'future host adapter can onboard without core resolver changes');
+    assert.equal(rFuture.hostProvider, 'fake', 'future fake host reports provider diagnostics');
+
+    const generatedInputs = { ...inA, root };
+    const generatedEnv = {
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+      LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+    };
+    const generatedA = resolveSessionIdentity(generatedEnv, generatedInputs, { now: () => '2026-06-20T12:00:00.000Z' });
+    const generatedB = resolveSessionIdentity(generatedEnv, { ...generatedInputs, ppid: 99999 }, { now: () => '2026-06-20T12:05:00.000Z' });
+    assert.equal(generatedA.sessionSource, 'generated-token', 'host session boundary without native stable id uses generated-token');
+    assert.equal(generatedA.sessionId, generatedB.sessionId, 'generated token is reused across ppid-changing invocations for the same adapter boundary');
+    assert.match(generatedA.sessionId, /^sess-[a-f0-9]{32}$/, 'generated token is opaque local runtime material');
+
+    // 1e. BOTH env vars absent → deriveLocalSessionId(hostname, root, ppid) is
     // the fallback; sessionSource = derived-ppid. Keep the derive stability /
     // uniqueness assertions for this last-resort path.
     const rDerived = resolveSessionIdentity({}, inA);
@@ -150,13 +195,13 @@ try {
     assert.notEqual(idBase, deriveLocalSessionId('host-1', '/repo/.worktrees/B-other', 4242), 'a different worktree root → a different derived id');
     assert.notEqual(idBase, deriveLocalSessionId('host-2', '/repo/.worktrees/B-c55d', 4242), 'a different hostname → a different derived id');
 
-    // 1e. The memoized public getter wraps the resolver and stays stable for the
+    // 1f. The memoized public getter wraps the resolver and stays stable for the
     // process. Set LATTICE_SESSION_ID so sections 2+ have a deterministic owner.
     process.env.LATTICE_SESSION_ID = 'sess-alpha';
     delete process.env.CLAUDE_CODE_SESSION_ID;
     resetSessionIdForTest();
     assert.equal(getSessionId(), 'sess-alpha', 'getSessionId() wraps the resolver over real process.env');
-    assert.equal(getSessionIdentity().sessionSource, 'koala-env', 'getSessionIdentity() reports the resolved source');
+    assert.equal(getSessionIdentity().sessionSource, 'explicit-env', 'getSessionIdentity() reports the resolved source');
     process.env.LATTICE_SESSION_ID = 'changed-after';
     assert.equal(getSessionId(), 'sess-alpha', 'getSessionId() stays memoized for the process lifetime');
     process.env.LATTICE_SESSION_ID = 'sess-alpha';
@@ -179,7 +224,7 @@ try {
     });
     assert.equal(existsSync(leasePath), true, 'owner-lease.json written on acquire');
     assert.equal(lease.sessionId, 'sess-alpha', 'lease records the current session');
-    assert.equal(lease.sessionSource, 'koala-env', 'lease records sessionSource (koala-env for the LATTICE_SESSION_ID owner)');
+    assert.equal(lease.sessionSource, 'explicit-env', 'lease records sessionSource (explicit-env for the LATTICE_SESSION_ID owner)');
     assert.equal(lease.command, 'checklist_update', 'lease records the acquiring command');
     assert.equal(lease.cwd, '/tmp/worktree-acquire', 'lease records the owning cwd');
     assert.equal(lease.label, 'main-agent', 'lease records the optional label');
@@ -320,6 +365,19 @@ try {
     const droppedSource = readOwnerLease(storyDir);
     assert.notEqual(droppedSource, null, 'a lease with an unknown sessionSource is still valid');
     assert.equal(droppedSource!.sessionSource, undefined, 'an unknown sessionSource value is dropped, not carried');
+
+    // Legacy source labels are accepted and normalized so old leases remain
+    // compatible while new runtime code uses host-neutral source labels.
+    writeFileSync(leasePath, JSON.stringify({
+      sessionId: 'x', sessionSource: 'koala-env', hostname: 'h', pid: 1, cwd: '/c',
+      command: 'checklist_update', acquiredAt: 't', heartbeatAt: 't',
+    }), 'utf-8');
+    assert.equal(readOwnerLease(storyDir)?.sessionSource, 'explicit-env', 'legacy koala-env source normalizes to explicit-env');
+    writeFileSync(leasePath, JSON.stringify({
+      sessionId: 'x', sessionSource: 'claude-code-env', hostname: 'h', pid: 1, cwd: '/c',
+      command: 'checklist_update', acquiredAt: 't', heartbeatAt: 't',
+    }), 'utf-8');
+    assert.equal(readOwnerLease(storyDir)?.sessionSource, 'host-adapter', 'legacy claude-code-env source normalizes to host-adapter');
     rmSync(leasePath, { force: true });
   }
 
@@ -342,6 +400,24 @@ try {
     assert.equal(
       listRuntimeArtifactIgnorePatterns().includes('**/owner-lease.json'), true,
       'the runtime ignore patterns include **/owner-lease.json',
+    );
+    const tokenSamplePath = `${OWNER_SESSION_TOKEN_DIR}/provider/token.json`;
+    assert.equal(
+      isVolatileRuntimeArtifactPath(tokenSamplePath), true,
+      'generated owner-session token store is classified as volatile runtime state',
+    );
+    assert.equal(
+      isMaterialExcludedRuntimeArtifactPath(tokenSamplePath), true,
+      'generated owner-session token store is excluded from material hashing',
+    );
+    assert.equal(
+      findRuntimeArtifactEntry(tokenSamplePath)?.id,
+      'owner-session-token-store',
+      'generated owner-session token path is registered as a runtime artifact',
+    );
+    assert.equal(
+      listRuntimeArtifactIgnorePatterns().includes(`${OWNER_SESSION_TOKEN_DIR}/`), true,
+      'the runtime ignore patterns include the generated owner-session token store',
     );
   }
 
@@ -670,7 +746,7 @@ try {
     assert.equal(ownView.hasLease, true, 'owned lease → hasLease:true');
     assert.equal(ownView.isCurrentSessionOwner, true, 'owned lease → isCurrentSessionOwner:true');
     assert.equal(ownView.ownerSessionId, 'sess-me', 'view reports the owner sessionId');
-    assert.equal(ownView.ownerSessionSource, 'koala-env', 'view reports the owner sessionSource');
+    assert.equal(ownView.ownerSessionSource, 'explicit-env', 'view reports the owner sessionSource');
     assert.equal(ownView.ownerCwd, '/tmp/my-wt', 'view reports the owner cwd');
     assert.equal(ownView.heartbeatAge, '5m ago', 'view reports the last-heartbeat age');
     assert.equal(ownView.stale, false, 'a 5m-old lease is active, not stale');
@@ -714,12 +790,12 @@ try {
 
     // 15b. Owned active lease → block shows owner/cwd/heartbeat/OWNER/proceed.
     const ownerLines = renderOwnershipBlock({
-      hasLease: true, ownerSessionId: 'sess-me', ownerSessionSource: 'koala-env',
+      hasLease: true, ownerSessionId: 'sess-me', ownerSessionSource: 'explicit-env',
       ownerCwd: '/tmp/my-wt', heartbeatAge: '3m ago', stale: false,
       isCurrentSessionOwner: true, recommendation: 'proceed', currentSessionId: 'sess-me',
     }).join('\n');
     assert.ok(ownerLines.includes('## Story ownership (active)'), 'owned block heading shows active status');
-    assert.ok(ownerLines.includes('owner session: sess-me [koala-env]'), 'owned block shows owner session + source');
+    assert.ok(ownerLines.includes('owner session: sess-me [explicit-env]'), 'owned block shows owner session + source');
     assert.ok(ownerLines.includes('owner cwd: /tmp/my-wt'), 'owned block shows owner cwd');
     assert.ok(ownerLines.includes('last heartbeat: 3m ago'), 'owned block shows heartbeat age');
     assert.ok(ownerLines.includes('OWNER'), 'owned block marks this session OWNER');
@@ -727,7 +803,7 @@ try {
 
     // 15c. Foreign STALE lease → block marks NOT owner + takeover available.
     const staleLines = renderOwnershipBlock({
-      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'claude-code-env',
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'host-adapter',
       ownerCwd: '/tmp/owner-wt', heartbeatAge: '45m ago', stale: true,
       isCurrentSessionOwner: false, recommendation: 'takeover-available', currentSessionId: 'sess-me',
     }).join('\n');
@@ -738,14 +814,14 @@ try {
 
     // 15d. Foreign ACTIVE lease → block recommends read-only only.
     const activeForeignLines = renderOwnershipBlock({
-      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'koala-env',
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'explicit-env',
       ownerCwd: '/tmp/owner-wt', heartbeatAge: '2m ago', stale: false,
       isCurrentSessionOwner: false, recommendation: 'read-only', currentSessionId: 'sess-me',
     }).join('\n');
     assert.ok(activeForeignLines.includes('read-only only'), 'foreign active block recommends read-only only');
     assert.ok(activeForeignLines.includes('--forceTakeover'), 'foreign active block mentions --forceTakeover as the override');
     const sameWorktreeLines = renderOwnershipBlock({
-      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'koala-env',
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'explicit-env',
       ownerCwd: '/tmp/owner-wt', heartbeatAge: '2m ago', stale: false,
       isCurrentSessionOwner: false, recommendation: 'read-only', currentSessionId: 'sess-me',
       ownerCwdMatchesCurrent: true, currentCwd: '/tmp/owner-wt',
@@ -1264,11 +1340,12 @@ try {
   }
 
   console.log(
-    '✓ story-owner-lease smoke passed (3-source sessionId chain: ppid-bricking regression ' +
-    'guard / distinct CLAUDE_CODE ids / LATTICE_SESSION_ID wins / derive fallback + sessionSource / ' +
+    '✓ story-owner-lease smoke passed (owner-session facade: ppid-bricking regression ' +
+    'guard / distinct host-adapter ids / LATTICE_SESSION_ID wins / codex+claude+antigravity matrix / ' +
+    'generated-token fallback / derive fallback + sessionSource / ' +
     'acquire schema incl. sessionSource / heartbeat refresh / release idempotent / ' +
     'acquire-or-refresh acquired+refreshed+foreign / malformed → null + legacy-lease compat / ' +
-    'runtime-artifact dirty-write prevention / CHK-003 stale 30min detection + boundary / ' +
+    'runtime-artifact dirty-write prevention for lease+token store / CHK-003 stale 30min detection + boundary / ' +
     '--takeover transfers stale + logs event / --takeover refuses active / --forceTakeover ' +
     'transfers active + logs event / no-flag no-transfer + no-lease/already-owned guards + ' +
     'invalid-kind rejection / CHK-004 formatNonOwnerError full Error UX field set (stale+active) / ' +
