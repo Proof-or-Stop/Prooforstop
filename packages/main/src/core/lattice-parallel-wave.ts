@@ -10,6 +10,7 @@ import {
   type DevMemoryEntry,
 } from './dev-memory.js';
 import { isMaterialExcludedPath } from './evidence-freshness.js';
+import { computeWriteSet, globsOverlap } from './parallel-decomposition-overlap.js';
 import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -310,6 +311,29 @@ const MAX_EXPERIENCE_REFS = 20;
 const TERMINAL_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED']);
 const NON_ACTIVE_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED', 'IDEA', 'META']);
 const ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND = 'active-story-changed-file-probe-failed';
+
+export interface ScopeGlobOverlap { peerStoryId: string; pairExample: string; }
+/** Pure: which ACTIVE parallel peers' write-sets statically overlap this story's, for the
+ *  advisory scope_glob_overlap wave degradation. Returns [] unless self asserts parallelSafe==='yes'.
+ *  Mirrors evaluateDecompositionGate's active-peer semantics (peer non-terminal + parallelSafe==='yes'). */
+export function computeScopeGlobOverlaps(
+  self: { storyId: string; parallelSafe?: StoryInfo['parallelSafe']; writeSet: string[] },
+  peers: Array<{ storyId: string; phase: StoryPhase; parallelSafe?: StoryInfo['parallelSafe']; writeSet: string[] }>,
+): ScopeGlobOverlap[] {
+  if (self.parallelSafe !== 'yes') return [];
+  const out: ScopeGlobOverlap[] = [];
+  for (const peer of peers) {
+    if (peer.storyId === self.storyId) continue;
+    if (TERMINAL_PHASES.has(peer.phase)) continue;
+    if (peer.parallelSafe !== 'yes') continue;
+    const res = globsOverlap(self.writeSet, peer.writeSet);
+    if (res.overlap && res.pairs.length > 0) {
+      const [a, b] = res.pairs[0];
+      out.push({ peerStoryId: peer.storyId, pairExample: `${a} ↔ ${b}` });
+    }
+  }
+  return out;
+}
 
 function uniqueStrings(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
@@ -755,6 +779,7 @@ function resolveWaveSafety(
   changedFiles: ParallelWaveChangedFiles,
   actualFileOverlaps: ParallelWaveActualFileOverlap[],
   activeStoryProbeFailures: ParallelWaveChangedFileProbeFailure[],
+  scopeGlobOverlaps: ScopeGlobOverlap[],
 ): { safety: ParallelWaveSafety; degradations: ParallelWaveDegradation[] } {
   const degradations: ParallelWaveDegradation[] = [];
   const explicit = story.parallelSafe;
@@ -842,6 +867,22 @@ function resolveWaveSafety(
       'Allow planning and merge sequencing only; avoid simultaneous DEV until the overlapping file risk is resolved.',
     ));
   }
+  // scope_glob_overlap (advisory-only, Story 4): a STATIC write-set collision with an active
+  // parallel peer. capability is 'scope_glob_overlap' (not the generic 'parallel-scheduling'),
+  // so it is distinguishable in the degradation stream; severity 'warn'/authorityImpact 'none'.
+  // Advisory-only: it does NOT change the safety tier here (a hard block is Story 5).
+  for (const o of scopeGlobOverlaps) {
+    degradations.push({
+      id: degradationId(story.storyId, 'scope-glob-overlap', o.peerStoryId),
+      host: 'parallel-wave',
+      capability: 'scope_glob_overlap',
+      severity: 'warn',
+      visible: true,
+      reason: `Write-set overlaps active parallel peer ${o.peerStoryId} (e.g. ${o.pairExample}); independence is not statically provable.${explicitOverrideNote}`,
+      fallback: 'Coordinate the two scope contracts (disjoint allowedModify/allowedCreate) or sequence the stories so they do not DEV simultaneously.',
+      authorityImpact: 'none',
+    });
+  }
 
   if (dependencies.active.length > 0 || dependencies.blockingForActive.length > 0 || explicit === 'no') {
     return { safety: 'no', degradations };
@@ -925,7 +966,27 @@ function storyRef(
   } satisfies ParallelWaveChangedFiles;
   const actualFileOverlaps = actualFileOverlapsByStory.get(story.storyId) ?? [];
   const activeStoryProbeFailures = activeStoryChangedFileProbeFailures(changedFilesByStory, story.storyId);
-  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures);
+  // Story 4: static scope-contract write-set overlap with ACTIVE parallel peers (advisory-only).
+  // Null-tolerant: peers without a readable scope contract are skipped, not crashed.
+  const selfContract = store.readScopeContract(story.storyId);
+  const selfWriteSet = selfContract ? computeWriteSet(selfContract) : [];
+  const overlapPeers = allStories
+    .filter(p => p.storyId !== story.storyId)
+    .flatMap(p => {
+      const peerContract = store.readScopeContract(p.storyId);
+      if (!peerContract) return [];
+      return [{
+        storyId: p.storyId,
+        phase: p.phase,
+        parallelSafe: p.parallelSafe,
+        writeSet: computeWriteSet(peerContract),
+      }];
+    });
+  const scopeGlobOverlaps = computeScopeGlobOverlaps(
+    { storyId: story.storyId, parallelSafe: story.parallelSafe, writeSet: selfWriteSet },
+    overlapPeers,
+  );
+  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures, scopeGlobOverlaps);
   const recommendation = recommendationFor(resolved.safety, hostIds);
   return {
     storyId: story.storyId,

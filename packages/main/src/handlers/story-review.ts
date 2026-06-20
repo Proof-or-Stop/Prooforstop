@@ -16,10 +16,13 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { StoryInfo } from '../core/types.js';
+import type { StoryInfo, ScopeContractData } from '../core/types.js';
+import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.js';
+import { resolveAuditConfig } from '../core/audit-config.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
 import { existsSync, readFileSync, readdirSync } from 'fs';
@@ -39,6 +42,22 @@ function normalizeTouchpointPath(value: string): string {
   const firstSegment = trimmed.split(/\s+\(/)[0].split(/\s+-\s+/)[0].trim();
   const token = firstSegment.split(/\s+/)[0] || firstSegment;
   return token.replace(/[),:;]+$/g, '').replace(/^`|`$/g, '').trim();
+}
+
+/**
+ * Story 4 (B-fa7c): surface evaluateDecompositionGate()'s ADVISORIES at REVIEW as
+ * advisory-severity issues. The gate's `block` field is INTENTIONALLY ignored here —
+ * REVIEW is advisory-only; enforcement (turning a block into a blocker) is Story 5.
+ * Pure: no I/O. blockerCount filters severity==='blocker', so these never block REVIEW.
+ */
+export function decompositionAdvisoryIssues(
+  story: StoryInfo,
+  peers: StoryInfo[],
+  contracts: Map<string, ScopeContractData>,
+  cfg: ParallelGateConfig,
+): Array<{ type: 'decomposition_advisory'; severity: 'advisory'; message: string }> {
+  const { advisories } = evaluateDecompositionGate(story, peers, contracts, cfg);
+  return advisories.map((message) => ({ type: 'decomposition_advisory' as const, severity: 'advisory' as const, message }));
 }
 
 export function createStoryReviewHandlers(ctx: HandlerContext) {
@@ -444,6 +463,31 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             });
           }
         }
+      }
+
+      // 2.6b. Story 4 (B-fa7c): parallel-decomposition ADVISORIES surfaced at REVIEW.
+      // Advisory-only — the gate's `block` field is intentionally ignored here (enforcement
+      // is Story 5). Each advisory becomes an {severity:'advisory'} issue, so blockerCount
+      // (computed below as issues.filter(i=>i.severity==='blocker').length) is unaffected.
+      // Defensive: a missing parallelGate config or any throw skips the injection — an
+      // advisory must never crash REVIEW.
+      try {
+        const parallelGateCfg = resolveAuditConfig(policy.profile, ctx.root).parallelGate;
+        if (parallelGateCfg) {
+          const peers = store.listStoryIds()
+            .filter(id => id !== args.storyId)
+            .map(id => store.readStory(id));
+          const contracts = new Map<string, ScopeContractData>();
+          for (const peer of peers) {
+            const peerContract = store.readScopeContract(peer.storyId);
+            if (peerContract) contracts.set(peer.storyId, peerContract);
+          }
+          const selfContract = store.readScopeContract(args.storyId);
+          if (selfContract) contracts.set(args.storyId, selfContract);
+          issues.push(...decompositionAdvisoryIssues(story, peers, contracts, parallelGateCfg));
+        }
+      } catch (e) {
+        console.warn(`[decomposition-advisory] surface failed for ${args.storyId}:`, (e as Error).message);
       }
 
       // 2.65. B-ed3e CHK-004: Open Questions gate — any unresolved OQ blocks PLAN→DEV.
