@@ -146,6 +146,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:12:49.804Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "the existing process-fact contract assertions still pass (no existing fact broken).",
+          "headHash": "8beaf4913b606d72f8f780719ed96d26b32c0b1a",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:50.302Z"
         }
       ]
     },
