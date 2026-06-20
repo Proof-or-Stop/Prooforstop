@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-20T11:26:22.895Z",
       "reviewRunId": "B-ac25:RR-025",
       "_hash": "0efab2dea6a86d59257f167317deaa96ea1848a40afc8231919d322d3f37cf33"
+    },
+    {
+      "id": "B-ac25:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "concept pass: latest classifier repair keeps done-required-evidence.json as a narrow lifecycle_artifact and DONE-required gate artifact. Source review: packages/main/src/core/lifecycle-registry.ts:312 registers it in LIFECYCLE_ARTIFACTS, packages/main/src/core/lifecycle-registry.ts:393 marks TEST produces, packages/main/src/core/lifecycle-registry.ts:398 marks DONE consumes, and packages/main/src/core/lifecycle-registry.ts:432 maps done-required-validation to done-required-evidence.json. The classifier remains closed-set/storyId-aware at packages/main/src/core/lifecycle-registry.ts:655 and scope-path-classifier only emits lifecycle_artifact from that registry at packages/main/src/core/scope-path-classifier.ts:76. DONE-required concept remains local opt-in: missing config is advisory and malformed opted-in config fail-closes in packages/main/src/core/done-required-validation.ts:212 and packages/main/src/core/done-required-validation.ts:480; done-oracle consumes a separate DONE-required row at packages/main/src/core/done-oracle.ts:328. Boundary not expanded: command-policy explicitly says done_required_validate never claims Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, release approval, or remote publish readiness at packages/main/src/core/command-policy.ts:203. Verification: node scripts/verify-process-fact-contract.mjs PASS and includes artifact:done-required-evidence.json as L4 artifact consumed by story_advance DONE done-required-validation gate. Current open F-006 is quality lane, not concept.",
+      "createdAt": "2026-06-20T11:30:01.208Z",
+      "reviewRound": "2026-06-20T11:26:22.895Z",
+      "reviewRunId": "B-ac25:RR-027",
+      "_hash": "0af4c2543f880744b06354fe1aed3db6b39c920149d609347352e1770f94e042"
     }
   ]
 }
