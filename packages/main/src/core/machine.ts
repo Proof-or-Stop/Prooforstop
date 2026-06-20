@@ -4,7 +4,10 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue } from './types.js';
+import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
+import { resolveAuditConfig } from './audit-config.js';
+import { evaluateDecompositionGate, globsOverlap, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
+import { safeReadScopeContract } from './lattice-parallel-wave.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
 import type { ReviewLoopIteration } from './types.js';
@@ -296,6 +299,110 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
   }
 }
 
+/**
+ * Parallel-decomposition: the block to ENFORCE at PLAN→DEV, or null (no enforced block).
+ *
+ * Consults cfg.mode ONLY here — the gate (evaluateDecompositionGate) is mode-agnostic and
+ * the spec (§4.4) says the CALLER enforces mode. Returns null unless cfg.mode==='block', so
+ * advise/off never produce an enforced block (advisory is Story 4's surface). The self story's
+ * own scope contract is included in the map (the loop over ALL ids covers it), which the gate
+ * needs to compute its own write-set.
+ *
+ * MAY THROW (config introspection / store read errors) — every caller wraps this in its OWN
+ * fail-open try/catch so a gate/config infra error can NEVER block PLAN→DEV (spec §4.8).
+ */
+function parallelDecompositionEnforcedBlock(
+  store: StoryStore,
+  projectRoot: string,
+  story: StoryInfo,
+  profile: WorkflowProfile,
+): ParallelDecompositionBlock | null {
+  const cfg = resolveAuditConfig(profile, projectRoot).parallelGate;
+  if (!cfg || cfg.mode !== 'block') return null;
+  const ids = store.listStoryIds();
+  const peers = ids.filter((id) => id !== story.storyId).map((id) => store.readStory(id));
+  const contracts = new Map<string, ScopeContractData>();
+  for (const id of ids) {
+    const c = safeReadScopeContract(store, id);
+    if (c) contracts.set(id, c);
+  }
+  return evaluateDecompositionGate(story, peers, contracts, cfg).block;
+}
+
+/**
+ * Map an enforced parallel-decomposition block to an actionable PLAN→DEV failure message.
+ * Names the colliding peer / broad glob where it is cheap to recompute (overlap recomputes
+ * the literal collision against active parallel peers via the same write-sets/globsOverlap
+ * the gate used). Never throws: any recompute failure degrades to a general message.
+ */
+function formatParallelDecompositionBlock(
+  block: ParallelDecompositionBlock,
+  story: StoryInfo,
+  store: StoryStore,
+  projectRoot: string,
+  profile: WorkflowProfile,
+): string {
+  switch (block) {
+    case 'overlap_declared_parallel': {
+      let detail = '';
+      try {
+        const cfg = resolveAuditConfig(profile, projectRoot).parallelGate;
+        const sContract = safeReadScopeContract(store, story.storyId);
+        if (cfg && sContract) {
+          const sWriteSet = computeWriteSet(sContract);
+          for (const id of store.listStoryIds()) {
+            if (id === story.storyId) continue;
+            const peer = store.readStory(id);
+            if (peer.parallelSafe !== 'yes') continue;
+            const pContract = safeReadScopeContract(store, id);
+            if (!pContract) continue;
+            const res = globsOverlap(sWriteSet, computeWriteSet(pContract));
+            const literalPair = res.pairs.find(([a, b]) => a === b);
+            if (literalPair) {
+              detail = ` with parallel peer ${id} (e.g. ${literalPair[0]})`;
+              break;
+            }
+          }
+        }
+      } catch { /* general message below if recompute fails */ }
+      return `parallel-decomposition: write-set literally collides${detail || ' with an active parallel peer'}; ` +
+        `independence is not provable [overlap_declared_parallel]. ` +
+        `→ Make the two scope contracts disjoint (allowedModify/allowedCreate), or set parallelSafe=no / sequence the stories so they do not DEV simultaneously.`;
+    }
+    case 'broad_glob_unprovable_parallel': {
+      let broad = '';
+      try {
+        const sContract = safeReadScopeContract(store, story.storyId);
+        if (sContract) {
+          const example = computeWriteSet(sContract).find((e) => e.endsWith('/**'));
+          if (example) broad = ` (e.g. ${example})`;
+        }
+      } catch { /* general message */ }
+      return `parallel-decomposition: a broad glob${broad} is asserted parallel-safe under the strict profile; ` +
+        `independence is unprovable [broad_glob_unprovable_parallel]. ` +
+        `→ Narrow the contract to specific paths or dir/* entries, or set parallelSafe=no.`;
+    }
+    case 'peer_contract_unreadable_parallel': {
+      let peerId = '';
+      try {
+        for (const id of store.listStoryIds()) {
+          if (id === story.storyId) continue;
+          const peer = store.readStory(id);
+          if (peer.parallelSafe !== 'yes') continue;
+          if (safeReadScopeContract(store, id) === null) { peerId = id; break; }
+        }
+      } catch { /* general message */ }
+      return `parallel-decomposition: the scope contract for parallel peer ${peerId || '(unknown)'} is unreadable, ` +
+        `so disjointness from this story cannot be proven [peer_contract_unreadable_parallel]. ` +
+        `→ Repair the peer's scope-contract.json, or set parallelSafe=no to drop the parallel assertion.`;
+    }
+    case 'fake_dependency_chain':
+      // Advisory-only in the gate (never an enforced block); handled defensively.
+      return `parallel-decomposition: a declared dependency edge could not be corroborated [fake_dependency_chain]. ` +
+        `→ Verify the depends edges name real active peer stories.`;
+  }
+}
+
 export function canStartDevGuard(context: StoryMachineContext): boolean {
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
@@ -310,7 +417,14 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
     const expectedHash = createHash('sha256').update(hashInput).digest('hex');
     if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
-    return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
+    if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) return false;
+    // Parallel-decomposition hard block (spec §4.8): a FAIL-OPEN sub-check in its OWN nested
+    // try/catch. A gate/config infra error must NEVER block PLAN→DEV, so the catch falls through
+    // to `return true` below — it must NOT return false. The outer review gate stays fail-closed.
+    try {
+      if (parallelDecompositionEnforcedBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
+    } catch { /* FAIL-OPEN: a gate/config infra error must NEVER block PLAN→DEV (spec §4.8) */ }
+    return true;
   } catch {
     return false;
   }
