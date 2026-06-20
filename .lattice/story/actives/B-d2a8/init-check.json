@@ -1,0 +1,47 @@
+{
+  "storyId": "B-d2a8",
+  "checkedAt": "2026-06-20T05:18:17.711Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "CHK-001 context specifies resolveParallelGate(raw, profileDefault) with TWO parameters, but spec §4.7 (docs/parallel-decomposition-spec.md line 372) defines the helper as resolveParallelGate(raw?: unknown): ParallelGateConfig with ONE parameter. The implementer will be confused about whether profileDefault is an explicit argument or looked up internally from the profile. The background does not define the signature either."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "Conversational Texture uses the term \"full-3x2\" (\"full Claude plus Codex dual-host (full-3x2) per the program standard\") without any definition in the background. A reader unfamiliar with the parallel-decomp program standard would not know that full-3x2 means full 3-reviewer x 2-host strong-proof escalation."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T05:18:03.830Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 context does not explicitly list mode:off as a tested scenario, even though the operator user-story calls out off as a reversible escape hatch they care about. Consider adding an explicit assertion that mode:off disables the gate (not just that invalid modes fall back to advise)."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T05:18:17.711Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "CHK-001 context specifies resolveParallelGate(raw, profileDefault) with TWO parameters, but spec §4.7 (docs/parallel-decomposition-spec.md line 372) defines the helper as resolveParallelGate(raw?: unknown): ParallelGateConfig with ONE parameter. The implementer will be confused about whether profileDefault is an explicit argument or looked up internally from the profile. The background does not define the signature either."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "Conversational Texture uses the term \"full-3x2\" (\"full Claude plus Codex dual-host (full-3x2) per the program standard\") without any definition in the background. A reader unfamiliar with the parallel-decomp program standard would not know that full-3x2 means full 3-reviewer x 2-host strong-proof escalation."
+        }
+      ]
+    }
+  ],
+  "_hash": "e309b08a75f0c85f74b49a0e209f56ec6c61e1e85a49a1db5eb36003a474c869"
+}

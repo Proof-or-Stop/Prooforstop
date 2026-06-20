@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d2a8",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "lattice validate --story=B-d2a8",
+    "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/dist",
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/parallel-decomposition.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "S3 = parallelGate config resolution (per-profile defaults + nested-object validation) + smoke.",
+  "createdAt": "2026-06-20T05:19:14.056Z",
+  "updatedAt": "2026-06-20T05:19:14.056Z",
+  "_hash": "dee663d024e8697916715957069ef8fe598a4df756502bfc74ae0e79261573ef"
+}
