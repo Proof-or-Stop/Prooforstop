@@ -82,7 +82,37 @@
       "context": "Section 4: how the capability composes Lattice's existing review substrate (lattice-review-* lanes, review_run_start/review_pass_set/finding_add, the full-3x2 escalation quorum). Define it as a review MODE / new escalation TIER: the data flow, how a critic-reopened round interacts with the escalation ledger and materialHash freshness, and what is MVP (a documented reusable orchestration + minimal hooks) vs future (a first-class CLI review mode). Be honest about not-yet-implemented surfaces.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/adversarial-review-spec.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "§4 defines how the capability composes the existing lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation; WHY: compose, do not reinvent",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "§4 has an explicit MVP-vs-future split with every future surface labeled not-yet-implemented; and states how a critic-reopened round binds to the escalation ledger + materialHash freshness; WHY: honesty + the trickiest integration detail",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "full-3x2 is defined inline (3 rounds x 2 independent PASS hosts); WHY: standalone-readable",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
