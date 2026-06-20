@@ -84,9 +84,9 @@
       "title": "Convert the residual prototype-chain `in` operators to own-property checks (the belt)",
       "context": "The cheap belt complementing the chokepoint. Convert residual `in` operators (and any dot/bracket reads not covered by the chokepoint) on externally-derived usage objects to Object.prototype.hasOwnProperty.call(obj, key): core/usage-ledger/assemble.ts (extractRawUsage `if (key in response)` — if the chokepoint already replaces it, note that), core/usage-ledger/record.ts (validator `if (!(field in usage))`), core/usage-ledger/adapters/openai.ts (`cached_tokens in details`), core/usage-ledger/adapters/shared.ts (shared cached_tokens helper), core/usage-ledger/streaming.ts (the start/delta merge `in` checks). Re-locate by symbol. Behavior identical for legitimate own-property data (only inherited values change). Optional/lower: diagnostics.ts internal-table bracket lookups — harden ONLY if trivial (internal enums/model ids, not external parsed data, not token-value surfaces).",
       "userSees": "A grep shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/record/adapters/streaming (own-property checks or routed via the chokepoint). Behavior for legitimate own-property usage data is unchanged. npm test exits 0.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T14:48:46.442Z",
-      "endTime": null,
+      "endTime": "2026-06-20T14:51:45.591Z",
       "verificationIntent": {
         "happy": [
           {
@@ -121,7 +121,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "grep -rn \" in \" packages/main/src/core/usage-ledger/",
+          "result": "pass",
+          "note": "No prototype-chain in on externally-derived usage objects remain: openai.ts cached_tokens, record.ts:493/546, streaming.ts (all 7 sites) converted to hasOwnProperty/ownProp or routed through chokepoint. Remaining matches are a comment + record.ts storyId/supersedesRecordIds/confidence presence checks on the locally-assembled record input (NOT external usage token surfaces; out of inventory scope). shared.ts had no in operator.",
+          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
+          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
+          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
+          "timestamp": "2026-06-20T14:51:45.796Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/usage-ledger-adapter-smoke.js",
+          "result": "pass",
+          "note": "record.ts 493/546 converted MECHANISM-only; B-253e rules unchanged. Existing usage-ledger smokes (validator + streaming) green => legitimate own-property data behavior identical.",
+          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
+          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
+          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
+          "timestamp": "2026-06-20T14:51:45.944Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/usage-ledger-prototype-pollution-smoke.js",
+          "result": "pass",
+          "note": "Streaming usage objects now null-proto-projected before adapter reads; merged stream object is Object.create(null); inherited keys not treated as present. Load-bearing pollution proof in CHK-003 smoke.",
+          "headHash": "5a929a450d6eb1286b820294bf5c80119389585e",
+          "materialHash": "2de56cacfa3bec1658d2480ef380d5a50baaca3857dcc710b93fc408f643bcdd",
+          "storyFilesHash": "57b63a4267966cfc2c81935551bc1ecf9754ccf0e464c29ee7e38bf605539426",
+          "timestamp": "2026-06-20T14:51:46.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
