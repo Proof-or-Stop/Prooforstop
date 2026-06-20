@@ -71,9 +71,9 @@
       "id": "CHK-002",
       "title": "Inject evaluateDecompositionGate().advisories into story_review issues[] at severity 'advisory' (non-blocking, never raises blockerCount)",
       "context": "handlers/story-review.ts: load peers via store.listStoryIds()+readStory(), contracts via store.readScopeContract() (null-tolerant; §4.8 handles a missing peer contract inside the gate), cfg via resolveAuditConfig(...).parallelGate; call evaluateDecompositionGate(story, peers, contracts, cfg) and push each advisories[] entry as {type:'decomposition_advisory', severity:'advisory', message}. Only advisories — the gate's block field is intentionally ignored at REVIEW (enforcement is Story 5). blockerCount = issues.filter(i=>i.severity==='blocker').length, so advisories never block REVIEW or affect the signed review.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T07:14:33.478Z",
       "verificationIntent": {
         "happy": [
           {
