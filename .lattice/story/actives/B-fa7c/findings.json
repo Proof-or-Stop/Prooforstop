@@ -132,7 +132,7 @@
       "desc": "mode='off' escape hatch incomplete: it only silences the story-review advisory, NOT the WAVE scope_glob_overlap degradation. Spec §4.7 'off disables both behaviors / reversible escape hatch' — an operator who disables the gate still sees scope_glob_overlap warnings in the wave projection. Codex host-2 MAJOR; Claude adjudicators refuted (config-independence of the projection). SYNTHESIS fix: keep resolveWaveSafety + computeScopeGlobOverlaps PURE (config-free); have the createParallelWave FACTORY (already impure, reads store+root) resolve parallelGate.mode once and pass scopeGlobEnabled=(mode!=='off') to storyRef, which skips computeScopeGlobOverlaps when disabled. + smoke.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T07:50:20.722Z",
@@ -143,7 +143,11 @@
         "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
       ],
       "signatureTag": "edge|ts|mode-escape-hatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "createParallelWave resolves parallelGate.mode once and threads scopeGlobEnabled=(mode!=='off') into storyRef; storyRef computes scopeGlobOverlaps only when enabled, so mode='off' emits no wave scope_glob_overlap degradation. Config read confined to the factory; resolveWaveSafety + computeScopeGlobOverlaps stay pure (grep-verified). Smoke: advise/block enable -> overlaps; off -> []. commit 4612174fa.",
+      "resolvedAt": "2026-06-20T07:55:02.853Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-008",
