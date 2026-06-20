@@ -135,6 +135,18 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:08.863Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "Smoke covers blank canonical env fallback, legacy koala-env/claude-code-env lease normalization, and degraded derived-ppid fallback from the host-neutral resolver.",
+          "headHash": "541f190f5fd6ee26d45f248e370cc4ba0f8e8536",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:09.476Z"
         }
       ]
     },
