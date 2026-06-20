@@ -648,6 +648,14 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
+  { name: 'lifecycle_check', description: 'Read-only proof-or-stop lifecycle readiness report for REVIEW, TEST, or DONE; never runs commands or writes evidence.', schema: {
+    storyId: z.string().describe('Story ID'),
+    target: z.enum(['REVIEW', 'TEST', 'DONE']).describe('Lifecycle target to check.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    runCommands: z.boolean().optional().describe('V1 must be false; true fails closed before reading story facts.'),
+    writeEvidence: z.boolean().optional().describe('V1 must be false; true fails closed before reading story facts.'),
+  }},
   { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
     storyId: z.string().describe('Story ID'),
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
