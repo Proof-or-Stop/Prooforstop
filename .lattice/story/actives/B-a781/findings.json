@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-a781:F-001",
+      "desc": "docs/requirements/decisions/session-ownership-and-write-leases.md has contradictory current-state wording: lines 5-14 and 16-40 say the owner/write-lease baseline is implemented and B-a781 is only a future migration target, while line 44 still says in present tense that Lattice does not yet mechanically own write coordination across sessions. This makes the touched doc internally inconsistent; rename that section as historical/original problem or update the sentence to describe the pre-B-c55d problem.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:09:15.339Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-005",
+      "_hash": "dc710a206f4ed824c6e0ce9e24de34e71dc6e1170ce230a96d6c4f2248dc98f2",
+      "files": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

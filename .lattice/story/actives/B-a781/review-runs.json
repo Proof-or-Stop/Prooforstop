@@ -1,0 +1,306 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-a781:RR-001",
+      "storyId": "B-a781",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:07:07.008Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "96a4bcb81a0f426f7d7d1ef26023aa08a37cdbb3de4ef091560d9d3d7489ac37",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "f863234532546bf725f184043ac74b82d6783ce5c3f6bbf19ea738c041d6dfe2"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "ba347a82e4a4397308139b6836685d3b7b345af0a3df7ff0b23d6793e1fb4892"
+    },
+    {
+      "reviewRunId": "B-a781:RR-002",
+      "storyId": "B-a781",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:07:09.455Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "fccd5961d34e2428ad26ad33511cdd6c3d1ec00b1dad6ffa5931fb20a887469d",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "f863234532546bf725f184043ac74b82d6783ce5c3f6bbf19ea738c041d6dfe2"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "f1409d7d08a5c7f46296d0f59293dea5c380d584bc201e1c4f13a100f1a0b1bc"
+    },
+    {
+      "reviewRunId": "B-a781:RR-003",
+      "storyId": "B-a781",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:07:10.820Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "8b40ac0f33156d378153cf8bff63f4aef73b79c6ed80b8c471421dcb1045e662",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "f863234532546bf725f184043ac74b82d6783ce5c3f6bbf19ea738c041d6dfe2"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "4b78fe123af44b9206612d896404ce23521ce650b4cdc879825df783c313555f"
+    },
+    {
+      "reviewRunId": "B-a781:RR-004",
+      "storyId": "B-a781",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:07:18.429Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "b0f289af3014f3c4da0eab23caca300a02bc577841c5f0f81e2571cf54292409",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "cd2e43085c885436213a78ac501d0401ed966c1d323f4a56781d130bcf2ac6ca"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "7cfffcd78fc38c8571d5a6a9d64eefdd73783d113f41870aa9ad8c5fc378c861"
+    },
+    {
+      "reviewRunId": "B-a781:RR-005",
+      "storyId": "B-a781",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:09:04.017Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "f863234532546bf725f184043ac74b82d6783ce5c3f6bbf19ea738c041d6dfe2"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "1d03fce796894eb205ce30d456d859804a062d72bbdaac363208a4edd114553f"
+    },
+    {
+      "reviewRunId": "B-a781:RR-006",
+      "storyId": "B-a781",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "startedAt": "2026-06-20T07:09:04.990Z",
+      "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+      "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+      "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+      "promptHash": "3170f94a4c3b4acf4a15192b43ef1235c2ee6f475326cd821c5914d875404c58",
+      "scopeBinding": {
+        "scopeContractHash": "2b8d2dd60ac916c2b7ab9c3fef4455bec5e8a2fe2d89df9d8b5494a3ac6ebb1f",
+        "diffPackHash": "40acd7fef945ad5f1a62acd2e3418f64ed9b3ce979c034226fb45d1496429970",
+        "reviewedChangedFiles": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "07815b856098f9e72b7b92674029eb786f48152e068514356d41c73f99880a32",
+          "612c685619bc23dad4ebb7b3893aa3a8915124cd49da0d6e7b5c5714a9033647",
+          "79f25f0a373d10501bc1cb89e07664d2d669704f4c5842298a9d0c35bc5eea98",
+          "95ee9d4b4c7efc6ec5c1af892282572062488e6ff46b5dd29e133795a679e01c",
+          "990b4dfb9c80b384a63a165458778add92004d930ac0dd87e079cbcab9916e54",
+          "a253e91f335834c8825ce7d2bb29745e0c89f850fa527bffde36e481f60596e1",
+          "df2a920bdd20de083d0c35e5c49ffaadb90d0e86ed771674a380e23bc3ca9bde",
+          "f052ea118c9fcd194993863f75e1aa11ff090056216f587134f75d362cad4c31"
+        ],
+        "bindingHash": "cd2e43085c885436213a78ac501d0401ed966c1d323f4a56781d130bcf2ac6ca"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a781",
+        "workspaceMode": "story-worktree",
+        "headHash": "fe23feb82ae017aa8bb8cff15ec0c0136871cd82",
+        "materialHash": "3c4d8ae9dda650de5d458feea95679beb1ca40a87336ad18a7ffa9c894451fae",
+        "storyFilesHash": "bf6927d47d37ce1a862d900cd8b774163709c10a8b7f55660ba5eca9a72af642",
+        "bindingHash": "0e2a48b09921a4895c91acc5e695ecb73ff0c4d4d2a9b3c7a4cff1c332d4238c"
+      },
+      "_hash": "209fb35c07b092f702959cff84c5b5ffdcbbeb458fbe1484907c7aa624797590"
+    }
+  ]
+}
