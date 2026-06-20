@@ -54,7 +54,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The execution plan contains a section named \"Truth-First Host Handoff Contract\" listing the source priority order and the rule that hosts cannot tell the user work is missing from a plan-only document without checking live Lattice facts.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The plan defines a source priority order where current Lattice state, DONE summaries, accepted outcome records, code/data evidence, and fresh validation outrank stale plan prose.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The contract preserves dev-memory and learning hints as advisory context, not gate evidence or Authority/production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The contract includes a fail-closed wording rule: if a host only has stale plan prose, it must say it needs to verify current facts rather than telling the user to redo the task.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
