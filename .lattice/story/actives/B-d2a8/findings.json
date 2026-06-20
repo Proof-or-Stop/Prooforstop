@@ -382,6 +382,23 @@
       "resolvedAt": "2026-06-20T06:09:21.717Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d2a8:F-022",
+      "desc": "describeInvalidValue not fully total: the catch fallback Object.prototype.toString.call(value) reads Symbol.toStringTag, which throws for a revoked Proxy or an object with a throwing @@toStringTag getter — so resolveParallelGate still crashes instead of warn+fallback. Fix: nest the fallback in its own try/catch returning a constant <unserializable>; add a revoked-Proxy + throwing-toStringTag smoke case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T06:14:31.491Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "_hash": "ccced740f97de0c0f0123a82e272ae8f41e5e2011beed533413aa974e4d16910",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "adversarial|ts|describeinvalidvalue-fully-total",
+      "signatureTagSource": "auto"
     }
   ]
 }
