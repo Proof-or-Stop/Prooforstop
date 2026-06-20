@@ -4,7 +4,7 @@
   "title": "Spec: adversarial multi-lens review capability (dimensional lenses + per-finding adversarial verification + completeness critic)",
   "description": "Produce docs/adversarial-review-spec.md — a contract-first design spec for an adversarial multi-lens review capability in Lattice, codifying the methodology that empirically out-performed single-pass review during the parallel-decomposition gate program. The methodology: (1) DIMENSIONAL LENSES — N independent review agents each reviewing one facet (concept/quality/behavior/test-coverage/crash-safety/…); (2) PER-FINDING ADVERSARIAL VERIFICATION — each raw finding is judged by M independent skeptics who default to refute; a finding counts only on a majority confirm, killing plausible-but-wrong findings; (3) COMPLETENESS CRITIC — a dedicated agent that asks 'what did the review MISS?' and can reopen a round. The spec defines the data shapes (finding, verdict, lens), the convergence criteria, how it integrates into Lattice's existing review (lanes + full-3x2 escalation) as a new escalation tier / review mode, the MVP vs future split, and the implementation-story breakdown. It cites the concrete empirical evidence (BLOCKER/MAJOR-class bypass doors the completeness critic found on S4/S5/the metadata story that single-pass Codex review missed). This is the doc deliverable; implementation is a follow-on program the spec defines.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "adversarial-review",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-20T10:46:35.719Z",
   "startedAt": "2026-06-20T10:46:35.719Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T11:31:45.379Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T10:50:24.143Z",
+      "branch": "story/B-0e7b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T10:56:01.454Z",
+      "branch": "story/B-0e7b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T11:01:57.808Z",
+      "branch": "story/B-0e7b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-20T11:25:45.287Z",
+      "branch": "story/B-0e7b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T11:31:45.379Z",
+      "branch": "story/B-0e7b",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-0e7b",
-    "branch": "story/B-0e7b",
-    "createdAt": "2026-06-20T10:50:16.979Z"
-  }
+  "currentReviewRound": "2026-06-20T11:01:57.808Z"
 }

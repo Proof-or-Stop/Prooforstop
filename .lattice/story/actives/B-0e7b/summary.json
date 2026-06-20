@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0e7b",
+  "changes": "Added docs/adversarial-review-spec.md — a contract-first design spec for an adversarial multi-lens review capability (dimensional lenses + per-finding adversarial verification + completeness critic) for Lattice. §1 motivates with the program's empirical evidence (correctly attributed: S4/B-fa7c corrupt-contract wave crash = quality dimensional lens; S5/B-086b express + REVIEW/TEST-rollback gate bypass doors = completeness critic; B-b29e read-only over-registration = critic). §2/§3 specify the data shapes (Lens, Finding{severity,file,line,issue,fix}, Verdict{isReal,agreedSeverity,reasoning}), the threshold-confirm rule (default 1-of-2, NOT majority), the completeness-critic contract, the convergence criterion, and one canonical loop order. §4 defines the Lattice integration: the 6 real review_run_start lanes, a finding_add LEDGER-MAPPING (BLOCKER->critical etc., file->files[], category, reviewRunId, agent — critic findings use a real lattice-review-* lane with [completeness-critic] in --desc since reviewer-evidence requires agent.startsWith('lattice-review-')), full-3x2 defined abstractly, an MVP-vs-FUTURE table, and the local-verdicts-are-not-Authority-receipts honesty note. §5 is the contract-first build program (S0 frozen contract -> S1 lens-runner -> S2 adversarial-verifier -> S3 completeness-critic lane -> S4 escalation integration), MVP/future marked.",
+  "usage": "Read docs/adversarial-review-spec.md to build the capability contract-first: §2/§3 are the frozen schemas; §4 is the integration contract (compose existing lattice-review-* lanes + finding_add + the full-3x2 escalation); §5 is the buildable story breakdown. MVP = a main-agent-driven orchestration over the existing lanes + the ledger mapping; FUTURE (labeled not-yet-implemented) = a CLI review mode + a dedicated lattice-review-completeness lane.",
+  "expectedOutcome": "Opening docs/adversarial-review-spec.md shows a complete, accurate, buildable design with the 5 sections; lattice validate stays all-green (no code changed); every CLI/attribution claim checks out against the real code/findings.",
+  "actualTranscript": "lattice validate 11/11 green; the spec's claims verified against review-run.ts (6 lanes, agent.startsWith('lattice-review-')), command-catalog.ts (finding_add enum), and findings.json (attributions). 3-round genuine dual-host review (Codex + Claude docs/concept lanes) drove 9 buildability/accuracy findings to resolution — wrong lane names, a contradictory critic-loop order, a 'majority' rule that wasn't, the finding_add severity/field impedance mismatch, and a non-coherent MVP critic provenance (--agent must be a real lane, not 'completeness-critic'). Round-3 both hosts PASS. The review of the spec demonstrated the methodology on itself.",
+  "outcomeDiff": "none — the spec is delivered complete and accurate; the empirical attributions, the 6 real lanes, the finding_add mapping, and the MVP critic provenance all match the live code, verified by the delivery review.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This is the SPEC/design deliverable only; the capability itself is the follow-on B-impl program the spec's §5 defines (S0-S4). The MVP described composes existing lanes (no new CLI surface); the first-class CLI review mode + dedicated completeness lane + structured verdict storage are FUTURE.",
+  "pitfalls": "A spec is code-adjacent: every CLI/lane/severity claim must be checked against the live code or it drifts (finding_add severity is critical|high|medium|low, NOT BLOCKER/MAJOR/MINOR — needs a mapping layer; the 6 real review lanes are concept/quality/test-coverage/behavior/docs/channel; reviewer-evidence is counted only when agent.startsWith('lattice-review-'), so a critic finding must reuse a real lane with provenance in --desc, never --agent). Dual-host review ON a spec finds buildability gaps a single read glosses. Story artifacts must be English (the english-artifacts gate blocks REVIEW->TEST on any CJK).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 222219
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6154
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 337311
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 356354
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1427479
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 332202
+    }
+  },
+  "totalDurationMs": 2681770,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T11:31:17.489Z",
+  "updatedAt": "2026-06-20T11:31:17.489Z"
+}

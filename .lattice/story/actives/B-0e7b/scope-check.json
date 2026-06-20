@@ -1,0 +1,171 @@
+{
+  "storyId": "B-0e7b",
+  "checkedAt": "2026-06-20T10:54:49.006Z",
+  "features": [
+    {
+      "feature": "§1 Motivation section: why single-pass review misses integration-level defects",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§1 Empirical Evidence: cite S4/B-fa7c crash defect with story ID and finding attribution",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§1 Empirical Evidence: cite S5/B-086b express-channel + REVIEW/TEST-rollback doors with story ID and finding attribution",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§1 Empirical Evidence: cite B-b29e read-only-command over-registration with story ID and finding attribution",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§1 INIT-003 attribution correction: S4 crash = quality/crashsafe dimensional lens (not the completeness critic); S5 doors = completeness critic",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§1 Honest framing: does NOT overclaim single-pass review is useless; argues it misses integration-level defects",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 LENS data shape definition",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 FINDING data shape: severity, file, line, issue, fix",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 VERDICT data shape: isReal, agreedSeverity, reasoning",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 Per-finding adversarial verification rule: M skeptics, default-refute, majority-confirm threshold",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 Completeness critic contract: what it inspects and reopen semantics",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 Convergence criterion: all lenses pass + all findings adversarially refuted-or-fixed + critic finds nothing new",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§2/§3 Methodology defined as a Lattice review MODE, NOT a harness-Workflow tool dependency",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§4 Lattice integration contract: how capability composes lattice-review-* lanes, review_run_start/review_pass_set/finding_add, full-3x2 escalation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§4 full-3x2 defined inline (3 rounds x 2 independent PASS hosts) for standalone readability",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "§4 MVP-vs-future split with every future surface labeled not-yet-implemented",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§4 How a critic-reopened round binds to the escalation ledger and materialHash freshness",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§4 Local host verdicts are NOT Authority Server receipts (cannot claim authorityDone/fullAuthorityDone/productionDone)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "§5 Contract-first implementation-program breakdown: each build story with scope, dependencies, and acceptance",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§5 Schemas from §2/§3 frozen so follow-on B-impl program can proceed without re-designing the contract",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§5 MVP stories distinguished from optional/future stories",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scope contract: doc-only (allowedCreate=docs/adversarial-review-spec.md; code changes excluded)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "covered": 22,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1dc9a715085fb8f883452db4d36d5333cc1d17b7f3319f4a2b304dcca1d29fd6",
+  "openQuestions": []
+}
