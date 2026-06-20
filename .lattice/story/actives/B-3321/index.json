@@ -4,7 +4,7 @@
   "title": "DONE gate full npm test coverage execution plan",
   "description": "Write a detailed execution plan for fixing the Lattice self-host gap where DONE consumes lattice validate configured subset evidence and can merge while the root full npm test chain is red. The plan must define the policy, data model, gate semantics, rollout, migration, verification, and 3 round / 2 host review requirements without implementing the runtime fix in this story.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "DONE gate",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-06-20T06:46:26.122Z",
   "startedAt": "2026-06-20T06:46:26.122Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T07:30:40.862Z",
   "events": [
     {
       "phase": "INIT",
@@ -90,12 +90,15 @@
       "branch": "story/B-3321",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T07:30:40.862Z",
+      "branch": "story/B-3321",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3321",
-    "branch": "story/B-3321",
-    "createdAt": "2026-06-20T06:48:51.252Z"
-  },
   "currentReviewRound": "2026-06-20T07:09:05.747Z"
 }
