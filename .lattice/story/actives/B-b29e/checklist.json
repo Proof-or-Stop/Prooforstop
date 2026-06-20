@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register the parallel-decomposition gate on all four DEV-entry transitions in lifecycle-registry.ts LIFECYCLE_TRANSITIONS",
+      "context": "core/lifecycle-registry.ts: add a parallel-decomposition gate id (e.g. 'parallel-decomposition') to the gates metadata of the INIT_CHECK->DEV, PLAN->DEV, REVIEW->DEV, and TEST->DEV transitions, matching the runtime guards (canSkipPlanGuard/canStartDevGuard/canReenterDevGuard). Match the existing gate-id naming/shape used by sibling gates (e.g. cwd-worktree, plan-review, scope-check).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Register the parallel DEV-entry gate as a consumer of scope-contract facts in process-fact-levels.ts",
+      "context": "core/process-fact-levels.ts: scope_contract_set / scope_contract_init_from_plan facts currently list REVIEW/TEST/DONE changed-file gates as consumers; add the parallel DEV-entry gate (machine.ts consumes scope contracts before every DEV entry) as an L4 consumer, matching the existing consumer-registration shape.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend verify-process-fact-contract.mjs to assert the new parallel DEV-entry guard surface",
+      "context": "scripts/verify-process-fact-contract.mjs (run via npm --prefix . run test:process-fact-contract; not in lattice validate): add assertions that the parallel DEV-entry gate (canSkipPlan / canReenterDev / parallelDevEntryBlock) is registered as a scope-contract-fact consumer, so future divergence between machine.ts and the metadata is caught. The check must pass after the CHK-001/002 updates.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the registration in docs/parallel-decomposition-spec.md §8",
+      "context": "Add a short note to docs/parallel-decomposition-spec.md §8 (or §4.4) recording that the parallel-decomposition DEV gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs, closing the descriptive-contract loop from Story 5.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
