@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T23:10:30.097Z",
       "reviewRunId": "B-8cc8:RR-003",
       "_hash": "7a7be550f197276c64d18f0881ebac121bb268e5aa45b6535639814d9e73d79d"
+    },
+    {
+      "id": "B-8cc8:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols (pure docs diff) → Fallback 1. Step 2/3: Scanned all paragraphs in CHANGELOG.md. Checks: (1) git grep -i koala CHANGELOG.md = 0 matches confirmed in worktree; (2) all 4 version headers (0.3.4-1, 0.3.0, 0.2.2, 0.2.1.1) rebranded to Lattice X.Y.Z; (3) all historical technical tokens replaced: .lattice/, @lattice-agent/core, bin/lattice.js, lattice.config.json, lattice-lab, lattice-residue, LATTICE_RESIDUE_*; (4) section headings intact, no orphaned fences, 357 lines intact; (5) one line in B-3d39 entry reads only probed @lattice-agent/core but the install link is @lattice-agent/core (tautological due to rebrand) — this is the intentionally non-literal history per explicit user decision, not a doc-code drift; (6) scope is CHANGELOG.md only, no other file touched. No blockers. PASS.",
+      "createdAt": "2026-06-20T23:12:19.797Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-002",
+      "_hash": "cc798c57674382e47e2f37a37acb6add884b803adf62ffc02b1296a84a616806"
     }
   ]
 }
