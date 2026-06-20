@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-20T00:09:52.542Z",
       "reviewRunId": "B-fb36:RR-012",
       "_hash": "14256d146d0d07f530f6b694d695291a36b1cfd5d058c6267acfc99c2e353ec2"
+    },
+    {
+      "id": "B-fb36:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-006 re-review passed. done_prepare classifyStaleEvidence forwards evidence?.storyFilesHash into checkEvidenceFreshnessForGit (src/handlers/done-prepare.ts:241-245; dist/handlers/done-prepare.js:171), preserving B-5a9a storyFilesHash freshness when materialHash drifts outside story-owned files. Focused smoke covers command-backed storyFilesHash evidence surviving unrelated main material drift (src/tasks/done-prepare-smoke.ts:221-250,537-551; dist/tasks/done-prepare-smoke.js:189-218,473-485). Authority boundary remains local-only/no overclaim: done_prepare renders authorityDone/fullAuthorityDone/productionDone false and smoke asserts no true variants even with verified runbook receipt (src/handlers/done-prepare.ts:449-455; src/tasks/done-prepare-smoke.ts:361-401). Ran node packages/main/dist/tasks/done-prepare-smoke.js: PASS.",
+      "createdAt": "2026-06-20T00:23:58.451Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-013",
+      "_hash": "df9f6792de77f4929f026b599c991b51a3b99e9663f3d5f2bd2fe67c6816695f"
     }
   ]
 }
