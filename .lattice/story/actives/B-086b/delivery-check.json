@@ -1,0 +1,75 @@
+{
+  "storyId": "B-086b",
+  "checkedAt": "2026-06-20T09:41:31.613Z",
+  "reviewRound": "2026-06-20T08:33:58.154Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts#re-exports",
+      "promise": "parallel-decomposition.ts re-exports real computeWriteSet, globsOverlap, evaluateDecompositionGate with no NotImplemented throw",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff removes all three NotImplemented-throwing stub bodies and replaces with export { computeWriteSet, globsOverlap } from ./parallel-decomposition-overlap.js and export { evaluateDecompositionGate } from ./parallel-decomposition-gate.js; runtime import-type removal confirms no cycle"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#parallelDecompositionEnforcedBlock",
+      "promise": "core/machine.ts: shared parallelDecompositionEnforcedBlock (mode===block only; peers+contracts via safeReadScopeContract incl self; returns gate.block)",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff: function guards cfg.mode !== block with early null return; iterates all ids including self; builds contracts map via safeReadScopeContract; returns evaluateDecompositionGate(...).block"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#parallelDevEntryBlock",
+      "promise": "core/machine.ts: fail-open wrapper parallelDevEntryBlock (null on any error, null if no projectRoot)",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff: returns null if !projectRoot; wraps parallelDecompositionEnforcedBlock in try/catch returning null in catch with FAIL-OPEN comment citing spec 4.8"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#canStartDevGuard",
+      "promise": "canStartDevGuard (PLAN door): parallel hard block enforced after review check; strict !==0 for blockerCount (F-001, F-002)",
+      "verifiedBy": "diff/grep + smoke test assertions 1 5a 5b F-001 F-002",
+      "evidence": "diff: early return true removed; review check wrapped in requireStoryReview conditional; !==0 replaces >0; parallelDevEntryBlock called unconditionally after review; all five assertion groups pass"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#canSkipPlanGuard",
+      "promise": "canSkipPlanGuard (INIT_CHECK express door, F-003): parallel hard block enforced on express channel",
+      "verifiedBy": "diff/grep + smoke test assertions F-003",
+      "evidence": "diff: inline return replaced with if-block + parallelDevEntryBlock check; three F-003 sub-assertions (overlap blocks, disjoint passes, fail-open) all pass"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#canReenterDevGuard",
+      "promise": "canReenterDevGuard (REVIEW->DEV and TEST->DEV rollback doors, F-006): new exported guard enforcing parallel block, fail-open on infra error; wired into xstate and canSendStoryEventWithoutSnapshotCan",
+      "verifiedBy": "diff/grep + smoke test assertions F-006",
+      "evidence": "diff: new function at line 526; xstate guards map line 708; REVIEW.START guard line 760; TEST.START guard line 772; canSendStoryEventWithoutSnapshotCan lines 675+677; nine F-006 sub-assertions all pass"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#getGuardFailureReason",
+      "promise": "getGuardFailureReason renders parallel block message on all four doors (tookExpressChannel + isRollbackDoor flags) and is fail-open",
+      "verifiedBy": "diff/grep + smoke test message assertions across 1 F-001 F-003 F-006",
+      "evidence": "diff: isRollbackDoor = phase===REVIEW||TEST; tookExpressChannel set when express eligible; both flags skip review-reason block; parallel message rendered via parallelDecompositionEnforcedBlock + formatParallelDecompositionBlock with projectRoot guard and catch; all message assertions in groups 1, F-001, F-003, F-006 confirm correct render"
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts#formatParallelDecompositionBlock",
+      "promise": "formatParallelDecompositionBlock names only genuine tier-1 literal-collision peer (firstLiteralCollision) and skips TERMINAL_PHASES peers",
+      "verifiedBy": "diff/grep + smoke test F-004 F-007",
+      "evidence": "diff: overlap case skips TERMINAL_PHASES.has(peer.phase) and skips non-parallelSafe peers; calls firstLiteralCollision which filters endsWith /* and /** on both sides; F-004 confirms DONE peer not named; F-007 confirms tier-2 wildcard-only peer not named and literal path cited"
+    },
+    {
+      "docPath": "lattice.config.json#validate.commands",
+      "promise": "parallel-decomposition-gate-integration-smoke.js registered in lattice.config.json validate.commands",
+      "verifiedBy": "diff/grep + lattice validate run",
+      "evidence": "lattice.config.json diff appends node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js; confirmed as validate.commands[10] in lattice validate output (all 11 green)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "50/50 assertions passed. Covers: literal tier-1 overlap blocks (1), disjoint passes (2), advise+off do not block (3), broad glob blocks (4), unclean+missing review blocks (5a+5b), FAIL-OPEN on corrupt peer (6), decision+message parity (7), unreadable peer contract (bonus), light profile enforces F-001, express channel enforces+failopen F-003 x3, negative blockerCount strict check F-002, terminal peer not named F-004, REVIEW+TEST rollback doors enforce+failopen F-006 x9, formatter names literal-collision not wildcard peer F-007. lattice validate all 11 commands green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises are verified in the diff with concrete line-level evidence. The 50-assertion integration smoke test drives the real machine.ts guards through a hermetic temp-git-repo+StoryStore seam, covering all four DEV doors, fail-open behavior, tier-1 vs tier-2 collision discrimination, terminal-phase peer filtering, strict !==0 review count, and message parity. The deferral of stale DESCRIPTIVE metadata in lifecycle-registry.ts and process-fact-levels.ts is operator-decided and acceptable: those files are not read by the enforcing guards in machine.ts, and the gate enforcement itself is complete. No unresolved TODOs in non-test production code."
+  },
+  "_hash": "593a2ce2f85a7513553549fcbf05b8b1c8ab204b9ae118045b51d3665450fa08"
+}
