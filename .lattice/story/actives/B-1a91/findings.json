@@ -26,7 +26,7 @@
       "desc": "quality-cleanup: learning-validate.ts:129+146 — coverage gap comparison is scoped incorrectly when args.story filter is active. deriveFindingSignalsFromStore is called with { storyIds } (single-story subset), so cache.coveredFindingCount/.coveredStoryCount reflect only that one story. But readFindingSignals(cwd) on line 145 reads the FULL persisted cache (all stories). computeCoverageGap then compares partial current counts against a full persisted watermark, producing a confusing/misleading gap line (e.g. persisted=50 findings, derived=3 for one story => gap shows 0 because max(3-50,0)=0 — a false in-sync signal). Fix: skip the coverage gap report (or emit 'coverage: n/a (filtered view)') when storyIds filter is active.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T09:17:10.304Z",
@@ -37,7 +37,10 @@
         "packages/main/src/handlers/learning-validate.ts"
       ],
       "signatureTag": "edge|ts|quality-cleanup-learning",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 94f529ec6; learning-validate filtered-view suppresses misleading subset-vs-global gap. Confirmed by codex r2/r3 repro + concept r3.",
+      "resolvedAt": "2026-06-20T09:43:08.863Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-1a91:F-003",
