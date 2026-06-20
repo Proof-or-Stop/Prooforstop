@@ -215,6 +215,60 @@
         "bindingHash": "3fe022259f51b8388b776b585205925f23ce237c09471dcf314588f84a878d15"
       },
       "_hash": "110c2a9e9ddd29e57a80cefe1735dec5a152e4aaf7fbd5e4a40cd717cf6a8869"
+    },
+    {
+      "reviewRunId": "B-1a91:RR-005",
+      "storyId": "B-1a91",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-20T09:27:43.338Z",
+      "startedAt": "2026-06-20T09:30:05.925Z",
+      "headHash": "fc610e22cfea70c6148996a6340a9befb469dedf",
+      "materialHash": "7d05a6fde0368c9fe3cba1b9937cabb5f50434a80373418e39b962e8ac5b0681",
+      "storyFilesHash": "ea96fc9805df312aa0ed0bfb149648ac1d20ae5ee3d34bab59431818e8eb4df2",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "1eb25a12fd69bea0121986f0420f8394eb7b546bcdf1ae4a92fd38e9ff5de3f0",
+        "diffPackHash": "77abaa890b6798a9cd0ce8faf92574af8688376383874866b53eb64c11eeed0d",
+        "reviewedChangedFiles": [
+          "package.json",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/experience-revalidation.ts",
+          "packages/main/src/core/finding-signals.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/learning-validate.ts",
+          "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1dec7990603601e1f739e689ff10464df97f7bf159f730c132b5e1a38c2b1998",
+          "24edb62bdecb9adde262ed40d7a19df9fdc13f9d87352d298f07207604e2c3d1",
+          "2dd2272e2fc113e0086121f5eb05d67b9ca57410a0c72a8c288b9445c0512587",
+          "38adc7807a17e93e6f793ddaed0f956d8c8168ae3310e494201a821566054c88",
+          "760e2974087bef4f4396c6cab146932079415ba041ccc9cc696b0d60b7e0ddb8",
+          "b3cfb30a125dad97083868af643d350f1bc61561e7d19ed3d09a39707df65872",
+          "b66a82660d1b695e5f745958e4087a168067a037c01816baa9df8790b7bdd43d",
+          "ceb831b631c390c3194ad0b4360eb18eb9b20f94abee0bca65ac899e7c2f3ffb",
+          "d495d250c25b66c53b5e7efb1e1f1c73085973de43b7136e6a83e58b8eda5dbd",
+          "e18cde29c9020790e9763c96f614758d3e9c8f015d094ca8f9497b162f299ebb",
+          "f11ad120e0e35bd37aef0e9669c63ae10530836f1d93d3fec4c468f75ce5ffdc"
+        ],
+        "bindingHash": "698182c08b9e45316bada5625891b9835b81fc8b58e78f69d459af6e88db692e"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1a91",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1a91",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1a91",
+        "workspaceMode": "story-worktree",
+        "headHash": "fc610e22cfea70c6148996a6340a9befb469dedf",
+        "materialHash": "7d05a6fde0368c9fe3cba1b9937cabb5f50434a80373418e39b962e8ac5b0681",
+        "storyFilesHash": "ea96fc9805df312aa0ed0bfb149648ac1d20ae5ee3d34bab59431818e8eb4df2",
+        "bindingHash": "a85b148b5e9cae318948605c81bb48ef2a6b7812cd7568480c156819be9db8f6"
+      },
+      "_hash": "e0112d06f215f25cd8f6c033c2863943a28eff2e9976926779dd046be738fc1b"
     }
   ]
 }
