@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-086b:F-001",
+      "desc": "BLOCKER: canStartDevGuard returns true early at 'if (!policy.plan.requireStoryReview) return true' (line 412) BEFORE the parallel-decomposition sub-check (line 425). A profile that does not require story_review (e.g. light) bypasses the hard gate entirely — a story asserting false parallelism under mode=block can enter DEV despite a real overlap. getGuardFailureReason's parallel branch runs unconditionally, so it still reports the block => decision/message PARITY also breaks (guard allows, reason blocks). Fix: restructure so only the review-record checks are gated on requireStoryReview; the fail-open parallel sub-check ALWAYS runs before return true. Add a light-profile + mode=block smoke case.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T08:36:32.874Z",
+      "reviewRound": "2026-06-20T08:33:58.154Z",
+      "_hash": "a0f4d92ffa0cc27e716cf9b5577c5a7c19b937ef33008068d166864005193786",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|blocker-canstartdevguard-returns",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
