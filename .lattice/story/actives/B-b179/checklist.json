@@ -47,9 +47,38 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-20T18:05:01.475Z",
+      "endTime": null,
+      "userSees": "当 main 主分支前移后，lifecycle readiness 的 DONE 准备条目会展示报告过期并提示重跑 done_prepare。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档要求记录并比较主分支基准值/merge 基准值",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档覆盖 main 有新提交时 report 失效与重跑路径",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证未在 done_prepare 描述里直接回归 headHash-only 造成误判的边界场景",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
