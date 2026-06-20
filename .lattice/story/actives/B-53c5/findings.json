@@ -51,7 +51,7 @@
       "desc": "MAJOR: LENS_IDS/CANONICAL_LENS_SET use hyphenated ids (concept-scope/behavior-correctness/crash-safety-edge) but the FROZEN spec §2.1 canonical lens ids are the slash forms (concept/scope, behavior/correctness, crash-safety/edge). These are STRING LITERALS (slashes are valid in strings — the 'invalid identifier' rationale is wrong), so the contract must match §2.1 VERBATIM (no translation layer) per the acceptance. Fix: change the 3 ids to slash form (concept/scope, behavior/correctness, crash-safety/edge); code-quality/test-coverage/docs-consistency already match; update CANONICAL_LENS_SET + the smoke expected ids.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T12:21:17.767Z",
@@ -62,7 +62,11 @@
         "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|major-lens-canonical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "LENS_IDS + CANONICAL_LENS_SET ids changed to verbatim §2.1 slash forms (concept/scope, behavior/correctness, crash-safety/edge; others unchanged). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:43.070Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-53c5:F-004",
