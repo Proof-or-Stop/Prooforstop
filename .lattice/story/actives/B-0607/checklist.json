@@ -220,6 +220,18 @@
           "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
           "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
           "timestamp": "2026-06-20T18:33:18.647Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"historical\\|reference docs\\|noisy false positives\\|negative case\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Edge intent satisfied by handling historical docs explicitly to avoid noise while preserving references.",
+          "headHash": "8d9445bdc8e1828baa2165cfcda174289be7b7cd",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.216Z"
         }
       ]
     }
