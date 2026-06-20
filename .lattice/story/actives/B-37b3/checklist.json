@@ -49,7 +49,30 @@
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; existing experience-layer/hint smokes stay green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js exits 0 and reports all checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full npm test exits 0 with the new smoke in the chain; existing experience-layer/hint smokes stay green.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke drives the real learning-store resolver (worktree reads main cache; non-git falls back), not a stub.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
