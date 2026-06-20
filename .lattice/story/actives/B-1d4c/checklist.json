@@ -8,9 +8,9 @@
         "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T18:55:39.783Z",
-      "endTime": null,
+      "endTime": "2026-06-20T19:27:01.154Z",
       "userSees": "✓ CHK-001 complete: host handoff preflight payload now includes session, memory, story, gap, and learning-stale signals.",
       "files": {
         "modify": [
@@ -44,7 +44,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes.",
+          "headHash": "0680bc97b8092789096759ec05cfbe26c11728a2",
+          "materialHash": "a78ccddb59536d22059f7cf38456419d1ad3a4bdc27009803f5979fb9907abfc",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T19:27:01.268Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
