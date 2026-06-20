@@ -6,7 +6,55 @@
       "context": "core/lattice-parallel-wave.ts: resolveWaveSafety is a pure projector (does not read scope contracts). At the storyRef() call site, for each ACTIVE non-terminal peer that also asserts parallelSafe='yes', compute this story's and the peer's write-set via computeWriteSet(scopeContract) and run globsOverlap; pass the overlap results into resolveWaveSafety as a new parameter; emit a 'scope_glob_overlap' degradation (severity 'warn', authorityImpact 'none', visible true) via the existing schedulingDegradation() factory naming the peer + an example colliding pair. None when disjoint or peer terminal.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computeScopeGlobOverlaps(self parallelSafe=yes writeSet [core/foo.ts], peers [{B-p1, phase DEV, parallelSafe yes, writeSet [core/foo.ts]}]) -> one overlap naming B-p1 with pairExample core/foo.ts; WHY: the core positive case — a real write-set collision with an active parallel peer is surfaced",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the overlap result, fed into resolveWaveSafety, produces a ParallelWaveDegradation with capability scope_glob_overlap, severity warn, visible true, authorityImpact none, reason naming the peer + pair; WHY: proves the degradation kind is emitted via schedulingDegradation with the right shape",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "self.parallelSafe!=yes (undefined or no) -> computeScopeGlobOverlaps returns [] even with an overlapping active parallel peer; WHY: only a story ASSERTING parallel can falsely assert it",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "peer in TERMINAL_PHASES (DONE/DISCARDED) -> no overlap emitted even with identical write-set; WHY: terminal peers are not concurrent, must not generate noise",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "peer with parallelSafe!=yes -> no overlap; and self vs self (same storyId) skipped; WHY: only active parallel peers count, never self",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "disjoint write-sets (core/foo.ts vs core/bar.ts) -> no overlap; WHY: independence provable, no false positive",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a peer whose scope contract is null/missing is skipped when building peer write-sets (call-site filters null) -> no throw, no overlap for that peer; WHY: legacy stories lacking a contract must not crash the wave projection",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "multiple active parallel peers each overlapping -> one degradation per peer, each naming the correct peer + pair; WHY: proves per-peer fan-out, no dedup loss",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
