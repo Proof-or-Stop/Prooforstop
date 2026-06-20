@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-b36d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: the replacement plan preserves proof-or-stop semantics, fixes V1 as read-only with runCommands/writeEvidence false, stages old pipeline behavior under Full Vision, and only prints lifecycle commands without implying automatic advancement.",
+      "createdAt": "2026-06-20T12:08:23.143Z",
+      "reviewRound": "2026-06-20T12:04:40.957Z",
+      "reviewRunId": "B-b36d:RR-001",
+      "_hash": "05855444d2e36eb46104f0bf474ba06b4fa8584a265e27f6122508e1581124d7"
+    },
+    {
+      "id": "B-b36d:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: all 9 docs verification refs are present/passing; re-ran grep/xmllint evidence and confirmed no stale old pipeline command/title exposure. The current material scope is unchanged from the inspected docs. CHK-001 naming/positioning, CHK-002 read-only V1 boundary, and CHK-003 rollback/delivery/done_prepare/refresh/manual-external contract semantics are covered.",
+      "createdAt": "2026-06-20T12:12:35.123Z",
+      "reviewRound": "2026-06-20T12:04:40.957Z",
+      "reviewRunId": "B-b36d:RR-005",
+      "_hash": "a4fd31d300f647af4e1a89c9f0b28a8754d9ac619a5e6b8b35fa8dab2f331e71"
+    },
+    {
+      "id": "B-b36d:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 2 pass after B-b36d:F-001 resolution. The Lifecycle Proof-Or-Stop Readiness Check preserves proof-or-stop discipline: V1 reads existing lifecycle facts only, builds StoryReadinessReport with runCommands:false/writeEvidence:false, stops on missing/stale/blocking/manual/external proof, prints exact next actions without executing them, keeps Full Vision orchestration staged outside V1, and makes no automatic advancement or Authority/production completion claim.",
+      "createdAt": "2026-06-20T12:20:15.364Z",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "reviewRunId": "B-b36d:RR-006",
+      "_hash": "a6226d64c4d2c9e1aba2fbecf7680643b1be96b373cdc18fd3cae9fcd93cdb05"
+    },
+    {
+      "id": "B-b36d:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality pass after B-b36d:F-001 resolution. Verified StoryReadinessReport keeps readiness[*].category as broad grouping while readiness[*].code carries stable delivery blocker detail; delivery code table maps specific blockers to broad categories. Re-checked exact REVIEW/TEST rollback commands, split runCommands/writeEvidence options instead of overloaded dryRun, done_prepare pre/post-merge binding, one-pass refresh-only bound, metadata-only waiver limited to live-smoke transcript, and no V1 degraded single-host gate consumption.",
+      "createdAt": "2026-06-20T12:20:56.620Z",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "reviewRunId": "B-b36d:RR-007",
+      "_hash": "360cc936d9423c9c3c7b2ea216a69671822de75e9cea5fdfe40cf522c76a4172"
+    },
+    {
+      "id": "B-b36d:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs consistency pass: NAV points to new lifecycle readiness plan; old standard evidence pipeline filename/title/asset are absent; markdown image and obvious internal markdown/backticked-md links resolve; story_pipeline references are deferred/non-V1 only; no stale standard evidence pipeline references found outside prohibited paths.",
+      "createdAt": "2026-06-20T12:23:24.915Z",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "reviewRunId": "B-b36d:RR-009",
+      "_hash": "f30531dc27679b9aba0a94d8cb2c8045a9c88c2eb1671b0bd3837cf9b54132c8"
+    },
+    {
+      "id": "B-b36d:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: reviewed all 9 verification intents after refresh. Checklist has 3/3 done and 9/9 passing verificationEvidence records; session_brief records latest validation PASS at 2026-06-20T12:18:16.078Z. Independent read-only checks confirmed Lifecycle Readiness Check naming, V1 read-only defaults, Full Vision staging, exact REVIEW/TEST rollback commands, done_prepare pre/post-merge binding, one-pass refresh bounds, no V1 fallback readiness claim, and delivery blocker code/category/next-action mapping. Resolved delivery schema gap is fixed by readiness[*].code plus broad readiness[*].category mapping; no blocking test coverage issue found.",
+      "createdAt": "2026-06-20T12:24:21.932Z",
+      "reviewRound": "2026-06-20T12:17:05.697Z",
+      "reviewRunId": "B-b36d:RR-008",
+      "_hash": "62daa88b34508a3d1bc9638fdd395c6aa25f880109a07ee12f371a5cb6f9e75b"
+    }
+  ]
+}

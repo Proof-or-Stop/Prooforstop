@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Proof-or-stop language must stay stricter than automation language.",
+    "V1 must be read-only by default and must not duplicate existing gate truth sources.",
+    "Names should describe lifecycle readiness and exact next actions, not an execution conveyor.",
+    "Contract gaps found by review must be reflected as actionable command semantics, not prose-only reassurance."
+  ],
+  "drivers": [
+    "The existing document over-scopes V1 by mixing diagnosis, evidence writing, reviewer orchestration, and phase handoff.",
+    "done_prepare remains the canonical TEST-to-DONE readiness assistant and must not be shadowed.",
+    "Host time savings come from reducing mechanical readiness accounting while preserving independent reviewers and freshness gates."
+  ],
+  "options": [
+    {
+      "name": "A: Rename only and leave the execution-pipeline structure intact",
+      "pros": [
+        "Smallest patch",
+        "Minimal disruption to existing document sections"
+      ],
+      "cons": [
+        "Does not fix the verified logic gaps",
+        "Still implies a conveyor-style automation path",
+        "Reviewer would likely flag the same V1 scope risk again"
+      ]
+    },
+    {
+      "name": "B: Reframe as Lifecycle Proof-Or-Stop Readiness Check with V1 read-only and Full Vision staged later",
+      "pros": [
+        "Matches the verified host recommendation",
+        "Keeps exact next actions while avoiding premature mutation",
+        "Preserves full vision without selling it as day-one scope",
+        "Gives implementation stories a safer rollout order"
+      ],
+      "cons": [
+        "Requires broader document edits and diagram updates",
+        "Some existing story_pipeline terms must be renamed or clearly demoted"
+      ]
+    },
+    {
+      "name": "C: Delete the full vision and document only a narrow readiness preflight",
+      "pros": [
+        "Lowest implementation risk",
+        "Very clear V1 boundary"
+      ],
+      "cons": [
+        "Loses the roadmap for transcript, delivery context, reviewer batching, and later orchestration",
+        "Makes prior B-0a29 review work less reusable"
+      ]
+    }
+  ],
+  "chosen": "B: Reframe as Lifecycle Proof-Or-Stop Readiness Check with V1 read-only and Full Vision staged later",
+  "rationale": "Option B best preserves the strategic idea while correcting the misleading pipeline framing and verified contract gaps. It reduces immediate scope risk without discarding the eventual lifecycle control-tower vision.",
+  "preMortem": [
+    {
+      "scenario": "Rename becomes cosmetic only",
+      "trigger": "Patch changes titles but leaves story_pipeline and StoryPipelineReport as primary V1 concepts",
+      "consequence": "Hosts still expect an execution conveyor and reviewers repeat the same scope objection",
+      "mitigation": "Replace primary V1 names with lifecycle_check / StoryReadinessReport and explicitly demote story_pipeline to later Full Vision language"
+    },
+    {
+      "scenario": "DONE readiness truth source is duplicated",
+      "trigger": "Document says readiness check can calculate DONE pass independently after done_prepare output",
+      "consequence": "Future implementation weakens or forks B-fb36 done_prepare semantics",
+      "mitigation": "State that DONE target imports or runs done_prepare dry-run and preserves blockedAt/next without reinterpretation"
+    },
+    {
+      "scenario": "Rollback path remains vague",
+      "trigger": "Reviewer or delivery finding says return to DEV but no exact command is printed",
+      "consequence": "The central exact-next-action promise fails on a real blocker path",
+      "mitigation": "Add explicit rollback next-action rows for REVIEW/TEST to DEV and delivery material rework"
+    },
+    {
+      "scenario": "Refresh-only loop can spin forever",
+      "trigger": "Refresh writer leaves evidence still stale or source truth changed",
+      "consequence": "Lifecycle check reports progress while staying in a loop",
+      "mitigation": "Allow at most one refresh pass per artifact snapshot and escalate unchanged/still-stale rows to rerun_required or manual"
+    }
+  ],
+  "timestamp": "2026-06-20T11:50:26.777Z"
+}

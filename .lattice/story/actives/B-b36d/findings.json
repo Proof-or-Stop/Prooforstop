@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-b36d:F-001",
+      "desc": "Canonical StoryReadinessReport defines readiness[*].category as only missing|stale|blocking|manual|external|advisory at docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:176, but the Delivery Blocker Categories contract requires stable concrete report categories such as missing_delivery_check, stale_delivery_check, delivery_check_blocking, docs_promise_unresolved, and product_outcome_unproven at docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:253-271. There is no deliveryCategory field or widened category enum, so an implementation cannot put the required delivery blocker category into the canonical V1 report without violating one of the two sections. This blocks contract clarity for delivery blocker categories and exact next-action rendering.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T12:09:31.473Z",
+      "reviewRound": "2026-06-20T12:04:40.957Z",
+      "reviewRunId": "B-b36d:RR-003",
+      "_hash": "cd5547fc356f86d6a9167fdad68661dd8dbda7d0943898b4a0b252ae1bdfd1ce",
+      "files": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|canonical-storyreadinessreport-defines",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 8bcf0eab2. StoryReadinessReport now has readiness category for broad grouping and readiness code for stable machine-readable blocker detail. Delivery blocker rows now map missing_delivery_check, stale_delivery_check, delivery_check_blocking, docs_promise_unresolved, and product_outcome_unproven into readiness code plus broad category. Rendering must show source blocker, owner, code, category, and exact next action. Verified by rg checks and lattice validate pass after refresh.",
+      "resolvedAt": "2026-06-20T12:18:36.554Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

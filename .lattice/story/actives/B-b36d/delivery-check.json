@@ -1,0 +1,124 @@
+{
+  "storyId": "B-b36d",
+  "checkedAt": "2026-06-20T12:35:26.200Z",
+  "reviewRound": "2026-06-20T12:17:05.697Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "promise": "Renamed plan opens as Lattice Lifecycle Proof-Or-Stop Readiness Check with Lifecycle Readiness Check short name and StoryReadinessReport model.",
+      "status": "verified",
+      "verifiedBy": "sed plus rg",
+      "evidence": "sed -n 1,120 shows title, short name, V1 report model; rg confirms NAV, SVG, and doc references."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "promise": "V1 is read-only and does not write evidence, launch reviewers, advance phases, replace done_prepare, or claim Authority/production completion.",
+      "status": "verified",
+      "verifiedBy": "manual review plus rg",
+      "evidence": "V1 Positioning and Command Surface fix runCommands:false/writeEvidence:false; V1 must not list covers writes, commands, reviewers, phase changes, done_prepare replacement, and Authority claims."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "promise": "Full Vision material is retained as later staged layers rather than V1 behavior.",
+      "status": "verified",
+      "verifiedBy": "manual review plus rg",
+      "evidence": "Full Vision: Later Staged Layers and Suggested Story Breakdown retain PLAN skeleton, evidence planning, reviewer batching, transcript/context, and top-level orchestration as future layers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "promise": "Concrete contract gaps are patched: rollback commands, delivery blocker detail codes, done_prepare HEAD binding, bounded refresh-only, and narrow metadata-only waiver.",
+      "status": "verified",
+      "verifiedBy": "manual review plus rg",
+      "evidence": "Sections Exact Rollback Commands, Delivery Blocker Categories, done_prepare HEAD Binding Semantics, Refresh-Only Policy, and Metadata-Only Waiver Policy contain the required constraints."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Navigation points to the renamed Lifecycle Readiness Check plan.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "NAV line 45 links to decisions/lattice-lifecycle-readiness-check-execution-plan.md."
+    },
+    {
+      "docPath": "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+      "promise": "SVG visual reflects the read-only proof-or-stop readiness flow and is valid XML.",
+      "status": "verified",
+      "verifiedBy": "rg plus xmllint",
+      "evidence": "SVG title/desc mention Lifecycle Proof-Or-Stop Readiness Check and StoryReadinessReport; xmllint --noout exits 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+      "promise": "Former standard evidence pipeline plan is retired in favor of lifecycle readiness check.",
+      "status": "verified",
+      "verifiedBy": "git diff plus absence checks",
+      "evidence": "git diff shows old decision doc deleted and new lifecycle readiness plan added; test confirms old file no longer exists and old references are absent."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "No stale V1 operator framing remains for the old standard evidence pipeline or story_pipeline command.",
+      "status": "verified",
+      "verifiedBy": "rg absence check",
+      "evidence": "rg for old filename/title, standard evidence pipeline, story_pipeline command framing, Target Command Surface, and Recommended operator path returned no matches."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "No stale V1 operator framing remains for the old standard evidence pipeline or story_pipeline command.",
+      "status": "verified",
+      "verifiedBy": "rg absence check",
+      "evidence": "Same rg absence check covered docs/guide.md and returned no matches."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Related-doc compatibility review for lifecycle background.",
+      "status": "waived",
+      "verifiedBy": "diff scope review",
+      "evidence": "Story made a new execution plan and did not change lifecycle phase semantics.",
+      "waiverReason": "No direct edit was owed because this story only reframed a future execution plan and did not alter story-lifecycle phase semantics."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "Related-doc compatibility review for done_prepare behavior.",
+      "status": "waived",
+      "verifiedBy": "diff scope review",
+      "evidence": "New plan explicitly delegates to done_prepare and does not change done_prepare implementation or truth source.",
+      "waiverReason": "No direct edit was owed because this story references done_prepare as the existing authority and only documents consumption boundaries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "promise": "Related-doc compatibility review for freshness semantics.",
+      "status": "waived",
+      "verifiedBy": "diff scope review",
+      "evidence": "New plan reads storyFilesHash/materialHash as existing facts and does not change their semantics.",
+      "waiverReason": "No direct edit was owed because this story consumes existing freshness semantics without changing the material drift contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Related-doc compatibility review for reviewer floor semantics.",
+      "status": "waived",
+      "verifiedBy": "diff scope review",
+      "evidence": "New plan reads review state and does not alter review assurance floor behavior.",
+      "waiverReason": "No direct edit was owed because this story only reports existing review readiness facts and does not change review gate policy."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Transcript artifact .lattice/story/actives/B-b36d/evidence/transcript-diff.md shows sed output with title Lattice Lifecycle Proof-Or-Stop Readiness Check, short name Lifecycle Readiness Check, StoryReadinessReport, and Full Vision staging. evidence_inspect reports checklist evidence fresh."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript rg summary shows runCommands:false, writeEvidence:false, no stale story_pipeline operator framing, and V1 read-only defaults; doc review confirms V1 must not write evidence, launch reviewers, advance phases, replace done_prepare, or claim Authority/production."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Transcript and reviewer checks show readiness[*].code, missing_delivery_check, delivery_check_blocking, preMergeHead/postMergeHead, one refresh pass, metadata-only waiver scope, and xmllint exit 0 for the SVG."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts B-b36d: docs promises are delivered or explicitly waived, transcript evidence proves the user-visible renamed/read-only plan, routine validation PASS is available, and done-required evidence is PASS but currently stale by HEAD so the host must rerun it after this delivery check."
+  },
+  "_hash": "cf1782ed0f3b7320e78875caf36571ecc7044d59f9d65b036f714393dfd493d2"
+}
