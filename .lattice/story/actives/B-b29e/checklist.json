@@ -126,7 +126,33 @@
       "context": "Add a short note to docs/parallel-decomposition-spec.md §8 (or §4.4) recording that the parallel-decomposition DEV gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs, closing the descriptive-contract loop from Story 5.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/parallel-decomposition-spec.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/parallel-decomposition-spec.md section 8 (or 4.4) notes the gate is registered in lifecycle-registry + process-fact-levels metadata and asserted by verify-process-fact-contract.mjs; WHY: closes the descriptive-contract loop from Story 5",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "the doc note is accurate vs the actual registrations (cites the 4 doors + the drift check); WHY: docs must match the code",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
