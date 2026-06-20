@@ -74,6 +74,17 @@
           "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
           "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
           "timestamp": "2026-06-20T12:03:11.433Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Full Vision: Later Staged Layers|previous full-flow pipeline is not V1|P8|Top-level orchestration\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The rewritten plan preserves the former full-flow automation only as Full Vision/later staged layers, including future top-level orchestration outside V1.",
+          "headHash": "aa04a4ff8ba45f8950e08960baa7c0f92966e303",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:04:13.771Z"
         }
       ]
     },
