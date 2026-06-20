@@ -504,11 +504,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "The smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses the check+counter pattern, and exits 0 printing 'adversarial-review-lens-runner smoke passed: 77 assertions'.",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "The smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses the check+counter pattern (process.exit(1) on any failed check), and exits 0 printing 'adversarial-review-lens-runner smoke passed: 96 assertions' after the round-2 hardening.",
+          "headHash": "4b7879e982ca0356f1a2968fb6cb067948209e8b",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:04:06.631Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -570,11 +570,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
           "result": "pass",
-          "note": "Smoke uses a passed counter and prints 'adversarial-review-lens-runner smoke passed: 77 assertions' at exit (check+counter pattern reports the count).",
-          "headHash": "74e0e189768c922648863c6fa93732976d94bc29",
-          "materialHash": "e4f79809e0ac33819a3a736a11e923d5d9287af21514ea6fe4abfd6c5f777da6",
-          "storyFilesHash": "465ce3ccd0a53844b3b1eef78b30a396b4b06c02d6b432b5925743c8681adb73",
-          "timestamp": "2026-06-20T13:49:33.105Z"
+          "note": "Smoke uses a passed counter and prints 'adversarial-review-lens-runner smoke passed: 96 assertions' at exit (check+counter pattern reports the count); count rose from 77 to 96 after the dual-host round-2 hardening.",
+          "headHash": "4b7879e982ca0356f1a2968fb6cb067948209e8b",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:04:06.631Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
