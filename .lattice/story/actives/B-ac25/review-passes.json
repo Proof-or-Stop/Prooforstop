@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-20T11:26:22.895Z",
       "reviewRunId": "B-ac25:RR-028",
       "_hash": "89991d8e259c8d9e02c6ac7b4a0b4878dd2c66cda3c2e1fb4950e3f14b775c56"
+    },
+    {
+      "id": "B-ac25:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "PASS. Current scope remains the DONE-required full-test validation gate, not future Layer4/M4-M12 work. F-001/F-003/F-006 are resolved: external project policy is explicit, stale headHash is blocked, and lifecycle registry facts for done-required-evidence are now mechanically asserted. Verified with npm --prefix packages/main run build, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/done-required-validation-smoke.js.",
+      "createdAt": "2026-06-20T11:38:29.399Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-029",
+      "_hash": "f1a962de00fea8de57172e6a6824a57cd0cbd74ff10f46df094414901f890d11"
     }
   ]
 }
