@@ -1,0 +1,75 @@
+{
+  "findings": [
+    {
+      "id": "B-bd45:F-001",
+      "desc": "packages/main/src/core/lifecycle-readiness.ts:285 buildReviewGateRows does not mirror the real REVIEW→TEST gate for required active reviewer lanes. After any valid reviewer pass/finding exists, the readiness report only checks invalid bindings and open blocking findings, then emits no_open_blocking_review_findings at lines 335-344. The actual gate in packages/main/src/core/machine.ts:564-585 requires every opt-in reviewer lane in round 1 and quorum evaluation. This can make lifecycle_check report localReady or missing only validation while concept/quality/test-coverage lanes are still absent, violating the proof-or-stop contract and giving unsafe next-action guidance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T21:06:11.467Z",
+      "reviewRound": "2026-06-20T21:02:51.810Z",
+      "reviewRunId": "B-bd45:RR-002",
+      "_hash": "fa7705ccf8f4ec0b39a78ca3e522fb16908d0398dc2cc62429df7b7b717d51dc",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: lifecycle_check now derives required lanes from computeActiveReviewers and mirrors reviewer quorum via evaluateReviewerQuorum; build and lifecycle-check smoke pass.",
+      "resolvedAt": "2026-06-20T21:13:34.335Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bd45:F-002",
+      "desc": "lifecycle_check review readiness does not enforce required reviewer lanes. In buildReviewGateRows, once any finding/pass exists it validates bindings and only checks for open blocking findings, then emits no_open_blocking_review_findings. It never computes active reviewers or missing lanes. The live REVIEW->TEST gate requires round-1 evidence from every active reviewer via computeActiveReviewers, and baseline reviewers are concept, quality, and test-coverage. The V1 spec also says review pass condition is required lanes have current pass and no blocking verified finding. Result: after a single reviewer pass, lifecycle_check can report TEST/DONE review readiness while story_advance REVIEW->TEST still blocks missing reviewer lanes, creating a competing readiness truth source.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T21:06:27.240Z",
+      "reviewRound": "2026-06-20T21:02:51.810Z",
+      "reviewRunId": "B-bd45:RR-001",
+      "_hash": "fc3edff55c51ef4e252c235f9c6671372bfb7c4fe547120b23aac91b389e70c1",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts:285",
+        "packages/main/src/core/lifecycle-readiness.ts:335",
+        "packages/main/src/core/machine.ts:565",
+        "packages/main/src/handlers/reviewer-list.ts:111",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:237"
+      ],
+      "signatureTag": "missing|ts:285|lifecycle-check-review",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: missing required concept/quality/test-coverage lanes now produce blocking readiness rows with exact review_run_start commands; no competing review truth source remains.",
+      "resolvedAt": "2026-06-20T21:13:34.843Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bd45:F-003",
+      "desc": "CHK-001:edge:0 is not actually covered by lifecycle-check-smoke. The intent requires proving format=json and --json produce the same top-level report shape without mutating story files, but packages/main/src/tasks/lifecycle-check-smoke.ts only exercises json:true at lines 156-157 and format:\"text\" at lines 180-185; it never calls format:\"json\" or compares it with json:true. The recorded verificationEvidence for CHK-001:edge:0 points to npm --prefix packages/main run test:lifecycle-check-smoke, so the evidence overclaims this edge intent. Add a smoke assertion that invokes both json:true and format:\"json\", compares their top-level report shape, and keeps the no-mutation snapshot around both calls.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T21:06:31.373Z",
+      "reviewRound": "2026-06-20T21:02:51.810Z",
+      "reviewRunId": "B-bd45:RR-003",
+      "_hash": "38f8affbb38bfa19836facf539e0dc01fa893d09e9db649b6d539012c2ecdb8e",
+      "files": [
+        "packages/main/src/tasks/lifecycle-check-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|edge-actually-covered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: lifecycle-check-smoke now invokes both json:true and format:\"json\" and compares the required top-level report shape; focused smoke passes.",
+      "resolvedAt": "2026-06-20T21:13:35.307Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

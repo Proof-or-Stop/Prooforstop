@@ -1,0 +1,73 @@
+{
+  "storyId": "B-bd45",
+  "checkedAt": "2026-06-20T20:44:22.536Z",
+  "features": [
+    {
+      "feature": "StoryReadinessReport model and lifecycle_check command surface",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist + lifecycle readiness V1 command surface"
+    },
+    {
+      "feature": "Read-only lifecycle_check report assembled from existing lifecycle facts",
+      "covered_by": "CHK-001; CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "V1 boundary: report only, no writes"
+    },
+    {
+      "feature": "runCommands:true and writeEvidence:true fail closed without child commands or metadata writes",
+      "covered_by": "CHK-001 adversarial; CHK-003 adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "V1 fixed false mode"
+    },
+    {
+      "feature": "Readiness rows use blocking semantics, categories, owners, sources, exact next actions, and localReady iff no blocking row",
+      "covered_by": "CHK-002; CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "StoryReadinessReport readiness contract"
+    },
+    {
+      "feature": "Authority, fullAuthority, production, and remote completion claims are not promoted without verified receipt facts",
+      "covered_by": "CHK-002 adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "V1 Authority boundary"
+    },
+    {
+      "feature": "story_pipeline or top-level full lifecycle orchestration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User scope boundary: no story_pipeline/full orchestration in V1; Full Vision later staged layers only",
+      "source": "scope boundary"
+    },
+    {
+      "feature": "Reviewer launch, reviewer batch orchestration, delivery signing, or evidence-writing by lifecycle_check",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User scope boundary: no reviewers/evidence mutation by lifecycle_check; V1 must not launch reviewers, sign delivery checks, or write story evidence",
+      "source": "scope boundary"
+    },
+    {
+      "feature": "Phase mutation, rollback execution, hash refresh, validation/test/build/browser execution by lifecycle_check",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User scope boundary: no phase mutation by lifecycle_check; V1 prints exact next commands only and does not execute them",
+      "source": "scope boundary"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "44d6d381eb0acaf0be6058b23011b4271c0df7c025b7e784aebfe778cc69269c",
+  "openQuestions": []
+}

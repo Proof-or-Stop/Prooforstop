@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-bd45:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified B-bd45:F-003 is resolved: packages/main/src/tasks/lifecycle-check-smoke.ts:212 snapshots story metadata and git status before both JSON calls; lines 215-223 invoke json:true and format:\"json\" and compare top-level report shape; lines 258-259 assert no story metadata or git status mutation. npm --prefix packages/main run test:lifecycle-check-smoke passed.",
+      "createdAt": "2026-06-20T21:15:20.797Z",
+      "reviewRound": "2026-06-20T21:13:23.156Z",
+      "reviewRunId": "B-bd45:RR-006",
+      "_hash": "ce948d3d5c811bfc5098079b3d85011aad414413782074a3770c71df4cee0ebd"
+    },
+    {
+      "id": "B-bd45:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review round 2: checked lifecycle_check against F-001/F-002. Review readiness now shares computeActiveReviewers/evaluateReviewerQuorum with the live REVIEW gate for round-1 active lanes/quorum, uses current-round reviewer evidence plus the same binding/blocking-finding checks for round 2+, and remains read-only without creating a competing REVIEW readiness truth source.",
+      "createdAt": "2026-06-20T21:16:48.705Z",
+      "reviewRound": "2026-06-20T21:13:23.156Z",
+      "reviewRunId": "B-bd45:RR-007",
+      "_hash": "dc473980495af50cf58f3bcd821dd73592d5effcc1e452ab588f0bd2c7ea4b7e"
+    },
+    {
+      "id": "B-bd45:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review round 2 after ea1ad1ab9 checked required reviewer lane projection, quorum mirroring of the REVIEW gate, read-only lifecycle_check behavior, command catalog/policy/registry wiring, and exact next-action commands. No blocking quality issue found.",
+      "createdAt": "2026-06-20T21:17:15.498Z",
+      "reviewRound": "2026-06-20T21:13:23.156Z",
+      "reviewRunId": "B-bd45:RR-008",
+      "_hash": "03ef9fbaeb42dfaf009072f119ca456ec6789153654a7c0aa5ac1dfa63268231"
+    },
+    {
+      "id": "B-bd45:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review Round 3 PASS. V1 remains read-only: handler rejects runCommands/writeEvidence before store reads, command policy is readOnly, smoke verifies no story metadata/git mutation, and live lifecycle_check reports runCommands=false/writeEvidence=false with Authority claims false. Process fact registry shows lifecycle_check as L0/command, not gate evidence. Contract verifier now reads MAIN_TOOLS from packages/main/src/cli/command-catalog.ts, which cli-engine imports/exports as the current CLI schema source; node scripts/verify-process-fact-contract.mjs passed.",
+      "createdAt": "2026-06-20T21:32:59.793Z",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "reviewRunId": "B-bd45:RR-009",
+      "_hash": "1d3359ada75c56485dc3ebf2968774bca9c3cd01247e66e1c24a1e10b90e17a1"
+    },
+    {
+      "id": "B-bd45:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review PASS. Scope changed since prior pass only in packages/main/src/core/process-fact-levels.ts and scripts/verify-process-fact-contract.mjs. lifecycle_check is registered as L0/readiness-read in process-fact levels and remains readOnly in command policy; handler rejects runCommands/writeEvidence before store reads. Contract verifier now reads the actual MAIN_TOOLS source packages/main/src/cli/command-catalog.ts while preserving command-policy, phase, process-fact registry, and required command assertions. Verified with node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:lifecycle-check-smoke.",
+      "createdAt": "2026-06-20T21:33:01.870Z",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "reviewRunId": "B-bd45:RR-010",
+      "_hash": "8070324e601ed640396114dc20ac2c0d32cd9ae98ff50df115f927f429381b35"
+    },
+    {
+      "id": "B-bd45:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS Round 3 test coverage review: lifecycle_check smoke covers command shape/readOnly/no-mutation/blocking semantics/missing delivery-summary-done-required rows; process fact contract now scans real command-catalog and passes; build, validate --json, and done_required_validate all pass on current HEAD.",
+      "createdAt": "2026-06-20T21:34:04.117Z",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "reviewRunId": "B-bd45:RR-011",
+      "_hash": "149b7d2c2ded8e6e568cf1c57de60ac616b7f5cada4c48167c209017e3fee64b"
+    }
+  ]
+}

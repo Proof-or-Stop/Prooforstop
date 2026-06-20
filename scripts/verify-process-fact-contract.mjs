@@ -3501,7 +3501,7 @@ async function assertLifecycleArtifactScopePolicy() {
 }
 
 function assertProcessFactCommandInventory() {
-  const cliText = read('packages/main/src/cli-engine.ts');
+  const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
   const cliToolNames = extractCliToolNames(cliText);
   const cliToolNameSet = new Set(cliToolNames);
@@ -4117,8 +4117,8 @@ const inventory = [
     name: 'CLI schema',
     files: [
       {
-        relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['MAIN_TOOLS', 'review_run_start', 'finding_add', 'review_pass_set', 'verification_evidence_add', 'init_check_set', 'scope_check_save', 'delivery_check_set'],
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: ['MAIN_TOOLS', 'review_run_start', 'finding_add', 'review_pass_set', 'verification_evidence_add', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'lifecycle_check'],
       },
       {
         relPath: 'packages/main/src/core/config.ts',

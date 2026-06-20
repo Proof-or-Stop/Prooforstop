@@ -8,9 +8,77 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T20:45:14.234Z",
+      "endTime": "2026-06-20T21:02:36.881Z",
+      "userSees": "`lattice lifecycle_check --storyId=B-xxxx --target=DONE --json` prints a StoryReadinessReport JSON object with storyId, target, phase, mode, readiness, next, and claims.localReady.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/lifecycle-check.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lifecycle_check command exists, is registered as readOnly, and returns StoryReadinessReport JSON for a real story",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "format=json and --json produce the same top-level report shape without changing story files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runCommands:true or writeEvidence:true fail closed and do not run child commands or write metadata",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js lifecycle_check --storyId=B-bd45 --target=DONE --json",
+          "result": "pass",
+          "note": "CLI returns StoryReadinessReport JSON with storyId/target/phase/mode/readiness/next/claims.localReady for a real story.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke verifies JSON/text report shape and story metadata snapshot remains unchanged after lifecycle_check.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke uses a throwing store to prove runCommands:true/writeEvidence:true fail before reading store facts or writing metadata.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +87,78 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T21:02:37.305Z",
+      "userSees": "Terminal shows `localReady: false`, `code: missing_delivery_check`, `category: missing`, `owner: delivery-reviewer`, and `next: run delivery_check_set` while advisory rows remain non-blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/lifecycle-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "localReady is true iff no readiness row has blocking:true",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "warn/advisory rows are visible and do not block localReady",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manual/external/Authority claims are not promoted to authorityDone/fullAuthorityDone/productionDone without verified receipt facts",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke asserts localReady equals !readiness.some(row.blocking === true).",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/lifecycle-readiness.ts",
+          "command": "node packages/main/dist/cli.js lifecycle_check --storyId=B-bd45 --target=DONE",
+          "result": "pass",
+          "note": "Text output shows WARN advisory rows while localReady remains controlled only by blocking rows.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Smoke asserts authorityDone/fullAuthorityDone/productionDone are false in V1 without verified Authority receipt facts.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +168,80 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T21:02:37.725Z",
+      "userSees": "`lattice lifecycle_check --storyId=<story> --target=DONE` prints stable readiness rows, exact next actions, and a no-mutation V1 mode line; the smoke proves story files are unchanged before/after.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke test verifies JSON report shape and text output for lifecycle_check",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke test covers missing delivery/summary/DONE-required rows as distinct blockers with next actions",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke test snapshots story metadata before/after lifecycle_check and fails if any mutation occurs",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Focused smoke verifies JSON report shape and text output for lifecycle_check.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Focused smoke verifies missing delivery, missing summary, and missing DONE-required validation are distinct blocker codes with next actions.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Focused smoke snapshots story metadata and git status before/after lifecycle_check and fails on mutation.",
+          "headHash": "66601d872887ac715b263a791d1d9529ec0f0642",
+          "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+          "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+          "timestamp": "2026-06-20T21:27:55.850Z"
+        }
+      ]
     }
   ]
 }

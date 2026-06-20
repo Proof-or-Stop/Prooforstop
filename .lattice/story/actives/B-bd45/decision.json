@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Reuse existing lifecycle truth sources instead of duplicating gate logic.",
+    "Keep V1 read-only under success and failure paths.",
+    "Make blocker output actionable for the host."
+  ],
+  "drivers": [
+    "Reduce host time spent diagnosing lifecycle blockers.",
+    "Preserve proof-or-stop lifecycle discipline.",
+    "Keep the first implementation slice small enough to review."
+  ],
+  "options": [
+    {
+      "name": "A: Add focused lifecycle_check command backed by a StoryReadinessReport assembler",
+      "pros": [
+        "Matches the P1 document exactly",
+        "Small command surface",
+        "Easy to smoke test for no mutation"
+      ],
+      "cons": [
+        "Only accelerates diagnosis, not execution"
+      ]
+    },
+    {
+      "name": "B: Add broader story_pipeline wrapper now",
+      "pros": [
+        "Closer to final automation vision"
+      ],
+      "cons": [
+        "Too much scope for V1",
+        "Risks duplicating done_prepare and phase gates",
+        "Harder to prove no mutation"
+      ]
+    }
+  ],
+  "chosen": "A: Add focused lifecycle_check command backed by a StoryReadinessReport assembler",
+  "rationale": "Choose the narrow read-only report because it delivers the immediate host diagnostic value while preserving existing lifecycle gates and avoiding premature orchestration.",
+  "preMortem": [
+    {
+      "scenario": "Command accidentally mutates story metadata",
+      "trigger": "Assembler calls existing mutating handlers instead of readers",
+      "consequence": "V1 violates proof-or-stop boundary and could stale evidence",
+      "mitigation": "Use direct readers and smoke-test before/after file snapshots"
+    },
+    {
+      "scenario": "Report computes DONE readiness differently from DONE gate",
+      "trigger": "Implementation reimplements gate logic instead of consuming existing oracle rows",
+      "consequence": "Host sees conflicting readiness answers",
+      "mitigation": "Reuse done-oracle summaries where possible and label source rows"
+    },
+    {
+      "scenario": "Manual or external rows hide missing commands",
+      "trigger": "Rendering collapses all blockers into generic not-ready text",
+      "consequence": "Host still has to inspect scattered artifacts manually",
+      "mitigation": "Each blocking row carries source/category/code/owner/next action"
+    }
+  ],
+  "timestamp": "2026-06-20T20:41:34.408Z"
+}
