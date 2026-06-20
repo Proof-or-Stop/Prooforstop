@@ -207,7 +207,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Execution stories derived\\|Define parsing/consumption schema\\|Add one reusable preflight\\|Add explicit \\\"uncertain\\|acceptance checks\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Execution Stories section enumerates concrete follow-up stories, owners, scope, and delivery checks.",
+          "headHash": "b69fbe123b39d6fa4da13febff16c177d44444e0",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:18.647Z"
+        }
+      ]
     }
   ],
   "auditLog": [
