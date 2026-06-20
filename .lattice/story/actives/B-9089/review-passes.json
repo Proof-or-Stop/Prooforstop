@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T11:18:13.732Z",
       "reviewRunId": "B-9089:RR-001",
       "_hash": "00fd0bc644bc5ab65c057f10012555715659c460d7dfbc80b298b2256d3c985d"
+    },
+    {
+      "id": "B-9089:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test coverage review after B-9089:F-001 fix. Verified CHK-004 edge is meaningfully covered by source assertions in packages/main/src/tasks/story-owner-lease-smoke.ts: generated token reuse for same adapter boundary plus assert.notEqual coverage for different adapter boundary, different host provider, and different project root. Confirmed token store scopes by project root/provider/boundary in packages/main/src/core/owner-session-token-store.ts and runtime artifact registration excludes .lattice/runtime/owner-session-tokens/. Reran focused commands: npm --prefix packages/main run test:story-owner-lease-smoke PASS; npm --prefix packages/main run test:owner-session-guardrail PASS. Overall verification evidence is adequate for coverage lane.",
+      "createdAt": "2026-06-20T11:26:27.458Z",
+      "reviewRound": "2026-06-20T11:23:51.740Z",
+      "reviewRunId": "B-9089:RR-006",
+      "_hash": "444c2a66e41df1b99fda1c3bab1a7e0db5e729c05c2fc6436db0e8669f512f5b"
     }
   ]
 }
