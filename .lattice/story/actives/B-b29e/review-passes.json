@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T10:14:09.997Z",
       "reviewRunId": "B-b29e:RR-005",
       "_hash": "ce93e389988cd9ecabea8d8f247b1459c9b8f51a3f80427a14367c3ceb640b7b"
+    },
+    {
+      "id": "B-b29e:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs PASS over final code (e848add61): docs/parallel-decomposition-spec.md §8.1 note accurately describes the registration — the 4 runtime DEV doors in lifecycle-registry, the 3 scope-contract PRODUCER facts (set/acknowledge/init_from_plan, scope_contract_check excluded as a pure read) as gateConsumers, and the exclusive drift-check assertion. Doc matches the code; round-3 verifiers confirmed §8.1 corresponds exactly to the implementation.",
+      "createdAt": "2026-06-20T10:36:34.605Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "reviewRunId": "B-b29e:RR-006",
+      "_hash": "6f8f6871720358f6f9793eb5e0cfeeb3a6ad104388e0d75e2a4fb711c913fbbf"
     }
   ]
 }
