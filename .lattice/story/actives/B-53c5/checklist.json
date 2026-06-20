@@ -4,33 +4,327 @@
       "id": "CHK-001",
       "title": "Define the frozen Finding and Verdict schemas in packages/main/src/core/adversarial-review.ts exactly per spec §2.2/§2.3",
       "context": "New module core/adversarial-review.ts. Finding = {severity: 'BLOCKER'|'MAJOR'|'MINOR', title: string, file: string, line: number, issue: string, fix: string}. Verdict = {isReal: boolean, agreedSeverity: 'BLOCKER'|'MAJOR'|'MINOR'|'NOT_A_DEFECT', reasoning: string}. Use exported types + the severity union as a const tuple/type so it matches §2.2/§2.3 verbatim. Note: these are the ABSTRACT methodology severities (BLOCKER/MAJOR/MINOR) — the finding_add ledger mapping (critical|high|medium|low) is S2's concern, not S0's.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:12:53.406Z",
+      "endTime": "2026-06-20T12:15:41.853Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke constructs a valid Finding {severity,title,file,line,issue,fix} and Verdict {isReal,agreedSeverity,reasoning} and asserts every field is present + typed; WHY: the frozen schemas are the contract S1-S4 import",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke asserts the severity unions are EXACTLY {BLOCKER,MAJOR,MINOR} (Finding) and {BLOCKER,MAJOR,MINOR,NOT_A_DEFECT} (Verdict.agreedSeverity) — no extra/missing member; WHY: a wrong union breaks the abstract->ledger mapping in S2",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tsc build is clean (the types compile) and lattice validate stays green; WHY: a non-compiling contract blocks every later story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke constructs a valid Finding (6 fields) + Verdict (3 fields) and asserts each field present/typed (line:number).",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts FINDING_SEVERITIES deep-eq [BLOCKER,MAJOR,MINOR] and AGREED_SEVERITIES deep-eq [BLOCKER,MAJOR,MINOR,NOT_A_DEFECT] — exact unions.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "tsc build clean + lattice validate green (the abstract types compile; no finding_add critical/high mapping leaked into S0).",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Define the canonical lens set (+ task-tunable flag) and the completeness-critic IO contract per §2.1/§2.4",
       "context": "Export the canonical lens set: concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency (as a typed list of {id, facet, asks} or at least the id union), with a documented 'task-tunable' note (the set may be subset/extended per change). Export the CompletenessCritic IO contract type: input {change, confirmedFindings: Finding[]}, output Finding[] (its findings re-enter verification — that is S2/S3's concern; S0 only types the IO).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:15:42.452Z",
+      "endTime": "2026-06-20T12:15:43.013Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke asserts CANONICAL_LENS_SET has EXACTLY the 6 spec entries with ids concept-scope, code-quality, behavior-correctness, test-coverage, crash-safety-edge, docs-consistency; WHY: S1 iterates this set",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the lens set is documented task-tunable (a note/flag) and the CompletenessCritic IO type is exported (input change+confirmedFindings:Finding[], output Finding[]); WHY: S1 may subset the set; S3 imports the critic IO",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no behavior leaks into the lens-set/critic-IO definitions (data + types only, no functions that run lenses or the critic); WHY: behavior is S1/S3",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts CANONICAL_LENS_SET length 6 with ids (in order) deep-eq LENS_IDS (concept-scope/code-quality/behavior-correctness/test-coverage/crash-safety-edge/docs-consistency).",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts each lens entry has non-empty facet+asks (task-tunable note in doc-comment); CompletenessCriticInput {change,confirmedFindings} + CompletenessCriticIO exported.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "module is data+types only — no functions that run lenses/critic (reviewer-confirmed no behavior).",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Define the review-mode interface encoding the canonical round order (§2.4/§3.2/§4.2)",
       "context": "Export an interface/types for the review MODE round: the canonical order is run lenses -> adversarially verify lens raw findings -> run critic on {change, CONFIRMED lens findings} -> verify critic raw findings -> converge-or-reopen. Encode the order as a declared constant (e.g. an ordered phase enum/tuple REVIEW_MODE_PHASES) AND a round/result interface (lenses, confirmedFindings, criticFindings, reopen: boolean, converged: boolean) so S1-S4 wire to a single declared surface and cannot drift from the spec. Types + interface only — NO behavior/implementation.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:15:43.593Z",
+      "endTime": "2026-06-20T12:15:44.445Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/adversarial-review.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the smoke asserts REVIEW_MODE_PHASES equals the canonical 5-step order [lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen]; WHY: the single declared source of truth for the round order",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a Round/RoundResult interface is exported with fields covering lenses, confirmedFindings, criticFindings, reopen:boolean, converged:boolean; WHY: S4 wires the round/reopen loop to this surface",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the interface/const carry NO implementation (types + a const data tuple only); WHY: types-only contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts REVIEW_MODE_PHASES deep-eq [lenses,verify-lens-findings,critic,verify-critic-findings,converge-or-reopen] — the single declared canonical order.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "RoundResult constructs with lensFindings/confirmedFindings/criticFindings arrays + reopen/converged booleans; ReviewModeRound exported.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "REVIEW_MODE_PHASES + RoundResult are const/interface only — no implementation.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Hermetic smoke proving the contract compiles + matches the spec; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-contract-smoke.ts: construct a valid Finding and a valid Verdict (assert shape/fields), assert the canonical lens set has exactly the 6 spec entries with the right ids, assert REVIEW_MODE_PHASES is the canonical 5-step order, and assert the severity unions are exactly {BLOCKER,MAJOR,MINOR} / {...,NOT_A_DEFECT}. tsc compiling is itself part of the proof. Register the smoke in lattice.config.json validate.commands.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T12:15:45.016Z",
+      "endTime": "2026-06-20T12:15:45.573Z",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js prints its pass line (exit 0) and is registered in lattice.config.json validate.commands; WHY: the contract is CI-checked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke is hermetic (no FS/git/store), pure type+const assertions; WHY: a contract smoke needs no environment",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice validate runs all configured commands green including the new smoke; WHY: no regression",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "the smoke runs green (23 assertions) and is registered as lattice.config.json validate.commands[12].",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "smoke is hermetic — pure type+const assertions, no FS/git/store.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "lattice validate runs all configured commands green incl. the new smoke.",
+          "headHash": "22066ec695b78885c803899e667e9d44c0b8ad18",
+          "materialHash": "773fd6cf43e763ead7ec7a1e7334ce3434fb62a6304c3b65fe9555f5afea4e91",
+          "storyFilesHash": "fe1ddd17abce3e7437e159137dd371c86aa405fd8fcdbf1076e8fc77427e003a",
+          "timestamp": "2026-06-20T12:28:26.102Z"
+        }
+      ]
     }
   ]
 }
