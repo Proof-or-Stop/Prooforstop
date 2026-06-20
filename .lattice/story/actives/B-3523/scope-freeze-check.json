@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3523",
+  "checkedAt": "2026-06-20T23:34:21.793Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "c6d8204c344f00165e2a0e01c7473de568689ed7e9aa245d85489dbf4bd10645",
+  "executionBoundaryHash": "a73f4fa7a689cc9b9fc8fc2840a491a32b9f87c2a5ecb7abc8d1b8f775489d47",
+  "freshnessHash": "7dad7795098acbb044e44cdd1549e92fd67a528a6958f86b7ca9b61db208f5b2",
+  "effectiveExcludedKeywords": [
+    "Do NOT change agent role-ids (separate, already done in B-ffa2) or any runtime behavior beyond the rename + fallback retirement",
+    "Do NOT change the top-level package name `lattice` or the `lattice` bin",
+    "Do NOT rewrite frozen .lattice/ story audit records or docs/koala/framework-audit/ history",
+    "Do NOT symlink node_modules in the worktree (must be a real npm install for the @lattice/* workspace links)",
+    "Do NOT weaken or remove the anti-residue checkers (they must keep asserting @koala-agent absence and now also @lattice-agent absence)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do NOT change agent role-ids (separate, already done in B-ffa2) or any runtime behavior beyond the rename + fallback retirement",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT change agent role-ids (separate, already done in B-ffa2) or any runtime behavior beyond the rename + fallback retirement",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT change the top-level package name `lattice` or the `lattice` bin",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT change the top-level package name `lattice` or the `lattice` bin",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT rewrite frozen .lattice/ story audit records or docs/koala/framework-audit/ history",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT rewrite frozen .lattice/ story audit records or docs/koala/framework-audit/ history",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT symlink node_modules in the worktree (must be a real npm install for the @lattice/* workspace links)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT symlink node_modules in the worktree (must be a real npm install for the @lattice/* workspace links)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT weaken or remove the anti-residue checkers (they must keep asserting @koala-agent absence and now also @lattice-agent absence)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT weaken or remove the anti-residue checkers (they must keep asserting @koala-agent absence and now also @lattice-agent absence)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8c5e4a7a6e39a09d15a51a60a3f223c82ba3db8ea11cfc7003640805e4ee1d4d"
+}

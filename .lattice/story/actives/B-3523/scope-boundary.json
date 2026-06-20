@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3523",
+  "mode": "maintenance",
+  "allowed": [
+    ".githooks/pre-push: self-host check @koala-agent/core -> @lattice/core (restore build+tsc gate)",
+    "codex-adapter-checks.ts globalCoreCandidates: retire @koala-agent/core (and the @lattice-agent/core transitional entry); leave @lattice/core only; update worktree-repair-smoke.ts / flow-stability-smoke.ts fixtures",
+    "Rename npm scope @lattice-agent/{core,utils,lab} -> @lattice/{core,utils,lab}: 3 package.json name fields + inter-package dependencies; real npm install to regenerate node_modules/@lattice/* workspace links",
+    "Rewrite all live @lattice-agent references in packages/**/src (imports, string literals, path joins, CANONICAL_CORE_PACKAGE_NAME constants, JSDoc) to @lattice — incl. cli-init.ts, runtime-environment-checks.ts, test-auto.ts, worktree.ts, rollout-check.ts, codex-adapter-checks.ts, prompt-registry.ts, runtime-fact-registry.ts, init-assets.ts",
+    "Update hooks (.codex/hooks, .claude/hooks) + docs (README.md, CLAUDE.md, CHANGELOG.md, done-full-test-gate-execution-plan.md and other decision docs naming the current scope)",
+    "Update verifier expected names to @lattice/core: verify-runtime-fact-contract.mjs, verify-entrypoints.mjs, verify-global-lab-entrypoint.mjs, verify-koala-residue.mjs (keep it as residue checker)"
+  ],
+  "excluded": [
+    "Do NOT change agent role-ids (separate, already done in B-ffa2) or any runtime behavior beyond the rename + fallback retirement",
+    "Do NOT change the top-level package name `lattice` or the `lattice` bin",
+    "Do NOT rewrite frozen .lattice/ story audit records or docs/koala/framework-audit/ history",
+    "Do NOT symlink node_modules in the worktree (must be a real npm install for the @lattice/* workspace links)",
+    "Do NOT weaken or remove the anti-residue checkers (they must keep asserting @koala-agent absence and now also @lattice-agent absence)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directive 2026-06-20: scope should be @lattice (product is Lattice, not an agent); rename @lattice-agent -> @lattice, fix stale pre-push (@koala-agent/core), retire legacy @koala-agent global fallback.",
+  "createdAt": "2026-06-20T23:34:08.104Z",
+  "updatedAt": "2026-06-20T23:34:08.104Z",
+  "_hash": "c6d8204c344f00165e2a0e01c7473de568689ed7e9aa245d85489dbf4bd10645"
+}
