@@ -11,7 +11,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document cites the verified current failure mode: validate.commands subset, verifier fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and pre-push not running root npm test.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document clearly states that this does not prove current main npm test is red; it proves the gate can miss failures outside validate.commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document keeps runtime implementation, lattice.config.json command edits, and running full npm test out of this planning story scope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

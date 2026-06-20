@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "DONE must be fail-closed on gate-consumed structured evidence, not prose claims.",
+    "Self-host Lattice core needs stronger release assurance than ordinary external projects by default.",
+    "External projects must remain configurable and must not inherit Orchestrate-specific full-suite cost unless they opt in.",
+    "Validation evidence must be bound to current HEAD/material/story files so stale green runs cannot unlock DONE."
+  ],
+  "drivers": [
+    "Prevent false DONE when configured lattice validate subset passes but full root npm test would fail.",
+    "Keep normal DEV/TEST feedback fast enough for story iteration.",
+    "Make the future implementation mechanically testable with explicit artifacts and row ids.",
+    "Preserve 3-round/2-host review discipline for high-risk lifecycle gate changes."
+  ],
+  "options": [
+    {
+      "name": "A: Add root npm test directly to validate.commands",
+      "pros": [
+        "Smallest configuration change.",
+        "Uses the existing lattice validate and test-evidence path."
+      ],
+      "cons": [
+        "Makes every validate expensive, including normal REVIEW to TEST movement.",
+        "Does not distinguish project-level validation from self-host DONE/release assurance.",
+        "Could make external users copy an Orchestrate-specific policy into unrelated projects."
+      ]
+    },
+    {
+      "name": "B: Add DONE/release-required validation profile with hash-bound evidence",
+      "pros": [
+        "Separates fast project validation from DONE/release closure evidence.",
+        "Lets Orchestrate require root npm test while external projects opt in or configure their own equivalent.",
+        "Can expose a dedicated DONE row and clear stale/failing runbook."
+      ],
+      "cons": [
+        "Requires schema, runner, artifact, done-oracle, docs, and smoke updates.",
+        "Needs careful migration for in-flight stories and cached test evidence."
+      ]
+    },
+    {
+      "name": "C: Rely on pre-push or CI for full npm test",
+      "pros": [
+        "Avoids slowing local DONE flow.",
+        "Keeps current story lifecycle mostly unchanged."
+      ],
+      "cons": [
+        "Does not fix local DONE semantics; stories can still merge to local main while full tests are red.",
+        "Push/CI feedback arrives after Lattice has already claimed DONE.",
+        "Current pre-push does not run root npm test anyway."
+      ]
+    }
+  ],
+  "chosen": "B: Add DONE/release-required validation profile with hash-bound evidence",
+  "rationale": "Choose a dedicated DONE/release-required validation profile because the bug is specifically a closure assurance gap, not a normal fast feedback gap. The plan should require root npm test for this self-host repository while preserving configurable project-native validation for external users.",
+  "preMortem": [
+    {
+      "scenario": "Implementation makes every lattice validate run execute full npm test.",
+      "trigger": "The fix only appends npm test to validate.commands.",
+      "consequence": "Normal development becomes slow, agents avoid validate, and external projects inherit self-host cost.",
+      "mitigation": "Define a separate DONE/release profile and keep normal validate.commands behavior intact unless a project opts into stronger policy."
+    },
+    {
+      "scenario": "DONE accepts stale full-suite evidence after material changes.",
+      "trigger": "The full-suite artifact records pass/fail but not HEAD/material/storyFilesHash.",
+      "consequence": "A previous green npm test can unlock DONE for a changed story.",
+      "mitigation": "Require the same freshness model as test-evidence: current HEAD/material/storyFilesHash and explicit stale row failure."
+    },
+    {
+      "scenario": "The plan creates prompt-only policy with no gate consumer.",
+      "trigger": "Docs say full npm test is required but no done-oracle/process-fact/validation runner consumes it.",
+      "consequence": "Agents still merge with subset evidence because the mechanical gate is unchanged.",
+      "mitigation": "Require implementation touchpoints for schema, verifier/runner, process fact registry, done-oracle row, tests, and docs."
+    },
+    {
+      "scenario": "3-round/2-host review is treated as a doc checkbox rather than current-material evidence.",
+      "trigger": "Host verdicts are recorded before final implementation or without material hash binding.",
+      "consequence": "High-risk gate changes get stale or duplicate review assurance.",
+      "mitigation": "Plan mandates review escalation/host verdicts over final material hash and re-attestation after material changes."
+    }
+  ],
+  "timestamp": "2026-06-20T06:49:38.352Z"
+}
