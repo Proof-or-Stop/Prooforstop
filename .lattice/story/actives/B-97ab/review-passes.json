@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-97ab:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope CLEAN: git diff 336a99755..HEAD touches only the two allowed new files + lattice.config.json; S0 contract (adversarial-review.ts) and review-run.ts are byte-unmodified; no finding_add/ledger (S2), verifier/threshold (S2), completeness critic (S3), or escalation/autopilot (S4) leaked in; module is exactly the §4.2 mapping + independent per-lens plan + injected runner + aggregator. Confirmed by round-1 concept lane (0 findings) + round-2 multi-lens concept/scope lens (0 confirmed).",
+      "createdAt": "2026-06-20T14:24:37.209Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-001",
+      "_hash": "b4f01c8b230e4515e75469230d4a186ea1b7e0f647a3b99d63a5127f6a8c618d"
+    }
+  ]
+}
