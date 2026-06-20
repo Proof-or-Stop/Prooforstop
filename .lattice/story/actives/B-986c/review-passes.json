@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-19T23:57:53.346Z",
       "reviewRunId": "B-986c:RR-008",
       "_hash": "7322b1406888e497ad9b9a119f803a1215cb742dde0032334b85c3c4a6e1300d"
+    },
+    {
+      "id": "B-986c:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 32 verificationIntent entries (CHK-001: 5 happy + 7 edge + 5 adversarial; CHK-002: 6 happy + 6 edge + 3 adversarial) have concrete matching evidence pointing to node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js (or lattice validate for CHK-002:happy:0,5). CHK-001:adversarial:4 (all-terminal peers + broad -> block null AND empty advisories, former F-007) is now directly covered by smoke block 5b (lines 109-119, 2 assertions: all-terminal peers + broad -> block null; all-terminal peers + broad -> empty advisories). The 18-assertion note annotation in stored evidence is a stale count (smoke grew from 18 to 32 assertions) but the command field is correct and the behavioral description is specific. No command-to-intent mismatches found. Evidence staleness (materialHash drift) is a pre-TEST refresh concern, not a coverage gap — the main agent refreshes before TEST.",
+      "createdAt": "2026-06-20T00:00:27.638Z",
+      "reviewRound": "2026-06-19T23:57:53.346Z",
+      "reviewRunId": "B-986c:RR-009",
+      "_hash": "aa7f94174cb733009671d3a5641db9972eba0e6ea288f1505e375881b3dee670"
     }
   ]
 }
