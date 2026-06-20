@@ -172,9 +172,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke with a FAKE runLens proving mapping + independence + aggregation; register in lattice.config.json",
       "context": "New packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts (check+counter pattern). Assert: every value of LENS_TO_LANE is in the real six-lane set (import REVIEW_RUN_LANES from core/review-run.js and assert subset — this PINS the mapping to reality); buildLensRunPlan over CANONICAL_LENS_SET yields 6 requests, one per lens, each with the right mapped lane and carrying only {lensId,lane,change} (no findings field / no cross-lens data); a SUBSET lens set yields only those requests; runLenses with a fake runLens (returns a planted Finding for one lens, [] for others) yields the right LensRunResult[] with findings grouped by lens/lane and PASS lenses empty; collectRawFindings flattens correctly. Register node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js in lattice.config.json validate.commands.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T13:42:06.545Z",
-      "endTime": null,
+      "endTime": "2026-06-20T13:43:01.630Z",
       "verificationIntent": {
         "happy": [
           {
