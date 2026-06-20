@@ -40,6 +40,47 @@
         "bindingHash": "bf7e1ed387d6e35be5378be66a230b844db3a54923a6e145c25e106cbc2b4d78"
       },
       "_hash": "4a975445387999b288587465bd455f404e1a0032f2f9ac5ada71d467f5429e70"
+    },
+    {
+      "reviewRunId": "B-2806:RR-002",
+      "storyId": "B-2806",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "startedAt": "2026-06-20T15:15:20.434Z",
+      "headHash": "e4c9668708a3c61317e2c9af49941ae5edbcd4e5",
+      "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+      "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+      "promptHash": "c9efb265af23dcf502c82276a9172b37712834cb2f6bac50d7b2d03c9b3d00a1",
+      "scopeBinding": {
+        "scopeContractHash": "9ae031966e897c211038f710afbf027921787246613c20351c9b1546338ecd21",
+        "diffPackHash": "2767f7630a43db5af1ee7be193297f57eec234ad9e7a2c67c3905b840ba26aa1",
+        "reviewedChangedFiles": [
+          "lattice.config.json",
+          "packages/main/src/core/adversarial-review-verifier.ts",
+          "packages/main/src/tasks/adversarial-review-verifier-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4706786e5c8f191109a384f20b7b2937c598c257fc490ed619d9250c14d78a0a",
+          "4c35df9ee459b434dd12ba40ddcc38ce1110c5b023ffed953870bdbf27c84bff",
+          "928de5b5c94870db041b0beea73272e25dd244e7e9874366b7a95a1826fff6af"
+        ],
+        "bindingHash": "c56d082f1f5455ee1114820e93a351fd634aa6190656c1ef4e11ed54be11e490"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2806",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2806",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2806",
+        "workspaceMode": "story-worktree",
+        "headHash": "e4c9668708a3c61317e2c9af49941ae5edbcd4e5",
+        "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+        "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+        "bindingHash": "f86eaa387830118444171ff0ce5ce52820e254f6b2d364b8c13fd2ebe225e7a7"
+      },
+      "_hash": "aa62ee3c95b1eed1a8e162d744967a9959d902a591e4622737c1d4508aba1fe6"
     }
   ]
 }
