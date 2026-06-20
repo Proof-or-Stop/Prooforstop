@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6878",
+  "mode": "feature",
+  "allowed": [
+    "core/usage-ledger/adapters/anthropic.ts",
+    "core/usage-ledger/adapters/gemini.ts",
+    "core/usage-ledger/adapters/openai.ts (in-operator belt)",
+    "core/usage-ledger/assemble.ts (extractRawUsage chokepoint + options.usage default)",
+    "core/usage-ledger/diagnostics.ts (OPTIONAL, only if trivial)",
+    "core/usage-ledger/dispatch-usage.ts (anthropic extract chokepoint)",
+    "core/usage-ledger/record.ts (validator in-operator belt only; NOT validation rules)",
+    "core/usage-ledger/sanitize.ts (NEW chokepoint helper) OR core/usage-ledger/adapters/shared.ts",
+    "core/usage-ledger/streaming.ts (usage-merge in-operator belt)",
+    "packages/main/package.json (smoke alias)",
+    "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts (NEW smoke)"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator approved (2026-06-20) doing the deferred prototype-pollution hardening as item 1 of 3; scope per docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md.",
+  "createdAt": "2026-06-20T14:37:42.435Z",
+  "updatedAt": "2026-06-20T14:37:42.435Z",
+  "_hash": "2d33d58de4745b7e41b9aafd6a37725e17f89ede5a678067ee810358d6a32f1d"
+}
