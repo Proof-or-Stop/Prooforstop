@@ -66,6 +66,23 @@ const PARALLEL_GATE_PROFILE_DEFAULTS: Record<WorkflowProfile, ParallelGateConfig
 };
 
 /**
+ * Render an arbitrary invalid value for a warning message WITHOUT ever throwing.
+ * `JSON.stringify` throws on `bigint`, circular references, and throwing `toJSON`
+ * getters — and this runs on the present-but-invalid path, whose contract is
+ * warn+fallback, never crash. bigint is handled first (JSON can't serialize it);
+ * everything else falls through a try/catch to a non-throwing tag.
+ */
+function describeInvalidValue(value: unknown): string {
+  if (typeof value === 'bigint') return `${value}n`;
+  try {
+    // JSON.stringify(undefined) / (function) returns undefined — coalesce to String().
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return Object.prototype.toString.call(value);
+  }
+}
+
+/**
  * Resolve the nested `parallelGate` config (spec §4.7). Unlike the flat scalar fields, the
  * nested object must be validated field-by-field — the flat per-scalar override path does not
  * recurse, so copying it would silently skip every sub-field check. Each sub-field guards and
@@ -73,6 +90,9 @@ const PARALLEL_GATE_PROFILE_DEFAULTS: Record<WorkflowProfile, ParallelGateConfig
  * `mode` validates against VALID_PARALLEL_MODES (NOT VALID_MODES, which is ReadonlySet<AuditMode>)
  * and an invalid value degrades to advise (safe, non-blocking). Two-param form (raw +
  * explicit profileDefault) keeps the helper pure and decoupled from the profile table (OQ-001).
+ * Presence is tested with Object.hasOwn (own keys only — an inherited/prototype-shaped sub-field
+ * never overrides a default), and the present-but-invalid path never throws (invalid values are
+ * rendered via describeInvalidValue, so a bigint/circular config value still warn+falls-back).
  */
 export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateConfig): ParallelGateConfig {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
@@ -84,36 +104,40 @@ export function resolveParallelGate(raw: unknown, profileDefault: ParallelGateCo
   // For each sub-field, distinguish a PRESENT-but-invalid value (warn + fallback) from an
   // ABSENT key (keep the profile default). A present-but-wrong-TYPE value is invalid, not
   // missing — e.g. mode: 123 under the strict profile must degrade to advise, never silently
-  // keep block.
-  if ('mode' in r) {
+  // keep block. Presence is tested with Object.hasOwn (NOT `key in r`): a `key in r` check
+  // walks the prototype chain, so an Object.create({mode:'block',...})-shaped raw with no OWN
+  // keys would silently override profile defaults — turning balanced/light into block with no
+  // warn, violating the absent-key-keeps-profile-default invariant. An OWN `undefined` is still
+  // present-invalid (hasOwn true, fails the type guard → warn + fallback).
+  if (Object.hasOwn(r, 'mode')) {
     if (typeof r.mode === 'string' && VALID_PARALLEL_MODES.has(r.mode as ParallelGateMode)) {
       result.mode = r.mode as ParallelGateMode;
     } else {
       console.warn(
-        `[audit-config] invalid parallelGate.mode ${JSON.stringify(r.mode)}, falling back to "${PARALLEL_MODE_FALLBACK}".`,
+        `[audit-config] invalid parallelGate.mode ${describeInvalidValue(r.mode)}, falling back to "${PARALLEL_MODE_FALLBACK}".`,
       );
       result.mode = PARALLEL_MODE_FALLBACK; // advise is non-blocking — never hard-block on a bad config value
     }
   }
 
-  if ('maxConcurrentReview' in r) {
+  if (Object.hasOwn(r, 'maxConcurrentReview')) {
     const m = r.maxConcurrentReview;
     if (typeof m === 'number' && Number.isInteger(m) && m > 0) {
       result.maxConcurrentReview = m;
     } else {
       console.warn(
-        `[audit-config] parallelGate.maxConcurrentReview must be a positive integer (>=1), got ${JSON.stringify(m)}, falling back to ${profileDefault.maxConcurrentReview}.`,
+        `[audit-config] parallelGate.maxConcurrentReview must be a positive integer (>=1), got ${describeInvalidValue(m)}, falling back to ${profileDefault.maxConcurrentReview}.`,
       );
       // Keep profileDefault.maxConcurrentReview
     }
   }
 
-  if ('broadGlobBlocks' in r) {
+  if (Object.hasOwn(r, 'broadGlobBlocks')) {
     if (typeof r.broadGlobBlocks === 'boolean') {
       result.broadGlobBlocks = r.broadGlobBlocks;
     } else {
       console.warn(
-        `[audit-config] parallelGate.broadGlobBlocks must be a boolean, got ${JSON.stringify(r.broadGlobBlocks)}, falling back to ${profileDefault.broadGlobBlocks}.`,
+        `[audit-config] parallelGate.broadGlobBlocks must be a boolean, got ${describeInvalidValue(r.broadGlobBlocks)}, falling back to ${profileDefault.broadGlobBlocks}.`,
       );
       // Keep profileDefault.broadGlobBlocks
     }

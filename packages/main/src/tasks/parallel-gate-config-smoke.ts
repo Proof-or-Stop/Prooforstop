@@ -4,9 +4,13 @@
  * Hermetic — resolveParallelGate is unit-tested directly with each profile default, and
  * resolveAuditConfig is exercised against a temp .lattice/audit-config.json under os.tmpdir().
  * Proves: per-profile defaults, every sub-field override, mode "off", PRESENT-but-invalid vs
- * ABSENT semantics (an invalid mode of any type degrades to advise, never block), warn emission,
- * unknown-key forward-compat, non-object/null => profile defaults (no crash), and the
- * no-user-config path still carrying a populated parallelGate.
+ * ABSENT semantics (an invalid mode of any type degrades to advise, never block), warn emission
+ * at BOTH the direct-helper and the resolveAuditConfig config-file integration level,
+ * prototype-safety (inherited / __proto__-shaped sub-fields are treated as absent, never promote
+ * a default to block, and never pollute Object.prototype), never-throw on exotic invalid values
+ * (bigint / circular / throwing-toJSON warn+fall-back rather than crash), unknown-key
+ * forward-compat, non-object/null => profile defaults (no crash), and the no-user-config path
+ * still carrying a populated parallelGate.
  *
  * Run: node packages/main/dist/tasks/parallel-gate-config-smoke.js
  */
@@ -148,6 +152,53 @@ void (() => {
       { mode: 'block', maxConcurrentReview: 3, broadGlobBlocks: false },
     ));
 
+    // 8c. (F-019) Prototype/inherited sub-fields are NOT own keys, so they must be treated as
+    //     ABSENT — the profile default is kept and NOTHING warns. A `key in r` check would have
+    //     walked the prototype chain and silently promoted light -> block here.
+    {
+      const inherited = Object.create({ mode: 'block', maxConcurrentReview: 99, broadGlobBlocks: true });
+      const { result, warnings } = captureWarn(() => resolveParallelGate(inherited, LIGHT));
+      check('inherited (prototype) sub-fields ignored -> light default', eq(result, LIGHT));
+      check('inherited sub-fields do NOT warn (treated as absent)', warnings.length === 0);
+    }
+    // 8c-bis. A JSON `__proto__` key produces an OWN "__proto__" property but no own "mode" key,
+    //         so mode stays absent (default kept) and the real prototype is never polluted.
+    {
+      const fromJson = JSON.parse('{"__proto__":{"mode":"block"},"maxConcurrentReview":5}') as unknown;
+      const result = resolveParallelGate(fromJson, LIGHT);
+      check('__proto__-keyed JSON: own mode absent -> light mode kept', result.mode === 'advise');
+      check('__proto__-keyed JSON: own maxConcurrentReview applied', result.maxConcurrentReview === 5);
+      check('__proto__-keyed JSON does not pollute Object.prototype', (({}) as Record<string, unknown>).mode === undefined);
+    }
+
+    // 8d. (F-020) A present-but-invalid value of an EXOTIC type (bigint, circular, throwing toJSON)
+    //     must still warn + fall back — never crash. JSON.stringify throws on all three, so the
+    //     warn path must route through a non-throwing formatter. Reaching the assertions at all
+    //     proves no throw escaped; the values/warns prove the fallback fired.
+    {
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ mode: 10n }, STRICT));
+      check('bigint mode -> advise (no crash)', result.mode === 'advise');
+      check('bigint mode warns', warnings.some((w) => w.includes('parallelGate.mode')));
+    }
+    {
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ maxConcurrentReview: 10n }, LIGHT));
+      check('bigint max -> light default (no crash)', result.maxConcurrentReview === 2);
+      check('bigint max warns', warnings.some((w) => w.includes('maxConcurrentReview')));
+    }
+    {
+      const circ: Record<string, unknown> = {};
+      circ.self = circ;
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ mode: circ }, STRICT));
+      check('circular-object mode -> advise (no crash)', result.mode === 'advise');
+      check('circular-object mode warns', warnings.some((w) => w.includes('parallelGate.mode')));
+    }
+    {
+      const boom = { toJSON(): never { throw new Error('boom'); } };
+      const { result, warnings } = captureWarn(() => resolveParallelGate({ broadGlobBlocks: boom }, STRICT));
+      check('throwing-toJSON broadGlobBlocks -> strict default true (no crash)', result.broadGlobBlocks === true);
+      check('throwing-toJSON broadGlobBlocks warns', warnings.some((w) => w.includes('broadGlobBlocks')));
+    }
+
     // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
 
     // 9. Per-profile defaults with NO user config.
@@ -168,20 +219,47 @@ void (() => {
     // 12. parallelGate: null in the config -> profile default (the integration path, not just the direct unit).
     check('null config parallelGate -> profile default', eq(resolveAuditConfig('strict', tmpProject({ parallelGate: null })).parallelGate!, STRICT));
 
-    // 13. An invalid mode in the config falls back to advise.
-    check('invalid config mode -> advise', resolveAuditConfig('strict', tmpProject({ parallelGate: { mode: 'nope' } })).parallelGate!.mode === 'advise');
+    // 13. (F-021) An invalid mode in the config falls back to advise AND warns through the real
+    //      resolveAuditConfig I/O path — assert the warn, not just the value, so a silent-fallback
+    //      regression in the integration path is caught (the direct-unit warn tests can't see it).
+    {
+      const { result, warnings } = captureWarn(() =>
+        resolveAuditConfig('strict', tmpProject({ parallelGate: { mode: 'nope' } })),
+      );
+      check('invalid config mode -> advise (integration)', result.parallelGate!.mode === 'advise');
+      check('invalid config mode warns (integration)', warnings.some((w) => w.includes('parallelGate.mode')));
+    }
 
     // 13b. (F-013) mode "off" survives the full resolveAuditConfig integration path — the
-    //      reversible escape hatch must be reachable from a real config file, not just the unit.
-    check('config mode off -> off (integration)', resolveAuditConfig('light', tmpProject({ parallelGate: { mode: 'off' } })).parallelGate!.mode === 'off');
+    //      reversible escape hatch must be reachable from a real config file, not just the unit —
+    //      and a VALID value must NOT warn.
+    {
+      const { result, warnings } = captureWarn(() =>
+        resolveAuditConfig('light', tmpProject({ parallelGate: { mode: 'off' } })),
+      );
+      check('config mode off -> off (integration)', result.parallelGate!.mode === 'off');
+      check('valid config mode does NOT warn (integration)', !warnings.some((w) => w.includes('parallelGate')));
+    }
 
-    // 13c. (F-015) A non-integer maxConcurrentReview in the config falls back to the profile
-    //      default through the integration path (strict default = 4).
-    check('config float max -> strict profile default (integration)', resolveAuditConfig('strict', tmpProject({ parallelGate: { maxConcurrentReview: 2.5 } })).parallelGate!.maxConcurrentReview === 4);
+    // 13c. (F-021) A non-integer maxConcurrentReview in the config falls back to the profile
+    //      default through the integration path (strict default = 4) AND warns.
+    {
+      const { result, warnings } = captureWarn(() =>
+        resolveAuditConfig('strict', tmpProject({ parallelGate: { maxConcurrentReview: 2.5 } })),
+      );
+      check('config float max -> strict profile default (integration)', result.parallelGate!.maxConcurrentReview === 4);
+      check('config float max warns (integration)', warnings.some((w) => w.includes('maxConcurrentReview')));
+    }
 
-    // 13d. (F-015) A non-boolean broadGlobBlocks in the config falls back to the profile default
-    //      through the integration path (light default = false).
-    check('config non-bool broadGlobBlocks -> light profile default (integration)', resolveAuditConfig('light', tmpProject({ parallelGate: { broadGlobBlocks: 'yes' } })).parallelGate!.broadGlobBlocks === false);
+    // 13d. (F-021) A non-boolean broadGlobBlocks in the config falls back to the profile default
+    //      through the integration path (light default = false) AND warns.
+    {
+      const { result, warnings } = captureWarn(() =>
+        resolveAuditConfig('light', tmpProject({ parallelGate: { broadGlobBlocks: 'yes' } })),
+      );
+      check('config non-bool broadGlobBlocks -> light profile default (integration)', result.parallelGate!.broadGlobBlocks === false);
+      check('config non-bool broadGlobBlocks warns (integration)', warnings.some((w) => w.includes('broadGlobBlocks')));
+    }
 
     // 14. Unknown keys in the config parallelGate are ignored, valid kept.
     check('config unknown keys ignored', eq(
