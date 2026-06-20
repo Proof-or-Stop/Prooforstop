@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T09:11:07.724Z",
       "reviewRunId": "B-1a91:RR-003",
       "_hash": "f80afeb6f1f511b4172b075867307bce8b4689c27bd67f3fee256259aa3b97ec"
+    },
+    {
+      "id": "B-1a91:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness review completed. No deleted/replaced concept words with residue found. All new concept terms (coveredFindingCount, coveredStoryCount, coveredThrough, computeCoverageGap, CoverageGapReport, renderCoverageLine) are consistently defined, wired through both write side (deriveFindingSignals stamps the watermark, toSourceFinding propagates resolvedAt) and read side (learning_validate reads persisted cache via readFindingSignals, calls computeCoverageGap, emits coverage line, includes coverage field in JSON output). The auto-refresh in done-effects is correctly placed post-merge inside the doneWorktree guard, wrapped in a never-throw try/catch, and its mergeLines advisory lines propagate to doneMergeReport. resolveLearningRoot canonicalization is a real pre-existing behavior. One medium finding filed: storyIds-filter makes the coverage gap always report 0 (false-negative), undocumented. No blockers found.",
+      "createdAt": "2026-06-20T09:18:43.841Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-001",
+      "_hash": "751e2b25544caf09e181e1e11b02b7a1332db907d129c1ba63c3e38cdb96abe7"
     }
   ]
 }
