@@ -137,7 +137,7 @@
       "desc": "Codex+docs MAJOR (Finding schema not wired to finding_add): §2.2/§2.3 use severity BLOCKER|MAJOR|MINOR and fields file/line/issue/fix, but finding_add expects critical|high|medium|low + desc + category + optional files + reviewRunId. §4/S4 says confirmed findings flow to finding_add but defines no mapping. Fix §2.2/§4.2: add an explicit ledger mapping (BLOCKER->critical/MAJOR->high/MINOR->medium-or-low; file+line+issue+fix -> desc + files; category selection; reviewRunId/agent attribution) — keep the abstract methodology severity but document the conversion at the integration boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-20T11:08:16.849Z",
@@ -147,7 +147,11 @@
         "docs/adversarial-review-spec.md"
       ],
       "signatureTag": "doc-code-drift|md|codex-docs-major",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "§4.3 MVP critic provenance: main agent runs the critic, records confirmed findings via finding_add under an existing lane with --agent completeness-critic; reopen=normal DEV->REVIEW; dedicated lane FUTURE. commit 308f3d556.",
+      "resolvedAt": "2026-06-20T11:13:48.162Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0e7b:F-008",
