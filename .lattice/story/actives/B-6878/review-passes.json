@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-20T15:51:59.755Z",
       "reviewRunId": "B-6878:RR-010",
       "_hash": "3dad0919725f74be762fb2087f219f4bc02ee7012219dc90ed8dc56024f25d1f"
+    },
+    {
+      "id": "B-6878:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 fix (6f719cd26): (1) record.ts — all 4 `in`→hasOwnProperty.call conversions are MECHANISM-only: error messages, error text, pass/fail for own-property records are byte-identical; requireString and schemaVersion reads are untouched; (2) F-010 DRY — streaming.ts imports OPENAI_USAGE_WHITELIST/OPENAI_NESTED_DETAIL_WHITELIST/GEMINI_USAGE_WHITELIST from adapters; old local OPENAI_STREAM_WHITELIST/OPENAI_STREAM_NESTED_DETAIL_WHITELIST/GEMINI_STREAM_WHITELIST constants confirmed removed with no remaining references; imported constant values byte-identical to old local declarations (no behavior change); all 3 imported names are actually consumed at their call sites (lines 62, 65, 316 of streaming.ts) — no orphaned imports; (3) smoke test section J: correct try/finally cleanup, section G prototype-clean check correctly extended to include storyId+supersedesRecordIds; (4) no `as any`, no empty catch, no dead code found in changed files.",
+      "createdAt": "2026-06-20T15:54:51.821Z",
+      "reviewRound": "2026-06-20T15:51:59.755Z",
+      "reviewRunId": "B-6878:RR-011",
+      "_hash": "cf377edf56c69313bfc8d1a5f2d55ffdbe2ffee5a878e074b88df6eb632f4327"
     }
   ]
 }
