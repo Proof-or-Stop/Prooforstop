@@ -467,6 +467,17 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:16.093Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:owner-session-guardrail",
+          "result": "pass",
+          "note": "New owner-session guardrail task scans packages/main/src and passed with raw host session env names confined to adapter/dispatch/test allowlist.",
+          "headHash": "f4ef661749377fc942b4dcd7579faf67d800b5a3",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:16.690Z"
         }
       ]
     },
