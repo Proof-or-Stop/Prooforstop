@@ -1,0 +1,63 @@
+{
+  "storyId": "B-9d38",
+  "checkedAt": "2026-06-20T15:53:01.800Z",
+  "reviewRound": "2026-06-20T15:41:32.898Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-9d38/plan.md#CHK-001",
+      "promise": "runCompletenessCritic(input, runCritic) pure pass-through over {change, confirmedFindings}, returns runCritic(input) unchanged; raw+unprivileged output, no I/O",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review-critic.ts lines 42-47: function body is exactly return runCritic(input). runCompletenessCriticOn convenience wrapper at lines 53-58. No I/O anywhere in file."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9d38/plan.md#CHK-002",
+      "promise": "COMPLETENESS_CRITIC_DESC_TAG = '[completeness-critic]' and CRITIC_PROVENANCE_RECOMMENDED_LANES = ['lattice-review-quality','lattice-review-behavior'] exported, with JSDoc explaining WHY tag goes in --desc not --agent",
+      "verifiedBy": "diff/read",
+      "evidence": "adversarial-review-critic.ts line 65: COMPLETENESS_CRITIC_DESC_TAG; line 72: CRITIC_PROVENANCE_RECOMMENDED_LANES as const with 2 real lanes. File header JSDoc lines 1-30 explains reviewer-evidence counting rationale."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9d38/plan.md#CHK-003",
+      "promise": "toCriticFindingAddArgs wraps toFindingAddArgs, prefixes [completeness-critic] to desc, agent typed ReviewRunLane (compiler rejects completeness-critic), severity stays S2-mapped ledger kind, pure no finding_add call",
+      "verifiedBy": "diff/read",
+      "evidence": "adversarial-review-critic.ts lines 85-91: agent param typed ReviewRunLane; base = toFindingAddArgs(finding, opts); return { ...base, desc: COMPLETENESS_CRITIC_DESC_TAG + ' ' + base.desc }. S2 owns severity mapping. No finding_add import or call anywhere in file."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9d38/plan.md#CHK-004",
+      "promise": "Hermetic smoke with 52 assertions in adversarial-review-critic-smoke.ts registered at lattice.config.json validate.commands[15], prints pass line + count, exits 0",
+      "verifiedBy": "diff/run",
+      "evidence": "Smoke file confirmed 52 check() calls. lattice.config.json diff shows smoke appended as index 15 (python3 index query confirmed). Real run output: adversarial-review-critic smoke passed: 52 assertions, exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9d38/plan.md#Verification",
+      "promise": "tsc compiles clean; protected files adversarial-review.ts/adversarial-review-verifier.ts/review-run.ts UNMODIFIED; no S1/S2/S4 scope creep; no finding_add call",
+      "verifiedBy": "diff/build",
+      "evidence": "npm run build: tsc exit 0, no output. git diff base..HEAD -- the 3 protected paths: empty output. Diff shows only 2 new src files + lattice.config.json entry + story metadata. No finding_add import or call in critic module."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js: adversarial-review-critic smoke passed: 52 assertions, exit 0. Covers seam pass-through (fake records input, returns planted Finding[], same refs), ref-identity of confirmedFindings, empty confirmedFindings still invokes critic, large 100-element output same refs, adversarial mutation visible to caller (no defensive clone), extra-property finding survives verbatim (unfiltered). Build: tsc clean exit 0 preceding run."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke sections 1+8: COMPLETENESS_CRITIC_DESC_TAG literal, CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals, both lanes in REVIEW_RUN_LANES, tag not a lane, bare completeness-critic not in REVIEW_RUN_LANES (pinning §4.3), lattice-review-completeness not in REVIEW_RUN_LANES, recommended lanes exclude completeness-critic, both start with lattice-review-. All pass in 52-assertion run."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke sections 4+5+6+9: desc = '[completeness-critic] ' + base.desc, severity critical/high/medium for BLOCKER/MAJOR/MINOR (not abstract), both recommended lanes accepted, critic-minus-desc equals base, keys exactly agent/category/desc/files/reviewRunId/severity, special chars verbatim, desc always distinct from base.desc. All pass."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke has 52 check() calls. check() exits process(1) on first failure. Real run: adversarial-review-critic smoke passed: 52 assertions, exit 0. Registered at validate.commands index 15 in lattice.config.json."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 plan promises verified from source and confirmed by real-machine run. Smoke printed 52 assertions exit 0, covering happy path, edge cases (empty/large arrays, special chars), and adversarial cases (no-clone mutation visible, extra-property survives, completeness-critic structurally rejected as lane). Protected files untouched. Module JSDoc explicitly scopes out S4. No finding_add call in new code. Closing state is honest MVP S3 library."
+  },
+  "_hash": "f5e69e453974e4908ab55c5d032fa9baba811545138099dcb132e794a3d0951e"
+}

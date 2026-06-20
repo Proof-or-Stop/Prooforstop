@@ -1,0 +1,136 @@
+{
+  "storyId": "B-9d38",
+  "checkedAt": "2026-06-20T15:33:55.745Z",
+  "features": [
+    {
+      "feature": "runCompletenessCritic(input,runCritic) injected-seam function in core/adversarial-review-critic.ts returning raw Finding[] unchanged (pure pass-through, §2.4)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Input shape is CompletenessCriticInput{change,confirmedFindings} — critic receives CONFIRMED set only, never raw lens findings (§2.4 seam contract)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Critic output is raw/unprivileged — returned to caller UNCHANGED with no schema filtering or transformation (§2.4)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Optional convenience wrapper runCompletenessCriticOn(change,confirmedFindings,runCritic) (§2.4)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "COMPLETENESS_CRITIC_DESC_TAG constant = [completeness-critic] (provenance prefix in --desc, NOT --agent, §4.3)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "CRITIC_PROVENANCE_RECOMMENDED_LANES constant — recommended real lattice-review-* lanes for critic findings (§4.3: lattice-review-quality and lattice-review-behavior)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "toCriticFindingAddArgs(finding,{reviewRunId,agent,category}) wrapping S2 toFindingAddArgs and prepending [completeness-critic] desc tag; agent typed ReviewRunLane (compiler rejects non-real lanes, §4.3)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "S2 severity mapping preserved in toCriticFindingAddArgs (BLOCKER->critical, MAJOR->high, MINOR->medium — no abstract severity leak, §4.2 ledger mapping)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "toCriticFindingAddArgs is pure — no finding_add call; only produces FindingAddArgs (S4 boundary, §5 S3)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Hermetic smoke test with fake/injected runCritic proving seam pass-through + provenance tagging (§5 S3 acceptance criteria)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands (§5 S3 acceptance criteria)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Lens runner (S1 — driving canonical lens set as independent agents) is NOT in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description and §5 S1 (S1 is separate parallel story)",
+      "source": "description"
+    },
+    {
+      "feature": "Adversarial verifier/threshold logic (S2 — M-skeptic refute-by-default, threshold-confirm) is NOT in this story; only toFindingAddArgs is imported read-only",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description; S2 is a separate parallel story, only toFindingAddArgs is imported",
+      "source": "description"
+    },
+    {
+      "feature": "Reopen/escalation loop, running S2 verification on critic output, calling finding_add / review_run_start (S4) is NOT in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description; S4 is a later serial story",
+      "source": "description"
+    },
+    {
+      "feature": "Modifying S0 (adversarial-review.ts), S2 (adversarial-review-verifier.ts), or review-run.ts — all protected files",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly protected/excluded per story scope contract",
+      "source": "description"
+    },
+    {
+      "feature": "Dedicated lattice-review-completeness lane (§4.4 FUTURE item) is NOT in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 explicitly marks this as FUTURE/not-yet-implemented",
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Structured provenance/verdict storage for critic (§4.4 FUTURE) is NOT in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 explicitly marks this as FUTURE/not-yet-implemented",
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 11,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1256180b86649e22871abd9e1cc5665e8fbf43155baa0aa168a85aa1e04599f3",
+  "openQuestions": []
+}

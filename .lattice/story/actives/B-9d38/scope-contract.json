@@ -1,0 +1,26 @@
+{
+  "storyId": "B-9d38",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/adversarial-review-critic.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/adversarial-review-critic-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-verifier.ts",
+    "packages/main/src/core/review-run.ts"
+  ],
+  "explicitExcludes": [
+    "docs/adversarial-review-spec.md",
+    "packages/main/src/core/adversarial-review-lens-runner.ts"
+  ],
+  "scopeChangeReason": "S3 critic role: create the critic module + smoke, register the smoke. S0 contract, S2 verifier (toFindingAddArgs), and review-run.ts are imported read-only (protected). Reopen/escalation + finding_add call (S4) out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T15:32:31.984Z",
+  "updatedAt": "2026-06-20T15:32:31.984Z"
+}

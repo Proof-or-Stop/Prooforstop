@@ -4,7 +4,7 @@
   "title": "Adversarial-review S3: completeness-critic role (what-did-review-miss seam) + MVP real-lane provenance tagging",
   "description": "Story S3 (MVP) of the adversarial-review build program (docs/adversarial-review-spec.md §2.4 + §4.3). Implement the COMPLETENESS-CRITIC ROLE as a pure-data + injected-seam module packages/main/src/core/adversarial-review-critic.ts importing S0 (core/adversarial-review.ts: CompletenessCriticInput{change,confirmedFindings}, Finding) and S2 (core/adversarial-review-verifier.ts: toFindingAddArgs, FindingAddArgs) plus REVIEW_RUN_LANES/ReviewRunLane from core/review-run.ts read-only. (1) runCompletenessCritic(input: CompletenessCriticInput, runCritic: (input)=>Finding[]): Finding[] applies the injected critic seam to {change, confirmedFindings} (the VERIFIED lens findings per §2.4 — the critic never sees raw noise) and returns the critic raw findings UNCHANGED and UNPRIVILEGED (they re-enter S2 verification — that re-verification + reopen loop is S4, not here). (2) MVP PROVENANCE (§4.3): COMPLETENESS_CRITIC_DESC_TAG='[completeness-critic]'; CRITIC_PROVENANCE_RECOMMENDED_LANES=['lattice-review-quality','lattice-review-behavior']; toCriticFindingAddArgs(finding,{reviewRunId,agent,category}) wraps S2 toFindingAddArgs and PREFIXES the desc with the tag, typing agent as a REAL ReviewRunLane so the compiler rejects 'completeness-critic' in --agent (provenance lives in --desc, the real lane in --agent — putting completeness-critic in --agent would not count as reviewer-lane evidence). Pure: no I/O, no finding_add call. A hermetic smoke with a FAKE runCritic proves: runCompletenessCritic passes {change,confirmedFindings} to the seam and returns its findings unchanged; toCriticFindingAddArgs prefixes [completeness-critic] in the desc, keeps the S2-mapped severity (no abstract leak), keeps a real lane in agent, and is otherwise toFindingAddArgs. NO lens runner (S1), NO verifier/threshold (S2), NO escalation/reopen/finding_add call (S4). Registered in lattice.config.json. Depends [B-53c5, B-2806].",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "adversarial-review",
@@ -22,7 +22,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-20T15:24:33.572Z",
   "startedAt": "2026-06-20T15:24:33.572Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T15:55:19.143Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,52 @@
       "user": "Harmonygo",
       "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:27:54.379Z",
+      "branch": "story/B-9d38",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:34:27.587Z",
+      "branch": "story/B-9d38",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:41:32.898Z",
+      "branch": "story/B-9d38",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:50:19.040Z",
+      "branch": "story/B-9d38",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T15:55:19.143Z",
+      "branch": "story/B-9d38",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9d38",
-    "branch": "story/B-9d38",
-    "createdAt": "2026-06-20T15:27:47.641Z"
-  }
+  "currentReviewRound": "2026-06-20T15:41:32.898Z"
 }

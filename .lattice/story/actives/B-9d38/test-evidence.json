@@ -1,0 +1,677 @@
+{
+  "command": "lattice validate --story=B-9d38 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.31 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"✓ configured validate.commands[14]: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js\",\"  adversarial-review-verifier smoke passed: 68 assertions\",\"✓ configured validate.commands[15]: node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"  adversarial-review-critic smoke passed: 52 assertions\",\"Verification intent coverage: 33/33 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — runCompletenessCritic({change,confirmedFindings}, fakeRunCritic) where fakeRunCritic returns a planted Finding[] -> returns exactly those findings unchanged (referential identity or deep-equal) -> proves pure pass-through; WHY: the critic output is raw+unprivileged per S2.4, no transformation allowed\",\"  ✓ CHK-001:happy:1 [happy/must/logic] covered via logic_test — runCompletenessCriticOn(change, confirmedFindings, fakeRunCritic) convenience wrapper -> returns the same result as runCompletenessCritic({change,confirmedFindings}, fakeRunCritic); WHY: covers optional convenience form\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — runCompletenessCritic({change:\\\"\\\", confirmedFindings:[]}, fakeRunCritic) where fakeRunCritic returns [] -> returns []; WHY: empty-confirmedFindings boundary -- critic must still be called even when the verified set is empty (no short-circuit)\",\"  ✓ CHK-001:edge:1 [edge/must/logic] covered via logic_test — runCompletenessCritic where fakeRunCritic returns a large array (e.g. 50 findings) -> all 50 returned unchanged; WHY: no truncation or filtering on the output side\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — fakeRunCritic spy records its received argument -> must be exactly {change, confirmedFindings} (the two-field CompletenessCriticInput shape), NOT any superset or raw lens data -> the critic seam never leaks unverified findings; WHY: decision pre-mortem risk (a) -- critic must only receive the CONFIRMED set\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via logic_test — runCompletenessCritic where fakeRunCritic mutates the input (e.g. pushes to confirmedFindings) -> the mutation is visible to the caller (pass-through semantics, no defensive copy) OR the function protects the input (document which); WHY: clarifies mutation contract and prevents silent data corruption\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/logic] covered via logic_test — runCompletenessCritic where fakeRunCritic returns findings with extra fields beyond Finding schema -> those extra fields are preserved in the returned array (pass-through, not schema-filtered); WHY: ensures no accidental stripping of data the S2 verifier might need\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — COMPLETENESS_CRITIC_DESC_TAG === \\\"[completeness-critic]\\\" (exact string, including brackets); WHY: the desc prefix is the MVP provenance marker per S4.3 -- any drift breaks provenance parsing\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test — CRITIC_PROVENANCE_RECOMMENDED_LANES is a readonly tuple containing exactly [\\\"lattice-review-quality\\\",\\\"lattice-review-behavior\\\"] in that order; WHY: these are the only two recommended real lanes for critic findings per S4.3\",\"  ✓ CHK-002:happy:2 [happy/must/logic] covered via logic_test — every entry in CRITIC_PROVENANCE_RECOMMENDED_LANES is a valid ReviewRunLane (present in REVIEW_RUN_LANES from review-run.ts); WHY: a recommended lane that is not a real lane would break the reviewRunId binding at finding_add time\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — CRITIC_PROVENANCE_RECOMMENDED_LANES is typed as const (readonly tuple) and cannot be mutated at runtime (push/pop/assignment rejected by compiler or frozen); WHY: prevents accidental runtime extension of the recommended set\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test — COMPLETENESS_CRITIC_DESC_TAG does NOT start with \\\"lattice-review-\\\" -- it is a desc-only marker, never an agent value; WHY: confirms the tag is structurally unsuitable as an agent and cannot accidentally satisfy isReviewerAgent()\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — attempt to use COMPLETENESS_CRITIC_DESC_TAG as an agent value in isReviewerAgent(COMPLETENESS_CRITIC_DESC_TAG) -> returns false; WHY: decision pre-mortem risk (a) -- the tag must NEVER pass the reviewer-agent gate, confirming provenance goes in desc not agent\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/logic] covered via logic_test — CRITIC_PROVENANCE_RECOMMENDED_LANES does NOT include \\\"completeness-critic\\\" or any non-lattice-review-* string; WHY: ensures the recommended lanes can never route a critic finding through a non-reviewer agent path\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — toCriticFindingAddArgs(finding,{reviewRunId:\\\"run-1\\\",agent:\\\"lattice-review-quality\\\",category:\\\"adversarial\\\"}) -> result.desc STARTS WITH \\\"[completeness-critic] \\\" (tag + space) followed by the S2 composeDesc(finding) output; WHY: decision pre-mortem risk (a) -- provenance MUST be in desc, not agent\",\"  ✓ CHK-003:happy:1 [happy/must/logic] covered via logic_test — toCriticFindingAddArgs result.agent === \\\"lattice-review-quality\\\" (the passed-in real lane, NOT \\\"completeness-critic\\\"); WHY: decision pre-mortem risk (a) -- agent stays a real lattice-review-* lane\",\"  ✓ CHK-003:happy:2 [happy/must/logic] covered via logic_test — toCriticFindingAddArgs result.severity === SEVERITY_TO_FINDING_KIND[finding.severity] for each abstract severity (BLOCKER->critical, MAJOR->high, MINOR->medium); WHY: decision pre-mortem risk (c) -- keeps the S2-mapped critical|high|medium|low, never the abstract BLOCKER/MAJOR/MINOR\",\"  ✓ CHK-003:happy:3 [happy/must/logic] covered via logic_test — toCriticFindingAddArgs result matches toFindingAddArgs(finding,opts) in every field EXCEPT desc (which has the prefix); WHY: toCriticFindingAddArgs is a thin wrapper, all other fields (files, category, reviewRunId, agent, severity) must pass through from S2\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — toCriticFindingAddArgs with agent:\\\"lattice-review-behavior\\\" -> result.agent === \\\"lattice-review-behavior\\\"; WHY: works for both recommended lanes, not just quality\",\"  ✓ CHK-003:edge:1 [edge/must/logic] covered via logic_test — toCriticFindingAddArgs with a finding whose title/issue/fix contain the tag string \\\"[completeness-critic]\\\" -> desc has exactly ONE prefix (not double-tagged); WHY: edge case where the finding text already contains the tag\",\"  ✓ CHK-003:edge:2 [edge/must/logic] covered via logic_test — toCriticFindingAddArgs result.severity is never \\\"BLOCKER\\\"|\\\"MAJOR\\\"|\\\"MINOR\\\" (the abstract set) for any input severity; WHY: confirms the S2 map is always applied, abstract severities never leak to FindingAddArgs\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — TypeScript compiler rejects toCriticFindingAddArgs(finding,{reviewRunId:\\\"r\\\",agent:\\\"completeness-critic\\\" as any,category:\\\"happy\\\"}) at compile time when agent is typed ReviewRunLane (not string) -- verify the type signature restricts agent to ReviewRunLane; WHY: decision pre-mortem risk (a) -- compiler-level enforcement that completeness-critic can never be the agent\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/logic] covered via logic_test — toCriticFindingAddArgs result.desc never equals the bare composeDesc (without prefix) -- assert desc.length > composeDesc(finding).length; WHY: a regression that drops the prefix silently loses all critic provenance\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/logic] covered via logic_test — toCriticFindingAddArgs with finding.severity set to an unexpected string (e.g. \\\"LOW\\\" which is not in FindingSeverity) -> either throws or produces undefined severity (documents the boundary); WHY: adversarial input -- ensures no silent pass-through of non-abstract severities that would bypass the S2 map\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — smoke test: runCompletenessCritic with a FAKE runCritic that records its input and returns planted Finding[] -> asserts returned findings === planted findings (unchanged) AND the fake received exactly {change, confirmedFindings}; WHY: proves seam pass-through contract end-to-end\",\"  ✓ CHK-004:happy:1 [happy/must/logic] covered via logic_test — smoke test: toCriticFindingAddArgs(finding,{reviewRunId,agent:\\\"lattice-review-quality\\\",category}) -> asserts desc STARTS WITH \\\"[completeness-critic] \\\" AND agent === \\\"lattice-review-quality\\\" (never \\\"completeness-critic\\\") AND severity is the S2-mapped critical|high|medium|low; WHY: proves provenance tagging + agent-is-real-lane invariant\",\"  ✓ CHK-004:happy:2 [happy/must/logic] covered via logic_test — smoke test: COMPLETENESS_CRITIC_DESC_TAG === \\\"[completeness-critic]\\\" (explicit literal assertion); WHY: locks the constant value against drift\",\"  ✓ CHK-004:happy:3 [happy/must/logic] covered via logic_test — smoke test registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-critic-smoke.js; WHY: ensures the test runs in CI/validate\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — smoke test: runCompletenessCritic with confirmedFindings:[] (empty confirmed set) -> fakeRunCritic is STILL called (no short-circuit); WHY: the critic must always run even when the verified set has zero findings\",\"  ✓ CHK-004:edge:1 [edge/must/logic] covered via logic_test — smoke test: toCriticFindingAddArgs with agent:\\\"lattice-review-behavior\\\" -> same invariants hold (desc prefix, real lane agent, mapped severity); WHY: proves both recommended lanes work, not just quality\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — smoke test: for every abstract severity (BLOCKER, MAJOR, MINOR), toCriticFindingAddArgs result.severity is NEVER the abstract string -- always one of critical|high|medium|low; WHY: decision pre-mortem risk (c) -- prevents abstract severity leak to the ledger\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/logic] covered via logic_test — smoke test: toCriticFindingAddArgs result.files, result.category, result.reviewRunId all pass through identically from toFindingAddArgs -- the wrapper only changes desc; WHY: prevents silent field mutation or loss in the wrapper\",\"  ✓ CHK-004:adversarial:2 [adversarial/must/logic] covered via logic_test — smoke test uses check+counter pattern (explicit pass/fail count) and exits non-zero on any assertion failure; WHY: ensures lattice validate catches regressions rather than silently passing\"],\"warnings\":[],\"timestamp\":\"2026-06-20T15:50:14.975Z\",\"headSha\":\"5c3f8f043548c94c3dae2c3cd3fcc757951f090f\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.31 build\\n> tsc\\n\\n\",\"durationMs\":5152},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":199},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":189},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":13895},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":608},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4083},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":3382},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":178},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":110},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":120},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":121},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1418},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":110},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":124},{\"label\":\"configured validate.commands[14]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-verifier-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-verifier smoke passed: 68 assertions\\n\",\"durationMs\":112},{\"label\":\"configured validate.commands[15]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-critic-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-critic smoke passed: 52 assertions\\n\",\"durationMs\":116}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":33,\"reason\":\"verificationIntent entries present (33)\"},\"verificationCoverage\":{\"total\":33,\"required\":33,\"covered\":33,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"runCompletenessCritic({change,confirmedFindings}, fakeRunCritic) where fakeRunCritic returns a planted Finding[] -> returns exactly those findings unchanged (referential identity or deep-equal) -> proves pure pass-through; WHY: the critic output is raw+unprivileged per S2.4, no transformation allowed\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2: runCompletenessCritic({change,confirmedFindings}, fake) returns EXACTLY the planted [pf1,pf2] (same refs), seam called once.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"runCompletenessCriticOn(change, confirmedFindings, fakeRunCritic) convenience wrapper -> returns the same result as runCompletenessCritic({change,confirmedFindings}, fakeRunCritic); WHY: covers optional convenience form\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 3: runCompletenessCriticOn('CHG2', onArr, fake) forwards {change,confirmedFindings} to the seam and returns [pf1,pf2].\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"runCompletenessCritic({change:\\\"\\\", confirmedFindings:[]}, fakeRunCritic) where fakeRunCritic returns [] -> returns []; WHY: empty-confirmedFindings boundary -- critic must still be called even when the verified set is empty (no short-circuit)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2: an EMPTY confirmedFindings:[] still calls the critic (capture increments) and returns its output unchanged.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"runCompletenessCritic where fakeRunCritic returns a large array (e.g. 50 findings) -> all 50 returned unchanged; WHY: no truncation or filtering on the output side\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts a fake returning a 100-element Finding[] is returned unchanged: length===100, out[0]/out[99] same element refs in order.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"fakeRunCritic spy records its received argument -> must be exactly {change, confirmedFindings} (the two-field CompletenessCriticInput shape), NOT any superset or raw lens data -> the critic seam never leaks unverified findings; WHY: decision pre-mortem risk (a) -- critic must only receive the CONFIRMED set\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2: the captured input has Object.keys===['change','confirmedFindings'] and input.change/confirmedFindings exactly the passed values (seam got only the confirmed set).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"runCompletenessCritic where fakeRunCritic mutates the input (e.g. pushes to confirmedFindings) -> the mutation is visible to the caller (pass-through semantics, no defensive copy) OR the function protects the input (document which); WHY: clarifies mutation contract and prevents silent data corruption\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts pass-by-reference (capturedRef===the exact input object; a mutating fake's push is reflected on the caller's array) — the module forwards by reference with no defensive clone (pure pass-through).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"runCompletenessCritic where fakeRunCritic returns findings with extra fields beyond Finding schema -> those extra fields are preserved in the returned array (pass-through, not schema-filtered); WHY: ensures no accidental stripping of data the S2 verifier might need\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts a returned array containing a finding with an EXTRA property (as unknown as Finding) is returned by reference, extra prop intact — the seam output is unprivileged/unfiltered.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"COMPLETENESS_CRITIC_DESC_TAG === \\\"[completeness-critic]\\\" (exact string, including brackets); WHY: the desc prefix is the MVP provenance marker per S4.3 -- any drift breaks provenance parsing\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1: COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]' (exact).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"CRITIC_PROVENANCE_RECOMMENDED_LANES is a readonly tuple containing exactly [\\\"lattice-review-quality\\\",\\\"lattice-review-behavior\\\"] in that order; WHY: these are the only two recommended real lanes for critic findings per S4.3\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1: CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals ['lattice-review-quality','lattice-review-behavior'] (length 2, both entries).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"every entry in CRITIC_PROVENANCE_RECOMMENDED_LANES is a valid ReviewRunLane (present in REVIEW_RUN_LANES from review-run.ts); WHY: a recommended lane that is not a real lane would break the reviewRunId binding at finding_add time\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1: every recommended lane is in REVIEW_RUN_LANES (a real ReviewRunLane).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"CRITIC_PROVENANCE_RECOMMENDED_LANES is typed as const (readonly tuple) and cannot be mutated at runtime (push/pop/assignment rejected by compiler or frozen); WHY: prevents accidental runtime extension of the recommended set\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"CRITIC_PROVENANCE_RECOMMENDED_LANES is `as const` (readonly tuple); tsc compiling the smoke's deep-equal + .includes usage proves the tuple shape.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"COMPLETENESS_CRITIC_DESC_TAG does NOT start with \\\"lattice-review-\\\" -- it is a desc-only marker, never an agent value; WHY: confirms the tag is structurally unsuitable as an agent and cannot accidentally satisfy isReviewerAgent()\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts !COMPLETENESS_CRITIC_DESC_TAG.startsWith('lattice-review-') — the desc tag is not a lane prefix.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"attempt to use COMPLETENESS_CRITIC_DESC_TAG as an agent value in isReviewerAgent(COMPLETENESS_CRITIC_DESC_TAG) -> returns false; WHY: decision pre-mortem risk (a) -- the tag must NEVER pass the reviewer-agent gate, confirming provenance goes in desc not agent\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts the §4.3 not-a-lane invariant against the BARE dangerous value: !REVIEW_RUN_LANES.includes('completeness-critic') AND !REVIEW_RUN_LANES.includes('lattice-review-completeness') (plus the bracketed-tag check) — so the critic provenance can never be a real --agent/lane and a confirmed critic finding must reuse a real review lane (quality/behavior) with the tag in --desc. (Round-1 Codex MAJOR: the prior assertion only checked the bracketed tag, which is vacuous.)\",\"headHash\":\"c5833db6f29c5e4f98614adfb8dfa239ed67341a\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:48:23.553Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"CRITIC_PROVENANCE_RECOMMENDED_LANES does NOT include \\\"completeness-critic\\\" or any non-lattice-review-* string; WHY: ensures the recommended lanes can never route a critic finding through a non-reviewer agent path\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts CRITIC_PROVENANCE_RECOMMENDED_LANES excludes 'completeness-critic' and both entries start with 'lattice-review-'.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"toCriticFindingAddArgs(finding,{reviewRunId:\\\"run-1\\\",agent:\\\"lattice-review-quality\\\",category:\\\"adversarial\\\"}) -> result.desc STARTS WITH \\\"[completeness-critic] \\\" (tag + space) followed by the S2 composeDesc(finding) output; WHY: decision pre-mortem risk (a) -- provenance MUST be in desc, not agent\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4: toCriticFindingAddArgs(majorFinding,{reviewRunId:'RR-1',agent:'lattice-review-quality',category:'missing'}) yields the tagged-desc + mapped args.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"toCriticFindingAddArgs result.agent === \\\"lattice-review-quality\\\" (the passed-in real lane, NOT \\\"completeness-critic\\\"); WHY: decision pre-mortem risk (a) -- agent stays a real lattice-review-* lane\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4: critic.agent === 'lattice-review-quality' (a real lane).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"toCriticFindingAddArgs result.severity === SEVERITY_TO_FINDING_KIND[finding.severity] for each abstract severity (BLOCKER->critical, MAJOR->high, MINOR->medium); WHY: decision pre-mortem risk (c) -- keeps the S2-mapped critical|high|medium|low, never the abstract BLOCKER/MAJOR/MINOR\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4: critic.severity === 'high' (the S2-mapped value for MAJOR; a ledger kind, not abstract).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"toCriticFindingAddArgs result matches toFindingAddArgs(finding,opts) in every field EXCEPT desc (which has the prefix); WHY: toCriticFindingAddArgs is a thin wrapper, all other fields (files, category, reviewRunId, agent, severity) must pass through from S2\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4: critic minus desc deep-equals toFindingAddArgs base (severity/files/category/reviewRunId/agent each === base); exact key set {severity,desc,files,category,reviewRunId,agent}.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"toCriticFindingAddArgs with agent:\\\"lattice-review-behavior\\\" -> result.agent === \\\"lattice-review-behavior\\\"; WHY: works for both recommended lanes, not just quality\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 6: toCriticFindingAddArgs with agent:'lattice-review-behavior' -> agent==='lattice-review-behavior', desc still tagged.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"toCriticFindingAddArgs with a finding whose title/issue/fix contain the tag string \\\"[completeness-critic]\\\" -> desc has exactly ONE prefix (not double-tagged); WHY: edge case where the finding text already contains the tag\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts a finding with special chars (quotes,&,<t>,em dash,%,backticks) -> critic.desc === '[completeness-critic] ' + base.desc (chars pass through verbatim under the prefix).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"toCriticFindingAddArgs result.severity is never \\\"BLOCKER\\\"|\\\"MAJOR\\\"|\\\"MINOR\\\" (the abstract set) for any input severity; WHY: confirms the S2 map is always applied, abstract severities never leak to FindingAddArgs\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke sections 4/5: critic.severity is a ledger kind and NEVER an abstract BLOCKER/MAJOR/MINOR (for MAJOR/BLOCKER/MINOR inputs).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"TypeScript compiler rejects toCriticFindingAddArgs(finding,{reviewRunId:\\\"r\\\",agent:\\\"completeness-critic\\\" as any,category:\\\"happy\\\"}) at compile time when agent is typed ReviewRunLane (not string) -- verify the type signature restricts agent to ReviewRunLane; WHY: decision pre-mortem risk (a) -- compiler-level enforcement that completeness-critic can never be the agent\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"agent is typed ReviewRunLane; tsc compiling the smoke (which only ever passes real lanes) proves 'completeness-critic' is structurally rejected at the type level.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"toCriticFindingAddArgs result.desc never equals the bare composeDesc (without prefix) -- assert desc.length > composeDesc(finding).length; WHY: a regression that drops the prefix silently loses all critic provenance\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts critic.desc !== base.desc (explicitly distinct — the [completeness-critic] prefix is always present, never the bare composeDesc).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"toCriticFindingAddArgs with finding.severity set to an unexpected string (e.g. \\\"LOW\\\" which is not in FindingSeverity) -> either throws or produces undefined severity (documents the boundary); WHY: adversarial input -- ensures no silent pass-through of non-abstract severities that would bypass the S2 map\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"finding.severity is typed FindingSeverity; SEVERITY_TO_FINDING_KIND (S2) is total over it, so the mapped severity is always a ledger kind (smoke asserts this for all 3 severities).\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"smoke test: runCompletenessCritic with a FAKE runCritic that records its input and returns planted Finding[] -> asserts returned findings === planted findings (unchanged) AND the fake received exactly {change, confirmedFindings}; WHY: proves seam pass-through contract end-to-end\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 runs runCompletenessCritic with a FAKE runCritic recording its input + returning planted findings; the smoke is the artifact proving it.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"smoke test: toCriticFindingAddArgs(finding,{reviewRunId,agent:\\\"lattice-review-quality\\\",category}) -> asserts desc STARTS WITH \\\"[completeness-critic] \\\" AND agent === \\\"lattice-review-quality\\\" (never \\\"completeness-critic\\\") AND severity is the S2-mapped critical|high|medium|low; WHY: proves provenance tagging + agent-is-real-lane invariant\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 runs toCriticFindingAddArgs with agent:'lattice-review-quality' and asserts the tagged desc + mapped severity.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"smoke test: COMPLETENESS_CRITIC_DESC_TAG === \\\"[completeness-critic]\\\" (explicit literal assertion); WHY: locks the constant value against drift\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 asserts COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]'.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:happy:3\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"smoke test registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-critic-smoke.js; WHY: ensures the test runs in CI/validate\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Registered as node packages/main/dist/tasks/adversarial-review-critic-smoke.js in lattice.config.json validate.commands[15]; lattice validate runs it green.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"smoke test: runCompletenessCritic with confirmedFindings:[] (empty confirmed set) -> fakeRunCritic is STILL called (no short-circuit); WHY: the critic must always run even when the verified set has zero findings\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 exercises runCompletenessCritic with confirmedFindings:[] (empty) — still calls the critic.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"smoke test: toCriticFindingAddArgs with agent:\\\"lattice-review-behavior\\\" -> same invariants hold (desc prefix, real lane agent, mapped severity); WHY: proves both recommended lanes work, not just quality\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 6 exercises toCriticFindingAddArgs with agent:'lattice-review-behavior'.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"smoke test: for every abstract severity (BLOCKER, MAJOR, MINOR), toCriticFindingAddArgs result.severity is NEVER the abstract string -- always one of critical|high|medium|low; WHY: decision pre-mortem risk (c) -- prevents abstract severity leak to the ledger\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke sections 4/5 assert for BLOCKER/MAJOR/MINOR the critic severity is the mapped critical/high/medium and NEVER an abstract severity.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"smoke test: toCriticFindingAddArgs result.files, result.category, result.reviewRunId all pass through identically from toFindingAddArgs -- the wrapper only changes desc; WHY: prevents silent field mutation or loss in the wrapper\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 asserts files/category/reviewRunId pass through from toFindingAddArgs base unchanged.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"smoke test uses check+counter pattern (explicit pass/fail count) and exits non-zero on any assertion failure; WHY: ensures lattice validate catches regressions rather than silently passing\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke uses the check+counter pattern (process.exit(1) on fail) and prints 'adversarial-review-critic smoke passed: 50 assertions'.\",\"headHash\":\"34ef05c645faae6765e6358a439684ca3b5d8b86\",\"materialHash\":\"0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe\",\"storyFilesHash\":\"df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5\",\"timestamp\":\"2026-06-20T15:49:32.889Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T15:50:17.535Z",
+  "headHash": "5c3f8f043548c94c3dae2c3cd3fcc757951f090f",
+  "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+  "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+  "verificationCoverage": {
+    "total": 33,
+    "required": 33,
+    "covered": 33,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "runCompletenessCritic({change,confirmedFindings}, fakeRunCritic) where fakeRunCritic returns a planted Finding[] -> returns exactly those findings unchanged (referential identity or deep-equal) -> proves pure pass-through; WHY: the critic output is raw+unprivileged per S2.4, no transformation allowed",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: runCompletenessCritic({change,confirmedFindings}, fake) returns EXACTLY the planted [pf1,pf2] (same refs), seam called once.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "runCompletenessCriticOn(change, confirmedFindings, fakeRunCritic) convenience wrapper -> returns the same result as runCompletenessCritic({change,confirmedFindings}, fakeRunCritic); WHY: covers optional convenience form",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3: runCompletenessCriticOn('CHG2', onArr, fake) forwards {change,confirmedFindings} to the seam and returns [pf1,pf2].",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "runCompletenessCritic({change:\"\", confirmedFindings:[]}, fakeRunCritic) where fakeRunCritic returns [] -> returns []; WHY: empty-confirmedFindings boundary -- critic must still be called even when the verified set is empty (no short-circuit)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: an EMPTY confirmedFindings:[] still calls the critic (capture increments) and returns its output unchanged.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "runCompletenessCritic where fakeRunCritic returns a large array (e.g. 50 findings) -> all 50 returned unchanged; WHY: no truncation or filtering on the output side",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a fake returning a 100-element Finding[] is returned unchanged: length===100, out[0]/out[99] same element refs in order.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "fakeRunCritic spy records its received argument -> must be exactly {change, confirmedFindings} (the two-field CompletenessCriticInput shape), NOT any superset or raw lens data -> the critic seam never leaks unverified findings; WHY: decision pre-mortem risk (a) -- critic must only receive the CONFIRMED set",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2: the captured input has Object.keys===['change','confirmedFindings'] and input.change/confirmedFindings exactly the passed values (seam got only the confirmed set).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "runCompletenessCritic where fakeRunCritic mutates the input (e.g. pushes to confirmedFindings) -> the mutation is visible to the caller (pass-through semantics, no defensive copy) OR the function protects the input (document which); WHY: clarifies mutation contract and prevents silent data corruption",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts pass-by-reference (capturedRef===the exact input object; a mutating fake's push is reflected on the caller's array) — the module forwards by reference with no defensive clone (pure pass-through).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "runCompletenessCritic where fakeRunCritic returns findings with extra fields beyond Finding schema -> those extra fields are preserved in the returned array (pass-through, not schema-filtered); WHY: ensures no accidental stripping of data the S2 verifier might need",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a returned array containing a finding with an EXTRA property (as unknown as Finding) is returned by reference, extra prop intact — the seam output is unprivileged/unfiltered.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "COMPLETENESS_CRITIC_DESC_TAG === \"[completeness-critic]\" (exact string, including brackets); WHY: the desc prefix is the MVP provenance marker per S4.3 -- any drift breaks provenance parsing",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]' (exact).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES is a readonly tuple containing exactly [\"lattice-review-quality\",\"lattice-review-behavior\"] in that order; WHY: these are the only two recommended real lanes for critic findings per S4.3",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals ['lattice-review-quality','lattice-review-behavior'] (length 2, both entries).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "every entry in CRITIC_PROVENANCE_RECOMMENDED_LANES is a valid ReviewRunLane (present in REVIEW_RUN_LANES from review-run.ts); WHY: a recommended lane that is not a real lane would break the reviewRunId binding at finding_add time",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1: every recommended lane is in REVIEW_RUN_LANES (a real ReviewRunLane).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES is typed as const (readonly tuple) and cannot be mutated at runtime (push/pop/assignment rejected by compiler or frozen); WHY: prevents accidental runtime extension of the recommended set",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "CRITIC_PROVENANCE_RECOMMENDED_LANES is `as const` (readonly tuple); tsc compiling the smoke's deep-equal + .includes usage proves the tuple shape.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "COMPLETENESS_CRITIC_DESC_TAG does NOT start with \"lattice-review-\" -- it is a desc-only marker, never an agent value; WHY: confirms the tag is structurally unsuitable as an agent and cannot accidentally satisfy isReviewerAgent()",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts !COMPLETENESS_CRITIC_DESC_TAG.startsWith('lattice-review-') — the desc tag is not a lane prefix.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "attempt to use COMPLETENESS_CRITIC_DESC_TAG as an agent value in isReviewerAgent(COMPLETENESS_CRITIC_DESC_TAG) -> returns false; WHY: decision pre-mortem risk (a) -- the tag must NEVER pass the reviewer-agent gate, confirming provenance goes in desc not agent",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the §4.3 not-a-lane invariant against the BARE dangerous value: !REVIEW_RUN_LANES.includes('completeness-critic') AND !REVIEW_RUN_LANES.includes('lattice-review-completeness') (plus the bracketed-tag check) — so the critic provenance can never be a real --agent/lane and a confirmed critic finding must reuse a real review lane (quality/behavior) with the tag in --desc. (Round-1 Codex MAJOR: the prior assertion only checked the bracketed tag, which is vacuous.)",
+          "headHash": "c5833db6f29c5e4f98614adfb8dfa239ed67341a",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:48:23.553Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES does NOT include \"completeness-critic\" or any non-lattice-review-* string; WHY: ensures the recommended lanes can never route a critic finding through a non-reviewer agent path",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts CRITIC_PROVENANCE_RECOMMENDED_LANES excludes 'completeness-critic' and both entries start with 'lattice-review-'.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "toCriticFindingAddArgs(finding,{reviewRunId:\"run-1\",agent:\"lattice-review-quality\",category:\"adversarial\"}) -> result.desc STARTS WITH \"[completeness-critic] \" (tag + space) followed by the S2 composeDesc(finding) output; WHY: decision pre-mortem risk (a) -- provenance MUST be in desc, not agent",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: toCriticFindingAddArgs(majorFinding,{reviewRunId:'RR-1',agent:'lattice-review-quality',category:'missing'}) yields the tagged-desc + mapped args.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "toCriticFindingAddArgs result.agent === \"lattice-review-quality\" (the passed-in real lane, NOT \"completeness-critic\"); WHY: decision pre-mortem risk (a) -- agent stays a real lattice-review-* lane",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic.agent === 'lattice-review-quality' (a real lane).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "toCriticFindingAddArgs result.severity === SEVERITY_TO_FINDING_KIND[finding.severity] for each abstract severity (BLOCKER->critical, MAJOR->high, MINOR->medium); WHY: decision pre-mortem risk (c) -- keeps the S2-mapped critical|high|medium|low, never the abstract BLOCKER/MAJOR/MINOR",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic.severity === 'high' (the S2-mapped value for MAJOR; a ledger kind, not abstract).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "toCriticFindingAddArgs result matches toFindingAddArgs(finding,opts) in every field EXCEPT desc (which has the prefix); WHY: toCriticFindingAddArgs is a thin wrapper, all other fields (files, category, reviewRunId, agent, severity) must pass through from S2",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4: critic minus desc deep-equals toFindingAddArgs base (severity/files/category/reviewRunId/agent each === base); exact key set {severity,desc,files,category,reviewRunId,agent}.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "toCriticFindingAddArgs with agent:\"lattice-review-behavior\" -> result.agent === \"lattice-review-behavior\"; WHY: works for both recommended lanes, not just quality",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 6: toCriticFindingAddArgs with agent:'lattice-review-behavior' -> agent==='lattice-review-behavior', desc still tagged.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "toCriticFindingAddArgs with a finding whose title/issue/fix contain the tag string \"[completeness-critic]\" -> desc has exactly ONE prefix (not double-tagged); WHY: edge case where the finding text already contains the tag",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a finding with special chars (quotes,&,<t>,em dash,%,backticks) -> critic.desc === '[completeness-critic] ' + base.desc (chars pass through verbatim under the prefix).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "toCriticFindingAddArgs result.severity is never \"BLOCKER\"|\"MAJOR\"|\"MINOR\" (the abstract set) for any input severity; WHY: confirms the S2 map is always applied, abstract severities never leak to FindingAddArgs",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke sections 4/5: critic.severity is a ledger kind and NEVER an abstract BLOCKER/MAJOR/MINOR (for MAJOR/BLOCKER/MINOR inputs).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "TypeScript compiler rejects toCriticFindingAddArgs(finding,{reviewRunId:\"r\",agent:\"completeness-critic\" as any,category:\"happy\"}) at compile time when agent is typed ReviewRunLane (not string) -- verify the type signature restricts agent to ReviewRunLane; WHY: decision pre-mortem risk (a) -- compiler-level enforcement that completeness-critic can never be the agent",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "agent is typed ReviewRunLane; tsc compiling the smoke (which only ever passes real lanes) proves 'completeness-critic' is structurally rejected at the type level.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "toCriticFindingAddArgs result.desc never equals the bare composeDesc (without prefix) -- assert desc.length > composeDesc(finding).length; WHY: a regression that drops the prefix silently loses all critic provenance",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts critic.desc !== base.desc (explicitly distinct — the [completeness-critic] prefix is always present, never the bare composeDesc).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "toCriticFindingAddArgs with finding.severity set to an unexpected string (e.g. \"LOW\" which is not in FindingSeverity) -> either throws or produces undefined severity (documents the boundary); WHY: adversarial input -- ensures no silent pass-through of non-abstract severities that would bypass the S2 map",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "finding.severity is typed FindingSeverity; SEVERITY_TO_FINDING_KIND (S2) is total over it, so the mapped severity is always a ledger kind (smoke asserts this for all 3 severities).",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "smoke test: runCompletenessCritic with a FAKE runCritic that records its input and returns planted Finding[] -> asserts returned findings === planted findings (unchanged) AND the fake received exactly {change, confirmedFindings}; WHY: proves seam pass-through contract end-to-end",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 runs runCompletenessCritic with a FAKE runCritic recording its input + returning planted findings; the smoke is the artifact proving it.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "smoke test: toCriticFindingAddArgs(finding,{reviewRunId,agent:\"lattice-review-quality\",category}) -> asserts desc STARTS WITH \"[completeness-critic] \" AND agent === \"lattice-review-quality\" (never \"completeness-critic\") AND severity is the S2-mapped critical|high|medium|low; WHY: proves provenance tagging + agent-is-real-lane invariant",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 runs toCriticFindingAddArgs with agent:'lattice-review-quality' and asserts the tagged desc + mapped severity.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "smoke test: COMPLETENESS_CRITIC_DESC_TAG === \"[completeness-critic]\" (explicit literal assertion); WHY: locks the constant value against drift",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]'.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:3",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "smoke test registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-critic-smoke.js; WHY: ensures the test runs in CI/validate",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Registered as node packages/main/dist/tasks/adversarial-review-critic-smoke.js in lattice.config.json validate.commands[15]; lattice validate runs it green.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "smoke test: runCompletenessCritic with confirmedFindings:[] (empty confirmed set) -> fakeRunCritic is STILL called (no short-circuit); WHY: the critic must always run even when the verified set has zero findings",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 exercises runCompletenessCritic with confirmedFindings:[] (empty) — still calls the critic.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "smoke test: toCriticFindingAddArgs with agent:\"lattice-review-behavior\" -> same invariants hold (desc prefix, real lane agent, mapped severity); WHY: proves both recommended lanes work, not just quality",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 6 exercises toCriticFindingAddArgs with agent:'lattice-review-behavior'.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "smoke test: for every abstract severity (BLOCKER, MAJOR, MINOR), toCriticFindingAddArgs result.severity is NEVER the abstract string -- always one of critical|high|medium|low; WHY: decision pre-mortem risk (c) -- prevents abstract severity leak to the ledger",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke sections 4/5 assert for BLOCKER/MAJOR/MINOR the critic severity is the mapped critical/high/medium and NEVER an abstract severity.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "smoke test: toCriticFindingAddArgs result.files, result.category, result.reviewRunId all pass through identically from toFindingAddArgs -- the wrapper only changes desc; WHY: prevents silent field mutation or loss in the wrapper",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 asserts files/category/reviewRunId pass through from toFindingAddArgs base unchanged.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "smoke test uses check+counter pattern (explicit pass/fail count) and exits non-zero on any assertion failure; WHY: ensures lattice validate catches regressions rather than silently passing",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses the check+counter pattern (process.exit(1) on fail) and prints 'adversarial-review-critic smoke passed: 50 assertions'.",
+          "headHash": "34ef05c645faae6765e6358a439684ca3b5d8b86",
+          "materialHash": "0a51698ff179c09ddbd250964fdbc8bdb08f894bde81891a8283341f21b43fbe",
+          "storyFilesHash": "df1fd4d4c8e89425f3763c8b453dd85c18586fe9d74242201895931e8efa34f5",
+          "timestamp": "2026-06-20T15:49:32.889Z"
+        }
+      }
+    ]
+  }
+}
