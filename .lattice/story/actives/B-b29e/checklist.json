@@ -84,9 +84,9 @@
       "id": "CHK-003",
       "title": "Extend verify-process-fact-contract.mjs to assert the new parallel DEV-entry guard surface",
       "context": "scripts/verify-process-fact-contract.mjs (run via npm --prefix . run test:process-fact-contract; not in lattice validate): add assertions that the parallel DEV-entry gate (canSkipPlan / canReenterDev / parallelDevEntryBlock) is registered as a scope-contract-fact consumer, so future divergence between machine.ts and the metadata is caught. The check must pass after the CHK-001/002 updates.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T10:08:32.771Z",
-      "endTime": null,
+      "endTime": "2026-06-20T10:10:02.877Z",
       "files": {
         "modify": [
           "scripts/verify-process-fact-contract.mjs"
