@@ -1,0 +1,668 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "SEVERITY_TO_FINDING_KIND ledger severity map (BLOCKER->critical, MAJOR->high, MINOR->medium) + FindingAddSeverity type, in core/adversarial-review-verifier.ts",
+      "context": "New module importing S0 (core/adversarial-review.js: Finding, FindingSeverity, Verdict). FindingAddSeverity = 'critical'|'high'|'medium'|'low' (finding_add's enum). SEVERITY_TO_FINDING_KIND: Record<FindingSeverity, FindingAddSeverity> = {BLOCKER:'critical', MAJOR:'high', MINOR:'medium'} per §4.2 table (low is reserved for cosmetic MINOR; the default map uses medium). The point is that the abstract methodology severities NEVER reach finding_add (which would be a Zod error).",
+      "status": "done",
+      "startTime": "2026-06-20T14:57:05.194Z",
+      "endTime": "2026-06-20T14:59:05.468Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "SEVERITY_TO_FINDING_KIND[BLOCKER] === critical, [MAJOR] === high, [MINOR] === medium -> all three abstract severities map to their ledger equivalents; WHY: covers the complete mapping table from spec §4.2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "FindingAddSeverity type accepts critical|high|medium|low -> type-level union includes the reserved low value; WHY: ensures the type is wider than the map (low is reserved for cosmetic MINOR per §4.2)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Object.values(SEVERITY_TO_FINDING_KIND) are all members of {critical,high,medium,low} -> no abstract BLOCKER/MAJOR/MINOR appears in any value position; WHY: guards against the Zod-error failure mode where an abstract severity leaks to finding_add",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Object.keys(SEVERITY_TO_FINDING_KIND) exactly equals FINDING_SEVERITIES (the S0 frozen enum) -> map covers every FindingSeverity with no extras; WHY: if S0 adds a severity the map must not silently miss it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to index SEVERITY_TO_FINDING_KIND with a string not in FindingSeverity (e.g. HIGH, Critical, blocker) -> returns undefined (no accidental match via case-insensitive or partial key); WHY: adversarial input that could leak an unmapped abstract value",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Assert SEVERITY_TO_FINDING_KIND is frozen/readonly (Object.isFrozen or const assertion) -> mutation attempt throws or is a TS error; WHY: prevents runtime tampering that could inject an abstract severity into the map",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts SEVERITY_TO_FINDING_KIND.BLOCKER==='critical', .MAJOR==='high', .MINOR==='medium' (explicit literals).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.137Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "FindingAddSeverity='critical'|'high'|'medium'|'low' is imported+used as the smoke's LEDGER_KINDS type; tsc compiling the smoke proves the type accepts exactly those.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.137Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts every Object.values(SEVERITY_TO_FINDING_KIND) is in the explicit ['critical','high','medium','low'] set.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts Object.keys(SEVERITY_TO_FINDING_KIND).sort().join(',') === [...FINDING_SEVERITIES].sort().join(',') — keys pinned to the S0 FINDING_SEVERITIES tuple.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts (SEVERITY_TO_FINDING_KIND as Record<string,unknown>)['NOPE'] === undefined — indexing with a non-severity key yields undefined, no phantom mapping.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Module wraps SEVERITY_TO_FINDING_KIND in Object.freeze; smoke asserts Object.isFrozen(SEVERITY_TO_FINDING_KIND)===true (immutable shared map).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "composeDesc(finding) + toFindingAddArgs(finding,{reviewRunId,agent,category}) ledger arg builder",
+      "context": "composeDesc(finding)=`${title} — ${issue} Fix: ${fix}` with the line cited inside the desc (e.g. append ` (line <n>)` or include it). FindingAddArgs = {severity: FindingAddSeverity, desc: string, files: string[], category: 'happy'|'edge'|'adversarial'|'missing', reviewRunId: string, agent: string}. toFindingAddArgs maps severity via SEVERITY_TO_FINDING_KIND, composes desc, sets files=[finding.file], passes through reviewRunId+agent+category. agent must be a real lattice-review-* lane (caller-supplied; the function does not invent it). Pure — returns the arg object, performs NO finding_add call (that is S4).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T14:59:07.129Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "composeDesc({title:\"Null deref\",issue:\"crashes on undefined\",fix:\"add guard\",line:42,...}) -> returns exactly \"Null deref — crashes on undefined Fix: add guard\" with line 42 cited in the string; WHY: validates the exact template from §4.2 (title — issue Fix: fix) and line citation",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs(BLOCKER finding, {reviewRunId:\"R-1\",agent:\"lattice-review-quality\",category:\"happy\"}) -> returns {severity:\"critical\",desc:<composed>,files:[\"src/foo.ts\"],category:\"happy\",reviewRunId:\"R-1\",agent:\"lattice-review-quality\"}; WHY: validates the complete arg shape with severity mapped through SEVERITY_TO_FINDING_KIND, not abstract",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs with MAJOR finding -> severity is high, not MAJOR; toFindingAddArgs with MINOR finding -> severity is medium, not MINOR; WHY: exercises all three severity branches to ensure no abstract leak",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "composeDesc with a finding whose title/issue/fix contain special characters (em-dash, quotes, newlines) -> output preserves them literally without escaping or truncation; WHY: ensures the template concatenation does not corrupt rich text",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs with finding.file containing spaces or path separators -> files array contains the exact original path string; WHY: file paths must not be split, trimmed, or normalized",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "composeDesc with line=0 -> line 0 is still cited (boundary); WHY: line 0 is a valid best-effort anchor and must not be suppressed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "toFindingAddArgs output severity field is NEVER equal to BLOCKER, MAJOR, or MINOR (check all three input severities) -> every emitted severity is in {critical,high,medium,low}; WHY: the primary adversarial risk — an abstract severity leaking to finding_add causes a Zod error",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "toFindingAddArgs does not call finding_add, review_run_start, or any CLI command (it is pure) -> no I/O side effects; WHY: S4 owns the actual CLI call; S2 must only build args",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts composeDesc(finding)==='Null deref — x can be undefined Fix: guard x (line 42)' (exact literal incl. em dash).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3 asserts toFindingAddArgs(BLOCKER).severity==='critical' + full arg shape.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3 asserts toFindingAddArgs(MAJOR).severity==='high' (mapped, not the abstract MAJOR).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts composeDesc with special chars (quotes, &, <tag>, em dash, %, backticks) passes them through verbatim to the exact computed template.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts toFindingAddArgs with file 'src/a b/c.ts' yields files===['src/a b/c.ts'] (spaces+separators preserved verbatim, single-element array).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts composeDesc with line=0 ends with '(line 0)' — the boundary line 0 is cited, not dropped as falsy.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts toFindingAddArgs output severity is in {critical,high,medium,low} and NOT in {BLOCKER,MAJOR,MINOR} for BLOCKER/MAJOR/MINOR inputs (no-abstract-leak).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts toFindingAddArgs returns a fresh, deterministic plain FindingAddArgs object: non-Promise plain object; two same-input calls deep-equal (idempotent) yet distinct refs (no shared mutable state); exact key set {agent,category,desc,files,reviewRunId,severity}. Honest scope: the stronger 'never calls finding_add' is structurally guaranteed by the module having no I/O imports (best spied at the S4 boundary).",
+          "headHash": "194177f266895e1f160dd390b6143c9f0c5d6fe6",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:13:37.204Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "verifyFinding (M skeptics, refute-by-default counting, threshold-confirm T=1-of-2) + verifyFindings + confirmedFindings",
+      "context": "DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1. verifyFinding(finding, change, runSkeptic:(finding:Finding,change:string)=>Verdict, opts?:{skeptics?:number, threshold?:number}) runs runSkeptic M times, collects Verdict[], confirms=count(v.isReal===true), confirmed=(confirms>=T). Returns VerifiedFinding={finding, verdicts:Verdict[], confirms:number, confirmed:boolean}. runSkeptic is the injected seam (the real skeptic agent at MVP); refute-by-default lives in the skeptic role, the module just counts isReal and thresholds. verifyFindings(findings, change, runSkeptic, opts) maps over the array. confirmedFindings(verified):Finding[] returns survivors (confirmed===true). A confirms=0 finding is dropped (confirmed false).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T14:59:08.781Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=true, isReal=false] (1-of-2 confirms) at default T=1 -> confirmed=true, confirms=1; WHY: validates the default threshold-confirm rule (T=1-of-2 keeps a 1-confirm finding)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=true, isReal=true] (2-of-2 confirms) -> confirmed=true, confirms=2; WHY: validates unanimous confirmation",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFindings over a list of 3 findings with mixed confirm/drop results -> returns 3 VerifiedFinding objects, each with correct per-finding verdicts/confirms/confirmed; WHY: validates the map-over-array behavior preserves per-finding independence",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "confirmedFindings filters a VerifiedFinding[] to only those with confirmed===true -> returns Finding[] of survivors only; WHY: validates the filter that feeds the downstream ledger mapping",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verifyFinding with T=2-of-2 and skepticResults [isReal=true, isReal=false] (1-of-2 confirms) -> confirmed=false, confirms=1; WHY: validates strict threshold — 1 confirm is insufficient when T=2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with M=1 skeptic and T=1 -> single isReal=true confirms the finding; WHY: boundary case with minimum skeptic count",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with M=3, T=2, and skepticResults [true,false,true] -> confirmed=true, confirms=2; WHY: validates threshold counting with odd M and non-default T",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "confirmedFindings on an empty VerifiedFinding[] -> returns empty Finding[]; WHY: boundary — no findings to filter",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verifyFinding with fake runSkeptic returning [isReal=false, isReal=false] (0-of-2 confirms) -> confirmed=false, confirms=0; WHY: the refute-by-default inversion risk — all-false must be DROPPED, confirms=0 must never satisfy any threshold T>=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding counts isReal===true STRICTLY (not truthy) — a skeptic returning isReal=1 or isReal=\"true\" must NOT be counted as a confirm; WHY: JavaScript truthiness could inflate confirms if the check is not === true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verifyFinding with T=0 (adversarial threshold) -> even a confirms=0 finding is confirmed (0>=0); WHY: degenerate threshold must not crash or produce undefined behavior; documents the edge of the threshold parameter space",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runSkeptic called exactly M times (not M-1 or M+1) regardless of early confirm/refute results -> verdicts array length === M; WHY: short-circuiting on first confirm would break the M-skeptic contract and produce incomplete verdict records",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 verifyFinding with fake [isReal=true,false] @T=1 -> confirmed===true, confirms===1.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 same fake @T=1 also asserts verdicts.length===2 (seam called exactly M times) — the 1-of-2 confirm path.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 7 verifyFindings over [f1,f2,f3] with a fake confirming only f2 returns 3 VerifiedFinding, refs preserved in order.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 7 confirmedFindings(verifiedList) returns exactly [f2] (filters confirmed only).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 verifyFinding 1-of-2 @T=2 -> confirmed===false (threshold not met, NOT majority); 2-of-2 @T=2 -> confirmed===true.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts verifyFinding with M=1,T=1 (single isReal=true) -> verdicts.length===1, confirms===1, confirmed===true.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts M=3,T=2 with [true,false,true] -> verdicts.length===3, confirms===2, confirmed===true; and [true,false,false]@T=2 -> confirms===1, confirmed===false.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts confirmedFindings([]) === [] (empty input -> empty output, length 0).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 verifyFinding with a 0-isReal fake -> confirms===0, confirmed===false (DROPPED) under T>=1.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 6 fake returns isReal=false with agreedSeverity='MAJOR' (non-NOT_A_DEFECT) -> confirms===0, confirmed===false (strict isReal===true counting, not truthy/severity-based).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "§2.3 invariant: a confirms=0 finding is ALWAYS dropped. verifyFinding floors the effective threshold at Math.max(1,requested), so an all-false fake @ threshold:0 -> confirms===0, confirmed===false (DROPPED); the smoke asserts this for T=0 and T=1, and that a 1-of-2 fake @ T=0 is confirmed (confirms=1>=floored-1). Corrects the earlier (Codex-caught) bug where T=0 confirmed a zero-confirm finding.",
+          "headHash": "194177f266895e1f160dd390b6143c9f0c5d6fe6",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:13:37.204Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts verdicts.length===M (2) in multiple cases (and ===1 at M=1, ===3 at M=3) — runSkeptic called exactly M times.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke with a FAKE runSkeptic proving threshold + mapping + no-abstract-leak; register in lattice.config.json",
+      "context": "New packages/main/src/tasks/adversarial-review-verifier-smoke.ts (check+counter, explicit literals). Assert: SEVERITY_TO_FINDING_KIND maps BLOCKER->critical/MAJOR->high/MINOR->medium and every value is in {critical,high,medium,low}; composeDesc yields the exact `<title> — <issue> Fix: <fix>` string with line cited; toFindingAddArgs returns the right shape (severity mapped, files=[file], category, reviewRunId, agent) and never emits an abstract BLOCKER/MAJOR/MINOR; verifyFinding with a fake runSkeptic that returns k isReal=true of M: T=1-of-2 -> 1 confirm CONFIRMED, 0 confirm DROPPED; T=2-of-2 -> needs both; default M=2,T=1; verifyFindings over a list yields per-finding verdicts; confirmedFindings filters confirms>=T only. Register node packages/main/dist/tasks/adversarial-review-verifier-smoke.js in lattice.config.json validate.commands.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-20T14:59:10.177Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke runs via node packages/main/dist/tasks/adversarial-review-verifier-smoke.js -> exits 0 with check+counter output showing all assertions passed; WHY: validates the smoke is runnable and self-reporting",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts SEVERITY_TO_FINDING_KIND maps BLOCKER->critical, MAJOR->high, MINOR->medium with explicit literal comparisons (not dynamic) -> passes; WHY: hermetic proof the mapping matches §4.2 table exactly",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts composeDesc produces the exact template string with line cited -> passes; WHY: hermetic proof the desc format matches §4.2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts toFindingAddArgs returns mapped severity + correct shape (files, category, reviewRunId, agent) -> passes; WHY: hermetic proof the arg builder produces ledger-compatible output",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke uses a FAKE runSkeptic exercising T=1-of-2 (1 confirm -> CONFIRMED) and 0-of-2 (0 confirm -> DROPPED) -> both threshold branches pass; WHY: hermetic proof the threshold logic is correct without a live agent",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke exercises T=2-of-2 strict threshold (needs both confirms) -> 1-of-2 is DROPPED at strict; WHY: proves the threshold parameter is respected, not hardcoded to T=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke exercises verifyFindings over a multi-finding list and confirmedFindings filter -> correct per-finding independence and survivor filtering; WHY: proves array-level functions are not just single-finding wrappers",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-verifier-smoke.js -> the command entry exists in the config file; WHY: ensures lattice validate will run this smoke automatically",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts that toFindingAddArgs output severity is NEVER equal to BLOCKER, MAJOR, or MINOR for ANY input severity (explicit check for each) -> no abstract severity leak; WHY: the primary adversarial risk (Zod error) must be proven impossible by the smoke itself",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts every value in Object.values(SEVERITY_TO_FINDING_KIND) is in the set {critical,high,medium,low} -> no unexpected value can appear; WHY: defends against a typo or drift introducing an invalid ledger severity",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke uses explicit literal assertions (not dynamic loops over the map keys) for the critical mapping checks -> smoke cannot pass by tautology; WHY: a dynamic assertion like map[k]===map[k] would always pass; explicit literals (BLOCKER->critical) are load-bearing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "The smoke runs via node packages/main/dist/tasks/adversarial-review-verifier-smoke.js, check+counter, exits 0 printing 'adversarial-review-verifier smoke passed: 61 assertions'.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts the BLOCKER->critical/MAJOR->high/MINOR->medium map.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts composeDesc exact template incl. em dash + line citation.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3 asserts toFindingAddArgs mapped severity + correct {severity,desc,files,category,reviewRunId,agent} shape.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 uses a FAKE runSkeptic exercising T=1-of-2 (1 confirm -> CONFIRMED) and the default M=2,T=1 path.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 exercises T=2-of-2 strict (1 confirm -> dropped, 2 -> confirmed).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 7 exercises verifyFindings over a multi-finding list + confirmedFindings filtering.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Registered as node packages/main/dist/tasks/adversarial-review-verifier-smoke.js in lattice.config.json validate.commands[14]; lattice validate runs it green.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts toFindingAddArgs output severity is NEVER an abstract BLOCKER/MAJOR/MINOR (for all 3 severities).",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts every Object.values(SEVERITY_TO_FINDING_KIND) is a ledger kind in {critical,high,medium,low}.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+          "result": "pass",
+          "note": "Smoke pins expectations to explicit literals declared in the smoke (LEDGER_KINDS, ABSTRACT_SEVERITIES, exact desc strings, hardcoded counts) rather than self-referencing the module's own consts.",
+          "headHash": "94d7eddfd3216ddd7f7745f755cf77395edbf7c7",
+          "materialHash": "b1b0a1b73de59cb87a642146bcdab312a4bf37c0fb1389bda2d4e3ff99d59424",
+          "storyFilesHash": "af0127c62ac17d75785c276f319c14af322dfa046ba36f930054c82afc9600c0",
+          "timestamp": "2026-06-20T15:15:36.138Z"
+        }
+      ]
+    }
+  ]
+}

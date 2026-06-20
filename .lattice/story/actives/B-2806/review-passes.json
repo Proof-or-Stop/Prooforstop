@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-2806:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope CLEAN over round-2 hash: diff touches only verifier.ts + verifier-smoke.ts + lattice.config.json; S0 (adversarial-review.ts) and S1 (adversarial-review-lens-runner.ts) byte-unmodified; no completeness critic (S3), no finding_add/review_run_start call or escalation (S4), no lens runner duplication (S1). Module is exactly §2.3 verification + §4.2 ledger mapping. Confirmed by round-2 multi-lens concept lens + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:15:20.016Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-001",
+      "_hash": "6226415d55c4f959002e2521e3501509ce64b134ec6b9c45fb37f390f52d09be"
+    },
+    {
+      "id": "B-2806:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality CLEAN over round-2 hash: SEVERITY_TO_FINDING_KIND typed Record<FindingSeverity,FindingAddSeverity> + Object.frozen; module pure (no FS/git/net, no finding_add call); verifyFinding strict isReal===true, threshold floored at Math.max(1,requested) per §2.3; smoke assertions pinned to explicit literals + idempotence/distinct-ref/shape checks. Round-1 Codex MAJOR (T=0 confirmed a confirms=0 finding) FIXED; round-2 Codex PASS.",
+      "createdAt": "2026-06-20T15:15:21.101Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-002",
+      "_hash": "9f34339af3a97fd58af2d0b09b2be7b4c0ca2cb903c8e767ea3b30a30397bf3b"
+    },
+    {
+      "id": "B-2806:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage CLEAN over round-2 hash: all 37 verificationIntent map to real smoke assertions at the sink; round-1 had no test-coverage blocker; the proactively-strengthened smoke (61->68) covers freeze, keys===FINDING_SEVERITIES, special-chars/line-0/file-spaces composeDesc, M=1/M=3 thresholds, empty confirmedFindings, and the CORRECTED T=0 invariant (confirms=0 dropped). 2 evidence notes (CHK-003:adversarial:2, CHK-002:adversarial:1) rewritten to match the round-2 fixes. Confirmed by Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:15:22.198Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-003",
+      "_hash": "566dabb2ff9508e1703cb7d87e9f5e55150d8d29d024f5398512a4fe7a2bd557"
+    },
+    {
+      "id": "B-2806:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior CLEAN over round-2 hash: SEVERITY_TO_FINDING_KIND BLOCKER->critical/MAJOR->high/MINOR->medium; toFindingAddArgs never emits an abstract severity (no Zod error), composeDesc exact em-dash form with line cited; verifyFinding runs runSkeptic exactly M times (default 2), confirms = strict isReal===true, confirmed = confirms >= max(1,T) (threshold-confirm NOT majority; confirms=0 ALWAYS dropped, fixing the round-1 T=0 violation); verifyFindings independent per finding; confirmedFindings filters survivors. Confirmed by round-2 multi-lens behavior/threshold lenses + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:15:23.296Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-004",
+      "_hash": "76d15ef793f7f0b5cb76c1eecd64c56afdfd937c3ed4d5a212d52d46d467c076"
+    },
+    {
+      "id": "B-2806:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs-consistency CLEAN over round-2 hash: module JSDoc accurately describes the injected seam, refute-by-default-in-role, threshold floor>=1, and no-abstract-leak; composeDesc em dash + line citation match §4.2; smoke header + the de-vacuoused purity comment honestly describe what is proven; lattice.config.json registers node packages/main/dist/tasks/adversarial-review-verifier-smoke.js at validate.commands[14]. Confirmed by round-2 multi-lens docs lens.",
+      "createdAt": "2026-06-20T15:15:24.385Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-005",
+      "_hash": "3c0000edb57338ff1c2f8ec0242a37a3eb5d1479b5fb458c066e05706f800be0"
+    },
+    {
+      "id": "B-2806:RP-006",
+      "agent": "lattice-review-channel",
+      "note": "Channel CLEAN over round-2 hash: all 3 business-code commits (761e9df43, d36d1fc11, 194177f26) authored by lattice-implementer in the normal channel; the main agent authored none of the module/smoke/config code. Dispatch coverage satisfied.",
+      "createdAt": "2026-06-20T15:15:25.483Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-006",
+      "_hash": "aedb8842eb17e8e31588333d0eb1839925b0b93441f27e59d087c0839584e61d"
+    }
+  ]
+}

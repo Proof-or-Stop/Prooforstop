@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1127",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json: register the smoke",
+    "packages/main/src/core/adversarial-review-round.ts: runAdversarialRound (5-phase canonical round) + deriveRoundLedgerOps + runReopenLoop + buildHostVerdictPayloads, composing S1+S2+S3",
+    "packages/main/src/tasks/adversarial-review-round-smoke.ts: hermetic smoke with fake seams (B-086b reopen trace)"
+  ],
+  "excluded": [
+    "a first-class lattice review --mode=adversarial CLI + dedicated lattice-review-completeness lane + structured verdict storage — FUTURE (§4.4)",
+    "re-implementing S1 lens runner / S2 verifier / S3 critic — all imported read-only, not modified",
+    "the actual CLI execution (review_run_start/finding_add/review_pass_set/autopilot_review_submit) and a real Authority receipt — S4 only DERIVES ops as pure data; the calls are the harness/main-agent job (local-only, §4.5)",
+    "the S0 contract + review-run.ts — imported read-only, not modified"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-impl S4 (capstone) per docs/adversarial-review-spec.md §3 + §4.1 + §5 S4: compose S1+S2+S3 into the canonical round/reopen loop + derive ledger ops + 3x2 payloads as pure data; MVP, local-only; depends [S1,S2,S3].",
+  "createdAt": "2026-06-20T16:00:15.423Z",
+  "updatedAt": "2026-06-20T16:00:15.423Z",
+  "_hash": "ace801671bed8ba8bef5de63e2a540ac53a6ad9761d3f3a4e8ecdfd58ab1b911"
+}

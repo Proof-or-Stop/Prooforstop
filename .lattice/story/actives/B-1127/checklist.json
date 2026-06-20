@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "runAdversarialRound(change, seams, config?) — the frozen 5-phase canonical round; AdversarialRoundResult extends RoundResult + confirmedByLane, in core/adversarial-review-round.ts",
+      "context": "New module importing S0 (RoundResult, REVIEW_MODE_PHASES, Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict), S1 (runLenses, collectRawFindings, LensLane, LensRunRequest), S2 (verifyFindings, confirmedFindings), S3 (runCompletenessCritic). RoundSeams={runLens:(req:LensRunRequest)=>Finding[], runSkeptic:(f:Finding,change:string)=>Verdict, runCritic:(input:CompletenessCriticInput)=>Finding[]}. RoundConfig={lensSet?:readonly LensDef[] (default CANONICAL_LENS_SET), skeptics?:number, threshold?:number}. runAdversarialRound runs the §3.2 FROZEN order: runLenses (S1) -> verify each lens findings keeping its lane (S2 verifyFindings+confirmedFindings PER LENS so confirmedByLane preserves {lane,lensId,findings}) -> runCompletenessCritic (S3) on {change, confirmedFindings: the flattened confirmed lens set} -> verify critic raw (S2) -> converged (no confirmed lens AND no confirmed critic), reopen=!converged. Returns AdversarialRoundResult extends RoundResult {lensFindings:rawLens, confirmedFindings:confirmedLensFlat, criticFindings:confirmedCritic, reopen, converged} with confirmedByLane added. The critic MUST receive the VERIFIED (confirmed) lens set, never raw (proves §2.4 order).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "deriveRoundLedgerOps(round, opts) -> LedgerOp[]: finding_add per confirmed finding (lens via S2, critic via S3) + review_pass_set per lane on converge",
+      "context": "LedgerOp = {kind:'finding_add', lane:ReviewRunLane, source:'lens'|'critic', args:FindingAddArgs} | {kind:'review_pass_set', lane:ReviewRunLane, reviewRunId:string}. deriveRoundLedgerOps(round:AdversarialRoundResult, opts:{reviewRunIdByLane:Partial<Record<ReviewRunLane,string>>, criticLane:ReviewRunLane, criticReviewRunId:string, category?:'happy'|'edge'|'adversarial'|'missing'}): for each confirmedByLane group, one finding_add op via S2 toFindingAddArgs(f,{reviewRunId:reviewRunIdByLane[lane], agent:lane, category}) (agent=the real lane); for each round.criticFindings, one finding_add op via S3 toCriticFindingAddArgs(f,{reviewRunId:criticReviewRunId, agent:criticLane, category}) (tagged desc + real lane); if round.converged, a review_pass_set op per lane that ran. PURE — derives op descriptors, performs NO finding_add call. No abstract severity in any op (S2/S3 own the mapping).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "runReopenLoop(initialChange, seams, applyFix, config?) loop-until-dry + buildHostVerdictPayloads 3x2 shaper",
+      "context": "runReopenLoop(initialChange:string, seams:RoundSeams, applyFix:(change:string, confirmed:Finding[], roundIndex:number)=>string, config?:RoundConfig & {maxRounds?:number}): {rounds:AdversarialRoundResult[], converged:boolean, finalChange:string}. Runs runAdversarialRound; if converged return; else apply applyFix(change, [...confirmedFindings,...criticFindings], i) -> new change (new material) and re-run a NEW round (models reopen->new reviewRunId+re-bind to fresh materialHash); bound by maxRounds (default 10), converged:false if exhausted. buildHostVerdictPayloads(opts:{storyId, runId, materialDigest, validationDigest, hosts:Array<{hostId,provider,sessionId,keyId,promptDigest, decision?:'pass'|'fail'|'blocked'}>}): HostVerdictPayload[] shaping the §4.1 full-3x2 autopilot_review_submit args (two INDEPENDENT hosts, distinct hostId/sessionId/keyId, each bound to the SAME materialDigest+validationDigest, decision default 'pass'). Pure: no CLI call, no Authority receipt (local-only §4.5).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke with FAKE seams proving the B-086b reopen trace + ledger ops + 3x2 payloads; register in lattice.config.json",
+      "context": "New packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals). Assert: REVIEW_MODE_PHASES === the canonical 5 ['lenses','verify-lens-findings','critic','verify-critic-findings','converge-or-reopen']; a fake runCritic captures its input and asserts it received the CONFIRMED (verified) lens set not raw (§2.4 order); a CLEAN round (all skeptics refute) -> converged===true, reopen===false, criticFindings===[]; a round where the critic confirms -> reopen===true, converged===false; runReopenLoop with a fake confirming a critic finding on round 1 and an applyFix making round 2 clean -> rounds.length===2, rounds[0].converged===false, rounds[1].converged===true, result.converged===true (loop-until-dry); maxRounds bound -> converged===false when never clean; deriveRoundLedgerOps yields finding_add ops for confirmed lens (agent===the real lane, severity a ledger kind not abstract) + critic (desc starts with '[completeness-critic] ', agent a real lane) + review_pass_set ops ONLY when converged; buildHostVerdictPayloads yields 2 payloads with distinct hostId/keyId/sessionId, same materialDigest+validationDigest, decision 'pass'. Register node packages/main/dist/tasks/adversarial-review-round-smoke.js in lattice.config.json validate.commands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Single source of truth: one typed ledger map; toFindingAddArgs is the only place an abstract severity becomes a finding_add severity.",
+    "Structural no-abstract-leak: the compiler + the map guarantee finding_add never sees BLOCKER/MAJOR/MINOR.",
+    "Threshold-confirm, not majority: CONFIRMED iff confirms>=T (default T=1-of-2); refute-by-default counts only isReal===true.",
+    "Hermetic + injected: the skeptic is a (finding,change)=>Verdict seam; the module counts+thresholds, the role refutes.",
+    "Stay inside S2: verify + map only; no lens runner (S1), no critic (S3), no finding_add/escalation I/O (S4)."
+  ],
+  "drivers": [
+    "finding_add enum is critical|high|medium|low — an abstract severity is a Zod error (§4.2).",
+    "§2.3 fixes refute-by-default + threshold-confirm default T=1-of-2 (explicitly not majority).",
+    "S0 contract (Finding/FindingSeverity/Verdict) is frozen and imported verbatim; S1/S3/S4 are out of scope."
+  ],
+  "options": [
+    {
+      "name": "Injected-skeptic verifier + const ledger map + pure arg-builder",
+      "pros": [
+        "The skeptic is an injected (finding,change)=>Verdict seam so the module is hermetically testable with a fake; refute-by-default lives in the skeptic role, the module only counts isReal and thresholds (single responsibility)",
+        "SEVERITY_TO_FINDING_KIND is a typed const Record<FindingSeverity, FindingAddSeverity> so the compiler forces a mapping for every abstract severity and toFindingAddArgs can never emit BLOCKER/MAJOR/MINOR (prevents the Zod error structurally)",
+        "T and M are parameters (defaults T=1,M=2) so the precision/recall tradeoff is tunable per §2.3; pure functions, no I/O, so finding_add stays S4"
+      ],
+      "cons": [
+        "The real skeptic agent is not wired here (deferred to S4) so MVP value is a library seam + mapping, not an end-to-end finding_add"
+      ]
+    },
+    {
+      "name": "Verifier computes severity strings inline at the finding_add call site",
+      "pros": [
+        "Fewer exported symbols"
+      ],
+      "cons": [
+        "No single source of truth for the BLOCKER->critical map; each call site can drift or forget to map and hit the Zod error",
+        "Cannot prove the no-abstract-leak property hermetically",
+        "Couples mapping to I/O — crosses into S4"
+      ]
+    },
+    {
+      "name": "Bake majority voting into the verifier instead of threshold-confirm",
+      "pros": [
+        "Conceptually simple (>50% confirm)"
+      ],
+      "cons": [
+        "Contradicts §2.3 which is explicitly NOT majority: with M=2 a majority needs 2 confirms but the spec default is T=1-of-2 (one concrete proof suffices)",
+        "Would drop real defects only one skeptic can see — the opposite of the intended safety bias",
+        "Not tunable to the precision end (T=2-of-2) the spec requires"
+      ]
+    }
+  ],
+  "chosen": "Injected-skeptic verifier + const ledger map + pure arg-builder",
+  "rationale": "Only this option satisfies all five principles: a typed const map that structurally prevents the abstract-severity Zod error, a pure arg-builder that keeps finding_add I/O in S4, and an injected skeptic seam with confirms>=T threshold-confirm (default 1-of-2) that is hermetically testable and matches §2.3 exactly. The inline-at-call-site option loses the single-source-of-truth + no-leak proof; the majority-vote option directly contradicts §2.3.",
+  "preMortem": [
+    {
+      "scenario": "An abstract methodology severity (BLOCKER/MAJOR/MINOR) reaches finding_add and triggers a Zod enum error at runtime",
+      "trigger": "A caller composes finding_add args by hand or toFindingAddArgs passes finding.severity through unmapped",
+      "consequence": "S4 escalation calls finding_add with an invalid severity and the finding is rejected — a real confirmed defect is silently lost from the ledger",
+      "mitigation": "SEVERITY_TO_FINDING_KIND is a typed Record<FindingSeverity, 'critical'|'high'|'medium'|'low'>; toFindingAddArgs ONLY emits the mapped value; the smoke asserts every emitted severity is in {critical,high,medium,low} and never equals an abstract severity"
+    },
+    {
+      "scenario": "The threshold is implemented as a majority vote instead of confirms>=T, so T=1-of-2 behaves like T=2-of-2",
+      "trigger": "verifyFinding uses confirms > M/2 (majority) rather than confirms >= T",
+      "consequence": "A real defect that only one of two skeptics concretely confirms is dropped — the review loses recall exactly where §2.3 says it must not",
+      "mitigation": "verifyFinding uses confirmed = (confirms >= threshold) with default threshold=1; the smoke plants a fake giving 1 isReal of 2 and asserts CONFIRMED under T=1, and DROPPED under T=2, pinning threshold-confirm (not majority)"
+    },
+    {
+      "scenario": "Refute-by-default is silently inverted — a skeptic that returns no clear verdict is counted as a confirmation",
+      "trigger": "verifyFinding counts isReal !== false (treating undefined/missing as confirm) instead of isReal === true",
+      "consequence": "Confident-but-wrong findings survive (confirms inflated), defeating the single failure mode §2.3 exists to filter",
+      "mitigation": "confirms counts strictly v.isReal === true; a confirms=0 finding is dropped; the smoke includes a fake that returns isReal=false for all skeptics and asserts the finding is DROPPED, and a mixed case asserting only true verdicts count"
+    }
+  ],
+  "timestamp": "2026-06-20T14:49:11.283Z"
+}

@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define localReady and unify readiness blocking semantics",
+      "context": "Add an explicit StoryReadinessReport contract: localReady is true iff there are no readiness rows with blocking:true. Advisory/warn rows must remain visible but must not block target readiness. Manual and external rows must be represented as non-command next actions when no command is available.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind done_prepare report freshness to current local main tip",
+      "context": "Extend done_prepare binding semantics so a consumed report records the local main tip or merge base observed during preparation and is stale when current local main has advanced. This prevents V1 from marking DONE-ready when a new main merge would invalidate the report.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Align text flow, Mermaid, and SVG wording around handoff and rollback",
+      "context": "Replace abstract Target proof complete wording with blocking/manual/external readiness wording, add no mutation in V1 to STOP, make Step 4 a handoff, and model rollback as a likely next action for host review rather than a downstream stage after STOP.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

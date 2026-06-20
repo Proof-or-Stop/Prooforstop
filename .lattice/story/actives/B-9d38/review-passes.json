@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-9d38:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope CLEAN over round-2 hash: diff touches only critic.ts + critic-smoke.ts + lattice.config.json; S0 (adversarial-review.ts), S2 (adversarial-review-verifier.ts), review-run.ts byte-unmodified; no lens runner (S1), no verifier reimpl (S2 only imported), no reopen/escalation/finding_add call (S4). Module is exactly §2.4 critic role + §4.3 provenance. Confirmed by round-2 multi-lens concept lens + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:49:16.596Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-001",
+      "_hash": "faeb0cafca20e123c73dca9ccb1576893129274c421df214cbc7d6d82cf62a24"
+    },
+    {
+      "id": "B-9d38:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality CLEAN over round-2 hash: runCompletenessCritic pure pass-through (no clone, no I/O); toCriticFindingAddArgs composes S2 toFindingAddArgs + prefixes the tag, agent typed ReviewRunLane (compiler rejects completeness-critic), severity stays S2-mapped (no abstract leak); smoke pinned to explicit literals. Round-1 Codex MAJOR (smoke checked the bracketed tag not the bare completeness-critic in REVIEW_RUN_LANES) FIXED; round-2 Codex PASS.",
+      "createdAt": "2026-06-20T15:49:17.691Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-002",
+      "_hash": "cc619219c2461348b1dcc1a9cad4283234f5def2fd73b60fb067fada09fe6ac9"
+    },
+    {
+      "id": "B-9d38:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage CLEAN over round-2 hash: all 33 verificationIntent map to real smoke assertions at the sink; the proactively-strengthened smoke (36->50->52) covers pass-by-reference/large-array/extra-field seam output, tag-not-a-lane (now incl. the BARE completeness-critic + lattice-review-completeness invariants), special-chars desc, desc!=base, second lane. CHK-002:adversarial:0 evidence note corrected to the bare-value check. Confirmed by Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:49:18.781Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-003",
+      "_hash": "cdbdea0752aac3d23d02b50283ceba3abba713adad558b58e8997556f0a798a6"
+    },
+    {
+      "id": "B-9d38:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior CLEAN over round-2 hash: runCompletenessCritic returns the injected critic output UNCHANGED (raw/unprivileged), seam receives exactly {change,confirmedFindings} (verified set, also empty); runCompletenessCriticOn assembles the input; toCriticFindingAddArgs desc === [completeness-critic] + S2 desc, severity mapped critical|high|medium|low (never abstract), agent a real lane (quality/behavior) never completeness-critic. Confirmed by round-2 multi-lens behavior/provenance/seam lenses + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:49:19.887Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-004",
+      "_hash": "4745316e46b9de2b6bda6e5e9778f7eb60b607cdf831490d8af141872dbb7640"
+    },
+    {
+      "id": "B-9d38:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs-consistency CLEAN over round-2 hash: module JSDoc accurately explains the verified-set input, raw/unprivileged output, and WHY the tag goes in --desc not --agent (isReviewerAgent gate, no lattice-review-completeness lane); smoke header honest; lattice.config.json registers node packages/main/dist/tasks/adversarial-review-critic-smoke.js at validate.commands[15]. Confirmed by round-2 multi-lens docs lens.",
+      "createdAt": "2026-06-20T15:49:20.994Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-005",
+      "_hash": "bf20dda35236f64fee2bb087f12064744e98ef9e9e1f9c87993e0c97d5823b1f"
+    },
+    {
+      "id": "B-9d38:RP-006",
+      "agent": "lattice-review-channel",
+      "note": "Channel CLEAN over round-2 hash: all business-code commits (95cfe79e0, bb77532fe, dcf519c1b, c5833db6f) authored by lattice-implementer in the normal channel; the main agent authored none of the module/smoke/config code. Dispatch coverage satisfied.",
+      "createdAt": "2026-06-20T15:49:22.118Z",
+      "reviewRound": "2026-06-20T15:41:32.898Z",
+      "reviewRunId": "B-9d38:RR-006",
+      "_hash": "2326f104a754fe0b4b2b9f87a08481c40c623ad1410033a55c18562cd0477355"
+    }
+  ]
+}

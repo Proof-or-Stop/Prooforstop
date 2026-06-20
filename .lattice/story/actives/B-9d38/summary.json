@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9d38",
+  "changes": "New packages/main/src/core/adversarial-review-critic.ts: (1) runCompletenessCritic(input,runCritic) + runCompletenessCriticOn — a pure pass-through over the injected critic seam; the critic sees ONLY {change,confirmedFindings} (the verified set per §2.4) and its output is returned UNCHANGED (raw, unprivileged — it re-enters S2 verification in S4). (2) §4.3 MVP provenance: COMPLETENESS_CRITIC_DESC_TAG=[completeness-critic] + CRITIC_PROVENANCE_RECOMMENDED_LANES=[lattice-review-quality,lattice-review-behavior]; toCriticFindingAddArgs wraps S2 toFindingAddArgs and prefixes the tag into the desc, typing agent as a REAL ReviewRunLane so completeness-critic can never be the --agent (the provenance lives in --desc; reviewer-evidence only counts when agent.startsWith(lattice-review-)), keeping the S2-mapped severity (no abstract leak). New hermetic smoke (52 assertions) at lattice.config.json validate.commands[15]. Imports S0+S2+review-run read-only; all protected/unchanged.",
+  "usage": "import { runCompletenessCritic, toCriticFindingAddArgs, COMPLETENESS_CRITIC_DESC_TAG } from \"core/adversarial-review-critic.js\"; const criticRaw = runCompletenessCritic({change, confirmedFindings}, myCriticAgent); const args = toCriticFindingAddArgs(confirmedCriticFinding, {reviewRunId, agent:\"lattice-review-quality\", category}); — args.agent is a real lane, args.desc is [completeness-critic]-tagged. Verify: node packages/main/dist/tasks/adversarial-review-critic-smoke.js.",
+  "expectedOutcome": "node packages/main/dist/tasks/adversarial-review-critic-smoke.js prints \"adversarial-review-critic smoke passed: 52 assertions\" exit 0; lattice validate green at [15]; runCompletenessCritic returns the critic findings unchanged; toCriticFindingAddArgs of a critic finding yields a [completeness-critic]-tagged desc + a critical|high|medium|low severity + a real lattice-review-* agent.",
+  "actualTranscript": "adversarial-review-critic smoke passed: 52 assertions (exit 0); lattice validate all green incl. validate.commands[15]; build (tsc) clean. Delivery review PASS (5/5 promises delivered, 4/4 items tested, hasRealMachineTest=true).",
+  "outcomeDiff": "No difference — expected and actual match (52 assertions, exit 0, validate green).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "MVP S3 only: a library (the critic ROLE + provenance tagging). The real critic agent is an injected (input)=>Finding[] seam wired in S4; the module does NOT run S2 verification on the critic output, does NOT call finding_add/review_run_start, and does NOT implement the reopen/escalation loop (all S4). A dedicated lattice-review-completeness lane + a structured provenance field stay FUTURE (§4.4) — MVP carries provenance as a [completeness-critic] desc prefix under a real review lane.",
+  "pitfalls": "Dual-host adversarial review again caught a test-strength gap the Claude host MISSED (Claude multi-lens Workflow returned overallClean): Codex host-2 flagged that the §4.3 not-a-lane smoke assertion checked the BRACKETED desc tag [completeness-critic] against REVIEW_RUN_LANES instead of the BARE dangerous value completeness-critic — a vacuous check (the bracketed tag is obviously not a lane). Fix: assert !REVIEW_RUN_LANES.includes(completeness-critic) and !includes(lattice-review-completeness). Proactive hardening before review (driven by reading the 33 intents vs the 36-assertion first smoke) closed 8 seam/provenance edge gaps (smoke 36->50), but the bare-vs-bracketed subtlety still needed the cross-provider host. Lesson reinforced from S2: never trust a single host; Codex repeatedly catches the precise-literal test-strength gaps. Run codex exec with </dev/null when backgrounded.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 194891
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5907
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 393208
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 425311
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 526142
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 222595
+    }
+  },
+  "totalDurationMs": 1768063,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T15:54:01.635Z",
+  "updatedAt": "2026-06-20T15:54:01.635Z"
+}
