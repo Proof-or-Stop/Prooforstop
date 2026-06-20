@@ -1,0 +1,40 @@
+{
+  "storyId": "B-87b9",
+  "name": "lifecycle-p2-plan-skeleton-assistant",
+  "title": "P2: PLAN skeleton assistant - explicit checklist/context/understanding writer for lifecycle readiness",
+  "description": "P2 of the Lattice Lifecycle Proof-Or-Stop Readiness Check plan (docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md, Suggested Story Breakdown). After the read-only V1 (P1, lifecycle_check, DONE), P2 adds an EXPLICIT PLAN writer that suggests checklist/context/understanding for a story, consuming the V1 StoryReadinessReport rather than creating a new readiness predicate. It is an explicit writer layer (opt-in), kept strictly separate from V1's read-only proof-or-stop boundary. Developed via host Codex/Claude CLIs.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "lifecycle",
+    "plan-skeleton",
+    "readiness",
+    "host-dispatch"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "P1"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-20T23:30:09.171Z",
+  "startedAt": "2026-06-20T23:30:09.171Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T23:30:09.182Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}

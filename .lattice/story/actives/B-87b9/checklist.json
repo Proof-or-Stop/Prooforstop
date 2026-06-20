@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Design and implement the plan_skeleton command consuming StoryReadinessReport",
+      "context": "Add a lattice plan_skeleton --storyId=B-xxxx command that derives suggested checklist/context/understanding from the story description + the V1 StoryReadinessReport. Explicit writer: default prints suggestions; an explicit --write flag persists via existing PLAN setters (no new mutation primitive). Must NOT run commands, launch reviewers, advance phases, or claim Authority (keep V1's proof-or-stop separation). Reuse the V1 readiness reader; do not invent a new readiness predicate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a smoke test proving the explicit-writer boundary",
+      "context": "Smoke: plan_skeleton prints suggestions read-only by default; --write persists via existing setters only; it never advances phase / launches reviewers / writes evidence / claims Authority. Mirror the V1 lifecycle smoke style.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Acceptance: command works, smoke passes, validate green",
+      "context": "lattice plan_skeleton --storyId=<a real story> prints a coherent skeleton; --write persists; npm run build exit 0; the new smoke passes; lattice validate all-green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
