@@ -114,9 +114,9 @@
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
         "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T18:05:03.379Z",
-      "endTime": null,
+      "endTime": "2026-06-20T18:06:20.859Z",
       "userSees": "文本流程、Mermaid 与 SVG 的 READY 判定与 rollback 文案与 handoff 同步，图例和 next action 风格一致。",
       "files": {
         "modify": [
@@ -145,7 +145,20 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:docs:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Target proof complete\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md && rg -n \"Handoff: print next lifecycle command only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg && rg -n \"Rollback\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "对齐文本流程、Mermaid 与 SVG: 更新停点判定语义、STOP 无变更提示，并移除 rollback 作为独立 stage。",
+          "headHash": "db05afb5c375f40d6b808238c2310ba7da36216d",
+          "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T18:06:20.968Z"
+        }
+      ]
     }
   ]
 }
