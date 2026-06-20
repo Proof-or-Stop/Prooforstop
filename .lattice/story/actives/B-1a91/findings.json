@@ -91,7 +91,7 @@
       "desc": "storyIds-filter-coverage-gap-silent-false-negative: when `learning_validate --story=B-xxx` is called with a story filter, the derived `cache.coveredFindingCount` reflects only the filtered subset (e.g. 2 findings from 1 story), while the persisted cache covers the full corpus (e.g. 438 findings). computeCoverageGap computes gapFindings = max(2 - 438, 0) = 0, so the coverage line reads \"0 gap\" even when the persisted cache is seriously stale. This is a silent false-negative: --story-filtered learning_validate can never report a non-zero coverage gap regardless of cache freshness. The behavior is not documented. Fix: skip the coverage gap line (or suppress it with a note) when storyIds filter is active, so a filtered run never claims \"0 gap\" for a potentially stale full-corpus cache.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T09:18:34.305Z",
@@ -102,7 +102,10 @@
         "packages/main/src/handlers/learning-validate.ts"
       ],
       "signatureTag": "missing|ts|storyids-filter-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-002 (same --story filtered-view root cause), fixed by same change 94f529ec6; codex VERDICT=FAIL bug cleared, codex r2/r3 PASS.",
+      "resolvedAt": "2026-06-20T09:43:10.482Z",
+      "resolutionType": "duplicate"
     },
     {
       "id": "B-1a91:F-006",
