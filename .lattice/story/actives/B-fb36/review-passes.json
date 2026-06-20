@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-20T00:21:48.911Z",
       "reviewRunId": "B-fb36:RR-016",
       "_hash": "ef59e44b49a82941587f768e6febeea37bcb5d58ab88ab1301bca2ef8dd9930c"
+    },
+    {
+      "id": "B-fb36:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after F-006: PASS. done_prepare now passes evidence.storyFilesHash into checkEvidenceFreshnessForGit for stale checklist classification (packages/main/src/handlers/done-prepare.ts:233-245), preserving B-5a9a semantics that unrelated whole-tree materialHash drift can be accepted only through the shared storyFilesHash freshness path. Command-backed truly stale evidence still blocks and requires rerun (packages/main/src/handlers/done-prepare.ts:622-630). Review-assurance/escalation staleness is not rebound: done_prepare blocks on done_closure and prints review_escalation_status/autopilot_review_submit guidance (packages/main/src/handlers/done-prepare.ts:287-303, 718-733). Authority boundary remains local-only: PASS output hardcodes authorityDone=false, fullAuthorityDone=false, productionDone=false, receiptVerified=false (packages/main/src/handlers/done-prepare.ts:449-455), and smoke coverage verifies no receiptVerified/authorityDone/fullAuthorityDone/productionDone overclaim including an authority receipt precondition and stale review material case (packages/main/src/tasks/done-prepare-smoke.ts:377-401, 537-565). Verified with node packages/main/dist/tasks/done-prepare-smoke.js and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-20T00:32:14.816Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-015",
+      "_hash": "f5f86ee0acfc6ee6c184a12ee618c96f0b43a0fb5af901592d1ee6bb06e4321d"
     }
   ]
 }
