@@ -4,8 +4,8 @@
   "title": "Adversarial-review S1: lens runner (lens to lane mapping + independent per-lens run plan + injected-seam runner)",
   "description": "Story S1 (PARALLEL, MVP) of the adversarial-review build program (docs/adversarial-review-spec.md §5, §4.2). Implement the LENS RUNNER: drive the canonical lens set (from S0) as independent reviewers over a change, each mapped per the §4.2 table to one of the six real review_run_start lanes (lattice-review-concept/-quality/-behavior/-test-coverage/-docs; crash-safety/edge -> behavior), each returning PASS or raw Finding[]. New module packages/main/src/core/adversarial-review-lens-runner.ts importing S0's contract (core/adversarial-review.ts): a LENS_TO_LANE mapping (§4.2), a LensRunRequest/LensRunResult type, buildLensRunPlan(change, lensSet) producing one INDEPENDENT request per lens (each carries only the change + its lane — NEVER another lens's output), a runLenses(change, lensSet, runLens) orchestrator that applies an INJECTED per-lens function (the seam for the actual review agent; the main agent / harness supplies it at MVP) and collects per-lane raw Finding[], and a collectRawFindings aggregator. Independence is load-bearing (a lens never sees another lens's findings). NO verification (S2), NO finding_add / ledger mapping (S2), NO critic (S3), NO escalation (S4). A hermetic smoke with a FAKE runLens proves: every mapped lane is in the six real lanes (cross-checked against review-run.ts REVIEW_RUN_LANES), the plan has one independent request per lens covering the (possibly subset) lens set, runLenses applies the fake + aggregates per-lane Finding[] (S0 schema), and a PASS lens yields no findings. Registered in lattice.config.json.",
   "type": "feature",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "depends": [
     "B-53c5"
   ],
@@ -28,6 +28,20 @@
       "user": "Harmonygo",
       "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T13:25:42.467Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-97ab",
+    "branch": "story/B-97ab",
+    "createdAt": "2026-06-20T13:25:41.663Z"
+  }
 }

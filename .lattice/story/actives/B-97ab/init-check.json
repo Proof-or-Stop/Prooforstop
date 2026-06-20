@@ -1,0 +1,42 @@
+{
+  "storyId": "B-97ab",
+  "checkedAt": "2026-06-20T13:25:23.588Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Conversation Texture: \"the adversarial-review capability the operator asked to build (B-impl)\" — B-impl is a cross-story reference with no one-sentence explanation of what it is. A fresh reader cannot determine what B-impl refers to."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Tradeoff section: \"S4 wires the real loop\" — S4 is mentioned but never introduced or defined anywhere in the background. S0/S1/S2/S3 are at least contextually labelled; S4 has no label or description."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T13:22:11.134Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T13:25:23.588Z",
+      "issues": [
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Conversation Texture: \"the adversarial-review capability the operator asked to build (B-impl)\" — B-impl is a cross-story reference with no one-sentence explanation of what it is. A fresh reader cannot determine what B-impl refers to."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Tradeoff section: \"S4 wires the real loop\" — S4 is mentioned but never introduced or defined anywhere in the background. S0/S1/S2/S3 are at least contextually labelled; S4 has no label or description."
+        }
+      ]
+    }
+  ],
+  "_hash": "6949a14b67cd0b6f0567f8140c271417c32a72edef7a8d4aaaf10166181b91a9"
+}

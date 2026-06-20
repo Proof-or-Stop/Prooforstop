@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-97ab",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json: register the smoke",
+    "packages/main/src/core/adversarial-review-lens-runner.ts: LENS_TO_LANE mapping + run-plan builder + injected-seam runner + aggregator (imports S0)",
+    "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts: hermetic smoke with a fake runLens"
+  ],
+  "excluded": [
+    "escalation-flow integration — that is S4",
+    "MODIFYING core/review-run.ts (it may be IMPORTED read-only for the lane list, never changed)",
+    "the completeness critic — that is S3",
+    "the S0 contract module core/adversarial-review.ts (frozen, DONE)",
+    "verification / threshold / finding_add ledger mapping — that is S2"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-impl S1 per docs/adversarial-review-spec.md §5/§4.2: lens runner (mapping + plan + injected-seam runner), MVP, parallel impl on S0.",
+  "createdAt": "2026-06-20T13:21:06.484Z",
+  "updatedAt": "2026-06-20T13:21:06.484Z",
+  "_hash": "6b2d6abbeca4b665a42f641ebb970167c04184d9ef21c8a8953b7ab927bd8fb2"
+}
