@@ -8,9 +8,78 @@
         "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
         "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:32:27.187Z",
+      "endTime": "2026-06-20T18:33:21.716Z",
+      "userSees": "The execution plan contains a section named \"Verified Failure Mode\" with the Claude stale-plan incident, commit 2750aadef, 656 backfilled signatures, and the distinction between the plan-only document and the completed outcome record.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution plan documents the stale-doc misclassification using the verified backfill case: plan-only doc, completed outcome doc, commit 2750aadef, and 656 backfilled signatures.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The failure-mode section distinguishes completed backfill data from the deferred causal/RCT parts of the Experience Layer record, so the plan does not overclaim that every experience-layer idea is complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan explicitly says hosts must not use old plan-only prose as proof that work is missing without checking current Lattice facts first.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Verified failure mode snapshot\\|2750aadef\\|656\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Failure-mode section documents the verified stale-doc incident and proof anchor (commit 2750aadef, 656 signatures).",
+          "headHash": "cb9bb117110e486faeae020807d08ff44c42e905",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.272Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"stale\\|re-?assign\\|plan-only\\|deferred\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Plan-only status is explicitly separated from proof and causal completion context.",
+          "headHash": "68877971c6da87ad3e2959715e7737499c00d975",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:12.792Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"host.*must.*not.*treat\\|uncertain\\|proof\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Adversarial safeguard in doc requires revalidation before declaring pending work when only stale plan prose exists.",
+          "headHash": "3b9726fcc1d661123476bc4c5e48e68b76c6cfb6",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:13.317Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +90,78 @@
         "CLAUDE.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:32:29.535Z",
+      "endTime": "2026-06-20T18:33:22.150Z",
+      "userSees": "The execution plan contains a section named \"Truth-First Host Handoff Contract\" listing the source priority order and the rule that hosts cannot tell the user work is missing from a plan-only document without checking live Lattice facts.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The plan defines a source priority order where current Lattice state, DONE summaries, accepted outcome records, code/data evidence, and fresh validation outrank stale plan prose.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The contract preserves dev-memory and learning hints as advisory context, not gate evidence or Authority/production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The contract includes a fail-closed wording rule: if a host only has stale plan prose, it must say it needs to verify current facts rather than telling the user to redo the task.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"truth-first contract\\|source priority\\|active story\\|done-summary\\|completionCommit\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract section defines explicit source-priority order with done-completion facts above memory/advisory context.",
+          "headHash": "c3dad9a9e2ad1bf938f046ee686d3aae148cd88c",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.462Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"dev-memory\\|learning_validate\\|advisory\\|not definitive\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract explicitly marks dev-memory/learning signals as advisory only, not gate evidence.",
+          "headHash": "b4a1363c8c26cf81131135ec3b5679e53bb42e12",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.990Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"should not ask\\|uncertain\\|must state uncertainty\\|legacy prose\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Contains fail-closed rule when only stale memory/doc prose is present; requires verification before asking to redo.",
+          "headHash": "68b105f6260a8ddfcade9407ce6f35ac3f356004",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:16.519Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +171,137 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T18:32:29.989Z",
+      "endTime": "2026-06-20T18:33:22.571Z",
+      "userSees": "The execution plan contains a section named \"Implementation Stories and Gates\" with concrete follow-up stories for supersession metadata, handoff preflight fact packs, dev-memory injection, stale-plan warnings, and their verification commands.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md",
+          "docs/guide.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The plan breaks the solution into concrete implementation stories with owner, scope, deliverables, and acceptance checks for each story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The implementation plan handles historical/reference documents that should not be treated as stale active backlog, avoiding noisy false positives.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification gates include a negative case where an old plan-only document says future work, but current DONE summary/data evidence proves completion, and the host must not ask the user to redo it.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"Execution stories derived\\|Define parsing/consumption schema\\|Add one reusable preflight\\|Add explicit \\\"uncertain\\|acceptance checks\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Execution Stories section enumerates concrete follow-up stories, owners, scope, and delivery checks.",
+          "headHash": "b69fbe123b39d6fa4da13febff16c177d44444e0",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:18.647Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"historical\\|reference docs\\|noisy false positives\\|negative case\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Edge intent satisfied by handling historical docs explicitly to avoid noise while preserving references.",
+          "headHash": "8d9445bdc8e1828baa2165cfcda174289be7b7cd",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.216Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"host-level manual check\\|DONE summary\\|live facts\\|legacy completion\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "Acceptance section includes negative live-vs-doc mismatch check where stale pending claims must not be accepted.",
+          "headHash": "ba0d297fe7562080086d899435eaa20380666487",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:19.737Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-20T18:32:27.187Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start documenting verified stale-doc failure mode"
+    },
+    {
+      "timestamp": "2026-06-20T18:32:29.535Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start host handoff contract definition content"
+    },
+    {
+      "timestamp": "2026-06-20T18:32:29.989Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation stories + gates section"
+    },
+    {
+      "timestamp": "2026-06-20T18:33:21.716Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Failure-mode documentation complete"
+    },
+    {
+      "timestamp": "2026-06-20T18:33:22.150Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Host handoff contract defined and documented"
+    },
+    {
+      "timestamp": "2026-06-20T18:33:22.571Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation stories and gates specified"
     }
   ]
 }
