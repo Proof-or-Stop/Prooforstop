@@ -1,0 +1,82 @@
+{
+  "storyId": "B-a781",
+  "checkedAt": "2026-06-20T07:32:50.873Z",
+  "reviewRound": "2026-06-20T07:23:58.118Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "Execution plan exists and is explicitly documentation-only for B-a781.",
+      "status": "verified",
+      "verifiedBy": "sed + git diff --name-status main...HEAD",
+      "evidence": "File exists; Status says execution plan; documentation only; diff contains docs and .lattice story metadata only, with no packages/bin runtime code."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "LATTICE_SESSION_ID is the canonical owner-session identity consumed by core owner-lease/lifecycle logic.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "Canonical Contract says LATTICE_SESSION_ID is the only canonical owner-session id core owner-lease and lifecycle code should consume."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "Codex, Claude Code, Antigravity/agy, and future hosts bridge through adapters before core owner-lease logic.",
+      "status": "verified",
+      "verifiedBy": "rg + manual doc inspection",
+      "evidence": "Host Adapter Bridge contains separate Claude Code, Codex, Antigravity/agy, and Future Hosts sections and forbids core host-specific exceptions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "ppid identity is degraded fallback only.",
+      "status": "verified",
+      "verifiedBy": "rg + manual doc inspection",
+      "evidence": "Resolution priority puts ppid degraded fallback last; ppid Degraded Fallback requires derived-ppid source labeling and degraded session_brief/doctor output."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "Manual Transcript Evidence section exists and requires parent-PID-changing invocation evidence before runtime implementation.",
+      "status": "verified",
+      "verifiedBy": "sed + rg",
+      "evidence": "Manual Transcript Evidence section requires two parent-PID-changing shapes preserving LATTICE_SESSION_ID and one degraded ppid-only comparison."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a781/evidence/transcript-diff.md",
+      "promise": "Transcript diff records expected vs actual delivery, including local full-3x2 review and no Authority completion claim.",
+      "status": "verified",
+      "verifiedBy": "sed + review_escalation_status",
+      "evidence": "Transcript diff says expected and actual match; review_escalation_status reports ok=true assuranceLevel=full-3x2 and authorityDone/fullAuthorityDone/productionDone=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Local 3x2 review evidence is non-Authority evidence and must not imply authorityDone, fullAuthorityDone, or production completion.",
+      "status": "verified",
+      "verifiedBy": "rg + review_escalation_status",
+      "evidence": "story-lifecycle.md states local host verdicts and fallback evidence are not Authority receipts; current status shows all Authority/production fields false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-a781-validation",
+      "transcript": "Inspected .lattice/story/actives/B-a781/test-evidence.json: lattice validate --story=B-a781 --json result PASS at 2026-06-20T07:29:50.386Z, 8 configured commands passed, verification coverage 9/9 covered, missingRequired=0."
+    },
+    {
+      "featureId": "B-a781-scope",
+      "transcript": "Inspected scope-check.json and git diff: 3/3 scope features covered, gaps=0, and git diff outside docs/** plus .lattice/story/actives/B-a781/** is empty."
+    },
+    {
+      "featureId": "B-a781-review",
+      "transcript": "Ran lattice review_escalation_status {\"storyId\":\"B-a781\"}: ok=true, assuranceLevel=full-3x2, fullQuorum 3/3 rounds x 2 hosts, authorityDone=false, fullAuthorityDone=false, productionDone=false. review-passes.json has concept, docs, quality, test-coverage passes; findings are resolved."
+    },
+    {
+      "featureId": "B-a781-doc-promises",
+      "transcript": "Inspected owner-session-contract-execution-plan.md and related docs with sed/rg: execution plan, canonical LATTICE_SESSION_ID, all host adapters, degraded ppid fallback, Manual Transcript Evidence, and non-Authority local review boundary are present."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed: docs promises are present in the changed documents, validation evidence is PASS with 8 configured commands and 9/9 coverage, scope gate and review lanes passed, review escalation is full-3x2 with Authority fields false, and branch material is docs plus Lattice story metadata only."
+  },
+  "_hash": "91f06181cbacb6141664fde317f6c3ee76859e41427899c238e2918df15e69c6"
+}

@@ -1,0 +1,73 @@
+{
+  "findings": [
+    {
+      "id": "B-a781:F-001",
+      "desc": "docs/requirements/decisions/session-ownership-and-write-leases.md has contradictory current-state wording: lines 5-14 and 16-40 say the owner/write-lease baseline is implemented and B-a781 is only a future migration target, while line 44 still says in present tense that Lattice does not yet mechanically own write coordination across sessions. This makes the touched doc internally inconsistent; rename that section as historical/original problem or update the sentence to describe the pre-B-c55d problem.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:09:15.339Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-005",
+      "_hash": "dc710a206f4ed824c6e0ce9e24de34e71dc6e1170ce230a96d6c4f2248dc98f2",
+      "files": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed session-ownership-and-write-leases.md Problem section to Original Problem with historical/pre-rollout wording and explicit B-a781 migration-target boundary; old present-tense contradiction no longer exists.",
+      "resolvedAt": "2026-06-20T07:24:08.217Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a781:F-002",
+      "desc": "Verification evidence covers all nine reviewed intent refs, including CHK-003:adversarial:0 two-host review evidence, but eight evidence records are stale. lattice session_brief reports 8 stale verification intents after HEAD fe23feb, and checklist_get shows CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, and CHK-003 happy/edge evidence bound to older story/material hashes than the current review scope. Refresh stale verification evidence before REVIEW can rely on coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T07:09:40.348Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-006",
+      "_hash": "6e8cb27044369fed632b24f15cac2531ec76512c54ea9ae4c07c5fbea91f58fe",
+      "files": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "missing|md|verification-evidence-covers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Ran verification_evidence_refresh_stale and updated CHK-003:adversarial:0 to fresh full-3x2 local review evidence; review_escalation_status reports ok=true assuranceLevel=full-3x2 on current materialHash.",
+      "resolvedAt": "2026-06-20T07:24:18.810Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a781:F-003",
+      "desc": "Same verified documentation consistency issue as B-a781:F-001: docs/requirements/decisions/session-ownership-and-write-leases.md:5-14 says the rollout is fully implemented and that B-a781 is only a future migration target, while docs/requirements/decisions/session-ownership-and-write-leases.md:44 still says Lattice does not yet mechanically own write coordination across sessions. That present-tense Problem statement contradicts the implemented owner-lease/main-lock details in docs/requirements/decisions/session-ownership-and-write-leases.md:16-40 and docs/requirements/decisions/story-lifecycle.md:157-159. Make the Problem section explicitly historical/pre-rollout, or otherwise scope it so the canonical truth source does not claim both implemented and not-yet-implemented write coordination.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:11:30.081Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-007",
+      "_hash": "5b8a82574f88573b579a56edadf1556aaffd1da3d7723f63760d9ecad0ad5c9a",
+      "files": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "signatureTag": "missing|md|same-verified-documentation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same docs consistency issue as F-001 fixed by historical Original Problem wording in session-ownership-and-write-leases.md; current baseline and B-a781 future identity migration are now separated.",
+      "resolvedAt": "2026-06-20T07:24:13.780Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-a781:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS: concept/design review found no verified blocker. Checked current docs and diff for canonical LATTICE_SESSION_ID contract, host-neutral Claude Code/Codex/Antigravity/agy/future-host adapter model, degraded ppid fallback wording, documentation-only/no-runtime-implementation framing, and stale Koala naming in touched docs.",
+      "createdAt": "2026-06-20T07:09:41.601Z",
+      "reviewRound": "2026-06-20T07:05:41.832Z",
+      "reviewRunId": "B-a781:RR-001",
+      "_hash": "8b3287f966b97c8d064b5db0b7242c739f4b01b56ce099b699e2db107f86db8b"
+    },
+    {
+      "id": "B-a781:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane pass: F-003 is resolved; Manual Transcript Evidence exists; focused docs have no stale Koala names; docs are internally consistent and B-a781 is documentation-only.",
+      "createdAt": "2026-06-20T07:26:40.961Z",
+      "reviewRound": "2026-06-20T07:23:58.118Z",
+      "reviewRunId": "B-a781:RR-009",
+      "_hash": "5517a34b44cf89899b5d3302cc4e2b28ecaa270117a55d0f41a6683539846239"
+    },
+    {
+      "id": "B-a781:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed at HEAD 8461705. Prior B-a781:F-001 contradiction is resolved: session-ownership-and-write-leases.md now frames the old statement as Original Problem and separates the implemented owner-lease baseline from the B-a781 LATTICE_SESSION_ID migration target. Wording is coherent, current changed docs contain no Koala/.koala names, and branch material is documentation plus Lattice story metadata only.",
+      "createdAt": "2026-06-20T07:26:51.930Z",
+      "reviewRound": "2026-06-20T07:23:58.118Z",
+      "reviewRunId": "B-a781:RR-010",
+      "_hash": "ae6ff5a69f32eac0ed3a4152177ad323dd8a7f25ba5185e8b99f84aea150b85b"
+    },
+    {
+      "id": "B-a781:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: F-002 is resolved with strong fixed evidence; all nine reviewed intent refs have successful verificationEvidence on current materialHash 6bd1e9b0c77fd1350afc418b54be4c4adc413c9e5be4dbea9ada441f2249de55 and storyFilesHash 50857fd0aeb79d4e289d6ceffc854c4f0ac5783264fbf7a192abf31317a1a893; CHK-003:adversarial:0 is bound to review_escalation_status ok=true assuranceLevel=full-3x2 with three valid 3x2 rounds. No current stale evidence blocker found.",
+      "createdAt": "2026-06-20T07:26:52.813Z",
+      "reviewRound": "2026-06-20T07:23:58.118Z",
+      "reviewRunId": "B-a781:RR-011",
+      "_hash": "b3a874287edc53e196e7c97b1c0510eb1761205694119d0db02534f36b7e5fa0"
+    },
+    {
+      "id": "B-a781:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed latest HEAD 8461705. No concept blockers. Scope is docs-only execution plan plus story metadata; no runtime code changes. Implemented owner/write-lease baseline is separated from the B-a781 migration target in session-ownership-and-write-leases.md, and owner-session-contract-execution-plan.md remains documentation-only. review_escalation_status reports ok=true assuranceLevel=full-3x2 with Authority/production flags false.",
+      "createdAt": "2026-06-20T07:27:03.152Z",
+      "reviewRound": "2026-06-20T07:23:58.118Z",
+      "reviewRunId": "B-a781:RR-008",
+      "_hash": "89cc886afef14bb01b26ce51505498ad58b22fdf840be09ec5553e9131907429"
+    }
+  ]
+}
