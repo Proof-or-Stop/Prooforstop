@@ -360,7 +360,22 @@
         "test": [
           "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "command": "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+          "result": "pass",
+          "note": "the integration smoke runs green proving overlap+mode=block -> guard false + reason non-null naming the block; disjoint -> true + null.",
+          "headHash": "61660bc77d682b05646b1f8c4638a2c421c69452",
+          "materialHash": "3c5b623303041348cc92b4e3d6a9ecc21aee3cd7b5a88f289f184976ab9b85ba",
+          "storyFilesHash": "4a98a06335b91cf58426019d17ca6f25476d510b869cbbe87b42c974d4dbd676",
+          "timestamp": "2026-06-20T08:33:28.973Z"
+        }
+      ]
     }
   ]
 }
