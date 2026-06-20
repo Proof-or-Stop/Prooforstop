@@ -111,6 +111,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+        ]
       }
     }
   ]
