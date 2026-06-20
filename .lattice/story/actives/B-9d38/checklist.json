@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "runCompletenessCritic(input, runCritic) injected-seam critic invocation returning raw unprivileged Finding[], in core/adversarial-review-critic.ts",
       "context": "New module importing S0 (core/adversarial-review.js: CompletenessCriticInput{change,confirmedFindings}, Finding). runCompletenessCritic(input: CompletenessCriticInput, runCritic: (input: CompletenessCriticInput)=>Finding[]): Finding[] applies the injected runCritic to {change, confirmedFindings} and returns its Finding[] UNCHANGED (the critic output is raw + unprivileged per §2.4 — it re-enters S2 verification, which is S4 orchestration, NOT here). The critic seam only ever receives the CONFIRMED findings + the change (never raw lens findings). Optionally a convenience runCompletenessCriticOn(change, confirmedFindings, runCritic). Pure pass-through; no I/O.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T15:35:14.867Z",
-      "endTime": null,
+      "endTime": "2026-06-20T15:36:52.330Z",
       "verificationIntent": {
         "happy": [
           {
