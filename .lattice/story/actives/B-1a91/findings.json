@@ -54,6 +54,25 @@
       ],
       "signatureTag": "missing|ts|happy-applydonemergeeffects-passes",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1a91:F-004",
+      "desc": "CHK-001:edge:0 — the intent is \\\"refresh runs on EVERY DONE merge, not gated on material-code change\\\". The smoke only drives one scenario where a material code file (packages/main/src/app.ts) IS committed. There is no scenario where the story branch carries ONLY metadata changes (no code file, no build predicate hit) and the refresh still fires. Without this second scenario the edge case is asserted by the evidence note alone, not by an executable assertion. The implementation is correct (the refresh block at done-effects.ts:925-932 is not inside any shouldBuildDoneMainPackageForChangedPaths guard) but the smoke does not prove it. Fix: add a second control scenario to done-merge-experience-refresh-smoke.ts where the story branch commits only story metadata (no packages/main/ code changes) and assert the advisory \\\"experience cache refreshed\\\" line still appears.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T09:18:08.967Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-002",
+      "_hash": "d3e684ca5e7a08694f21ce362c69cbc0c302a83303c887b9b19da6f522c1d260",
+      "files": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-refresh",
+      "signatureTagSource": "auto"
     }
   ]
 }
