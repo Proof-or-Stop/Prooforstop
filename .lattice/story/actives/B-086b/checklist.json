@@ -99,8 +99,8 @@
       "id": "CHK-003",
       "title": "Mirror the block reason in getGuardFailureReason (machine.ts) so the PLAN->DEV failure message explains the parallel-decomposition block",
       "context": "core/machine.ts getGuardFailureReason targetPhase==='DEV' branch (~lines 653-719) must render a human-readable reason for the same block canStartDevGuard enforces, keeping the two in sync. Add (mirroring the same mode==='block' + peers/contracts + evaluateDecompositionGate computation) a branch that, when gateResult.block!==null, returns 'Cannot enter DEV: <actionable message per block reason>' naming the colliding peer/path where available. Wrap in try/catch that on error returns null/falls through (do not fabricate a block message on a gate error). The block-reason->message mapping should be a small shared helper so canStartDevGuard's decision and this message derive from the same predicate.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-20T08:26:43.291Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
