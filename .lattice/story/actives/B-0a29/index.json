@@ -4,7 +4,7 @@
   "title": "Review the standard evidence pipeline execution plan and flowcharts",
   "description": "Run a Lattice PLAN review against the standard evidence pipeline execution plan, including step contracts, evidence failure behavior, reviewer responsibility, and the B-fb36 done_prepare delegation boundary.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "standard-evidence-pipeline",
@@ -53,7 +53,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T06:29:59.586Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "currentReviewRound": "2026-06-20T06:19:30.785Z"
+  "currentReviewRound": "2026-06-20T06:29:59.586Z"
 }

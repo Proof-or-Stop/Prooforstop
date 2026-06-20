@@ -132,6 +132,29 @@
       "resolvedAt": "2026-06-20T06:29:36.541Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0a29:F-007",
+      "desc": "Reordered evidence/reviewer sequence remains ambiguous: End-To-End Flow launches reviewers before validation, transcript diff, and delivery review, while reviewer rules say coverage/delivery-adjacent lanes become stale if validation, transcript, or delivery context is written after their pass. Flowcharts also proceed from reviewer batch to smoke/transcript/delivery without an explicit rerun/rebind path. Fix by placing validation, transcript, and delivery context before final coverage/delivery-adjacent reviewer pass, or explicitly route changed artifacts back to affected lane reruns before preflight/DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T06:34:16.939Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-006",
+      "_hash": "d91d586900b9ae637c5b2d600d4b30b922b9f61ce1c7b826bbb35f0fce8ae02b",
+      "files": [
+        "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+        "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+      ],
+      "signatureTag": "missing|md|reordered-evidence-reviewer",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reworked the flow to evidence -> validation/transcript/delivery context -> final reviewer lanes -> preflight -> done_prepare. Updated Step Contract Matrix, End-To-End Flow, ASCII/Mermaid flowcharts, and SVG. Verification commands confirm validation/transcript/context and final reviewer lanes are explicit before preflight/done_prepare.",
+      "resolvedAt": "2026-06-20T06:36:54.678Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

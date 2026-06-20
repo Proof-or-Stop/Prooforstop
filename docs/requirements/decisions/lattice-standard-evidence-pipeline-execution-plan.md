@@ -156,11 +156,10 @@ story or rewrite stale proof into fresh proof.
 | 0. State intake and phase preflight | `storyId`, current cwd, `session_brief`, story phase, git branch/status, worktree path, target phase | pipeline state snapshot, allowed next stage, immediate blocker list | command transcript or structured result from `session_brief`; git status; resolved story/worktree identity | stop before mutation; print `cd`, clean-tree, phase, or worktree repair command; never stash/revert unrelated files | pipeline preflight plus lifecycle handler |
 | 1. Story init / PLAN skeleton | title, description, optional checklist titles, `aux_doc_list`, risk signals, duplicate-story scan | checklist title/context/relatedDocs, understanding snapshot, decision skeleton, verificationIntent skeleton, initial scope proposal | story metadata write through Lattice command; `understanding_set`; decision record when required; `story_review` report | remain in PLAN/INIT_CHECK; print missing skeleton fields or story_review blockers; do not start code changes | `story_review`, verification-intent reviewer, concept reviewer |
 | 2. Verification evidence generation / refresh | checklist `verificationIntent`, evidence plan rules, changed files, current HEAD/material/storyFilesHash, known command catalog | evidence plan, generated/rerun command transcripts, refreshed `verificationEvidence`, stale classification | command result with exit code/digest; verificationEvidence refs bound to HEAD/material/storyFilesHash; refresh event from existing evidence writer | classify as rerun-required or refreshable; call existing refresh command only when safe; otherwise stop with rerun command; never rewrite hashes directly | `lattice validate` and coverage reviewer |
-| 3. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence snapshot | lane status table, pass/finding refs, stalled-lane retry plan | signed `reviewRunId` per lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence bindings | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings | independent reviewer lanes and REVIEW gate |
-| 4. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
-| 5. Live smoke / transcript diff | expected user outcome, validate commands, story-specific smoke commands, current material binding | transcript-diff artifact, stdout/stderr digest, expected/actual/diff notes | real command transcript with exit code; digest; elapsed time; HEAD/material/storyFilesHash binding; artifact path | block user-value verification unless story has explicit metadata-only waiver; print missing smoke command or expected-output gap | test coverage reviewer and delivery reviewer |
-| 6. Delivery context pack and delivery review | relatedDocs, decision promises, diff summary, validation/evidence state, transcript artifact, review assurance state | delivery context pack, delivery reviewer instruction, signed delivery check | context pack artifact; delivery reviewer `reviewRunId` when applicable; `delivery_check_set` / delivery-check artifact written by delivery reviewer only | block DONE; launch or instruct delivery reviewer; main agent must not self-sign delivery | delivery reviewer lane and DONE gate |
-| 7. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure`, `story_advance --phase=DONE` |
+| 3. Validation, transcript, and delivery context preparation | validation command set, expected user outcome, story-specific smoke commands, relatedDocs, decision promises, current material binding | validation result, transcript-diff artifact or metadata-only waiver, delivery-review context pack | command transcript with exit code/digest; HEAD/material/storyFilesHash binding; context pack artifact; signed metadata-only waiver when applicable | block before reviewer pass; print validation, smoke, waiver, or context-pack next action | validation runner, live smoke owner, delivery reviewer |
+| 4. Reviewer lane orchestration | story phase, current review round, lane list, changed files, prior findings, latest `review_run_start` data, final material-bound evidence, validation, transcript, and delivery-context snapshot | lane status table, pass/finding refs, stalled-lane retry plan, signed delivery check | signed `reviewRunId` per lane; `review_pass_set` or `finding_add` per lane; reviewRound/material/evidence/artifact bindings; `delivery_check_set` only from delivery reviewer | block REVIEW to TEST; retry missing/stalled lanes; return to DEV for blocking verified findings; rerun stale lanes when artifacts change | independent reviewer lanes, delivery reviewer, and REVIEW gate |
+| 5. REVIEW / TEST gate preflight | pipeline state snapshot, review state, evidence state, validation state, bug/finding state, scope/delivery/artifact state | consolidated preflight report with `pass`/`warn`/`blocked`/`manual`/`external` entries | source command refs for each gate; lifecycle guard result; for DONE target, imported `done_prepare --dryRun` result | preserve the original gate blocker and next command; do not reinterpret `done_prepare` or lifecycle gate failures | lifecycle gates; `done_prepare` for DONE target checks |
+| 6. TEST-to-DONE readiness delegation | story in TEST, clean worktree, delivery/review/evidence artifacts, `donePrepare` options | `done_prepare` report, exact DONE command or blocker report | `lattice done_prepare` PASS report; `done_closure` result inside that report; validation and stale-evidence status owned by `done_prepare` | stop at `done_prepare` blocker; preserve its `blockedAt` and `next`; fix/rerun via its command surface | B-fb36 `done_prepare`, `done_closure`, `story_advance --phase=DONE` |
 
 ## Evidence Failure Policy
 
@@ -281,12 +280,15 @@ Required behavior:
 - surface stalled reviewers and allow retry without invalidating completed
   lanes;
 - never convert a missing review into a pass;
-- treat coverage and delivery-adjacent lanes as stale when new evidence,
-  transcript, validation, or delivery context is written after their pass.
+- run final coverage, docs, and delivery-adjacent lanes only after evidence,
+  validation, transcript, and delivery context artifacts are current;
+- treat any lane pass as stale when new evidence, transcript, validation, or
+  delivery context is written after that pass.
 
 Concept and quality lanes may optionally run early as advisory design checks, but
 the final REVIEW gate consumes only reviewer runs bound after the current
-material and verification evidence are stable.
+material, verification evidence, validation result, transcript artifact, and
+delivery context are stable or explicitly waived.
 
 Output example:
 
@@ -506,15 +508,16 @@ Internally:
 2. Fill missing PLAN skeleton if still in PLAN.
 3. Ensure code is committed before REVIEW/TEST/DONE transitions.
 4. Refresh/generate material-bound evidence.
-5. Launch required reviewers against the current evidence snapshot and collect
-   results.
-6. If blockers exist, stop with findings and next action.
-7. Run validation.
-8. Write transcript diff.
-9. Run delivery reviewer against validation and transcript artifacts.
-10. If target is DONE and the story is in TEST, delegate readiness to
+5. Run validation.
+6. Write transcript diff or record a signed metadata-only waiver.
+7. Generate the delivery-review context pack.
+8. Launch required reviewers and the delivery reviewer against the current
+   evidence/validation/transcript/delivery-context snapshot.
+9. If blockers exist, stop with findings and next action.
+10. Run REVIEW/TEST gate preflight.
+11. If target is DONE and the story is in TEST, delegate readiness to
     `lattice done_prepare`.
-11. If all gates pass, print the exact `story_advance --phase=DONE` command or
+12. If all gates pass, print the exact `story_advance --phase=DONE` command or
     execute it when explicitly requested.
 
 The pipeline should prefer stopping with precise blockers over making risky
@@ -546,18 +549,17 @@ START
   |-- rerun-required evidence --> print rerun command and STOP
   |-- safely refreshable stale evidence --> delegate to existing refresh writer
   v
-[3 Reviewer lane batch]
-  |-- missing lane --> retry missing lane only
-  |-- blocking finding --> return to DEV with finding id
-  |-- evidence changed after pass --> rerun affected lane
-  v
-[4 REVIEW/TEST gate preflight]
-  |-- blocked --> print source gate and next command
-  v
-[5 Live smoke + transcript-diff artifact]
+[3 Validation + transcript + delivery context]
+  |-- validation fail --> print validate blocker and STOP
   |-- missing user-value proof --> run smoke or require metadata-only waiver
   v
-[6 Delivery context pack + delivery reviewer]
+[4 Reviewer lane batch]
+  |-- missing lane --> retry missing lane only
+  |-- blocking finding --> return to DEV with finding id
+  |-- evidence/artifact changed after pass --> rerun affected lane
+  v
+[5 REVIEW/TEST gate preflight]
+  |-- blocked --> print source gate and next command
   |-- missing/blocking delivery check --> run delivery reviewer and STOP
   v
 {Target is DONE and story is in TEST?}
@@ -566,7 +568,7 @@ START
   |         +--> print/execute allowed story_advance command
   | yes
   v
-[7 Delegate to lattice done_prepare]
+[6 Delegate to lattice done_prepare]
   |-- blocked --> preserve done_prepare blockedAt/next and STOP
   v
 [DONE readiness PASS]
@@ -595,23 +597,23 @@ flowchart TD
   J --> K{"Evidence missing or stale?"}
   K -- rerun required --> Z
   K -- refreshable --> J
-  K -- no --> H["3 Reviewer lane batch"]
+  K -- no --> N["3 Validation + transcript + delivery context"]
+  N --> O{"Validation and user-value proof pass?"}
+  O -- no --> Z
+  O -- yes --> H["4 Reviewer lane batch"]
   H --> I{"Missing lane, finding, or stale pass?"}
   I -- missing lane --> H
   I -- finding --> G
   I -- stale pass --> H
-  I -- no --> L["4 REVIEW / TEST preflight"]
+  I -- no --> L["5 REVIEW / TEST preflight"]
   L --> M{"Gate blocked?"}
   M -- yes --> Z
-  M -- no --> N["5 Live smoke + transcript diff"]
-  N --> O{"User-value proof exists?"}
-  O -- no --> Z
-  O -- yes --> P["6 Delivery context + delivery reviewer"]
+  M -- no --> P["6 Delivery reviewer"]
   P --> Q{"Delivery check pass?"}
   Q -- no --> Z
   Q -- yes --> R{"Target DONE and story in TEST?"}
   R -- no --> S["Ready for requested non-DONE phase"]
-  R -- yes --> T["7 Delegate to lattice done_prepare"]
+  R -- yes --> T["6 Delegate to lattice done_prepare"]
   T --> U{"done_prepare PASS?"}
   U -- no --> Z
   U -- yes --> V["Print or execute story_advance --phase=DONE"]
