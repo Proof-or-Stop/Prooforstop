@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-20T00:21:48.911Z",
       "reviewRunId": "B-fb36:RR-013",
       "_hash": "df9f6792de77f4929f026b599c991b51a3b99e9663f3d5f2bd2fe67c6816695f"
+    },
+    {
+      "id": "B-fb36:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-006 coverage re-review passed. packages/main/src/tasks/done-prepare-smoke.ts records command-backed verification evidence with storyFilesHash, drifts only unrelated main README material, and asserts done_prepare PASS/staleEvidenceRefresh PASS with no stale command rerun guidance. ReceiptVerified local-only boundary coverage remains present: done_closure can verify the receipt, while done_prepare still prints receiptVerified=false and authorityDone/fullAuthorityDone=false. Verified by running node packages/main/dist/tasks/done-prepare-smoke.js successfully.",
+      "createdAt": "2026-06-20T00:24:30.735Z",
+      "reviewRound": "2026-06-20T00:21:48.911Z",
+      "reviewRunId": "B-fb36:RR-014",
+      "_hash": "f7f3904f6c19695e26959e5750358d239ee841a42ed0b8d2260d071377449de7"
     }
   ]
 }
