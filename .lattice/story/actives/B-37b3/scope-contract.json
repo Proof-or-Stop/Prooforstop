@@ -1,0 +1,20 @@
+{
+  "storyId": "B-37b3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/experience-hint-loader.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/finding-signals.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Only learning-store path resolution (and experience-hint-loader if strictly needed) + one smoke; finding-signals derivation and cache schema must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T06:54:52.222Z",
+  "updatedAt": "2026-06-20T06:54:52.222Z"
+}
