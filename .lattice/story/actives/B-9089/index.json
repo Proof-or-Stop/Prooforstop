@@ -4,7 +4,7 @@
   "title": "Implement owner-session canonical runtime contract",
   "description": "Implement the Owner Session Contract Execution Plan: make LATTICE_SESSION_ID the canonical owner-session id consumed by generic owner-lease and lifecycle paths, move host-specific signals behind adapter/facade boundaries, preserve ppid degraded fallback, add guardrails/tests, and record required two-host plan review evidence before runtime implementation begins.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -27,6 +27,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T10:29:43.697Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9089",
+    "branch": "story/B-9089",
+    "createdAt": "2026-06-20T10:29:42.795Z"
+  }
 }
