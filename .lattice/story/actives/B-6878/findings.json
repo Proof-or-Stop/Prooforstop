@@ -178,7 +178,7 @@
       "desc": "doc-promise-undelivered: streaming.ts block comment (lines 39-44) says the projection makes every downstream read INCLUDING the adapter call operate on a null-proto whitelist-only object, but after F-007 the adapter call receives the ORIGINAL (not the projection) — the comment was not updated and now actively misleads: it implies the adapter sees a projection when in reality the adapter does its own internal project-for-reads and digests the original",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T15:42:48.849Z",
@@ -189,7 +189,10 @@
         "packages/main/src/core/usage-ledger/streaming.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-streaming",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 4 (6f719cd2): corrected the stale streaming block comment to reflect the adapter receiving the ORIGINAL terminal usage (projection only for local reads).",
+      "resolvedAt": "2026-06-20T15:56:54.947Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-6878:F-010",
