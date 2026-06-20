@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T23:10:30.097Z",
       "reviewRunId": "B-8cc8:RR-001",
       "_hash": "cba5622d3d9a6eac1edaa0079c9de93a4fae4c5d263a1e90441b7146e4f86f7c"
+    },
+    {
+      "id": "B-8cc8:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Pure-docs rebrand: only CHANGELOG.md touched (commit 4324d1fbf, 49 koala lines removed, 49 lattice lines added, net zero). Verified: (1) git grep -i koala CHANGELOG.md returns nothing; (2) 5 ## version headings preserved; (3) npm run build exits 0; (4) lattice validate all-green. No dead code, no type-safety issues, no I/O shell isolation concerns — CHANGELOG.md is a documentation file with no imports, functions, or shell bridge interactions. No blocker.",
+      "createdAt": "2026-06-20T23:12:02.954Z",
+      "reviewRound": "2026-06-20T23:10:30.097Z",
+      "reviewRunId": "B-8cc8:RR-004",
+      "_hash": "2483f3e328755fc32fb96aa7633d9383a5982ca625c138f5f3df426ff670aa14"
     }
   ]
 }
