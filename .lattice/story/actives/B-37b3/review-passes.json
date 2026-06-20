@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-20T07:04:00.628Z",
       "reviewRunId": "B-37b3:RR-003",
       "_hash": "9a6b7a3d17c0fe4dacf8230cd3a9c2ca85fe05c49d768065ad8602e2783ffde5"
+    },
+    {
+      "id": "B-37b3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked: (1) resolveLearningRoot is null/empty-safe (guards !commonDir) and never-throws (try/catch returns searchOrigin on any error including ENOENT, non-zero exit, empty string). (2) execFileSync uses stdio:[pipe,pipe,pipe] — no stdout/stderr leakage. (3) dirname(resolve(searchOrigin, commonDir)) is correct for both relative (.git) and absolute (/main/.git) commonDir values. (4) No unsafe `any` types anywhere in changed files; tsc builds clean. (5) learning-store.ts leaf isolation preserved: imports only node:child_process, node:fs, node:path, ./digest.js, ./experience-layer-types.js (type-only). (6) Smoke cleanup: mkTempRoot() registers every root in tmpRoots; finally block iterates and rmSync(recursive,force) all of them — covers initMainAndWorktree subdirs (base contains main+wt) and plain non-git dirs. (7) experience-hint-loader.ts and finding-signals.ts are confirmed untouched (no diff). No dead code, no swallowed errors in production paths, no shell boundary violations.",
+      "createdAt": "2026-06-20T07:06:04.605Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-002",
+      "_hash": "f147007d8564472c5dc3084d9f023073f57746296dabd4888b9903b9489ad621"
     }
   ]
 }
