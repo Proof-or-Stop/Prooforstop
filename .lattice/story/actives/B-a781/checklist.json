@@ -106,6 +106,26 @@
           "docs/requirements/decisions/owner-session-contract-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The rollout section defines a verification matrix covering ppid-changing command invocations, wrapper environment bridging, owner lease refresh behavior, session_brief owner/source rendering, and documentation grep checks before runtime work ships.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The execution plan includes manual transcript evidence instructions for running the same story-scoped commands through at least two invocation shapes that change parent PID while preserving LATTICE_SESSION_ID and owner lease continuity.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan requires independent two-host review evidence before implementation proceeds: one reviewer from Codex and one from a non-Codex host or host simulation must try to disprove the contract, inspect the docs, and record pass/finding evidence separately.",
+            "type": "manual"
+          }
+        ]
       }
     }
   ]
