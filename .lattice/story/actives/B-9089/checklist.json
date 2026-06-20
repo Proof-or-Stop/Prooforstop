@@ -372,7 +372,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/context.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "collectContext now records event.sessionId from getSessionId() in core/owner-session.ts instead of ad hoc LATTICE/Claude env reads; build passed.",
+          "headHash": "7a46864a0f5905264b672bc77b77a6c6aac2875a",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:14.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
