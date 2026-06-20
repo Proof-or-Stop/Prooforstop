@@ -57,7 +57,50 @@
       "context": "COMPLETENESS_CRITIC_DESC_TAG='[completeness-critic]' (the provenance prefix carried in --desc, NOT --agent). CRITIC_PROVENANCE_RECOMMENDED_LANES=['lattice-review-quality','lattice-review-behavior'] as const (the §4.3 recommended real lanes for critic findings; a confirmed critic finding must be recorded under a real lattice-review-* lane because reviewer-evidence only counts when agent.startsWith('lattice-review-') and there is no lattice-review-completeness lane). Document WHY the tag goes in desc not agent.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "COMPLETENESS_CRITIC_DESC_TAG === \"[completeness-critic]\" (exact string, including brackets); WHY: the desc prefix is the MVP provenance marker per S4.3 -- any drift breaks provenance parsing",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES is a readonly tuple containing exactly [\"lattice-review-quality\",\"lattice-review-behavior\"] in that order; WHY: these are the only two recommended real lanes for critic findings per S4.3",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "every entry in CRITIC_PROVENANCE_RECOMMENDED_LANES is a valid ReviewRunLane (present in REVIEW_RUN_LANES from review-run.ts); WHY: a recommended lane that is not a real lane would break the reviewRunId binding at finding_add time",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES is typed as const (readonly tuple) and cannot be mutated at runtime (push/pop/assignment rejected by compiler or frozen); WHY: prevents accidental runtime extension of the recommended set",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "COMPLETENESS_CRITIC_DESC_TAG does NOT start with \"lattice-review-\" -- it is a desc-only marker, never an agent value; WHY: confirms the tag is structurally unsuitable as an agent and cannot accidentally satisfy isReviewerAgent()",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "attempt to use COMPLETENESS_CRITIC_DESC_TAG as an agent value in isReviewerAgent(COMPLETENESS_CRITIC_DESC_TAG) -> returns false; WHY: decision pre-mortem risk (a) -- the tag must NEVER pass the reviewer-agent gate, confirming provenance goes in desc not agent",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "CRITIC_PROVENANCE_RECOMMENDED_LANES does NOT include \"completeness-critic\" or any non-lattice-review-* string; WHY: ensures the recommended lanes can never route a critic finding through a non-reviewer agent path",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
