@@ -4,11 +4,11 @@
   "title": "Refine the evidence pipeline plan into a Lifecycle Proof-Or-Stop Readiness Check",
   "description": "Revise the existing Lattice standard evidence pipeline design so the immediate scope is clearly a read-only Lifecycle Proof-Or-Stop Readiness Check rather than an execution pipeline. Preserve the full vision separately while tightening rollback, delivery blocker, done_prepare binding, default option, and refresh-loop contracts.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-20T11:40:32.469Z",
   "startedAt": "2026-06-20T11:40:32.469Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T12:42:12.425Z",
   "events": [
     {
       "phase": "INIT",
@@ -78,12 +78,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-a6dd40ce8159c206",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T12:42:12.425Z",
+      "branch": "story/B-b36d",
+      "user": "Harmonygo",
+      "sessionId": "sess-a6dd40ce8159c206",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b36d",
-    "branch": "story/B-b36d",
-    "createdAt": "2026-06-20T11:49:26.387Z"
-  },
   "currentReviewRound": "2026-06-20T12:17:05.697Z"
 }
