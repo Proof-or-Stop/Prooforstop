@@ -1,0 +1,82 @@
+{
+  "storyId": "B-53c5",
+  "checkedAt": "2026-06-20T12:36:09.597Z",
+  "reviewRound": "2026-06-20T12:18:01.371Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/adversarial-review-spec.md#2.2",
+      "promise": "Finding schema frozen: {severity: BLOCKER|MAJOR|MINOR, title: string, file: string, line: number, issue: string, fix: string}",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts lines 30-44: FINDING_SEVERITIES const tuple + Finding interface with all 6 fields exactly matching spec §2.2. Smoke asserts all 6 fields present + typed (9 assertions covering Finding + severity union)."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#2.3",
+      "promise": "Verdict schema frozen: {isReal: boolean, agreedSeverity: BLOCKER|MAJOR|MINOR|NOT_A_DEFECT, reasoning: string} with refute-by-default rule documented",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts lines 52-64: AGREED_SEVERITIES const tuple + Verdict interface with all 3 fields. Smoke asserts agreedSeverity includes NOT_A_DEFECT via deepEq against EXPECTED_AGREED_SEVERITIES literal. Refute-by-default documented in JSDoc."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#2.1",
+      "promise": "CANONICAL_LENS_SET: 6 entries, lens ids VERBATIM [concept/scope, code-quality, behavior/correctness, test-coverage, crash-safety/edge, docs-consistency] with slash forms preserved, task-tunable note",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts lines 75-129: LENS_IDS const tuple exact slash forms, CANONICAL_LENS_SET readonly LensDef[]. Smoke asserts length=6, LENS_IDS deepEq EXPECTED_LENS_IDS literal, CANONICAL_LENS_SET.map(l=>l.id) deepEq EXPECTED_LENS_IDS. facet+asks text is verbatim from §2.1 table. Task-tunable note in JSDoc."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#2.4",
+      "promise": "CompletenessCriticIO contract: input = {change, confirmedFindings: Finding[]} (post-§2.3 verified, never raw), output = Finding[]. Types only, no impl.",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts lines 137-149: CompletenessCriticInput {change: string, confirmedFindings: Finding[]} and CompletenessCriticIO {input, output: Finding[]}. JSDoc states critic never sees raw set. Smoke constructs + reads both at runtime (3 assertions). No functions in module — types only confirmed by reading full module."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#2.4+3.2+4.2",
+      "promise": "REVIEW_MODE_PHASES = canonical 5-step order [lenses, verify-lens-findings, critic, verify-critic-findings, converge-or-reopen] as single declared source of truth; RoundResult and ReviewModeRound interfaces exported",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts lines 159-186: REVIEW_MODE_PHASES const tuple, RoundResult {lensFindings,confirmedFindings,criticFindings,reopen,converged}, ReviewModeRound {readonly phases}. Smoke asserts deepEq against EXPECTED_REVIEW_MODE_PHASES literal (7 assertions). ReviewModeRound.phases === REVIEW_MODE_PHASES checked at runtime."
+    },
+    {
+      "docPath": "docs/adversarial-review-spec.md#5-S0",
+      "promise": "S0 is TYPES-ONLY — no behavior. No lens runner, verifier, critic impl, or finding_add ledger mapping. Abstract BLOCKER/MAJOR/MINOR stays out of finding_add enum.",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/adversarial-review.ts exports only interfaces, type aliases, and const data. No functions, no imports of finding_add/review-run/CLI handlers. No critical|high|medium|low enum values. Module header JSDoc explicitly states NO behavior lives here."
+    },
+    {
+      "docPath": "packages/main/src/tasks/adversarial-review-contract-smoke.ts (CHK-004)",
+      "promise": "Smoke registered in lattice.config.json validate.commands; 29 assertions against explicit literal EXPECTED_ tuples (non-vacuous drift guard); lattice validate all green",
+      "status": "verified",
+      "verifiedBy": "diff/run",
+      "evidence": "lattice.config.json validate.commands[12]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js. Ran at review time: output is adversarial-review-contract smoke passed: 29 assertions (exit 0). EXPECTED_ literals declared independently of module consts — drift fails. lattice validate all green."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js -> passed: 29 assertions. Covers: Finding 6 field checks + Verdict 3 field checks; FINDING_SEVERITIES deepEq [BLOCKER,MAJOR,MINOR] vs literal; AGREED_SEVERITIES deepEq [BLOCKER,MAJOR,MINOR,NOT_A_DEFECT] vs literal."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js -> passed: 29 assertions. Covers: CANONICAL_LENS_SET length=6; LENS_IDS deepEq EXPECTED_LENS_IDS literal (verbatim slash forms); CANONICAL_LENS_SET.map(id) deepEq EXPECTED_LENS_IDS; every lens non-empty facet+asks; CompletenessCriticInput 2 checks; CompletenessCriticIO 3 checks."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js -> passed: 29 assertions. Covers: REVIEW_MODE_PHASES deepEq [lenses,verify-lens-findings,critic,verify-critic-findings,converge-or-reopen] vs literal; RoundResult 5 field checks; ReviewModeRound.phases identity check + canonical order deepEq vs literal."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js -> passed: 29 assertions (exit 0). Registered lattice.config.json validate.commands[12]. lattice validate all 13 commands green. Smoke hermetic (no FS/git/store). All 29 assertions use deepEq against EXPECTED_ literals independent of module consts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docs promises verified in code: Finding/Verdict schemas match spec §2.2/§2.3 exactly, CANONICAL_LENS_SET has 6 entries with verbatim slash-form ids per §2.1, CompletenessCriticIO typed per §2.4, REVIEW_MODE_PHASES is the frozen 5-step order per §2.4/§3.2/§4.2, module is types-only with zero behavior. The smoke is non-vacuous (29 assertions against explicit EXPECTED_ literals independent of module consts), registered in lattice.config.json validate.commands[12], and ran green at delivery-review time. S1-S4 scope (lens runner, verifier, critic, escalation) is correctly deferred — only the frozen contract is in scope for S0."
+  },
+  "_hash": "ff74243c3eceaad89a4f8e1e4204e3e02d988d5c62b38f5b7e34d4cefff0ce47"
+}
