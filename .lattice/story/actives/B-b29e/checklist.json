@@ -119,7 +119,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "process-fact-levels.ts gateConsumer of the scope_contract L4 facts now names the parallel-decomposition DEV-entry gate; drift check passes.",
+          "headHash": "96f80849851d2a3f050f77d35648f7b27ce20090",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:49.311Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
