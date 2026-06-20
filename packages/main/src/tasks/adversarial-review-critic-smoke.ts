@@ -156,4 +156,86 @@ const criticBehavior = toCriticFindingAddArgs(majorFinding, { reviewRunId: 'RR-4
 check("toCriticFindingAddArgs(agent='lattice-review-behavior').agent === 'lattice-review-behavior'", criticBehavior.agent === 'lattice-review-behavior');
 check("criticBehavior.desc starts with '[completeness-critic] '", criticBehavior.desc.startsWith('[completeness-critic] '));
 
+// ── 7. CHK-001 seam: large array, by-reference, verbatim output ───────────────
+// CHK-001:edge:1 — a 100-element Finding[] is returned with same refs, in order.
+const bigPlanted: Finding[] = Array.from({ length: 100 }, (_v, i): Finding => ({
+  severity: 'MINOR',
+  title: 'big-' + i,
+  file: 'big' + i + '.ts',
+  line: i,
+  issue: 'issue-' + i,
+  fix: 'fix-' + i,
+}));
+const fakeBig = (_input: CompletenessCriticInput): Finding[] => bigPlanted;
+const outBig = runCompletenessCritic({ change: 'L', confirmedFindings: [] }, fakeBig);
+check('CHK-001:edge:1 — large output length === 100', outBig.length === 100);
+check('CHK-001:edge:1 — out[0] === first planted (same ref)', outBig[0] === bigPlanted[0]);
+check('CHK-001:edge:1 — out[99] === last planted (same ref)', outBig[99] === bigPlanted[99]);
+
+// CHK-001:adversarial:1 — input forwarded by reference (no defensive clone/reshape).
+const inObj: CompletenessCriticInput = { change: 'R', confirmedFindings: [cf] };
+let capturedRef: CompletenessCriticInput | null = null;
+const fakeRef = (input: CompletenessCriticInput): Finding[] => {
+  capturedRef = input;
+  return [];
+};
+runCompletenessCritic(inObj, fakeRef);
+check('CHK-001:adversarial:1 — seam received the EXACT input object (capturedRef === inObj)', capturedRef === inObj);
+
+const beforeMut = inObj.confirmedFindings.length;
+const fakeMutate = (input: CompletenessCriticInput): Finding[] => {
+  input.confirmedFindings.push(pf1);
+  return [];
+};
+runCompletenessCritic(inObj, fakeMutate);
+check(
+  "CHK-001:adversarial:1 — mutating input.confirmedFindings is reflected on caller's array (pure pass-through, no clone)",
+  inObj.confirmedFindings.length === beforeMut + 1,
+);
+
+// CHK-001:adversarial:2 — output returned verbatim, incl. unexpected-shaped findings.
+const extraFinding = { severity: 'MINOR', title: 'x', file: 'x.ts', line: 1, issue: 'i', fix: 'f', UNEXPECTED: 'survives' } as unknown as Finding;
+const unexpectedArr: Finding[] = [extraFinding];
+const fakeUnexpected = (_input: CompletenessCriticInput): Finding[] => unexpectedArr;
+const outUnexpected = runCompletenessCritic({ change: 'U', confirmedFindings: [] }, fakeUnexpected);
+check('CHK-001:adversarial:2 — output array returned by reference (same array)', outUnexpected === unexpectedArr);
+check('CHK-001:adversarial:2 — extra-property finding survives by reference', outUnexpected[0] === extraFinding);
+check(
+  "CHK-001:adversarial:2 — extra property still present (seam output unfiltered)",
+  (outUnexpected[0] as unknown as { UNEXPECTED: string }).UNEXPECTED === 'survives',
+);
+
+// ── 8. CHK-002 desc tag is provenance-only, never a lane ──────────────────────
+// CHK-002:edge:1 — the tag is NOT a lane prefix.
+check(
+  "CHK-002:edge:1 — desc tag does not start with 'lattice-review-'",
+  !COMPLETENESS_CRITIC_DESC_TAG.startsWith('lattice-review-'),
+);
+// CHK-002:adversarial:0 — the tag is not a real reviewer lane.
+check(
+  'CHK-002:adversarial:0 — desc tag is NOT in REVIEW_RUN_LANES',
+  !(REVIEW_RUN_LANES as readonly string[]).includes(COMPLETENESS_CRITIC_DESC_TAG),
+);
+// CHK-002:adversarial:1 — recommended lanes exclude completeness-critic; both are real lanes.
+check(
+  "CHK-002:adversarial:1 — recommended lanes do NOT include 'completeness-critic'",
+  !(CRITIC_PROVENANCE_RECOMMENDED_LANES as readonly string[]).includes('completeness-critic'),
+);
+check(
+  "CHK-002:adversarial:1 — both recommended lanes start with 'lattice-review-'",
+  CRITIC_PROVENANCE_RECOMMENDED_LANES.every((lane) => lane.startsWith('lattice-review-')),
+);
+
+// ── 9. CHK-003 desc tag prefix is transparent + always distinct ───────────────
+// CHK-003:edge:1 — special chars pass through verbatim under the tag prefix.
+const specialFinding: Finding = { severity: 'MINOR', title: 'A "q" & <t>', file: 'x.ts', line: 9, issue: 'has — dash, %', fix: 'do `that`' };
+const specialBase = toFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: 'lattice-review-quality', category: 'happy' });
+const specialCritic = toCriticFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: 'lattice-review-quality', category: 'happy' });
+check(
+  "CHK-003:edge:1 — special-char desc === '[completeness-critic] ' + base.desc (verbatim through prefix)",
+  specialCritic.desc === '[completeness-critic] ' + specialBase.desc,
+);
+// CHK-003:adversarial:1 — desc is never the bare composeDesc (prefix always present).
+check('CHK-003:adversarial:1 — critic.desc !== base.desc (tag prefix always present)', critic.desc !== base.desc);
+
 console.log('adversarial-review-critic smoke passed: ' + passed + ' assertions');
