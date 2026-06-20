@@ -6,7 +6,70 @@
       "context": "New module importing S0 (RoundResult, REVIEW_MODE_PHASES, Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict), S1 (runLenses, collectRawFindings, LensLane, LensRunRequest), S2 (verifyFindings, confirmedFindings), S3 (runCompletenessCritic). RoundSeams={runLens:(req:LensRunRequest)=>Finding[], runSkeptic:(f:Finding,change:string)=>Verdict, runCritic:(input:CompletenessCriticInput)=>Finding[]}. RoundConfig={lensSet?:readonly LensDef[] (default CANONICAL_LENS_SET), skeptics?:number, threshold?:number}. runAdversarialRound runs the §3.2 FROZEN order: runLenses (S1) -> verify each lens findings keeping its lane (S2 verifyFindings+confirmedFindings PER LENS so confirmedByLane preserves {lane,lensId,findings}) -> runCompletenessCritic (S3) on {change, confirmedFindings: the flattened confirmed lens set} -> verify critic raw (S2) -> converged (no confirmed lens AND no confirmed critic), reopen=!converged. Returns AdversarialRoundResult extends RoundResult {lensFindings:rawLens, confirmedFindings:confirmedLensFlat, criticFindings:confirmedCritic, reopen, converged} with confirmedByLane added. The critic MUST receive the VERIFIED (confirmed) lens set, never raw (proves §2.4 order).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runAdversarialRound with all-refuting skeptics (isReal:false) -> converged===true, reopen===false, confirmedFindings===[], criticFindings===[] (the clean-round path); WHY: proves the happy path where no finding survives verification",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with one lens producing a BLOCKER finding and skeptic confirming (isReal:true) -> confirmedFindings contains it, reopen===true, converged===false; confirmedByLane maps the finding to the correct LensLane; WHY: proves single confirmed finding triggers reopen and per-lane attribution is preserved",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The completeness critic seam receives {change, confirmedFindings} where confirmedFindings is the VERIFIED (post-skeptic) lens set, NOT the raw lens findings; a capturing fake runCritic asserts its input.confirmedFindings matches exactly the post-verification confirmed set; WHY: the load-bearing invariant from spec section 2.4 — critic must never see raw findings",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound executes phases in exactly REVIEW_MODE_PHASES order: lenses -> verify-lens-findings -> critic -> verify-critic-findings -> converge-or-reopen; a phase-recording wrapper around each seam proves the call order; WHY: the canonical frozen order is the spec contract",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runAdversarialRound with an empty lens set (no lenses to run) -> no lens findings, critic receives empty confirmedFindings, converged depends only on critic output; WHY: boundary — zero lenses is a valid config (task-tunable)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with custom lensSet subset (2 of 6 lenses) -> only those 2 are run, lane attribution reflects only those 2; WHY: proves task-tunable lens selection works with a non-default subset",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound with threshold=2 (strict mode) and only 1-of-2 skeptics confirming -> finding is NOT confirmed (confirms < T=2); WHY: proves threshold-confirm is respected, not hardcoded to T=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where critic produces a finding that skeptic confirms -> criticFindings is non-empty, reopen===true even if all lens findings were refuted; converged requires BOTH lens AND critic to be empty; WHY: converged is computed after both verification passes, not just lens verification",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "runAdversarialRound where the critic seam returns findings that reference the RAW (unverified) lens findings instead of confirmed — but the function passes the CONFIRMED set to the critic seam, so even a malicious critic cannot influence the input it actually receives; a capturing fake proves the critic seam was called with only confirmed findings regardless of what the critic returns; WHY: adversarial — ensure the function structurally prevents the critic from seeing unverified data",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where runLens seam throws an exception mid-run -> the round propagates the error (does not silently swallow or return a partial result); WHY: adversarial — a broken lens must not produce a false converged=true",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runAdversarialRound where two lenses map to the same lane (behavior/correctness + crash-safety/edge both map to lattice-review-behavior) each produce findings -> confirmedByLane preserves BOTH lenses distinctly under their respective lensId, not merged; WHY: adversarial — same-lane lenses must not have their findings merged or de-duplicated",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
