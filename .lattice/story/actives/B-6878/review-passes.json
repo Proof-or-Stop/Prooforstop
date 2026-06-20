@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-20T15:24:07.824Z",
       "reviewRunId": "B-6878:RR-004",
       "_hash": "e8b23e66837919e5a082ed82a803580439472078b597413e66f7bd52f5ea1919"
+    },
+    {
+      "id": "B-6878:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 9 intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial). The 3 new round-3 checks are genuinely load-bearing — confirmed to fail against pre-round-3 streaming.ts + dispatch-usage.ts (25 pass / 3 fail pre-fix; 28/28 pass post-fix). Streaming digest-preserved fixtures include extra non-read fields (total_tokens, audio_tokens, totalTokenCount). ENVELOPE.RESULT pollution check correctly fires against pre-fix code. All 25 prior checks remain intact. No regression. No new coverage gaps.",
+      "createdAt": "2026-06-20T15:42:50.924Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-007",
+      "_hash": "34fd80a4e6b0c694efd8427de5905863052b1d30e908a659386c7296ef8966df"
     }
   ]
 }
