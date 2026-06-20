@@ -471,13 +471,14 @@
         {
           "intentRef": "CHK-006:edge:0",
           "kind": "integration_test",
+          "file": "packages/main/src/tasks/owner-session-guardrail.ts",
           "command": "npm --prefix packages/main run test:owner-session-guardrail",
           "result": "pass",
-          "note": "New owner-session guardrail task scans packages/main/src and passed with raw host session env names confined to adapter/dispatch/test allowlist.",
-          "headHash": "f4ef661749377fc942b4dcd7579faf67d800b5a3",
-          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
-          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
-          "timestamp": "2026-06-20T11:11:16.690Z"
+          "note": "Follow-up commit 5035a451a extends the guardrail to require runBoundedRealLeafDispatch to build providerEnv with buildCanonicalHostRuntimeEnv and pass env: providerEnv to bounded Codex/Gemini subprocesses.",
+          "headHash": "7f6dd90d6b076c88a275c2f9230a7453bf3cb532",
+          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
+          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
+          "timestamp": "2026-06-20T11:16:00.551Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
