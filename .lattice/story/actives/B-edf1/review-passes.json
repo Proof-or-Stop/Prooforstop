@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-edf1:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 7 verificationIntent entries (6 must + 1 should) have valid, non-vacuous verificationEvidence. CHK-001 happy:0 / edge:0 / adversarial:0 / adversarial:1 all covered by logic_test driving real buildDoneChecklist+renderDoneChecklist with genuine disk fixtures. CHK-002 happy:0 covered by manual_transcript (smoke exits 0, 4 checks printed), edge:0 covered by manual_transcript (npm test green), adversarial:0 covered by logic_test (smoke asserts rendered operator-visible string, not only row object). Smoke verified live: 4 checks, exit 0. done-oracle.ts detail-append confirmed at lines 713-715. Evidence is specific and non-vacuous: check (A) would fail if the advisory were dropped from the detail field.",
+      "createdAt": "2026-06-20T05:33:05.544Z",
+      "reviewRound": "2026-06-20T05:31:18.963Z",
+      "reviewRunId": "B-edf1:RR-003",
+      "_hash": "67e217f66d35e9b7239f71564acf0e8373b6aedd160542b99f24d2aecdbd7245"
+    }
+  ]
+}
