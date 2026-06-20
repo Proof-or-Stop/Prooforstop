@@ -52,10 +52,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "handoff_create + host_dispatch path confirms preflight payload includes session_brief, devMemory, active story summary, gap and learning signals.",
-          "headHash": "8a1af00a98e4f1093e97c7d187536ba4fb3e7d5b",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:18.534Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Simulates preflight pack assembly and verifies deterministic staleSignals behavior when artifacts transition through stale supersession scenarios.",
-          "headHash": "8a1af00a98e4f1093e97c7d187536ba4fb3e7d5b",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:18.670Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "When preflight inputs are missing/invalid, host_dispatch returns uncertain signals and does not claim ready work.",
-          "headHash": "8a1af00a98e4f1093e97c7d187536ba4fb3e7d5b",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:18.799Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         }
       ]
     },
@@ -130,10 +130,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Completed plan artifact supersession metadata is parsed from frontmatter and injected into handoff preflight.",
-          "headHash": "33189d3a5ffb515c257d4d1e6d7306daa9335105",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:21.878Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,10 +141,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Historical/superseded markers are reported but not treated as authoritative proof in decisioning.",
-          "headHash": "33189d3a5ffb515c257d4d1e6d7306daa9335105",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:22.020Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Missing/invalid supersession chains are flagged as stale requiring revalidation instead of trusted completion.",
-          "headHash": "33189d3a5ffb515c257d4d1e6d7306daa9335105",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:22.165Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         }
       ]
     },
@@ -209,10 +209,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Host resume/accept path is gated by evidence-backed handoff preflight, preventing stale pending claims.",
-          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:24.318Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -220,10 +220,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Missing evidence branch emits uncertain preflight verdict and explicit revalidation signal.",
-          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:24.449Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,10 +231,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Memory/DONE-mismatch adversarial case refuses blocking completion without authoritative proof.",
-          "headHash": "2674ed1179b616cf368b3fee82ec5cc5ecfaa460",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:24.580Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         }
       ]
     },
@@ -288,10 +288,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Host status/probe output includes host_dispatch preflightManifest.winSignal and verdict fields.",
-          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:26.943Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -299,10 +299,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js",
           "result": "pass",
           "note": "Incomplete preflight artifacts still produce stable dispatch status with explicit staleSignals and deterministic schema.",
-          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:27.073Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -310,10 +310,10 @@
           "command": "node packages/main/dist/tasks/host-overflow-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js",
           "result": "pass",
           "note": "Both Claude and semantic-editor host probes include parallel manifest fields and evidence tags consistently.",
-          "headHash": "6e6576378a3452350b7c0865786a71e85e9c99c0",
-          "materialHash": "adeffd7886047bdf418a227d96d23abec7195160050eb0d7a88b1e1487e7e682",
-          "storyFilesHash": "857d2aefee2faf32f6f7af5497f0c449f290c920b84c40dcb25730aa8f3ed24a",
-          "timestamp": "2026-06-20T19:28:27.212Z"
+          "headHash": "f74c278f943450228137da43ec10389849417984",
+          "materialHash": "852fe82b79f9e00fbc831d1e1614b95b7ac830fda6ba30b406e8244283f73a79",
+          "storyFilesHash": "c399b5105e5248f1819e90cf17ecc01f574f1c3729667c9976ebce2eef9bd10b",
+          "timestamp": "2026-06-20T19:40:39.231Z"
         }
       ]
     }
