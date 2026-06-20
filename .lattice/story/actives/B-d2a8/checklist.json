@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Populate AuditConfig.parallelGate in resolveAuditConfig: per-profile defaults + a resolveParallelGate(raw, profileDefault) helper validating the nested object field-by-field (mode/maxConcurrentReview/broadGlobBlocks) with guards and fallbacks per spec 4.7",
+      "context": "core/audit-config.ts: add PARALLEL_GATE_PROFILE_DEFAULTS (light advise/2/false, balanced advise/3/false, strict block/4/true), import VALID_PARALLEL_MODES + ParallelGateConfig from parallel-decomposition.js, add resolveParallelGate with per-sub-field guard+fallback (invalid mode -> warn + advise; maxConcurrentReview integer >= 1 else profile default; broadGlobBlocks boolean else profile default; missing/non-object -> all profile defaults), set merged.parallelGate from the user override and profile default",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Hermetic smoke: per-profile defaults resolve correctly, each sub-field override is honored, and each malformed sub-field warns and falls back (config never crashes)",
+      "context": "new task smoke under packages/main/src/tasks/; call resolveAuditConfig / resolveParallelGate with in-memory or temp-dir config inputs; assert the 3 profile default rows, a valid override is applied, an invalid mode falls back to advise, a non-integer maxConcurrentReview falls back, a non-boolean broadGlobBlocks falls back, and a non-object parallelGate yields all profile defaults; register in lattice.config.json",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

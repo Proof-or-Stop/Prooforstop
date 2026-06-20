@@ -1,0 +1,22 @@
+{
+  "storyId": "B-d2a8",
+  "name": "parallel-gate-config-resolution",
+  "title": "Parallel-decomposition gate config resolution in resolveAuditConfig (program Story 3)",
+  "description": "Populate AuditConfig.parallelGate in core/audit-config.ts resolveAuditConfig per spec section 4.7: per-profile defaults (light: advise/2/false, balanced: advise/3/false, strict: block/4/true) plus a dedicated resolveParallelGate(raw, profileDefault) helper that validates the NESTED object field-by-field (mode against VALID_PARALLEL_MODES with console.warn + advise fallback; maxConcurrentReview integer-greater-equal-1 guard; broadGlobBlocks boolean; missing or non-object raw => all profile defaults). Resolution priority: per-field override in .lattice/audit-config.json, then profile default, then hardcoded fallback. Disjoint from Stories 4 and 5.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-06-20T05:16:31.511Z",
+  "startedAt": "2026-06-20T05:16:31.511Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T05:16:31.512Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
