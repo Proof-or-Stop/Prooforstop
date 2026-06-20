@@ -41,6 +41,7 @@ import { resolveHintMode } from '../core/hint-mode.js';
 import type { HintMode } from '../core/hint-mode.js';
 import type { FindingSignal, FindingSignalsCache } from '../core/experience-layer-types.js';
 import { writeFindingSignals } from '../core/learning-store.js';
+import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { resolveReviewPromptHash } from '../core/review-run.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { resetConfigCache } from '../core/config.js';
@@ -384,6 +385,85 @@ check('CHK-001 edge:1 (GOLDEN) — story_review _reviewPrompt bytes + event payl
     hintMode: 'off',
     hintIds: ['recAB'],
   }, 'OFF arm: event payload (sans timestamp) unchanged after the leaf extraction (lossless)');
+});
+
+// ─── (e) DIRECT LEAF happy: surfaceExperienceHints ON-arm returns + fires ─────
+//
+// CHK-001 happy:0 was previously only exercised transitively (through
+// buildNextSteps/story_review). This calls the leaf surfaceExperienceHints
+// DIRECTLY against a temp root seeded with finding-signals, asserting the full
+// returned object on the ON arm + the single on-event it appends.
+
+check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered section + fires one on-event (fired=true)', () => {
+  const onId = findStoryIdForArm('on');
+  assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
+  const root = mkTempRoot();
+  writeLatticeConfig(root);
+  // NOTE: the leaf reads .lattice/learning/ at the canonical main-repo root when
+  // the temp root is a git worktree, but these temp roots are NON-git dirs, so
+  // resolveLearningRoot falls back to the temp root itself and the seeded signals
+  // are read back here. (Same assumption every check in this file already relies on.)
+  seedSignals(root, hintYieldingSignals());
+
+  const hintRoundKey = 'round-happy-leaf';
+  const result = surfaceExperienceHints(root, { storyId: onId, hintRoundKey });
+
+  assert.equal(result.hintMode, 'on', "leaf ON arm: hintMode === 'on'");
+  assert.ok(result.renderedSection.length > 0, 'leaf ON arm: renderedSection is non-empty');
+  assert.ok(result.renderedSection.includes(SECTION_LABEL),
+    'leaf ON arm: renderedSection contains the section label');
+  assert.ok(result.renderedSection.includes('[recAB]'),
+    'leaf ON arm: renderedSection contains the rendered hint id');
+  assert.deepEqual(result.hintIds, ['recAB'], 'leaf ON arm: hintIds is the full expected set');
+  assert.equal(result.fired, true, 'leaf ON arm: fired === true (a new event was appended)');
+
+  const events = surfacedEvents(root);
+  assert.equal(events.length, 1, 'leaf ON arm: exactly one experience_hint_surfaced event appended');
+  assert.equal(events[0].hintMode, 'on', "leaf ON arm: event hintMode === 'on'");
+  assert.equal(events[0].reviewRound, hintRoundKey, 'leaf ON arm: event keyed on the supplied hintRoundKey');
+  assert.deepEqual(events[0].hintIds, ['recAB'], 'leaf ON arm: event carries the full hintIds');
+});
+
+// ─── (f) DIRECT LEAF adversarial: a track failure inside the try/catch is swallowed ─
+//
+// CHK-001 adversarial:0. The malformed-cache route is NOT usable here:
+// readFindingSignals swallows JSON.parse errors and returns null (graceful), so
+// loadExperienceHints never throws on bad data — it returns empty buckets (the
+// no-hints path, NOT the catch path). To genuinely exercise the leaf's try/catch
+// we make the TRACK (appendActivityLog) path throw: seed VALID signals (so
+// hasExperienceHints is true and the leaf reaches the append), then occupy the
+// runtime activity-log path .lattice/activity.jsonl with a DIRECTORY. appendFileSync
+// against a directory throws EISDIR INSIDE the try block; the catch must swallow it
+// and early-return renderedSection='' / fired=false with NO partial event.
+// (If the leaf's try/catch were removed, this EISDIR would propagate and the
+// try-wrapper below would catch the throw and fail the check.)
+
+check('CHK-001 adversarial:0 — a load/track failure inside surfaceExperienceHints is swallowed (renderedSection empty, fired=false, no throw, no partial event)', () => {
+  const onId = findStoryIdForArm('on');
+  const root = mkTempRoot();
+  writeLatticeConfig(root);
+  seedSignals(root, hintYieldingSignals()); // valid hints => the leaf reaches the append/track step
+
+  // Occupy the runtime activity-log path with a DIRECTORY so appendActivityLog's
+  // appendFileSync throws EISDIR from inside the leaf's try block.
+  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+
+  let threw = false;
+  let result: ReturnType<typeof surfaceExperienceHints> | undefined;
+  try {
+    result = surfaceExperienceHints(root, { storyId: onId, hintRoundKey: 'round-adv-leaf' });
+  } catch {
+    threw = true;
+  }
+  assert.equal(threw, false, 'leaf adversarial: surfaceExperienceHints must NOT throw (failure swallowed)');
+  assert.ok(result, 'leaf adversarial: a result object is returned');
+  assert.equal(result!.renderedSection, '', 'leaf adversarial: renderedSection is empty after a swallowed failure');
+  assert.equal(result!.fired, false, 'leaf adversarial: fired === false (nothing was tracked)');
+
+  // No partial/garbage event was written for this root (the append threw before
+  // any record landed; the activity-log path is a directory so the tail is empty).
+  assert.equal(surfacedEvents(root).length, 0,
+    'leaf adversarial: no partial experience_hint_surfaced event was written');
 });
 
 // ─── ADVERSARIAL: a thrown error inside the hint block never blocks REVIEW ─────
