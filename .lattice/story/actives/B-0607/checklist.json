@@ -10,7 +10,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The execution plan contains a section named \"Verified Failure Mode\" with the Claude stale-plan incident, commit 2750aadef, 656 backfilled signatures, and the distinction between the plan-only document and the completed outcome record.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution plan documents the stale-doc misclassification using the verified backfill case: plan-only doc, completed outcome doc, commit 2750aadef, and 656 backfilled signatures.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The failure-mode section distinguishes completed backfill data from the deferred causal/RCT parts of the Experience Layer record, so the plan does not overclaim that every experience-layer idea is complete.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan explicitly says hosts must not use old plan-only prose as proof that work is missing without checking current Lattice facts first.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

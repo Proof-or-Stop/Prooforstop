@@ -1,0 +1,26 @@
+{
+  "task": "Write a truth-first host handoff execution plan for stale plan documents",
+  "outcome": "User opens docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md and sees: stale plan documents must not override current Lattice facts; every host handoff must check session_brief, DONE summaries, gap_analyze, learning_validate, and dev-memory preflight before telling the user work is missing; implementation stories and verification gates are listed with concrete commands.",
+  "facts": [
+    "Claude Code was reported to have treated an older backfill/plan document as current unfinished work.",
+    "The verified backfill case is complete: commit 2750aadef persisted 656 signatureTagSource=backfill findings.",
+    "lattice-experience-layer-execution-plan.md is explicitly plan-only/future, while lattice-experience-layer-effectiveness-record.md records the completed outcome.",
+    "gap_analyze currently reports 100% coverage and no high/medium gaps.",
+    "dev_memory_capture now has global lesson 9890b83, but host handoff does not yet require consuming it.",
+    "Decision B-0607 chooses advisory truth-first preflight plus machine-readable supersession metadata; hard gates are deferred until runtime follow-up stories prove low false-positive behavior.",
+    "Supersession metadata should be human-readable in the markdown document and machine-readable in a minimal schema/frontmatter or registry, with the exact storage shape left to the follow-up implementation story."
+  ],
+  "constraints": [
+    "This story writes an execution plan only, no runtime code implementation.",
+    "Do not rerun signature_backfill or regenerate learning caches.",
+    "Do not claim Authority or production receipt completion.",
+    "Respect scope boundary: new decision doc and optional docs navigation only."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "docs/guide.md"
+  ],
+  "timestamp": "2026-06-20T17:19:14.972Z"
+}
