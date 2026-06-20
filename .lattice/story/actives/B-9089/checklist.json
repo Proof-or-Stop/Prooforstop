@@ -147,6 +147,17 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:09.476Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:owner-session-guardrail",
+          "result": "pass",
+          "note": "Guardrail passed, proving generic core/lifecycle/gate code cannot reintroduce raw host-specific session env reads outside the adapter/dispatch/test allowlist.",
+          "headHash": "5e3ff334e6cc44dd399bc0f47348d417c9968301",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:10.078Z"
         }
       ]
     },
