@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-012",
       "_hash": "e919bb2472ef8098bf1e1c551ca2aecb57ba3c1613ea62eb2923df3f4958c657"
+    },
+    {
+      "id": "B-d2a8:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all CHK-001 (16 intents) and CHK-002 (11 intents). Per-field exotic-VALUE cases (8d/8d-bis) each assert both fallback value and per-field warn key, and reach their assertions only without throwing — non-tautological. Wrapper exotic-RAW case (8d-ter) asserts eq(result, STRICT) for all three fields and warnings.length >= 1, exercising the outer try/catch in resolveParallelGate, structurally distinct from per-field revoked-proxy case. Prototype-safety (8c/8c-bis) present and genuine. Integration-path warns (13/13c/13d/13b) confirmed. Smoke runs clean: 78 assertions, zero failures. No blocker.",
+      "createdAt": "2026-06-20T06:22:49.070Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-014",
+      "_hash": "bdaa942a7017b6ebd41275b08b1480c0591722e470d0a741762539bbd77a148c"
     }
   ]
 }
