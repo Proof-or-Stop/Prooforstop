@@ -90,7 +90,7 @@
       "desc": "MINOR: CHK-001 helpers tested in isolation; scopeGlobOverlapDegradations is fed a hand-written pairExample rather than computeScopeGlobOverlaps' actual output, so a separator change between the two helpers would not be caught. Fix: add one assertion composing scopeGlobOverlapDegradations(id, computeScopeGlobOverlaps(...)) and asserting the reason contains the composed pair string.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-test-coverage",
       "createdAt": "2026-06-20T07:34:38.770Z",
@@ -100,7 +100,11 @@
         "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
       ],
       "signatureTag": "edge|ts|minor-helpers-tested",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke adds an end-to-end composition assertion chaining computeScopeGlobOverlaps into scopeGlobOverlapDegradations and asserting the pairExample renders verbatim in the reason. commit 43f92ab3f.",
+      "resolvedAt": "2026-06-20T07:41:24.360Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa7c:F-006",
