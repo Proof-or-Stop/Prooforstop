@@ -9,10 +9,13 @@
  * ledger record. Only OWN-property, whitelisted token fields appear; an absent
  * field stays absent/unavailable.
  *
- * The provider/streaming/container/digest assertions are LOAD-BEARING: each FAILS
- * against pre-hardening code (the null-proto whitelist projection on the adapter
- * READS, the own-property CONTAINER guards, and — for the digest checks — the
- * original-payload digest invariant). The estimate-path check is explicitly NOT
+ * The provider/streaming/container/digest/record-validator assertions are
+ * LOAD-BEARING: each FAILS against pre-hardening code (the null-proto whitelist
+ * projection on the adapter READS, the own-property CONTAINER guards, the
+ * original-payload digest invariant, and — for the record validator — the
+ * own-property required-field checks that reject an inherited storyId /
+ * supersedesRecordIds where a prototype-chain `in` would have accepted it). The
+ * estimate-path check is explicitly NOT
  * load-bearing (the estimate never reads provider token keys), so it is labeled as
  * a plain property assertion, not as a pollution defense. The smoke also covers the
  * chokepoint helper directly (null prototype + drops non-whitelisted own keys) and
@@ -46,7 +49,7 @@ import {
 } from '../core/usage-ledger/streaming.js';
 import { toOwnPropsNullProto } from '../core/usage-ledger/sanitize.js';
 import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
-import type { UsageLedgerRecord } from '../core/usage-ledger/record.js';
+import { validateUsageLedgerRecord, type UsageLedgerRecord } from '../core/usage-ledger/record.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -599,12 +602,110 @@ async function main(): Promise<void> {
   });
 
   // ======================================================================
+  // (J) RECORD-VALIDATOR POLLUTION (B-6878 F-011, LOAD-BEARING): the record
+  // validator's required-field presence checks for storyId / supersedesRecordIds
+  // are OWN-property checks (hasOwnProperty), NOT prototype-chain `in`. A record
+  // that OMITS those fields as OWN properties must STILL FAIL validation even when
+  // Object.prototype carries an otherwise-satisfying inherited value.
+  //
+  // FAILS against pre-FIX-D code: the old `'storyId' in record` /
+  // `'supersedesRecordIds' in record` resolve TRUE via the prototype chain, so the
+  // validator would treat the field as present and validate the inherited value —
+  // a record missing the field as an own property would WRONGLY pass that check.
+  // ======================================================================
+
+  /**
+   * An OTHERWISE-valid local provider-reported record built with own properties,
+   * MINUS the keys named in `omit` (which are simply not set as own props). Used to
+   * isolate the storyId / supersedesRecordIds required-own-field rules: with `omit`
+   * empty the record validates clean, so any failure comes ONLY from the omission.
+   */
+  function buildRecordOmitting(omit: ReadonlyArray<'storyId' | 'supersedesRecordIds'>): Record<string, unknown> {
+    const rec: Record<string, unknown> = {
+      schemaVersion: 1,
+      recordId: 'r-1',
+      ledgerCallId: 'lc-1',
+      attemptId: 'a-1',
+      recordedAt: '2026-06-20T00:00:00.000Z',
+      projectRootHash: 'sha256:deadbeef',
+      phase: 'dispatch',
+      agentType: 'lattice-dispatch',
+      storyId: null,
+      sequence: 1,
+      supersedesRecordIds: [],
+      subagentId: null,
+      threadId: null,
+      decision: { kind: 'allowed' },
+      usage: {
+        source: 'provider-reported',
+        inputTokens: 11,
+        outputTokens: 22,
+        cacheCreationInputTokens: null,
+        cacheReadInputTokens: null,
+        canonical: { input: 11, output: 22, cacheCreation: null, cacheRead: null },
+        raw: { providerUnits: 'anthropic-usage-v1', payloadDigest: 'sha256:abc' },
+        estimator: null,
+        unavailableReason: null,
+      },
+      privacy: { promptStored: false, transcriptStored: false, redactionProfile: 'default' },
+      authority: {
+        mode: 'local',
+        receiptVerified: false,
+        receiptId: null,
+        receiptSubjectKind: null,
+        receiptSubjectId: null,
+      },
+    };
+    for (const k of omit) delete rec[k];
+    return rec;
+  }
+
+  await check('validator baseline: an own-property record (nothing omitted) validates clean', () => {
+    const result = validateUsageLedgerRecord(buildRecordOmitting([]));
+    assert.ok(result.ok, `baseline record must validate clean; errors: ${result.errors.join('; ')}`);
+  });
+
+  await check('validator-pollution (LOAD-BEARING): a record MISSING storyId/supersedesRecordIds as OWN props STILL FAILS despite inherited prototype values', () => {
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'storyId'), 'precondition: no own Object.prototype.storyId');
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'supersedesRecordIds'), 'precondition: no own Object.prototype.supersedesRecordIds');
+    try {
+      // Inherited values that, via the OLD `in` check, would have made the missing
+      // fields look "present" and satisfy the type-shape rule (null / []).
+      proto.storyId = null;
+      proto.supersedesRecordIds = [];
+      const record = buildRecordOmitting(['storyId', 'supersedesRecordIds']);
+      // Sanity: the omitted keys are genuinely absent as OWN props, yet readable via
+      // inheritance (so a prototype-chain `in` would resolve TRUE).
+      assert.ok(!Object.prototype.hasOwnProperty.call(record, 'storyId'), 'storyId must be absent as an own property');
+      assert.ok(!Object.prototype.hasOwnProperty.call(record, 'supersedesRecordIds'), 'supersedesRecordIds must be absent as an own property');
+      assert.ok('storyId' in record, 'prototype-chain `in` would (wrongly) see storyId as present');
+      assert.ok('supersedesRecordIds' in record, 'prototype-chain `in` would (wrongly) see supersedesRecordIds as present');
+
+      const result = validateUsageLedgerRecord(record);
+      assert.ok(!result.ok, 'record missing required OWN fields must FAIL validation despite inherited prototype values');
+      assert.ok(
+        result.errors.some((e) => e.includes('storyId is required')),
+        `expected a "storyId is required" error; got: ${result.errors.join('; ')}`,
+      );
+      assert.ok(
+        result.errors.some((e) => e.includes('supersedesRecordIds is required')),
+        `expected a "supersedesRecordIds is required" error; got: ${result.errors.join('; ')}`,
+      );
+    } finally {
+      delete proto.storyId;
+      delete proto.supersedesRecordIds;
+    }
+  });
+
+  // ======================================================================
   // (G) Object.prototype is clean again.
   // ======================================================================
   await check('Object.prototype is clean again (no leftover token keys or container keys)', () => {
     // Token leaf keys (sections B-F) AND the container/result keys the
-    // container-pollution + result-pollution checks (section I) set must all be restored.
-    for (const k of [...ALL_TOKEN_KEYS, 'usage', 'usageMetadata', 'message', 'result'] as const) {
+    // container-pollution + result-pollution checks (section I) + the validator
+    // required-field keys (section J) set must all be restored.
+    for (const k of [...ALL_TOKEN_KEYS, 'usage', 'usageMetadata', 'message', 'result', 'storyId', 'supersedesRecordIds'] as const) {
       assert.ok(
         !Object.prototype.hasOwnProperty.call(Object.prototype, k),
         `Object.prototype must not carry leftover key ${k}`,

@@ -25,8 +25,13 @@
 
 import type { LedgerUsage, TokenDimension, UsageCanonical } from './record.js';
 import { adaptAnthropicUsage, ANTHROPIC_PROVIDER_UNITS } from './adapters/anthropic.js';
-import { adaptOpenAiUsage, OPENAI_PROVIDER_UNITS } from './adapters/openai.js';
-import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS } from './adapters/gemini.js';
+import {
+  adaptOpenAiUsage,
+  OPENAI_PROVIDER_UNITS,
+  OPENAI_USAGE_WHITELIST,
+  OPENAI_NESTED_DETAIL_WHITELIST,
+} from './adapters/openai.js';
+import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS, GEMINI_USAGE_WHITELIST } from './adapters/gemini.js';
 import {
   buildUnavailableUsage,
   hasBothPrimaries,
@@ -39,21 +44,25 @@ import { ownProp, toOwnPropsNullProto } from './sanitize.js';
 /**
  * B-6878: per-provider token-key whitelists for the streaming path. The streaming
  * extractors do NOT route through the assemble chokepoint, so each stream-parsed
- * usage object is projected through toOwnPropsNullProto here before any dot-read,
- * making every downstream read (primaries, cacheRead, the adapter call) operate on
- * a null-proto, whitelist-only object — safe by construction, mirroring assemble.
- * Enumerated directly from the adapters.
+ * usage object is projected through toOwnPropsNullProto here for the LOCAL
+ * pollution-safe token READS (primaries + the partial cacheRead belt), making
+ * those reads operate on a null-proto, whitelist-only object — safe by
+ * construction, mirroring assemble. (The COMPLETE path defers to the adapter,
+ * which is fed the ORIGINAL terminal usage and does its own internal
+ * project-for-reads + digest-original; see the F-007 note at each call site.)
+ *
+ * F-010 (DRY): these whitelists are NOT re-declared here — they are the SAME
+ * exported constants the adapters use (OPENAI_USAGE_WHITELIST /
+ * OPENAI_NESTED_DETAIL_WHITELIST / GEMINI_USAGE_WHITELIST), imported above, so a
+ * future adapter whitelist change can never silently diverge from streaming.
  */
-const OPENAI_STREAM_WHITELIST = ['prompt_tokens', 'completion_tokens', 'prompt_tokens_details'] as const;
-const OPENAI_STREAM_NESTED_DETAIL_WHITELIST = ['cached_tokens'] as const;
-const GEMINI_STREAM_WHITELIST = ['promptTokenCount', 'candidatesTokenCount', 'cachedContentTokenCount'] as const;
 
 /** Project an openai stream usage object (incl. nested details) to null-proto. */
 function sanitizeOpenAiStreamUsage(raw: unknown): Record<string, unknown> {
-  const projected = toOwnPropsNullProto(raw, OPENAI_STREAM_WHITELIST);
+  const projected = toOwnPropsNullProto(raw, OPENAI_USAGE_WHITELIST);
   const nested = projected.prompt_tokens_details;
   if (nested !== null && typeof nested === 'object' && !Array.isArray(nested)) {
-    projected.prompt_tokens_details = toOwnPropsNullProto(nested, OPENAI_STREAM_NESTED_DETAIL_WHITELIST);
+    projected.prompt_tokens_details = toOwnPropsNullProto(nested, OPENAI_NESTED_DETAIL_WHITELIST);
   }
   return projected;
 }
@@ -304,7 +313,7 @@ export function extractGeminiStreamUsage(
   // non-read field (totalTokenCount) from the digest (a regression this story
   // introduced).
   const original = lastMeta;
-  const meta = toOwnPropsNullProto(original, GEMINI_STREAM_WHITELIST);
+  const meta = toOwnPropsNullProto(original, GEMINI_USAGE_WHITELIST);
   const input = readReportedDimension(meta.promptTokenCount);
   const output = readReportedDimension(meta.candidatesTokenCount);
 
