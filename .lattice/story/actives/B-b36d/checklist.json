@@ -86,9 +86,9 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:02:37.478Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:03:23.921Z",
       "excludes": [
         "Executing evidence commands in V1",
         "Writing verification evidence in V1",
@@ -126,7 +126,31 @@
           }
         ]
       },
-      "userSees": "The V1 section states that lifecycle_check is read-only by default, reports blockers and exact next actions, and does not write evidence, launch reviewers, advance phases, or replace done_prepare."
+      "userSees": "The V1 section states that lifecycle_check is read-only by default, reports blockers and exact next actions, and does not write evidence, launch reviewers, advance phases, or replace done_prepare.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"V1 must not|lattice lifecycle_check|lattice story_readiness|runCommands|writeEvidence|StoryReadinessReport|read-only\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
+          "result": "pass",
+          "note": "V1 is constrained to read-only readiness reporting with lifecycle_check/story_readiness, StoryReadinessReport, and runCommands:false/writeEvidence:false.",
+          "headHash": "2bc11974838741b5ba7491b44bc9e5332847d342",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:24.091Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story_pipeline --|lattice story_pipeline|Target Command Surface|Recommended operator path\" README.md docs/guide.md docs/requirements/NAV.md docs/requirements/decisions docs/requirements/decisions/assets",
+          "result": "pass",
+          "note": "No V1 primary story_pipeline examples or old target-command framing remain; rg returned no matches.",
+          "headHash": "2bc11974838741b5ba7491b44bc9e5332847d342",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:03:24.230Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
