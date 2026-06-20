@@ -126,6 +126,24 @@
       "resolvedAt": "2026-06-20T07:41:24.762Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fa7c:F-007",
+      "desc": "mode='off' escape hatch incomplete: it only silences the story-review advisory, NOT the WAVE scope_glob_overlap degradation. Spec §4.7 'off disables both behaviors / reversible escape hatch' — an operator who disables the gate still sees scope_glob_overlap warnings in the wave projection. Codex host-2 MAJOR; Claude adjudicators refuted (config-independence of the projection). SYNTHESIS fix: keep resolveWaveSafety + computeScopeGlobOverlaps PURE (config-free); have the createParallelWave FACTORY (already impure, reads store+root) resolve parallelGate.mode once and pass scopeGlobEnabled=(mode!=='off') to storyRef, which skips computeScopeGlobOverlaps when disabled. + smoke.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:50:20.722Z",
+      "reviewRound": "2026-06-20T07:21:12.232Z",
+      "_hash": "2aabd912cc241ea637c2f24f0cfee6d9fcd00d31497a6eafef7ba1e60a9ee458",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/tasks/parallel-wave-advisory-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|mode-escape-hatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
