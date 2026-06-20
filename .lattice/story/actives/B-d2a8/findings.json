@@ -271,7 +271,7 @@
       "desc": "CHK-002:happy:3 (priority=must, type=cli): intent requires mode:off proven via the resolveAuditConfig integration path (proves the reversible escape hatch works in the integrated path), but no tmpProject({parallelGate:{mode:off}}) + resolveAuditConfig call exists in the 39-assertion smoke. Line 79 of parallel-gate-config-smoke.ts calls resolveParallelGate directly (unit path), which satisfies CHK-001:happy:4 but not this integration-level cli intent. The smoke has no resolveAuditConfig(..., tmpProject({parallelGate:{mode:'off'}})) assertion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-20T05:48:36.092Z",
@@ -282,7 +282,11 @@
         "packages/main/src/tasks/parallel-gate-config-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-priority-type",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED: integration case 13b 'config mode off -> off (integration)' proves mode:'off' reachable through resolveAuditConfig's config-file path; also asserts a valid value does NOT warn.",
+      "resolvedAt": "2026-06-20T06:39:25.907Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d2a8:F-014",
