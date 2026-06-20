@@ -15,7 +15,24 @@
   ],
   "explicitExcludes": [],
   "scopeChangeReason": "Only done-oracle.ts render (and machine.ts if an operator-visible pass-path surface needs it) plus one smoke; the downgrade-accept and freshness logic in review-escalation.ts and evidence-freshness.ts must not change (consume-only).",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 requires npm wiring: adds the test:done-escalation-drift-advisory script and chains it into the test target so full npm test runs the new smoke. Planned npm wiring for the smoke, not a scope expansion.",
+      "timestamp": "2026-06-20T05:31:18.290Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4b3eb5dd776728ee10d9cb1b1918a1a1cdbe88ad",
+      "materialHash": "b82b3428631154b5fc22a87ed93a363966c2e985be4a32e28d8bcd627619d8c9"
+    }
+  ],
   "createdAt": "2026-06-19T23:50:29.881Z",
-  "updatedAt": "2026-06-19T23:50:29.881Z"
+  "updatedAt": "2026-06-20T05:31:18.290Z"
 }
