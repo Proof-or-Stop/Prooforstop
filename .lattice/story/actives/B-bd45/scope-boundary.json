@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bd45",
+  "mode": "feature",
+  "allowed": [
+    "Add a read-only lifecycle_check command for StoryReadinessReport V1",
+    "Add focused smoke tests for report shape, blocking semantics, and no-mutation behavior",
+    "Add report assembly code for existing story/gate facts only",
+    "Register command schema and command policy for read-only usage"
+  ],
+  "excluded": [
+    "Do not implement Full Vision story_pipeline orchestration",
+    "Do not launch reviewers automatically",
+    "Do not run validation or done_prepare from lifecycle_check",
+    "Do not write evidence, delivery checks, summaries, or phase transitions"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to start development from the B-b179 Lifecycle Readiness Check document; V1 scope is P1 only.",
+  "createdAt": "2026-06-20T20:39:54.142Z",
+  "updatedAt": "2026-06-20T20:39:54.142Z",
+  "_hash": "865858c610bcaebf52750dbb703e1d88eb1b3efe583330cca969ab87dfc265a7"
+}

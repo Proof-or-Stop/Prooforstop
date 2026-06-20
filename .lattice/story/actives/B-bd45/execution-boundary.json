@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bd45",
+  "allowedCommands": [
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice plan_*",
+    "lattice scope_*",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate --story=B-bd45*",
+    "node packages/main/dist/tasks/*lifecycle*",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/**"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git reset --hard",
+    "lattice story_pipeline*",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "V1 implementation may read docs through normal shell commands and use Lattice CLI for story metadata. No direct story JSON edits.",
+  "createdAt": "2026-06-20T20:39:54.356Z",
+  "updatedAt": "2026-06-20T20:39:54.356Z",
+  "_hash": "253696b8bdc02484520d11e404cf5c093b406b4e485e03b1ff34ddaf77d21c43"
+}
