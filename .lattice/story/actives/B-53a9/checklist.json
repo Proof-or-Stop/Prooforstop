@@ -39,7 +39,30 @@
       "userSees": "npm test exits 0 (ALL PASS), with test:docs-drift-wrapper-root passing instead of throwing TypeError: store.readReviewRuns is not a function.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full npm test exits 0 (ALL PASS) with test:docs-drift-wrapper-root passing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:docs-drift-wrapper-root no longer throws TypeError: store.readReviewRuns is not a function.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No production file (review-preflight/review-run) changed; the fix is test-fixture only.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
