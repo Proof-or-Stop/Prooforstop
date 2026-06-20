@@ -39,6 +39,7 @@ const requiredReviewerRunIdPromptFiles = new Set([
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
+const lifecycleRegistryPath = 'packages/main/src/core/lifecycle-registry.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -1266,6 +1267,28 @@ function assertInitializerPattern(initializer, label, pattern, message) {
   assert(pattern.test(initializer), `${processFactRegistryPath}: ${label} ${message}`);
 }
 
+function extractObjectPropertyBlock(objectText, propertyName, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\{`).exec(objectText);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return '';
+
+  const openIndex = match.index + match[0].lastIndexOf('{');
+  return extractBalancedBlock(objectText, openIndex, '{', '}', `${label} ${propertyName}`);
+}
+
+function assertArrayPropertyIncludesValue(block, propertyName, value, label) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\[`).exec(block);
+  assert(Boolean(match), `${label} should declare ${propertyName}`);
+  if (!match) return;
+
+  const openIndex = match.index + match[0].lastIndexOf('[');
+  const arrayBody = extractBalancedBlock(block, openIndex, '[', ']', `${label} ${propertyName}`);
+  assert(
+    new RegExp(`['"]${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(arrayBody),
+    `${label} ${propertyName} must include '${value}'`,
+  );
+}
+
 function assertProcessFactMappedSourceContracts(sourceText) {
   const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
   assertInitializerPattern(
@@ -2055,6 +2078,26 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
       assert(artifactEntry.semantics.includes(semantic), `${processFactRegistryPath}: done-required artifact missing semantic ${semantic}`);
     }
   }
+
+  const doneRequiredArtifact = 'done-required-evidence.json';
+  const lifecycleRegistryText = read(lifecycleRegistryPath);
+  const lifecycleArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ARTIFACTS', lifecycleRegistryPath);
+  assert(
+    new RegExp(`['"]${doneRequiredArtifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(lifecycleArtifactsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ARTIFACTS must include '${doneRequiredArtifact}'`,
+  );
+
+  const phaseArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_PHASE_ARTIFACTS', lifecycleRegistryPath);
+  const testPhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'TEST', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(testPhaseArtifacts, 'produces', doneRequiredArtifact, `${lifecycleRegistryPath}: TEST phase`);
+  const donePhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'DONE', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
+  assertArrayPropertyIncludesValue(donePhaseArtifacts, 'consumes', doneRequiredArtifact, `${lifecycleRegistryPath}: DONE phase`);
+
+  const oracleArtifactRefsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_ORACLE_ARTIFACT_REFS', lifecycleRegistryPath);
+  assert(
+    /['"]done-required-validation['"]\s*:\s*['"]done-required-evidence\.json['"]/.test(oracleArtifactRefsInitializer),
+    `${lifecycleRegistryPath}: LIFECYCLE_ORACLE_ARTIFACT_REFS must map 'done-required-validation' to '${doneRequiredArtifact}'`,
+  );
 
   const coreText = read('packages/main/src/core/done-required-validation.ts');
   for (const token of ['doneRequiredCommands', 'validationProfiles', 'policyHash', 'commandSetHash', 'missing-build-proof', 'requiresBuildProof', 'providesBuildProof', 'materialHash', 'storyFilesHash', 'validateRequiredReceiptCoverage', 'receipt-count-mismatch', 'receipt-command-mismatch', 'receipt-status-fail']) {
