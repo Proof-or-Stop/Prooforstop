@@ -378,6 +378,10 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
       return row.blocking ? 'git merge main' : undefined;
     case 'story-summary':
       return row.blocking ? row.hint : undefined;
+    case 'delivery-check':
+      return row.blocking
+        ? `lattice delivery_check_set --storyId=${storyId} --agentId=lattice-review-delivery ...`
+        : undefined;
     case 'eval-evidence':
     case 'codex-adapter-evidence':
       return row.blocking ? row.hint : undefined;

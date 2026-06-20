@@ -163,6 +163,10 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
     assert.ok(codes.has('missing_story_summary'), 'missing summary is classified distinctly');
     assert.ok(codes.has('missing_done_required_validation'), 'missing done-required validation is classified distinctly');
     assert.ok(codes.has('missing_done_prepare_report'), 'missing done_prepare report is visible');
+    assert.ok(
+      jsonReport.next.some((action) => action.command?.includes('delivery_check_set')),
+      'missing delivery check prints an exact delivery_check_set next command',
+    );
     assert.equal(
       jsonReport.claims.localReady,
       !jsonReport.readiness.some((row) => row.blocking === true),
