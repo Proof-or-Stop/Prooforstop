@@ -478,6 +478,17 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:16.690Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "command": "LATTICE_SESSION_ID=sess-73ee2b8ea796fcca lattice scope_contract_check {\"storyId\":\"B-9089\"}",
+          "result": "pass",
+          "note": "Scope contract check passed with 0 unacknowledged violations after implementation, covering the multi-file guardrail/test/doc changes.",
+          "headHash": "62f97ace5975aa97c3b01c3cd26052698943e590",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:17.293Z"
         }
       ]
     },
