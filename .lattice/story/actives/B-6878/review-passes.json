@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T15:05:06.680Z",
       "reviewRunId": "B-6878:RR-001",
       "_hash": "57d53c8206dc205c639dc821a4f39be25a0286a0bd1bb348ff96ea2e200a5eb6"
+    },
+    {
+      "id": "B-6878:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round-2 25-check smoke exits 0. DIGEST-PRESERVED (3 checks): each fixture includes extra non-read fields (anthropic: service_tier+server_tool_use; openai: total_tokens+nested audio_tokens; gemini: totalTokenCount) and asserts payloadDigest equals payloadDigest(original) — load-bearing because a projected-digest build would compute a different hash. CONTAINER-POLLUTION (4 checks): each pollutes Object.prototype with the CONTAINER key (usage/usageMetadata/message) carrying own leaf props that would pass the whitelist, drives the real dispatch/streaming path with no own container, and asserts source===unavailable — load-bearing because a build that only guards leaf fields but not the container read would surface 999. Estimate-path check (F-003): label is NOT load-bearing, description says so explicitly — the estimate never reads provider token keys. Original 18 checks intact: helper (4), provider finals + positive cases (6), streaming providers + positive cases (6), prototype-cleanup (1), estimate (1) — all map correctly to their intents with no regression.",
+      "createdAt": "2026-06-20T15:26:26.815Z",
+      "reviewRound": "2026-06-20T15:24:07.824Z",
+      "reviewRunId": "B-6878:RR-005",
+      "_hash": "66d32ce0c3e8d5c14e1fb4abbf3919b141bfa7a5af1aa76f8d6eedb05ab800fc"
     }
   ]
 }
