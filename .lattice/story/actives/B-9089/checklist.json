@@ -51,6 +51,18 @@
           "materialHash": "863b5f0cf4a4a391ce0252ea46ef186b603aa9dd05a430934187eb9f04417474",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-20T10:58:47.701Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "Compare /tmp/b9089-codex-plan-review.json and /tmp/b9089-agy-plan-review.json; reject /tmp/b9089-claude-plan-review.json because it contains only Execution error",
+          "result": "pass",
+          "note": "Host counting used distinct providers only: codex plus antigravity. The failed Claude Code attempt was not counted, and no duplicate/same-provider verdict was used to satisfy the two-host requirement. This preserves the plan requirement that independent host review evidence must come from distinct host providers.",
+          "headHash": "e2e5a493a0615fc048955fad359724e3e6f3b61f",
+          "materialHash": "863b5f0cf4a4a391ce0252ea46ef186b603aa9dd05a430934187eb9f04417474",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-20T10:58:55.419Z"
         }
       ]
     },
