@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-014",
       "_hash": "bdaa942a7017b6ebd41275b08b1480c0591722e470d0a741762539bbd77a148c"
+    },
+    {
+      "id": "B-d2a8:RP-010",
+      "agent": "lattice-review-behavior",
+      "note": "TOTALITY: Every throw surface inside readParallelGateFields is caught. Array.isArray(revokedProxy) throws -> outer catch -> profile default (confirmed runtime). Object.hasOwn with throwing getOwnPropertyDescriptor trap throws -> outer catch -> profile default (confirmed). Property read (get trap / throwing getter) throws -> outer catch -> profile default (confirmed). All per-field invalid values on plain objects (bigint, circular, undefined, NaN, Infinity, revoked-Proxy-as-value, throwing-toJSON, throwing-@@toStringTag) are handled inside describeInvalidValue which is itself total via nested try/catch ending in constant. No throw escapes resolveParallelGate for any input. NO BEHAVIOR CHANGE: valid config, present-but-invalid sub-fields, absent keys, mode=off, non-object/null/array/undefined raw all resolve to exactly the right result. Critically, for plain-object invalid sub-field values (mode:bigint, maxConcurrentReview:NaN, broadGlobBlocks:string), the outer catch does NOT fire — per-field granular warn+fallback handles them. Outer catch only fires for un-introspectable exotic inputs (revoked Proxy as raw, throwing getOwnPropertyDescriptor/get trap). GRANULARITY: { mode: 42n, maxConcurrentReview: 5 } -> mode degrades to advise, maxConcurrentReview:5 is applied, broadGlobBlocks stays at profile default. Outer catch does not fire. Field-by-field isolation is preserved for all plain-object inputs. Zero blockers, zero majors found.",
+      "createdAt": "2026-06-20T06:24:08.303Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-015",
+      "_hash": "6a6f90c9d0f84c08b202c5e7f6fe985864de682a3490d12a511abd8ec6bc6bd8"
     }
   ]
 }
