@@ -159,6 +159,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
+  { name: 'artifact:done-required-evidence.json', path: 'done-required-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
@@ -3307,6 +3308,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.lattice/story/actives/B-scope/decision-doc-proposals.json',
     '.lattice/story/actives/B-scope/scope-discard-digest.json',
     '.lattice/story/actives/B-scope/process-events.jsonl',
+    '.lattice/story/actives/B-scope/done-required-evidence.json',
     transcriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
@@ -3321,6 +3323,14 @@ async function assertLifecycleArtifactScopePolicy() {
     'B-997b lifecycle artifact row',
     row => row.id === 'scope.lifecycle_artifact:B-scope:summary.json'
       && row.source === '.lattice/story/actives/B-scope/summary.json'
+      && row.status === 'pass'
+      && row.blocking === false,
+  );
+  expectRow(
+    probe(['.lattice/story/actives/B-scope/done-required-evidence.json']),
+    'B-ac25 done-required lifecycle artifact row',
+    row => row.id === 'scope.lifecycle_artifact:B-scope:done-required-evidence.json'
+      && row.source === '.lattice/story/actives/B-scope/done-required-evidence.json'
       && row.status === 'pass'
       && row.blocking === false,
   );

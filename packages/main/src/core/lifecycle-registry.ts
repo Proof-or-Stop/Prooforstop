@@ -218,7 +218,7 @@ export const LIFECYCLE_TRANSITIONS = [
     kind: 'terminal',
     gates: ['done-final-checklist'],
     effects: ['merge-main', 'worktree-cleanup'],
-    oracleRows: ['validation-status', 'bug-status', 'delivery-check', 'story-summary', 'git-working-tree'],
+    oracleRows: ['validation-status', 'done-required-validation', 'bug-status', 'delivery-check', 'story-summary', 'git-working-tree'],
     rendererRow: 'DONE Final Checklist',
   },
   {
@@ -328,6 +328,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'draft-check.json',
   'summary.json',
   'test-evidence.json',
+  'done-required-evidence.json',
   'declared-artifacts.json',
   'eval-evidence.json',
   'process-events.jsonl',
@@ -389,12 +390,12 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
-    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'evidence/transcript-diff.md'],
+    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md'],
     consumes: ['test-evidence.json', 'findings.json'],
   },
   DONE: {
     produces: ['summary.json'],
-    consumes: ['test-evidence.json', 'delivery-check.json', 'summary.json', 'declared-artifacts.json', 'eval-evidence.json'],
+    consumes: ['test-evidence.json', 'delivery-check.json', 'summary.json', 'declared-artifacts.json', 'eval-evidence.json', 'done-required-evidence.json'],
   },
   DISCARDED: {
     produces: ['index.json', 'scope-discard-digest.json'],
@@ -428,6 +429,7 @@ export const LIFECYCLE_ORACLE_ARTIFACT_REFS = {
   'verification-coverage': 'checklist.json',
   'reviewer-evidence': 'review-passes.json',
   'validation-status': 'test-evidence.json',
+  'done-required-validation': 'done-required-evidence.json',
   'delivery-check': 'delivery-check.json',
   'story-summary': 'summary.json',
 } as const satisfies Record<string, LifecycleArtifact>;
