@@ -112,7 +112,7 @@
       "desc": "BLOCKER (two more unguarded doors): there are FOUR START->DEV doors (PHASE_EVENT_BY_TARGET DEV:'START'): INIT_CHECK->DEV (canSkipPlanGuard, now guarded), PLAN->DEV (canStartDevGuard, now guarded), and the rollback transitions REVIEW->DEV (machine.ts ~691-693) + TEST->DEV (~702-704) which have START:{target:'DEV'} with NO parallel guard (only cwd-worktree). The gate evaluates self.parallelSafe against active non-terminal peers regardless of self's phase, so a parallelSafe=yes story rolling back from REVIEW/TEST to DEV (the 'Run story_advance DEV to rework' path) while a colliding active peer exists re-enters DEV in violation — same bypass class as the round-1 express finding, on two more doors. Fix: extract ONE shared fail-open parallel-gate check and apply it to ALL FOUR START->DEV edges (add guards to the REVIEW + TEST states' START transitions and mirror in canSendStoryEventWithoutSnapshotCan's REVIEW/TEST cases); extend getGuardFailureReason to render the parallel block message for REVIEW/TEST->DEV sources; add smoke cases for REVIEW->DEV + TEST->DEV blocked (+ disjoint + fail-open companions).",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "claude-completeness-critic",
       "createdAt": "2026-06-20T09:07:20.302Z",
@@ -123,7 +123,11 @@
         "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|blocker-unguarded-doors",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All FOUR START->DEV doors now enforce the parallel hard-block via one shared fail-open wrapper parallelDevEntryBlock: canStartDevGuard (PLAN) + canSkipPlanGuard (INIT_CHECK express) refactored to use it; new canReenterDevGuard (parallel-only, fail-open) attached as guard 'canReenterDev' to the REVIEW->DEV + TEST->DEV rollback START transitions and mirrored in canSendStoryEventWithoutSnapshotCan; getGuardFailureReason renders the parallel reason on all four doors via isRollbackDoor. Smoke adds REVIEW/TEST rollback enforce+disjoint+fail-open cases. commit 4f36f5c1e.",
+      "resolvedAt": "2026-06-20T09:13:53.385Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-086b:F-007",
