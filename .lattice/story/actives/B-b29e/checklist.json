@@ -295,6 +295,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:13:41.229Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/parallel-decomposition-spec.md",
+          "command": "grep -n parallel-decomposition docs/parallel-decomposition-spec.md",
+          "result": "pass",
+          "note": "the note names the 4 runtime doors (INIT_CHECK/PLAN/REVIEW/TEST) and explicitly excludes the 2 legacy TEST_CASE to:DEV entries.",
+          "headHash": "25fe152ee0ccb4b6d0d717481b653c44da3d55c1",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:13:41.737Z"
         }
       ]
     }
