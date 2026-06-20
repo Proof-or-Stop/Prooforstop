@@ -214,6 +214,19 @@
           "materialHash": "136b9da8773a74896e8844ee62e9720d242c2038b5e0ef4bb3eabcbead46bab6",
           "storyFilesHash": "8b8349a4e5f9f7232b3db7fad27ba4d4e8d1d3beed6c2538397d730ce5b96549",
           "timestamp": "2026-06-20T12:17:12.962Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+          "result": "pass",
+          "note": "RoundResult constructs with lensFindings/confirmedFindings/criticFindings arrays + reopen/converged booleans; ReviewModeRound exported.",
+          "headHash": "397c158e81e2e82f6d7ac0ea9ce38d0542c71a52",
+          "materialHash": "136b9da8773a74896e8844ee62e9720d242c2038b5e0ef4bb3eabcbead46bab6",
+          "storyFilesHash": "8b8349a4e5f9f7232b3db7fad27ba4d4e8d1d3beed6c2538397d730ce5b96549",
+          "timestamp": "2026-06-20T12:17:13.571Z"
         }
       ]
     },
