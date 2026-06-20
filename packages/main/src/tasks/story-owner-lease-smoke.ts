@@ -176,6 +176,42 @@ try {
     assert.equal(generatedA.sessionSource, 'generated-token', 'host session boundary without native stable id uses generated-token');
     assert.equal(generatedA.sessionId, generatedB.sessionId, 'generated token is reused across ppid-changing invocations for the same adapter boundary');
     assert.match(generatedA.sessionId, /^sess-[a-f0-9]{32}$/, 'generated token is opaque local runtime material');
+    const generatedDifferentBoundary = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-2',
+      },
+      generatedInputs,
+      { now: () => '2026-06-20T12:10:00.000Z' },
+    );
+    assert.notEqual(
+      generatedA.sessionId,
+      generatedDifferentBoundary.sessionId,
+      'generated token is scoped by adapter session boundary: same root/provider with different boundaries must not collide',
+    );
+    const generatedDifferentProvider = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+      },
+      generatedInputs,
+      { now: () => '2026-06-20T12:15:00.000Z' },
+    );
+    assert.notEqual(
+      generatedA.sessionId,
+      generatedDifferentProvider.sessionId,
+      'generated token is scoped by host provider: same root/boundary with different providers must not collide',
+    );
+    const generatedDifferentRoot = resolveSessionIdentity(
+      generatedEnv,
+      { ...generatedInputs, root: join(root, 'other-project-root') },
+      { now: () => '2026-06-20T12:20:00.000Z' },
+    );
+    assert.notEqual(
+      generatedA.sessionId,
+      generatedDifferentRoot.sessionId,
+      'generated token is scoped by project root: same provider/boundary in different roots must not collide',
+    );
 
     // 1e. BOTH env vars absent → deriveLocalSessionId(hostname, root, ppid) is
     // the fallback; sessionSource = derived-ppid. Keep the derive stability /
