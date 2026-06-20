@@ -71,19 +71,23 @@ export interface LensRunRequest {
 }
 
 /**
- * Plan one INDEPENDENT request per lens in the (possibly subset) set. Each request
- * is a fresh object literal {lensId, lane, change} — no shared mutable reference,
- * and no other lens's data is ever threaded in. No side effects.
+ * Plan one INDEPENDENT request per UNIQUE lens (a lens set is a set — a duplicated
+ * lens id yields a single request; first occurrence wins, order preserved). Each
+ * request is a fresh object literal {lensId, lane, change} — no shared mutable
+ * reference, and no other lens's data is ever threaded in. No side effects.
  */
 export function buildLensRunPlan(
   change: string,
   lensSet: readonly LensDef[] = CANONICAL_LENS_SET,
 ): LensRunRequest[] {
-  return lensSet.map((lens) => ({
-    lensId: lens.id,
-    lane: LENS_TO_LANE[lens.id],
-    change,
-  }));
+  const seen = new Set<LensId>();
+  const requests: LensRunRequest[] = [];
+  for (const lens of lensSet) {
+    if (seen.has(lens.id)) continue;
+    seen.add(lens.id);
+    requests.push({ lensId: lens.id, lane: LENS_TO_LANE[lens.id], change });
+  }
+  return requests;
 }
 
 /**

@@ -150,4 +150,78 @@ check('collectRawFindings flattens to exactly 2 findings', collected.length === 
 check('collectRawFindings preserves the behavior finding', collected.includes(behaviorFinding));
 check('collectRawFindings preserves the crash finding', collected.includes(crashFinding));
 
+// ── 7. CHK-002:edge:1 — empty lens set plans nothing ─────────────────────────
+const emptyPlan = buildLensRunPlan('x', []);
+check('buildLensRunPlan(x, []) returns [] (length 0)', emptyPlan.length === 0);
+
+// ── 8. CHK-002:adversarial:0 — no state leakage across calls ─────────────────
+// Distinct subsets + distinct changes across two calls prove buildLensRunPlan
+// holds NO shared mutable accumulator: neither call's output may carry the
+// other's lens id or change.
+const cqOnly = CANONICAL_LENS_SET.filter((l) => l.id === 'code-quality');
+const docsOnly = CANONICAL_LENS_SET.filter((l) => l.id === 'docs-consistency');
+const callA = buildLensRunPlan('A', cqOnly);
+const callB = buildLensRunPlan('B', docsOnly);
+check('callA plans exactly 1 request', callA.length === 1);
+check('callA[0].lensId === code-quality', callA[0].lensId === 'code-quality');
+check('callA[0].change === A', callA[0].change === 'A');
+check('callB plans exactly 1 request', callB.length === 1);
+check('callB[0].lensId === docs-consistency', callB[0].lensId === 'docs-consistency');
+check('callB[0].change === B', callB[0].change === 'B');
+check(
+  'callA carries NEITHER docs-consistency NOR change B (no leakage)',
+  callA.every((r) => r.lensId !== 'docs-consistency' && r.change !== 'B'),
+);
+check(
+  'callB carries NEITHER code-quality NOR change A (no leakage)',
+  callB.every((r) => r.lensId !== 'code-quality' && r.change !== 'A'),
+);
+
+// ── 9. CHK-002:adversarial:1 — duplicate lens dedups to ONE request ──────────
+const cq = CANONICAL_LENS_SET.find((l) => l.id === 'code-quality')!;
+const dupPlan = buildLensRunPlan('D', [cq, cq]);
+check('buildLensRunPlan(D, [cq,cq]) dedups to exactly 1 request', dupPlan.length === 1);
+check('dedup request lensId === code-quality', dupPlan[0].lensId === 'code-quality');
+
+// ── 10. CHK-003:edge:0 — multiple findings per lens all preserved in order ───
+const m1 = planted('test-coverage finding 1');
+const m2 = planted('test-coverage finding 2');
+const m3 = planted('test-coverage finding 3');
+const fakeMulti = (req: LensRunRequest): Finding[] =>
+  req.lensId === 'test-coverage' ? [m1, m2, m3] : [];
+const resultsMulti = runLenses('DIFF', CANONICAL_LENS_SET, fakeMulti);
+const tcResult = resultsMulti.find((r) => r.lensId === 'test-coverage')!;
+check('test-coverage result has exactly 3 findings', tcResult.findings.length === 3);
+check('test-coverage findings preserved in order', tcResult.findings[0] === m1 && tcResult.findings[1] === m2 && tcResult.findings[2] === m3);
+const collectedMulti = collectRawFindings(resultsMulti);
+check('collectRawFindings preserves all 3 multi findings', collectedMulti.length === 3);
+check('collectRawFindings preserves multi findings in order', collectedMulti[0] === m1 && collectedMulti[1] === m2 && collectedMulti[2] === m3);
+
+// ── 11. CHK-003:edge:1 — every lens finds one ────────────────────────────────
+const fakeAllFind = (req: LensRunRequest): Finding[] => [planted('finding for ' + req.lensId)];
+const resultsAllFind = runLenses('DIFF', CANONICAL_LENS_SET, fakeAllFind);
+check('all 6 results have exactly 1 finding (every lens finds)', resultsAllFind.length === 6 && resultsAllFind.every((r) => r.findings.length === 1));
+check('collectRawFindings yields 6 when every lens finds', collectRawFindings(resultsAllFind).length === 6);
+
+// ── 12. CHK-003:edge:2 — every lens PASSes ───────────────────────────────────
+const fakeAllPass = (_req: LensRunRequest): Finding[] => [];
+const resultsAllPass = runLenses('DIFF', CANONICAL_LENS_SET, fakeAllPass);
+check('all 6 results have 0 findings (every lens PASSes)', resultsAllPass.length === 6 && resultsAllPass.every((r) => r.findings.length === 0));
+check('collectRawFindings yields 0 when every lens PASSes', collectRawFindings(resultsAllPass).length === 0);
+
+// ── 13. CHK-003:adversarial:2 — a throwing seam PROPAGATES (not swallowed) ────
+const fakeThrow = (req: LensRunRequest): Finding[] => {
+  if (req.lensId === 'concept/scope') throw new Error('lens executor blew up');
+  return [];
+};
+let caught = false;
+let leaked: unknown = undefined;
+try {
+  leaked = runLenses('DIFF', CANONICAL_LENS_SET, fakeThrow);
+} catch {
+  caught = true;
+}
+check('a throwing runLens PROPAGATES out of runLenses (not swallowed)', caught === true);
+check('no partial result was silently returned when the seam threw', leaked === undefined);
+
 console.log('adversarial-review-lens-runner smoke passed: ' + passed + ' assertions');
