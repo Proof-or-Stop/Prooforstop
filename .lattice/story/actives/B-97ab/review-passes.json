@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-97ab:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope CLEAN: git diff 336a99755..HEAD touches only the two allowed new files + lattice.config.json; S0 contract (adversarial-review.ts) and review-run.ts are byte-unmodified; no finding_add/ledger (S2), verifier/threshold (S2), completeness critic (S3), or escalation/autopilot (S4) leaked in; module is exactly the §4.2 mapping + independent per-lens plan + injected runner + aggregator. Confirmed by round-1 concept lane (0 findings) + round-2 multi-lens concept/scope lens (0 confirmed).",
+      "createdAt": "2026-06-20T14:24:37.209Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-001",
+      "_hash": "b4f01c8b230e4515e75469230d4a186ea1b7e0f647a3b99d63a5127f6a8c618d"
+    },
+    {
+      "id": "B-97ab:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality CLEAN over round-2 hash: no dead code; LENS_TO_LANE typed Record<LensId,LensLane> (compiler-exhaustive); module is pure (only type imports from review-run.ts, const/type from S0; no FS/git/net); round-1 MED (raw non-null .find()! crash) FIXED in round 2 with guarded check(...!==undefined)+exit; smoke assertions pinned to explicit local EXPECTED literals (non-vacuous). Confirmed by round-2 multi-lens code-quality lens (0 confirmed) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:14.651Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-002",
+      "_hash": "3767cf4b9796fcb4812efa874ac1010e8aa9594df25abf0ff4a12822cfa084d1"
+    },
+    {
+      "id": "B-97ab:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage CLEAN over round-2 hash: all 33 verificationIntent entries map to real smoke assertions at the actual sink; round-1 HIGH (CHK-003:happy:1 1-finding flatten never called) + 2 MED (CHK-001:adversarial:0/1 subset-not-bijection + lane-removal only reasoned) + LOW (one-only same-lane) all FIXED in round 2 with real runtime assertions; the 4 overclaimed evidence notes rewritten honest (incl. 96-assertion count). Confirmed by round-2 test-coverage re-review (4/4 fixed, no new gap) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:15.745Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-003",
+      "_hash": "4f2e467c262a63afb2ffea2f0d35789a4aee39d934b58ecda64265295be8a29f"
+    },
+    {
+      "id": "B-97ab:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior CLEAN over round-2 hash: LENS_TO_LANE values exactly §4.2 + all in REVIEW_RUN_LANES; buildLensRunPlan one request per UNIQUE lens (dedup-by-lensId first-wins order-preserved, proven with a distinct same-id clone), empty->[], subset->only those; runLenses invokes injected seam exactly once per request with only that request; two behavior-mapped lenses stay distinct (both-planted AND one-only sub-cases); collectRawFindings flatMap no-dedup (byte-identical + same-reference pinned); throwing seam propagates (no partial). The §4.2 crash-safety/edge->behavior choice is spec-permitted (\"or quality\") and is the deliberate, intent-committed choice. Confirmed by round-2 multi-lens behavior lens (0 confirmed) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:16.848Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-004",
+      "_hash": "511ec5e189728fd2b1d77e07c127f6a7b7899b037ea761227e7293849a0c8120"
+    },
+    {
+      "id": "B-97ab:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs-consistency CLEAN over round-2 hash: module JSDoc accurately describes plan-level lensId-dedup vs finding-level no-dedup (distinct, non-contradictory); buildLensRunPlan first-wins/order-preserved claim matches code; round-1 LOW (smoke header overstated \"every assertion pinned to literals\") FIXED in round 2 with a precise header; lattice.config.json registers node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js (path matches dist); §4.2 mapping matches spec. Confirmed by round-2 multi-lens docs lens (0 confirmed) and Codex host-2 PASS.",
+      "createdAt": "2026-06-20T14:25:17.942Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-005",
+      "_hash": "68cb1afcfac149795a48bd76b32a05850c4397687b3a121830722fc8897374a4"
+    },
+    {
+      "id": "B-97ab:RP-006",
+      "agent": "lattice-review-channel",
+      "note": "Channel CLEAN over round-2 hash: all 4 business-code commits (c1bea2c08, d674615d2, 74e0e1897, 15b07cde7) authored by lattice-implementer in the normal channel; the main agent authored none of the runner/smoke/config code. Dispatch coverage satisfied.",
+      "createdAt": "2026-06-20T14:25:19.032Z",
+      "reviewRound": "2026-06-20T13:49:38.269Z",
+      "reviewRunId": "B-97ab:RR-006",
+      "_hash": "d9ad90b7e41209037cc60a465dc26a2217bcdaabb5cb2768ea41807b82ca3b55"
+    }
+  ]
+}

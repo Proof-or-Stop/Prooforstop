@@ -1,0 +1,677 @@
+{
+  "command": "lattice validate --story=B-97ab --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.29 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"Verification intent coverage: 33/33 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — LENS_TO_LANE has exactly 6 entries, one per LENS_IDS member, with mapped lanes matching spec section 4.2 table (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs) -> all 6 mappings present and correct; WHY: covers the fundamental mapping correctness that every downstream function depends on\",\"  ✓ CHK-001:happy:1 [happy/must/logic] covered via logic_test — Every value in LENS_TO_LANE is a member of REVIEW_RUN_LANES (imported from core/review-run.ts) -> subset assertion passes; WHY: pins the mapping to reality so a lane rename or removal in review-run.ts is immediately caught\",\"  ✓ CHK-001:happy:2 [happy/must/logic] covered via logic_test — The lane type exported from the module is the union of exactly the six real review_run_start lanes (matches ReviewRunLane from review-run.ts) -> type-level and runtime agreement; WHY: ensures no seventh/phantom lane can be assigned\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — LENS_TO_LANE has two lenses (behavior/correctness and crash-safety/edge) both mapping to lattice-review-behavior -> both entries present, distinct keys, same value, no collision or overwrite; WHY: the two-to-one mapping is the trickiest part of the table and a naive Set-based uniqueness check would wrongly reject it\",\"  ✓ CHK-001:edge:1 [edge/must/logic] covered via logic_test — LENS_IDS contains slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) used as object keys -> Record lookup by slash-form string succeeds without encoding/escaping; WHY: slash in key is an unusual pattern that could break naive property access\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — If a hypothetical 7th lane were added to REVIEW_RUN_LANES but NOT to LENS_TO_LANE, the subset assertion still passes (LENS_TO_LANE values are a subset, not an exact match) -> no false failure; WHY: verifies the assertion direction is subset-of not equals, which is the correct contract (lattice-review-channel exists in REVIEW_RUN_LANES but is not used by any lens)\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via logic_test — If REVIEW_RUN_LANES were to remove lattice-review-behavior, the subset assertion fails because two lenses (behavior/correctness + crash-safety/edge) map to it -> immediate detection of lane drift; WHY: this is the highest-risk drift scenario since two lenses share the lane\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — buildLensRunPlan(change, CANONICAL_LENS_SET) returns exactly 6 LensRunRequest objects, one per lens in CANONICAL_LENS_SET -> length===6 and each request.lensId is unique across the set; WHY: covers the main-path plan construction\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test — Each LensRunRequest carries exactly {lensId, lane, change} with lane matching LENS_TO_LANE[lensId] and change being the input string -> fields are correct per request; WHY: verifies the request shape matches the contract and the lane lookup works\",\"  ✓ CHK-002:happy:2 [happy/must/logic] covered via logic_test — buildLensRunPlan with default lensSet (omitting the second arg) uses CANONICAL_LENS_SET -> yields 6 requests; WHY: covers the default-parameter path\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — buildLensRunPlan(change, subsetLensSet) where subsetLensSet contains only 2 of 6 lenses -> returns exactly 2 requests, only for those 2 lenses; WHY: the task-tunable subset is a key spec requirement (section 2.1) and must not silently include extra lenses\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test — buildLensRunPlan(change, emptyLensSet=[]) -> returns empty array (no requests); WHY: degenerate input boundary; an empty set should not crash or produce phantom requests\",\"  ✓ CHK-002:edge:2 [edge/must/logic] covered via logic_test — LensRunRequest does NOT have a findings field or any field carrying another lens output -> Object.keys check on each request yields only {lensId, lane, change}; WHY: independence property (section 2.1) — the request shape must not leak cross-lens data at the structural level\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — buildLensRunPlan called with the same change string for two different subset lens sets -> each call returns requests only for its own subset with no state leakage between calls; WHY: tests that there is no shared mutable state (e.g., a module-level accumulator) across invocations\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/logic] covered via logic_test — buildLensRunPlan with a lensSet containing a duplicate lens (same LensDef twice) -> produces at most one request per unique lensId (no duplicate requests); WHY: adversarial duplicate input must not produce duplicate work items that could cause double-counting in downstream aggregation\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — runLenses(change, CANONICAL_LENS_SET, fakeRunLens) where fakeRunLens plants one Finding on concept/scope and returns [] for all others -> returns 6 LensRunResult objects; the concept/scope result has findings.length===1 with the planted Finding; all other 5 results have findings===[] (PASS); WHY: covers the main path of injected-seam execution and per-lens result grouping\",\"  ✓ CHK-003:happy:1 [happy/must/logic] covered via logic_test — collectRawFindings(results) given the above 6 LensRunResults -> returns flat array of length 1 containing exactly the planted Finding; WHY: covers the flattening aggregator main path\",\"  ✓ CHK-003:happy:2 [happy/must/logic] covered via logic_test — runLenses invokes the injected runLens callback exactly once per lens (6 times total for CANONICAL_LENS_SET) -> counter-instrumented fakeRunLens records 6 invocations; WHY: verifies the seam is called per-request, not skipped or double-called\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — runLenses with a fakeRunLens that returns multiple Findings (e.g., 3) for one lens and [] for the rest -> that lens LensRunResult.findings.length===3, collectRawFindings returns all 3; WHY: multi-finding-per-lens is a realistic scenario (a lens can find several defects)\",\"  ✓ CHK-003:edge:1 [edge/must/logic] covered via logic_test — runLenses with a fakeRunLens that returns Findings for ALL 6 lenses -> all 6 LensRunResults have non-empty findings; collectRawFindings returns the union (total count matches sum of per-lens counts); WHY: no-PASS-lens edge case where every lens finds something\",\"  ✓ CHK-003:edge:2 [edge/must/logic] covered via logic_test — runLenses with a fakeRunLens that returns [] for ALL lenses -> all 6 LensRunResults have findings===[] (all PASS); collectRawFindings returns []; WHY: all-clean edge case\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — The fakeRunLens callback receives ONLY {lensId, lane, change} per invocation — never another lens LensRunResult or another lens request -> instrument fakeRunLens to capture its argument and assert Object.keys match exactly {lensId, lane, change}; WHY: independence is load-bearing (section 2.1); if runLenses leaks prior results into subsequent runLens calls, cross-contamination occurs\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/logic] covered via logic_test — Two lenses map to the same lane (behavior/correctness and crash-safety/edge both map to lattice-review-behavior) -> runLenses returns two DISTINCT LensRunResult objects with different lensId but the same lane; fakeRunLens plants a Finding on crash-safety/edge only -> only the crash-safety/edge result has findings, the behavior/correctness result has []; collectRawFindings does not mis-attribute or merge them; WHY: same-lane collision is the highest-risk aggregation bug — findings must stay attributed to their originating lens, not collapsed by lane\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/logic] covered via logic_test — fakeRunLens throws an Error for one lens -> runLenses either propagates the error or handles it gracefully (does not silently swallow and return partial results without indication); WHY: a throwing runLens seam simulates a real agent crash; silent swallowing would hide review failures\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — Hermetic smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses check+counter pattern, and exits 0 when all assertions pass; WHY: the smoke is the acceptance gate for the entire S1 story\",\"  ✓ CHK-004:happy:1 [happy/must/logic] covered via logic_test — Smoke asserts every value of LENS_TO_LANE is in REVIEW_RUN_LANES (subset check against the real import from core/review-run.ts) -> assertion passes; WHY: pins the mapping to the real lane enum at test time, not just at type-check time\",\"  ✓ CHK-004:happy:2 [happy/must/logic] covered via logic_test — Smoke asserts buildLensRunPlan(change, CANONICAL_LENS_SET) yields exactly 6 requests with correct lensId and lane per request, and no findings field on any request -> all pass; WHY: covers plan construction correctness and independence\",\"  ✓ CHK-004:happy:3 [happy/must/logic] covered via logic_test — Smoke runs runLenses with a FAKE runLens that plants a Finding on one lens and returns [] elsewhere -> asserts correct LensRunResult grouping (findings on the planted lens, empty on others) and collectRawFindings flattens correctly; WHY: end-to-end proof of the injected-seam + aggregation path\",\"  ✓ CHK-004:happy:4 [happy/must/logic] covered via logic_test — Smoke command is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js -> lattice validate runs it; WHY: if not registered, the smoke never runs in CI/validation and is dead code\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — Smoke tests a SUBSET lens set (e.g., 2 of 6 lenses) via buildLensRunPlan -> asserts only 2 requests returned, only for those 2 lenses; WHY: subset is a spec requirement (task-tunable) and must be exercised in the smoke\",\"  ✓ CHK-004:edge:1 [edge/must/logic] covered via logic_test — Smoke counter tracks total check count and reports it at exit (check+counter pattern) -> final output includes the count of passed assertions; WHY: a smoke that silently passes zero checks is a false-confidence hazard\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — Smoke asserts that when behavior/correctness and crash-safety/edge both map to lattice-review-behavior, they produce SEPARATE LensRunResult entries (distinct lensId, same lane) and findings are not merged or mis-attributed between them -> assertion passes; WHY: the two-to-one lane mapping is the most fragile part of the design; if the smoke does not explicitly test this, a grouping-by-lane bug can ship undetected\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/logic] covered via logic_test — Smoke asserts that the FAKE runLens callback never receives a findings field or any prior lens output in its argument -> assertion on request shape passes; WHY: independence is the load-bearing invariant of the lens runner; if the smoke does not explicitly assert the request shape, cross-contamination can ship\"],\"warnings\":[],\"timestamp\":\"2026-06-20T14:35:55.391Z\",\"headSha\":\"d1c8af880cb3d42e6f0f1bc50dd0cdffdc21860e\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.29 build\\n> tsc\\n\\n\",\"durationMs\":5117},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":198},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":177},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":12287},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":553},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4107},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":3058},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":164},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":103},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":116},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":114},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1259},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":101},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":108}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":33,\"reason\":\"verificationIntent entries present (33)\"},\"verificationCoverage\":{\"total\":33,\"required\":33,\"covered\":33,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"LENS_TO_LANE has exactly 6 entries, one per LENS_IDS member, with mapped lanes matching spec section 4.2 table (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs) -> all 6 mappings present and correct; WHY: covers the fundamental mapping correctness that every downstream function depends on\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 + 2 assert LENS_TO_LANE has all 6 §4.2 pairs and the plan iterates exactly the 6 LENS_IDS in order; tsc typing Record<LensId,LensLane> forces one entry per LensId.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Every value in LENS_TO_LANE is a member of REVIEW_RUN_LANES (imported from core/review-run.ts) -> subset assertion passes; WHY: pins the mapping to reality so a lane rename or removal in review-run.ts is immediately caught\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 iterates Object.values(LENS_TO_LANE) and asserts each is in the LIVE REVIEW_RUN_LANES import (subset check).\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The lane type exported from the module is the union of exactly the six real review_run_start lanes (matches ReviewRunLane from review-run.ts) -> type-level and runtime agreement; WHY: ensures no seventh/phantom lane can be assigned\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"LensLane is aliased to ReviewRunLane; tsc compiling the module + smoke (build step) is the proof the lane type IS the six real lanes union — any non-real lane value fails compilation.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"LENS_TO_LANE has two lenses (behavior/correctness and crash-safety/edge) both mapping to lattice-review-behavior -> both entries present, distinct keys, same value, no collision or overwrite; WHY: the two-to-one mapping is the trickiest part of the table and a naive Set-based uniqueness check would wrongly reject it\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 explicitly asserts behavior/correctness and crash-safety/edge both map to lattice-review-behavior (same lane).\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"LENS_IDS contains slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) used as object keys -> Record lookup by slash-form string succeeds without encoding/escaping; WHY: slash in key is an unusual pattern that could break naive property access\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke EXPECTED_LENS_IDS_IN_ORDER + EXPECTED_LENS_TO_LANE use slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) and section 2 asserts each plan request's lensId equals them.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If a hypothetical 7th lane were added to REVIEW_RUN_LANES but NOT to LENS_TO_LANE, the subset assertion still passes (LENS_TO_LANE values are a subset, not an exact match) -> no false failure; WHY: verifies the assertion direction is subset-of not equals, which is the correct contract (lattice-review-channel exists in REVIEW_RUN_LANES but is not used by any lens)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 now asserts (runtime) that REVIEW_RUN_LANES contains a real lane NOT among Object.values(LENS_TO_LANE) (lattice-review-channel) — proving the section-1 mapping check is subset-direction (includes), not a bijection/equality, exactly the intent's property.\",\"headHash\":\"15b07cde78284360fb495222da81f0047a5b3475\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:02:10.489Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If REVIEW_RUN_LANES were to remove lattice-review-behavior, the subset assertion fails because two lenses (behavior/correctness + crash-safety/edge) map to it -> immediate detection of lane drift; WHY: this is the highest-risk drift scenario since two lenses share the lane\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 now simulates removal: it builds lanesMinusBehavior (REVIEW_RUN_LANES without lattice-review-behavior) and asserts the subset predicate FAILS for the behavior-mapped values — a real runtime assertion demonstrating drift/removal detection.\",\"headHash\":\"15b07cde78284360fb495222da81f0047a5b3475\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:02:10.489Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"buildLensRunPlan(change, CANONICAL_LENS_SET) returns exactly 6 LensRunRequest objects, one per lens in CANONICAL_LENS_SET -> length===6 and each request.lensId is unique across the set; WHY: covers the main-path plan construction\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 asserts buildLensRunPlan(DIFF) over CANONICAL_LENS_SET yields exactly 6 LensRunRequests, one per lens in order.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Each LensRunRequest carries exactly {lensId, lane, change} with lane matching LENS_TO_LANE[lensId] and change being the input string -> fields are correct per request; WHY: verifies the request shape matches the contract and the lane lookup works\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 asserts each request's lane === LENS_TO_LANE[lensId] and Object.keys === {change,lane,lensId}.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"buildLensRunPlan with default lensSet (omitting the second arg) uses CANONICAL_LENS_SET -> yields 6 requests; WHY: covers the default-parameter path\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 calls buildLensRunPlan('DIFF') with NO second arg, proving the default CANONICAL_LENS_SET parameter path yields the 6 requests.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"buildLensRunPlan(change, subsetLensSet) where subsetLensSet contains only 2 of 6 lenses -> returns exactly 2 requests, only for those 2 lenses; WHY: the task-tunable subset is a key spec requirement (section 2.1) and must not silently include extra lenses\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 3 builds a subset lensSet (code-quality + docs-consistency) and asserts exactly 2 requests, only those two lenses with their mapped lanes.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"buildLensRunPlan(change, emptyLensSet=[]) -> returns empty array (no requests); WHY: degenerate input boundary; an empty set should not crash or produce phantom requests\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 7 asserts buildLensRunPlan('x', []) returns [] (length 0) — empty set plans nothing, no crash.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"LensRunRequest does NOT have a findings field or any field carrying another lens output -> Object.keys check on each request yields only {lensId, lane, change}; WHY: independence property (section 2.1) — the request shape must not leak cross-lens data at the structural level\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 asserts each request has EXACTLY keys {change,lane,lensId} (Object.keys check) — no findings field / no cross-lens data on the request type.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"buildLensRunPlan called with the same change string for two different subset lens sets -> each call returns requests only for its own subset with no state leakage between calls; WHY: tests that there is no shared mutable state (e.g., a module-level accumulator) across invocations\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 8 makes two calls with distinct subsets+changes (A/code-quality then B/docs-consistency) and asserts neither output carries the other's lens id or change — no shared mutable accumulator.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"buildLensRunPlan with a lensSet containing a duplicate lens (same LensDef twice) -> produces at most one request per unique lensId (no duplicate requests); WHY: adversarial duplicate input must not produce duplicate work items that could cause double-counting in downstream aggregation\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 9 builds a lensSet with the same lens twice and asserts buildLensRunPlan returns exactly 1 request (dedup by unique lensId, first-occurrence-wins) — matching the dedup added to the implementation.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"runLenses(change, CANONICAL_LENS_SET, fakeRunLens) where fakeRunLens plants one Finding on concept/scope and returns [] for all others -> returns 6 LensRunResult objects; the concept/scope result has findings.length===1 with the planted Finding; all other 5 results have findings===[] (PASS); WHY: covers the main path of injected-seam execution and per-lens result grouping\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 runs runLenses with a fake that plants one Finding on a single lens (code-quality) and [] elsewhere; asserts 6 results, the planted lens has 1 finding, all others PASS ([]).\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"collectRawFindings(results) given the above 6 LensRunResults -> returns flat array of length 1 containing exactly the planted Finding; WHY: covers the flattening aggregator main path\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 now calls collectRawFindings(results1) and asserts length===1 with the single element === codeQualityFinding (the 1-finding flatten case); sections 6/10/11/12 cover the 2-, 3-, 6-, and 0-finding flatten cases. All flatten arities exercised.\",\"headHash\":\"15b07cde78284360fb495222da81f0047a5b3475\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:02:10.489Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"runLenses invokes the injected runLens callback exactly once per lens (6 times total for CANONICAL_LENS_SET) -> counter-instrumented fakeRunLens records 6 invocations; WHY: verifies the seam is called per-request, not skipped or double-called\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 records every request the fake saw (seen1) and asserts seen1.length === 6 — runLens invoked exactly once per lens.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"runLenses with a fakeRunLens that returns multiple Findings (e.g., 3) for one lens and [] for the rest -> that lens LensRunResult.findings.length===3, collectRawFindings returns all 3; WHY: multi-finding-per-lens is a realistic scenario (a lens can find several defects)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 10 (multi-finding) fake returns 3 distinct Findings for one lens; asserts that result has 3 findings and collectRawFindings returns 3, order preserved.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"runLenses with a fakeRunLens that returns Findings for ALL 6 lenses -> all 6 LensRunResults have non-empty findings; collectRawFindings returns the union (total count matches sum of per-lens counts); WHY: no-PASS-lens edge case where every lens finds something\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 11 (all-find) fake returns a Finding for every lens; asserts all 6 results non-empty and collectRawFindings length 6.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"runLenses with a fakeRunLens that returns [] for ALL lenses -> all 6 LensRunResults have findings===[] (all PASS); collectRawFindings returns []; WHY: all-clean edge case\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 12 (all-PASS) fake returns [] for every lens; asserts all 6 results empty and collectRawFindings length 0.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The fakeRunLens callback receives ONLY {lensId, lane, change} per invocation — never another lens LensRunResult or another lens request -> instrument fakeRunLens to capture its argument and assert Object.keys match exactly {lensId, lane, change}; WHY: independence is load-bearing (section 2.1); if runLenses leaks prior results into subsequent runLens calls, cross-contamination occurs\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 asserts every request the fake received had ONLY {change,lane,lensId} keys — the seam never receives another lens's output (independence).\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Two lenses map to the same lane (behavior/correctness and crash-safety/edge both map to lattice-review-behavior) -> runLenses returns two DISTINCT LensRunResult objects with different lensId but the same lane; fakeRunLens plants a Finding on crash-safety/edge only -> only the crash-safety/edge result has findings, the behavior/correctness result has []; collectRawFindings does not mis-attribute or merge them; WHY: same-lane collision is the highest-risk aggregation bug — findings must stay attributed to their originating lens, not collapsed by lane\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 5 covers BOTH the both-planted distinctness case AND a one-only sub-case (plant on crash-safety/edge only -> behavior/correctness result EMPTY, crash carries its own finding) — proving no cross-attribution when only one of the two same-lane lenses fires, matching the intent exactly.\",\"headHash\":\"15b07cde78284360fb495222da81f0047a5b3475\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:02:10.489Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"fakeRunLens throws an Error for one lens -> runLenses either propagates the error or handles it gracefully (does not silently swallow and return partial results without indication); WHY: a throwing runLens seam simulates a real agent crash; silent swallowing would hide review failures\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 13 uses a fake that throws on one lens and asserts runLenses propagates the error (caught flag true) rather than silently swallowing and returning partial results.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Hermetic smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses check+counter pattern, and exits 0 when all assertions pass; WHY: the smoke is the acceptance gate for the entire S1 story\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"The smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses the check+counter pattern (process.exit(1) on any failed check), and exits 0 printing 'adversarial-review-lens-runner smoke passed: 96 assertions' after the round-2 hardening.\",\"headHash\":\"4b7879e982ca0356f1a2968fb6cb067948209e8b\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:04:06.631Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Smoke asserts every value of LENS_TO_LANE is in REVIEW_RUN_LANES (subset check against the real import from core/review-run.ts) -> assertion passes; WHY: pins the mapping to the real lane enum at test time, not just at type-check time\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 1 asserts every LENS_TO_LANE value is in the real REVIEW_RUN_LANES import (runtime subset check), not just type-check.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Smoke asserts buildLensRunPlan(change, CANONICAL_LENS_SET) yields exactly 6 requests with correct lensId and lane per request, and no findings field on any request -> all pass; WHY: covers plan construction correctness and independence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 2 asserts buildLensRunPlan over CANONICAL_LENS_SET yields 6 requests with correct lensId+lane and no findings field on any request.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:happy:3\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Smoke runs runLenses with a FAKE runLens that plants a Finding on one lens and returns [] elsewhere -> asserts correct LensRunResult grouping (findings on the planted lens, empty on others) and collectRawFindings flattens correctly; WHY: end-to-end proof of the injected-seam + aggregation path\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 + 6 run runLenses with a FAKE runLens planting on one lens and assert correct LensRunResult grouping + collectRawFindings flatten.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:happy:4\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Smoke command is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js -> lattice validate runs it; WHY: if not registered, the smoke never runs in CI/validation and is dead code\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:4\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Registered as validate.commands[13] 'node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js'; lattice validate runs it green.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Smoke tests a SUBSET lens set (e.g., 2 of 6 lenses) via buildLensRunPlan -> asserts only 2 requests returned, only for those 2 lenses; WHY: subset is a spec requirement (task-tunable) and must be exercised in the smoke\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 3 exercises a 2-of-6 subset lens set and asserts only those 2 requests.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Smoke counter tracks total check count and reports it at exit (check+counter pattern) -> final output includes the count of passed assertions; WHY: a smoke that silently passes zero checks is a false-confidence hazard\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke uses a passed counter and prints 'adversarial-review-lens-runner smoke passed: 96 assertions' at exit (check+counter pattern reports the count); count rose from 77 to 96 after the dual-host round-2 hardening.\",\"headHash\":\"4b7879e982ca0356f1a2968fb6cb067948209e8b\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:04:06.631Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Smoke asserts that when behavior/correctness and crash-safety/edge both map to lattice-review-behavior, they produce SEPARATE LensRunResult entries (distinct lensId, same lane) and findings are not merged or mis-attributed between them -> assertion passes; WHY: the two-to-one lane mapping is the most fragile part of the design; if the smoke does not explicitly test this, a grouping-by-lane bug can ship undetected\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 5 asserts the two lenses mapping to lattice-review-behavior produce SEPARATE LensRunResults (distinct lensId, same lane) with findings not merged or mis-attributed.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Smoke asserts that the FAKE runLens callback never receives a findings field or any prior lens output in its argument -> assertion on request shape passes; WHY: independence is the load-bearing invariant of the lens runner; if the smoke does not explicitly assert the request shape, cross-contamination can ship\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke section 4 asserts the fake runLens callback only ever received {change,lane,lensId} keys — never a findings field or prior lens output.\",\"headHash\":\"7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787\",\"materialHash\":\"6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a\",\"storyFilesHash\":\"4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966\",\"timestamp\":\"2026-06-20T14:25:41.205Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-20T14:35:57.581Z",
+  "headHash": "d1c8af880cb3d42e6f0f1bc50dd0cdffdc21860e",
+  "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+  "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+  "verificationCoverage": {
+    "total": 33,
+    "required": 33,
+    "covered": 33,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "LENS_TO_LANE has exactly 6 entries, one per LENS_IDS member, with mapped lanes matching spec section 4.2 table (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs) -> all 6 mappings present and correct; WHY: covers the fundamental mapping correctness that every downstream function depends on",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 + 2 assert LENS_TO_LANE has all 6 §4.2 pairs and the plan iterates exactly the 6 LENS_IDS in order; tsc typing Record<LensId,LensLane> forces one entry per LensId.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Every value in LENS_TO_LANE is a member of REVIEW_RUN_LANES (imported from core/review-run.ts) -> subset assertion passes; WHY: pins the mapping to reality so a lane rename or removal in review-run.ts is immediately caught",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 iterates Object.values(LENS_TO_LANE) and asserts each is in the LIVE REVIEW_RUN_LANES import (subset check).",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The lane type exported from the module is the union of exactly the six real review_run_start lanes (matches ReviewRunLane from review-run.ts) -> type-level and runtime agreement; WHY: ensures no seventh/phantom lane can be assigned",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "LensLane is aliased to ReviewRunLane; tsc compiling the module + smoke (build step) is the proof the lane type IS the six real lanes union — any non-real lane value fails compilation.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "LENS_TO_LANE has two lenses (behavior/correctness and crash-safety/edge) both mapping to lattice-review-behavior -> both entries present, distinct keys, same value, no collision or overwrite; WHY: the two-to-one mapping is the trickiest part of the table and a naive Set-based uniqueness check would wrongly reject it",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 explicitly asserts behavior/correctness and crash-safety/edge both map to lattice-review-behavior (same lane).",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "LENS_IDS contains slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) used as object keys -> Record lookup by slash-form string succeeds without encoding/escaping; WHY: slash in key is an unusual pattern that could break naive property access",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke EXPECTED_LENS_IDS_IN_ORDER + EXPECTED_LENS_TO_LANE use slash-form ids (concept/scope, behavior/correctness, crash-safety/edge) and section 2 asserts each plan request's lensId equals them.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If a hypothetical 7th lane were added to REVIEW_RUN_LANES but NOT to LENS_TO_LANE, the subset assertion still passes (LENS_TO_LANE values are a subset, not an exact match) -> no false failure; WHY: verifies the assertion direction is subset-of not equals, which is the correct contract (lattice-review-channel exists in REVIEW_RUN_LANES but is not used by any lens)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 now asserts (runtime) that REVIEW_RUN_LANES contains a real lane NOT among Object.values(LENS_TO_LANE) (lattice-review-channel) — proving the section-1 mapping check is subset-direction (includes), not a bijection/equality, exactly the intent's property.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If REVIEW_RUN_LANES were to remove lattice-review-behavior, the subset assertion fails because two lenses (behavior/correctness + crash-safety/edge) map to it -> immediate detection of lane drift; WHY: this is the highest-risk drift scenario since two lenses share the lane",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 now simulates removal: it builds lanesMinusBehavior (REVIEW_RUN_LANES without lattice-review-behavior) and asserts the subset predicate FAILS for the behavior-mapped values — a real runtime assertion demonstrating drift/removal detection.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "buildLensRunPlan(change, CANONICAL_LENS_SET) returns exactly 6 LensRunRequest objects, one per lens in CANONICAL_LENS_SET -> length===6 and each request.lensId is unique across the set; WHY: covers the main-path plan construction",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts buildLensRunPlan(DIFF) over CANONICAL_LENS_SET yields exactly 6 LensRunRequests, one per lens in order.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Each LensRunRequest carries exactly {lensId, lane, change} with lane matching LENS_TO_LANE[lensId] and change being the input string -> fields are correct per request; WHY: verifies the request shape matches the contract and the lane lookup works",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts each request's lane === LENS_TO_LANE[lensId] and Object.keys === {change,lane,lensId}.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "buildLensRunPlan with default lensSet (omitting the second arg) uses CANONICAL_LENS_SET -> yields 6 requests; WHY: covers the default-parameter path",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 calls buildLensRunPlan('DIFF') with NO second arg, proving the default CANONICAL_LENS_SET parameter path yields the 6 requests.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "buildLensRunPlan(change, subsetLensSet) where subsetLensSet contains only 2 of 6 lenses -> returns exactly 2 requests, only for those 2 lenses; WHY: the task-tunable subset is a key spec requirement (section 2.1) and must not silently include extra lenses",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3 builds a subset lensSet (code-quality + docs-consistency) and asserts exactly 2 requests, only those two lenses with their mapped lanes.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "buildLensRunPlan(change, emptyLensSet=[]) -> returns empty array (no requests); WHY: degenerate input boundary; an empty set should not crash or produce phantom requests",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 7 asserts buildLensRunPlan('x', []) returns [] (length 0) — empty set plans nothing, no crash.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "LensRunRequest does NOT have a findings field or any field carrying another lens output -> Object.keys check on each request yields only {lensId, lane, change}; WHY: independence property (section 2.1) — the request shape must not leak cross-lens data at the structural level",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts each request has EXACTLY keys {change,lane,lensId} (Object.keys check) — no findings field / no cross-lens data on the request type.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "buildLensRunPlan called with the same change string for two different subset lens sets -> each call returns requests only for its own subset with no state leakage between calls; WHY: tests that there is no shared mutable state (e.g., a module-level accumulator) across invocations",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 8 makes two calls with distinct subsets+changes (A/code-quality then B/docs-consistency) and asserts neither output carries the other's lens id or change — no shared mutable accumulator.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "buildLensRunPlan with a lensSet containing a duplicate lens (same LensDef twice) -> produces at most one request per unique lensId (no duplicate requests); WHY: adversarial duplicate input must not produce duplicate work items that could cause double-counting in downstream aggregation",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 9 builds a lensSet with the same lens twice and asserts buildLensRunPlan returns exactly 1 request (dedup by unique lensId, first-occurrence-wins) — matching the dedup added to the implementation.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "runLenses(change, CANONICAL_LENS_SET, fakeRunLens) where fakeRunLens plants one Finding on concept/scope and returns [] for all others -> returns 6 LensRunResult objects; the concept/scope result has findings.length===1 with the planted Finding; all other 5 results have findings===[] (PASS); WHY: covers the main path of injected-seam execution and per-lens result grouping",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 runs runLenses with a fake that plants one Finding on a single lens (code-quality) and [] elsewhere; asserts 6 results, the planted lens has 1 finding, all others PASS ([]).",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "collectRawFindings(results) given the above 6 LensRunResults -> returns flat array of length 1 containing exactly the planted Finding; WHY: covers the flattening aggregator main path",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 now calls collectRawFindings(results1) and asserts length===1 with the single element === codeQualityFinding (the 1-finding flatten case); sections 6/10/11/12 cover the 2-, 3-, 6-, and 0-finding flatten cases. All flatten arities exercised.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "runLenses invokes the injected runLens callback exactly once per lens (6 times total for CANONICAL_LENS_SET) -> counter-instrumented fakeRunLens records 6 invocations; WHY: verifies the seam is called per-request, not skipped or double-called",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 records every request the fake saw (seen1) and asserts seen1.length === 6 — runLens invoked exactly once per lens.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "runLenses with a fakeRunLens that returns multiple Findings (e.g., 3) for one lens and [] for the rest -> that lens LensRunResult.findings.length===3, collectRawFindings returns all 3; WHY: multi-finding-per-lens is a realistic scenario (a lens can find several defects)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 10 (multi-finding) fake returns 3 distinct Findings for one lens; asserts that result has 3 findings and collectRawFindings returns 3, order preserved.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "runLenses with a fakeRunLens that returns Findings for ALL 6 lenses -> all 6 LensRunResults have non-empty findings; collectRawFindings returns the union (total count matches sum of per-lens counts); WHY: no-PASS-lens edge case where every lens finds something",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 11 (all-find) fake returns a Finding for every lens; asserts all 6 results non-empty and collectRawFindings length 6.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "runLenses with a fakeRunLens that returns [] for ALL lenses -> all 6 LensRunResults have findings===[] (all PASS); collectRawFindings returns []; WHY: all-clean edge case",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 12 (all-PASS) fake returns [] for every lens; asserts all 6 results empty and collectRawFindings length 0.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The fakeRunLens callback receives ONLY {lensId, lane, change} per invocation — never another lens LensRunResult or another lens request -> instrument fakeRunLens to capture its argument and assert Object.keys match exactly {lensId, lane, change}; WHY: independence is load-bearing (section 2.1); if runLenses leaks prior results into subsequent runLens calls, cross-contamination occurs",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 asserts every request the fake received had ONLY {change,lane,lensId} keys — the seam never receives another lens's output (independence).",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Two lenses map to the same lane (behavior/correctness and crash-safety/edge both map to lattice-review-behavior) -> runLenses returns two DISTINCT LensRunResult objects with different lensId but the same lane; fakeRunLens plants a Finding on crash-safety/edge only -> only the crash-safety/edge result has findings, the behavior/correctness result has []; collectRawFindings does not mis-attribute or merge them; WHY: same-lane collision is the highest-risk aggregation bug — findings must stay attributed to their originating lens, not collapsed by lane",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 covers BOTH the both-planted distinctness case AND a one-only sub-case (plant on crash-safety/edge only -> behavior/correctness result EMPTY, crash carries its own finding) — proving no cross-attribution when only one of the two same-lane lenses fires, matching the intent exactly.",
+          "headHash": "15b07cde78284360fb495222da81f0047a5b3475",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:02:10.489Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "fakeRunLens throws an Error for one lens -> runLenses either propagates the error or handles it gracefully (does not silently swallow and return partial results without indication); WHY: a throwing runLens seam simulates a real agent crash; silent swallowing would hide review failures",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 13 uses a fake that throws on one lens and asserts runLenses propagates the error (caught flag true) rather than silently swallowing and returning partial results.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Hermetic smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses check+counter pattern, and exits 0 when all assertions pass; WHY: the smoke is the acceptance gate for the entire S1 story",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "The smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses the check+counter pattern (process.exit(1) on any failed check), and exits 0 printing 'adversarial-review-lens-runner smoke passed: 96 assertions' after the round-2 hardening.",
+          "headHash": "4b7879e982ca0356f1a2968fb6cb067948209e8b",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:04:06.631Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Smoke asserts every value of LENS_TO_LANE is in REVIEW_RUN_LANES (subset check against the real import from core/review-run.ts) -> assertion passes; WHY: pins the mapping to the real lane enum at test time, not just at type-check time",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 1 asserts every LENS_TO_LANE value is in the real REVIEW_RUN_LANES import (runtime subset check), not just type-check.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Smoke asserts buildLensRunPlan(change, CANONICAL_LENS_SET) yields exactly 6 requests with correct lensId and lane per request, and no findings field on any request -> all pass; WHY: covers plan construction correctness and independence",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 2 asserts buildLensRunPlan over CANONICAL_LENS_SET yields 6 requests with correct lensId+lane and no findings field on any request.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:3",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Smoke runs runLenses with a FAKE runLens that plants a Finding on one lens and returns [] elsewhere -> asserts correct LensRunResult grouping (findings on the planted lens, empty on others) and collectRawFindings flattens correctly; WHY: end-to-end proof of the injected-seam + aggregation path",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 + 6 run runLenses with a FAKE runLens planting on one lens and assert correct LensRunResult grouping + collectRawFindings flatten.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:4",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Smoke command is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js -> lattice validate runs it; WHY: if not registered, the smoke never runs in CI/validation and is dead code",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Registered as validate.commands[13] 'node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js'; lattice validate runs it green.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Smoke tests a SUBSET lens set (e.g., 2 of 6 lenses) via buildLensRunPlan -> asserts only 2 requests returned, only for those 2 lenses; WHY: subset is a spec requirement (task-tunable) and must be exercised in the smoke",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 3 exercises a 2-of-6 subset lens set and asserts only those 2 requests.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Smoke counter tracks total check count and reports it at exit (check+counter pattern) -> final output includes the count of passed assertions; WHY: a smoke that silently passes zero checks is a false-confidence hazard",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses a passed counter and prints 'adversarial-review-lens-runner smoke passed: 96 assertions' at exit (check+counter pattern reports the count); count rose from 77 to 96 after the dual-host round-2 hardening.",
+          "headHash": "4b7879e982ca0356f1a2968fb6cb067948209e8b",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:04:06.631Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Smoke asserts that when behavior/correctness and crash-safety/edge both map to lattice-review-behavior, they produce SEPARATE LensRunResult entries (distinct lensId, same lane) and findings are not merged or mis-attributed between them -> assertion passes; WHY: the two-to-one lane mapping is the most fragile part of the design; if the smoke does not explicitly test this, a grouping-by-lane bug can ship undetected",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 5 asserts the two lenses mapping to lattice-review-behavior produce SEPARATE LensRunResults (distinct lensId, same lane) with findings not merged or mis-attributed.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Smoke asserts that the FAKE runLens callback never receives a findings field or any prior lens output in its argument -> assertion on request shape passes; WHY: independence is the load-bearing invariant of the lens runner; if the smoke does not explicitly assert the request shape, cross-contamination can ship",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+          "result": "pass",
+          "note": "Smoke section 4 asserts the fake runLens callback only ever received {change,lane,lensId} keys — never a findings field or prior lens output.",
+          "headHash": "7fc0a8fc6c1ecba74cd078f6a35d06d6de4f6787",
+          "materialHash": "6d191505291bfbdfe7c5173fa5ef408e0ef47869fcfbcea5dfe0550e8ed2bb0a",
+          "storyFilesHash": "4208758bc016f59b3dbe066063fe3b2cf605f98a567d2f4ae70c24f564f0c966",
+          "timestamp": "2026-06-20T14:25:41.205Z"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-97ab",
+  "changes": "New packages/main/src/core/adversarial-review-lens-runner.ts: LENS_TO_LANE (§4.2 6-lens->6-real-lane map, lane type aliased to ReviewRunLane so it cannot drift), buildLensRunPlan (one independent {lensId,lane,change} request per UNIQUE lens, dedup-by-lensId, default CANONICAL_LENS_SET, subset+empty handled), runLenses (applies an injected (req)=>Finding[] seam once per request, preserves lensId+lane), collectRawFindings (flatMap, no finding-level dedup). New hermetic smoke packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts (96 assertions) registered at lattice.config.json validate.commands[13]. Imports the frozen S0 contract + REVIEW_RUN_LANES read-only; both protected files unchanged.",
+  "usage": "import { runLenses, collectRawFindings, buildLensRunPlan, LENS_TO_LANE } from \"core/adversarial-review-lens-runner.js\"; const results = runLenses(diff, CANONICAL_LENS_SET, myReviewAgentFn); const raw = collectRawFindings(results); — gives per-lane raw Finding[] with each lens reviewed in isolation. Verify: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js.",
+  "expectedOutcome": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js prints \"adversarial-review-lens-runner smoke passed: 96 assertions\" and exits 0; lattice validate runs it green at [13]; a caller gets 6 independent per-lens requests mapped to real review lanes with no cross-lens contamination.",
+  "actualTranscript": "adversarial-review-lens-runner smoke passed: 96 assertions (exit 0); lattice validate all green incl. configured validate.commands[13]; build (tsc) clean. Delivery review PASS (6/6 docs promises delivered, 4/4 items tested, hasRealMachineTest=true, hasUnresolvedTodos=false).",
+  "outcomeDiff": "No difference — expected and actual match (96 assertions, exit 0, validate green).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "MVP S1 only: this is a library seam (pure plan/run/aggregate + injected runLens), not an end-to-end review CLI. The real review agent, per-finding adversarial verification + finding_add ledger mapping (S2), the completeness critic (S3), and the round/reopen escalation loop (S4) are deliberately out of scope and build on this surface. The §4.2 crash-safety/edge->lattice-review-behavior choice is one of the two spec-permitted lanes (the other is -quality).",
+  "pitfalls": "Dual-host adversarial review (Codex host-2 + 5 Claude lanes + a 9-agent multi-lens Workflow) caught real test-strength gaps the first smoke missed: the dedup test passed the same LensDef object twice (could not distinguish lensId-dedup from object-identity-dedup) and the no-dedup test used differing findings (a content-deduping impl would still pass) — both Codex MAJOR; the 1-finding collectRawFindings flatten was never actually called (test-coverage HIGH); raw .find()! would crash instead of a named FAIL (quality MED); two mutation-reasoning intents were only reasoned not asserted. Round 2 hardened the smoke 65->96 assertions and rewrote 4 over-claiming evidence notes honest. The module code itself was correct throughout — all defects were in test strength + evidence honesty. Codex exec hung twice on stdin when backgrounded; fix is to redirect stdin from /dev/null (exec then completes fast). Next person: run codex host-2 with </dev/null.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 292522
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5952
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 825798
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 604052
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2197439
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 256761
+    }
+  },
+  "totalDurationMs": 4182574,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T14:30:32.469Z",
+  "updatedAt": "2026-06-20T14:30:32.469Z"
+}

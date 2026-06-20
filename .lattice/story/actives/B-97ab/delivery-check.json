@@ -1,0 +1,75 @@
+{
+  "storyId": "B-97ab",
+  "checkedAt": "2026-06-20T14:29:15.623Z",
+  "reviewRound": "2026-06-20T13:49:38.269Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-97ab/plan.md#CHK-001",
+      "promise": "LENS_TO_LANE: Record<LensId,LensLane> with six §4.2 entries; LensLane = ReviewRunLane alias; every mapped lane is a real REVIEW_RUN_LANES member",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine smoke",
+      "evidence": "adversarial-review-lens-runner.ts lines 55-63: LENS_TO_LANE Record with all 6 §4.2 pairs; LensLane = ReviewRunLane type alias at line 46; smoke section 1 asserts runtime subset and all 6 individual mappings; tsc enforces Record<LensId,LensLane> shape"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-97ab/plan.md#CHK-002",
+      "promise": "LensRunRequest interface with exactly {lensId,lane,change}; buildLensRunPlan(change,lensSet=CANONICAL_LENS_SET) returns one independent request per unique lens, dedup by lensId, empty-set returns []",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine smoke",
+      "evidence": "adversarial-review-lens-runner.ts lines 72-76 LensRunRequest interface; lines 85-97 buildLensRunPlan with Set<LensId> dedup. Smoke sections 2,3,7,8,9 assert shape, subset, empty-set, no state leakage, and dedup-by-lensId (not reference). Runtime smoke passed 96 assertions exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-97ab/plan.md#CHK-003",
+      "promise": "LensRunResult interface {lensId,lane,findings}; runLenses applies injected runLens once per request in isolation; collectRawFindings flatMaps with no dedup",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine smoke",
+      "evidence": "adversarial-review-lens-runner.ts lines 106-109 LensRunResult interface; lines 121-128 runLenses (plan.map + single-request invocation); lines 133-135 collectRawFindings (flatMap). Smoke sections 4,5,6,10,11,12,13 assert independence, distinctness of same-lane lenses, no-dedup (content-identical and shared-reference cases), and throw propagation."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-97ab/plan.md#CHK-004",
+      "promise": "Hermetic smoke at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts using check+counter pattern; prints assertion count on exit; registered as validate.commands[13]",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine smoke + lattice.config.json inspection",
+      "evidence": "File exists in diff; 13 numbered smoke sections, 66 check() call sites, runtime-expanded to 96 assertions (loops over 6-element sets); prints adversarial-review-lens-runner smoke passed: 96 assertions exit 0. lattice.config.json line 24: validate.commands[13] = node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-97ab/plan.md#scope",
+      "promise": "Protected files adversarial-review.ts and review-run.ts are UNMODIFIED (S1 only imports them read-only); no S2/S3/S4 scope creep",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff 336a99755..HEAD -- packages/main/src/core/adversarial-review.ts packages/main/src/core/review-run.ts produced empty output (zero bytes). No S2/S3/S4 code present in diff. JSDoc in adversarial-review-lens-runner.ts explicitly documents MVP boundary and out-of-scope items."
+    },
+    {
+      "docPath": "packages/main/src/core/adversarial-review-lens-runner.ts#jsdoc",
+      "promise": "Module JSDoc clearly states this is MVP S1 (library seam + ledger-free runner), NOT an end-to-end CLI; S2/S3/S4 are explicitly called out as out of scope",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Lines 1-30 of adversarial-review-lens-runner.ts: JSDoc states NO behavior beyond plan/run/aggregate, explicitly lists S2 verification/finding_add/severity-mapping, S3 completeness critic, and S4 escalation wiring as deliberately out of scope."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js printed adversarial-review-lens-runner smoke passed: 96 assertions, exit 0. Section 1: 6 subset-of-REVIEW_RUN_LANES checks per Object.values(LENS_TO_LANE), 6 individual mapping checks per EXPECTED_LENS_TO_LANE, shared-lane identity check, subset-not-bijection check (lattice-review-channel unmapped), drift-detection check (removing lattice-review-behavior breaks subset). tsc build clean (no output)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js exit 0. Section 2: 6 requests, 4 checks per request (lensId/lane/change/keys) = 24; default param path; section 3: 2-lens subset; section 7: empty lensSet = []; section 8: no state leakage across 2 distinct calls; section 9: dedup by lensId (same reference + distinct clone both collapse to 1)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js exit 0. Section 4: single-finding injected seam, 6 invocations, independence check (no extra keys on request); section 5: two same-lane lenses distinct + one-only cross-attribution check; section 6: 2-finding no-dedup; section 6b: byte-identical no-dedup; section 6c: shared-reference no-dedup; section 10: 3-finding order-preserved; section 11: all-6-find; section 12: all-PASS; section 13: throw propagation (not swallowed)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run build exited 0 (tsc clean). node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js printed adversarial-review-lens-runner smoke passed: 96 assertions, exit 0. 66 check() call sites in source, expanded to 96 at runtime by loops over 6-element LENS sets. Registered at lattice.config.json validate.commands[13]."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified from source diff and real-machine execution. tsc compiles clean. Smoke passes 96 assertions (exit 0) covering happy path, subsets, empty set, state-leakage, dedup-by-lensId, same-lane distinctness, no-dedup (3 variants), multi-finding order, all-find, all-PASS, and throw propagation. Protected files adversarial-review.ts and review-run.ts are unmodified. No S2/S3/S4 scope creep. No unresolved TODOs in new code. This is correctly scoped as MVP S1: a library seam with a hermetically injected executor, not an end-to-end CLI."
+  },
+  "_hash": "8a7106ad83c9d8a1bce3f734a9b3050d4f942f0c1d9c926c8bf16873e683e298"
+}

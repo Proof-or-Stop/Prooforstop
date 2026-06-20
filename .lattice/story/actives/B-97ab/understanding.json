@@ -1,0 +1,27 @@
+{
+  "task": "Implement the adversarial-review LENS RUNNER (S1): map the S0 canonical lens set to the six real review_run_start lanes, build one independent per-lens run request, and run each lens through an injected executor that returns S0 Finding[].",
+  "outcome": "A developer runs: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js and sees: [adversarial-review-lens-runner-smoke] LENS_TO_LANE: 6 lenses -> {concept,quality,behavior,test-coverage,docs} all in REVIEW_RUN_LANES OK | buildLensRunPlan(CANONICAL_LENS_SET): 6 independent requests, one per lens, each {lensId,lane,change} with no findings field OK | subset [code-quality,docs-consistency] -> 2 requests OK | runLenses with fake runLens (plants 1 MAJOR on code-quality, [] elsewhere): 6 LensRunResult, code-quality.findings=[the MAJOR], others=[] OK | collectRawFindings flattens to 1 Finding OK => 14/14 checks passed, exit 0. In code, a caller writes: import {runLenses, collectRawFindings} from core/adversarial-review-lens-runner.js; const results = runLenses(diff, CANONICAL_LENS_SET, myReviewAgentFn); const raw = collectRawFindings(results); and gets per-lane raw findings without any lens having seen another lens output.",
+  "facts": [
+    "S0 (core/adversarial-review.ts) is frozen+merged and exports LensId, LENS_IDS, CANONICAL_LENS_SET (6 LensDef with slash-form ids), and Finding{severity,title,file,line,issue,fix}.",
+    "The six real review lanes are in core/review-run.ts REVIEW_RUN_LANES: lattice-review-concept, -quality, -test-coverage, -behavior, -docs, -channel.",
+    "Spec docs/adversarial-review-spec.md §4.2 fixes the lens->lane mapping: concept/scope->concept, code-quality->quality, behavior/correctness->behavior, test-coverage->test-coverage, crash-safety/edge->behavior, docs-consistency->docs.",
+    "Reviewer-evidence is only counted when agent startsWith lattice-review-; the runner stays pure data (no finding_add) — ledger mapping is S2.",
+    "Smokes follow the check+counter pattern and are registered in lattice.config.json validate.commands."
+  ],
+  "constraints": [
+    "Independence is load-bearing: a lens request/executor must NEVER carry another lens findings or output.",
+    "Import core/review-run.js REVIEW_RUN_LANES read-only and assert LENS_TO_LANE values are a subset — never modify review-run.ts.",
+    "NO verification/threshold (S2), NO finding_add/ledger mapping (S2), NO completeness critic (S3), NO escalation flow (S4).",
+    "runLens is an injected seam (req)=>Finding[]; the module supplies no real review agent at MVP.",
+    "All artifacts English-only (english-artifacts gate)."
+  ],
+  "unknowns": [
+    "None blocking — the lens->lane table and the six-lane enum are both fixed; mapping is mechanical."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/adversarial-review-lens-runner.ts",
+    "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-20T13:29:09.805Z"
+}

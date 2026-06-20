@@ -1,0 +1,143 @@
+{
+  "storyId": "B-97ab",
+  "checkedAt": "2026-06-20T13:38:03.494Z",
+  "features": [
+    {
+      "feature": "LENS_TO_LANE mapping: concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs (six entries, exactly per §4.2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Lane type = ReviewRunLane from core/review-run.ts (no parallel enum; type alias to the six real review_run_start lanes)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Cross-check LENS_TO_LANE values are a subset of REVIEW_RUN_LANES (imported read-only from review-run.ts) — lane drift fails hermetically",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "buildLensRunPlan(change, lensSet) returns one independent LensRunRequest{lensId,lane,change} per lens in the (possibly-subset) set",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "LensRunRequest carries ONLY {lensId,lane,change} — no cross-lens data field (independence is structural per §2.1)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "buildLensRunPlan accepts a subset lens set (task-tunable per §2.1)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "runLenses(change, lensSet, runLens) applies the injected (req)=>Finding[] seam to each request independently",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "runLenses returns LensRunResult{lensId,lane,findings:Finding[]} per lens; findings=[] means PASS (S0 Finding schema)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Independence enforced: injected runLens only ever receives a single lens request, never another lens output",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "collectRawFindings(results) aggregator flattens LensRunResult[] to Finding[] (no dedup; both behavior-mapped lenses survive distinctly)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Hermetic smoke with fake runLens proving: subset-of-REVIEW_RUN_LANES check, buildLensRunPlan plan construction+independence, subset lensSet, runLenses per-lane aggregation, collectRawFindings flattening",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "S0 contract (core/adversarial-review.ts: LensId, CANONICAL_LENS_SET, Finding) imported unchanged — frozen module not modified",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "core/review-run.ts REVIEW_RUN_LANES imported read-only; review-run.ts must not be modified",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Adversarial verification (M-skeptic, §2.3): threshold-confirm verification of raw findings — S2 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: verification/threshold/finding_add ledger mapping is S2",
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "BLOCKER/MAJOR/MINOR → critical/high/medium ledger mapping + finding_add — S2 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: verification/threshold/finding_add ledger mapping is S2",
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Completeness critic role (§2.4/§3/S3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the completeness critic is S3",
+      "source": "decisions:../adversarial-review-spec.md"
+    },
+    {
+      "feature": "Escalation-flow integration: review_run_start/finding_add/review_pass_set per-round + reopen loop + 3x2 PASSes (§4.1/S4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: escalation-flow integration is S4",
+      "source": "decisions:../adversarial-review-spec.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 14,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b234b99ed269d98d085608269ac676d140bf856272d62f0d3eeed6af385b35cb",
+  "openQuestions": []
+}
