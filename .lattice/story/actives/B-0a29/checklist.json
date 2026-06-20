@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T07:13:35.187Z",
+      "endTime": "2026-06-20T07:20:48.655Z",
       "userSees": "User sees the heading \"Step Contract Matrix\" followed by rows for Step 0 through Step 7 and columns for inputs, outputs, required evidence, missing/stale handling, and verifier.",
       "files": {
         "modify": [
@@ -46,34 +46,34 @@
           "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"0. State intake and phase preflight\",\"1. Story init / PLAN skeleton\",\"2. Verification evidence generation / refresh\",\"3. Validation, transcript, and delivery context preparation\",\"4. Reviewer lane orchestration\",\"5. REVIEW / TEST gate preflight\",\"6. TEST-to-DONE readiness delegation\",\"7. Phase advance handoff\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
           "note": "Node assertion checks every Step Contract Matrix row label for the Step 0-7 lifecycle contract.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:35.461Z"
+          "timestamp": "2026-06-20T07:20:48.826Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"TEST-to-DONE stale refresh remains\",\"owned by `done_prepare`\",\"done_prepare --dryRun\",\"not a second implementation of DONE readiness\",\"treat delivery as a separate `delivery_check_set` artifact path\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
+          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"TEST-to-DONE stale refresh remains\",\"owned by `done_prepare`\",\"done_prepare --dryRun\",\"not a second implementation of DONE readiness\",\"treat delivery as a separate `delivery_check_set` artifact path\",\"latest `done_prepare` report bound to the current `headHash`, `materialHash`\",\"review round, validation ref, and delivery-check artifact\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
-          "note": "Node assertion checks upstream evidence planning, delivery-check ownership, and TEST-to-DONE readiness delegation boundaries.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "note": "Node assertion checks upstream evidence planning, delivery-check ownership, current-snapshot done_prepare import binding, and TEST-to-DONE readiness delegation boundaries.",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:35.593Z"
+          "timestamp": "2026-06-20T07:20:48.953Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"never rewrite hashes directly\",\"never write `delivery-check.json` from the main host\",\"no track may introduce a second material/evidence/transcript freshness\",\"Only after the observed story phase is\\nREVIEW may it call `review_run_start`\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
+          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"never rewrite hashes directly\",\"never write `delivery-check.json` from the main host\",\"no track may introduce a second material/evidence/transcript freshness\",\"Only after the observed story phase is\\nREVIEW may it call `review_run_start`\",\"rerun `done_prepare --dryRun`\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
-          "note": "Node assertion checks direct hash rewrite ban, main-host delivery self-sign ban, duplicate freshness-source ban, and REVIEW phase-before-reviewers rule.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "note": "Node assertion checks direct hash rewrite ban, main-host delivery self-sign ban, duplicate freshness-source ban, REVIEW phase-before-reviewers rule, and stale done_prepare import rejection.",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:35.757Z"
+          "timestamp": "2026-06-20T07:20:49.087Z"
         }
       ]
     },
@@ -88,7 +88,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T07:13:36.319Z",
+      "endTime": "2026-06-20T07:20:49.500Z",
       "userSees": "User sees the heading \"Flowcharts\", a text flowchart block, and the image link \"Lattice standard evidence pipeline flow\" pointing at the SVG asset.",
       "files": {
         "modify": [
@@ -124,37 +124,37 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"rerun-required evidence --> print rerun command and STOP\",\"safely refreshable stale evidence --> delegate to existing refresh writer, then return to Step 2\",\"missing user-value proof --> run smoke or require metadata-only waiver; if unavailable, STOP\",\"clean commit + enter REVIEW phase\",\"Target is DONE and story is in TEST?\",\"7 Phase advance handoff\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
+          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"rerun-required evidence --> print rerun command and STOP\",\"safely refreshable stale evidence --> delegate to existing refresh writer, then return to Step 2\",\"missing user-value proof --> run smoke or require metadata-only waiver; if unavailable, STOP\",\"clean commit + enter REVIEW phase\",\"Delivery check missing or blocking?\",\"Target is DONE and story is in TEST?\",\"7 Phase advance handoff\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
-          "note": "Node assertion checks the text flowchart branches for rerun stop, refresh loop, missing-proof stop, REVIEW transition, DONE-target decision, and Step 7 handoff.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "note": "Node assertion checks the text/Mermaid flow branches for rerun stop, refresh loop, missing-proof stop, REVIEW transition, delivery-check branch, DONE-target decision, and Step 7 handoff.",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:36.521Z"
+          "timestamp": "2026-06-20T07:20:49.652Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
-          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg\",\"must\":[\"Refresh-only stale\",\"RERUN REQUIRED\",\"Validation and user proof pass?\",\"Only after REVIEW phase; review current snapshot.\",\"FINDING -&gt; DEV\",\"7. Phase advance handoff\",\"6. Delegate to done_prepare\",\"done_prepare PASS\",\"BLOCKED\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }' && xmllint --noout docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
+          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg\",\"must\":[\"Refresh-only stale\",\"RERUN REQUIRED\",\"Validation and user proof pass?\",\"Clean commit + enter REVIEW phase\",\"Only after REVIEW phase; review current snapshot.\",\"FINDING -&gt; DEV\",\"Delivery check missing or blocking?\",\"Run delivery reviewer and stop.\",\"7. Phase advance handoff\",\"6. Delegate to done_prepare\",\"Import bound PASS\",\"done_prepare PASS\",\"BLOCKED\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }' && xmllint --noout docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg",
           "result": "pass",
-          "note": "Node assertion plus xmllint checks SVG semantic branches, Step 7 handoff, and XML validity.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "note": "Node assertion plus xmllint checks SVG semantic branches, REVIEW handoff, delivery-check branch, bound done_prepare import, Step 7 handoff, and XML validity.",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:36.715Z"
+          "timestamp": "2026-06-20T07:20:49.787Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
-          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"Delegate to lattice done_prepare\",\"duplicating `done_closure`, main-sync, evidence-refresh, or version-bump\",\"not a second implementation of DONE readiness\",\"never reinterpret a `done_prepare` blocker as pass\",\"Hand off to Step 7\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
+          "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"Delegate to lattice done_prepare\",\"duplicating `done_closure`, main-sync, evidence-refresh, or version-bump\",\"not a second implementation of DONE readiness\",\"never reinterpret a `done_prepare` blocker as pass\",\"Hand off to Step 7\",\"latest `done_prepare` report bound to the current `headHash`, `materialHash`\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
-          "note": "Node assertion checks that the flow delegates DONE readiness, preserves done_prepare blockers, and only then hands off phase advance.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "note": "Node assertion checks that the flow delegates DONE readiness, preserves done_prepare blockers, requires current-snapshot done_prepare binding, and only then hands off phase advance.",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:36.975Z"
+          "timestamp": "2026-06-20T07:20:49.922Z"
         }
       ]
     },
@@ -169,7 +169,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-20T07:13:37.643Z",
+      "endTime": "2026-06-20T07:20:50.332Z",
       "userSees": "User sees Track A through Track G and P1 through P7 explicitly say DONE readiness is delegated to \"done_prepare\" where applicable.",
       "files": {
         "modify": [
@@ -206,10 +206,10 @@
           "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"Track A. Pipeline State Model And Preflight\",\"Track G. Top-Level Story Pipeline Command\",\"| P1 | Add story pipeline preflight report | B-fb36 |\",\"| P7 | Integrate top-level `story_pipeline` command | P1-P6, B-fb36 |\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
           "note": "Node assertion checks Track A/G and P1/P7 integration ownership.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:37.878Z"
+          "timestamp": "2026-06-20T07:20:50.465Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,10 +218,10 @@
           "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"Canonical Report And Freshness Source\",\"FreshnessRow\",\"GateRow\",\"NextActionRow\",\"| P3 | Add verification evidence planner/refresh orchestrator | P1 |\",\"| P4 | Add reviewer batch orchestration | P1, P3, P5, P6 for final reviewer semantics |\",\"P3\\nmust wait for P1\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
           "note": "Node assertion checks typed canonical report rows plus P3/P4 dependencies on P1/P5/P6 before final reviewer semantics.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:38.086Z"
+          "timestamp": "2026-06-20T07:20:50.611Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -230,10 +230,10 @@
           "command": "node -e 'const fs=require(\"fs\"); const checks=[{\"file\":\"docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md\",\"must\":[\"replace reviewer lanes with a single host self-review\",\"treat delivery as a separate `delivery_check_set` artifact path\",\"no push, no Authority DONE claim\",\"not by replacing it\",\"no track may introduce a second material/evidence/transcript freshness\"]}]; for (const c of checks) { const text=fs.readFileSync(c.file,\"utf8\"); for (const s of c.must) { if (!text.includes(s)) { console.error(\"missing \"+c.file+\": \"+s); process.exit(1); } } }'",
           "result": "pass",
           "note": "Node assertion checks reviewer independence, separate delivery-check path, Authority boundary, done_prepare preservation, and canonical freshness-source rule.",
-          "headHash": "76fe99f037e9cf178d12d7f2e2c89db48dbef00b",
-          "materialHash": "63becb14921818f5d5faa667102ad2b3eb3b7390e7d0fa9908ea9b59798aa607",
+          "headHash": "0fd43333d85bc4d1715de9c6935e5572fd54fe38",
+          "materialHash": "544a796c64a11fcc8ea3dc4944a477e54eea622449435935b2bafa875eab5cb1",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-20T07:13:38.307Z"
+          "timestamp": "2026-06-20T07:20:50.765Z"
         }
       ]
     }

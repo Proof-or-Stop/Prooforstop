@@ -470,7 +470,7 @@
       "desc": "Mermaid omits the delivery-check branch shown in the text flowchart and goes from REVIEW/TEST preflight directly to target-DONE routing, breaking diagram agreement on delivery-check separation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:18:24.861Z",
@@ -481,14 +481,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|mermaid-omits-delivery",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed Mermaid by inserting Delivery check missing or blocking? decision between preflight and target-DONE routing; yes stops to delivery reviewer, no continues.",
+      "resolvedAt": "2026-06-20T07:21:03.174Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-023",
       "desc": "SVG collapses REVIEW/TEST preflight and delivery gate into one box/blocked arrow instead of showing the distinct missing/blocking delivery-check branch before DONE routing.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-20T07:18:25.500Z",
@@ -499,14 +503,18 @@
         "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
       ],
       "signatureTag": "missing|svg|collapses-review-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed SVG by adding a distinct Delivery check missing or blocking? decision and Run delivery reviewer and stop branch before target-DONE routing.",
+      "resolvedAt": "2026-06-20T07:21:03.616Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-024",
       "desc": "Preflight can import a previous done_prepare report without requiring current HEAD/material/storyFilesHash/reviewRound/delivery-check binding, allowing stale DONE readiness to act as Step 7 input.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T07:18:26.084Z",
@@ -517,14 +525,18 @@
         "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md"
       ],
       "signatureTag": "missing|md|preflight-import-previous",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed done_prepare import semantics: only the latest report bound to current head/material/storyFilesHash/reviewRound/validation/delivery-check may be imported; otherwise rerun done_prepare --dryRun.",
+      "resolvedAt": "2026-06-20T07:21:04.011Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0a29:F-025",
       "desc": "SVG routes validation/user-proof PASS directly into final reviewer lanes and only states Only after REVIEW phase, but omits the explicit clean-commit/story_advance REVIEW handoff and stop path required by markdown and Mermaid.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-20T07:18:26.701Z",
@@ -535,7 +547,11 @@
         "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
       ],
       "signatureTag": "missing|svg|routes-validation-user",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed SVG by adding an explicit Clean commit + enter REVIEW phase node and blocked path before final reviewer lanes.",
+      "resolvedAt": "2026-06-20T07:21:04.397Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
