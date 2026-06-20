@@ -1,0 +1,26 @@
+{
+  "storyId": "B-b29e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/parallel-decomposition-spec.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/parallel-decomposition.ts",
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/core/parallel-decomposition-gate.ts",
+    "packages/main/src/core/audit-config.ts"
+  ],
+  "scopeChangeReason": "Metadata-only follow-up to B-086b: descriptive lifecycle/process-fact registries + drift check + doc; runtime machine.ts frozen.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T09:59:19.136Z",
+  "updatedAt": "2026-06-20T09:59:19.136Z"
+}
