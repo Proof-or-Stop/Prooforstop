@@ -118,6 +118,69 @@
           "packages/main/src/tasks/parallel-gate-config-smoke.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke registered in lattice.config.json validate.commands and runs via lattice validate without error; WHY: proves the smoke is discoverable and executes cleanly end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts resolveAuditConfig for all 3 profiles with no user config -> parallelGate matches profile defaults (light advise/2/false, balanced advise/3/false, strict block/4/true); WHY: covers the primary per-profile default contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts a valid full override {mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true} is applied via resolveAuditConfig with temp audit-config.json; WHY: proves user overrides flow through the full config pipeline",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts mode:off is accepted and returned as-is; WHY: proves the reversible escape hatch works in the integrated path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke asserts invalid mode (\"nope\") warns to stderr/console and falls back to advise; WHY: proves the warn+fallback path in the integrated smoke, not just the unit helper",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts non-integer maxConcurrentReview (e.g. 2.5 or \"abc\") falls back to profile default; WHY: proves sub-field guard in integrated path",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke asserts non-boolean broadGlobBlocks falls back to profile default; WHY: proves boolean guard in integrated path",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke asserts non-object parallelGate (string or array) yields all profile defaults with no crash; WHY: proves top-level type guard in integrated path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts no-user-config path still returns a populated parallelGate (not undefined); WHY: proves the early-return path is tested",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke writes a temp audit-config.json with parallelGate set to null and verifies resolveAuditConfig returns profile defaults without throwing; WHY: null is a common real-world misconfiguration that must not crash",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke writes audit-config.json where parallelGate has extra unknown keys alongside valid ones and verifies the valid keys are still applied (unknown keys ignored); WHY: forward-compatibility -- operators may add keys from a newer version",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
