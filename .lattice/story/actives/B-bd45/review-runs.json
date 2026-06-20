@@ -441,6 +441,183 @@
         "bindingHash": "05bb3c6a25afacac0634d09b00228645266225ba2cf6d3af8f79b35e330b8f6c"
       },
       "_hash": "102195105353bf184b951867458d5147a22b7a66232e636674c7a328ef52c52c"
+    },
+    {
+      "reviewRunId": "B-bd45:RR-009",
+      "storyId": "B-bd45",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "startedAt": "2026-06-20T21:30:47.355Z",
+      "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+      "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+      "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0ab387faf49d4a1049ace829cdbdb7def2fa15c9afe709f19d85619967f84138",
+        "diffPackHash": "c9e3531fe3f0afe2ea0ccb75bc5ca758afd6783e0cc9b0594da22aa35c3f49b7",
+        "reviewedChangedFiles": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "02e2960914bc53f1a295219ea105e13b2e5b93b95c1654665703093819d18d7d",
+          "06dcc36e7aedcad54fa3ade4dfc4a8b313b7cfdd32fdaad5d20eb51c507f7561",
+          "10730425563025a29012074c4bbb5bd7ad2911ded473652525dd464dfe2afd0a",
+          "2df942ca679ec80f333ddf82b2ad41d0f5ef2ffff093bee3ba56490f72f063d0",
+          "4781b2494a1ab35fa23cabcceb6a9203aad9329ccd419bcf1dbc9b7ca90689a8",
+          "4d4e68caf5f8896e8d9796ac5ca774b1035c8ab612199846bd218abc4c9b881f",
+          "6a7ef4124ec04fc65a10f901ae44c45ff05762c30579ea79dbf94c533fd521cb",
+          "741f1538ceb44022549a0fab6016e2fb0f0e635654a2443a9ee0c87febffbe6b",
+          "97f81202b0a06b4a38e9e8a301d4bb1c0b0df1137327317291596f3a4ba21486",
+          "bcb0315c97762153458ea15d74a194db36e003c1a2f71cf03c3928e70b203c86",
+          "c45827ca729122658b96a8057e512a61a79caf3ce16916113769ea9cf30d3c3b",
+          "e158e704add6fe491b42967a8faaa8a445b770934cf00ce098bdb5c9a1950a60",
+          "fedd77a0645a15772ad654bd3c61e7b9ad8d39c4edffdc742cd9c661dcc2cc29"
+        ],
+        "bindingHash": "b4c37d294a728b90c1ec13972ded5669ca144c33ff25f5e78169b33cd185fe21"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "workspaceMode": "story-worktree",
+        "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+        "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+        "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+        "bindingHash": "e53b2cd5d02bc3a970c4949fa1389c2ba1b35a5dc0d93ef269c02697c8d495cd"
+      },
+      "_hash": "46ab4c609256f63685ac37a5b34917053433823562f86dba9aeb1dbf705c6b50"
+    },
+    {
+      "reviewRunId": "B-bd45:RR-010",
+      "storyId": "B-bd45",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "startedAt": "2026-06-20T21:31:01.264Z",
+      "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+      "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+      "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0ab387faf49d4a1049ace829cdbdb7def2fa15c9afe709f19d85619967f84138",
+        "diffPackHash": "c9e3531fe3f0afe2ea0ccb75bc5ca758afd6783e0cc9b0594da22aa35c3f49b7",
+        "reviewedChangedFiles": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "02e2960914bc53f1a295219ea105e13b2e5b93b95c1654665703093819d18d7d",
+          "06dcc36e7aedcad54fa3ade4dfc4a8b313b7cfdd32fdaad5d20eb51c507f7561",
+          "10730425563025a29012074c4bbb5bd7ad2911ded473652525dd464dfe2afd0a",
+          "2df942ca679ec80f333ddf82b2ad41d0f5ef2ffff093bee3ba56490f72f063d0",
+          "4781b2494a1ab35fa23cabcceb6a9203aad9329ccd419bcf1dbc9b7ca90689a8",
+          "4d4e68caf5f8896e8d9796ac5ca774b1035c8ab612199846bd218abc4c9b881f",
+          "6a7ef4124ec04fc65a10f901ae44c45ff05762c30579ea79dbf94c533fd521cb",
+          "741f1538ceb44022549a0fab6016e2fb0f0e635654a2443a9ee0c87febffbe6b",
+          "97f81202b0a06b4a38e9e8a301d4bb1c0b0df1137327317291596f3a4ba21486",
+          "bcb0315c97762153458ea15d74a194db36e003c1a2f71cf03c3928e70b203c86",
+          "c45827ca729122658b96a8057e512a61a79caf3ce16916113769ea9cf30d3c3b",
+          "e158e704add6fe491b42967a8faaa8a445b770934cf00ce098bdb5c9a1950a60",
+          "fedd77a0645a15772ad654bd3c61e7b9ad8d39c4edffdc742cd9c661dcc2cc29"
+        ],
+        "bindingHash": "b4c37d294a728b90c1ec13972ded5669ca144c33ff25f5e78169b33cd185fe21"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "workspaceMode": "story-worktree",
+        "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+        "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+        "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+        "bindingHash": "e53b2cd5d02bc3a970c4949fa1389c2ba1b35a5dc0d93ef269c02697c8d495cd"
+      },
+      "_hash": "41b0d1a5330353eb9ac00e770b8b82850ac772ed233b8d7b5f0ad539e4128d58"
+    },
+    {
+      "reviewRunId": "B-bd45:RR-011",
+      "storyId": "B-bd45",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "startedAt": "2026-06-20T21:31:21.085Z",
+      "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+      "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+      "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0ab387faf49d4a1049ace829cdbdb7def2fa15c9afe709f19d85619967f84138",
+        "diffPackHash": "c9e3531fe3f0afe2ea0ccb75bc5ca758afd6783e0cc9b0594da22aa35c3f49b7",
+        "reviewedChangedFiles": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "02e2960914bc53f1a295219ea105e13b2e5b93b95c1654665703093819d18d7d",
+          "06dcc36e7aedcad54fa3ade4dfc4a8b313b7cfdd32fdaad5d20eb51c507f7561",
+          "10730425563025a29012074c4bbb5bd7ad2911ded473652525dd464dfe2afd0a",
+          "2df942ca679ec80f333ddf82b2ad41d0f5ef2ffff093bee3ba56490f72f063d0",
+          "4781b2494a1ab35fa23cabcceb6a9203aad9329ccd419bcf1dbc9b7ca90689a8",
+          "4d4e68caf5f8896e8d9796ac5ca774b1035c8ab612199846bd218abc4c9b881f",
+          "6a7ef4124ec04fc65a10f901ae44c45ff05762c30579ea79dbf94c533fd521cb",
+          "741f1538ceb44022549a0fab6016e2fb0f0e635654a2443a9ee0c87febffbe6b",
+          "97f81202b0a06b4a38e9e8a301d4bb1c0b0df1137327317291596f3a4ba21486",
+          "bcb0315c97762153458ea15d74a194db36e003c1a2f71cf03c3928e70b203c86",
+          "c45827ca729122658b96a8057e512a61a79caf3ce16916113769ea9cf30d3c3b",
+          "e158e704add6fe491b42967a8faaa8a445b770934cf00ce098bdb5c9a1950a60",
+          "fedd77a0645a15772ad654bd3c61e7b9ad8d39c4edffdc742cd9c661dcc2cc29"
+        ],
+        "bindingHash": "b4c37d294a728b90c1ec13972ded5669ca144c33ff25f5e78169b33cd185fe21"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-bd45",
+        "workspaceMode": "story-worktree",
+        "headHash": "565ed7e6a8ec9602dd4db36f878d037381fde4ec",
+        "materialHash": "e02a3c72b84372f240772ddbed497387782a3f4e0f130eb53b34087d1564c0f6",
+        "storyFilesHash": "c85ed0666688dafeb220018f5967ea66613533b67c2d2f13619e09b97a594595",
+        "bindingHash": "e53b2cd5d02bc3a970c4949fa1389c2ba1b35a5dc0d93ef269c02697c8d495cd"
+      },
+      "_hash": "5cc7432976da80df5d6c389d5fa14481ab58104f8e6d417c84be7a32151dc4c5"
     }
   ]
 }

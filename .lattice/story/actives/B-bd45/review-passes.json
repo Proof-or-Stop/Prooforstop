@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T21:13:23.156Z",
       "reviewRunId": "B-bd45:RR-008",
       "_hash": "03ef9fbaeb42dfaf009072f119ca456ec6789153654a7c0aa5ac1dfa63268231"
+    },
+    {
+      "id": "B-bd45:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review Round 3 PASS. V1 remains read-only: handler rejects runCommands/writeEvidence before store reads, command policy is readOnly, smoke verifies no story metadata/git mutation, and live lifecycle_check reports runCommands=false/writeEvidence=false with Authority claims false. Process fact registry shows lifecycle_check as L0/command, not gate evidence. Contract verifier now reads MAIN_TOOLS from packages/main/src/cli/command-catalog.ts, which cli-engine imports/exports as the current CLI schema source; node scripts/verify-process-fact-contract.mjs passed.",
+      "createdAt": "2026-06-20T21:32:59.793Z",
+      "reviewRound": "2026-06-20T21:30:05.830Z",
+      "reviewRunId": "B-bd45:RR-009",
+      "_hash": "1d3359ada75c56485dc3ebf2968774bca9c3cd01247e66e1c24a1e10b90e17a1"
     }
   ]
 }
