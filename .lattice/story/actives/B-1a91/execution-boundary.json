@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1a91",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-20T08:31:39.885Z",
+  "updatedAt": "2026-06-20T08:31:39.885Z",
+  "_hash": "baff60052a05437d601eed940caef34320bc3664f8e4f3aec42cb83b2f631bad"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1a91",
+  "mode": "feature",
+  "allowed": [
+    "Add a never-throw advisory finding-signals cache re-derive to applyDoneMergeEffects after the DONE merge (every DONE; writes the canonical main cache)",
+    "Add smokes for the auto-refresh and the watermark/gap detection",
+    "Record a coverage watermark (coveredStoryCount/coveredFindingCount/coveredThrough) on the cache and report the coverage gap in learning_validate so a missed or failed refresh is detectable and recoverable"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator approved folding the coverage watermark + gap detection into the auto-refresh story.",
+  "createdAt": "2026-06-20T08:50:31.668Z",
+  "updatedAt": "2026-06-20T08:50:31.668Z",
+  "_hash": "68608bebf551171f9d5093f8249a6e5c40c1abeb3a77987bee18ec3f078f3365"
+}

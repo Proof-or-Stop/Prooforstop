@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Auto-refresh the finding-signals cache in applyDoneMergeEffects after the DONE merge",
+      "context": "In handlers/done-effects.ts applyDoneMergeEffects (~after the bumpVersionOnDoneMerge / runDoneMainPackageBuildAfterMerge calls at ~890-896, post-merge, inside the main write-lock), re-derive + persist the finding-signals cache by calling deriveFindingSignalsFromStore(store, { projectRoot: <root> }) (core/finding-signals.ts) — which writes via learning-store writeFindingSignals → resolveLearningRoot (canonical MAIN cache, post-B-37b3). Run it on EVERY DONE merge (do NOT gate on shouldBuildDoneMainPackageForChangedPaths). Wrap in try/catch: NEVER throw or block the merge; append an advisory mergeLines status line (e.g. \"experience cache refreshed (N signals)\" or \"experience cache refresh skipped: <reason>\"). Use the correct root so the cache lands in the main checkout. Do NOT change learning-store.ts (B-37b3 resolver) or version-bump.ts. Keep the effect advisory-only (no gate reads it).",
+      "userSees": "After any `story_advance --phase=DONE` that merges to main, the merge report shows an \"experience cache refreshed (N signals)\" line, and .lattice/learning/finding-signals.json updatedAt advances to include the just-completed story's findings — no manual `learning_scan` needed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke: DONE merge auto-refreshes the cache and never breaks the merge",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wiring) that drives a DONE merge for a story carrying a resolved finding and asserts the finding-signals cache is (re)written/updated as part of applyDoneMergeEffects (updatedAt advances and/or the new story's signal appears), without a separate learning_scan. Include a control proving a derive failure is swallowed (advisory line, merge still succeeds). Prefer driving the real applyDoneMergeEffects / the real derive+write path. Bump the printed check count.",
+      "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Coverage watermark on the cache + learning_validate gap report (detect and recover silently-missed story experience)",
+      "context": "In core/finding-signals.ts deriveFindingSignals(FromStore), record a COVERAGE WATERMARK on the cache (add fields to the FindingSignalsCache type in core/experience-layer-types.ts): coveredStoryCount, coveredFindingCount, coveredThrough (max finding createdAt/resolvedAt folded in). In learning_validate (handlers/learning-validate.ts plus a pure leaf in core/experience-revalidation.ts), compute and report the COVERAGE GAP by comparing the PERSISTED cache watermark (readFindingSignals) against the current store counts (deriveFindingSignalsFromStore current): e.g. \"coverage: N/M findings, 0 gap\" or \"coverage: 438/470 findings, 32 across J stories not yet summarized (cache behind; run learning_scan)\". This makes a silently-failed/skipped DONE auto-refresh (CHK-001 never-throw) DETECTABLE; recovery is the existing learning_scan full re-derive which closes the gap. Advisory-only; no gate reads it. Add a smoke: after adding a finding without re-scan, learning_validate reports a non-zero gap; after learning_scan, gap=0.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-1a91/background.md"
+      ],
+      "userSees": "lattice learning_validate prints a coverage line: normally \"coverage: N/N findings, 0 gap\"; when a DONE auto-refresh was missed/failed it shows e.g. \"coverage: 438/470 findings, 32 not yet summarized (cache behind; run learning_scan)\", and after learning_scan it returns to 0 gap.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
