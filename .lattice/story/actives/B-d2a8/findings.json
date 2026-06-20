@@ -72,6 +72,24 @@
       ],
       "signatureTag": "missing|ts|edge-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-005",
+      "desc": "CHK-001:adversarial:0: intent claims resolveParallelGate(\"not-an-object\", lightDefault) -> returns full lightDefault. The smoke (line 54) uses PD (balanced default, advise/3/false) not lightDefault (advise/2/false). The intent asserts a specific profile by name; the actual test uses a different profile. The distinction matters because lightDefault has maxConcurrentReview=2 and the claim that it returns the light values cannot be verified from this assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-20T05:34:26.170Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-003",
+      "_hash": "fa4aa09bb81cb0a06ca54c1709442e578ad6196f41d3f37fbf5654e093e0cf15",
+      "files": [
+        "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
