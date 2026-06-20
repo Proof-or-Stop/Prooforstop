@@ -166,6 +166,26 @@
       ],
       "signatureTag": "missing|ts|promise-undelivered-streaming",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6878:F-010",
+      "desc": "concept-cleanup: streaming.ts defines local OPENAI_STREAM_WHITELIST / OPENAI_STREAM_NESTED_DETAIL_WHITELIST / GEMINI_STREAM_WHITELIST as manual copies of the exported OPENAI_USAGE_WHITELIST / OPENAI_NESTED_DETAIL_WHITELIST / GEMINI_USAGE_WHITELIST from adapters/openai.ts and adapters/gemini.ts instead of importing them — the same DRY divergence risk that F-006 fixed for the anthropic whitelist in dispatch-usage.ts remains unaddressed for openai and gemini in streaming.ts; the misleading comment Enumerated directly from the adapters implies import not manual copy",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-20T15:42:56.721Z",
+      "reviewRound": "2026-06-20T15:39:00.671Z",
+      "reviewRunId": "B-6878:RR-009",
+      "_hash": "97389b5c82dc380d7e4b4d85f317c3a98497eadbc45622414b5fae76615c8eca",
+      "files": [
+        "packages/main/src/core/usage-ledger/streaming.ts",
+        "packages/main/src/core/usage-ledger/adapters/openai.ts",
+        "packages/main/src/core/usage-ledger/adapters/gemini.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-streaming",
+      "signatureTagSource": "auto"
     }
   ]
 }
