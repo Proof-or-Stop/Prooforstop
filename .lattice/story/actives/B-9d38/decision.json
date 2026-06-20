@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Compose, do not duplicate: reuse S2 toFindingAddArgs for the mapping (single source of truth, no abstract leak).",
+    "Provenance in --desc, real lane in --agent: type agent as a real ReviewRunLane so completeness-critic can never be the agent (§4.3).",
+    "Hermetic + injected: runCritic is a (input)=>Finding[] seam; the role is testable with a fake; the critic only sees {change, confirmedFindings}.",
+    "Unprivileged output: runCompletenessCritic returns the critic findings UNCHANGED (they re-enter verification — S4).",
+    "Stay inside S3: the critic role + provenance tagging only; no verifier (S2), no reopen/escalation/finding_add I/O (S4)."
+  ],
+  "drivers": [
+    "§4.3: reviewer-evidence counts only when agent.startsWith(lattice-review-); no lattice-review-completeness lane exists.",
+    "§2.4: the critic input is the VERIFIED confirmedFindings; its output is raw + unprivileged.",
+    "S0 + S2 are frozen/DONE and imported verbatim; the reopen loop + finding_add I/O is S4."
+  ],
+  "options": [
+    {
+      "name": "Injected-critic seam + desc-tag provenance + real-lane-typed arg wrapper (compose S2)",
+      "pros": [
+        "runCritic is an injected (input)=>Finding[] seam so the role is hermetically testable with a fake and the real critic agent stays MVP-supplied; the critic only ever sees {change, confirmedFindings}",
+        "toCriticFindingAddArgs reuses S2 toFindingAddArgs (single mapping source of truth, no abstract-severity leak) and only adds the [completeness-critic] desc prefix — provenance in --desc per §4.3",
+        "agent is typed as a REAL ReviewRunLane so the compiler STRUCTURALLY rejects 'completeness-critic' in --agent (the exact §4.3 failure mode that would make the finding not count as lane evidence)"
+      ],
+      "cons": [
+        "Importing review-run.ts read-only for the lane type couples S3 to that module (acceptable — read-only, same as S1)"
+      ]
+    },
+    {
+      "name": "Put [completeness-critic] in --agent (a synthetic agent id)",
+      "pros": [
+        "Conceptually labels the critic directly"
+      ],
+      "cons": [
+        "Directly violates §4.3: reviewer-evidence only counts when agent.startsWith('lattice-review-'); a completeness-critic agent stores the finding as non-reviewer provenance and it would NOT count as lane evidence, and the reviewRunId<->lane binding would not validate",
+        "Breaks the whole point of the MVP provenance design"
+      ]
+    },
+    {
+      "name": "Re-implement the ledger mapping inside S3 instead of composing S2",
+      "pros": [
+        "S3 would not import S2"
+      ],
+      "cons": [
+        "Duplicates the BLOCKER->critical map — two sources of truth that can drift",
+        "Re-introduces the abstract-severity Zod-error risk S2 exists to prevent",
+        "More surface to keep in sync; violates the parallel-decomposition intent that S3 composes S2"
+      ]
+    }
+  ],
+  "chosen": "Injected-critic seam + desc-tag provenance + real-lane-typed arg wrapper (compose S2)",
+  "rationale": "Only this option honors all five principles: it composes S2 toFindingAddArgs (one mapping source, no abstract-severity leak), carries provenance in --desc while typing agent as a REAL ReviewRunLane so completeness-critic can never be the --agent (the precise §4.3 requirement), and keeps the critic an injected seam over the confirmed set with unchanged unprivileged output. Putting the tag in --agent directly violates §4.3 (the finding would not count as lane evidence); re-implementing the mapping duplicates S2 and re-opens the Zod-error risk.",
+  "preMortem": [
+    {
+      "scenario": "A critic finding is recorded with --agent='completeness-critic' (or any non-lattice-review- value), so it does not count as reviewer-lane evidence",
+      "trigger": "toCriticFindingAddArgs lets the caller pass an arbitrary agent string, or puts the provenance tag in --agent instead of --desc",
+      "consequence": "The confirmed critic finding is stored as non-reviewer/main provenance; the reviewRunId<->lane binding fails to validate and the finding silently does not count toward the round (the exact §4.3 failure mode)",
+      "mitigation": "toCriticFindingAddArgs types agent as a REAL ReviewRunLane (compiler rejects 'completeness-critic'); the provenance lives ONLY in the desc tag; the smoke asserts agent is a real lane (e.g. lattice-review-quality) and desc starts with [completeness-critic], never the reverse"
+    },
+    {
+      "scenario": "The critic is run on RAW (unverified) lens findings instead of the CONFIRMED set, so it drowns in noise",
+      "trigger": "A caller passes raw findings as confirmedFindings, or runCompletenessCritic reshapes/forwards the wrong set",
+      "consequence": "The critic reasons over unverified noise, contradicting §2.4 (critic input must be post-§2.3 verified); its 'what did we miss' judgment degrades",
+      "mitigation": "runCompletenessCritic takes a CompletenessCriticInput{change,confirmedFindings} (the S0 type whose field is named confirmedFindings) and forwards it verbatim to the seam; the smoke asserts the fake received exactly {change, confirmedFindings} and nothing else; the orchestration that guarantees the set is post-verification is S4 — S3 only enforces the input shape"
+    },
+    {
+      "scenario": "toCriticFindingAddArgs mangles or drops the S2-mapped severity / desc, leaking an abstract severity or losing the tag",
+      "trigger": "S3 re-derives the desc/severity instead of composing S2 toFindingAddArgs, or prepends the tag in a way that breaks the mapped severity",
+      "consequence": "An abstract BLOCKER/MAJOR/MINOR reaches the ledger (Zod error) or the [completeness-critic] provenance is lost — the finding either errors or loses attribution",
+      "mitigation": "toCriticFindingAddArgs computes base=toFindingAddArgs(finding,opts) (S2, the single mapping source) and returns {...base, desc: TAG+' '+base.desc}; the smoke asserts severity is the mapped critical|high|medium|low (never abstract) AND desc starts with the tag followed by the S2 composeDesc"
+    }
+  ],
+  "timestamp": "2026-06-20T15:28:44.921Z"
+}

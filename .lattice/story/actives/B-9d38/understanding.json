@@ -1,0 +1,27 @@
+{
+  "task": "Implement the adversarial-review S3 COMPLETENESS-CRITIC ROLE: an injected runCritic seam over {change, confirmedFindings} returning raw unprivileged Finding[], plus the §4.3 MVP provenance (a [completeness-critic] desc tag + a real-review-lane agent) — as a pure-data module composing S0 + S2.",
+  "outcome": "A developer runs: node packages/main/dist/tasks/adversarial-review-critic-smoke.js and sees: [critic-smoke] runCompletenessCritic({change,confirmedFindings}, fake) -> returns the planted Finding[] unchanged; fake received exactly {change, confirmedFindings} (the CONFIRMED set, not raw) OK | empty confirmedFindings still calls the critic OK | COMPLETENESS_CRITIC_DESC_TAG === \"[completeness-critic]\" OK | toCriticFindingAddArgs(MAJOR finding, {reviewRunId:\"RR-1\", agent:\"lattice-review-quality\", category:\"missing\"}) -> {severity:\"high\", desc:\"[completeness-critic] Off-by-one — ... Fix: ... (line 12)\", files:[\"a.ts\"], category:\"missing\", reviewRunId:\"RR-1\", agent:\"lattice-review-quality\"} — desc STARTS WITH the tag, severity is mapped (no abstract BLOCKER/MAJOR/MINOR), agent is a REAL lane (never completeness-critic) OK => N checks passed, exit 0. In code: import {runCompletenessCritic, toCriticFindingAddArgs} from core/adversarial-review-critic.js; const criticRaw = runCompletenessCritic({change, confirmedFindings}, myCriticAgent); const args = toCriticFindingAddArgs(confirmedCriticFinding, {reviewRunId, agent, category}); — args.agent is a real lattice-review-* lane and args.desc is provenance-tagged.",
+  "facts": [
+    "S0 (core/adversarial-review.ts) exports CompletenessCriticInput{change,confirmedFindings} and Finding.",
+    "S2 (core/adversarial-review-verifier.ts, lattice 0.3.31) exports toFindingAddArgs(finding,{reviewRunId,agent,category}) and FindingAddArgs.",
+    "core/review-run.ts exports REVIEW_RUN_LANES + ReviewRunLane (the six real lanes: concept/quality/test-coverage/behavior/docs/channel); there is NO lattice-review-completeness lane.",
+    "§2.4: the critic input confirmedFindings is the VERIFIED set (post §2.3); its output is raw + unprivileged and re-enters verification (that loop is S4).",
+    "§4.3: reviewer evidence only counts when agent.startsWith(lattice-review-); a confirmed critic finding must use a REAL lane in --agent (recommended quality/behavior) with [completeness-critic] in --desc — NOT in --agent."
+  ],
+  "constraints": [
+    "Pure module: no I/O, no finding_add/review_run_start call (S4). runCritic is an injected (input)=>Finding[] seam; the real critic agent is MVP-supplied.",
+    "The critic only ever receives {change, confirmedFindings} (the verified set), never raw lens findings; its output is returned UNCHANGED (unprivileged).",
+    "toCriticFindingAddArgs must keep the S2-mapped severity (no abstract leak) and type agent as a REAL ReviewRunLane so completeness-critic can never be the --agent; the provenance tag lives in --desc.",
+    "Imports S0 + S2 + review-run.ts read-only; modifies none of them.",
+    "All artifacts English-only."
+  ],
+  "unknowns": [
+    "None blocking — §2.4 + §4.3 fully specify the critic contract and the MVP provenance rule; mechanical."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/adversarial-review-critic.ts",
+    "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-20T15:28:14.047Z"
+}

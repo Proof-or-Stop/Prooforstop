@@ -6,7 +6,50 @@
       "context": "New module importing S0 (core/adversarial-review.js: CompletenessCriticInput{change,confirmedFindings}, Finding). runCompletenessCritic(input: CompletenessCriticInput, runCritic: (input: CompletenessCriticInput)=>Finding[]): Finding[] applies the injected runCritic to {change, confirmedFindings} and returns its Finding[] UNCHANGED (the critic output is raw + unprivileged per §2.4 — it re-enters S2 verification, which is S4 orchestration, NOT here). The critic seam only ever receives the CONFIRMED findings + the change (never raw lens findings). Optionally a convenience runCompletenessCriticOn(change, confirmedFindings, runCritic). Pure pass-through; no I/O.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runCompletenessCritic({change,confirmedFindings}, fakeRunCritic) where fakeRunCritic returns a planted Finding[] -> returns exactly those findings unchanged (referential identity or deep-equal) -> proves pure pass-through; WHY: the critic output is raw+unprivileged per S2.4, no transformation allowed",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runCompletenessCriticOn(change, confirmedFindings, fakeRunCritic) convenience wrapper -> returns the same result as runCompletenessCritic({change,confirmedFindings}, fakeRunCritic); WHY: covers optional convenience form",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "runCompletenessCritic({change:\"\", confirmedFindings:[]}, fakeRunCritic) where fakeRunCritic returns [] -> returns []; WHY: empty-confirmedFindings boundary -- critic must still be called even when the verified set is empty (no short-circuit)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runCompletenessCritic where fakeRunCritic returns a large array (e.g. 50 findings) -> all 50 returned unchanged; WHY: no truncation or filtering on the output side",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fakeRunCritic spy records its received argument -> must be exactly {change, confirmedFindings} (the two-field CompletenessCriticInput shape), NOT any superset or raw lens data -> the critic seam never leaks unverified findings; WHY: decision pre-mortem risk (a) -- critic must only receive the CONFIRMED set",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runCompletenessCritic where fakeRunCritic mutates the input (e.g. pushes to confirmedFindings) -> the mutation is visible to the caller (pass-through semantics, no defensive copy) OR the function protects the input (document which); WHY: clarifies mutation contract and prevents silent data corruption",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "runCompletenessCritic where fakeRunCritic returns findings with extra fields beyond Finding schema -> those extra fields are preserved in the returned array (pass-through, not schema-filtered); WHY: ensures no accidental stripping of data the S2 verifier might need",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
