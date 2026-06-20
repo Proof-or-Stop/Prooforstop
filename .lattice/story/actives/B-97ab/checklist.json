@@ -174,7 +174,60 @@
       "context": "New packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts (check+counter pattern). Assert: every value of LENS_TO_LANE is in the real six-lane set (import REVIEW_RUN_LANES from core/review-run.js and assert subset — this PINS the mapping to reality); buildLensRunPlan over CANONICAL_LENS_SET yields 6 requests, one per lens, each with the right mapped lane and carrying only {lensId,lane,change} (no findings field / no cross-lens data); a SUBSET lens set yields only those requests; runLenses with a fake runLens (returns a planted Finding for one lens, [] for others) yields the right LensRunResult[] with findings grouped by lens/lane and PASS lenses empty; collectRawFindings flattens correctly. Register node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js in lattice.config.json validate.commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Hermetic smoke file exists at packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts, uses check+counter pattern, and exits 0 when all assertions pass; WHY: the smoke is the acceptance gate for the entire S1 story",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts every value of LENS_TO_LANE is in REVIEW_RUN_LANES (subset check against the real import from core/review-run.ts) -> assertion passes; WHY: pins the mapping to the real lane enum at test time, not just at type-check time",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts buildLensRunPlan(change, CANONICAL_LENS_SET) yields exactly 6 requests with correct lensId and lane per request, and no findings field on any request -> all pass; WHY: covers plan construction correctness and independence",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke runs runLenses with a FAKE runLens that plants a Finding on one lens and returns [] elsewhere -> asserts correct LensRunResult grouping (findings on the planted lens, empty on others) and collectRawFindings flattens correctly; WHY: end-to-end proof of the injected-seam + aggregation path",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke command is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js -> lattice validate runs it; WHY: if not registered, the smoke never runs in CI/validation and is dead code",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke tests a SUBSET lens set (e.g., 2 of 6 lenses) via buildLensRunPlan -> asserts only 2 requests returned, only for those 2 lenses; WHY: subset is a spec requirement (task-tunable) and must be exercised in the smoke",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke counter tracks total check count and reports it at exit (check+counter pattern) -> final output includes the count of passed assertions; WHY: a smoke that silently passes zero checks is a false-confidence hazard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts that when behavior/correctness and crash-safety/edge both map to lattice-review-behavior, they produce SEPARATE LensRunResult entries (distinct lensId, same lane) and findings are not merged or mis-attributed between them -> assertion passes; WHY: the two-to-one lane mapping is the most fragile part of the design; if the smoke does not explicitly test this, a grouping-by-lane bug can ship undetected",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts that the FAKE runLens callback never receives a findings field or any prior lens output in its argument -> assertion on request shape passes; WHY: independence is the load-bearing invariant of the lens runner; if the smoke does not explicitly assert the request shape, cross-contamination can ship",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
