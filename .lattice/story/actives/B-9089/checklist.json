@@ -47,10 +47,10 @@
           "command": "codex exec read-only review -> /tmp/b9089-codex-plan-review.json; agy --print --sandbox review -> /tmp/b9089-agy-plan-review.json",
           "result": "pass",
           "note": "Two independent host plan reviews completed before source changes. Codex verdict PASS with checks local_boundary/generated_token/ppid_degradation/core_exception_migration/implementation_plan all PASS, findings empty, authorityClaim none. Antigravity verdict PASS with the same checks all PASS, authorityClaim none, one low comment cleanup finding in story-owner-lease.ts to address during DEV. Claude Code was attempted first but returned only Execution error, so it is not counted as a host verdict. Document sha256 63b787d47f3ef9821e2d549e4f5cc00345754e86f4510f31a5f06ce6e4fa225f; reviewed HEAD d3a61ff4b3dc68a656cddcedaea958a98627b843.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,10 +59,10 @@
           "command": "Compare /tmp/b9089-codex-plan-review.json and /tmp/b9089-agy-plan-review.json; reject /tmp/b9089-claude-plan-review.json because it contains only Execution error",
           "result": "pass",
           "note": "Host counting used distinct providers only: codex plus antigravity. The failed Claude Code attempt was not counted, and no duplicate/same-provider verdict was used to satisfy the two-host requirement. This preserves the plan requirement that independent host review evidence must come from distinct host providers.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "Inspect authorityClaim fields in Codex and Antigravity review JSON outputs",
           "result": "pass",
           "note": "Both counted host reviews explicitly returned authorityClaim none. This evidence is only two-host plan review evidence and does not claim Authority Server receipt verification, productionDone, authorityReady, or canClaimProductionDone.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Commit 65297c217 adds packages/main/src/core/owner-session.ts facade and story-owner-lease re-exports/use; build plus smoke passed with explicit-env owner lease acquisition through the facade.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,10 +143,10 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Smoke covers blank canonical env fallback, legacy koala-env/claude-code-env lease normalization, and degraded derived-ppid fallback from the host-neutral resolver.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,10 +154,10 @@
           "command": "npm --prefix packages/main run test:owner-session-guardrail",
           "result": "pass",
           "note": "Guardrail passed, proving generic core/lifecycle/gate code cannot reintroduce raw host-specific session env reads outside the adapter/dispatch/test allowlist.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -216,10 +216,10 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Smoke covers Claude Code, Codex, Antigravity, agy alias, and fake future host adapter bridging to host-adapter sessionSource without core resolver branches.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Follow-up commit 5035a451a normalizes agy and AGY_SESSION_ID to canonical hostProvider=antigravity; build and story-owner-lease smoke passed with updated agy alias expectation.",
-          "headHash": "5035a451a8e4b8ecf7f396945578dde2df01b0a7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:15:59.930Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "command": "rg -n \"CLAUDE_CODE_SESSION_ID|CLAUDE_SESSION_ID|CODEX_.*SESSION|AGY_.*SESSION|ANTIGRAVITY_.*SESSION\" packages/main/src",
           "result": "pass",
           "note": "Raw host-specific session env matches are confined to owner-session-adapters.ts, lattice-dispatch.ts, init-assets.ts adapter asset, and task tests; no generic lifecycle/core gate matches remain.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -299,10 +299,10 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Smoke proves generated-token fallback reuses the same opaque local token across ppid-changing invocations for the same Antigravity adapter boundary.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -323,10 +323,10 @@
           "command": "git diff --check",
           "result": "pass",
           "note": "Docs state generated tokens are local coordination only and not Authority/review proof; whitespace check passed after the documentation update.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -381,10 +381,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "collectContext now records event.sessionId from getSessionId() in core/owner-session.ts instead of ad hoc LATTICE/Claude env reads; build passed.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -393,10 +393,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "DEV-claim warning now compares the previous DEV event to getSessionId() from the shared resolver, preserving warning behavior while removing direct env reads; build passed.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -404,10 +404,10 @@
           "command": "npm --prefix packages/main run test:owner-session-guardrail",
           "result": "pass",
           "note": "Static guardrail would fail if handlers/context.ts or handlers/transition-orchestrator.ts reintroduced raw host-specific session env names; it passed.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -463,10 +463,10 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "Updated story-owner-lease smoke covers codex, claude-code, antigravity, agy, fake future host, generated-token, and degraded ppid matrix cases.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -475,10 +475,10 @@
           "command": "npm --prefix packages/main run test:owner-session-guardrail",
           "result": "pass",
           "note": "Follow-up commit 5035a451a extends the guardrail to require runBoundedRealLeafDispatch to build providerEnv with buildCanonicalHostRuntimeEnv and pass env: providerEnv to bounded Codex/Gemini subprocesses.",
-          "headHash": "7f6dd90d6b076c88a275c2f9230a7453bf3cb532",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:16:00.551Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -486,10 +486,10 @@
           "command": "LATTICE_SESSION_ID=sess-73ee2b8ea796fcca lattice scope_contract_check {\"storyId\":\"B-9089\"}",
           "result": "pass",
           "note": "Scope contract check passed with 0 unacknowledged violations after implementation, covering the multi-file guardrail/test/doc changes.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     },
@@ -539,10 +539,10 @@
           "command": "LATTICE_SESSION_ID=sess-73ee2b8ea796fcca sh -c lattice checklist_update CHK-007 in_progress; LATTICE_SESSION_ID=sess-73ee2b8ea796fcca zsh -lc lattice checklist_update CHK-001 in_progress",
           "result": "pass",
           "note": "PASS parent-pid transcript: canonical session reused lease across two invocation shapes; before ownerLease sessionId=sess-73ee2b8ea796fcca source=derived-ppid heartbeat=2026-06-20T10:47:38.259Z; after sh -c heartbeat=2026-06-20T10:48:43.267Z; after zsh -lc heartbeat=2026-06-20T10:48:44.169Z. Both mutating commands persisted and auto-committed without foreign-owner rejection. storyId=B-9089 cwd=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-9089 HEAD=6467739b5686486c59ff8102d7c7265067927689 docHash=63b787d47f3ef9821e2d549e4f5cc00345754e86f4510f31a5f06ce6e4fa225f hostProvider=local-shell.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -551,10 +551,10 @@
           "command": "env -u LATTICE_SESSION_ID -u CLAUDE_CODE_SESSION_ID -u CLAUDE_SESSION_ID sh -c lattice session_brief; env -u LATTICE_SESSION_ID -u CLAUDE_CODE_SESSION_ID -u CLAUDE_SESSION_ID zsh -lc lattice session_brief",
           "result": "pass",
           "note": "Degraded comparison with no canonical env and no Claude session env produced distinct ppid-derived current sessions for the same worktree: sh -c reported NOT owner (sess-98f240dac232605a), zsh -lc reported NOT owner (sess-f32196fab37bb201), while the owner lease stayed sess-73ee2b8ea796fcca [derived-ppid]. This proves ppid-only shape changes identity and is explicitly surfaced as read-only/foreign rather than silently reusing ownership. storyId=B-9089 cwd=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-9089 HEAD=6467739b5686486c59ff8102d7c7265067927689 docHash=63b787d47f3ef9821e2d549e4f5cc00345754e86f4510f31a5f06ce6e4fa225f.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -563,10 +563,10 @@
           "command": "manual transcript completeness review of the CHK-007 evidence above",
           "result": "pass",
           "note": "Transcript completeness PASS: evidence includes storyId=B-9089, commands, hostProvider=local-shell, cwd=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-9089, HEAD=6467739b5686486c59ff8102d7c7265067927689, document hash=63b787d47f3ef9821e2d549e4f5cc00345754e86f4510f31a5f06ce6e4fa225f, observed session ids/sources, owner lease before/after heartbeat summaries, and pass result. It explicitly remains local non-Authority coordination evidence and does not claim Authority receipt, productionDone, fullAuthorityDone, or cryptographic identity.",
-          "headHash": "600768d83bb84b442e73f4144bcf2dd5ab8146c7",
-          "materialHash": "fc3b39c7300d13387857376ebcc410656929cefee84c9a79031fa7bbb49c69b3",
-          "storyFilesHash": "13e80deef2e443bd9dbe386d3a4a844f3dd1e6d008de452df6279859eaafdb95",
-          "timestamp": "2026-06-20T11:17:20.027Z"
+          "headHash": "9eefc959684e20802300950aa391a8c3856b4c66",
+          "materialHash": "e691f36c042006c05093a1c3a33f7c2ef284862c2ed18681bd26859e859a35cc",
+          "storyFilesHash": "252630992dc6679fe4d988344295ab937b190861ec839e6b86b930acce89eb03",
+          "timestamp": "2026-06-20T11:24:42.008Z"
         }
       ]
     }
