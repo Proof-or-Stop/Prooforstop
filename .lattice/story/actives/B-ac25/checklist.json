@@ -522,9 +522,9 @@
         "external project default blocking behavior",
         "Authority production receipts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-20T10:15:27.216Z",
       "files": {
         "modify": [
           "lattice.config.json",
@@ -557,7 +557,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); if(!Array.isArray(cfg.doneRequiredCommands)||cfg.doneRequiredCommands.length!==2) throw new Error(\\\"doneRequiredCommands missing\\\"); const a=cfg.doneRequiredCommands[0], b=cfg.doneRequiredCommands[1]; if(a.command!==\\\"npm\\\"||a.args.join(\\\" \\\")!==\\\"--prefix packages/main run build\\\") throw new Error(\\\"missing packages/main build first\\\"); if(b.command!==\\\"npm\\\"||b.args.join(\\\" \\\")!==\\\"test\\\") throw new Error(\\\"missing root npm test second\\\"); console.log(\\\"self-host doneRequiredCommands config ok\\\");\"",
+          "result": "pass",
+          "note": "Self-host lattice.config.json opts into DONE-required policy with packages/main build before root npm test.",
+          "headHash": "8e622024b19dcb52674bc6e0ebaed2bc71253f69",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:15:27.559Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); const validate=(cfg.validate&&cfg.validate.commands)||[]; if(validate.some(x=>typeof x===\\\"string\\\"?x===\\\"npm test\\\":x.command===\\\"npm\\\"&&Array.isArray(x.args)&&x.args.join(\\\" \\\")===\\\"test\\\")) throw new Error(\\\"root npm test leaked into validate.commands\\\"); console.log(\\\"validate.commands unchanged by full-suite requirement\\\");\" && node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Root npm test is not in ordinary validate.commands; smoke proves external projects without policy remain advisory/non-blocking.",
+          "headHash": "8e622024b19dcb52674bc6e0ebaed2bc71253f69",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:15:27.856Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
+          "result": "pass",
+          "note": "Self-host config change did not touch release_approve_push, pre-push hook, or Authority production receipt implementation files.",
+          "headHash": "8e622024b19dcb52674bc6e0ebaed2bc71253f69",
+          "materialHash": "310cba74b5bfd729df5eafca4e0d84dd7f3aaaca0da6c1c2b81c1a34249e6811",
+          "storyFilesHash": "8e5d936366334553dd18b0243f61e1b7d0496950a006d2231b68328a729dd581",
+          "timestamp": "2026-06-20T10:15:28.151Z"
+        }
+      ]
     }
   ],
   "auditLog": [
