@@ -245,6 +245,17 @@
           "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
           "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
           "timestamp": "2026-06-20T12:03:34.124Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"V1 never refreshes hashes|one refresh pass|preMergeHead|postMergeHead|Single-host fallback semantics are deferred|no fallback readiness claim\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "The contract blocks direct hash refresh, caps refresh-only to one pass, requires post-merge done_prepare binding, and defers single-host fallback readiness claims from V1.",
+          "headHash": "da0cbed35ab3162fb328de5dbb6d379dd051def4",
+          "materialHash": "5afd18dec582db7b4dd1af0f250f9fce137a5a8d0e01d0746b4040d0a8d223d5",
+          "storyFilesHash": "7d3b70e31a6a861d0bb9dd3ec6f03485bd7e9719ad33a5ce78e3cbb1813cc4f3",
+          "timestamp": "2026-06-20T12:04:30.321Z"
         }
       ]
     }
