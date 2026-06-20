@@ -194,7 +194,22 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/adversarial-review-spec.md",
+          "command": "grep -nE 'Motivation|Methodology|Integration|Implementation|FINDING|VERDICT|MVP|Authority' docs/adversarial-review-spec.md",
+          "result": "pass",
+          "note": "§4 composes lattice-review-* lanes + review_run/pass/finding + full-3x2 escalation.",
+          "headHash": "243b4d046cba635aabf3cd8537355a294bf14431",
+          "materialHash": "644441c9214ed93cf4ff3a7789b2215763c91b32fd8e5e3e3efd912d85bd0193",
+          "storyFilesHash": "2bb7fcb60ab7e30683f5ba1c2f5dcad6d4fb83fd138f0bd20ee8bc9870ec6eeb",
+          "timestamp": "2026-06-20T11:01:16.729Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
