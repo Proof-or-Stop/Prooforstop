@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T07:17:45.660Z",
       "reviewRunId": "B-37b3:RR-006",
       "_hash": "9faf0665544c25b205df1860508c4326015065f38352d4bce2c35d6e764e4e9a"
+    },
+    {
+      "id": "B-37b3:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review complete. Fix is complete and coherent across all four layouts: (1) linked worktree → worktree list first entry = MAIN root (cache shared, confirmed by live git tests); (2) normal main checkout → worktree list first entry = checkout root, differs from commonDir (<checkout>/.git), byte-identical return (confirmed); (3) separate-git-dir / bare-backed → worktree list first entry equals commonDir (external storage), detected by resolve(mainWorktree)===commonDir guard, falls back to --show-toplevel = actual checkout (confirmed live); (4) non-git → outer catch returns searchOrigin unchanged. dirname import retained for mkdirSync(dirname(filePath)) on line 234, not dead. resolve import used on lines 122/124 in the guard, not dead. resolveLearningRoot private, called only by resolveLearningDir (single funnel, no split-brain). No gate/schema/package.json changes. Smoke test case 4 tests both separate-git-dir and bare-backed shapes with round-trip asserts. No concept deletion/replacement residue to check (this is a concept replacement within one file). No dead code, no stray imports, no doc-promise-undelivered. Clean — 0 findings.",
+      "createdAt": "2026-06-20T07:20:23.787Z",
+      "reviewRound": "2026-06-20T07:17:45.660Z",
+      "reviewRunId": "B-37b3:RR-004",
+      "_hash": "c70faee3ab41f3137128da409bb41b68d59955290b48e9028eb3546b85cb1316"
     }
   ]
 }
