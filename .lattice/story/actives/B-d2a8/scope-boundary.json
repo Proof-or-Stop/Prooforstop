@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d2a8",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+  ],
+  "excluded": [
+    "packages/main/src/core/lattice-parallel-wave.ts + handlers/story-review.ts (Story 4)",
+    "packages/main/src/core/machine.ts (Story 5)",
+    "packages/main/src/core/parallel-decomposition-gate.ts (Story 2, done)",
+    "packages/main/src/core/parallel-decomposition.ts (frozen contract; Story 5)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Program Story 3 (B-d2a8): parallelGate resolution in audit-config.ts + smoke. Disjoint from S4/S5. Operator approved S2-S5 program 2026-06-20.",
+  "createdAt": "2026-06-20T05:19:13.831Z",
+  "updatedAt": "2026-06-20T05:19:13.831Z",
+  "_hash": "8b6620949f36ddcb789cb6b8368d7df9b9653ca104bee4ed7415d9dad57431ef"
+}
