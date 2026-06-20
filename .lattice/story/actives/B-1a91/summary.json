@@ -1,0 +1,55 @@
+{
+  "storyId": "B-1a91",
+  "changes": "applyDoneMergeEffects now runs a never-throw advisory finding-signals cache re-derive on EVERY DONE merge (wall-clock updatedAt via now=new Date().toISOString()), the FindingSignalsCache carries a coverage watermark (coveredFindingCount/coveredStoryCount/coveredThrough), and learning_validate prints a coverage/gap line via the pure leaf computeCoverageGap (with a filtered-view branch for --story that refuses a misleading subset-vs-global numeric gap). 3 smokes added/extended.",
+  "usage": "Run any story to DONE: the merge report now shows an advisory \"experience cache refreshed (N signals)\" line and the cache accumulates per story automatically (no manual learning_scan). Run lattice learning_validate to see a coverage line: \"coverage: N/N findings, 0 gap\" when in sync, \"coverage: C/T findings, G ... (cache behind; run learning_scan)\" when a refresh was missed, or \"coverage: unknown — run learning_scan\" for a legacy/absent cache; lattice learning_scan closes any gap. learning_validate --story shows \"coverage: n/a (filtered view)\".",
+  "expectedOutcome": "On every DONE merge the cache updatedAt + watermark advance to include the just-completed story without a manual scan; learning_validate exposes a coverage gap so a silently-missed refresh is detectable and recoverable.",
+  "actualTranscript": "Real CLI (worktree dist): learning_scan -> wrote finding-signals.json updatedAt 2026-06-20T09:48:23 (wall-clock); learning_validate -> \"coverage: 871/871 findings, 0 gap\"; learning_validate --story=B-1a91 -> \"coverage: n/a (filtered view ...)\"; --json -> {\"coverage\":{\"filtered\":true}}. 3 smokes pass (21+15+5 checks); lattice validate 11/11 intents; codex host-2 ran full npm test exit 0. See evidence/transcript-diff.md.",
+  "outcomeDiff": "No diff: actual matches expected on all three checklist items. The filtered-view path no longer emits codex round-1 false \"0 gap\".",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The new on-merge refresh governs SUBSEQUENT stories DONE merges (it lands on main with this story, so this story own merge predates it). The global coverage line reads \"unknown\" until the first scan exists in a given checkout (documented back-compat degraded path). Gap surfacing is pull-only (run learning_validate); no proactive CI/cron notification (low follow-up I-1).",
+  "pitfalls": "deriveFindingSignals falls back updatedAt to the 1970 epoch sentinel when now is omitted — callers persisting the cache MUST pass now (learning_scan and the DONE refresh both do). The coverage gap compares the GLOBAL persisted cache against the GLOBAL store; it is meaningless for a --story subset, hence the filtered-view branch. resolveLearningRoot (B-37b3) writes the canonical MAIN cache, and the DONE refresh must use a main-rooted StoryStore because the worktree is already removed by earlier post-merge effects.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1295933
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 783
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 246087
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1524878
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1477001
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 510153
+    }
+  },
+  "totalDurationMs": 5054835,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T09:55:38.490Z",
+  "updatedAt": "2026-06-20T09:55:38.490Z"
+}
