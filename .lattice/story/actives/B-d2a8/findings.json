@@ -460,6 +460,23 @@
       ],
       "signatureTag": "cleanup|ts|quality-cleanup-audit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d2a8:F-026",
+      "desc": "mode and broadGlobBlocks are read twice (guard + assign), so a hostile getter/Proxy could return a valid value for the guard and a different invalid value for the assignment (TOCTOU), yielding an invalid ParallelGateConfig without throwing. Unreachable from JSON.parse but inconsistent with maxConcurrentReview which reads once. Fix: read each field into a const before validating.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T06:32:42.287Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "_hash": "879e8a50aa1fb2b7c4df4e0d6c86acf0ee11119cb90bd4586b9c40a6e8802775",
+      "files": [
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "adversarial|ts|mode-broadglobblocks-read",
+      "signatureTagSource": "auto"
     }
   ]
 }
