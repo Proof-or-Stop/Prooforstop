@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-20T15:05:25.779Z",
       "reviewRunId": "B-2806:RR-003",
       "_hash": "566dabb2ff9508e1703cb7d87e9f5e55150d8d29d024f5398512a4fe7a2bd557"
+    },
+    {
+      "id": "B-2806:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior CLEAN over round-2 hash: SEVERITY_TO_FINDING_KIND BLOCKER->critical/MAJOR->high/MINOR->medium; toFindingAddArgs never emits an abstract severity (no Zod error), composeDesc exact em-dash form with line cited; verifyFinding runs runSkeptic exactly M times (default 2), confirms = strict isReal===true, confirmed = confirms >= max(1,T) (threshold-confirm NOT majority; confirms=0 ALWAYS dropped, fixing the round-1 T=0 violation); verifyFindings independent per finding; confirmedFindings filters survivors. Confirmed by round-2 multi-lens behavior/threshold lenses + Codex host-2 PASS.",
+      "createdAt": "2026-06-20T15:15:23.296Z",
+      "reviewRound": "2026-06-20T15:05:25.779Z",
+      "reviewRunId": "B-2806:RR-004",
+      "_hash": "76d15ef793f7f0b5cb76c1eecd64c56afdfd937c3ed4d5a212d52d46d467c076"
     }
   ]
 }
