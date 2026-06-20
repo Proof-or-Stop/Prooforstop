@@ -222,6 +222,19 @@
           "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
           "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
           "timestamp": "2026-06-20T06:50:21.190Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "command": "rg -n \"Manual Transcript Evidence|two invocation shapes|parent PID|preserve LATTICE_SESSION_ID|degraded ppid-only run\" docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "result": "pass",
+          "note": "The plan requires manual transcript evidence for at least two invocation shapes that change parent PID while preserving LATTICE_SESSION_ID, plus a degraded ppid-only comparison run.",
+          "headHash": "4b33e14b872209e0c0c0d93112c999f7a55e206f",
+          "materialHash": "78ffc037e8418b233594056c9e2dd59f161ab8beac8636a61ddcfa4e995d65ca",
+          "storyFilesHash": "64eae677c0b0b198a1b7cedd307f78af805d9c201352ab0924273e48d219dec6",
+          "timestamp": "2026-06-20T06:50:27.010Z"
         }
       ]
     }
