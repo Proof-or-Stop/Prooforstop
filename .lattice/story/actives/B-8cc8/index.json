@@ -1,0 +1,37 @@
+{
+  "storyId": "B-8cc8",
+  "name": "changelog-koala-to-lattice-full",
+  "title": "Fully rebrand CHANGELOG.md from Koala to Lattice, including historical technical tokens",
+  "description": "After the koala-removal ship-clean program completed (B-40eb/B-0dab/B-e7c6), CHANGELOG.md still uses the Koala brand. It was originally a documented exception (truthful history), but the user chose to fully rebrand it: all koala/Koala/KOALA -> lattice/Lattice/LATTICE, including historical technical tokens. CHANGELOG is excluded from the koala-residue gate, so this is a pure-docs change with no code/test impact.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "changelog",
+    "rebrand",
+    "ship-clean",
+    "docs"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "low",
+  "createdAt": "2026-06-20T23:00:23.816Z",
+  "startedAt": "2026-06-20T23:00:23.816Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-20T23:00:23.827Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}
