@@ -4,7 +4,7 @@
   "title": "Register the parallel-decomposition DEV gate in lifecycle + process-fact contract metadata",
   "description": "Follow-up from parallel-decomposition gate program Story 5 (B-086b, merged): S5 wired a real hard PLAN/INIT_CHECK/REVIEW/TEST->DEV block into machine.ts (parallelDecompositionEnforcedBlock / parallelDevEntryBlock consumed by canStartDevGuard, canSkipPlanGuard, canReenterDevGuard under parallelGate.mode==='block'). The runtime gate is verified correct, but two DESCRIPTIVE contract registries were left stale (they are out of S5's scope and not read for enforcement): (1) core/lifecycle-registry.ts LIFECYCLE_TRANSITIONS records the four DEV-entry transitions' gates but omits the new parallel-decomposition gate; (2) core/process-fact-levels.ts describes scope-contract facts as consumed only by REVIEW/TEST/DONE changed-file gates, while machine.ts now consumes them before every DEV entry; and scripts/verify-process-fact-contract.mjs (run via npm run test:process-fact-contract; NOT in lattice validate) does not assert the new guard surface. This story syncs that metadata so audits/projections/drift-checks reflect the gate. Machine.ts's runtime guards are the source of truth — make the metadata match. Plus a brief doc note in docs/parallel-decomposition-spec.md §8.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "parallel-decomposition",
@@ -41,6 +41,14 @@
       "action": "advance",
       "timestamp": "2026-06-20T09:57:14.864Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:57:21.094Z",
+      "branch": "story/B-b29e",
       "user": "Harmonygo",
       "agent": "main"
     }

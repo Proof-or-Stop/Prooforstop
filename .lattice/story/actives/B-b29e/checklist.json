@@ -6,7 +6,39 @@
       "context": "core/lifecycle-registry.ts: add a parallel-decomposition gate id (e.g. 'parallel-decomposition') to the gates metadata of the INIT_CHECK->DEV, PLAN->DEV, REVIEW->DEV, and TEST->DEV transitions, matching the runtime guards (canSkipPlanGuard/canStartDevGuard/canReenterDevGuard). Match the existing gate-id naming/shape used by sibling gates (e.g. cwd-worktree, plan-review, scope-check).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the LIFECYCLE_TRANSITIONS gates arrays for the four START->DEV doors (INIT_CHECK/PLAN/REVIEW/TEST) each include a parallel-decomposition gate id; WHY: the metadata records the gate on exactly the runtime doors",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "no OTHER to:DEV lifecycle transition (the gates:[] entries ~247/269) gains the gate unless it maps to a real runtime START->DEV door; WHY: do not invent doors the runtime does not guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice validate stays all-green and the integration smoke is unchanged -> runtime behavior provably unchanged by the metadata edit; WHY: metadata-only, no enforcement change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
