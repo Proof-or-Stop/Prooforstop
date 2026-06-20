@@ -227,6 +227,19 @@
           "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
           "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
           "timestamp": "2026-06-20T10:12:51.296Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix . run test:process-fact-contract",
+          "result": "pass",
+          "note": "NON-VACUITY PROVEN by the implementer: reverting the gateConsumer to original -> drift check FAILS exit=1; restoring -> exit=0 PASS.",
+          "headHash": "b0aa44c0221546f2b5fb54a6d938c72dc50f1b72",
+          "materialHash": "65741e335c28aa5ecc241b5327ae0359db87632e0e16ae811d7239c9f92d6876",
+          "storyFilesHash": "241771e035158279e4c61b1d91a0d9f0b97d6c7d75bfbf8afda4a70d77995e47",
+          "timestamp": "2026-06-20T10:12:51.813Z"
         }
       ]
     },
