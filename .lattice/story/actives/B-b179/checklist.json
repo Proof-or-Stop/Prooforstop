@@ -157,6 +157,18 @@
           "materialHash": "0c2f704f649b83875aeb4fe8d8ed46ab1fb65c252c80c0984e5f15d711fdbb74",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-20T18:06:20.968Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "rg -n \"Handoff|Print next lifecycle command\" docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "result": "pass",
+          "note": "验证是否出现与 step 4 handoff 重复或冲突的描述，导致实现歧义",
+          "headHash": "d97dd5fa347429169ebb30e53414487822dcb7f1",
+          "materialHash": "3cfd76c82415315a4c9cd4845fdfdc79a72c8d9026e3a4c88965d4c43e12a220",
+          "storyFilesHash": "0d818ee62f19479824cae97fe5a0dddd2ddbd4533798657c1215a4dee46380ae",
+          "timestamp": "2026-06-20T18:06:33.214Z"
         }
       ]
     }
