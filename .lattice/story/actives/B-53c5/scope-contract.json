@@ -1,0 +1,24 @@
+{
+  "storyId": "B-53c5",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/story-review.ts"
+  ],
+  "scopeChangeReason": "B-impl S0: types-only contract module + smoke + config; no behavior, no existing-review-code change.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T12:09:27.358Z",
+  "updatedAt": "2026-06-20T12:09:27.358Z"
+}

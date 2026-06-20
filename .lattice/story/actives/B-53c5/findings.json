@@ -1,0 +1,93 @@
+{
+  "findings": [
+    {
+      "id": "B-53c5:F-001",
+      "desc": "smoke-coverage-gap: adversarial-review-contract-smoke.ts does not import or construct CompletenessCriticIO — the wrapper interface is exported (adversarial-review.ts:144) but never referenced in the smoke, so the runtime coverage claim in CHK-002:edge evidence relies solely on tsc, not a smoke assertion",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T12:19:59.228Z",
+      "reviewRound": "2026-06-20T12:18:01.371Z",
+      "reviewRunId": "B-53c5:RR-002",
+      "_hash": "819f6fcabac4111174906faea0781d268496162b3d56157268d1ae0080d956f1",
+      "files": [
+        "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+        "packages/main/src/core/adversarial-review.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-coverage-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke now constructs + asserts a runtime CompletenessCriticIO value (3 assertions). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:39.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-53c5:F-002",
+      "desc": "smoke-coverage-gap: adversarial-review-contract-smoke.ts does not import or construct ReviewModeRound — the interface is exported (adversarial-review.ts:182-184) but never referenced in the smoke, so CHK-003:edge evidence note claim \"ReviewModeRound exported\" is only backed by tsc, not a runtime assertion",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T12:20:04.759Z",
+      "reviewRound": "2026-06-20T12:18:01.371Z",
+      "reviewRunId": "B-53c5:RR-002",
+      "_hash": "2d9cce7893284e2b66266d992b9d4c658b38216158129979a7f9216e2c820ca0",
+      "files": [
+        "packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+        "packages/main/src/core/adversarial-review.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-coverage-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke now constructs + asserts a runtime ReviewModeRound value with phases===REVIEW_MODE_PHASES (2 assertions). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:41.516Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-53c5:F-003",
+      "desc": "MAJOR: LENS_IDS/CANONICAL_LENS_SET use hyphenated ids (concept-scope/behavior-correctness/crash-safety-edge) but the FROZEN spec §2.1 canonical lens ids are the slash forms (concept/scope, behavior/correctness, crash-safety/edge). These are STRING LITERALS (slashes are valid in strings — the 'invalid identifier' rationale is wrong), so the contract must match §2.1 VERBATIM (no translation layer) per the acceptance. Fix: change the 3 ids to slash form (concept/scope, behavior/correctness, crash-safety/edge); code-quality/test-coverage/docs-consistency already match; update CANONICAL_LENS_SET + the smoke expected ids.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T12:21:17.767Z",
+      "reviewRound": "2026-06-20T12:18:01.371Z",
+      "_hash": "18e263bcc3514b8b6f2cc3d33035a2985efc958a5be47880705cae86d550d0a4",
+      "files": [
+        "packages/main/src/core/adversarial-review.ts",
+        "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|major-lens-canonical",
+      "signatureTagSource": "auto",
+      "resolvedReason": "LENS_IDS + CANONICAL_LENS_SET ids changed to verbatim §2.1 slash forms (concept/scope, behavior/correctness, crash-safety/edge; others unchanged). commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:43.070Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-53c5:F-004",
+      "desc": "MAJOR: the lens-id smoke is vacuous for exactness — it asserts CANONICAL_LENS_SET ids === LENS_IDS, but both come from the same module, so if LENS_IDS drifts from the spec the smoke still passes. It does not pin the contract to the spec's literal ids. Fix: assert BOTH LENS_IDS and CANONICAL_LENS_SET.map(id) against an EXPLICIT literal expected tuple (the spec §2.1 slash-form ids) so any drift in the 6 canonical ids fails hermetically. (Verify the severity-union + phase-order assertions are likewise pinned to literal expected arrays, not self-referential.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T12:21:18.297Z",
+      "reviewRound": "2026-06-20T12:18:01.371Z",
+      "_hash": "ccf6d3ac8b8fc0f749a0c9c912d9f35149806062accac747ebb23b7972593a17",
+      "files": [
+        "packages/main/src/tasks/adversarial-review-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|major-lens-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "smoke de-vacuumed: explicit literal EXPECTED_LENS_IDS/EXPECTED_FINDING_SEVERITIES/EXPECTED_AGREED_SEVERITIES/EXPECTED_REVIEW_MODE_PHASES declared in the smoke; both LENS_IDS and CANONICAL_LENS_SET.map(id) asserted deep-eq the literal expected (no longer self-referential), so contract drift fails hermetically. commit de186b48c.",
+      "resolvedAt": "2026-06-20T12:24:44.487Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

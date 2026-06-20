@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Schemas match the spec EXACTLY (the acceptance is no downstream schema change).",
+    "Types + interface only, zero behavior, so S1-S4 build in parallel against a stable surface.",
+    "Declare the canonical round order as a single constant so S1-S4 cannot drift from sections 2.4/3.2/4.2.",
+    "Abstract methodology severity (BLOCKER/MAJOR/MINOR) lives here; the finding_add critical/high/medium/low mapping is S2 (do not leak it into S0)."
+  ],
+  "drivers": [
+    "no downstream story may need a schema change",
+    "S1/S2/S3 must build in parallel off a frozen surface",
+    "the canonical order must be one declared source of truth"
+  ],
+  "options": [
+    {
+      "name": "types-and-mode-interface-module",
+      "pros": [
+        "single source of truth every story imports",
+        "contract-first parallelism for S1-S3",
+        "drift-proof canonical order via a declared constant"
+      ],
+      "cons": [
+        "an extra module with no behavior yet"
+      ]
+    },
+    {
+      "name": "inline-types-per-story",
+      "pros": [
+        "no separate module"
+      ],
+      "cons": [
+        "each impl story re-declares schemas -> drift; no frozen surface -> the program is not contract-first; exactly what the spec section 5 forbids"
+      ]
+    }
+  ],
+  "chosen": "types-and-mode-interface-module",
+  "rationale": "A single types-only core/adversarial-review.ts encoding the frozen Finding/Verdict/lens-set/critic-IO schemas + the canonical round order as a declared constant gives S1-S4 one stable import surface and makes drift mechanically detectable, which is the entire point of the spec section 5 contract-first shape (proven by the parallel-decomposition Story 0). Inline per-story types would re-introduce the drift the program exists to prevent.",
+  "preMortem": [
+    {
+      "scenario": "A schema field diverges from the spec (wrong severity union, missing Finding field), so S1/S2 build against a wrong contract and need a schema change later",
+      "trigger": "transcribing sections 2.2/2.3 loosely instead of verbatim",
+      "consequence": "the acceptance (no downstream schema change) fails; S1-S4 churn",
+      "mitigation": "the smoke asserts the exact field set + the exact severity unions ({BLOCKER,MAJOR,MINOR} / {...,NOT_A_DEFECT}) against the spec; a reviewer diffs the module vs section 2 verbatim"
+    },
+    {
+      "scenario": "S0 accidentally includes behavior (e.g. a finding_add mapping or a real verifier), violating types-only and pre-empting S2",
+      "trigger": "adding a convenience function to the contract module",
+      "consequence": "scope creep into S2/S4; the parallel build is no longer clean",
+      "mitigation": "scope contract allows only the types module + smoke + config; the module exports types/interfaces/const data only; reviewer confirms zero behavior (no imports of finding_add / no logic)"
+    },
+    {
+      "scenario": "The canonical order is encoded ambiguously (as prose, or duplicated), so S1-S4 drift from sections 2.4/3.2/4.2",
+      "trigger": "not declaring REVIEW_MODE_PHASES as one constant",
+      "consequence": "the integration order diverges from the spec the way the spec review itself caught (the round-1 critic-loop contradiction)",
+      "mitigation": "declare REVIEW_MODE_PHASES as a single ordered const tuple; the smoke asserts it equals the canonical 5-step order; S4 will import it"
+    }
+  ],
+  "timestamp": "2026-06-20T12:08:37.854Z"
+}

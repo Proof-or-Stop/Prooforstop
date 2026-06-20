@@ -1,0 +1,157 @@
+{
+  "storyId": "B-53c5",
+  "checkedAt": "2026-06-20T12:11:16.668Z",
+  "features": [
+    {
+      "feature": "Finding schema: severity union EXACTLY {BLOCKER,MAJOR,MINOR}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Finding schema: fields title:string, file:string, line:number, issue:string, fix:string",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verdict schema: isReal:boolean, agreedSeverity EXACTLY {BLOCKER,MAJOR,MINOR,NOT_A_DEFECT}, reasoning:string",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Canonical lens set: exactly 6 lenses with ids concept-scope, code-quality, behavior-correctness, test-coverage, crash-safety-edge, docs-consistency",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lens set: task-tunable flag / documented note that set may be subset/extended per change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CompletenessCritic IO contract type: input {change, confirmedFindings: Finding[]}, output Finding[]",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "REVIEW_MODE_PHASES constant encoding canonical 5-step order: lenses → verify-lens-findings → critic → verify-critic-findings → converge-or-reopen",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "RoundResult interface: lensFindings/confirmedFindings/criticFindings/reopen:boolean/converged:boolean",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Types + interface only — no behavior (no lens running, no verifier, no finding_add, no escalation)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic contract smoke: construct valid Finding+Verdict, assert fields and exact severity unions",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic contract smoke: assert CANONICAL_LENS_SET has exactly 6 entries with correct ids",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic contract smoke: assert REVIEW_MODE_PHASES is canonical 5-step order",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke registered in lattice.config.json validate.commands",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Spec §2.3 threshold-confirm rule T=1-of-2 and refute-by-default rule — behavioral semantics NOT codified as types in S0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001/CHK-002/CHK-003 all state types+interface only, no behavior; decision.json principle 1 states abstract methodology severity lives here only; the threshold-confirm/refute-by-default rule is S2 behavior (spec §5 S2)",
+      "source": "decisions:adversarial-review-spec.md"
+    },
+    {
+      "feature": "Spec §4.2 ledger mapping (BLOCKER→critical, MAJOR→high, MINOR→medium) — NOT S0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 context explicitly states: finding_add ledger mapping (critical|high|medium|low) is S2's concern, not S0's; decision.json principle 4 reiterates",
+      "source": "decisions:adversarial-review-spec.md"
+    },
+    {
+      "feature": "Spec §4.3 critic MVP provenance: recording critic findings under real review lane with [completeness-critic] prefix in --desc — NOT S0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec §5 S3 owns this behavior; S0 types the IO only; CHK-002 explicitly states S0 only types the IO",
+      "source": "decisions:adversarial-review-spec.md"
+    },
+    {
+      "feature": "Spec §4.1 six REVIEW lanes enum (lattice-review-concept/quality/etc.) — S0 does not define or import these",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec §5 S1 owns lens→lane mapping; S0 provides no lane binding types (types-only contract excludes behavior/wiring)",
+      "source": "decisions:adversarial-review-spec.md"
+    },
+    {
+      "feature": "Spec §3.1 convergence criterion (all-lens-PASS + all-findings-resolved + critic-empty) as executable logic — NOT S0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "S4 owns round/reopen loop wiring per spec §5 S4; S0 encodes the interface shape only (CHK-003 types+const only)",
+      "source": "decisions:adversarial-review-spec.md"
+    },
+    {
+      "feature": "Single source-of-truth module path: packages/main/src/core/adversarial-review.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke path: packages/main/src/tasks/adversarial-review-contract-smoke.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 14,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a4801cbd0e96dfbaf278eadd4476c11a1423a45306309c36cd87e0d93deaa763",
+  "openQuestions": []
+}
