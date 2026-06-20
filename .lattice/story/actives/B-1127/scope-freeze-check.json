@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1127",
+  "checkedAt": "2026-06-20T16:00:15.843Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "ace801671bed8ba8bef5de63e2a540ac53a6ad9761d3f3a4e8ecdfd58ab1b911",
+  "executionBoundaryHash": "f08834acdb090aa8917a42e1bb028b40f3fe05003ef294315e17067f5be43289",
+  "freshnessHash": "975bb9445e78e44cfdb6b067a883892e8beeab547018154c9123d825f26171af",
+  "effectiveExcludedKeywords": [
+    "a first-class lattice review --mode=adversarial CLI + dedicated lattice-review-completeness lane + structured verdict storage — FUTURE (§4.4)",
+    "re-implementing S1 lens runner / S2 verifier / S3 critic — all imported read-only, not modified",
+    "the actual CLI execution (review_run_start/finding_add/review_pass_set/autopilot_review_submit) and a real Authority receipt — S4 only DERIVES ops as pure data; the calls are the harness/main-agent job (local-only, §4.5)",
+    "the S0 contract + review-run.ts — imported read-only, not modified"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "a first-class lattice review --mode=adversarial CLI + dedicated lattice-review-completeness lane + structured verdict storage — FUTURE (§4.4)",
+      "source": "scopeBoundary.excluded",
+      "text": "a first-class lattice review --mode=adversarial CLI + dedicated lattice-review-completeness lane + structured verdict storage — FUTURE (§4.4)",
+      "excluded": true
+    },
+    {
+      "keyword": "re-implementing S1 lens runner / S2 verifier / S3 critic — all imported read-only, not modified",
+      "source": "scopeBoundary.excluded",
+      "text": "re-implementing S1 lens runner / S2 verifier / S3 critic — all imported read-only, not modified",
+      "excluded": true
+    },
+    {
+      "keyword": "the actual CLI execution (review_run_start/finding_add/review_pass_set/autopilot_review_submit) and a real Authority receipt — S4 only DERIVES ops as pure data; the calls are the harness/main-agent job (local-only, §4.5)",
+      "source": "scopeBoundary.excluded",
+      "text": "the actual CLI execution (review_run_start/finding_add/review_pass_set/autopilot_review_submit) and a real Authority receipt — S4 only DERIVES ops as pure data; the calls are the harness/main-agent job (local-only, §4.5)",
+      "excluded": true
+    },
+    {
+      "keyword": "the S0 contract + review-run.ts — imported read-only, not modified",
+      "source": "scopeBoundary.excluded",
+      "text": "the S0 contract + review-run.ts — imported read-only, not modified",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e72fda136e38af32c9461faa0d8e271facd401ea560c25e2f34b3db2ba786231"
+}

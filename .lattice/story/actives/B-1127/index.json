@@ -4,7 +4,7 @@
   "title": "Adversarial-review S4: escalation-flow integration (canonical round + reopen loop + ledger-op + 3x2 payload derivation)",
   "description": "Story S4 (SERIAL, last; capstone) of the adversarial-review build program (docs/adversarial-review-spec.md §3 + §4.1 + §5 S4). Compose the three DONE modules (S1 lens runner, S2 verifier+ledger mapping, S3 critic role) into the canonical review round and wire the round/reopen loop into the Lattice escalation ledger as PURE DATA (the actual review_run_start/finding_add/review_pass_set/autopilot_review_submit CLI calls are I/O and stay the harness/main-agent job at MVP — S4 DERIVES the ops). New module packages/main/src/core/adversarial-review-round.ts importing S0 (RoundResult, REVIEW_MODE_PHASES, Finding, CompletenessCriticInput, CANONICAL_LENS_SET, LensDef, Verdict), S1 (runLenses, collectRawFindings, LensLane, LensRunRequest), S2 (verifyFindings, confirmedFindings, toFindingAddArgs, FindingAddArgs), S3 (runCompletenessCritic, toCriticFindingAddArgs), and review-run (ReviewRunLane) read-only. (1) RoundSeams {runLens, runSkeptic, runCritic} + RoundConfig {lensSet?, skeptics?, threshold?}; runAdversarialRound(change, seams, config?) runs the FROZEN 5-phase order (lenses -> verify-lens-findings -> critic on {change, CONFIRMED lens} -> verify-critic-findings -> converge-or-reopen) and returns AdversarialRoundResult extends RoundResult {lensFindings, confirmedFindings, criticFindings, reopen, converged} PLUS confirmedByLane (per-lane confirmed lens findings — the flat RoundResult loses the lane the ledger needs); converged iff no CONFIRMED finding (lens or critic), reopen=!converged. (2) deriveRoundLedgerOps(round, opts) -> LedgerOp[]: a finding_add op per CONFIRMED lens finding (S2 toFindingAddArgs under its lane reviewRunId, agent=the real lane) + per CONFIRMED critic finding (S3 toCriticFindingAddArgs under a real lane with the [completeness-critic] desc tag) + a review_pass_set op per lane on converge; no abstract severity in any op. (3) runReopenLoop(initialChange, seams, applyFix, config?) loops-until-dry: each non-converged round calls applyFix(change, confirmed, roundIndex) -> fixed change (new material) and re-runs a NEW round (models reopen -> new reviewRunId + re-bind to fresh materialHash), bounded by maxRounds, returning {rounds, converged, finalChange}. (4) buildHostVerdictPayloads(opts) shapes the §4.1 full-3x2 autopilot_review_submit args for two INDEPENDENT hosts (distinct hostId/sessionId/keyId; claude-code + codex) bound to the same materialDigest+validationDigest. Pure: NO CLI/finding_add call, NO Authority receipt (local-only §4.5). A hermetic smoke with FAKE seams proves a B-086b-style trace (round 1 critic reopens -> applyFix removes it -> round 2 converges), the converged/reopen flags + REVIEW_MODE_PHASES order (critic input is the verified lens set), the ledger-op derivation, the loop-until-dry + maxRounds bound, and the 3x2 payload shape. NO re-implementation of S1/S2/S3, NO real CLI execution / Authority receipt, NO CLI mode (FUTURE). Registered in lattice.config.json. Depends [B-97ab, B-2806, B-9d38].",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "adversarial-review",
@@ -32,6 +32,20 @@
       "user": "Harmonygo",
       "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-20T16:02:48.808Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "3a3199dd-f198-4af3-9268-0723c5053bef",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-1127",
+    "branch": "story/B-1127",
+    "createdAt": "2026-06-20T16:02:47.973Z"
+  }
 }
