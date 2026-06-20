@@ -6,7 +6,14 @@
       "context": "core/audit-config.ts: add PARALLEL_GATE_PROFILE_DEFAULTS (light advise/2/false, balanced advise/3/false, strict block/4/true), import VALID_PARALLEL_MODES + ParallelGateConfig from parallel-decomposition.js, add resolveParallelGate with per-sub-field guard+fallback (invalid mode -> warn + advise; maxConcurrentReview integer >= 1 else profile default; broadGlobBlocks boolean else profile default; missing/non-object -> all profile defaults), set merged.parallelGate from the user override and profile default",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/audit-config.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
