@@ -77,7 +77,65 @@
       "context": "LedgerOp = {kind:'finding_add', lane:ReviewRunLane, source:'lens'|'critic', args:FindingAddArgs} | {kind:'review_pass_set', lane:ReviewRunLane, reviewRunId:string}. deriveRoundLedgerOps(round:AdversarialRoundResult, opts:{reviewRunIdByLane:Partial<Record<ReviewRunLane,string>>, criticLane:ReviewRunLane, criticReviewRunId:string, category?:'happy'|'edge'|'adversarial'|'missing'}): for each confirmedByLane group, one finding_add op via S2 toFindingAddArgs(f,{reviewRunId:reviewRunIdByLane[lane], agent:lane, category}) (agent=the real lane); for each round.criticFindings, one finding_add op via S3 toCriticFindingAddArgs(f,{reviewRunId:criticReviewRunId, agent:criticLane, category}) (tagged desc + real lane); if round.converged, a review_pass_set op per lane that ran. PURE — derives op descriptors, performs NO finding_add call. No abstract severity in any op (S2/S3 own the mapping).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveRoundLedgerOps on a converged round with 1 confirmed lens finding (BLOCKER) + 1 confirmed critic finding (MAJOR) -> yields 1 finding_add op with severity=critical, agent=the real lane from confirmedByLane, source=lens + 1 finding_add op with severity=high, desc prefixed with [completeness-critic], agent=criticLane, source=critic + review_pass_set ops for each lane that ran; WHY: proves the full happy path with both lens and critic ops and pass ops on converge",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps on a converged round with zero confirmed findings (all refuted) -> yields ONLY review_pass_set ops (one per lane), zero finding_add ops; WHY: proves clean converged round produces only pass ops",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every finding_add op produced by deriveRoundLedgerOps has severity in {critical,high,medium,low} (the ledger enum), NEVER abstract BLOCKER/MAJOR/MINOR; WHY: the load-bearing spec invariant from section 4.2 — abstract severity must never reach finding_add",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveRoundLedgerOps on a NON-converged (reopen) round with confirmed findings -> yields finding_add ops but NO review_pass_set ops; WHY: review_pass_set is only emitted on converge, never on reopen",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps where confirmedByLane has multiple lanes (e.g. lattice-review-concept + lattice-review-quality) each with findings -> each finding_add op uses the correct lane-specific reviewRunId from reviewRunIdByLane and agent=that lane; WHY: proves per-lane reviewRunId binding is correct, not a single shared runId",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps with critic finding of severity MINOR -> finding_add op has severity=medium (the S2 mapping), desc starts with [completeness-critic], agent=criticLane (a real lattice-review-* lane); WHY: proves MINOR->medium mapping and critic provenance tag for all severity levels",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps with category=adversarial -> every finding_add op carries category=adversarial; WHY: proves the category passthrough",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveRoundLedgerOps where a confirmedByLane entry has a lane not present in reviewRunIdByLane (missing mapping) -> the function either throws or produces the op with undefined reviewRunId (caller bug), but NEVER silently drops the finding; WHY: adversarial — a misconfigured opts must not swallow confirmed findings",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps given a round with a BLOCKER finding -> the emitted finding_add op severity is critical (from SEVERITY_TO_FINDING_KIND), never the string BLOCKER; similarly MAJOR->high, MINOR->medium; assert that no op.args.severity value is in the set {BLOCKER,MAJOR,MINOR}; WHY: adversarial — directly check the abstract-severity-leak invariant by string matching",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "deriveRoundLedgerOps where critic finding agent is set to criticLane (a real lattice-review-* lane) and desc includes [completeness-critic] tag -> verify agent is NOT completeness-critic (the non-lane string); WHY: adversarial — critic provenance must be in desc not agent, putting it in agent would break reviewer-evidence recognition",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
