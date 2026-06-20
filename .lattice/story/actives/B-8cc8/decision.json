@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "Full de-koala per user decision: change all koala variants including historical technical tokens.",
+    "Case-preserving substitution to keep prose readable.",
+    "Pure-docs scope: CHANGELOG.md only, no code/test."
+  ],
+  "drivers": [
+    "Clean OSS-facing changelog with zero koala.",
+    "User accepted non-literal history as the tradeoff.",
+    "No impact on code/tests (CHANGELOG excluded from gate)."
+  ],
+  "options": [
+    {
+      "name": "A: full case-preserving koala->lattice substitution across CHANGELOG.md",
+      "pros": [
+        "Zero koala in CHANGELOG",
+        "Simple, one file",
+        "Case-preserving keeps prose readable"
+      ],
+      "cons": [
+        "History becomes non-literal (user explicitly accepted)"
+      ]
+    },
+    {
+      "name": "B: brand-only (keep historical technical tokens)",
+      "pros": [
+        "Truthful history preserved"
+      ],
+      "cons": [
+        "User rejected this; wanted full de-koala"
+      ]
+    }
+  ],
+  "chosen": "A: full case-preserving koala->lattice substitution across CHANGELOG.md",
+  "rationale": "User explicitly chose full de-koala over brand-only/truthful-history. Case-preserving substitution across CHANGELOG.md yields a zero-koala OSS changelog. Option B (brand-only) was the original ship-clean choice but the user overrode it.",
+  "preMortem": [
+    {
+      "scenario": "A koala->lattice substitution corrupts a non-brand word or breaks markdown",
+      "trigger": "overly broad regex hits an unintended substring",
+      "consequence": "garbled CHANGELOG text",
+      "mitigation": "koala is a distinctive token; review the diff; case-preserving s/koala/lattice/ only affects koala-containing words; build/validate confirm no breakage"
+    },
+    {
+      "scenario": "Some koala remains (a missed case variant)",
+      "trigger": "a casing not covered (e.g. KOALA in a code block)",
+      "consequence": "non-zero koala in CHANGELOG",
+      "mitigation": "acceptance git grep -i koala CHANGELOG.md must return 0; iterate if any remain"
+    },
+    {
+      "scenario": "The change re-introduces koala into active gate scope",
+      "trigger": "n/a - CHANGELOG is excluded from the gate",
+      "consequence": "none",
+      "mitigation": "gate EXCLUDE_EXACT covers CHANGELOG.md; verified at INIT"
+    }
+  ],
+  "timestamp": "2026-06-20T23:05:13.506Z"
+}

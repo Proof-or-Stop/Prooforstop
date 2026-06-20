@@ -6,7 +6,8 @@
       "context": "Full de-koala of CHANGELOG.md: version titles (Koala 0.3.x -> Lattice 0.3.x), product-name prose (Koala -> Lattice), koala-lab -> lattice-lab, and ALL historical technical tokens (@koala-agent -> @lattice-agent, koala commands -> lattice, .koala/ -> .lattice/, bin/koala.js -> bin/lattice.js, koala.config -> lattice.config). Case-preserving substitution. User accepts the history becomes non-literal. Scope is CHANGELOG.md only.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "git grep -i koala CHANGELOG.md returns 0 (down from 49); CHANGELOG reads fully Lattice-branded"
     },
     {
       "id": "CHK-002",
