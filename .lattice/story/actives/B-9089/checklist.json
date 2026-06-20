@@ -232,6 +232,17 @@
           "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
           "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
           "timestamp": "2026-06-20T11:11:11.297Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"CLAUDE_CODE_SESSION_ID|CLAUDE_SESSION_ID|CODEX_.*SESSION|AGY_.*SESSION|ANTIGRAVITY_.*SESSION\" packages/main/src",
+          "result": "pass",
+          "note": "Raw host-specific session env matches are confined to owner-session-adapters.ts, lattice-dispatch.ts, init-assets.ts adapter asset, and task tests; no generic lifecycle/core gate matches remain.",
+          "headHash": "968f9435f25c9e633cdd1a32af3f5f78efc0e699",
+          "materialHash": "82f0fef54179f09beb3a9bf3e57265049245107c06d9a4307c81d3b37fdee5f4",
+          "storyFilesHash": "d45d0b9e06c9b017676b82dd169a6e8783efe0785dd83d07bfe6adfcd1e8295f",
+          "timestamp": "2026-06-20T11:11:11.895Z"
         }
       ]
     },
