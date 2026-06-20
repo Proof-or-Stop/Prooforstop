@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-20T07:04:00.628Z",
       "reviewRunId": "B-37b3:RR-002",
       "_hash": "f147007d8564472c5dc3084d9f023073f57746296dabd4888b9903b9489ad621"
+    },
+    {
+      "id": "B-37b3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/completeness check complete. resolveLearningRoot is private+unexported, called only inside resolveLearningDir; all five exported path-derivation functions (resolveFindingSignalsPath, resolvePlaybooksPath, resolveProposalsDir, resolveLearningLogPath, resolveSignatureRegistryPath) + ensureLearningDir funnel through resolveLearningDir with no bypass. No join(projectRoot, LEARNING_DIR) outside learning-store.ts. LEARNING_DIR constant in learning-scan.ts is log-display-only (CACHE_REL_PATH), not used for I/O. New imports (execFileSync, resolve) are all used; no dead code. Leaf isolation preserved (node builtins only, no ../ imports). Smoke covers worktree read, non-git fallback, and write-from-worktree-to-main. package.json wires the smoke into the main test chain only. No gate/schema/derivation changes. No concept deletion/replacement residue. 0 findings.",
+      "createdAt": "2026-06-20T07:06:25.140Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-001",
+      "_hash": "c3664f44055d394a7a2f09626b64f00883f652da0bdf7c9cc4292301e7baaa8e"
     }
   ]
 }
