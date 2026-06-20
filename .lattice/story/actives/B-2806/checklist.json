@@ -184,7 +184,70 @@
       "context": "New packages/main/src/tasks/adversarial-review-verifier-smoke.ts (check+counter, explicit literals). Assert: SEVERITY_TO_FINDING_KIND maps BLOCKER->critical/MAJOR->high/MINOR->medium and every value is in {critical,high,medium,low}; composeDesc yields the exact `<title> — <issue> Fix: <fix>` string with line cited; toFindingAddArgs returns the right shape (severity mapped, files=[file], category, reviewRunId, agent) and never emits an abstract BLOCKER/MAJOR/MINOR; verifyFinding with a fake runSkeptic that returns k isReal=true of M: T=1-of-2 -> 1 confirm CONFIRMED, 0 confirm DROPPED; T=2-of-2 -> needs both; default M=2,T=1; verifyFindings over a list yields per-finding verdicts; confirmedFindings filters confirms>=T only. Register node packages/main/dist/tasks/adversarial-review-verifier-smoke.js in lattice.config.json validate.commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke runs via node packages/main/dist/tasks/adversarial-review-verifier-smoke.js -> exits 0 with check+counter output showing all assertions passed; WHY: validates the smoke is runnable and self-reporting",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts SEVERITY_TO_FINDING_KIND maps BLOCKER->critical, MAJOR->high, MINOR->medium with explicit literal comparisons (not dynamic) -> passes; WHY: hermetic proof the mapping matches §4.2 table exactly",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts composeDesc produces the exact template string with line cited -> passes; WHY: hermetic proof the desc format matches §4.2",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts toFindingAddArgs returns mapped severity + correct shape (files, category, reviewRunId, agent) -> passes; WHY: hermetic proof the arg builder produces ledger-compatible output",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke uses a FAKE runSkeptic exercising T=1-of-2 (1 confirm -> CONFIRMED) and 0-of-2 (0 confirm -> DROPPED) -> both threshold branches pass; WHY: hermetic proof the threshold logic is correct without a live agent",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke exercises T=2-of-2 strict threshold (needs both confirms) -> 1-of-2 is DROPPED at strict; WHY: proves the threshold parameter is respected, not hardcoded to T=1",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke exercises verifyFindings over a multi-finding list and confirmedFindings filter -> correct per-finding independence and survivor filtering; WHY: proves array-level functions are not just single-finding wrappers",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke is registered in lattice.config.json validate.commands as node packages/main/dist/tasks/adversarial-review-verifier-smoke.js -> the command entry exists in the config file; WHY: ensures lattice validate will run this smoke automatically",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts that toFindingAddArgs output severity is NEVER equal to BLOCKER, MAJOR, or MINOR for ANY input severity (explicit check for each) -> no abstract severity leak; WHY: the primary adversarial risk (Zod error) must be proven impossible by the smoke itself",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke asserts every value in Object.values(SEVERITY_TO_FINDING_KIND) is in the set {critical,high,medium,low} -> no unexpected value can appear; WHY: defends against a typo or drift introducing an invalid ledger severity",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke uses explicit literal assertions (not dynamic loops over the map keys) for the critical mapping checks -> smoke cannot pass by tautology; WHY: a dynamic assertion like map[k]===map[k] would always pass; explicit literals (BLOCKER->critical) are load-bearing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
