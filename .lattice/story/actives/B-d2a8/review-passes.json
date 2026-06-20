@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-015",
       "_hash": "6a6f90c9d0f84c08b202c5e7f6fe985864de682a3490d12a511abd8ec6bc6bd8"
+    },
+    {
+      "id": "B-d2a8:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 (VERIFY-refactor) quality review of audit-config.ts readParallelGateFields/resolveParallelGate split and parallel-gate-config-smoke.ts new cases (8d-bis, 8d-ter). (1) Outer catch IS reachable and exercised: Array.isArray on a revoked-proxy-as-RAW throws at Node runtime; 8d-ter drives this path. Not dead code. (2) Split is clean: resolveParallelGate is a pure thin wrapper — try/catch only, exact param passthrough (raw, profileDefault), no duplicated logic, no orphaned helpers, JSDoc accurate on both functions. (3) Type safety: all as-casts are guarded or widening-only (no narrowing lies), no as-any, no empty catches, err instanceof Error narrowing is standard and correct. (4) describeInvalidValue: bigint-first, then JSON.stringify??String() in outer try (String() is safe for the undefined-returning cases), then Object.prototype.toString.call in inner try, then constant <unserializable> — every branch is total. (5) New smoke cases: 8d-bis (revoked-proxy as sub-field value, throwing-toStringTag) and 8d-ter (revoked-proxy as raw) are hermetic, type-clean, exercise the correct code paths per runtime verification, no Object.prototype pollution. Zero findings.",
+      "createdAt": "2026-06-20T06:25:18.509Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-013",
+      "_hash": "4c0ee7bc02e2425f2e673a0a7931b893c14fe92e8e9164d8b4f6f7f7e0109b4e"
     }
   ]
 }
