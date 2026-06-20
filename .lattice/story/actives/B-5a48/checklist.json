@@ -5,9 +5,9 @@
       "title": "Extract shared firing leaf core/experience-hint-surface.ts + refactor story-review.ts to use it (behavior-preserving)",
       "context": "Create leaf packages/main/src/core/experience-hint-surface.ts exporting surfaceExperienceHints(root, { storyId, hintRoundKey }): { hintMode, renderedSection, hintIds, fired }. Body MUST mirror the current story-review.ts firing block (~lines 610-649) EXACTLY: hintMode=resolveHintMode(storyId); load via loadExperienceHints(root)+formatExperienceHintsSection; if hasExperienceHints, dedup-scan readActivityLogTail(root,1000) for event==='experience_hint_surfaced' && storyId && reviewRound===hintRoundKey; on miss appendActivityLog({timestamp,event:'experience_hint_surfaced',storyId,reviewRound:hintRoundKey,hintMode,hintIds:experienceHintIds(hints)}) — fires on BOTH arms (fired=true only when it appended); renderedSection = hintMode==='on' ? formatExperienceHintsSection(hints) : ''. Wrap load/track in try/catch returning renderedSection='' on failure (keep the existing console.warn-on-failure semantics if present). CRITICAL: the CALLER supplies hintRoundKey — the leaf never computes the `currentReviewRound || plan:<phase>` formula. Imports ONLY ../core/experience-hint-loader.js, ../core/hint-mode.js, ../core/activity-log.js (already core leaves; zero new cross-layer edges). Then refactor handlers/story-review.ts to call surfaceExperienceHints(ctx.root,{storyId:args.storyId,hintRoundKey}) (hintRoundKey still computed at ~line 603 in the handler) and source renderedHintsSection from it; _reviewPrompt assembly otherwise unchanged. Behavior MUST be byte-identical (same _reviewPrompt bytes, same event payload, same dedup) on BOTH arms.",
       "userSees": "A new leaf core/experience-hint-surface.ts exists with a single surfaceExperienceHints implementation; story_review still produces byte-identical _reviewPrompt and experience_hint_surfaced events on both arms (proven by a golden assertion). node packages/main/dist/tasks/<smoke>.js and full npm test exit 0.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-20T12:15:49.862Z",
-      "endTime": null,
+      "endTime": "2026-06-20T12:18:18.079Z",
       "verificationIntent": {
         "happy": [
           {
@@ -46,7 +46,57 @@
         "test": [
           "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js",
+          "result": "pass",
+          "note": "ON arm returns rendered section + fires one experience_hint_surfaced event (hintMode on, full hintIds) on dedup miss; covered by CHK-002 happy:0/1/2/3 checks in the shadow-gate smoke after the leaf refactor.",
+          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
+          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
+          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
+          "timestamp": "2026-06-20T12:18:18.240Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-ab-shadow-gate-smoke.js",
+          "result": "pass",
+          "note": "GOLDEN: _reviewPrompt bytes + event payload byte-identical before/after leaf extraction on both arms; shadow-gate smoke (which exercises story_review firing) passes 14/14 unchanged; explicit golden literals added in the dispatch-hint smoke.",
+          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
+          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
+          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
+          "timestamp": "2026-06-20T12:18:18.390Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "OFF-arm leaf event lossless: surfaceExperienceHints on OFF-arm story fires one event with hintMode off + full hintIds while renderedSection empty — asserted at leaf level in the dispatch-hint smoke.",
+          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
+          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
+          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
+          "timestamp": "2026-06-20T12:18:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/experience-hint-surface.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-review-dispatch-hint-smoke.js",
+          "result": "pass",
+          "note": "Load/track failure swallowed by try/catch → renderedSection empty, no throw, no partial event (early return in the leaf).",
+          "headHash": "4447cece379347c26866eae738d53a55c7d82de4",
+          "materialHash": "5197d006592cb43f4996f5a0e1f154e1f882505116c04fd6b9c1da1570b39bbc",
+          "storyFilesHash": "e00982a4c5a9c2990671b3c2e0b15e61623265348103bb4e522f276dfd0a37f2",
+          "timestamp": "2026-06-20T12:18:18.689Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
