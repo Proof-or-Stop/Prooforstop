@@ -290,6 +290,42 @@ function assertDoneRequiredBlocked(
   }
 }
 
+// Stale top-level headHash blocks even when material/story hashes still match.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    const evidence = writeDoneEvidence(root, store);
+    store.writeDoneRequiredEvidence(STORY_ID, {
+      ...evidence,
+      headHash: '0000000000000000000000000000000000000000',
+    });
+    const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evaluation.blocking, true);
+    assert.ok(evaluation.reasons.includes('stale-headHash'), `expected stale-headHash, got ${evaluation.reasons.join(', ')}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Stale storyFilesHash blocks even when materialHash and headHash still match.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    const evidence = writeDoneEvidence(root, store);
+    store.writeDoneRequiredEvidence(STORY_ID, {
+      ...evidence,
+      storyFilesHash: 'stale-story-files-hash',
+    });
+    const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evaluation.blocking, true);
+    assert.ok(evaluation.reasons.includes('stale-storyFilesHash'), `expected stale-storyFilesHash, got ${evaluation.reasons.join(', ')}`);
+    assert.equal(evaluation.reasons.includes('stale-material'), false, `materialHash should remain current: ${evaluation.reasons.join(', ')}`);
+    assert.equal(evaluation.reasons.includes('stale-headHash'), false, `headHash should remain current: ${evaluation.reasons.join(', ')}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // External opt-in root npm test does not inherit the self-host build-proof requirement.
 {
   const { root, store } = fixture([{ label: 'root full test suite', command: 'npm', args: ['test'] }]);

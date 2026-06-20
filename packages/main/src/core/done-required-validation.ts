@@ -534,6 +534,7 @@ export function evaluateDoneRequiredEvidence(args: {
   const currentMaterial = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const currentStoryFiles = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
   if (!evidence.headHash || !currentHead) reasons.push('missing-headHash');
+  else if (evidence.headHash !== currentHead) reasons.push('stale-headHash');
   if (!evidence.materialHash || !currentMaterial) reasons.push('missing-materialHash');
   else if (evidence.materialHash !== currentMaterial) reasons.push('stale-material');
   if (!evidence.storyFilesHash || !currentStoryFiles) reasons.push('missing-storyFilesHash');
