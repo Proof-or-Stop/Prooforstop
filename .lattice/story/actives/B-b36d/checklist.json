@@ -11,7 +11,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "excludes": [
+        "CLI command implementation",
+        "runtime schema implementation",
+        "Authority server behavior"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-standard-evidence-pipeline-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-standard-evidence-pipeline-flow.svg"
+        ],
+        "create": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The primary document title, purpose, report model, and command language use Lifecycle Proof-Or-Stop Readiness Check / Lifecycle Readiness Check / StoryReadinessReport instead of presenting story_pipeline as the V1 concept.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The full lifecycle automation vision remains available as a later/full-vision section so prior planning is not erased, only staged safely.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reader cannot reasonably infer that V1 auto-writes evidence, launches reviewers, advances phases, or claims Authority completion from the renamed sections.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
