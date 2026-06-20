@@ -4,11 +4,11 @@
   "title": "Auto-refresh the Experience Layer finding-signals cache on DONE merge so experience grows with every completed story",
   "description": "The finding-signals cache only updates on an explicit out-of-band learning_scan (no DONE/finding/hook/cron trigger), so accumulated experience goes stale until someone re-scans. Wire a never-throw, advisory finding-signals re-derive into applyDoneMergeEffects after the merge (alongside auto-bump/auto-rebuild), run on every DONE merge, writing the canonical MAIN cache (via B-37b3 resolveLearningRoot). + smoke. Advisory-only; no gate reads the cache; must never block the merge.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-20T08:31:23.655Z",
   "startedAt": "2026-06-20T08:31:23.655Z",
-  "endedAt": null,
+  "endedAt": "2026-06-20T09:55:40.109Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,79 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-20T08:53:00.371Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T08:57:06.458Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:11:07.724Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:20:31.030Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:27:43.338Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:33:06.085Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:37:17.389Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:47:08.337Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-20T09:55:40.109Z",
+      "branch": "story/B-1a91",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1a91",
-    "branch": "story/B-1a91",
-    "createdAt": "2026-06-20T08:52:58.687Z"
-  }
+  "currentReviewRound": "2026-06-20T09:37:17.389Z"
 }

@@ -1,0 +1,65 @@
+{
+  "storyId": "B-1a91",
+  "checkedAt": "2026-06-20T09:52:27.062Z",
+  "reviewRound": "2026-06-20T09:37:17.389Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-001",
+      "promise": "applyDoneMergeEffects in done-effects.ts re-derives and persists the finding-signals cache on EVERY DONE merge (not gated on material-code), wrapped in try/catch (never-throw), appending an advisory mergeLines line with the signal count or skip reason",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff of packages/main/src/handlers/done-effects.ts: try { new StoryStore(mainMergeRoot); deriveFindingSignalsFromStore(refreshStore, { projectRoot: mainMergeRoot, now: new Date().toISOString() }); mergeLines.push(...refreshed...); } catch (e) { mergeLines.push(...skipped...); } — outside the build-predicate gate, unconditional after bumpVersionOnDoneMerge"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-001-wall-clock-updatedAt",
+      "promise": "The refreshed cache.updatedAt is a wall-clock time (not the epoch sentinel); now: new Date().toISOString() is passed to deriveFindingSignals on each DONE-merge refresh",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows deriveFindingSignalsFromStore(refreshStore, { projectRoot: mainMergeRoot, now: new Date().toISOString() }) in done-effects.ts — F-003 fix confirmed"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-003-watermark-types",
+      "promise": "FindingSignalsCache interface in experience-layer-types.ts carries optional additive watermark fields coveredFindingCount, coveredStoryCount, coveredThrough; resolvedAt added to SignalSourceFinding",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff of packages/main/src/core/experience-layer-types.ts: all three optional fields added to FindingSignalsCache, plus resolvedAt on SignalSourceFinding"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-003-watermark-derivation",
+      "promise": "deriveFindingSignals in finding-signals.ts populates coveredFindingCount/coveredStoryCount/coveredThrough from the same finding iteration used to build signals; empty corpus yields 0/0/undefined, never NaN",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff of packages/main/src/core/finding-signals.ts: coveredFindingCount incremented per surviving finding (same object-guard); coveredStoryIds.add(storyId); coveredThrough = max(createdAt, resolvedAt); all three stamped onto returned cache; coveredThrough omitted when undefined"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-003-computeCoverageGap",
+      "promise": "computeCoverageGap(cache, current) in experience-revalidation.ts computes gap=max(current-covered,0); null/watermark-less cache yields known:false; never NaN; never negative gap",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff of packages/main/src/core/experience-revalidation.ts: CoverageGapReport interface, nonNegInt helper, computeCoverageGap — known requires both coveredFindingCount and coveredStoryCount; gapFindings=Math.max(current-covered,0); null input handled defensively"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1a91/plan.md#CHK-003-coverage-line",
+      "promise": "learning_validate prints coverage line (0 gap after scan; unknown for legacy cache; n/a for filtered --story view); --json returns coverage:{filtered:true} for filtered view and the gap object for unfiltered",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff of packages/main/src/handlers/learning-validate.ts: renderCoverageLine() covers known/unknown/gap cases; filtered branch emits n/a text or {filtered:true} JSON; unfiltered branch reads persisted cache, calls computeCoverageGap, renders gap; renderHuman appends coverageLine"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "done-merge-experience-refresh-smoke.ts (21 checks, exit 0): HAPPY path — no cache before merge, real applyDoneMergeEffects merges story branch, advisory refresh line present, signal count>=1, cache written to MAIN with watermark, updatedAt>2020-01-01 (not epoch sentinel, F-003). META-ONLY path — build skipped but refresh still fires (proves not gated on material-code). CONTROL — forced persist failure swallowed, advisory skip line, merge still succeeds, branch/worktree still cleaned. Confirmed by lattice validate 11/11 intents at materialHash 121972e9, and real CLI transcript in evidence/transcript-diff.md."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "done-merge-experience-refresh-smoke.js exits 0 (21 checks). experience-coverage-gap-smoke.js exits 0 (15 checks). experience-layer-revalidation-cli-smoke.js exits 0 (5 checks, including F-008 filtered-view assertion that coverage.filtered===true and no numeric gapFindings/gapStories/known). package.json wires test:done-merge-experience-refresh and test:experience-coverage-gap into the npm test chain; npm test exits 0. Confirmed by lattice validate 10/10 configured commands pass at materialHash 121972e9."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "experience-coverage-gap-smoke.ts (15 checks): watermark counts+coveredThrough over same findings; empty corpus 0/0/undefined; null/dirty findings skipped; gap=0 when watermark==current; gap=delta when behind; null/watermark-less=>known:false; never NaN; never negative; partial watermark=>known:false; e2e scan->0 gap; add finding without rescan->non-zero gap msg; re-scan->0 gap; legacy cache->unknown; absent cache->unknown; adversarial consistency gap=0. Real CLI transcript (evidence/transcript-diff.md): coverage: 871/871 findings, 0 gap; filtered view: n/a; --json {filtered:true}."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 doc promises verified in the diff. Three smokes (21+15+5 checks) drive the real applyDoneMergeEffects, computeCoverageGap, and learning_validate handlers against isolated temp git repos; edge cases include metadata-only merge (build skipped but refresh fires), forced-failure never-throws, watermark-less legacy cache degrades gracefully, and filtered-view suppresses misleading numeric gap. No TODO/FIXME in non-test code. Real CLI transcript confirms coverage: 871/871 findings, 0 gap end-to-end."
+  },
+  "_hash": "e2c355dac3c5fe8ff34b28df6e75a3f5d9a1136699a52f3ada24c4e319af7efb"
+}

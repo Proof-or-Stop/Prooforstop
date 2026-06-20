@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-1a91:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none detected in changed files. All imports used; CoverageCurrentCounts export is referenced as the parameter type of computeCoverageGap in the same file (not dead). I/O isolation: experience-revalidation.ts gains computeCoverageGap but stays pure (only imports from experience-layer-types.js type-only). finding-signals.ts pure half adds watermark tracking with no new I/O. learning-validate.ts correctly adds readFindingSignals from learning-store.js in the handler layer (correct layer for I/O). done-effects.ts catch (e: any) pattern is consistent with the entire file's existing convention. Back-compat: optional fields on FindingSignalsCache degrade cleanly to known:false. Never-throw contract: the try/catch in done-effects.ts line 925-932 is genuinely never-throw — deriveFindingSignalsFromStore (and writeFindingSignals inside it) can throw, but the catch always pushes a warning line and never re-throws. Two medium findings registered: F-001 (non-null assertion + redundant as-number cast in smoke test line 174) and F-002 (storyIds filter vs full persisted cache scope mismatch in learning-validate). Neither is a blocker.",
+      "createdAt": "2026-06-20T09:17:51.420Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-003",
+      "_hash": "f80afeb6f1f511b4172b075867307bce8b4689c27bd67f3fee256259aa3b97ec"
+    },
+    {
+      "id": "B-1a91:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness review completed. No deleted/replaced concept words with residue found. All new concept terms (coveredFindingCount, coveredStoryCount, coveredThrough, computeCoverageGap, CoverageGapReport, renderCoverageLine) are consistently defined, wired through both write side (deriveFindingSignals stamps the watermark, toSourceFinding propagates resolvedAt) and read side (learning_validate reads persisted cache via readFindingSignals, calls computeCoverageGap, emits coverage line, includes coverage field in JSON output). The auto-refresh in done-effects is correctly placed post-merge inside the doneWorktree guard, wrapped in a never-throw try/catch, and its mergeLines advisory lines propagate to doneMergeReport. resolveLearningRoot canonicalization is a real pre-existing behavior. One medium finding filed: storyIds-filter makes the coverage gap always report 0 (false-negative), undocumented. No blockers found.",
+      "createdAt": "2026-06-20T09:18:43.841Z",
+      "reviewRound": "2026-06-20T09:11:07.724Z",
+      "reviewRunId": "B-1a91:RR-001",
+      "_hash": "751e2b25544caf09e181e1e11b02b7a1332db907d129c1ba63c3e38cdb96abe7"
+    },
+    {
+      "id": "B-1a91:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality audit. F-001 fixed: cache! and `as number` cast removed in assertHappyRefreshesCacheOnMain; replaced with explicit null guard + direct property access. F-002 fixed: learning-validate.ts now detects storyIds !== undefined (filtered view) and returns a suppressed advisory coverage line (human) or {filtered:true} (JSON) before the GLOBAL persisted-cache comparison — type-safe, no `any`, no throw path. done-effects.ts F-003 fix confirmed: `now: new Date().toISOString()` is inside the try{} block at line 931. I/O isolation: experience-revalidation.ts and finding-signals.ts are unchanged and pure. No `any` leakage, no new unsafe casts, no I/O isolation breaks, no never-throw regression on DONE-merge. Two low findings registered (F-006 residual m![1] non-null assertion; F-007 dead cache!==null assertions after process.exit guard) — neither is a blocker. All other areas clean.",
+      "createdAt": "2026-06-20T09:30:06.884Z",
+      "reviewRound": "2026-06-20T09:27:43.338Z",
+      "reviewRunId": "B-1a91:RR-004",
+      "_hash": "f4d05a005a5c3a97ae0adc02ec1c6b375150431e86aaadf8c3ec3eec8fa2880c"
+    },
+    {
+      "id": "B-1a91:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review: all five round-1 findings (F-001..F-005) are genuinely fixed. (a) --story filtered path now emits advisory coverage line for both human and --json output, while still running the per-story validity report; early-return on filtered===true is clean with no ValidRateReport.coverage collision risk. (b) global/unfiltered coverage gap path (readFindingSignals -> computeCoverageGap -> renderCoverageLine) is unchanged and still meaningful. (c) No dangling references, half-done edits, or contradictory comments: cache! and as-number cast appear only in comments describing what was removed; m![1] in check() is logically guarded by !!m and pre-existed. (d) done-effects.ts now passes new Date().toISOString() as now to deriveFindingSignalsFromStore, consistent with finding-signals.ts opts.now usage and updatedAt fallback to epoch sentinel; learning_scan passes now the same way (comment correct). Metadata-only scenario (F-004) is self-consistent: buildDoneReadyStoryWithLinkedWorktree commits all files on main first, so story branch diff vs main contains only .lattice/ metadata, isDoneMainRuntimeBuildInput returns false, build is skipped, yet refresh still fires unconditionally. Smoke docstring accurately describes all three scenarios. No concept deleted/replaced en masse; no residue check needed. Clean.",
+      "createdAt": "2026-06-20T09:31:00.260Z",
+      "reviewRound": "2026-06-20T09:27:43.338Z",
+      "reviewRunId": "B-1a91:RR-005",
+      "_hash": "5e1b22fa1c7a9f5f29df95d291a7dad1fd33ee598b00e007d6f4884f8a2c497e"
+    },
+    {
+      "id": "B-1a91:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3, final): F-008 fix is load-bearing and correct — filtered-view asserts coverage.filtered===true plus absence of gapFindings/gapStories/known; F-006/F-007 cleanups removed only dead cache!==null checks (now guarded by real null-guard + early exit), all load-bearing assertions (updatedAt-not-epoch, build-skipped, refresh-still-fires, signal-count>=1) remain intact; all 3 smokes exit 0 — done-merge-experience-refresh-smoke (21 checks), experience-coverage-gap-smoke (15 checks), experience-layer-revalidation-cli-smoke (5 checks); all 11 verificationIntent items (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, CHK-003 happy/edge/adversarial) are covered by concrete load-bearing evidence with no coverage gap.",
+      "createdAt": "2026-06-20T09:39:45.314Z",
+      "reviewRound": "2026-06-20T09:37:17.389Z",
+      "reviewRunId": "B-1a91:RR-009",
+      "_hash": "05a589e2dd7b35ca85ebc03e32fb10cfab95ccbb368ba3467f1a1442059a7287"
+    },
+    {
+      "id": "B-1a91:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept-completeness check passed. F-006 (m![1] -> m[1]): superfluous non-null assertions fully removed, zero residue across all source tasks. F-007 (dead cache!==null check() calls): both removed from done-merge-experience-refresh-smoke.ts; the preceding explicit null-guard+process.exit still protects the downstream assertions — soundly narrowed, no dangling coverage. F-008 (filtered-view coverage assertion): added to experience-layer-revalidation-cli-smoke.ts with correct ordering (coverage null-guard at line 126 before property access at 127-130); handler in learning-validate.ts emits coverage:{filtered:true} with no gapFindings/gapStories/known fields — assertion and implementation are consistent. All three watermark fields (coveredFindingCount/coveredStoryCount/coveredThrough) promised in plan.md are present in experience-layer-types.ts and deriveFindingSignals. No contradictory comments, no dangling references, no m! residue, no dead check() residue, no doc-promise-undelivered items. B-1a91 overall concept (auto-refresh + watermark + gap report + filtered-view suppression) is coherent and complete.",
+      "createdAt": "2026-06-20T09:39:48.264Z",
+      "reviewRound": "2026-06-20T09:37:17.389Z",
+      "reviewRunId": "B-1a91:RR-007",
+      "_hash": "fdfca1aa9b8a45d7d572e0e8abe9d5fc4c4023ec8abb3d8b65272c898bae7c80"
+    },
+    {
+      "id": "B-1a91:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 final quality pass: F-006 fix verified (m![1] -> m[1] at lines 172+240, no superfluous non-null assertion remains). F-007 fix verified (both dead cache!==null check() calls removed; dynamic checks counter accurately reflects 21 actual check() calls). F-008 fix verified: coverage assertions are non-tautological and load-bearing (assert.ok narrows coverage from Record|undefined to Record; typeof checks on absent properties fail if numeric gap fields present; coverage.filtered===true strictly asserts boolean). TypeScript compiles clean (exit=0 under strict). No new dead code, type-safety issues, or unsound assertions introduced by round-3 cleanups. Pre-existing dead import (assert in done-merge smoke, present since c6cd4ab9f) is out of scope for this round.",
+      "createdAt": "2026-06-20T09:40:33.320Z",
+      "reviewRound": "2026-06-20T09:37:17.389Z",
+      "reviewRunId": "B-1a91:RR-008",
+      "_hash": "b5fe1a574afc1f89a7c011acc8dec787a6ee54e9d05e2b4f0366437f6a5342cf"
+    }
+  ]
+}

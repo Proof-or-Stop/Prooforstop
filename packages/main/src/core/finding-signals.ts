@@ -125,9 +125,27 @@ export function deriveFindingSignals(
   const updatedAt = opts.now ?? '1970-01-01T00:00:00.000Z';
   const acc = new Map<string, SignalAccumulator>();
 
+  // B-1a91 CHK-003: coverage watermark, counted over the SAME findings that are
+  // actually aggregated below (one tick per finding that passes the object guard),
+  // so a fresh scan's watermark exactly matches a re-count and yields a 0 gap.
+  let coveredFindingCount = 0;
+  const coveredStoryIds = new Set<string>();
+  let coveredThrough: string | undefined;
+
   const list = Array.isArray(findings) ? findings : [];
   for (const finding of list) {
     if (!finding || typeof finding !== 'object') continue;
+
+    // Watermark: this finding IS considered (it survived the object guard).
+    coveredFindingCount += 1;
+    if (isNonEmptyString(finding.storyId)) coveredStoryIds.add(finding.storyId);
+    // Fold the latest of createdAt/resolvedAt into the coverage timestamp.
+    if (isNonEmptyString(finding.createdAt) && (!coveredThrough || finding.createdAt > coveredThrough)) {
+      coveredThrough = finding.createdAt;
+    }
+    if (isNonEmptyString(finding.resolvedAt) && (!coveredThrough || finding.resolvedAt > coveredThrough)) {
+      coveredThrough = finding.resolvedAt;
+    }
 
     const category = isNonEmptyString(finding.category) ? finding.category : 'unknown';
     const signatureTag = isNonEmptyString(finding.signatureTag) ? finding.signatureTag : undefined;
@@ -227,11 +245,18 @@ export function deriveFindingSignals(
     })
     .sort((a, b) => (a.localSignature < b.localSignature ? -1 : a.localSignature > b.localSignature ? 1 : 0));
 
-  return {
+  const cache: FindingSignalsCache = {
     schemaVersion: FINDING_SIGNALS_SCHEMA_VERSION,
     updatedAt,
     signals,
+    // B-1a91 CHK-003: coverage watermark. Counts are always emitted (0 on a fresh
+    // scan over an empty corpus — never NaN); coveredThrough is omitted when no
+    // finding carried a timestamp (canonicalize drops the undefined key).
+    coveredFindingCount,
+    coveredStoryCount: coveredStoryIds.size,
   };
+  if (coveredThrough !== undefined) cache.coveredThrough = coveredThrough;
+  return cache;
 }
 
 /** Project a store `Finding` (plus the storyId) onto the derivation input shape. */
@@ -247,6 +272,7 @@ function toSourceFinding(storyId: string, finding: unknown): SignalSourceFinding
   if (typeof f.dismissReasonType === 'string') src.dismissReasonType = f.dismissReasonType;
   if (typeof f.lifecyclePhase === 'string') src.lifecyclePhase = f.lifecyclePhase;
   if (typeof f.createdAt === 'string') src.createdAt = f.createdAt;
+  if (typeof f.resolvedAt === 'string') src.resolvedAt = f.resolvedAt; // B-1a91 CHK-003: watermark source
   return src;
 }
 
