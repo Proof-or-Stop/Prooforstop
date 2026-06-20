@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   buildHandoffAcceptProjection,
   buildHandoffResumeProjection,
@@ -187,10 +188,10 @@ function pickSupersession(raw: Record<string, unknown>): {
   };
 }
 
-function resolveCommitIfExists(root: string, ref: string): boolean {
+function resolveCommitIfExists(gitCwd: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -222,6 +223,7 @@ function normalizedPath(value: string): string {
 
 function buildSupersessionReport(
   root: string,
+  gitCwd: string,
   storyId: string,
   relatedDocs: string[],
 ): HostDispatchSupersessionReport {
@@ -293,7 +295,7 @@ function buildSupersessionReport(
         staleSignals.push(`Related doc ${docRef} completionCommit is invalid: ${commit}.`);
         continue;
       }
-      if (!resolveCommitIfExists(root, commit)) {
+      if (!resolveCommitIfExists(gitCwd, commit)) {
         anySignal = true;
         statusByDoc.push('invalid');
         staleDocs.push(docRef);
@@ -482,7 +484,13 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
 
   const docs = Array.from(new Set(collectRelatedDocs(activeStory)));
 
-  const supersession = buildSupersessionReport(ctx.root, pack.storyId, docs);
+  const packGitCwd = resolveGitCwd({
+    store: ctx.store,
+    storyId: pack.storyId,
+    metadataRoot: ctx.root,
+    projectRoot: ctx.root,
+  });
+  const supersession = buildSupersessionReport(ctx.root, packGitCwd, pack.storyId, docs);
 
   const preflight: HostDispatchPrefetch = {
     computedAt: new Date().toISOString(),
