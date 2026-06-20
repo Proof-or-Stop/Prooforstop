@@ -136,6 +136,18 @@
           "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
           "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
           "timestamp": "2026-06-20T18:33:15.462Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "command": "rg -n \"dev-memory\\|learning_validate\\|advisory\\|not definitive\" docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+          "result": "pass",
+          "note": "The contract explicitly marks dev-memory/learning signals as advisory only, not gate evidence.",
+          "headHash": "b4a1363c8c26cf81131135ec3b5679e53bb42e12",
+          "materialHash": "07ba780784645acc18f891b5605c56f7192f190242da2e7ab971ab066e059470",
+          "storyFilesHash": "09b8e002670126b3530896a215fda89176e7c7f32f60fb3077c1a22475978c8d",
+          "timestamp": "2026-06-20T18:33:15.990Z"
         }
       ]
     },
