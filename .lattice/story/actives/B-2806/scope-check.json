@@ -1,0 +1,192 @@
+{
+  "storyId": "B-2806",
+  "checkedAt": "2026-06-20T14:55:31.288Z",
+  "features": [
+    {
+      "feature": "SEVERITY_TO_FINDING_KIND: typed const Record<FindingSeverity, FindingAddSeverity> mapping BLOCKER->critical, MAJOR->high, MINOR->medium",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "FindingAddSeverity type = critical|high|medium|low (finding_add enum, wider than the map to reserve low)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "No abstract BLOCKER/MAJOR/MINOR value can reach finding_add (Zod-error prevention by structural typing)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "composeDesc(finding): string = title — issue Fix: fix (line n) — exact §4.2 template with line cited inside desc",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "FindingAddArgs interface: severity FindingAddSeverity, desc string, files string[], category happy|edge|adversarial|missing, reviewRunId string, agent string",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "toFindingAddArgs(finding, {reviewRunId, agent, category}): maps severity via SEVERITY_TO_FINDING_KIND, composes desc, sets files=[finding.file], passes through reviewRunId/agent/category; pure — no finding_add call",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "agent in toFindingAddArgs must be caller-supplied (a real lattice-review-* lane); function never invents it",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §4.2"
+    },
+    {
+      "feature": "DEFAULT_SKEPTICS=2, DEFAULT_CONFIRM_THRESHOLD=1 exported constants",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "VerifiedFinding interface: {finding, verdicts: Verdict[], confirms: number, confirmed: boolean}",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "verifyFinding: runs runSkeptic M times, collects Verdict[]; confirms = count(v.isReal===true) STRICT; confirmed = (confirms >= T); returns VerifiedFinding; M and T are tunable parameters",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "Refute-by-default: only isReal===true counts as confirm; isReal=false or undefined are refutes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "Threshold-confirm NOT majority: CONFIRMED iff confirms >= T (default T=1-of-M=2, not majority which would require 2-of-2)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "confirms=0 finding is dropped (confirmed=false); never reaches finding_add",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "runSkeptic is an injected (finding, change) => Verdict seam (hermetically testable with fake; real skeptic agent is MVP caller concern)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "verifyFindings(findings, change, runSkeptic, opts): maps verifyFinding over array, each finding judged independently",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "confirmedFindings(verified: VerifiedFinding[]): Finding[] — returns only survivors with confirmed===true",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3"
+    },
+    {
+      "feature": "Hermetic smoke with fake runSkeptic proving: SEVERITY_TO_FINDING_KIND mapping, composeDesc template, toFindingAddArgs shape + no-abstract-leak, threshold-confirm T=1-of-2 and T=2-of-2 branches, verifyFindings array, confirmedFindings filter; explicit literal assertions (not tautological dynamic loops)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §2.3 + §4.2"
+    },
+    {
+      "feature": "Register smoke (node packages/main/dist/tasks/adversarial-review-verifier-smoke.js) in lattice.config.json validate.commands",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §5 S2"
+    },
+    {
+      "feature": "New module in packages/main/src/core/adversarial-review-verifier.ts importing S0 (core/adversarial-review.js: Finding, FindingSeverity, Verdict) verbatim; no modification to S0 or S1",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/adversarial-review-spec.md §5 S2"
+    },
+    {
+      "feature": "Lens runner (S1) implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the lens runner (S1 B-97ab) — frozen, imported only conceptually; S0 contract module is imported read-only",
+      "source": "decisions:decisions/adversarial-review-spec.md §5 S1"
+    },
+    {
+      "feature": "Completeness critic (S3) implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the completeness critic — that is S3",
+      "source": "decisions:decisions/adversarial-review-spec.md §5 S3"
+    },
+    {
+      "feature": "Escalation-flow integration: actually calling finding_add / review_run_start / review_pass_set / autopilot_review_submit (S4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: escalation-flow integration AND actually calling finding_add/review_run_start/review_pass_set — that is S4",
+      "source": "decisions:decisions/adversarial-review-spec.md §5 S4"
+    },
+    {
+      "feature": "Dedicated lattice-review-completeness lane (FUTURE per §4.4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json / §4.4: FUTURE, not-yet-implemented; out of scope for S2",
+      "source": "decisions:decisions/adversarial-review-spec.md §4.4"
+    },
+    {
+      "feature": "Structured verdict storage (persist Verdict per finding, not just confirmed-or-not) (FUTURE per §4.4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 FUTURE row: not-yet-implemented",
+      "source": "decisions:decisions/adversarial-review-spec.md §4.4"
+    },
+    {
+      "feature": "First-class CLI review mode (lattice review --mode=adversarial) (FUTURE per §4.4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "§4.4 FUTURE row: not-yet-implemented",
+      "source": "decisions:decisions/adversarial-review-spec.md §4.4"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "covered": 19,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "379ecf0c0d92b06121c784fd732051df5668f7abd241945a257473c7a8d69eb6",
+  "openQuestions": []
+}

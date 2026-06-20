@@ -1,0 +1,25 @@
+{
+  "storyId": "B-2806",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/adversarial-review-verifier.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/adversarial-review-verifier-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-lens-runner.ts"
+  ],
+  "explicitExcludes": [
+    "docs/adversarial-review-spec.md",
+    "packages/main/src/core/review-run.ts"
+  ],
+  "scopeChangeReason": "S2 verifier + ledger mapping: create the verifier module + its hermetic smoke, register the smoke. S0 contract and S1 lens-runner are imported/adjacent read-only (protected). Critic (S3), escalation + finding_add call (S4) are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-20T14:53:45.257Z",
+  "updatedAt": "2026-06-20T14:53:45.257Z"
+}

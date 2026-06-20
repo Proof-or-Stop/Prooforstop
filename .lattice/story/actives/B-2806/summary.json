@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2806",
+  "changes": "New packages/main/src/core/adversarial-review-verifier.ts: (1) SEVERITY_TO_FINDING_KIND (Object.frozen Record<FindingSeverity,FindingAddSeverity> = BLOCKER->critical/MAJOR->high/MINOR->medium) so an abstract methodology severity never reaches finding_add; composeDesc (em-dash <title> — <issue> Fix: <fix> (line N)) + pure toFindingAddArgs arg-shaper; (2) verifyFinding (M skeptics default 2, strict isReal===true count, threshold floored at Math.max(1,T) so confirms=0 is ALWAYS dropped per §2.3, threshold-confirm NOT majority, default T=1-of-2) + verifyFindings + confirmedFindings. New hermetic smoke packages/main/src/tasks/adversarial-review-verifier-smoke.ts (68 assertions) at lattice.config.json validate.commands[14]. Imports only the frozen S0 contract; S0 + S1 lens-runner protected/unchanged.",
+  "usage": "import { verifyFindings, confirmedFindings, toFindingAddArgs, SEVERITY_TO_FINDING_KIND } from \"core/adversarial-review-verifier.js\"; const verified = verifyFindings(rawFindings, change, mySkeptic); const survivors = confirmedFindings(verified); const args = survivors.map(f => toFindingAddArgs(f, {reviewRunId, agent, category})); — survivors carry critical|high|medium|low, never BLOCKER/MAJOR/MINOR. Verify: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js.",
+  "expectedOutcome": "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js prints \"adversarial-review-verifier smoke passed: 68 assertions\" exit 0; lattice validate green at [14]; toFindingAddArgs of a confirmed finding yields a finding_add arg object with a critical|high|medium|low severity and a composed desc; a confirms=0 finding is dropped.",
+  "actualTranscript": "adversarial-review-verifier smoke passed: 68 assertions (exit 0); lattice validate all green incl. validate.commands[14]; build (tsc) clean. Delivery review PASS (5/5 promises delivered, 4/4 items tested, hasRealMachineTest=true).",
+  "outcomeDiff": "No difference — expected and actual match (68 assertions, exit 0, validate green).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "MVP S2 only: a library (per-finding verifier + ledger arg-shaper). The real skeptic agent is an injected (finding,change)=>Verdict seam wired in S4; the module does NOT call finding_add/review_run_start (that is S4); the completeness critic is S3; the lens runner is S1. The default SEVERITY_TO_FINDING_KIND maps MINOR->medium (low is reserved for cosmetic MINOR; callers can map to low explicitly if desired).",
+  "pitfalls": "Dual-host adversarial review caught a REAL §2.3 contract bug the Claude host MISSED: Codex host-2 flagged that confirmed = confirms >= threshold let a requested threshold:0 confirm a confirms=0 finding (refute-by-default says zero concrete confirmations can NEVER confirm). I had introduced this via a test-intent CHK-003:adversarial:2 that literally encoded the violation as expected behavior, and the implementer faithfully pinned it in the smoke. Fix: floor the effective threshold at Math.max(1,requested) so confirms=0 is always dropped; corrected the smoke + 2 evidence notes. The Claude multi-lens Workflow threshold-logic lens did not surface it (the 3-skeptic verify likely refuted it); the Claude completeness critic instead found a separate MINOR (the toFindingAddArgs purity assertion !(x instanceof Promise) was vacuous — a synchronous impure fn would pass — de-vacuoused with idempotence+distinct-ref+exact-shape checks). Lesson: a verificationIntent can encode a contract violation; the cross-provider host (Codex) is what caught it. Also: run codex exec with </dev/null when backgrounded or it hangs on stdin and the watchdog kills it at 600s.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 446762
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16401
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 476422
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 549673
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 652518
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 191536
+    }
+  },
+  "totalDurationMs": 2333322,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T15:19:29.833Z",
+  "updatedAt": "2026-06-20T15:19:29.833Z"
+}

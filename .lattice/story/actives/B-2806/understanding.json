@@ -1,0 +1,27 @@
+{
+  "task": "Implement the adversarial-review S2 per-finding VERIFIER (M-skeptic refute-by-default, threshold-confirm T=1-of-2) and the finding_add LEDGER MAPPING as a pure-data + injected-seam module importing the frozen S0 contract.",
+  "outcome": "A developer runs: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js and sees: [verifier-smoke] SEVERITY_TO_FINDING_KIND: BLOCKER->critical, MAJOR->high, MINOR->medium, all in {critical,high,medium,low} OK | composeDesc -> \"Null deref on x — x can be undefined Fix: guard x (line 42)\" OK | toFindingAddArgs(MAJOR finding): {severity:\"high\", desc:\"...\", files:[\"a.ts\"], category:\"edge\", reviewRunId:\"RR-1\", agent:\"lattice-review-behavior\"} — no abstract severity leaked OK | verifyFinding T=1/2: fake gives 1 isReal of 2 -> CONFIRMED; 0 isReal -> DROPPED OK | T=2/2 strict: 1 isReal -> DROPPED, 2 -> CONFIRMED OK | confirmedFindings filters survivors OK => 40+ checks passed, exit 0. In code: import {verifyFindings, confirmedFindings, toFindingAddArgs} from core/adversarial-review-verifier.js; const verified = verifyFindings(raw, change, mySkeptic); const survivors = confirmedFindings(verified); const args = survivors.map(f => toFindingAddArgs(f, {reviewRunId, agent, category})); — survivors carry critical|high|medium|low, never BLOCKER/MAJOR/MINOR.",
+  "facts": [
+    "S0 (core/adversarial-review.ts, lattice 0.3.30) exports Finding{severity:BLOCKER|MAJOR|MINOR,title,file,line,issue,fix}, FindingSeverity, and Verdict{isReal,agreedSeverity,reasoning}.",
+    "finding_add severity enum is critical|high|medium|low; passing an abstract BLOCKER/MAJOR/MINOR is a Zod error — §4.2 mandates a mapping layer.",
+    "§4.2 ledger map: BLOCKER->critical, MAJOR->high, MINOR->medium (low for cosmetic); desc compose <title> — <issue> Fix: <fix>; files [<file>]; category happy|edge|adversarial|missing; reviewRunId; agent a real lattice-review-*.",
+    "§2.3 verification: M skeptics (default M=2), refute-by-default (Verdict.isReal defaults false), threshold-confirm CONFIRMED iff confirms>=T (default T=1-of-2, NOT majority); confirms=0 dropped.",
+    "S2 is disjoint from S1 (B-97ab, DONE) and S3; it imports S0 directly, not S1; it does NOT call finding_add (S4)."
+  ],
+  "constraints": [
+    "Pure module: no I/O. The skeptic is an injected (finding,change)=>Verdict seam; refute-by-default lives in the skeptic role, the module only counts isReal and applies the threshold.",
+    "Only CONFIRMED findings are ever mapped; the order is verify->MAP->finding_add (the finding_add call itself is S4).",
+    "toFindingAddArgs must NEVER emit an abstract BLOCKER/MAJOR/MINOR; agent must be caller-supplied (a real lattice-review-* lane), not invented.",
+    "T and M are tunable parameters (defaults T=1, M=2).",
+    "All artifacts English-only (english-artifacts gate)."
+  ],
+  "unknowns": [
+    "None blocking — §2.3 + §4.2 fully specify the threshold rule and the mapping table; mechanical."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/adversarial-review-verifier.ts",
+    "packages/main/src/tasks/adversarial-review-verifier-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-20T14:48:42.363Z"
+}
