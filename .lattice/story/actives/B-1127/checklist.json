@@ -69,7 +69,130 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the hermetic round smoke (71 assertions): runAdversarialRound runs the frozen 5-phase order, the fake runCritic captures its input proving it received the VERIFIED (confirmed) lens set not raw, clean round -> converged/reopen flags + empty confirmedByLane, critic-confirms -> reopen, AdversarialRoundResult extends RoundResult with confirmedByLane.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -135,7 +258,119 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: deriveRoundLedgerOps yields finding_add ops for confirmed lens findings (agent=the real lane, severity a ledger kind critical|high|medium|low, never abstract) + confirmed critic findings (S3 toCriticFindingAddArgs, desc starts [completeness-critic], real-lane agent), and review_pass_set ops only on a converged round (none while findings remain).",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -206,7 +441,130 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "Proven by the round smoke: runReopenLoop B-086b trace (round0 reopen -> applyFix -> round1 converged, rounds.length=2, result.converged=true, finalChange changed) + maxRounds bound (always-confirming critic -> converged=false at the bound); buildHostVerdictPayloads yields one payload per host with distinct hostId/keyId/sessionId, shared materialDigest+validationDigest, decision default pass.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -282,7 +640,141 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:6",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:7",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "result": "pass",
+          "note": "The hermetic smoke packages/main/src/tasks/adversarial-review-round-smoke.ts (check+counter, explicit literals, 71 assertions) asserts REVIEW_MODE_PHASES order, the critic-sees-verified-set invariant, converged/reopen, the B-086b reopen trace + maxRounds bound, the ledger-op derivation, and the 3x2 payload shape; registered at lattice.config.json validate.commands[16]; runs green under lattice validate.",
+          "headHash": "ebef760f516d118c245e9de812919361da4304f1",
+          "materialHash": "5a88eb90b996ca119f3e378654d4d0af8c2e3d5ca803cd7eb63f4b684f788cdb",
+          "storyFilesHash": "899cac1be29c1d1ffd378f35f82767d50fab662efaf30bfe2a1278e77113a638",
+          "timestamp": "2026-06-20T18:09:23.974Z"
+        }
+      ]
     }
   ]
 }
