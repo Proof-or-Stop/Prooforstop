@@ -26,7 +26,7 @@
       "desc": "misleading-comment: experience-hint-worktree-cache-smoke.ts:290-292 states \"git worktree list reports the worktree checkout as the first (main) entry\" for a bare-backed worktree — this is factually wrong; git actually reports the BARE REPO dir as the first entry (tagged bare), so the code reaches the correct result via the --show-toplevel fallback, not the first-entry path. The comment inverts the mechanism, misleading future readers about why this case works.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T07:21:32.965Z",
@@ -37,7 +37,11 @@
         "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
       ],
       "signatureTag": "edge|ts|misleading-comment-experience",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a9c496f5: corrected the bare-backed + separate-git-dir comments to describe the real mechanism (git worktree list first entry is the external/bare gitdir == --git-common-dir; resolveLearningRoot detects mainWorktree==commonDir and falls back to git rev-parse --show-toplevel). Comment-only; logic unchanged; smoke 6/6.",
+      "resolvedAt": "2026-06-20T07:25:43.393Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
