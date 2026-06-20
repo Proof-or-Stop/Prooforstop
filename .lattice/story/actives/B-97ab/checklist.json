@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the LENS_TO_LANE mapping (six real review lanes per §4.2) + the lane type, in core/adversarial-review-lens-runner.ts",
+      "context": "New module importing S0 (core/adversarial-review.js: LensId, CANONICAL_LENS_SET, Finding). LENS_TO_LANE: Record<LensId, lane> exactly per §4.2 (concept/scope->lattice-review-concept, code-quality->lattice-review-quality, behavior/correctness->lattice-review-behavior, test-coverage->lattice-review-test-coverage, crash-safety/edge->lattice-review-behavior, docs-consistency->lattice-review-docs). The lane type must be the six real review_run_start lanes; pin correctness by cross-checking against review-run.ts REVIEW_RUN_LANES (import it, or assert in the smoke). Every mapped lane must be a real lane.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "buildLensRunPlan(change, lensSet) -> one INDEPENDENT LensRunRequest per lens (no cross-lens data)",
+      "context": "LensRunRequest = {lensId: LensId, lane, change: string} (the isolated input a lens gets). buildLensRunPlan(change, lensSet=CANONICAL_LENS_SET) returns one request per lens in the (possibly-subset) set, each carrying ONLY the change + its mapped lane — NEVER another lens's findings/outputs (independence, §2.1). Accepts a subset lens set (task-tunable). No behavior beyond plan construction.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "runLenses(change, lensSet, runLens) applies the INJECTED per-lens executor + collects per-lane raw Finding[]; collectRawFindings aggregator",
+      "context": "LensRunResult = {lensId, lane, findings: Finding[]} (findings=[] means PASS). runLenses(change, lensSet, runLens: (req: LensRunRequest) => Finding[]) builds the plan, applies the injected runLens to EACH request independently (runLens is the seam for the real review agent; harness/main-agent supplied at MVP), and returns LensRunResult[]. collectRawFindings(results) flattens to Finding[] (+ optionally findingsByLane). Independence enforced: runLens only ever receives a single lens's request, never another's result.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke with a FAKE runLens proving mapping + independence + aggregation; register in lattice.config.json",
+      "context": "New packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts (check+counter pattern). Assert: every value of LENS_TO_LANE is in the real six-lane set (import REVIEW_RUN_LANES from core/review-run.js and assert subset — this PINS the mapping to reality); buildLensRunPlan over CANONICAL_LENS_SET yields 6 requests, one per lens, each with the right mapped lane and carrying only {lensId,lane,change} (no findings field / no cross-lens data); a SUBSET lens set yields only those requests; runLenses with a fake runLens (returns a planted Finding for one lens, [] for others) yields the right LensRunResult[] with findings grouped by lens/lane and PASS lenses empty; collectRawFindings flattens correctly. Register node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js in lattice.config.json validate.commands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
