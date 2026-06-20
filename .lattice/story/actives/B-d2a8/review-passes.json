@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-20T05:57:12.536Z",
       "reviewRunId": "B-d2a8:RR-007",
       "_hash": "4a679092137837f3801c687c4c59b6a8d3fbecba5eb9e5ce7d985b0c86717eb2"
+    },
+    {
+      "id": "B-d2a8:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "FUNCTIONAL CORRECTNESS PASS (zero BLOCKER/MAJOR). resolveParallelGate: (1) null/undefined/string/array/number raw all return a spread copy of profileDefault — no crash, no reference leak. (2) Present-but-invalid mode of ANY type (number 123, boolean true, string nope) correctly falls through to the else-branch and sets result.mode = PARALLEL_MODE_FALLBACK = advise — the strict-profile block default is never silently kept. (3) Valid modes advise/block/off all accepted. (4) maxConcurrentReview: 0, -1, 2.5, Infinity, NaN, string-5 all fail the Number.isInteger && >0 guard and fall back to profileDefault; -0 also correctly fails (not > 0). (5) broadGlobBlocks: non-boolean values fall back to profileDefault. (6) ABSENT keys (not in r) keep the profileDefault value via the spread initial copy. (7) resolveAuditConfig always populates profileDefaults.parallelGate via PARALLEL_GATE_PROFILE_DEFAULTS with ?? balanced fallback; early no-config return carries it; merged path always calls resolveParallelGate with a non-null second arg. (8) Prototype pollution via inherited properties is theoretically possible but JSON.parse produces plain objects so the call site is safe in practice. (9) Smoke at packages/main/src/tasks/parallel-gate-config-smoke.ts covers all claimed scenarios and is registered in lattice.config.json. Two MEDIUM findings raised for empty userSees on CHK-001 and CHK-002 (process/documentation gap, not correctness gaps).",
+      "createdAt": "2026-06-20T06:02:26.491Z",
+      "reviewRound": "2026-06-20T05:57:12.536Z",
+      "reviewRunId": "B-d2a8:RR-008",
+      "_hash": "7ea50dc5aa34f6133aae883ff22c9b43ae876e165cd5eeb871212c0d63c8a5f5"
     }
   ]
 }
