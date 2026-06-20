@@ -19,6 +19,27 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3321:F-002",
+      "desc": "docs/requirements/decisions/done-full-test-gate-execution-plan.md:147 introduces DONE-blocking missing/failing/stale DONE-required evidence, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:168-175 plans the runner/artifact/DONE oracle row, but the plan never requires updating packages/main/src/core/process-fact-registry.ts, process-fact-levels, or scripts/verify-process-fact-contract.mjs. AGENTS.md:64 and docs/requirements/decisions/story-lifecycle.md:194-195 require every new gate evidence/artifact/process fact to be registered and contract-verified; the comparable 3x2 plan does this explicitly at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:706-708. As written, the future implementation plan can change DONE gate evidence without the required registry/contract backstop.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-20T07:02:13.198Z",
+      "reviewRound": "2026-06-20T06:58:54.090Z",
+      "reviewRunId": "B-3321:RR-004",
+      "_hash": "79cf76cf16efaaf96beec5ef938c51fffee9075b69c304ab46b858709e5b7e2b",
+      "files": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
