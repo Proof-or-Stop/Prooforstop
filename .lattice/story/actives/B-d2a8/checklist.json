@@ -4,17 +4,513 @@
       "id": "CHK-001",
       "title": "Populate AuditConfig.parallelGate in resolveAuditConfig: per-profile defaults + a resolveParallelGate(raw, profileDefault) helper validating the nested object field-by-field (mode/maxConcurrentReview/broadGlobBlocks) with guards and fallbacks per spec 4.7",
       "context": "core/audit-config.ts: add PARALLEL_GATE_PROFILE_DEFAULTS (light advise/2/false, balanced advise/3/false, strict block/4/true), import VALID_PARALLEL_MODES + ParallelGateConfig from parallel-decomposition.js, add resolveParallelGate with per-sub-field guard+fallback (invalid mode -> warn + advise; maxConcurrentReview integer >= 1 else profile default; broadGlobBlocks boolean else profile default; missing/non-object -> all profile defaults), set merged.parallelGate from the user override and profile default",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-20T05:28:32.119Z",
+      "endTime": "2026-06-20T05:31:57.867Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/audit-config.ts",
+          "docs/parallel-decomposition-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveParallelGate({mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true}, lightDefault) -> returns {mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true}; WHY: proves valid overrides are applied field-by-field",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate(undefined, balancedDefault) -> returns balancedDefault {advise,3,false}; WHY: proves missing/undefined raw yields full profile defaults without crash",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveAuditConfig(\"light\", projectRoot) with NO user config file -> returned config.parallelGate equals {advise,2,false}; WHY: proves the no-user-config early-return path carries a populated parallelGate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveAuditConfig for each profile (light/balanced/strict) with no user overrides -> parallelGate matches PARALLEL_GATE_PROFILE_DEFAULTS: light={advise,2,false}, balanced={advise,3,false}, strict={block,4,true}; WHY: proves per-profile default table is wired correctly",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({mode:\"off\"}, balancedDefault) -> returns {mode:\"off\",maxConcurrentReview:3,broadGlobBlocks:false}; WHY: proves mode off is accepted as a valid escape hatch (not rejected as invalid)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveParallelGate({mode:\"nope\"}, strictDefault) -> warns to console and returns {mode:\"advise\",...} (NOT block); WHY: proves invalid mode degrades to safe non-blocking advise fallback, not the profile default block",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:0}, balancedDefault) -> warns and returns maxConcurrentReview=3 (profile default); WHY: boundary -- zero is not a valid positive integer",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:-1}, balancedDefault) -> warns and returns profile default; WHY: negative integer boundary",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:2.5}, strictDefault) -> warns and returns 4 (profile default); WHY: non-integer float boundary",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({broadGlobBlocks:\"yes\"}, balancedDefault) -> returns broadGlobBlocks=false (profile default); WHY: string is not boolean, must fall back",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate with only mode set (no maxConcurrentReview/broadGlobBlocks keys) -> missing sub-fields inherit from profileDefault; WHY: proves partial override merges correctly",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveParallelGate(\"not-an-object\", lightDefault) -> returns full lightDefault with no throw; WHY: string input must not crash the resolver",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate([1,2,3], balancedDefault) -> returns full balancedDefault; WHY: array is typeof object but not a valid config; Array.isArray guard must catch it",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate(null, strictDefault) -> returns full strictDefault; WHY: null is typeof object, must be guarded",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveParallelGate({mode:123,maxConcurrentReview:\"abc\",broadGlobBlocks:99}, balancedDefault) -> all three sub-fields fall back to profile defaults with warnings; WHY: every sub-field receives wrong type simultaneously",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "resolveParallelGate({maxConcurrentReview:Infinity}, lightDefault) -> falls back to profile default 2; WHY: Infinity is a number but not finite/integer, must be rejected",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true}, lightDefault) -> returns {mode:\"block\",ma -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate(undefined, balancedDefault) -> returns balancedDefault {advise,3,false} -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveAuditConfig(\"light\", projectRoot) with NO user config file -> returned config.parallelGate equals {advise,2,false -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveAuditConfig for each profile (light/balanced/strict) with no user overrides -> parallelGate matches PARALLEL_GATE -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({mode:\"off\"}, balancedDefault) -> returns {mode:\"off\",maxConcurrentReview:3,broadGlobBlocks:false} -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({mode:\"nope\"}, strictDefault) -> warns to console and returns {mode:\"advise\",...} (NOT block) -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({maxConcurrentReview:0}, balancedDefault) -> warns and returns maxConcurrentReview=3 (profile defaul -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({maxConcurrentReview:-1}, balancedDefault) -> warns and returns profile default -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({maxConcurrentReview:2.5}, strictDefault) -> warns and returns 4 (profile default) -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({broadGlobBlocks:\"yes\"}, balancedDefault) -> returns broadGlobBlocks=false (profile default) -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate with only mode set (no maxConcurrentReview/broadGlobBlocks keys) -> missing sub-fields inherit from  -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate(\"not-an-object\", lightDefault) -> returns full lightDefault with no throw -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate([1,2,3], balancedDefault) -> returns full balancedDefault -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate(null, strictDefault) -> returns full strictDefault -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({mode:123,maxConcurrentReview:\"abc\",broadGlobBlocks:99}, balancedDefault) -> all three sub-fields fa -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: resolveParallelGate({maxConcurrentReview:Infinity}, lightDefault) -> falls back to profile default 2 -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Hermetic smoke: per-profile defaults resolve correctly, each sub-field override is honored, and each malformed sub-field warns and falls back (config never crashes)",
       "context": "new task smoke under packages/main/src/tasks/; call resolveAuditConfig / resolveParallelGate with in-memory or temp-dir config inputs; assert the 3 profile default rows, a valid override is applied, an invalid mode falls back to advise, a non-integer maxConcurrentReview falls back, a non-boolean broadGlobBlocks falls back, and a non-object parallelGate yields all profile defaults; register in lattice.config.json",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-20T05:31:58.332Z",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/parallel-gate-config-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke registered in lattice.config.json validate.commands and runs via lattice validate without error; WHY: proves the smoke is discoverable and executes cleanly end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts resolveAuditConfig for all 3 profiles with no user config -> parallelGate matches profile defaults (light advise/2/false, balanced advise/3/false, strict block/4/true); WHY: covers the primary per-profile default contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts a valid full override {mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true} is applied via resolveAuditConfig with temp audit-config.json; WHY: proves user overrides flow through the full config pipeline",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts mode:off is accepted and returned as-is; WHY: proves the reversible escape hatch works in the integrated path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke asserts invalid mode (\"nope\") warns to stderr/console and falls back to advise; WHY: proves the warn+fallback path in the integrated smoke, not just the unit helper",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts non-integer maxConcurrentReview (e.g. 2.5 or \"abc\") falls back to profile default; WHY: proves sub-field guard in integrated path",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke asserts non-boolean broadGlobBlocks falls back to profile default; WHY: proves boolean guard in integrated path",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke asserts non-object parallelGate (string or array) yields all profile defaults with no crash; WHY: proves top-level type guard in integrated path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke asserts no-user-config path still returns a populated parallelGate (not undefined); WHY: proves the early-return path is tested",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke writes a temp audit-config.json with parallelGate set to null and verifies resolveAuditConfig returns profile defaults without throwing; WHY: null is a common real-world misconfiguration that must not crash",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "smoke writes audit-config.json where parallelGate has extra unknown keys alongside valid ones and verifies the valid keys are still applied (unknown keys ignored); WHY: forward-compatibility -- operators may add keys from a newer version",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke registered in lattice.config.json validate.commands and runs via lattice validate without error -- verified by the full validate suite; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts resolveAuditConfig for all 3 profiles with no user config -> parallelGate matches profile defaults (light  -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts a valid full override {mode:\"block\",maxConcurrentReview:5,broadGlobBlocks:true} is applied via resolveAudi -- verified by the full validate suite; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts mode:off is accepted and returned as-is -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts invalid mode (\"nope\") warns to stderr/console and falls back to advise -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts non-integer maxConcurrentReview (e.g. 2.5 or \"abc\") falls back to profile default -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts non-boolean broadGlobBlocks falls back to profile default -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts non-object parallelGate (string or array) yields all profile defaults with no crash -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke asserts no-user-config path still returns a populated parallelGate (not undefined) -- verified by the hermetic 28-assertion config smoke; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke writes a temp audit-config.json with parallelGate set to null and verifies resolveAuditConfig returns profile defa -- verified by the full validate suite; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "parallelGate config resolution: smoke writes audit-config.json where parallelGate has extra unknown keys alongside valid ones and verifies the valid key -- verified by the full validate suite; PASS.",
+          "headHash": "44838efa5794e8ed304d22bb974fa5ed7e99c3f7",
+          "materialHash": "8b6ce32907509c0b9da4df21d447ba2e562b0d9813d8d9dc3372f04a1f1c91a6",
+          "storyFilesHash": "d841abb21172dda17039e69219b33b9feddf498a611f09666c262c7efe1ef7f5",
+          "timestamp": "2026-06-20T06:39:54.072Z"
+        }
+      ]
     }
   ]
 }

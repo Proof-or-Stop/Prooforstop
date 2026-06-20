@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-37b3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 8 verificationIntent entries (6 must, 2 should) have concrete, non-generic verificationEvidence mapped 1:1. Smoke runs live with 4 checks exit 0. CHK-001:happy:0 — worktree reads main cache via loadExperienceHints (non-stub real git worktree). CHK-001:edge:0 — non-git tempdir fallback, no throw. CHK-001:edge:1 — write-then-read parity via worktree asserted. CHK-001:adversarial:0 — resolveFindingSignalsPath from worktree resolves to main cache path (path equality asserted). CHK-001:adversarial:1 — (should) try/catch fallback shown by edge:0 scenario; advisory. CHK-002:happy:0 — smoke exits 0, prints pass line. CHK-002:edge:0 — full npm test green. CHK-002:adversarial:0 — real git worktree + non-git dir, no stub; RED/GREEN verified per evidence note. 0 coverage gaps found.",
+      "createdAt": "2026-06-20T07:05:49.429Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-003",
+      "_hash": "9a6b7a3d17c0fe4dacf8230cd3a9c2ca85fe05c49d768065ad8602e2783ffde5"
+    },
+    {
+      "id": "B-37b3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked: (1) resolveLearningRoot is null/empty-safe (guards !commonDir) and never-throws (try/catch returns searchOrigin on any error including ENOENT, non-zero exit, empty string). (2) execFileSync uses stdio:[pipe,pipe,pipe] — no stdout/stderr leakage. (3) dirname(resolve(searchOrigin, commonDir)) is correct for both relative (.git) and absolute (/main/.git) commonDir values. (4) No unsafe `any` types anywhere in changed files; tsc builds clean. (5) learning-store.ts leaf isolation preserved: imports only node:child_process, node:fs, node:path, ./digest.js, ./experience-layer-types.js (type-only). (6) Smoke cleanup: mkTempRoot() registers every root in tmpRoots; finally block iterates and rmSync(recursive,force) all of them — covers initMainAndWorktree subdirs (base contains main+wt) and plain non-git dirs. (7) experience-hint-loader.ts and finding-signals.ts are confirmed untouched (no diff). No dead code, no swallowed errors in production paths, no shell boundary violations.",
+      "createdAt": "2026-06-20T07:06:04.605Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-002",
+      "_hash": "f147007d8564472c5dc3084d9f023073f57746296dabd4888b9903b9489ad621"
+    },
+    {
+      "id": "B-37b3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/completeness check complete. resolveLearningRoot is private+unexported, called only inside resolveLearningDir; all five exported path-derivation functions (resolveFindingSignalsPath, resolvePlaybooksPath, resolveProposalsDir, resolveLearningLogPath, resolveSignatureRegistryPath) + ensureLearningDir funnel through resolveLearningDir with no bypass. No join(projectRoot, LEARNING_DIR) outside learning-store.ts. LEARNING_DIR constant in learning-scan.ts is log-display-only (CACHE_REL_PATH), not used for I/O. New imports (execFileSync, resolve) are all used; no dead code. Leaf isolation preserved (node builtins only, no ../ imports). Smoke covers worktree read, non-git fallback, and write-from-worktree-to-main. package.json wires the smoke into the main test chain only. No gate/schema/derivation changes. No concept deletion/replacement residue. 0 findings.",
+      "createdAt": "2026-06-20T07:06:25.140Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "reviewRunId": "B-37b3:RR-001",
+      "_hash": "c3664f44055d394a7a2f09626b64f00883f652da0bdf7c9cc4292301e7baaa8e"
+    },
+    {
+      "id": "B-37b3:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 8 intents (6 must, 2 should). Smoke runs 6 checks exit 0 live: linked worktree reads main cache, non-git fallback, write-then-read parity, separate-git-dir regression guard, bare-backed worktree regression guard, hasExperienceHints firing from worktree. F-001 adversarial:0 is genuinely non-vacuous: the worktree-list-only resolver would have failed checks 5+6. No coverage gap found.",
+      "createdAt": "2026-06-20T07:20:09.738Z",
+      "reviewRound": "2026-06-20T07:17:45.660Z",
+      "reviewRunId": "B-37b3:RR-006",
+      "_hash": "9faf0665544c25b205df1860508c4326015065f38352d4bce2c35d6e764e4e9a"
+    },
+    {
+      "id": "B-37b3:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review complete. Fix is complete and coherent across all four layouts: (1) linked worktree → worktree list first entry = MAIN root (cache shared, confirmed by live git tests); (2) normal main checkout → worktree list first entry = checkout root, differs from commonDir (<checkout>/.git), byte-identical return (confirmed); (3) separate-git-dir / bare-backed → worktree list first entry equals commonDir (external storage), detected by resolve(mainWorktree)===commonDir guard, falls back to --show-toplevel = actual checkout (confirmed live); (4) non-git → outer catch returns searchOrigin unchanged. dirname import retained for mkdirSync(dirname(filePath)) on line 234, not dead. resolve import used on lines 122/124 in the guard, not dead. resolveLearningRoot private, called only by resolveLearningDir (single funnel, no split-brain). No gate/schema/package.json changes. Smoke test case 4 tests both separate-git-dir and bare-backed shapes with round-trip asserts. No concept deletion/replacement residue to check (this is a concept replacement within one file). No dead code, no stray imports, no doc-promise-undelivered. Clean — 0 findings.",
+      "createdAt": "2026-06-20T07:20:23.787Z",
+      "reviewRound": "2026-06-20T07:17:45.660Z",
+      "reviewRunId": "B-37b3:RR-004",
+      "_hash": "c70faee3ab41f3137128da409bb41b68d59955290b48e9028eb3546b85cb1316"
+    },
+    {
+      "id": "B-37b3:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none — dirname/resolve/execFileSync all used in production code; smoke test imports all used. Type safety: no unsafe any; empty catches are intentional and documented with proper fallback semantics (every branch reaches a safe return). I/O shell isolation: no new bridge.ts violations. TSC build clean. The one finding (F-002) is a low-severity comment inaccuracy in the smoke test; no code correctness issues.",
+      "createdAt": "2026-06-20T07:21:39.927Z",
+      "reviewRound": "2026-06-20T07:17:45.660Z",
+      "reviewRunId": "B-37b3:RR-005",
+      "_hash": "ba364743b42d5ed31e1c91ec5c8e3adce4dc5bb86e20bd8f69beaa1fd4dd9722"
+    },
+    {
+      "id": "B-37b3:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "F-002 resolved: commit a9c496f5 is comment-only (one file, zero executable lines changed). Updated comments in experience-hint-worktree-cache-smoke.ts now accurately describe the mechanism: git worktree list --porcelain first entry == external/bare gitdir == --git-common-dir for separate-git-dir and bare-backed layouts; resolveLearningRoot detects mainWorktree==commonDir and falls back to --show-toplevel for the actual checkout. Matches the implementation in learning-store.ts lines 114-124 exactly. No dead code, no type-safety issues, no I/O shell isolation issues. Clean, 0 findings.",
+      "createdAt": "2026-06-20T07:26:54.784Z",
+      "reviewRound": "2026-06-20T07:25:42.498Z",
+      "reviewRunId": "B-37b3:RR-008",
+      "_hash": "debc97a625517a03b622f4ef91f20c071fa2f07e3565201d3b75048125cfe79b"
+    },
+    {
+      "id": "B-37b3:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review: commit a9c496f5 is comment-only (all changed lines are // comment lines; zero executable/assertion/logic lines touched; confirmed via grep of non-comment diff lines returning empty). The corrected comments in both the section-4 header block and the bare-backed check block now accurately describe the mechanism: worktree list first entry == external/bare gitdir == --git-common-dir; resolveLearningRoot detects mainWorktree == commonDir and falls back to --show-toplevel (the actual checkout). No inverted or false claim remains. No dead code. No concept deletion/replacement in this diff. Scope: experience-hint-worktree-cache-smoke.ts comment correctness. 0 findings.",
+      "createdAt": "2026-06-20T07:27:10.590Z",
+      "reviewRound": "2026-06-20T07:25:42.498Z",
+      "reviewRunId": "B-37b3:RR-007",
+      "_hash": "d9fe6dcb6effefb771fa299349d20c6bd5c2f7b5d79a930d4f62b5d8e4caec2a"
+    },
+    {
+      "id": "B-37b3:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 8/8 intents covered (6 must, 2 should); 0 must-gaps; 0 waivers. Smoke ran live 6/6 checks, exit 0. Round-3 commit a9c496f5 is comment-only (block comments in checks 4+5 corrected); no assertion was weakened or removed.",
+      "createdAt": "2026-06-20T07:27:35.051Z",
+      "reviewRound": "2026-06-20T07:25:42.498Z",
+      "reviewRunId": "B-37b3:RR-009",
+      "_hash": "69eacf4f58bb2f94f28c802cf9a81e5d35d90458caaff29561a41a86738dab7c"
+    }
+  ]
+}

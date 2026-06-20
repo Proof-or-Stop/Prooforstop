@@ -1,0 +1,87 @@
+{
+  "storyId": "B-37b3",
+  "checkedAt": "2026-06-20T06:56:01.151Z",
+  "features": [
+    {
+      "feature": "Resolve learning-store cache directory to main repo root via git rev-parse --git-common-dir for BOTH read and write paths",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add resolveLearningRoot helper that runs git rev-parse --git-common-dir with cwd=root, resolves result to absolute parent dir",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fail-safe fallback: on ANY git-resolution failure (non-git dir, error, empty output) return passed root unchanged — never throw",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "All consumers (experience-hint-loader, learning_scan write, learning_validate, learning_effectiveness) inherit fix via learning-store, no schema/derivation/gate change",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke: worktree resolves and reads the main-checkout finding-signals cache (hasExperienceHints true, loadExperienceHints non-empty)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke control: non-git temp dir falls back to passed root — no throw, empty when cache absent",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing experience-layer / hint smokes remain green (full npm test passes)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep learning-store a leaf module (node builtins only, no cross-module imports)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Alternative: copy-or-symlink the cache into each worktree",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected alternative in decision.json: copy-or-symlink-cache-into-each-worktree — duplication + staleness hazard",
+      "source": "description"
+    },
+    {
+      "feature": "Alternative: resolve in each caller (story-review, learning handlers) and pass resolved root down",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected alternative in decision.json: resolve-in-each-caller-and-pass-down — must change every caller, easy to miss one, duplicated logic",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 8,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f1f15246e8c0c17e11ce73ddac3adf7cec7a49c53692869056f4f3c66f55e936",
+  "openQuestions": []
+}

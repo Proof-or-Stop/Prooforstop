@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3321",
+  "mode": "maintenance",
+  "allowed": [
+    "Define future implementation milestones and validation requirements",
+    "Use existing verified source references and current Lattice lifecycle docs",
+    "Write one execution-plan document for the DONE/full-test gate gap"
+  ],
+  "excluded": [
+    "Claim current npm test is red without running it",
+    "Implement runtime DONE gate changes in this story",
+    "Modify lattice.config.json validation commands in this story",
+    "Run destructive cleanup or touch unrelated active stories"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to write an execution plan document for the verified DONE/full npm test coverage gap.",
+  "createdAt": "2026-06-20T06:46:26.122Z",
+  "updatedAt": "2026-06-20T06:46:26.122Z",
+  "_hash": "7cdba194399977d917e0911f2a1a2a260d565a384e2eaee2955f051e391c6249"
+}

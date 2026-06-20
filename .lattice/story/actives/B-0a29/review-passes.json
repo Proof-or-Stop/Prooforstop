@@ -17,6 +17,123 @@
       "reviewRound": "2026-06-20T06:19:30.785Z",
       "reviewRunId": "B-0a29:RR-002",
       "_hash": "bcc82d361d4a7ab661b75e1135cc64be602d9dfa48f414108be59311dbd44434"
+    },
+    {
+      "id": "B-0a29:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review passed. Verified evidence generation now precedes reviewer orchestration, final reviewers bind to evidence snapshots, coverage lane depends on evidence snapshot, and SVG shows delivery PASS and done_prepare PASS before DONE.",
+      "createdAt": "2026-06-20T06:33:44.434Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-005",
+      "_hash": "bc299ad76b89b375df886a2542499ced89c2d91fbad2b1656cc7facfb32a6e35"
+    },
+    {
+      "id": "B-0a29:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage re-review passed. Verified CHK-002 edge semantic SVG evidence, replayed recorded rg commands without command-substitution stderr, and confirmed xmllint passes.",
+      "createdAt": "2026-06-20T06:33:50.762Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-007",
+      "_hash": "8c3a2253a34f9f673e2a906b65e6ee608bf6e7899b6e24c7b51b5084961321ee"
+    },
+    {
+      "id": "B-0a29:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs re-review passed. Verified NAV inclusion, done_prepare boundary, markdown/SVG agreement, no unsupported Authority or DONE claims, and no related-doc contradiction.",
+      "createdAt": "2026-06-20T06:34:08.649Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-008",
+      "_hash": "4c7a7c1ae36ad904f948c9eed0b036a9ad41fb7940213e6ae1cdf5d03d1ea324"
+    },
+    {
+      "id": "B-0a29:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final Round 3 test-coverage passed: 9/9 evidence commands replay with zero stderr, checklist remains 3/3 done with 9/9 passing evidence, and semantic coverage for updated flow/SVG and done_prepare boundary passed.",
+      "createdAt": "2026-06-20T06:42:03.359Z",
+      "reviewRound": "2026-06-20T06:29:59.586Z",
+      "reviewRunId": "B-0a29:RR-011",
+      "_hash": "0a289d7c13de511b8dce360781aacf768870a3f3619cef4732e30c1690cab955"
+    },
+    {
+      "id": "B-0a29:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept lane reviewed the final pipeline ordering, done_prepare delegation boundary, and Authority overclaim risk; no conceptual blocker found.",
+      "createdAt": "2026-06-20T07:07:33.614Z",
+      "reviewRound": "2026-06-20T07:02:14.013Z",
+      "reviewRunId": "B-0a29:RR-013",
+      "_hash": "16e0b7abcc58b208196c4d4457e4c3fd507012da405f543488d7726089692ea5"
+    },
+    {
+      "id": "B-0a29:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality lane verified delivery_check_set separation, REVIEW phase sequencing before review_run_start, typed canonical report rows, and no duplicate gate truth source.",
+      "createdAt": "2026-06-20T07:18:23.645Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-019",
+      "_hash": "e9fb4f02ca3a33ece07a6fd13d5caf02a37f781fa15b9099ca4b9cb9fd1b568a"
+    },
+    {
+      "id": "B-0a29:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage lane replayed all nine verificationEvidence commands successfully and verified strong per-marker assertions plus SVG XML validation.",
+      "createdAt": "2026-06-20T07:18:24.260Z",
+      "reviewRound": "2026-06-20T07:14:39.726Z",
+      "reviewRunId": "B-0a29:RR-020",
+      "_hash": "8dd373a73428b8d0eff289f13b82c39924f2aae148ec223539bf72b6bc6ae471"
+    },
+    {
+      "id": "B-0a29:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept lane verified current-bound done_prepare import, no second DONE truth source, fail-closed Authority boundary, and all prior findings resolved.",
+      "createdAt": "2026-06-20T07:25:49.391Z",
+      "reviewRound": "2026-06-20T07:21:37.237Z",
+      "reviewRunId": "B-0a29:RR-024",
+      "_hash": "e5e25e8dffc0930e95145c092d98b5d1031f9204d00ad62b767b3340755c3d30"
+    },
+    {
+      "id": "B-0a29:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage lane replayed all nine verificationEvidence commands and verified Step 0-7, strong assertions, SVG XML, delivery branch, done_prepare delegation, and REVIEW handoff.",
+      "createdAt": "2026-06-20T07:25:50.095Z",
+      "reviewRound": "2026-06-20T07:21:37.237Z",
+      "reviewRunId": "B-0a29:RR-022",
+      "_hash": "95456a6cf6b96c4c4eaf0f5241155214b3faa163896ed662fd76feb61c5cfacb"
+    },
+    {
+      "id": "B-0a29:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept lane verified bound done_prepare delegation, no second DONE truth source, fail-closed Authority boundary, underscore enum values, and SVG validity.",
+      "createdAt": "2026-06-20T07:33:09.440Z",
+      "reviewRound": "2026-06-20T07:28:34.073Z",
+      "reviewRunId": "B-0a29:RR-025",
+      "_hash": "ee4fffba79d470843fd53ff5b70a3074e6952b49ce205aa02223d14cbea21981"
+    },
+    {
+      "id": "B-0a29:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality lane verified canonical underscore freshness enum, delivery_check_set separation, REVIEW sequencing before reviewer lanes, and command ownership contracts.",
+      "createdAt": "2026-06-20T07:33:10.056Z",
+      "reviewRound": "2026-06-20T07:28:34.073Z",
+      "reviewRunId": "B-0a29:RR-028",
+      "_hash": "96fbcd02743bc4ac57b7b700428b04b529537c216db9dee4d0b8e69b8149d76c"
+    },
+    {
+      "id": "B-0a29:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage lane replayed all nine verificationEvidence commands at current HEAD and verified Step 0-7, enum assertions, SVG XML, delivery branch, and REVIEW handoff.",
+      "createdAt": "2026-06-20T07:33:10.636Z",
+      "reviewRound": "2026-06-20T07:28:34.073Z",
+      "reviewRunId": "B-0a29:RR-026",
+      "_hash": "55ea1c829e56e821e0027a287bf8fbe8174f624bd4744210d6b533c51c607617"
+    },
+    {
+      "id": "B-0a29:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane verified text flowchart, Mermaid, and SVG agreement on dirty/not-REVIEW stop, delivery branch, done_prepare delegation, and Step 7 handoff.",
+      "createdAt": "2026-06-20T07:33:11.232Z",
+      "reviewRound": "2026-06-20T07:28:34.073Z",
+      "reviewRunId": "B-0a29:RR-027",
+      "_hash": "fb27d98fe9c9c1276f7318f72a54fc620bc540276f26f7aa0a8866207c6a0633"
     }
   ]
 }

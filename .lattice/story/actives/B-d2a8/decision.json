@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Validate the nested parallelGate object field-by-field with a dedicated helper; never reuse the flat scalar path",
+    "Fail SOFT: any malformed sub-field warns once and falls back; a config error never crashes or DoSes resolution",
+    "Use the gate value set VALID_PARALLEL_MODES, not the AuditMode set; an invalid mode degrades to advise (the safe non-blocking mode)",
+    "Single source: import the value set and types from parallel-decomposition.ts; reuse the existing positive-integer guard"
+  ],
+  "drivers": [
+    "parallelGate is a nested object; the flat per-scalar override path does not recurse into it",
+    "mode advise|block|off is disjoint from AuditMode, so VALID_MODES cannot validate it",
+    "The strict profile must default broadGlobBlocks=true (hard-block broad globs); light and balanced default false"
+  ],
+  "options": [
+    {
+      "name": "dedicated-two-param-helper",
+      "pros": [
+        "Pure and decoupled (raw + explicit profileDefault), independently testable",
+        "Validates EVERY nested sub-field with its own guard and fallback",
+        "Reuses the existing positive-integer guard and warn-fallback discipline"
+      ],
+      "cons": [
+        "Minor deviation from the spec one-param illustration (documented)"
+      ]
+    },
+    {
+      "name": "spec-one-param-internal-lookup",
+      "pros": [
+        "Matches the spec signature literally"
+      ],
+      "cons": [
+        "Couples the helper to the profile-default table and WorkflowProfile, less pure, harder to unit-test in isolation"
+      ]
+    },
+    {
+      "name": "inline-nested-validation",
+      "pros": [
+        "No new helper"
+      ],
+      "cons": [
+        "Bloats resolveAuditConfig and is harder to test; risks mirroring the flat-pattern anti-pattern the spec warns against"
+      ]
+    }
+  ],
+  "chosen": "dedicated-two-param-helper",
+  "rationale": "A pure two-param helper validates the nested object completely and is independently testable; the spec one-param illustration is non-normative and would couple the helper to the profile-default table. It reuses the project positive-integer guard and warn-fallback discipline.",
+  "preMortem": [
+    {
+      "scenario": "A malformed config crashes resolveAuditConfig",
+      "trigger": "parallelGate is a non-object (string/array/number) and the helper indexes into it",
+      "consequence": "every audit-config consumer throws (a DoS)",
+      "mitigation": "resolveParallelGate guards !raw || typeof raw not object || Array.isArray(raw) and returns a copy of profileDefault; the smoke asserts a non-object parallelGate yields all profile defaults"
+    },
+    {
+      "scenario": "An invalid mode silently hard-blocks",
+      "trigger": "an unknown mode string slips through and is later treated as block",
+      "consequence": "a typo in config wrongly hard-blocks PLAN to DEV",
+      "mitigation": "mode is validated against VALID_PARALLEL_MODES; invalid warns and falls back to advise (the safe non-blocking value), never block; the smoke asserts invalid mode -> advise"
+    },
+    {
+      "scenario": "Nested sub-field checks are skipped",
+      "trigger": "copying the flat scalar pattern which does not recurse into parallelGate",
+      "consequence": "a bad maxConcurrentReview or broadGlobBlocks reaches the gate unvalidated",
+      "mitigation": "the dedicated helper validates EACH sub-field with its own guard; the smoke asserts a non-integer max and a non-boolean broadGlobBlocks each fall back"
+    },
+    {
+      "scenario": "The no-user-config path returns parallelGate undefined",
+      "trigger": "adding parallelGate only in the merged branch, not in profileDefaults (the early-return object)",
+      "consequence": "with no user config parallelGate is undefined and the gate gets no config (Story 5 would fail open)",
+      "mitigation": "parallelGate is added to profileDefaults AND the merged object; the smoke asserts each profile default resolves even with no user config"
+    },
+    {
+      "scenario": "Wrong value set used for validation",
+      "trigger": "validating mode against VALID_MODES (AuditMode)",
+      "consequence": "advise and block are rejected as invalid",
+      "mitigation": "validate against VALID_PARALLEL_MODES imported from parallel-decomposition.ts; the smoke asserts advise, block and off are all accepted"
+    }
+  ],
+  "timestamp": "2026-06-20T05:20:51.565Z"
+}

@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-3321:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: docs/requirements/decisions/done-full-test-gate-execution-plan.md covers the requested verification intent/evidence axes. Lines 284-293 list implementation validation commands; 295-302 define expected artifacts and stale behavior; 304-308 define negative failing/missing/advisory cases, with stale also covered in smoke cases at 237-240 and gate semantics at 147-150/206-212; 310-327 mandates 3 distinct rounds with 2 independent hosts per round over final material/policy hashes and labels degraded single-host as lower assurance.",
+      "createdAt": "2026-06-20T07:01:04.499Z",
+      "reviewRound": "2026-06-20T06:58:54.090Z",
+      "reviewRunId": "B-3321:RR-003",
+      "_hash": "70d4c1bfb3c7d9e77f554b38ee3eb8e315053c468acf3bc66ca8494e66dcc378"
+    },
+    {
+      "id": "B-3321:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS re-review: final document resolves B-3321:F-001/F-002/F-003 conceptually. It now states the current pre-push boundary accurately, including no root npm test and no current self-host build+tsc assurance until the @koala-agent/core/@lattice-agent/core boundary is fixed; requires process-fact-registry.ts, process-fact-levels.ts, and verify-process-fact-contract.mjs registration for the new DONE-required gate evidence; and requires same-material packages/main build proof before root npm test or equivalent pretest/build receipt. Reviewed docs/requirements/decisions/done-full-test-gate-execution-plan.md lines 16-18, 70, 160-168, 178, 201-202, 242-248, 252-259, 293-301, 320-345.",
+      "createdAt": "2026-06-20T07:10:53.722Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-006",
+      "_hash": "268d1db02f086518e9633444fb920739aab5926c59d89f54be6b765cdd3a400b"
+    },
+    {
+      "id": "B-3321:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review pass: final document covers missing/failing/stale DONE-required evidence, same-material build receipt before root npm test, negative validation cases for failing/missing/stale build and external advisory behavior, process-fact registry/levels/verify-process-fact-contract coverage, and 3 distinct rounds with 2 independent canonical hosts over final material hash. Source-anchor spot checks matched validate.commands fallback suppression, TEST test-evidence write, DONE test-evidence consumption, and current pre-push self-host boundary.",
+      "createdAt": "2026-06-20T07:11:05.666Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-008",
+      "_hash": "700fd5d5df3457cbfbe3ddf7b11efd4083e5fa30048bc818a8c553ba9b56e6e3"
+    },
+    {
+      "id": "B-3321:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs/requirements/decisions/done-full-test-gate-execution-plan.md:162 aligns gate-consumed DONE-required evidence with AGENTS process fact discipline; docs/requirements/decisions/done-full-test-gate-execution-plan.md:164 requires process-fact-registry, process-fact-levels, and verify-process-fact-contract coverage. docs/requirements/decisions/done-full-test-gate-execution-plan.md:354 uses canonical hosts Codex CLI, Claude Code CLI, and Antigravity CLI (agy); rg found no Gemini/gemini terminology in the document.",
+      "createdAt": "2026-06-20T07:11:21.341Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-007",
+      "_hash": "097eb994a4a837ab399c7a7bc88ca480e84d6942cc5a71f8607786fba5fbab07"
+    },
+    {
+      "id": "B-3321:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Re-reviewed final document and resolved findings. F-003 build/dist freshness gap is handled strongly enough: doc requires same-material npm --prefix packages/main run build receipt before root npm test or equivalent pretest/build receipt, blocks DONE when build proof is missing/stale, includes policy/command-set freshness, process-fact registry coverage, and negative tests for stale/missing build receipt. No new blocking findings.",
+      "createdAt": "2026-06-20T07:12:12.253Z",
+      "reviewRound": "2026-06-20T07:09:05.747Z",
+      "reviewRunId": "B-3321:RR-010",
+      "_hash": "86eea6012ce21d3eb440a8cc2a5ece0a2dffe3df3ac418bf6d10f4dacd0db42c"
+    }
+  ]
+}

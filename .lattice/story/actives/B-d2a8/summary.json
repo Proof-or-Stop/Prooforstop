@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d2a8",
+  "changes": "Added the parallel-decomposition gate CONFIG layer (spec §4.7): resolveParallelGate(raw, profileDefault) in audit-config.ts — a thin total wrapper over readParallelGateFields that validates a nested {mode,maxConcurrentReview,broadGlobBlocks} object field-by-field with per-field warn+fallback, plus per-profile defaults (light advise/2/false, balanced advise/3/false, strict block/4/true) wired into resolveAuditConfig. Hardened to be provably total (Object.hasOwn presence, describeInvalidValue used for every untrusted-input rendering incl. the catch err). New hermetic 82-assertion smoke; spec §4.7 and lattice.config.json updated.",
+  "usage": "Operators set parallelGate in .lattice/audit-config.json (per-field override over profile defaults); resolveAuditConfig(profile, projectRoot).parallelGate returns the resolved {mode,maxConcurrentReview,broadGlobBlocks}. mode 'off' is the reversible escape hatch; any present-but-invalid value warns and falls back without ever crashing the gate.",
+  "expectedOutcome": "lattice validate runs all 9 commands green, including 'parallel-gate-config smoke passed: 82 assertions'. resolveParallelGate never throws for any input and never silently promotes a default to 'block'.",
+  "actualTranscript": "lattice validate: 9/9 commands green; parallel-gate-config-smoke.js prints 'parallel-gate-config smoke passed: 82 assertions' (exit 0). Full multi-round genuine dual-host review (Claude lanes + Codex host-2) drove findings F-001..F-026 to resolution; rounds 6 and 7 both returned PASS from Codex and all Claude lanes.",
+  "outcomeDiff": "none — expected and actual match: 82 assertions pass, validate green, totality and per-profile defaults confirmed by both hosts.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The exotic-input hardening (bigint/circular/revoked-Proxy/hostile-trap) is defense-in-depth beyond the JSON-config contract (config always comes from JSON.parse, so those values are unreachable in production); it honors the function's exported never-throw contract. The broad outer try/catch is a deliberate, documented tradeoff (F-025 accepted_risk).",
+  "pitfalls": "Presence MUST use Object.hasOwn, not 'key in r' (prototype-chain leak silently promotes defaults to block). Every rendering of untrusted input must go through describeInvalidValue (JSON.stringify/instanceof/String/toString all throw on exotic values). Sub-fields must be read ONCE into a const before validate+assign to avoid a hostile-getter guard/assign TOCTOU.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 164100
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 691
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 555532
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 760573
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 3797290
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 367189
+    }
+  },
+  "totalDurationMs": 5645376,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-20T06:50:36.887Z",
+  "updatedAt": "2026-06-20T06:50:36.887Z"
+}

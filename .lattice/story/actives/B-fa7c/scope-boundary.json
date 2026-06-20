@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fa7c",
+  "mode": "feature",
+  "allowed": [
+    "core/lattice-parallel-wave.ts: add scope_glob_overlap degradation kind to resolveWaveSafety + compute peer write-set overlaps at the storyRef() call site",
+    "handlers/story-review.ts: inject evaluateDecompositionGate().advisories as severity advisory issues",
+    "lattice.config.json: register the new smoke in validate.commands",
+    "packages/main/src/tasks/<new>-smoke.ts: hermetic smoke for both advisory surfaces"
+  ],
+  "excluded": [
+    "any change to parallel-decomposition.ts contract, parallel-decomposition-overlap.ts, parallel-decomposition-gate.ts, or audit-config.ts (Stories 0-3, frozen/DONE)",
+    "machine.ts canStartDevGuard / getGuardFailureReason hard PLAN→DEV block (that is Story 5)",
+    "raising blockerCount or altering signed review.json from the advisory injection"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Program Story 4 per docs/parallel-decomposition-spec.md §8 line 719 + §4.3 items 3-4: advisory-only wave + REVIEW wiring.",
+  "createdAt": "2026-06-20T06:57:30.018Z",
+  "updatedAt": "2026-06-20T06:57:30.018Z",
+  "_hash": "8f91ff3a7606b52853211721aab6ac42973135e14f60e76ef7c1566ce70e5376"
+}

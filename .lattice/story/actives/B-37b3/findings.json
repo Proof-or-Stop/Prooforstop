@@ -1,0 +1,47 @@
+{
+  "findings": [
+    {
+      "id": "B-37b3:F-001",
+      "desc": "codex host-2: resolveLearningRoot (learning-store.ts:~85) uses dirname(resolve(searchOrigin, git rev-parse --git-common-dir)), which assumes the git common dir lives inside the main checkout (<main>/.git). True for normal checkout + linked worktrees (Orchestrate normal usage), but FALSE for .git-file layouts: git init --separate-git-dir and bare-backed worktrees point --git-common-dir at external git storage, so the resolver returns <storage-parent>/.lattice/learning instead of the checkout root — a correctness regression for those valid git layouts (changes plain-checkout behavior). Fix: resolve the MAIN worktree root via git worktree list --porcelain (first worktree entry), fallback to searchOrigin; that reports actual checkout paths in all layouts.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T07:09:06.070Z",
+      "reviewRound": "2026-06-20T07:04:00.628Z",
+      "_hash": "64b232b4573fcea9731b1da69cac4b5afc4eb206540c463c12959841f77378a6",
+      "files": [
+        "packages/main/src/core/learning-store.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-resolvelearningroot",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e4e278b2: resolveLearningRoot now resolves the main root via git worktree list --porcelain (first entry) when it is a genuine working tree (differs from --git-common-dir; covers normal + linked worktrees -> MAIN root), and falls back to git rev-parse --show-toplevel for separate-git-dir / bare-backed layouts (the actual checkout), with a final fallback to searchOrigin. Smoke extended to 6 checks incl. separate-git-dir + bare-backed; RED/GREEN verified.",
+      "resolvedAt": "2026-06-20T07:17:57.278Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-37b3:F-002",
+      "desc": "misleading-comment: experience-hint-worktree-cache-smoke.ts:290-292 states \"git worktree list reports the worktree checkout as the first (main) entry\" for a bare-backed worktree — this is factually wrong; git actually reports the BARE REPO dir as the first entry (tagged bare), so the code reaches the correct result via the --show-toplevel fallback, not the first-entry path. The comment inverts the mechanism, misleading future readers about why this case works.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-20T07:21:32.965Z",
+      "reviewRound": "2026-06-20T07:17:45.660Z",
+      "reviewRunId": "B-37b3:RR-005",
+      "_hash": "1293a74487f27f14f37374f876130d9c83ca3120bfdbf312940b5ebc0fc094b5",
+      "files": [
+        "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|misleading-comment-experience",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a9c496f5: corrected the bare-backed + separate-git-dir comments to describe the real mechanism (git worktree list first entry is the external/bare gitdir == --git-common-dir; resolveLearningRoot detects mainWorktree==commonDir and falls back to git rev-parse --show-toplevel). Comment-only; logic unchanged; smoke 6/6.",
+      "resolvedAt": "2026-06-20T07:25:43.393Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
