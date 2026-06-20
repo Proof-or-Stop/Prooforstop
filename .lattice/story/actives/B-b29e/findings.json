@@ -22,6 +22,23 @@
       "resolvedAt": "2026-06-20T10:25:41.075Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b29e:F-002",
+      "desc": "MAJOR: the drift check asserts the 3 producer facts NAME the parallel gate (presence, non-vacuous) but does NOT assert EXCLUSIVITY — if scope_contract_check (or any non-producer) re-adds a gateConsumer containing 'parallel-decomposition DEV-entry gate', the check still passes. So it does not protect against the exact Round-1 over-registration regression it just fixed. Fix: after the required-producer loop, collect ALL process-fact entries whose gateConsumer matches the parallel-decomposition pattern and assert the sorted command set equals exactly [scope_contract_acknowledge, scope_contract_init_from_plan, scope_contract_set] (or at minimum explicitly assert scope_contract_check does NOT match).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-20T10:28:07.285Z",
+      "reviewRound": "2026-06-20T10:14:09.997Z",
+      "_hash": "d884f26ab6159933af599ccc4b57b3f53514b625da4eb58961cc19cf88dbb28f",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|major-drift-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
