@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-20T11:36:07.243Z",
       "reviewRunId": "B-ac25:RR-030",
       "_hash": "c37c2a736a24db10f697598abd7c6953caf6c937ec110e03dc95241580841f93"
+    },
+    {
+      "id": "B-ac25:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS. Coverage includes the new F-006 lifecycle-registry contract assertions plus DONE-required smoke cases for receipt coverage/identity/status, build-proof policy, stale headHash, stale storyFilesHash, stale materialHash, policy drift, and command-set drift. Verified with node scripts/verify-process-fact-contract.mjs and node packages/main/dist/tasks/done-required-validation-smoke.js after rebuilding packages/main.",
+      "createdAt": "2026-06-20T11:38:52.879Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-031",
+      "_hash": "be0c1346e509c019f49203512924e4d7652c8d10aea7b817e0775924bbe472ab"
     }
   ]
 }
