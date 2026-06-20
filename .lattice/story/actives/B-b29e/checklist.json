@@ -86,7 +86,39 @@
       "context": "scripts/verify-process-fact-contract.mjs (run via npm --prefix . run test:process-fact-contract; not in lattice validate): add assertions that the parallel DEV-entry gate (canSkipPlan / canReenterDev / parallelDevEntryBlock) is registered as a scope-contract-fact consumer, so future divergence between machine.ts and the metadata is caught. The check must pass after the CHK-001/002 updates.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix . run test:process-fact-contract passes WITH a new assertion that the parallel DEV-entry gate (canSkipPlan/canReenterDev/parallelDevEntryBlock) is registered as a scope-contract-fact consumer; WHY: the gate is now mechanically protected from drift",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the new assertion reads the ACTUAL registration (not a constant) and FAILS if the parallel gate is removed from the metadata; WHY: a tautological assertion gives false confidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "temporarily removing the registration makes test:process-fact-contract FAIL, then restoring makes it pass -> the check genuinely guards the registration; WHY: prove the drift gate is real",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
