@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-20T11:36:07.243Z",
       "reviewRunId": "B-ac25:RR-029",
       "_hash": "f1a962de00fea8de57172e6a6824a57cd0cbd74ff10f46df094414901f890d11"
+    },
+    {
+      "id": "B-ac25:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "PASS. The F-006 regression hole is closed in scripts/verify-process-fact-contract.mjs: it now asserts lifecycle artifact registration, TEST produces, DONE consumes, and the done-required-validation oracle artifact ref. Source inspection plus node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run build, and done-required smoke passed.",
+      "createdAt": "2026-06-20T11:38:38.962Z",
+      "reviewRound": "2026-06-20T11:36:07.243Z",
+      "reviewRunId": "B-ac25:RR-030",
+      "_hash": "c37c2a736a24db10f697598abd7c6953caf6c937ec110e03dc95241580841f93"
     }
   ]
 }
