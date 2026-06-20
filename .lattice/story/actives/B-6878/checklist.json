@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a single null-prototype whitelist chokepoint helper + apply at the two usage-ledger entry points",
+      "context": "Per spec Option 2 (PREFERRED). Add ONE shared helper (e.g. toOwnPropsNullProto(obj, whitelist): projects only own-property whitelisted keys into an Object.create(null) object) in core/usage-ledger/adapters/shared.ts or a new core/usage-ledger/sanitize.ts (leaf; no cross-module imports beyond node builtins). Apply it ONCE at the two entry points so all downstream reads see a null-proto object: (1) extractRawUsage in core/usage-ledger/assemble.ts (providerResponse cast from unknown — most load-bearing; also handle options.usage ?? {} default), (2) the anthropic extract path in core/usage-ledger/dispatch-usage.ts (envelope.usage / nested usage). Enumerate the per-provider whitelist from existing adapters (anthropic: input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens; openai: prompt_tokens/completion_tokens/prompt_tokens_details(+cached_tokens); gemini: promptTokenCount/candidatesTokenCount/cachedContentTokenCount). Re-locate exact lines by symbol. Mirror B-30c3 semantics. Do NOT change the B-253e validator / four-field accounting / record shapes; do NOT redo providers/codex-cli.ts or providers/gemini-cli.ts.",
+      "userSees": "A single shared chokepoint helper exists and is applied at extractRawUsage (assemble.ts) and the anthropic extract (dispatch-usage.ts); downstream adapter/streaming reads see a null-prototype, whitelist-only object. node packages/main/dist/tasks/<smoke>.js exits 0; full npm test exits 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Convert the residual prototype-chain `in` operators to own-property checks (the belt)",
+      "context": "The cheap belt complementing the chokepoint. Convert residual `in` operators (and any dot/bracket reads not covered by the chokepoint) on externally-derived usage objects to Object.prototype.hasOwnProperty.call(obj, key): core/usage-ledger/assemble.ts (extractRawUsage `if (key in response)` — if the chokepoint already replaces it, note that), core/usage-ledger/record.ts (validator `if (!(field in usage))`), core/usage-ledger/adapters/openai.ts (`cached_tokens in details`), core/usage-ledger/adapters/shared.ts (shared cached_tokens helper), core/usage-ledger/streaming.ts (the start/delta merge `in` checks). Re-locate by symbol. Behavior identical for legitimate own-property data (only inherited values change). Optional/lower: diagnostics.ts internal-table bracket lookups — harden ONLY if trivial (internal enums/model ids, not external parsed data, not token-value surfaces).",
+      "userSees": "A grep shows no remaining `key in obj` prototype-chain reads on externally-derived usage objects across assemble/record/adapters/streaming (own-property checks or routed via the chokepoint). Behavior for legitimate own-property usage data is unchanged. npm test exits 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke: prototype-pollution defense across all paths + the chokepoint helper",
+      "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered + npm wired) that: (a) for EACH of anthropic / openai / gemini AND the streaming and estimate paths, pollutes Object.prototype with each token key inside a try/finally (ALWAYS restore in finally) and asserts NO inherited value reaches a persisted ledger record — the surfaced record carries only own-property, whitelisted token fields; absent fields stay absent/unavailable (drive the REAL assemble/dispatch/record path, not a stub); (b) asserts the chokepoint helper returns a null-prototype object (Object.getPrototypeOf === null) and DROPS non-whitelisted own keys (parallel to the B-30c3 codex/gemini smoke). Each pollution assertion must be load-bearing (fail if the chokepoint/own-prop guard were removed). Bump the printed check count.",
+      "userSees": "node packages/main/dist/tasks/<proto-pollution smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain; the pollution assertions fail against the pre-hardening code.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
