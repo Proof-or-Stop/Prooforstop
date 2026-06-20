@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0607",
+  "checkedAt": "2026-06-20T17:17:41.685Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "c79f73a58adf90ac38d9f9388968ee7b1becc49c4e62046095a3f793af1813db",
+  "executionBoundaryHash": "de0de35246bac7700fdb7a7750183fe9d55747e8541fe6aa9c0758eeac5790c0",
+  "freshnessHash": "a5d0fc780fac5b35c698cfdb1892bc8b7ffb7a0f554400a70ebbd0392dcbdca1",
+  "effectiveExcludedKeywords": [
+    ".lattice/learning/** data regeneration",
+    "Authority Server changes",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "production receipt claims",
+    "signature_backfill rerun"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".lattice/learning/** data regeneration",
+      "source": "scopeBoundary.excluded",
+      "text": ".lattice/learning/** data regeneration",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority Server changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server changes",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/**",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/tests/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/tests/**",
+      "excluded": true
+    },
+    {
+      "keyword": "production receipt claims",
+      "source": "scopeBoundary.excluded",
+      "text": "production receipt claims",
+      "excluded": true
+    },
+    {
+      "keyword": "signature_backfill rerun",
+      "source": "scopeBoundary.excluded",
+      "text": "signature_backfill rerun",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ddf548efeb31b0bb796783898c5f80665ef505230ba49a39d19878f1be01e68e"
+}
