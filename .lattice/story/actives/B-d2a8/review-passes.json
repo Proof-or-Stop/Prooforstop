@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d2a8:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed audit-config.ts resolveParallelGate + resolveAuditConfig parallelGate population. All focused checks pass: non-object guard (!raw||typeof!==object||Array.isArray) is correct (null caught by !raw); mode uses VALID_PARALLEL_MODES (not VALID_MODES) with advise fallback (never blocks); integer guard (Number.isFinite outer, !Number.isInteger||m<=0 inner) correctly rejects 0/negative/float/Infinity/NaN; broadGlobBlocks boolean-typed; missing sub-fields keep profile default via spread-init; resolveParallelGate returns fresh spread objects in both paths (no shared-ref mutation); profileDefaults.parallelGate spreads the PARALLEL_GATE_PROFILE_DEFAULTS table row; non-null assertion at line 180 is sound (parallelGate always populated at line 129); no dead code; no import unused; config-load never throws. One low finding registered (F-006): empty catch in smoke test cleanup finally block.",
+      "createdAt": "2026-06-20T05:34:48.037Z",
+      "reviewRound": "2026-06-20T05:32:14.031Z",
+      "reviewRunId": "B-d2a8:RR-001",
+      "_hash": "fab8dbea94cf4ce3b308bbd79317d02c129f8685c01f475988fcc6bd29dddd7f"
+    }
+  ]
+}
