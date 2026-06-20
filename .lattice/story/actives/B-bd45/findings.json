@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/lifecycle-readiness.ts:285 buildReviewGateRows does not mirror the real REVIEW→TEST gate for required active reviewer lanes. After any valid reviewer pass/finding exists, the readiness report only checks invalid bindings and open blocking findings, then emits no_open_blocking_review_findings at lines 335-344. The actual gate in packages/main/src/core/machine.ts:564-585 requires every opt-in reviewer lane in round 1 and quorum evaluation. This can make lifecycle_check report localReady or missing only validation while concept/quality/test-coverage lanes are still absent, violating the proof-or-stop contract and giving unsafe next-action guidance.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-20T21:06:11.467Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ea1ad1ab9: lifecycle_check now derives required lanes from computeActiveReviewers and mirrors reviewer quorum via evaluateReviewerQuorum; build and lifecycle-check smoke pass.",
+      "resolvedAt": "2026-06-20T21:13:34.335Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bd45:F-002",
