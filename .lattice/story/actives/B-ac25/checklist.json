@@ -57,10 +57,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Config schema and normalization implemented in core/config.ts and core/done-required-validation.ts; smoke proves configured policy normalizes separately from ordinary validate.commands.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke proves projects without doneRequiredCommands render advisory/non-blocking DONE-required status.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,10 +79,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact verifier pins malformed opted-in policy fail-closed semantics through done_required_validate policy/contract tokens.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -142,10 +142,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke exercises done_required_validate runner writing done-required-evidence.json with PASS receipts for configured required commands.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -153,10 +153,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke runs a failing required command and asserts a FAIL artifact with exit code and blocking evaluation.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -164,10 +164,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke proves root npm test receipt without preceding same-material packages/main build proof is rejected with missing-build-proof.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -225,10 +225,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke verifies a fresh PASS done-required-evidence.json makes the dedicated DONE-required row pass.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,10 +236,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke verifies projects without a required policy render advisory/non-blocking DONE-required status.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -247,10 +247,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke verifies required policy blocks on missing artifact, failing artifact, stale material, policy drift, command-set drift, and missing build proof.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -308,10 +308,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier confirms done_required_validate and artifact:done-required-evidence.json are registered as L4 gate evidence with required semantics.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -319,10 +319,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier has targeted assertions for command policy, registry artifact path, semantic facts, and oracle row tokens so removal/downgrade fails the contract.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -330,10 +330,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier and command policy assert no Authority receipt completion, productionDone, release approval, or remote publish claim for done_required_validate.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -391,10 +391,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke proves ordinary test-evidence PASS can coexist with missing DONE-required artifact that blocks required policy.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -402,10 +402,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke covers missing artifact, stale material, policy drift, command-set drift, and missing build receipt rejection.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -413,10 +413,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Smoke covers fixture project without doneRequiredCommands and asserts advisory/non-blocking DONE-required row.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -479,10 +479,10 @@
           "command": "rg -n \"routine validation evidence|DONE-required evidence|done_required_validate\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
           "result": "pass",
           "note": "Docs distinguish lattice validate as routine TEST evidence from done_required_validate as separate DONE-required evidence.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -490,10 +490,10 @@
           "command": "rg -n \"advisory/non-blocking|advisory and non-blocking|no full-suite claim\" docs/requirements/decisions/done-full-test-gate-execution-plan.md docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md",
           "result": "pass",
           "note": "Docs state external projects without doneRequiredCommands are advisory/non-blocking and must not claim full-suite assurance.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -501,10 +501,10 @@
           "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
           "result": "pass",
           "note": "Changed docs explicitly say this story does not implement release approval, pre-push, Authority, or production receipt behavior; changed-file check confirms those implementation surfaces were not touched.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     },
@@ -565,10 +565,10 @@
           "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); if(!Array.isArray(cfg.doneRequiredCommands)||cfg.doneRequiredCommands.length!==2) throw new Error(\\\"doneRequiredCommands missing\\\"); const a=cfg.doneRequiredCommands[0], b=cfg.doneRequiredCommands[1]; if(a.command!==\\\"npm\\\"||a.args.join(\\\" \\\")!==\\\"--prefix packages/main run build\\\") throw new Error(\\\"missing packages/main build first\\\"); if(b.command!==\\\"npm\\\"||b.args.join(\\\" \\\")!==\\\"test\\\") throw new Error(\\\"missing root npm test second\\\"); console.log(\\\"self-host doneRequiredCommands config ok\\\");\"",
           "result": "pass",
           "note": "Self-host lattice.config.json opts into DONE-required policy with packages/main build before root npm test.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -576,10 +576,10 @@
           "command": "node -e \"const fs=require(\\\"fs\\\"); const cfg=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\")); const validate=(cfg.validate&&cfg.validate.commands)||[]; if(validate.some(x=>typeof x===\\\"string\\\"?x===\\\"npm test\\\":x.command===\\\"npm\\\"&&Array.isArray(x.args)&&x.args.join(\\\" \\\")===\\\"test\\\")) throw new Error(\\\"root npm test leaked into validate.commands\\\"); console.log(\\\"validate.commands unchanged by full-suite requirement\\\");\" && node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Root npm test is not in ordinary validate.commands; smoke proves external projects without policy remain advisory/non-blocking.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -587,10 +587,10 @@
           "command": "git diff --name-only main...HEAD | rg \"^(\\.githooks/pre-push|packages/main/src/handlers/release|packages/main/src/.+authority|packages/main/src/core/.+authority)\" && exit 1 || echo \"no release/pre-push/authority implementation files changed\"",
           "result": "pass",
           "note": "Self-host config change did not touch release_approve_push, pre-push hook, or Authority production receipt implementation files.",
-          "headHash": "145f62338867137cf01cdd3dfec1ab813b1aff41",
-          "materialHash": "ffe356f40669da28dfc8f32553c2dee998617b9a135401496cdf1ec5c83b59de",
-          "storyFilesHash": "6d2a731eb05e865bbf8534264dc4ca0ddde8c68fb8ba809f86d48b40d29a1c5e",
-          "timestamp": "2026-06-20T10:34:41.918Z"
+          "headHash": "89224d04db664415b94e23452cf911d3c23cade2",
+          "materialHash": "98fb611b297f357c6818c7d734195436e76d37a68f0a9affe6d973efeb3e9aad",
+          "storyFilesHash": "8e7d3a534805da3c17f8b147c84c181946765d507a8b0c3fb35398ac6ad4406e",
+          "timestamp": "2026-06-20T10:48:06.171Z"
         }
       ]
     }
