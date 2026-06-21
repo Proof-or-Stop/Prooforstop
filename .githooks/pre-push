@@ -21,8 +21,8 @@
 #   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
 #      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
 #      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
-#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@koala-agent/core`
-#      → 确实非 koala 自举仓 → exit 0 放行。
+#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@lattice/core`
+#      → 确实非 Lattice 自举仓 → exit 0 放行。
 # 注意：本仓是扁平布局 `packages/main`，不是 `packages/koala/packages/main`。
 #
 # 递归 tsc：find REPO_ROOT 下所有 tsconfig.json（排除黑名单目录），对每个所在
@@ -138,19 +138,19 @@ fi
 # koala 自举仓——此时 **不能 fail-open**：静默 exit 0 会让 tsc gate 被无声绕过
 # （F-002）。改为 fail-closed：打印明确警告并 exit 1 拒绝 push。
 if ! command -v node >/dev/null 2>&1; then
-  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the koala self-host repo." >&2
+  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the Lattice self-host repo." >&2
   echo "[pre-push] Refusing push (fail-closed): the recursive tsc gate cannot run without node." >&2
   echo "[pre-push] Install node and retry, or bypass intentionally with 'git push --no-verify'." >&2
   exit 1
 fi
 
 PKG_NAME="$(node -e "try{process.stdout.write(String(JSON.parse(require('fs').readFileSync(process.argv[1],'utf-8')).name||''))}catch(e){process.stdout.write('')}" "$MAIN_PKG" 2>/dev/null)"
-if [ "$PKG_NAME" != "@koala-agent/core" ]; then
-  # packages/main 不是 koala 自身：立即放行
+if [ "$PKG_NAME" != "@lattice/core" ]; then
+  # packages/main 不是 Lattice 自身：立即放行
   exit 0
 fi
 
-echo "[pre-push] koala self-host repo detected — running recursive tsc gate"
+echo "[pre-push] Lattice self-host repo detected — running recursive tsc gate"
 
 # --- 构建顺序约束：先确保 packages/main 已构建（packages/utils 依赖其 dist） ---
 echo "[pre-push] building packages/main (packages/utils imports its dist output)..."

@@ -3,6 +3,11 @@
   "version": "0.3.36",
   "description": "",
   "main": "index.js",
+  "workspaces": [
+    "packages/main",
+    "packages/utils",
+    "packages/lab"
+  ],
   "directories": {
     "doc": "docs"
   },

@@ -17,7 +17,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
-export const PROMPT_REGISTRY_SOURCE = '@lattice-agent/core/templates/agents';
+export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide

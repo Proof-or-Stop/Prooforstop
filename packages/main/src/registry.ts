@@ -1,7 +1,7 @@
 /**
  * Handler Registry — Lattice 的工具注册中心
  *
- * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice-agent/utils）
+ * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice/utils）
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
  * 而 main 自身完全不知道这些扩展包的存在。
  *
@@ -144,7 +144,7 @@ export class Registry {
 /**
  * 创建 main 内置的 Registry，只注册流程相关的 handler。
  *
- * 辅助工具（aux/truth/gap 等）已移到 @lattice-agent/utils 包，
+ * 辅助工具（aux/truth/gap 等）已移到 @lattice/utils 包，
  * 由 bootstrap 脚本调用 utils 的 register() 函数追加注入。
  */
 export function createMainRegistry(ctx: HandlerContext): Registry {

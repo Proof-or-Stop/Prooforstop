@@ -2618,7 +2618,7 @@ function assertGlobalLinkRepair(): void {
     const worktree = join(root, 'repo', '.worktrees', 'B-smoke');
     const worktreePackage = join(worktree, 'packages', 'main');
     const mainPackage = join(mainRepo, 'packages', 'main');
-    const globalPackage = join(root, 'global', 'node_modules', '@lattice-agent', 'core');
+    const globalPackage = join(root, 'global', 'node_modules', '@lattice', 'core');
     mkdirSync(worktreePackage, { recursive: true });
     mkdirSync(mainPackage, { recursive: true });
     mkdirSync(dirname(globalPackage), { recursive: true });
@@ -2630,7 +2630,7 @@ function assertGlobalLinkRepair(): void {
     assert.equal(resolve(dirname(globalPackage), readlinkSync(globalPackage)), resolve(mainPackage));
 
     const otherPackage = join(root, 'other', 'packages', 'main');
-    const otherGlobalPackage = join(root, 'other-global', 'node_modules', '@koala-agent', 'core');
+    const otherGlobalPackage = join(root, 'other-global', 'node_modules', '@lattice', 'core');
     mkdirSync(otherPackage, { recursive: true });
     mkdirSync(dirname(otherGlobalPackage), { recursive: true });
     symlinkSync(otherPackage, otherGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
@@ -2638,14 +2638,14 @@ function assertGlobalLinkRepair(): void {
     assert.equal(skipped.action, 'skipped');
     assert.equal(resolve(dirname(otherGlobalPackage), readlinkSync(otherGlobalPackage)), resolve(otherPackage));
 
-    const normalInstall = join(root, 'normal-global', 'node_modules', '@koala-agent', 'core');
+    const normalInstall = join(root, 'normal-global', 'node_modules', '@lattice', 'core');
     mkdirSync(normalInstall, { recursive: true });
     const normalSkipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
     assert.equal(normalSkipped.action, 'skipped');
     assert.equal(existsSync(normalInstall), true);
     assert.equal(lstatSync(normalInstall).isDirectory(), true);
 
-    const failingGlobalPackage = join(root, 'failing-global', 'node_modules', '@koala-agent', 'core');
+    const failingGlobalPackage = join(root, 'failing-global', 'node_modules', '@lattice', 'core');
     mkdirSync(dirname(failingGlobalPackage), { recursive: true });
     symlinkSync(worktreePackage, failingGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 

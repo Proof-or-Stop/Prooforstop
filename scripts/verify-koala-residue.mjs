@@ -277,13 +277,37 @@ function listScopeFiles() {
 // Scan.
 // ---------------------------------------------------------------------------
 
+/**
+ * Legacy npm-scope guard (B-3523).
+ *
+ * After the @lattice-agent -> @lattice rename, the old transitional scope
+ * `@lattice-agent` must not survive as a LIVE reference anywhere in the active
+ * source surface. The only permitted mentions are anti-residue assertions that
+ * name `@lattice-agent` precisely to forbid it (verifier `should not` / `must
+ * not` lines). classifyLegacyScope() returns:
+ *   - 'NONE'         no @lattice-agent token on the line
+ *   - 'EXEMPT'       @lattice-agent present only inside an anti-residue assertion
+ *   - 'UNCLASSIFIED' a live @lattice-agent reference -> residue
+ */
+const LEGACY_SCOPE_ANTI_RESIDUE = /(?:should not|must not|not depend|not search|not resolve|not advertise|forbid|legacy @lattice-agent)/i;
+
+/**
+ * @param {string} line
+ * @returns {'UNCLASSIFIED' | 'EXEMPT' | 'NONE'}
+ */
+export function classifyLegacyScope(line) {
+  if (!/@lattice-agent\b/.test(line)) return 'NONE';
+  return LEGACY_SCOPE_ANTI_RESIDUE.test(line) ? 'EXEMPT' : 'UNCLASSIFIED';
+}
+
 function runScan() {
   const files = listScopeFiles();
   /** @type {string[]} */
   const hits = [];
+  /** @type {string[]} */
+  const legacyScopeHits = [];
 
   for (const rel of files) {
-    if (LEGACY_LOGIC_FILES.has(rel)) continue; // documented whole-file exception
     const abs = join(repoRoot, rel);
     let content;
     try {
@@ -294,19 +318,34 @@ function runScan() {
     }
     const lines = content.split('\n');
     for (let i = 0; i < lines.length; i++) {
-      if (classify(lines[i]) === 'UNCLASSIFIED') {
+      if (!LEGACY_LOGIC_FILES.has(rel) && classify(lines[i]) === 'UNCLASSIFIED') {
         hits.push(`${rel}:${i + 1}: ${lines[i].trim()}`);
+      }
+      // The @lattice-agent legacy-scope guard runs over EVERY active-scope file
+      // (including LEGACY_LOGIC_FILES) so a live old-scope reference cannot hide
+      // inside a koala-exempt file. The sole exception is this gate's OWN source:
+      // every "@lattice-agent" here is guard logic / doc / log text that names the
+      // legacy scope precisely to forbid it (self-reference), so it must not flag
+      // itself.
+      if (rel !== 'scripts/verify-koala-residue.mjs' && classifyLegacyScope(lines[i]) === 'UNCLASSIFIED') {
+        legacyScopeHits.push(`${rel}:${i + 1}: ${lines[i].trim()}`);
       }
     }
   }
 
-  if (hits.length === 0) {
-    console.log('PASS koala-residue: 0 unclassified');
+  if (hits.length === 0 && legacyScopeHits.length === 0) {
+    console.log('PASS koala-residue: 0 unclassified, 0 live @lattice-agent scope');
     return 0;
   }
-  console.error('FAIL koala-residue: unclassified brand residue found');
-  for (const h of hits) console.error(`  ${h}`);
-  console.error(`\n${hits.length} unclassified hit(s).`);
+  if (hits.length > 0) {
+    console.error('FAIL koala-residue: unclassified brand residue found');
+    for (const h of hits) console.error(`  ${h}`);
+  }
+  if (legacyScopeHits.length > 0) {
+    console.error('FAIL koala-residue: live @lattice-agent legacy scope found (rename incomplete)');
+    for (const h of legacyScopeHits) console.error(`  ${h}`);
+  }
+  console.error(`\n${hits.length} unclassified hit(s), ${legacyScopeHits.length} live @lattice-agent hit(s).`);
   return 1;
 }
 

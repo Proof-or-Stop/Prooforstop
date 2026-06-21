@@ -24,7 +24,7 @@ import {
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
 
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
+const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 
 export interface GlobalLatticeLinkRepairOptions {
   globalPackagePath?: string;

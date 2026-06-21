@@ -1,5 +1,5 @@
 {
-  "name": "@lattice-agent/lab",
+  "name": "@lattice/lab",
   "version": "0.3.1",
   "description": "Lattice 离线优化实验室：实验配置、隔离沙箱、patch guard 和基础评估骨架",
   "type": "module",
@@ -12,7 +12,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@lattice-agent/core": "0.3.1"
+    "@lattice/core": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

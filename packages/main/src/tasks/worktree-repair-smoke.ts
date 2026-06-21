@@ -171,20 +171,20 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 }
 
 // B-097f made agent prompt assets host-neutral single-source: the global
-// link-repair now manages ONLY the canonical @lattice-agent/core package and no
-// longer resolves or rewrites a legacy @koala-agent/core symlink. So when the
+// link-repair now manages ONLY the canonical @lattice/core package and no
+// longer resolves or rewrites any other-scope symlink. So when the
 // canonical install is a real directory (not a stale worktree symlink) and the
-// only worktree-pointing symlink is the legacy package, repair correctly returns
+// only worktree-pointing symlink is a foreign package, repair correctly returns
 // a sane 'skipped' (NOT a relink, NOT an error): the canonical install is left
-// untouched and the unmanaged legacy symlink is left exactly as-is. The safety
+// untouched and the unmanaged foreign symlink is left exactly as-is. The safety
 // intent is unchanged — repair must not touch a canonical install it does not
 // own, and must never rewrite a package outside its single-source canonical name.
 function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-mixed-global-link-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-mixed-global-link-'));
   try {
     const globalRoot = join(root, 'global-node-modules');
-    const canonicalPath = join(globalRoot, '@lattice-agent', 'core');
-    const legacyPath = join(globalRoot, '@koala-agent', 'core');
+    const canonicalPath = join(globalRoot, '@lattice', 'core');
+    const legacyPath = join(globalRoot, '@other-vendor', 'core');
     const worktreePath = join(root, '.worktrees', 'B-mixed');
     const mainPackagePath = join(root, 'packages', 'main');
 
@@ -201,7 +201,7 @@ function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
     // Post-B-097f: canonical-only resolution + canonical is a real dir → skipped,
     // not relinked, and not an error.
     assert.equal(result.action, 'skipped');
-    assert.match(result.message, /@lattice-agent\/core/);
+    assert.match(result.message, /@lattice\/core/);
     // Safety: a real canonical install the repair does not own is left untouched.
     assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install must remain untouched when it is not the stale symlink');
     // Safety: the unmanaged legacy symlink must NOT be rewritten/relinked to main.

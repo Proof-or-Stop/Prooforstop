@@ -47,7 +47,7 @@ import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @lattice-agent/core package root
+const packageRoot = join(__dirname, '..'); // @lattice/core package root
 const agentTemplateDir = [
   resolveAgentTemplateDir(),
   join(packageRoot, 'templates', 'agents'),
@@ -795,7 +795,7 @@ if (withStarter && !existsSync(debugPath)) {
   writeFileSync(debugPath, `// debug.ts — 调试入口
 // 框架的 devHost() 负责：WS server + .koala-serve.json + cleanup
 
-import { devHost } from '@lattice-agent/core/dev-host';
+import { devHost } from '@lattice/core/dev-host';
 import { createApp } from './app.js';
 // import { GameMachine } from './machines/game/machine.js';
 

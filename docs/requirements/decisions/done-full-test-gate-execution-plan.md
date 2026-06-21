@@ -13,9 +13,9 @@ Important caveat: this proves a gate coverage gap, not that current main `npm te
 - `packages/main/src/handlers/verifier.ts` reads configured `validate.command` / `validate.commands` first. When configured commands exist, fallback discovery is skipped, so the fallback `npm test` path is not used for this repository.
 - `packages/main/src/handlers/phase-gates.ts` runs `lattice validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
 - `packages/main/src/core/done-oracle.ts` builds the DONE row from `test-evidence.json`, including result and freshness, and does not independently require root full-suite evidence.
-- `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is currently behind self-host detection keyed to package name `@koala-agent/core`, while this repository is currently `@lattice-agent/core`; as written, this repo exits before build+tsc until that detection is fixed or intentionally scoped.
+- `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is gated by self-host detection keyed to package name `@lattice/core`, which matches this repository (renamed from the legacy `@koala-agent/core` / transitional `@lattice-agent/core` checks in B-3523). The hook now ARMS for this repo and runs its build + recursive tsc gate.
 
-Together these anchors mean local DONE, release/push, pre-push, and root full-suite health are currently separate assurance surfaces. The local DONE row can be green because configured validation passed, while a script present only in root `npm test` has never been executed by that gate. The current pre-push hook also must not be described as build+tsc assurance for this repo until its self-host boundary is corrected or deliberately narrowed.
+Together these anchors mean local DONE, release/push, pre-push, and root full-suite health are separate assurance surfaces. The local DONE row can be green because configured validation passed, while a script present only in root `npm test` has never been executed by that gate. As of B-3523 the pre-push hook does provide build + recursive `tsc --noEmit` assurance for this repo, but it still does not run root `npm test`, so it is narrower than the root full-suite.
 
 ## Scope For This Story
 
@@ -296,7 +296,7 @@ Exit criteria:
 
 - Decide whether `release_approve_push --confirm` requires fresh DONE-required evidence.
 - Decide whether `.githooks/pre-push` should merely check for the artifact, rerun the profile, fix/scope its self-host build+tsc boundary, or remain narrower.
-- If pre-push stays narrower, document that the remote push hook is not a root full-suite gate and does not currently provide build+tsc assurance for this repo until the `@koala-agent/core` / `@lattice-agent/core` self-host boundary is resolved.
+- The self-host build+tsc boundary is resolved (B-3523): the hook keys on `@lattice/core` and now arms for this repo. It remains narrower than the root full-suite — it provides build + recursive `tsc --noEmit` assurance but does not run root `npm test`. Document that distinction if pre-push stays narrower.
 - B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override behavior.
 
 Exit criteria:
