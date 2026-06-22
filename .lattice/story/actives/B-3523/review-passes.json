@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-22T23:31:02.764Z",
       "reviewRunId": "B-3523:RR-005",
       "_hash": "045ffbbb977fae6ba5947da0c5ef08ecc85c040e0da8ae20e564f5cc6596c2f9"
+    },
+    {
+      "id": "B-3523:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 re-review passed: package manifests and locks for root/main/lab/utils are aligned on @lattice scope and 0.3.65 where applicable; main/lab/utils npm install --dry-run and npm ci --dry-run pass; lab/utils/main builds pass; scripts/verify-global-lab-entrypoint.mjs full verifier passes. No blocking quality finding remains.",
+      "createdAt": "2026-06-22T23:33:38.246Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-006",
+      "_hash": "abe6a35b1a95331fcd1009e23c4abcaef4673f0d07c03b4c6ee47d9d86ad36f3"
     }
   ]
 }
