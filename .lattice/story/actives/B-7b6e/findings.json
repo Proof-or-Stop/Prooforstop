@@ -134,7 +134,7 @@
       "desc": "[codex-host2 #5] canonicalResult sorts perProbe with localeCompare, which is locale/ICU-dependent for arbitrary IDs and can produce a different digest order on another runtime. FIX: use a deterministic code-point sort.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-22T23:50:38.659Z",
@@ -144,7 +144,11 @@
         "packages/main/src/core/gate-strength.ts"
       ],
       "signatureTag": "edge|ts|codex-host2-canonicalresult",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: canonicalResult now sorts perProbe by a deterministic code-point comparison (byCodePoint) instead of locale/ICU-dependent localeCompare, so the digest is reproducible across runtimes.",
+      "resolvedAt": "2026-06-22T23:55:18.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
