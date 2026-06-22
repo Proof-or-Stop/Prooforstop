@@ -171,9 +171,9 @@
       "id": "CHK-003",
       "title": "Add focused tests for retired-root behavior",
       "context": "Verify read-only commands still work, mutating commands are rejected, and explicit override is narrow and auditable.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T21:55:46.549Z",
       "userSees": "`npm --prefix packages/main run test:retired-root-guard` prints PASS for read-only allowed, mutating rejected, missing canonicalRoot rejected, and explicit override behavior either absent or auditable.",
       "relatedDocs": [
         "docs/requirements/decisions/orchestrate-retirement.md",
@@ -213,7 +213,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused retired-root guard smoke prints PASS and covers read-only allowed plus representative mutating commands blocked.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:46.751Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding config fields, guard wiring, and smoke script; non-retired behavior remains type-compatible.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:46.938Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Smoke covers malformed retiredRoot config without canonicalRoot and confirms it does not silently permit writes.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:47.129Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
