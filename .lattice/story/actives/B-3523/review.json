@@ -241,6 +241,24 @@
         }
       ],
       "_hash": "18f53b89d1c77c6e3ac34af793dcdb55370bd9099fe46b42a3452086c5b4bda1"
+    },
+    {
+      "timestamp": "2026-06-22T23:15:19.914Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "5f463181d8db6761c0aa4b9e5ae48fab1895d84e79d187c8a0a66fb235d26786"
     }
   ]
 }
