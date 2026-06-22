@@ -38,10 +38,10 @@
           "command": "git ls-files experiments/recovery-runner/run-*.mjs",
           "result": "pass",
           "note": "Lists exactly run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs (3 files tracked).",
-          "headHash": "ac6334ae28077e9b6328157c0df3dca603d21e51",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:55:45.926Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         }
       ]
     },
@@ -98,10 +98,10 @@
           "command": "git ls-files experiments/recovery-runner/tasks/ | grep -E '(prompt.md|task.json|acceptance.mjs|ground-truth.mjs|reference-solution.mjs)$' | wc -l",
           "result": "pass",
           "note": "20 quintet files = 5 core fixtures x 4 tasks; all 4 task dirs have prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs.",
-          "headHash": "e2ed3a88d6509363398d5791a10afd3febc5aafd",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:56:08.933Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -110,10 +110,10 @@
           "command": "git ls-files experiments/recovery-runner/tasks/ | grep subtle-wrong-output | wc -l",
           "result": "pass",
           "note": "4 hits = one subtle-wrong-output.mjs per task.",
-          "headHash": "878e82d587f0f2802d92758febac83a40c03085e",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:56:10.738Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -122,10 +122,10 @@
           "command": "git ls-files experiments/recovery-runner/tasks/*/solution.mjs | wc -l",
           "result": "pass",
           "note": "0 hits: no runtime solution.mjs tracked in any task dir (rsync excluded it; fixture run cleaned up).",
-          "headHash": "7effdadc9160d4bde75ab673d62ce12665375cbb",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:56:12.818Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,10 +134,10 @@
           "command": "git ls-files experiments/recovery-runner/tasks/*/",
           "result": "pass",
           "note": "Per-task injection payloads match the source exactly: eval-expr has payload-subtle.mjs; median + parse-range each have overfit-output.mjs (+ subtle-wrong-output.mjs); text-stats has subtle-wrong-output.mjs only. Verified via git ls-files per task dir.",
-          "headHash": "2a6ae897b78a036424662a86ad4fd8ccd7a7320b",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:58:53.497Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         }
       ]
     },
@@ -179,10 +179,10 @@
           "command": "git ls-files experiments/recovery-runner/injections/",
           "result": "pass",
           "note": "Lists exactly corrupt-output.mjs and delete-output.mjs (2 generic injection files).",
-          "headHash": "c0e58c7ed7f73e9ec8898ad02c37f909e2b5ff03",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:56:14.675Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         }
       ]
     },
@@ -234,10 +234,10 @@
           "command": "git ls-files experiments/recovery-runner/README.md",
           "result": "pass",
           "note": "README.md tracked (1 hit).",
-          "headHash": "af6783f615f913f6abed312b849116a2f50a1511",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:16.268Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -246,10 +246,10 @@
           "command": "grep -n 'Proofbound-AI/paper' experiments/recovery-runner/README.md",
           "result": "pass",
           "note": "README 'Data lives elsewhere' section points run-record .jsonl data to companion paper repo Proofbound-AI/paper. Source README already canonical-proofbound; no Orchestrate references found (grep -ri orchestrate -> none); no edit needed.",
-          "headHash": "57ed89d3c1acb916f7122ec2925eadfddff1cb4f",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:18.141Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -258,10 +258,10 @@
           "command": "git ls-files experiments/recovery-runner/*.jsonl; git ls-files experiments/recovery-runner/ | grep .jsonl",
           "result": "pass",
           "note": "Both return empty: zero .jsonl run-records tracked anywhere under recovery-runner.",
-          "headHash": "1868becc55269682961e59120219d762c996ab0b",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:20.250Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -270,10 +270,10 @@
           "command": "git ls-files experiments/recovery-runner | grep -c .jsonl",
           "result": "pass",
           "note": "Zero .jsonl tracked anywhere under experiments/recovery-runner (git ls-files grep .jsonl = 0), matching the explicit exclusion requirement.",
-          "headHash": "2a6ae897b78a036424662a86ad4fd8ccd7a7320b",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:58:53.497Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         }
       ]
     },
@@ -340,10 +340,10 @@
           "command": "cd experiments/recovery-runner/tasks/eval-expr && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
           "result": "pass",
           "note": "eval-expr reference solution self-consistent: ACCEPT PASS (20 checks) + GROUND-TRUTH PASS (9 held-out checks); temp solution.mjs removed.",
-          "headHash": "8cc683c9110b9bf72d7db2004915eb3af24d7821",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:34.107Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -352,10 +352,10 @@
           "command": "cd experiments/recovery-runner/tasks/median && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
           "result": "pass",
           "note": "median reference solution self-consistent: ACCEPT PASS (8 checks) + GROUND-TRUTH PASS (8 held-out checks); temp solution.mjs removed.",
-          "headHash": "4d25b3f925a8fc1e5e4d1507bc7a4362d6ce3b69",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:36.341Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -364,10 +364,10 @@
           "command": "cd experiments/recovery-runner/tasks/parse-range && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
           "result": "pass",
           "note": "parse-range reference solution self-consistent: ACCEPT PASS (11 checks) + GROUND-TRUTH PASS (12 held-out checks); temp solution.mjs removed.",
-          "headHash": "eab6269c425bdbfb39b91c651cb0779f657a20a9",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:38.158Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-005:happy:3",
@@ -376,10 +376,10 @@
           "command": "cd experiments/recovery-runner/tasks/text-stats && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
           "result": "pass",
           "note": "text-stats reference solution self-consistent: ACCEPT PASS (6 checks) + GROUND-TRUTH PASS (5 held-out checks); temp solution.mjs removed.",
-          "headHash": "97c00b615b0bf431a5357f408a3d1daa361c49e7",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:40.416Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -388,10 +388,10 @@
           "command": "git ls-files experiments/recovery-runner/tasks/*/solution.mjs | wc -l",
           "result": "pass",
           "note": "0: no temporary solution.mjs left tracked after the self-consistency runs; working tree clean (find . -name solution.mjs -> 0).",
-          "headHash": "6a42bfceb2073291540fae91a8253559bdb578fd",
-          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
-          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
-          "timestamp": "2026-06-22T22:57:51.479Z"
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
         }
       ]
     }
