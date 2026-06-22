@@ -267,8 +267,8 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
 
 /**
  * B-4e06 CHK-001: canonical structured intent ref — `CHK-001:happy:0`. Mirrors
- * verification.ts intentRef(). A ref scoped to an item (`${item.id}:`) that
- * does NOT match this is malformed → fail-closed.
+ * intent-coverage.ts:39 and verification.ts intentRef(). A ref scoped to an item
+ * (`${item.id}:`) that does NOT match this is malformed → fail-closed.
  */
 const STRUCTURED_INTENT_REF = /^(CHK-\d+):(happy|edge|adversarial):(\d+)$/;
 

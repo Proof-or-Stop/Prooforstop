@@ -1,14 +1,22 @@
+import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { createChecklistHandlers } from './checklist.js';
 import { buildDoneClosureRunbook, type DoneClosureRunbook } from './done-closure.js';
 import { createVerifierHandlers } from './verifier.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { loadConfig } from '../core/config.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
-import { parseGitPorcelainRow } from '../core/dirty-worktree.js';
+import {
+  classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
+  parseGitPorcelainRow,
+  type DirtyWorktreeClassification,
+  type DirtyWorktreeEntry,
+} from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 type StepStatus = 'pending' | 'skipped' | 'pass' | 'blocked';
@@ -136,6 +144,10 @@ function statusFiles(rows: string[]): string[] {
     .filter(Boolean);
 }
 
+function entryFiles(entries: DirtyWorktreeEntry[]): string[] {
+  return [...new Set(entries.flatMap((entry) => dirtyEntryPaths(entry)))];
+}
+
 function ownerLeaseRelPath(ctx: HandlerContext, storyId: string): string {
   return `${ctx.store.storyDirRel()}/${storyId}/owner-lease.json`.replace(/\\/g, '/');
 }
@@ -143,9 +155,70 @@ function ownerLeaseRelPath(ctx: HandlerContext, storyId: string): string {
 function nonLeaseDirtyRows(ctx: HandlerContext, storyId: string, rows: string[]): string[] {
   const leasePath = ownerLeaseRelPath(ctx, storyId);
   return rows.filter((row) => {
-    const path = parseGitPorcelainRow(row)?.path;
-    return path !== leasePath;
+    const parsed = parseGitPorcelainRow(row);
+    if (!parsed) return true;
+    const dirtyPaths = [parsed.path, parsed.originalPath].filter((path): path is string => Boolean(path));
+    return dirtyPaths.length === 0 || !dirtyPaths.every((path) => path === leasePath);
   });
+}
+
+function classifyDirtyRows(ctx: HandlerContext, storyId: string, rows: string[]): DirtyWorktreeClassification {
+  const config = loadConfig(ctx.root);
+  return classifyGitStatusRows(
+    rows,
+    dirtyWorktreeClassifierOptionsForStory(config, storyId, ctx.store, ctx.root),
+  );
+}
+
+function dirtyEntryPaths(entry: DirtyWorktreeEntry): string[] {
+  return [entry.path, entry.originalPath].filter((path): path is string => Boolean(path));
+}
+
+function isDonePrepareAllowedInitialMetadataEntry(entry: DirtyWorktreeEntry, projectRoot: string): boolean {
+  const paths = dirtyEntryPaths(entry);
+  return entry.category === 'lattice_metadata_changes'
+    && paths.length > 0
+    && paths.every((path) => isStoryMetadataPath(path, projectRoot));
+}
+
+function initialDonePrepareBlockingEntries(
+  classification: DirtyWorktreeClassification,
+  projectRoot: string,
+): DirtyWorktreeEntry[] {
+  return classification.entries.filter((entry) => !isDonePrepareAllowedInitialMetadataEntry(entry, projectRoot));
+}
+
+function dirtyPathDigest(gitCwd: string, path: string): string {
+  const absPath = join(gitCwd, path);
+  try {
+    if (!existsSync(absPath)) return 'missing';
+    const stat = statSync(absPath);
+    if (stat.isDirectory()) return 'directory';
+    if (!stat.isFile()) return `non-file:${stat.mode}`;
+    return createHash('sha256').update(readFileSync(absPath)).digest('hex');
+  } catch (err: any) {
+    return `unreadable:${err?.code || err?.message || String(err)}`;
+  }
+}
+
+function dirtyEntrySignature(gitCwd: string, entry: DirtyWorktreeEntry): string {
+  const paths = [entry.path, entry.originalPath].filter((path): path is string => Boolean(path));
+  return [
+    entry.statusCode,
+    entry.path,
+    entry.originalPath ?? '',
+    ...paths.map((path) => `${path}:${dirtyPathDigest(gitCwd, path)}`),
+  ].join('\0');
+}
+
+function unchangedFromInitialAllowedMetadata(
+  gitCwd: string,
+  entry: DirtyWorktreeEntry,
+  initialAllowedMetadataSignatures: ReadonlySet<string>,
+  projectRoot: string,
+): boolean {
+  return isDonePrepareAllowedInitialMetadataEntry(entry, projectRoot)
+    && initialAllowedMetadataSignatures.has(dirtyEntrySignature(gitCwd, entry));
 }
 
 function isMainAncestor(gitCwd: string): boolean {
@@ -589,18 +662,32 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
 
   const initialDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
-  if (initialDirty.length > 0) {
-    const files = statusFiles(initialDirty);
+  const initialDirtyClassification = classifyDirtyRows(ctx, storyId, initialDirty);
+  const initialBlockingEntries = initialDonePrepareBlockingEntries(initialDirtyClassification, ctx.root);
+  if (initialBlockingEntries.length > 0) {
+    const files = entryFiles(initialBlockingEntries);
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
     return block({
       blockedAt: 'cleanTree',
-      reason: 'worktree must be clean before DONE prepare can mutate',
+      reason: 'worktree has dirty files that are not Lattice story lifecycle metadata; done_prepare cannot mutate yet',
       files,
       next: 'git status --short',
       steps,
     });
   }
-  setStep(steps, 'preflight', 'pass');
+  const initialAllowedMetadataSignatures = new Set(
+    initialDirtyClassification.groups.lattice_metadata_changes
+      .filter((entry) => isDonePrepareAllowedInitialMetadataEntry(entry, ctx.root))
+      .map((entry) => dirtyEntrySignature(gitCwd, entry)),
+  );
+  setStep(
+    steps,
+    'preflight',
+    'pass',
+    initialAllowedMetadataSignatures.size > 0
+      ? 'only pre-existing Lattice story lifecycle metadata is dirty'
+      : undefined,
+  );
 
   if (!args.mergeMain) {
     setStep(steps, 'mergeMain', 'skipped', 'mergeMain=false');
@@ -786,8 +873,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   setStep(steps, 'runtimeChange', 'pass', runtime.postDoneRuntimeVersionBumpRequired ? 'runtime behavior change detected' : 'no runtime version bump required before DONE');
 
   const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
-  if (finalDirty.length > 0) {
-    const files = statusFiles(finalDirty);
+  const finalDirtyClassification = classifyDirtyRows(ctx, storyId, finalDirty);
+  const finalBlockingEntries = finalDirtyClassification.entries.filter(
+    (entry) => !unchangedFromInitialAllowedMetadata(gitCwd, entry, initialAllowedMetadataSignatures, ctx.root),
+  );
+  if (finalBlockingEntries.length > 0) {
+    const files = entryFiles(finalBlockingEntries);
     setStep(steps, 'cleanTree', 'blocked', 'done_prepare produced files that must be committed before DONE');
     return block({
       blockedAt: 'cleanTree',
@@ -797,7 +888,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       steps,
     });
   }
-  setStep(steps, 'cleanTree', 'pass');
+  setStep(
+    steps,
+    'cleanTree',
+    'pass',
+    finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Lattice story lifecycle metadata remains dirty' : undefined,
+  );
 
   return renderPass({
     storyId,

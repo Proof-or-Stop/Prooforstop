@@ -1,0 +1,49 @@
+{
+  "storyId": "B-c76c",
+  "checkedAt": "2026-06-22T21:28:03.584Z",
+  "reviewRound": "2026-06-22T21:15:20.315Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-c76c/checklist.json#CHK-001.userSees",
+      "promise": "The terminal prints `39 files changed, 4606 insertions(+), 139 deletions(-)` for the tracked Orchestrate-vs-proofbound baseline diff, with AGENTS.md/CLAUDE.md listed only as excluded root-doc drift.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence and delivery context pack",
+      "evidence": "CHK-001 verificationEvidence records the baseline stat as 39 files changed, 4606 insertions(+), 139 deletions(-), with AGENTS.md/CLAUDE.md isolated as excluded root-doc drift."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c76c/checklist.json#CHK-002.userSees",
+      "promise": "The terminal path audit prints `excludedRootDocs: clean` and `excludedLegacyEvidence: clean` while imported tracked paths show source/config/docs changes only.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence plus read-only excluded-path spot check",
+      "evidence": "CHK-002 evidence records excludedRootDocs: clean and excludedLegacyEvidence: clean. A read-only spot check of main...HEAD for AGENTS.md, CLAUDE.md, .lattice/local-evidence, experiments, docs/story, and tests/fixtures produced no output."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c76c/checklist.json#CHK-003.userSees",
+      "promise": "The version metadata check prints `package.json 0.3.63`, `packages/main/package.json 0.3.63`, and `package-lock root 0.3.63 / 0.3.63`.",
+      "status": "verified",
+      "verifiedBy": "version metadata commands",
+      "evidence": "Read-only checks printed npm root version 0.3.63, packages/main version 0.3.63, and package-lock root 0.3.63 / 0.3.63; CHK-003 evidence also verifies no stale 0.3.60 or 0.3.49 metadata remains."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c76c/checklist.json#CHK-004.userSees",
+      "promise": "The terminal prints `Lattice CLI 0.3.63` from `node bin/lattice.js --version`, after `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` both pass.",
+      "status": "verified",
+      "verifiedBy": "live transcript and DONE-required receipts",
+      "evidence": "node bin/lattice.js --version printed Lattice CLI 0.3.63. transcript-diff.md reports no user-visible mismatch. DONE-required evidence PASS at 2026-06-22T21:22:38.673Z includes packages/main build and npm test; checklist evidence includes packages/main and packages/utils build pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-c76c-delivery-smoke",
+      "transcript": "Evidence files .lattice/story/actives/B-c76c/evidence/live-smoke-transcript.json and transcript-diff.md exist. The live transcript captured node bin/lattice.js --version at 2026-06-22T21:23:36.804Z with exitCode 0 and stdout Lattice CLI 0.3.63. transcript-diff.md records package.json 0.3.63, packages/main/package.json 0.3.63, package-lock root 0.3.63 / 0.3.63, and no user-visible mismatch. Latest validate evidence PASS at 2026-06-22T21:21:25.340Z covers 12/12 verification intents with materialHash f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953. DONE-required evidence PASS at 2026-06-22T21:22:38.673Z covers packages/main build and root npm test on the same material hash."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "Delivery promises are verified and signed from checklist evidence, live transcript, read-only spot checks, validate evidence, and DONE-required receipts. Excluded legacy paths stayed out. Remaining lifecycle concerns outside the delivery signature: session_brief still reports a scope path gate failure and missing summary.json."
+  },
+  "_hash": "c128bb4b2f12f542242249bebac259e1b68cc3b89feb3111c473a75ccf08f7c2"
+}

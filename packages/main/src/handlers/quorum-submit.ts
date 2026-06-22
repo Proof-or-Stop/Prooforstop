@@ -7,6 +7,7 @@ import { evaluateReviewEscalation } from '../core/review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
+import { listVerdicts } from '../core/verdicts.js';
 import { computeActiveReviewers } from './reviewer-list.js';
 
 const REFUSAL = 'quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.';
@@ -278,6 +279,22 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext) {
       const validationDigest = normalizeString(args.validationDigest)
         || deriveValidationDigest(ctx, storyId, materialDigest, storyFilesHash, headHash);
       const note = normalizeString(args.note) || 'quorum_submit local voluntary floor quorum after current signed reviewer passes';
+
+      // Guard: refuse to re-submit a quorum for a runId that already carries a verdict at the
+      // SAME materialDigest. This prevents silently piling duplicate verdicts onto an already-
+      // populated runId, while still allowing a fresh quorum after the material changes (a
+      // different materialDigest does not collide).
+      const plannedRunIds = new Set<string>();
+      for (let round = 1; round <= rounds; round += 1) plannedRunIds.add(`${storyId}-q-r${round}`);
+      const duplicateRunIds = [...new Set(
+        listVerdicts(ctx.root, 'local', storyId)
+          .filter(verdict => plannedRunIds.has(verdict.runId) && verdict.materialDigest === materialDigest)
+          .map(verdict => verdict.runId),
+      )].sort();
+      if (duplicateRunIds.length > 0) {
+        throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${duplicateRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
+      }
+
       const emitted = [];
       const runIds: string[] = [];
       for (let round = 1; round <= rounds; round += 1) {

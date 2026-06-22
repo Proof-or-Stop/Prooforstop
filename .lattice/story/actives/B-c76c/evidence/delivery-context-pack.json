@@ -1,0 +1,121 @@
+{
+  "storyId": "B-c76c",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-c76c/checklist.json",
+      ".lattice/story/actives/B-c76c/decision.json",
+      ".lattice/story/actives/B-c76c/done-required-evidence.json",
+      ".lattice/story/actives/B-c76c/evidence/delivery-context-pack.json",
+      ".lattice/story/actives/B-c76c/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-c76c/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-c76c/index.json",
+      ".lattice/story/actives/B-c76c/plan.md",
+      ".lattice/story/actives/B-c76c/process-events.jsonl",
+      ".lattice/story/actives/B-c76c/process-metrics.json",
+      ".lattice/story/actives/B-c76c/review-passes.json",
+      ".lattice/story/actives/B-c76c/review-runs.json",
+      ".lattice/story/actives/B-c76c/review.json",
+      ".lattice/story/actives/B-c76c/scope-check.json",
+      ".lattice/story/actives/B-c76c/scope-contract.json",
+      ".lattice/story/actives/B-c76c/test-evidence.json",
+      ".lattice/story/actives/B-c76c/understanding.json",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "lattice.config.json",
+      "package-lock.json",
+      "package.json",
+      "packages/main/package.json",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/intent-coverage.ts",
+      "packages/main/src/core/lattice-brand.ts",
+      "packages/main/src/core/lifecycle-readiness.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/core/receipt-bundle.ts",
+      "packages/main/src/handlers/background.ts",
+      "packages/main/src/handlers/checklist.ts",
+      "packages/main/src/handlers/done-prepare.ts",
+      "packages/main/src/handlers/english-artifact-gate.ts",
+      "packages/main/src/handlers/quorum-submit.ts",
+      "packages/main/src/handlers/story-create.ts",
+      "packages/main/src/registry.ts",
+      "packages/main/src/tasks/done-prepare-smoke.ts",
+      "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+      "packages/main/src/tasks/english-early-check-smoke.ts",
+      "packages/main/src/tasks/evidence-live-wiring-smoke.ts",
+      "packages/main/src/tasks/evidence-retention-gc-smoke.ts",
+      "packages/main/src/tasks/lifecycle-check-smoke.ts",
+      "packages/main/src/tasks/quorum-submit-smoke.ts",
+      "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+      "scripts/convert-fixtures.cjs",
+      "scripts/migrate-annotations.cjs",
+      "scripts/migrate-fixture-reform-v2.mjs",
+      "scripts/migrate-fixture-reform.mjs",
+      "scripts/remove-file-level-test.cjs"
+    ],
+    "summary": " .lattice/story/actives/B-c76c/checklist.json       | 211 ++++-\n .lattice/story/actives/B-c76c/decision.json        |  72 ++\n .../actives/B-c76c/done-required-evidence.json     |  56 ++\n .../B-c76c/evidence/delivery-context-pack.json     | 119 +++\n .../B-c76c/evidence/live-smoke-transcript.json     |  20 +\n .../actives/B-c76c/evidence/transcript-diff.md     |  45 +\n .lattice/story/actives/B-c76c/index.json           |  41 +-\n .lattice/story/actives/B-c76c/plan.md              |  25 +\n .lattice/story/actives/B-c76c/process-events.jsonl |  22 +\n .lattice/story/actives/B-c76c/process-metrics.json | 360 ++++++++\n .lattice/story/actives/B-c76c/review-passes.json   |  31 +\n .lattice/story/actives/B-c76c/review-runs.json     | 451 ++++++++++\n .lattice/story/actives/B-c76c/review.json          |  97 ++\n .lattice/story/actives/B-c76c/scope-check.json     |  80 ++\n .lattice/story/actives/B-c76c/scope-contract.json  |  22 +\n .lattice/story/actives/B-c76c/test-evidence.json   | 257 ++++++\n .lattice/story/actives/B-c76c/understanding.json   |  31 +\n .../done-prepare-automation-execution-plan.md      |  21 +-\n .../decisions/lattice-experiment-protocol.md       | 184 ++++\n ...light-story-repair-and-gitroot-worktree-plan.md |   2 +-\n docs/requirements/decisions/test-fixture-spec.md   |  14 +-\n lattice.config.json                                |   4 +-\n package-lock.json                                  | 994 ++++++++++++++++++++-\n package.json                                       |   3 +-\n packages/main/package.json                         |   2 +-\n packages/main/src/cli/command-catalog.ts           |  14 -\n packages/main/src/core/command-policy.ts           |   2 -\n packages/main/src/core/config.ts                   |   1 -\n packages/main/src/core/intent-coverage.ts          |  85 ++\n packages/main/src/core/lattice-brand.ts            |   2 +-\n packages/main/src/core/lifecycle-readiness.ts      |  10 +-\n packages/main/src/core/process-fact-levels.ts      |   2 -\n packages/main/src/core/process-fact-registry.ts    |  15 -\n packages/main/src/core/receipt-bundle.ts           | 478 ++++++++++\n packages/main/src/handlers/background.ts           |  30 +\n packages/main/src/handlers/checklist.ts            |   4 +-\n packages/main/src/handlers/done-prepare.ts         | 120 ++-\n .../main/src/handlers/english-artifact-gate.ts     |  74 ++\n packages/main/src/handlers/quorum-submit.ts        |  17 +\n packages/main/src/handlers/story-create.ts         |  74 ++\n packages/main/src/registry.ts                      |   2 -\n packages/main/src/tasks/done-prepare-smoke.ts      | 117 +++\n .../src/tasks/done-readiness-flow-benchmark.ts     | 181 +++-\n .../main/src/tasks/english-early-check-smoke.ts    | 265 ++++++\n .../main/src/tasks/evidence-live-wiring-smoke.ts   |   2 +-\n .../main/src/tasks/evidence-retention-gc-smoke.ts  |  34 +-\n packages/main/src/tasks/lifecycle-check-smoke.ts   | 154 +++-\n packages/main/src/tasks/quorum-submit-smoke.ts     |  69 +-\n .../src/tasks/receipt-bundle-contract-smoke.ts     | 402 +++++++++\n scripts/convert-fixtures.cjs                       | 158 ++++\n scripts/migrate-annotations.cjs                    | 302 +++++++\n scripts/migrate-fixture-reform-v2.mjs              | 402 +++++++++\n scripts/migrate-fixture-reform.mjs                 | 388 ++++++++\n scripts/remove-file-level-test.cjs                 | 103 +++\n 54 files changed, 6512 insertions(+), 159 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "The terminal prints `39 files changed, 4606 insertions(+), 139 deletions(-)` for the tracked Orchestrate-vs-proofbound baseline diff, with AGENTS.md/CLAUDE.md listed only as excluded root-doc drift."
+    },
+    {
+      "source": "userSees",
+      "promise": "The terminal path audit prints `excludedRootDocs: clean` and `excludedLegacyEvidence: clean` while imported tracked paths show source/config/docs changes only."
+    },
+    {
+      "source": "userSees",
+      "promise": "The version metadata check prints `package.json 0.3.63`, `packages/main/package.json 0.3.63`, and `package-lock root 0.3.63 / 0.3.63`."
+    },
+    {
+      "source": "userSees",
+      "promise": "The terminal prints `Lattice CLI 0.3.63` from `node bin/lattice.js --version`, after `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` both pass."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [],
+    "evidenceCommands": [
+      "! grep -R 0\\.3\\.60\\|0\\.3\\.49 package.json packages/main/package.json package-lock.json",
+      "git diff --name-only HEAD -- .lattice/local-evidence experiments docs/story tests/fixtures && git status --short --branch",
+      "git diff --name-only HEAD -- AGENTS.md CLAUDE.md",
+      "git diff --name-only refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements",
+      "git diff --stat HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence experiments docs/story tests/fixtures && git diff --name-only HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence docs/story tests/fixtures",
+      "git diff --stat HEAD..refs/remotes/orchestrate/main -- AGENTS.md CLAUDE.md",
+      "git diff --stat HEAD..refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements AGENTS.md CLAUDE.md",
+      "git status --short --branch && git diff --name-only HEAD -- AGENTS.md CLAUDE.md .lattice/local-evidence experiments docs/story tests/fixtures",
+      "node bin/lattice.js --version",
+      "npm --prefix packages/main run build && npm --prefix packages/utils run build",
+      "npm pkg get version | grep 0.3.63 && npm --prefix packages/main pkg get version | grep 0.3.63",
+      "sed -n 1,12p package-lock.json | grep -c 0.3.63 | grep 2"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-22T21:21:25.340Z",
+    "headHash": "7918b428ddfcac85d00fcf772d92519844b36d46",
+    "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+    "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65"
+  },
+  "reviewRound": "2026-06-22T21:15:20.315Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

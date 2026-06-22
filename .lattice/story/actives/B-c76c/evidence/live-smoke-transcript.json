@@ -1,0 +1,20 @@
+{
+  "storyId": "B-c76c",
+  "expected": "The terminal prints `39 files changed, 4606 insertions(+), 139 deletions(-)` for the tracked Orchestrate-vs-proofbound baseline diff, with AGENTS.md/CLAUDE.md listed only as excluded root-doc drift.",
+  "actual": {
+    "command": "node bin/lattice.js --version",
+    "exitCode": 0,
+    "stdout": "Lattice CLI 0.3.63\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-22T21:23:36.804Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "640c8ded0dd8e9cceca6c231cbfa113db67dcd48",
+  "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953"
+}
