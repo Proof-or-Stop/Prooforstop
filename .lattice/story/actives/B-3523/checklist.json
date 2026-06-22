@@ -57,7 +57,62 @@
       "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`node bin/lattice.js --version` still prints Lattice CLI 0.3.65 after TypeScript imports, self-host constants, and generated local bootstrap paths use @lattice/core.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/core/zod.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript source imports and self-host constants use @lattice/core or @lattice/* where they refer to live packages.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Generated bin/lattice.js bootstrap searches node_modules/@lattice/core before global fallback.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No @lattice-agent/core runtime candidate remains in active bootstrap or runtime fact paths.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale global lattice is rejected unless it exposes the required aux_doc_list and verify_codex commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
