@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T18:54:23.624Z",
       "verificationIntent": {
         "happy": [
           {
@@ -32,7 +32,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e 'const fs=require(\"fs\"); const root=JSON.parse(fs.readFileSync(\"package.json\",\"utf8\")); const rootLock=JSON.parse(fs.readFileSync(\"package-lock.json\",\"utf8\")); for (const k of [\"dependencies\",\"devDependencies\",\"optionalDependencies\",\"peerDependencies\"]) if (root[k]?.[\"@modelcontextprotocol/sdk\"]) throw new Error(k+\" still declares MCP SDK\"); if (JSON.stringify(rootLock).includes(\"@modelcontextprotocol/sdk\")) throw new Error(\"root lock still contains MCP SDK\"); console.log(\"hasMcp:false\");'",
+          "result": "pass",
+          "note": "Root package.json and package-lock.json no longer declare or lock @modelcontextprotocol/sdk.",
+          "headHash": "6ccd0f22247309d844f931a87bcad39c65feeec7",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:23.880Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n \"@modelcontextprotocol/sdk\" package.json package-lock.json bin packages/main/src packages/utils/src packages/lab/src scripts; then exit 1; else echo \"no live MCP SDK refs\"; fi",
+          "result": "pass",
+          "note": "No live source, bin, or script reference to @modelcontextprotocol/sdk remains.",
+          "headHash": "6ccd0f22247309d844f931a87bcad39c65feeec7",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:24.110Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full configured npm test suite passed after dependency cleanup, proving no hidden runtime dependency was removed.",
+          "headHash": "6ccd0f22247309d844f931a87bcad39c65feeec7",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:24.352Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
