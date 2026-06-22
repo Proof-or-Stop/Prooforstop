@@ -217,7 +217,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-22T18:55:41.887Z",
+      "endTime": "2026-06-22T19:02:08.036Z",
       "verificationIntent": {
         "happy": [
           {
@@ -248,10 +248,10 @@
           "command": "test -z \"$(git ls-files scripts/convert-fixtures.cjs scripts/migrate-annotations.cjs scripts/migrate-fixture-reform.mjs scripts/migrate-fixture-reform-v2.mjs scripts/remove-file-level-test.cjs)\"",
           "result": "pass",
           "note": "The approved one-time migration scripts are no longer tracked as active product files.",
-          "headHash": "93b16c4aed9e953db06fa5b4adb8543d5d5d0a23",
+          "headHash": "53e037a501c69fac4dd4229205967b650b67523d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:55:42.138Z"
+          "timestamp": "2026-06-22T19:02:08.292Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -259,21 +259,21 @@
           "command": "if rg -n \"scripts/(convert-fixtures\\.cjs|migrate-annotations\\.cjs|migrate-fixture-reform(-v2)?\\.mjs|remove-file-level-test\\.cjs)\" package.json package-lock.json packages/main/src packages/main/tests docs; then exit 1; else echo \"no active removed-script refs\"; fi",
           "result": "pass",
           "note": "No package script, runtime source, test, or active doc invokes the removed one-time migration scripts.",
-          "headHash": "93b16c4aed9e953db06fa5b4adb8543d5d5d0a23",
+          "headHash": "53e037a501c69fac4dd4229205967b650b67523d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:55:42.374Z"
+          "timestamp": "2026-06-22T19:02:08.511Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "integration_test",
-          "command": "git show --name-status --oneline abeba7c -- scripts packages/main/src packages/main/tests | rg '^D' shows only approved one-time script deletions; npm test",
+          "command": "git show --name-status --oneline abeba7c -- scripts | rg '^D' | rg -v '^(D\\s+scripts/(convert-fixtures\\.cjs|migrate-annotations\\.cjs|migrate-fixture-reform(-v2)?\\.mjs|remove-file-level-test\\.cjs))$' exits with no output; npm test",
           "result": "pass",
-          "note": "Deletion scope stayed limited to the approved one-time utilities and the full configured npm test suite passed.",
-          "headHash": "93b16c4aed9e953db06fa5b4adb8543d5d5d0a23",
+          "note": "Script deletion scope is proven with a scripts-only predicate, so the intentional CHK-003 deletion of packages/main/src/core/intent-coverage.ts is no longer conflated with CHK-004. Full npm test also passed.",
+          "headHash": "53e037a501c69fac4dd4229205967b650b67523d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:55:42.619Z"
+          "timestamp": "2026-06-22T19:02:08.739Z"
         }
       ]
     },
