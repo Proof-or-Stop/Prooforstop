@@ -214,9 +214,9 @@
       "id": "CHK-003",
       "title": "Fix pre-push self-host check + retire legacy @koala-agent/core global fallback",
       "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T23:17:04.126Z",
-      "endTime": null,
+      "endTime": "2026-06-22T23:17:57.788Z",
       "userSees": "`.githooks/pre-push` identifies this repository as @lattice/core for the self-host build+tsc gate, and global fallback checks no longer search @koala-agent/core.",
       "files": {
         "modify": [
@@ -266,7 +266,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node pre-push self-host package assertion",
+          "result": "pass",
+          "note": ".githooks/pre-push checks @lattice/core and no longer checks @koala-agent/core as the self-host package name.",
+          "headHash": "e8e17c8484c7b298bd8a38c78e12a13e064febd7",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:17:58.490Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Runtime facts and generated bootstrap verifier pass with @lattice/core as the live global core package and no live @koala-agent/core fallback.",
+          "headHash": "e8e17c8484c7b298bd8a38c78e12a13e064febd7",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:17:59.083Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg @koala-agent/core and @lattice-agent/core in runtime/hook/verifier files",
+          "result": "pass",
+          "note": "Remaining old-scope references are anti-regression assertions or a legacy symlink fixture; no live fallback candidate resolves @koala-agent/core.",
+          "headHash": "e8e17c8484c7b298bd8a38c78e12a13e064febd7",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:17:59.566Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Verifiers explicitly fail if retired @lattice-agent/core canonical naming or @koala-agent/core dependencies/fallback are reintroduced.",
+          "headHash": "e8e17c8484c7b298bd8a38c78e12a13e064febd7",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:18:00.044Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
