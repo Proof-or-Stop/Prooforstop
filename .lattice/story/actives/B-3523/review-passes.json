@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-22T23:21:17.622Z",
       "reviewRunId": "B-3523:RR-004",
       "_hash": "be6a4a2cb70cb1a7abb715cb41b1e0747bcae29c964d1eeaeb322e8928dded73"
+    },
+    {
+      "id": "B-3523:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed for all requested refs. Checklist evidence has entries for CHK-001 package names/deps/locks, CHK-002 runtime bootstrap and stale global rejection, CHK-003 pre-push self-host plus old fallback absence, and CHK-004 docs/hooks/global link/retired-root behavior. Reviewer reran package/lock assertions, verify-runtime-fact-contract, verify-entrypoints, verify-global-lab-entrypoint, verify-koala-residue, verify-codex-assets, verify_codex, pre-push self-host build+recursive tsc, flow-stability-smoke, and worktree-repair-smoke. The pre-merge global link currently points to the story worktree as expected; DONE cleanup has source + smoke coverage to relink @lattice/core to main before deleting the worktree.",
+      "createdAt": "2026-06-22T23:25:32.707Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-003",
+      "_hash": "b327ff62550fb27d16e377465e8fa259ce17b10d1ffa3b4566b68fb51ee8c427"
     }
   ]
 }
