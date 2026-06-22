@@ -89,14 +89,14 @@
         ],
         "edge": [
           {
-            "desc": "No runtime source path still imports or dynamically loads intent-coverage after the status decision; verify ! rg -n \"from [\\\"\\x27].*intent-coverage|import\\([^)]*intent-coverage|require\\([^)]*intent-coverage\" packages/main/src packages/utils/src packages/lab/src bin scripts.",
+            "desc": "No runtime source path still imports or dynamically loads intent-coverage after the status decision; verify: ! rg -n \"from [\\\"\\x27].*intent-coverage|import\\([^)]*intent-coverage|require\\([^)]*intent-coverage\" packages/main/src packages/utils/src packages/lab/src bin scripts",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Resolving legacy intent-coverage does not weaken current verificationIntent/verificationEvidence behavior; verify npm test succeeds and node bin/lattice.js story_review \"{\"storyId\":\"B-76a3\"}\" does not report missing happy/edge/adversarial intent for CHK-001..CHK-005.",
+            "desc": "Resolving legacy intent-coverage does not weaken current verificationIntent/verificationEvidence behavior; verify npm test succeeds and node bin/lattice.js story_review '{\"storyId\":\"B-76a3\"}' does not report missing happy/edge/adversarial intent for CHK-001..CHK-005.",
             "type": "cli",
             "priority": "must"
           }
