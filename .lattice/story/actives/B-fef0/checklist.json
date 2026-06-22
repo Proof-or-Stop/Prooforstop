@@ -114,7 +114,40 @@
       "context": "The .jsonl outputs are experiment data and live in Proofbound-AI/paper",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/README.md -> returns exactly 1 hit; WHY: confirms README is tracked",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "README.md contains a reference to Proofbound-AI/paper or the paper repo as the location for run-record data; WHY: the story requires the README to point users to the paper repo for .jsonl data",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/*.jsonl returns empty AND git ls-files experiments/recovery-runner/ | grep .jsonl returns empty; WHY: confirms no .jsonl run-records are tracked anywhere under recovery-runner, matching the explicit exclusion requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No .gitignore or .gitkeep files are tracked under experiments/recovery-runner/ that might inadvertently affect future tracking behavior (git ls-files experiments/recovery-runner/.git* returns empty); WHY: a .gitignore could silently suppress files that should be tracked; if one exists it should be deliberate and reviewed",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "README.md is not a trivial placeholder (wc -l > 10 or wc -c > 200); WHY: catches a stub README that technically exists but fails the spirit of explaining the harness",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
