@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e37e",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm run test:*",
+    "npm test*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent_review",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "pnpm-lock.yaml",
+    "README.md",
+    "yarn.lock"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard*",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Keep implementation in canonical proofbound worktree and avoid retired Orchestrate mutating commands; retired Orchestrate is legacy read-only evidence inspection only.",
+  "createdAt": "2026-06-22T23:23:55.986Z",
+  "updatedAt": "2026-06-22T23:23:55.986Z",
+  "_hash": "75b5234fcb5c8c9d42281969e72f4780ac14f8fc27f12efe89a54cd6a8013880"
+}

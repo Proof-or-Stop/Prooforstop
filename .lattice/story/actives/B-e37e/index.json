@@ -1,0 +1,38 @@
+{
+  "storyId": "B-e37e",
+  "name": "authority-runner-jobs-sse-client",
+  "title": "Make Authority runner prefer job-available SSE with safe polling fallback",
+  "description": "Lattice CLI authority runner currently relies on register/heartbeat/claim polling behavior. Once Lattice Authority Server upgrades /v1/runners/{runnerId}/jobs/stream from a snapshot to a long-lived job-available SSE stream, the CLI should consume that stream to reduce idle waiting while preserving claim authority, signed runner identity, and polling fallback when SSE is unavailable or still snapshot-only.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "authority",
+    "runner",
+    "sse",
+    "jobs-stream",
+    "claim",
+    "host-neutral"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "auth"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-22T23:23:55.986Z",
+  "startedAt": "2026-06-22T23:23:55.986Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T23:23:55.997Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    }
+  ]
+}
