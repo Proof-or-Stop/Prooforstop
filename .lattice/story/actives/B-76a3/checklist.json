@@ -112,7 +112,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The approved one-time migration scripts are no longer tracked as active product files; verify test -z \"$(git ls-files scripts/convert-fixtures.cjs scripts/migrate-annotations.cjs scripts/migrate-fixture-reform.mjs scripts/migrate-fixture-reform-v2.mjs scripts/remove-file-level-test.cjs)\".",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No package script, runtime source, test, or active doc still invokes the removed one-time migration scripts; verify ! rg -n \"scripts/(convert-fixtures\\.cjs|migrate-annotations\\.cjs|migrate-fixture-reform(-v2)?\\.mjs|remove-file-level-test\\.cjs)\" package.json package-lock.json packages/main/src packages/main/tests docs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Script cleanup stays scoped to the named one-time utilities and does not delete supported smoke/regression tooling; verify git diff --name-status -- scripts packages/main/src packages/main/tests | rg \"^D\" contains only the approved one-time migration files, then run npm test successfully.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
