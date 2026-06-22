@@ -307,7 +307,21 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/eval-expr && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "eval-expr reference solution self-consistent: ACCEPT PASS (20 checks) + GROUND-TRUTH PASS (9 held-out checks); temp solution.mjs removed.",
+          "headHash": "8cc683c9110b9bf72d7db2004915eb3af24d7821",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:57:34.107Z"
+        }
+      ]
     }
   ]
 }
