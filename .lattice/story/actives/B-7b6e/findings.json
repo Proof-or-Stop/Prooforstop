@@ -50,7 +50,7 @@
       "desc": "[codex-host2 #1] catchRate=caught/wrongTotal does NOT capture over-blocking: a block-everything reviewer scores caught=wrongTotal, catchRate=1.0 (with falseBlock>0), indistinguishable from the oracle if a consumer reads catchRate alone. The smoke's 'not a block-everything constant' claim is not actually proven by catchRate. FIX: add a blockAll reference reviewer and prove the oracle DOMINATES both endpoints (beats test-only on catchRate AND beats block-all on falseBlock).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-22T23:50:20.096Z",
@@ -60,7 +60,11 @@
         "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host2-catchrate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: added blockAllReviewer (catchRate 1.0, falseBlock=genuineTotal) + a dominance assertion proving oracle beats test-only on catchRate AND beats block-all on falseBlock; catchRate is now documented as gameable and always read with falseBlock. The 'not a block-everything constant' claim is now actually proven.",
+      "resolvedAt": "2026-06-22T23:55:15.222Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b6e:F-004",
