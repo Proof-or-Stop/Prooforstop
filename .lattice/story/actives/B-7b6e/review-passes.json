@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-005",
       "_hash": "5242f668a01f993612071e3cf78a24bd264a3166351f6e1a76dc4c21a7896746"
+    },
+    {
+      "id": "B-7b6e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs-code consistency check: 0 findings. Symbols checked (Step 1): testOnlyReviewer, blockAllReviewer, oracleReviewer, runGateStrength, gateStrengthBundle, verifyGateStrengthResult, gateStrengthDigest, GATE_STRENGTH_RECEIPT_LABEL, STANDING_CORPUS, Probe, ReviewerView, GateStrengthResult, GateStrengthResultMatch, ProbeDefectKind, ProbeClassification, ProbeOutcome, Reviewer (17 exported symbols). Paragraphs compared (Step 2-3): the full B-7b6e CHANGELOG entry (gate-strength.ts file header + smoke file header also read end-to-end). All six CHANGELOG claims verified against code: (1) THREE reference reviewers exist with the documented behaviors (testOnlyReviewer catchRate=0 falseBlock=0; blockAllReviewer catchRate=1.0 falseBlock=genuineTotal; oracleReviewer catchRate=1.0 falseBlock=0 DOMINATES both). (2) oracleReviewer reads v.defectKind label NOT the artifact (confirmed in code: ship = defectKind===none), and runGateStrength enforces defectKind===none <-> genuine (assertCorpusInvariant) and rejects no-wrong-probe corpus. (3) verifyGateStrengthResult recomputes gateStrengthDigest and compares to receipt.outputDigest, closing the result<->receipt loop; tamper-evidence prose is precise and not overclaimed. (4) Smoke asserts all 11 checks covering the three endpoints, dominance, all-genuine rejection, invariant-violated rejection, receipt ACCEPTED, tampered REJECTED (signature_invalid), stale REJECTED, authentic-match, forged-mismatch. (5) receipt-bundle.ts confirmed untouched in commit 5b06232aa (only CHANGELOG.md + gate-strength.ts + gate-strength-contract-smoke.ts changed). (6) Hardening parenthetical is accurate: findings.json shows F-003 through F-007 attributed to agent=codex-host2 (host-2 Codex adversarial pass) and F-001 F-002 to agent=lattice-review-quality (Claude quality lane); no overclaim. Residual specAware wording in CHANGELOG is a rename-narrative historical reference, not a code-symbol claim. No blockers.",
+      "createdAt": "2026-06-22T23:57:40.574Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-008",
+      "_hash": "16d9162ad94ed1ef855f748988aaa8c04598f386126232b1a2d6aae4c0881b60"
     }
   ]
 }
