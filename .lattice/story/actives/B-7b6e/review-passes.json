@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-008",
       "_hash": "16d9162ad94ed1ef855f748988aaa8c04598f386126232b1a2d6aae4c0881b60"
+    },
+    {
+      "id": "B-7b6e:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality audit: all 7 round-1 fixes verified sound. (1) oracleReviewer correctly reads defectKind label not artifact — JSDoc + ReviewerView.defectKind comment precise. (2) assertCorpusInvariant: defectKind===none IFF groundTruthPass, both directions enforced, empty corpus caught before invariant check. (3) runGateStrength throws on no wrong probes (wrongTotal===0) after invariant check. (4) blockAllReviewer exported and used; dominance assertion in smoke verifies oracle beats test-only on catchRate AND beats block-all on falseBlock. (5) verifyGateStrengthResult finds receipt by GATE_STRENGTH_RECEIPT_LABEL constant (same label gateStrengthBundle binds), returns matches=false with boundDigest=undefined when label absent. (6) byCodePoint: a<b/-1/a>b/1/else 0, locale-independent; digest stable. (7) receipts.length===1 asserted before [0]! index in smoke. Smoke 11/11 green. No dead code, no as any, no empty catch, no shell/bridge violations.",
+      "createdAt": "2026-06-22T23:58:40.614Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-006",
+      "_hash": "fdd19588ca099cfb2ce4c2bc03ae633d805f349afcafe794871f030c00e80612"
     }
   ]
 }
