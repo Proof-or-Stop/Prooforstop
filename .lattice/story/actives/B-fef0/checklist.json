@@ -126,6 +126,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:56:12.818Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/recovery-runner/tasks",
+          "command": "git ls-files experiments/recovery-runner/tasks/*/",
+          "result": "pass",
+          "note": "Per-task injection payloads match the source exactly: eval-expr has payload-subtle.mjs; median + parse-range each have overfit-output.mjs (+ subtle-wrong-output.mjs); text-stats has subtle-wrong-output.mjs only. Verified via git ls-files per task dir.",
+          "headHash": "2a6ae897b78a036424662a86ad4fd8ccd7a7320b",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:58:53.497Z"
         }
       ]
     },
@@ -250,6 +262,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:57:20.250Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/recovery-runner",
+          "command": "git ls-files experiments/recovery-runner | grep -c .jsonl",
+          "result": "pass",
+          "note": "Zero .jsonl tracked anywhere under experiments/recovery-runner (git ls-files grep .jsonl = 0), matching the explicit exclusion requirement.",
+          "headHash": "2a6ae897b78a036424662a86ad4fd8ccd7a7320b",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:58:53.497Z"
         }
       ]
     },
