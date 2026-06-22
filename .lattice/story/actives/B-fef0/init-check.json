@@ -1,0 +1,32 @@
+{
+  "storyId": "B-fef0",
+  "checkedAt": "2026-06-22T22:46:45.419Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights claims the harness is \"32 code files\" but the authoritative source at /Users/jek/Documents/Work/Orchestrate/experiments/recovery-runner/ contains 33 non-.jsonl files (find -type f ! -name *.jsonl returns 33). Off-by-one, contextually non-blocking but factually imprecise."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-22T22:46:21.788Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-22T22:46:45.419Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights claims the harness is \"32 code files\" but the authoritative source at /Users/jek/Documents/Work/Orchestrate/experiments/recovery-runner/ contains 33 non-.jsonl files (find -type f ! -name *.jsonl returns 33). Off-by-one, contextually non-blocking but factually imprecise."
+        }
+      ]
+    }
+  ],
+  "_hash": "c37f795c16935204f64ba941926db7905872b5b244a41ac6ba4a91d39dbbb310"
+}
