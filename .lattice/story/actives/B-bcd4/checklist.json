@@ -55,7 +55,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "From the retired Orchestrate root, story_create/story_advance/validate --story/checklist_update fail with a clear message that names the canonical proofbound root; session_brief/story_get remain readable."
+      "userSees": "From `/Users/jek/Documents/Work/Orchestrate`, `lattice story_create ...` exits nonzero and prints `Lattice root is retired: /Users/jek/Documents/Work/Orchestrate` plus `Use canonicalRoot: /Users/jek/Documents/Work/proofbound`; `lattice session_brief` still prints the legacy brief.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mutating workflow commands in a retired root are rejected before handler dispatch with canonicalRoot recovery text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Read-only workflow commands in a retired root remain available for evidence inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Story, checklist, review, validation, and evidence-writing commands cannot bypass the retired-root guard through normal CLI invocation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
