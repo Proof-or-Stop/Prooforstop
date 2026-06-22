@@ -47,7 +47,37 @@
       "context": "New tasks/gate-strength-contract-smoke.ts (hermetic): assert test-only reviewer catches 0/N (the visible-test gap), spec-aware catches N/N with the correct per-probe reason (discrimination is real, not a block-everything constant), the emitted gate-strength receipt verifies offline (verifyReceiptBundleOffline accepted), and the catch-rate metric is computed correctly. Register in lattice.config.json validate.commands; add a CHANGELOG entry (honest single-host/hermetic scope, live review-lane deferred).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ gate-strength contract smoke passed: test-only caught 0/N (visible-test gap), spec-aware caught N/N with correct reasons (discrimination real), endpoints differ (0≠1.0), gate-strength receipt verifies offline.",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-strength-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "spec-aware run: catchRate 1.0, ships the genuine probe; WHY: control showing discrimination is achievable.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test-only run: catchRate 0; assert the two reviewers' catchRate DIFFER (0 vs 1.0) so the metric is non-vacuous; WHY: guards against a tautological/constant metric.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the emitted gate-strength receipt verifyReceiptBundleOffline → accepted; tamper a probe-outcome field → the receipt fails to verify; WHY: the published strength metric is itself tamper-evident.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
