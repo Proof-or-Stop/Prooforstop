@@ -274,9 +274,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T21:06:49.081Z",
-      "endTime": null,
+      "endTime": "2026-06-22T21:07:23.314Z",
       "files": {
         "modify": [
           "packages/main/src",
@@ -284,7 +284,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build",
+          "result": "pass",
+          "note": "Both requested builds passed: @lattice-agent/core@0.3.63 build ran tsc and @lattice-agent/utils@0.3.1 build ran tsc.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:23.749Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js --version",
+          "result": "pass",
+          "note": "Local proofbound CLI output was exactly: Lattice CLI 0.3.63.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:24.220Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short --branch && git diff --name-only HEAD -- AGENTS.md CLAUDE.md .lattice/local-evidence experiments docs/story tests/fixtures",
+          "result": "pass",
+          "note": "git status was clean on story/B-c76c, and excluded retired-root docs/evidence/experiments/story/fixture paths produced no diff output.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:24.647Z"
+        }
+      ]
     }
   ]
 }
