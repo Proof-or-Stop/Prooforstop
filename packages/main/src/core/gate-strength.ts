@@ -3,18 +3,34 @@
  *
  * Measures a gate's DISCRIMINATION over "passes-the-visible-test-but-wrong" probes —
  * artifacts that pass a visible acceptance test but fail a HIDDEN ground truth — and
- * publishes the catch-rate as a B-4c65 ReceiptBundle so the metric is itself offline-
+ * publishes the result as a B-4c65 ReceiptBundle so the metric is itself offline-
  * verifiable (composes 🥇 + 🥈).
  *
- * HERMETIC: no network, no agent/review-lane dispatch. Slice 1 ships two REFERENCE
- * reviewers that BRACKET the achievable range — `testOnlyReviewer` (trusts only the
- * visible test → catches 0) and `specAwareReviewer` (detects the defect → catches all).
- * A real claude -p review-lane reviewer plugs into the same `Reviewer` interface as a
- * follow-up; its true catch-rate would fall between these endpoints.
+ * Discrimination has TWO axes, because catch-rate alone is gameable: a block-everything
+ * reviewer catches every wrong probe (catchRate 1.0) yet is useless. So strength is the
+ * PAIR (catchRate = block the wrong, low falseBlock = ship the genuine). The harness ships
+ * THREE reference reviewers that bound the space:
+ *   - testOnlyReviewer  — trusts only the visible test → catchRate 0,   falseBlock 0
+ *   - blockAllReviewer  — blocks everything           → catchRate 1.0, falseBlock = genuineTotal
+ *   - oracleReviewer    — an ORACLE that reads the harness-provided defectKind label (NOT the
+ *                          artifact) → catchRate 1.0, falseBlock 0; it DOMINATES both others.
+ * A real `claude -p` review-lane reviewer (a follow-up) reads the artifact and plugs into the
+ * same `Reviewer` seam; its scores land inside this box.
+ *
+ * Tamper-evidence is precise: `gateStrengthBundle` binds sha256(canonicalResult) into a signed
+ * receipt, so mutating the bundle breaks the signature (verifyReceiptBundleOffline). To prove a
+ * given RESULT matches its receipt, `verifyGateStrengthResult` recomputes the digest and compares
+ * — that closes the result↔receipt loop the signature alone does not.
+ *
+ * HERMETIC: no network, no agent/review-lane dispatch, no FS/git reads.
  */
 
 import { createHash } from 'node:crypto';
-import { buildReceiptBundle, type ReceiptBundle, type ReceiptBundleBinding } from './receipt-bundle.js';
+import {
+  buildReceiptBundle,
+  type ReceiptBundle,
+  type ReceiptBundleBinding,
+} from './receipt-bundle.js';
 import type { PrivateKeyBase64 } from './authority-signing.js';
 
 export type ProbeDefectKind = 'overfit' | 'subtle' | 'buried' | 'none';
@@ -28,6 +44,11 @@ export interface Probe {
   visibleAcceptancePass: true;
   /** The hidden ground truth: does the artifact actually meet the spec? */
   groundTruthPass: boolean;
+  /**
+   * The defect class. Corpus invariant (enforced by runGateStrength):
+   * `defectKind === 'none'` IFF `groundTruthPass === true`. The oracle reviewer keys off
+   * this label, so the invariant is what makes the oracle well-defined.
+   */
   defectKind: ProbeDefectKind;
 }
 
@@ -37,7 +58,11 @@ export interface ReviewerView {
   description: string;
   artifact: string;
   visibleAcceptancePass: boolean;
-  /** The defect class a spec-aware reviewer can detect; a test-only reviewer ignores it. */
+  /**
+   * The harness-provided defect-class LABEL. A real artifact-reading reviewer would IGNORE this
+   * and derive its own judgement from `artifact`; the built-in `oracleReviewer` reads it directly
+   * (which is exactly why oracleReviewer is an oracle reference, not a real reviewer).
+   */
   defectKind: ProbeDefectKind;
 }
 
@@ -96,9 +121,9 @@ function toView(p: Probe): ReviewerView {
 }
 
 /**
- * Reference reviewer (lower bound): trusts ONLY the visible acceptance test, so it ships
- * everything that passed the test — catching 0 of the wrong-but-test-passing probes. This
- * is the "green test = correct" fallacy made concrete.
+ * Reference reviewer (catches nothing): trusts ONLY the visible acceptance test, so it ships
+ * everything that passed — catching 0 of the wrong-but-test-passing probes (catchRate 0,
+ * falseBlock 0). The "green test = correct" fallacy made concrete.
  */
 export const testOnlyReviewer: Reviewer = (v) => ({
   ship: v.visibleAcceptancePass,
@@ -106,14 +131,25 @@ export const testOnlyReviewer: Reviewer = (v) => ({
 });
 
 /**
- * Reference reviewer (upper bound): a perfect spec-aware reviewer that detects the defect
- * class, so it blocks every wrong probe (with a reason) and ships the genuine one. The live
- * claude -p review lane (a follow-up) plugs into this same seam and would land in between.
+ * Reference reviewer (blocks everything): the degenerate "high catch-rate" gate. It catches every
+ * wrong probe (catchRate 1.0) but ALSO blocks the genuine one (falseBlock = genuineTotal) — proving
+ * catchRate alone is gameable and must be read together with falseBlock.
  */
-export const specAwareReviewer: Reviewer = (v) =>
+export const blockAllReviewer: Reviewer = () => ({
+  ship: false,
+  reason: 'blocked: block-everything policy (degenerate high-catch-rate gate)',
+});
+
+/**
+ * ORACLE reference (upper bound): reads the harness-provided `defectKind` LABEL — not the artifact —
+ * so it blocks every wrong probe with a reason and ships the genuine one (catchRate 1.0, falseBlock 0).
+ * It is an oracle, NOT a real reviewer; it exists to mark the achievable corner of the space. A live
+ * artifact-reading reviewer plugs into the same `Reviewer` seam and lands inside the box.
+ */
+export const oracleReviewer: Reviewer = (v) =>
   v.defectKind === 'none'
-    ? { ship: true, reason: 'no defect detected; artifact meets the spec' }
-    : { ship: false, reason: `blocked: ${v.defectKind} defect — passes the visible test but violates the spec` };
+    ? { ship: true, reason: 'oracle: no defect label; meets the spec' }
+    : { ship: false, reason: `oracle: ${v.defectKind} defect label — passes the visible test but violates the spec` };
 
 export type ProbeClassification = 'caught' | 'shipped-wrong' | 'shipped-genuine' | 'blocked-genuine';
 
@@ -134,15 +170,42 @@ export interface GateStrengthResult {
   caught: number;
   /** wrong probes the reviewer wrongly shipped (the dangerous miss). */
   falseShip: number;
-  /** genuine probes the reviewer wrongly blocked (over-blocking). */
+  /** genuine probes the reviewer wrongly blocked (over-blocking — the other failure mode). */
   falseBlock: number;
-  /** caught / wrongTotal — 1.0 = perfect discrimination, 0 = the visible-test gap. */
+  /**
+   * caught / wrongTotal — 1.0 = blocked every wrong probe. NOTE: catchRate alone is gameable
+   * (a block-everything reviewer also scores 1.0); always read it together with falseBlock.
+   */
   catchRate: number;
   perProbe: ProbeOutcome[];
 }
 
-/** Score a reviewer's discrimination over the corpus against the HIDDEN ground truth. */
+/** Enforce the corpus invariant that makes the oracle well-defined: defectKind==='none' IFF genuine. */
+function assertCorpusInvariant(corpus: readonly Probe[]): void {
+  if (corpus.length === 0) {
+    throw new Error('gate-strength: corpus is empty — nothing to measure');
+  }
+  for (const p of corpus) {
+    const labelSaysGenuine = p.defectKind === 'none';
+    if (labelSaysGenuine !== p.groundTruthPass) {
+      throw new Error(
+        `gate-strength: corpus invariant violated for probe "${p.id}" — defectKind==='none' (${labelSaysGenuine}) must equal groundTruthPass (${p.groundTruthPass})`,
+      );
+    }
+  }
+}
+
+/**
+ * Score a reviewer's discrimination over the corpus against the HIDDEN ground truth.
+ * Throws if the corpus violates the invariant OR contains no wrong probes (you cannot measure a
+ * catch-rate with nothing to catch — that would yield a vacuous "perfect" 1.0).
+ */
 export function runGateStrength(reviewer: Reviewer, corpus: readonly Probe[] = STANDING_CORPUS): GateStrengthResult {
+  assertCorpusInvariant(corpus);
+  const wrongTotal = corpus.filter((p) => !p.groundTruthPass).length;
+  if (wrongTotal === 0) {
+    throw new Error('gate-strength: corpus has no wrong probes — catch-rate is undefined (add at least one)');
+  }
   const perProbe: ProbeOutcome[] = corpus.map((p) => {
     const decision = reviewer(toView(p));
     let classification: ProbeClassification;
@@ -160,7 +223,6 @@ export function runGateStrength(reviewer: Reviewer, corpus: readonly Probe[] = S
       classification,
     };
   });
-  const wrongTotal = corpus.filter((p) => !p.groundTruthPass).length;
   const genuineTotal = corpus.length - wrongTotal;
   const caught = perProbe.filter((o) => o.classification === 'caught').length;
   const falseShip = perProbe.filter((o) => o.classification === 'shipped-wrong').length;
@@ -172,13 +234,18 @@ export function runGateStrength(reviewer: Reviewer, corpus: readonly Probe[] = S
     caught,
     falseShip,
     falseBlock,
-    catchRate: wrongTotal === 0 ? 1 : caught / wrongTotal,
+    catchRate: caught / wrongTotal,
     perProbe,
   };
 }
 
 function sha256Hex(value: string): string {
   return createHash('sha256').update(value).digest('hex');
+}
+
+/** Deterministic code-point comparison (locale-independent, unlike String.localeCompare). */
+function byCodePoint(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 /** Stable, key-ordered projection of a result for a deterministic digest. */
@@ -190,7 +257,7 @@ function canonicalResult(r: GateStrengthResult): unknown {
     falseShip: r.falseShip,
     genuineTotal: r.genuineTotal,
     perProbe: [...r.perProbe]
-      .sort((a, b) => a.id.localeCompare(b.id))
+      .sort((a, b) => byCodePoint(a.id, b.id))
       .map((o) => ({
         classification: o.classification,
         defectKind: o.defectKind,
@@ -207,6 +274,9 @@ function canonicalResult(r: GateStrengthResult): unknown {
 export function gateStrengthDigest(result: GateStrengthResult): string {
   return sha256Hex(JSON.stringify(canonicalResult(result)));
 }
+
+/** The receipt label gateStrengthBundle binds the result digest under. */
+export const GATE_STRENGTH_RECEIPT_LABEL = 'gate-strength';
 
 /**
  * Publish a gate-strength result as a B-4c65 ReceiptBundle so it is offline-verifiable.
@@ -232,14 +302,37 @@ export function gateStrengthBundle(
       commandSetHash: binding.commandSetHash,
       receipts: [
         {
-          command: `gate-strength reviewer=${reviewerId} caught=${result.caught}/${result.wrongTotal} catchRate=${result.catchRate}`,
+          command: `gate-strength reviewer=${reviewerId} caught=${result.caught}/${result.wrongTotal} catchRate=${result.catchRate} falseBlock=${result.falseBlock}`,
           exitCode: 0,
           outputDigest: gateStrengthDigest(result),
-          label: 'gate-strength',
+          label: GATE_STRENGTH_RECEIPT_LABEL,
         },
       ],
       hostVerdicts: [{ hostId: reviewerId, decision: 'pass', keyId: 'gate-strength' }],
     },
     privateKey,
   );
+}
+
+export interface GateStrengthResultMatch {
+  /** true iff the result's recomputed digest equals the digest bound in the bundle's receipt. */
+  matches: boolean;
+  /** sha256(canonicalResult(result)) — what the result actually digests to now. */
+  expectedDigest: string;
+  /** the digest bound in the bundle's gate-strength receipt, if present. */
+  boundDigest: string | undefined;
+}
+
+/**
+ * Close the result↔receipt loop that the signature alone cannot: recompute the digest of the
+ * SUPPLIED result and compare it to the digest bound in the bundle's gate-strength receipt. Use
+ * AFTER verifyReceiptBundleOffline (which proves the bundle itself is authentic + fresh): together
+ * they show "this bundle is genuine AND this result is the one it attests". A result tampered after
+ * the fact (e.g. an inflated catchRate) re-digests differently → matches=false.
+ */
+export function verifyGateStrengthResult(result: GateStrengthResult, bundle: ReceiptBundle): GateStrengthResultMatch {
+  const expectedDigest = gateStrengthDigest(result);
+  const receipt = bundle.receipts.find((r) => r.label === GATE_STRENGTH_RECEIPT_LABEL);
+  const boundDigest = receipt?.outputDigest;
+  return { matches: boundDigest === expectedDigest, expectedDigest, boundDigest };
 }
