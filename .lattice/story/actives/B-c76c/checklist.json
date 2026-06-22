@@ -195,7 +195,7 @@
       },
       "status": "done",
       "startTime": "2026-06-22T21:05:34.833Z",
-      "endTime": "2026-06-22T21:06:38.554Z",
+      "endTime": "2026-06-22T21:10:13.264Z",
       "files": {
         "modify": [
           "package.json",
@@ -209,35 +209,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
-          "command": "node - <<'NODE' ... version assertion for package.json and packages/main/package.json ... NODE",
+          "command": "node -e \"const root=require(./package.json); const main=require(./packages/main/package.json); console.log(package.json, root.version); console.log(packages/main/package.json, main.version); if (root.version !== 0.3.63 || main.version !== 0.3.63) process.exit(1);\"",
           "result": "pass",
           "note": "package.json 0.3.63 and packages/main/package.json 0.3.63 were printed and asserted after npm install.",
-          "headHash": "d64133fa55c963d7e2e96af8a3f8b9fc98a37a02",
+          "headHash": "4b140cbfba3aeb3a9510bef55dc52b2b94d58613",
           "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
           "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
-          "timestamp": "2026-06-22T21:06:38.984Z"
+          "timestamp": "2026-06-22T21:10:13.699Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
-          "command": "npm install && node - <<'NODE' ... lock root assertion ... NODE",
+          "command": "node -e \"const lock=require(./package-lock.json); const root=lock.packages && lock.packages[]; console.log(package-lock root, lock.version, /, root && root.version); if (lock.version !== 0.3.63 || !root || root.version !== 0.3.63) process.exit(1);\"",
           "result": "pass",
-          "note": "npm install succeeded; package-lock root printed 0.3.63 / 0.3.63, replacing stale copied 0.3.49 lock metadata.",
-          "headHash": "d64133fa55c963d7e2e96af8a3f8b9fc98a37a02",
+          "note": "package-lock root printed 0.3.63 / 0.3.63, proving npm install regenerated the stale copied 0.3.49 lock metadata.",
+          "headHash": "4b140cbfba3aeb3a9510bef55dc52b2b94d58613",
           "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
           "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
-          "timestamp": "2026-06-22T21:06:39.401Z"
+          "timestamp": "2026-06-22T21:10:14.123Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "command": "node - <<'NODE' ... fail on 0.3.60 or 0.3.49 ... NODE && git status --short --branch",
+          "command": "node -e \"const root=require(./package.json); const main=require(./packages/main/package.json); const lock=require(./package-lock.json); const vals=[root.version, main.version, lock.version, lock.packages[].version]; if (vals.some(v => v === 0.3.60 || v === 0.3.49)) process.exit(2);\" && git status --short --branch",
           "result": "pass",
           "note": "Assertion would exit nonzero if any checked metadata surface remained 0.3.60 or 0.3.49; it passed, and git status was clean on story/B-c76c after commit d64133fa5.",
-          "headHash": "d64133fa55c963d7e2e96af8a3f8b9fc98a37a02",
+          "headHash": "4b140cbfba3aeb3a9510bef55dc52b2b94d58613",
           "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
           "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
-          "timestamp": "2026-06-22T21:06:39.854Z"
+          "timestamp": "2026-06-22T21:10:14.532Z"
         }
       ]
     },
