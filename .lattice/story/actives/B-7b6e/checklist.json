@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Gate-strength harness + standing probe corpus + 2 reference reviewers",
+      "context": "New core/gate-strength.ts: a reviewer-agnostic runGateStrength(reviewer, corpus) that scores catch-rate + per-probe reason against a HIDDEN ground-truth; a standing corpus of passes-visible-test-but-wrong probes (overfit lookup-table, subtle falsy-guard, buried-needle), each with a hidden ground-truth distinct from the visible acceptance; ship testOnlyReviewer (catches 0) + specAwareReviewer (catches all). Emit the gate-strength result as a B-4c65 ReceiptBundle (reuse buildReceiptBundle) so it is offline-verifiable via verifyReceiptBundleOffline. No live agent dispatch.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Gate-strength contract smoke + wiring",
+      "context": "New tasks/gate-strength-contract-smoke.ts (hermetic): assert test-only reviewer catches 0/N (the visible-test gap), spec-aware catches N/N with the correct per-probe reason (discrimination is real, not a block-everything constant), the emitted gate-strength receipt verifies offline (verifyReceiptBundleOffline accepted), and the catch-rate metric is computed correctly. Register in lattice.config.json validate.commands; add a CHANGELOG entry (honest single-host/hermetic scope, live review-lane deferred).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
