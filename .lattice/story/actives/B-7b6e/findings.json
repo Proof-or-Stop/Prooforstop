@@ -36,6 +36,23 @@
       ],
       "signatureTag": "edge|ts:116|tampered-receipts-assertion",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b6e:F-003",
+      "desc": "[codex-host2 #1] catchRate=caught/wrongTotal does NOT capture over-blocking: a block-everything reviewer scores caught=wrongTotal, catchRate=1.0 (with falseBlock>0), indistinguishable from the oracle if a consumer reads catchRate alone. The smoke's 'not a block-everything constant' claim is not actually proven by catchRate. FIX: add a blockAll reference reviewer and prove the oracle DOMINATES both endpoints (beats test-only on catchRate AND beats block-all on falseBlock).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:20.096Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "390c62304611f2a1a076f257d55f3cceda8de181f10272e09f121191221a21c3",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-catchrate",
+      "signatureTagSource": "auto"
     }
   ]
 }
