@@ -4,7 +4,7 @@
   "title": "Add retired-root canonical-root guard for legacy Orchestrate checkout",
   "description": "Prevent future Host or Agent sessions from accidentally creating, advancing, validating, or writing Lattice evidence in the retired /Users/jek/Documents/Work/Orchestrate checkout after active worktrees were migrated to /Users/jek/Documents/Work/proofbound. The guard must keep read-only evidence access available while failing closed for mutating commands with an explicit canonical-root recovery message.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "retired-root",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-06-22T20:34:13.423Z",
   "startedAt": "2026-06-22T20:34:13.423Z",
-  "endedAt": null,
+  "endedAt": "2026-06-22T22:15:07.562Z",
   "events": [
     {
       "phase": "INIT",
@@ -75,12 +75,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-ee47a881b681dc6a",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-22T22:15:07.562Z",
+      "branch": "story/B-bcd4",
+      "user": "Harmonygo",
+      "sessionId": "sess-ee47a881b681dc6a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-bcd4",
-    "branch": "story/B-bcd4",
-    "createdAt": "2026-06-22T20:39:09.078Z"
-  },
   "currentReviewRound": "2026-06-22T21:56:36.606Z"
 }
