@@ -72,6 +72,8 @@
           "packages/main/src/core/zod.ts",
           "packages/main/src/handlers/test-auto.ts",
           "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
           "packages/utils/src/index.ts",
           "packages/utils/src/register.ts",
           "packages/utils/src/tool-defs.ts",
@@ -82,7 +84,9 @@
         "create": [],
         "test": [
           "scripts/verify-runtime-fact-contract.mjs",
-          "scripts/verify-entrypoints.mjs"
+          "scripts/verify-entrypoints.mjs",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
       },
       "verificationIntent": {
