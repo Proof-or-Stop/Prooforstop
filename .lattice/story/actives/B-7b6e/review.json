@@ -83,6 +83,29 @@
         }
       ],
       "_hash": "b931a28ea748260221146a8576f5d19c97bb662a2997581932d592bbb635c529"
+    },
+    {
+      "timestamp": "2026-06-22T23:35:22.235Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Gate-strength harness + standing probe corpus + 2 reference reviewers + Gate-strength contract smoke + wiring are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: exact ReceiptBundleEvidence shape to feed buildReceiptBundle for the gate-strength receipt (read receipt-bundle.ts)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-7b6e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9c527b6ab0fdf76476d2b529eaee0441ca29fbdc507a3e372a9f3e7d808d9931"
     }
   ]
 }
