@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-001",
       "_hash": "27597e964e764cb8c3143f24a61cda2d0d7800f1725675df1fd9a93cb8e275fd"
+    },
+    {
+      "id": "B-7b6e:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 symbols extracted (runGateStrength, testOnlyReviewer, specAwareReviewer, gateStrengthBundle). Step 2: 1 paragraph compared — CHANGELOG.md Verifiable autonomy / B-7b6e entry. Step 3: All 11 CHANGELOG claims verified against gate-strength.ts and gate-strength-contract-smoke.ts in commit 0560975d2: (1) all 4 symbols exist and are exported; (2) testOnlyReviewer ships visibleAcceptancePass and catches 0, smoke asserts catchRate===0; (3) specAwareReviewer blocks defectKind!==none and catches all, smoke asserts catchRate===1; (4) gateStrengthBundle calls buildReceiptBundle from receipt-bundle.ts, assurance hardwired to local-key-single-host confirmed; (5) smoke asserts test-only=0, spec-aware=1.0, endpoints differ, receipt ACCEPTED, tampered digest signature_invalid, stale rejected — all present and accurate; (6) receipt-bundle.ts is NOT in the commit stat (4 files: CHANGELOG.md, lattice.config.json, gate-strength.ts, gate-strength-contract-smoke.ts) — reused-not-modified claim verified; (7) HERMETIC claim accurate — smoke header explicitly states no network/agent/FS/git; live reviewer and scheduling described as follow-ups, not implemented in this commit. No blockers.",
+      "createdAt": "2026-06-22T23:46:03.132Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-003",
+      "_hash": "16ded5f1058d2b2053117906dd9b29b76c56a0b4bfef24bc24b0980ea5d3ec15"
     }
   ]
 }
