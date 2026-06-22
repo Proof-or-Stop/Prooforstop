@@ -146,6 +146,19 @@
           "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
           "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
           "timestamp": "2026-06-22T23:43:22.616Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-strength-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke assertions 'gate-strength receipt verifies offline (ACCEPTED)' + 'tampering the bound metric digest is REJECTED (signature_invalid)' + 'stale materialHash REJECTED' — the published strength metric is itself tamper-evident.",
+          "headHash": "e3832ba69ac17cee5ac7d93394866407bbad033f",
+          "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
+          "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
+          "timestamp": "2026-06-22T23:43:23.364Z"
         }
       ]
     }
