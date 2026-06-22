@@ -83,7 +83,30 @@
       "context": "Generic injections shared across tasks",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/injections/ -> lists exactly corrupt-output.mjs and delete-output.mjs (2 files); WHY: confirms both generic injection files are tracked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each injection file is non-empty and exports a default function or contains a recognizable handler (grep for export or module pattern); WHY: guards against empty stubs being tracked instead of real injection code",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No extra files exist under injections/ besides the two expected (git ls-files experiments/recovery-runner/injections/ | wc -l == 2); WHY: catches accidental tracking of stray injection files or experiment artifacts that should not be in scope",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
