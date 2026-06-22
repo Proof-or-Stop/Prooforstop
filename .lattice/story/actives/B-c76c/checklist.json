@@ -47,10 +47,10 @@
           "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "Baseline stat including root-doc exclusions printed 39 files changed, 4606 insertions(+), 139 deletions(-); allowed import surface alone is 37 files changed, 4592 insertions(+), 139 deletions(-).",
-          "headHash": "844a968ff1a8ab4df763858ee246ad565d152ea1",
-          "materialHash": "47b0839e987c81b7a379f39a1bbf8cc076cfe8358f458f137b69615769c7e18d",
-          "storyFilesHash": "04e75a7a1431e228a947ec954cda3c75410033a87d9b40ccab5f81cbc7d26790",
-          "timestamp": "2026-06-22T21:02:52.382Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,10 +58,10 @@
           "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "AGENTS.md and CLAUDE.md account for 2 excluded files / 14 insertions of retired-root warning drift and will not be imported.",
-          "headHash": "844a968ff1a8ab4df763858ee246ad565d152ea1",
-          "materialHash": "47b0839e987c81b7a379f39a1bbf8cc076cfe8358f458f137b69615769c7e18d",
-          "storyFilesHash": "04e75a7a1431e228a947ec954cda3c75410033a87d9b40ccab5f81cbc7d26790",
-          "timestamp": "2026-06-22T21:02:52.482Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,10 +69,10 @@
           "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence experiments docs/story tests/fixtures && git diff --name-only HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence docs/story tests/fixtures",
           "result": "pass",
           "note": "Excluded audit showed experiments-only tracked drift under experiments plus no output for .lattice/local-evidence, docs/story, or tests/fixtures; none are import candidates.",
-          "headHash": "844a968ff1a8ab4df763858ee246ad565d152ea1",
-          "materialHash": "47b0839e987c81b7a379f39a1bbf8cc076cfe8358f458f137b69615769c7e18d",
-          "storyFilesHash": "04e75a7a1431e228a947ec954cda3c75410033a87d9b40ccab5f81cbc7d26790",
-          "timestamp": "2026-06-22T21:02:52.580Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "git diff --name-only refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements",
           "result": "pass",
           "note": "After commit 15a3405d5, allowed tracked code/config/docs paths produced no diff against refs/remotes/orchestrate/main.",
-          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
-          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
-          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
-          "timestamp": "2026-06-22T21:05:23.190Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,10 +142,10 @@
           "command": "git diff --name-only HEAD -- AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "excludedRootDocs: clean; AGENTS.md and CLAUDE.md were not overwritten by retired Orchestrate root warning text.",
-          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
-          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
-          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
-          "timestamp": "2026-06-22T21:05:23.699Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,10 +153,10 @@
           "command": "git diff --name-only HEAD -- .lattice/local-evidence experiments docs/story tests/fixtures && git status --short --branch",
           "result": "pass",
           "note": "excludedLegacyEvidence: clean; no files under .lattice/local-evidence, experiments, docs/story, or tests/fixtures were staged/imported, and git status was clean on story/B-c76c.",
-          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
-          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
-          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
-          "timestamp": "2026-06-22T21:05:24.207Z"
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
         }
       ]
     },
