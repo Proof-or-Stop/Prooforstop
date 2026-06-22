@@ -344,6 +344,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:57:38.158Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/text-stats && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "text-stats reference solution self-consistent: ACCEPT PASS (6 checks) + GROUND-TRUTH PASS (5 held-out checks); temp solution.mjs removed.",
+          "headHash": "97c00b615b0bf431a5357f408a3d1daa361c49e7",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:57:40.416Z"
         }
       ]
     }
