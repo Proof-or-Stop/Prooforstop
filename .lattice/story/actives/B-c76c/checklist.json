@@ -142,13 +142,14 @@
       "context": "Run focused build/version checks to prove proofbound no longer lags behind Orchestrate before continuing retired-root guard work.",
       "relatedDocs": [
         "package.json",
-        "packages/main/package.json"
+        "packages/main/package.json",
+        "packages/utils/package.json"
       ],
-      "userSees": "The terminal prints proofbound Lattice CLI 0.3.63 from the local checkout and build checks pass.",
+      "userSees": "The terminal prints `Lattice CLI 0.3.63` from `node bin/lattice.js --version`, after `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` both pass.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "npm --prefix packages/main run build succeeds after baseline import.",
+            "desc": "npm --prefix packages/main run build and npm --prefix packages/utils run build both succeed after baseline import.",
             "type": "cli",
             "priority": "must"
           }
@@ -170,7 +171,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src",
+          "packages/utils"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
