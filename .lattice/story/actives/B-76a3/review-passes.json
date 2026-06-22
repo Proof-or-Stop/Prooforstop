@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-22T19:02:40.255Z",
       "reviewRunId": "B-76a3:RR-004",
       "_hash": "3fb6a6ff2acdb5a518f68e9ab03c64b41cdb942a2dac907fcd6f68eb10eea1bb"
+    },
+    {
+      "id": "B-76a3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept pass: validate --concept raw-deleted symbols and residual references inspected. LATTICE_CLI_VERSION is still live and intentionally bumped from 0.3.58 to 0.3.59 in root package.json, packages/main/package.json, and packages/main/src/core/lattice-brand.ts, so residual references are expected current runtime/test/doc uses rather than a semantic removal. collectFixtureIntentRefs and summarizeIntentCoverage only belonged to the deleted obsolete packages/main/src/core/intent-coverage.ts; targeted rg found no live imports or references in packages/main/src, packages/main/tests, or scripts. ./node_modules/.bin/tsc --noEmit --pretty false -p packages/main/tsconfig.json passes, confirming no broken runtime import remains. The standalone concept gate residual count is therefore benign for this round; no conceptual blocker remains.",
+      "createdAt": "2026-06-22T19:07:36.484Z",
+      "reviewRound": "2026-06-22T19:02:40.255Z",
+      "reviewRunId": "B-76a3:RR-005",
+      "_hash": "05ebe095a268d3831fd95b6b2bc452a799af6429ab0e7c152fc809c78850453a"
     }
   ]
 }
