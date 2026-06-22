@@ -1,0 +1,38 @@
+{
+  "storyId": "B-bcd4",
+  "checkedAt": "2026-06-22T20:35:08.521Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "high",
+      "desc": "The background/checklist names the user value as migrating active Orchestrate worktrees into proofbound plus adding host-neutral retired-root protection, but the checklist only documents that B-3523 and B-fbb6 were migrated; it does not require a user-observable migration/verification outcome such as proofbound worktrees existing, Orchestrate worktrees retired/read-only, and resumed story state matching. As written, the user could still wonder whether the active work was actually moved or merely described."
+    },
+    {
+      "severity": "medium",
+      "desc": "Several checklist items are framed as implementation mechanics (configuration semantics, command-policy enforcement, focused tests) without explicit user-observable completion language. The guard value is directionally clear, but INIT would be stronger if each item stated what the user can see afterward: reads still work in Orchestrate, mutating commands fail with the canonical proofbound path, override use is narrow/auditable, and migrated stories can continue from proofbound."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-22T20:34:49.107Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-22T20:35:08.521Z",
+      "issues": [
+        {
+          "severity": "high",
+          "desc": "The background/checklist names the user value as migrating active Orchestrate worktrees into proofbound plus adding host-neutral retired-root protection, but the checklist only documents that B-3523 and B-fbb6 were migrated; it does not require a user-observable migration/verification outcome such as proofbound worktrees existing, Orchestrate worktrees retired/read-only, and resumed story state matching. As written, the user could still wonder whether the active work was actually moved or merely described."
+        },
+        {
+          "severity": "medium",
+          "desc": "Several checklist items are framed as implementation mechanics (configuration semantics, command-policy enforcement, focused tests) without explicit user-observable completion language. The guard value is directionally clear, but INIT would be stronger if each item stated what the user can see afterward: reads still work in Orchestrate, mutating commands fail with the canonical proofbound path, override use is narrow/auditable, and migrated stories can continue from proofbound."
+        }
+      ]
+    }
+  ],
+  "_hash": "8e9f96450996be9a3867149fa00ad3c6b0afb043559f34d334a1dd42047713d6"
+}

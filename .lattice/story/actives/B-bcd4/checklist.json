@@ -6,7 +6,8 @@
       "context": "Add a small config surface that can mark a project root retired and identify canonicalRoot, without changing normal project behavior.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Project config can explicitly say this checkout is retired and points to /Users/jek/Documents/Work/proofbound as canonicalRoot; read-only commands still show legacy evidence instead of deleting it."
     },
     {
       "id": "CHK-002",
@@ -14,7 +15,8 @@
       "context": "Use existing command policy ownership classes so read-only commands remain available and story/checklist/validate/evidence writes fail closed with a canonical-root message.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "From the retired Orchestrate root, story_create/story_advance/validate --story/checklist_update fail with a clear message that names the canonical proofbound root; session_brief/story_get remain readable."
     },
     {
       "id": "CHK-003",
@@ -22,12 +24,26 @@
       "context": "Verify read-only commands still work, mutating commands are rejected, and explicit override is narrow and auditable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The automated test transcript shows read-only retired-root access passing and mutating retired-root commands rejected unless the explicit human override is set."
     },
     {
       "id": "CHK-004",
       "title": "Document Orchestrate retirement and migration recovery path",
       "context": "Record that B-3523 and B-fbb6 were migrated into proofbound worktrees and that Orchestrate is read-only legacy evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Docs/summary tell future Hosts to use /Users/jek/Documents/Work/proofbound, and show B-3523/B-fbb6 migration recovery paths without claiming old Orchestrate is still active."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify migrated active stories are visible in proofbound and absent from Orchestrate active worktrees",
+      "context": "User-observable migration acceptance: B-3523 and B-fbb6 must be recoverable at /Users/jek/Documents/Work/proofbound/.worktrees/*, while /Users/jek/Documents/Work/Orchestrate no longer has story/B-3523 or story/B-fbb6 worktrees/branches.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-bcd4/background.md"
+      ],
+      "userSees": "Running session_brief in proofbound lists B-3523 and B-fbb6 as active worktree-authority stories; running session_brief/worktree list in Orchestrate shows no healthy active B-3523 or B-fbb6 worktree.",
       "status": "pending",
       "startTime": null,
       "endTime": null
