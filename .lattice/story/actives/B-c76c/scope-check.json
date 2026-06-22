@@ -1,0 +1,80 @@
+{
+  "storyId": "B-c76c",
+  "checkedAt": "2026-06-22T20:55:21.501Z",
+  "features": [
+    {
+      "feature": "Sync proofbound tracked code/config/docs baseline from retired Orchestrate 0.3.63 into proofbound",
+      "covered_by": "story.description; understanding.task/outcome; decision.chosen; CHK-001; CHK-002; CHK-003; CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail index.description plus understanding_get and checklist_get"
+    },
+    {
+      "feature": "Compare exact tracked proofbound versus Orchestrate baseline before importing",
+      "covered_by": "CHK-001; plan CHK-001; CHK-001 verificationIntent happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 and plan_get CHK-001"
+    },
+    {
+      "feature": "Import selected tracked source/config/docs paths from Orchestrate main",
+      "covered_by": "CHK-002; plan CHK-002; decision option A",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002, plan_get CHK-002, decision_get"
+    },
+    {
+      "feature": "Regenerate package/version artifacts so package.json, packages/main/package.json, and package-lock root metadata agree on 0.3.63",
+      "covered_by": "CHK-003; plan CHK-003; understanding.outcome",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003, plan_get CHK-003, understanding_get"
+    },
+    {
+      "feature": "Verify proofbound local CLI/build/status after import",
+      "covered_by": "CHK-004; plan CHK-004 for local version and path audit; CHK-004 verificationIntent edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-004 and plan_get CHK-004"
+    },
+    {
+      "feature": "Orchestrate retired-root warning text in AGENTS.md and CLAUDE.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story.description; understanding.constraints; CHK-001 edge; CHK-002 edge; plan CHK-002",
+      "source": "story_get --detail, understanding_get, checklist_get, plan_get"
+    },
+    {
+      "feature": "Legacy evidence, dirty untracked experiments, docs/story, and tests/fixtures content",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story.description; understanding.constraints; CHK-001 adversarial; CHK-002 adversarial; plan CHK-002",
+      "source": "story_get --detail, understanding_get, checklist_get, plan_get"
+    },
+    {
+      "feature": "Migrated B-3523/B-fbb6 business work or branch-history normalization",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision option A cons; plan CHK-002",
+      "source": "decision_get and plan_get CHK-002"
+    },
+    {
+      "feature": "Build packages/utils as part of final verification",
+      "covered_by": "plan CHK-004 only",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "plan_get CHK-004 declares building packages/utils, while checklist_get CHK-004 verificationIntent only requires npm --prefix packages/main run build and understanding_get touchpoints omit packages/utils"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "1c6dfef02a9de3f9676b8934e82c3a6d1200dd49736b732845cded6ad4054aff",
+  "openQuestions": []
+}
