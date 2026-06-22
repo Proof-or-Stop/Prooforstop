@@ -4,7 +4,7 @@
   "title": "Track the recovery-runner experiment harness in proofbound (canonical-repo code review)",
   "description": "After the working repo migrated from the legacy Orchestrate checkout to the canonical proofbound repo, the recovery-runner experiment harness did not carry over (0 tracked files, absent on disk). Re-onboard its CODE under version control through the review gate here; the .jsonl run-record data stays in the paper repo.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "experiments",
@@ -52,11 +52,21 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T22:58:54.385Z",
+      "branch": "story/B-fef0",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-fef0",
     "branch": "story/B-fef0",
     "createdAt": "2026-06-22T22:47:29.151Z"
-  }
+  },
+  "currentReviewRound": "2026-06-22T22:58:54.385Z"
 }
