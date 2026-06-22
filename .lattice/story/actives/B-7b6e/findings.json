@@ -87,6 +87,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host2-reviewerview",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b6e:F-006",
+      "desc": "[codex-host2 #4] tamper-evidence overstated: verifyReceiptBundleOffline never receives/re-derives the GateStrengthResult, so an external result JSON can be altered while the unchanged bundle still verifies. The smoke only proves mutating a SIGNED field breaks the signature. FIX: add verifyGateStrengthResult(result, bundle) that recomputes gateStrengthDigest(result) and compares to the bound receipt digest, demonstrate authentic-accept + tampered-result-reject, and correct the prose to 'the bundle's bound result-digest is tamper-evident; verifyGateStrengthResult closes the result<->receipt loop'.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:22.489Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "0c2a7ee4ff060481fcbcd532066924cf8cbc3947c0b6137320c528408350a536",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-tamper",
+      "signatureTagSource": "auto"
     }
   ]
 }
