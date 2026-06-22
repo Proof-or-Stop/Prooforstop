@@ -46,7 +46,7 @@ function makeFixture(version: string, over?: { root?: string; main?: string; bra
   const dir = mkdtempSync(join(tmpdir(), 'version-bump-smoke-'));
   mkdirSync(join(dir, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "${over?.root ?? version}",\n  "description": ""\n}\n`);
-  writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice-agent/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
   writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Lattice CLI' as const;\nvoid basename;\n`);
   return dir;
 }
@@ -252,7 +252,7 @@ void (async () => {
     throws('verify wrong-value -> applyPatchBump throws', () => applyPatchBump(fverWrong, {
       afterWriteForTest: () => {
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "7.7.7"\n}\n`);
-        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice-agent/core",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "7.7.7"\n}\n`);
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '7.7.7' as const;\n`);
       },
     }));
