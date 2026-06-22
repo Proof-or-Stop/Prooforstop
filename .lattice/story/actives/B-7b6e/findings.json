@@ -53,6 +53,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host2-catchrate",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b6e:F-004",
+      "desc": "[codex-host2 #2] wrongTotal===0 ? 1 avoids NaN but yields a vacuous perfect score: an empty / all-genuine corpus returns caught=0/0 catchRate=1 and can be bundled as 'perfect'. FIX: runGateStrength must reject a corpus with no wrong probes (you cannot measure catch-rate with nothing to catch).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:20.897Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "053d0e8917b2419f3e50552f311cda6595dff35322ea72e8c99ff3d2404756ea",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-wrongtotal",
+      "signatureTagSource": "auto"
     }
   ]
 }
