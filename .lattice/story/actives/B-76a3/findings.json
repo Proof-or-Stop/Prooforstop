@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-76a3:F-001",
+      "desc": "CHK-004:adversarial:0 is not covered by the recorded evidence as written. The evidence note says `git show --name-status --oneline abeba7c -- scripts packages/main/src packages/main/tests | rg ^D` shows only approved one-time script deletions, but rerunning that command at the reviewed HEAD also outputs `D packages/main/src/core/intent-coverage.ts`. That deletion may be intentional under CHK-003, but the CHK-004 adversarial predicate/evidence does not prove the claimed script-cleanup scope until the evidence is refreshed with a scripts-only predicate or explicitly allows the CHK-003 deletion.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-22T19:00:33.097Z",
+      "reviewRound": "2026-06-22T18:56:08.643Z",
+      "reviewRunId": "B-76a3:RR-003",
+      "_hash": "922816a981b533f8fd4927ebabdcd7372fb90134706c241f95b4ffb7b7aac5f8",
+      "files": [
+        ".lattice/story/actives/B-76a3/checklist.json"
+      ],
+      "signatureTag": "adversarial|json|adversarial-covered-recorded",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
