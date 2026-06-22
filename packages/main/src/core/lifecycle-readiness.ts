@@ -611,16 +611,20 @@ function mapDoneRow(storyId: string, doneRow: DoneCheckRow): StoryReadinessRow {
 
 function buildDoneRows(store: StoryStore, storyId: string, root: string, gitCwd: string): StoryReadinessRow[] {
   const rows = buildDoneChecklist(storyId, store, root, { gitCwd, auditWriter: null }).map((doneRow) => mapDoneRow(storyId, doneRow));
+  const doneOracleHasBlockers = rows.some((doneRow) => doneRow.blocking);
   rows.push(row({
     id: 'done.done_prepare',
-    status: 'blocked',
+    status: doneOracleHasBlockers ? 'blocked' : 'warn',
     source: 'done_prepare',
     sourceRef: null,
     owner: 'done_prepare',
-    category: 'missing',
+    category: doneOracleHasBlockers ? 'missing' : 'advisory',
     code: 'missing_done_prepare_report',
-    reason: 'No current done_prepare report is recorded in V1-readable structured storage; V1 does not run done_prepare',
+    reason: doneOracleHasBlockers
+      ? 'No current done_prepare report is recorded in V1-readable structured storage; V1 does not run done_prepare'
+      : 'No current done_prepare report is recorded; DONE oracle rows have no blockers, so done_prepare is advisory preflight guidance only',
     nextCommand: donePrepareCommand(storyId),
+    blocking: doneOracleHasBlockers,
   }));
   rows.push(row({
     id: 'authority.local_only',

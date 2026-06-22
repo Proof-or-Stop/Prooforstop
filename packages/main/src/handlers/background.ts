@@ -25,9 +25,25 @@ import {
   parseSections,
   validateBackground,
 } from '../core/background-validator.js';
+import { assertEnglishAuthoringText } from './english-artifact-gate.js';
 
 function backgroundPath(ctx: HandlerContext, storyId: string): string {
   return ctx.store.storyFilePath(storyId, 'background.md');
+}
+
+/**
+ * Refine the offending field name for a 1-based line in background content by
+ * naming the enclosing "## Section". Mirrors story-create's helper so the early
+ * refusal points at the section the author must fix.
+ */
+function backgroundFieldForLine(content: string, line: number): string {
+  const lines = content.split(/\r?\n/);
+  let section: string | null = null;
+  for (let i = 0; i < Math.min(line, lines.length); i++) {
+    const match = lines[i].match(/^##\s+(.+?)\s*$/);
+    if (match) section = match[1].trim();
+  }
+  return section ? `background (${section})` : 'background';
 }
 
 export function createBackgroundHandlers(ctx: HandlerContext) {
@@ -46,6 +62,14 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
     background_set(args: { storyId: string; content: string }): { path: string; bytes: number } {
       if (!args.storyId) throw new Error('storyId is required');
       if (typeof args.content !== 'string') throw new Error('content is required (string)');
+
+      // Shift-left English-only policy: refuse CJK author text before writing
+      // background.md, reusing the same detectCjk predicate as the REVIEW->TEST gate.
+      assertEnglishAuthoringText('background_set', [{
+        field: 'background',
+        text: args.content,
+        fieldForLine: (line) => backgroundFieldForLine(args.content, line),
+      }]);
 
       const result = validateBackground(args.content);
       if (!result.ok) {
@@ -83,6 +107,12 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
         );
       }
       const targetSection = backgroundSectionTitle(targetSectionId);
+
+      // Shift-left English-only policy: refuse CJK author text before writing.
+      assertEnglishAuthoringText('background_append', [{
+        field: `background_append.content (${targetSection})`,
+        text: args.content,
+      }]);
 
       const p = backgroundPath(ctx, args.storyId);
       if (!existsSync(p)) {

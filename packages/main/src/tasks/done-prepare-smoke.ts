@@ -36,12 +36,14 @@ interface RepoOptions {
   storyId: string;
   phase?: StoryInfo['phase'];
   validateCommand?: string;
+  doneRequiredPolicy?: boolean;
   changedFile?: { path: string; content: string };
   staleEvidence?: 'safe' | 'command';
   storyHashCommandEvidence?: boolean;
   hostVerdict?: boolean;
   staleHostVerdict?: boolean;
   baseConflictFile?: boolean;
+  doneRequiredCommandExit?: number;
 }
 
 function git(cwd: string, args: string[]): string {
@@ -277,6 +279,13 @@ function buildRepo(options: RepoOptions): { root: string; worktreePath: string }
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
+    ...(options.doneRequiredPolicy ? {
+      doneRequiredCommands: [{
+        label: 'done-prepare-smoke-done-required',
+        command: process.execPath,
+        args: ['-e', `process.exit(${options.doneRequiredCommandExit ?? 0})`],
+      }],
+    } : {}),
     ...validate,
   }, null, 2));
   write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
@@ -418,6 +427,114 @@ withRepo('dirty preflight blocks before mutation', { storyId: 'B-dp-dirty' }, ({
   const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-dirty', validate: false });
   assertBlocked(output, 'cleanTree');
   assert.match(output, /dirty\.txt/);
+});
+
+withRepo('dirty source preflight still blocks before mutation', { storyId: 'B-dp-dirty-source' }, ({ worktreePath }) => {
+  write(worktreePath, 'packages/main/src/dirty-source.ts', 'export const dirtySource = true;\n');
+  const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-dirty-source', validate: false });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /packages\/main\/src\/dirty-source\.ts/);
+});
+
+withRepo('metadata-to-source dirty rename blocks before mutation', {
+  storyId: 'B-dp-rename-metadata-source',
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-rename-metadata-source';
+  const metadataPath = `.lattice/story/actives/${storyId}/rename-source.json`;
+  const sourcePath = 'packages/main/src/renamed-from-metadata.ts';
+  write(worktreePath, metadataPath, '{"tracked":true}\n');
+  git(worktreePath, ['add', metadataPath]);
+  git(worktreePath, [...COMMIT_ENV, 'commit', '-m', 'add metadata rename source']);
+  mkdirSync(join(worktreePath, dirname(sourcePath)), { recursive: true });
+  git(worktreePath, ['mv', metadataPath, sourcePath]);
+
+  const before = status(worktreePath);
+  assert.match(before, /R\s+\.lattice\/story\/actives\/B-dp-rename-metadata-source\/rename-source\.json -> packages\/main\/src\/renamed-from-metadata\.ts/);
+  const output = runLattice(worktreePath, 'done_prepare', { storyId, validate: false, mergeMain: false });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /\.lattice\/story\/actives\/B-dp-rename-metadata-source\/rename-source\.json/);
+  assert.match(output, /packages\/main\/src\/renamed-from-metadata\.ts/);
+});
+
+withRepo('source-to-metadata dirty rename blocks before mutation', {
+  storyId: 'B-dp-rename-source-metadata',
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-rename-source-metadata';
+  const sourcePath = 'packages/main/src/source-before-metadata-rename.ts';
+  const metadataPath = `.lattice/story/actives/${storyId}/renamed-source.json`;
+  write(worktreePath, sourcePath, 'export const sourceBeforeMetadataRename = true;\n');
+  git(worktreePath, ['add', sourcePath]);
+  git(worktreePath, [...COMMIT_ENV, 'commit', '-m', 'add source rename source']);
+  git(worktreePath, ['mv', sourcePath, metadataPath]);
+
+  const before = status(worktreePath);
+  assert.match(before, /R\s+packages\/main\/src\/source-before-metadata-rename\.ts -> \.lattice\/story\/actives\/B-dp-rename-source-metadata\/renamed-source\.json/);
+  const output = runLattice(worktreePath, 'done_prepare', { storyId, validate: false, mergeMain: false });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /packages\/main\/src\/source-before-metadata-rename\.ts/);
+  assert.match(output, /\.lattice\/story\/actives\/B-dp-rename-source-metadata\/renamed-source\.json/);
+});
+
+withRepo('source-to-owner-lease dirty rename blocks before mutation', {
+  storyId: 'B-dp-rename-source-owner-lease',
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-rename-source-owner-lease';
+  const sourcePath = 'packages/main/src/source-before-owner-lease-rename.ts';
+  const ownerLeasePath = `.lattice/story/actives/${storyId}/owner-lease.json`;
+  write(worktreePath, sourcePath, 'export const sourceBeforeOwnerLeaseRename = true;\n');
+  git(worktreePath, ['add', sourcePath]);
+  git(worktreePath, [...COMMIT_ENV, 'commit', '-m', 'add owner lease rename source']);
+  git(worktreePath, ['mv', sourcePath, ownerLeasePath]);
+
+  const before = status(worktreePath);
+  assert.match(before, /R\s+packages\/main\/src\/source-before-owner-lease-rename\.ts -> \.lattice\/story\/actives\/B-dp-rename-source-owner-lease\/owner-lease\.json/);
+  const output = runLattice(worktreePath, 'done_prepare', { storyId, validate: false, mergeMain: false });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /packages\/main\/src\/source-before-owner-lease-rename\.ts/);
+  assert.match(output, /\.lattice\/story\/actives\/B-dp-rename-source-owner-lease\/owner-lease\.json/);
+});
+
+withRepo('pre-existing DONE-required lifecycle metadata does not block preflight or final PASS', {
+  storyId: 'B-dp-dirty-metadata',
+  doneRequiredPolicy: true,
+}, ({ worktreePath }) => {
+  const evidenceOutput = runLattice(worktreePath, 'done_required_validate', { storyId: 'B-dp-dirty-metadata', json: true });
+  assert.match(evidenceOutput, /"status":"PASS"/);
+  const before = status(worktreePath);
+  assert.match(before, /done-required-evidence\.json/, 'precondition: done-required evidence is dirty before done_prepare');
+
+  const output = runLattice(worktreePath, 'done_prepare', {
+    storyId: 'B-dp-dirty-metadata',
+    validate: false,
+    mergeMain: false,
+  });
+  assert.match(output, /DONE prepare: PASS/);
+  assert.doesNotMatch(output, /blockedAt: cleanTree/);
+  assert.match(output, /worktreeClean: PASS/);
+  assert.match(status(worktreePath), /done-required-evidence\.json/, 'pre-existing metadata dirt remains for the operator to commit');
+});
+
+withRepo('failed DONE-required lifecycle metadata blocks DONE closure without claiming PASS', {
+  storyId: 'B-dp-dirty-metadata-fail',
+  doneRequiredPolicy: true,
+  doneRequiredCommandExit: 7,
+}, ({ worktreePath }) => {
+  const evidenceOutput = runLattice(worktreePath, 'done_required_validate', { storyId: 'B-dp-dirty-metadata-fail', json: true });
+  assert.match(evidenceOutput, /"status":"FAIL"/);
+  assert.match(evidenceOutput, /command-failed/);
+  const before = status(worktreePath);
+  assert.match(before, /done-required-evidence\.json/, 'precondition: failed done-required evidence is dirty before done_prepare');
+
+  const output = runLattice(worktreePath, 'done_prepare', {
+    storyId: 'B-dp-dirty-metadata-fail',
+    validate: false,
+    mergeMain: false,
+  });
+  assertBlocked(output, 'doneClosure');
+  assert.match(output, /done-required-validation/);
+  assert.match(output, /command-failed/);
+  assert.doesNotMatch(output, /DONE prepare: PASS/);
+  assert.match(status(worktreePath), /done-required-evidence\.json/, 'failed metadata dirt remains for the operator to inspect');
 });
 
 withRepo('non-TEST phase blocks before mutation', {

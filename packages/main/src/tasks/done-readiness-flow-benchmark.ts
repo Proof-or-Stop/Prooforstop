@@ -20,7 +20,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -78,10 +78,32 @@ interface MetadataRoundResult {
 interface DonePrepareDirtyMetadataResult {
   durationMs: number;
   dirtyStatusBefore: string;
+  closureDiagnosticProbe: DonePrepareClosureSnapshot;
   closureCanAttemptDone: boolean | null;
+  closureBlockingRows: unknown[];
   status: 'pass' | 'blocked' | 'unknown';
   blockedAt: string | null;
   outputFirstLine: string;
+  blockerCleared: boolean;
+  avoidedHumanLoop: boolean;
+}
+
+interface DonePrepareClosureSnapshot {
+  closureCanAttemptDone: boolean | null;
+  closureBlockingRows: unknown[];
+}
+
+interface DonePrepareDirtyMetadataComparison {
+  baselineStatus: DonePrepareDirtyMetadataResult['status'] | null;
+  currentStatus: DonePrepareDirtyMetadataResult['status'];
+  baselineBlockedAt: string | null;
+  currentBlockedAt: string | null;
+  baselineDurationMs: number | null;
+  currentDurationMs: number;
+  savedMs: number | null;
+  savedPercent: number | null;
+  blockerCleared: boolean;
+  avoidedHumanLoop: boolean;
 }
 
 interface BenchmarkReport {
@@ -112,6 +134,7 @@ interface BenchmarkReport {
     currentAverageRecoveryMs: number;
     savedMs: number;
     savedPercent: number;
+    donePrepareDirtyMetadata: DonePrepareDirtyMetadataComparison;
   };
 }
 
@@ -246,7 +269,7 @@ function createStory(store: StoryStore, storyId: string, phase: StoryInfo['phase
 }
 
 function createMetadataFixture(slowMs: number): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-readiness-metadata-'));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'lattice-readiness-metadata-')));
   writeConfig(root, slowMs);
   write(root, 'README.md', '# DONE readiness metadata benchmark\n');
   git(root, ['init']);
@@ -354,6 +377,30 @@ function runLattice(
   });
 }
 
+function probeDoneClosure(worktreePath: string): DonePrepareClosureSnapshot {
+  try {
+    const closure = JSON.parse(runLattice(worktreePath, 'done_closure', { storyId: PREPARE_STORY_ID, json: true })) as {
+      canAttemptDone?: unknown;
+      blockers?: unknown;
+    };
+    const closureBlockingRows = Array.isArray(closure.blockers)
+      ? closure.blockers.filter((row) => {
+        const blocker = objectValue(row);
+        return blocker?.blocking === true && blocker.status === 'fail';
+      })
+      : [];
+    return {
+      closureCanAttemptDone: closure.canAttemptDone === true,
+      closureBlockingRows,
+    };
+  } catch {
+    return {
+      closureCanAttemptDone: null,
+      closureBlockingRows: [],
+    };
+  }
+}
+
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-22T00:00:00.000Z';
   const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
@@ -413,7 +460,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 }
 
 function createDonePrepareFixture(slowMs: number): { root: string; worktreePath: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-readiness-prepare-'));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'lattice-readiness-prepare-')));
   writeConfig(root, slowMs);
   write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
   write(root, 'README.md', '# DONE readiness prepare benchmark\n');
@@ -439,19 +486,31 @@ function createDonePrepareFixture(slowMs: number): { root: string; worktreePath:
 
   const worktreePath = join(root, '.worktrees', PREPARE_STORY_ID);
   git(root, ['worktree', 'add', worktreePath, `story/${PREPARE_STORY_ID}`]);
+  const canonicalWorktreePath = realpathSync(worktreePath);
   resetConfigCache();
 
-  const worktreeStore = new StoryStore(worktreePath);
-  writeDoneGateEvidence(worktreeStore, worktreePath, PREPARE_STORY_ID);
-  git(worktreePath, ['add', '.']);
-  gitCommit(worktreePath, 'story ready');
+  const worktreeStore = new StoryStore(canonicalWorktreePath);
+  writeDoneGateEvidence(worktreeStore, canonicalWorktreePath, PREPARE_STORY_ID);
+  git(canonicalWorktreePath, ['add', '.']);
+  gitCommit(canonicalWorktreePath, 'story ready');
 
-  return { root, worktreePath, store: worktreeStore };
+  return { root, worktreePath: canonicalWorktreePath, store: worktreeStore };
 }
 
 async function runDonePrepareDirtyMetadataScenario(slowMs: number, keepTemp: boolean): Promise<DonePrepareDirtyMetadataResult> {
   const { root, worktreePath, store } = createDonePrepareFixture(slowMs);
   try {
+    const closureDiagnosticProbe = probeDoneClosure(worktreePath);
+    assert.equal(
+      closureDiagnosticProbe.closureCanAttemptDone,
+      false,
+      'dirty metadata diagnostic probe must show closure is not attemptable before done-required evidence exists',
+    );
+    assert.ok(
+      closureDiagnosticProbe.closureBlockingRows.length > 0,
+      'dirty metadata diagnostic probe must expose at least one closure blocker',
+    );
+
     const doneRequired = await timed(() => runDoneRequiredValidation({
       projectRoot: worktreePath,
       storyId: PREPARE_STORY_ID,
@@ -463,13 +522,17 @@ async function runDonePrepareDirtyMetadataScenario(slowMs: number, keepTemp: boo
     const dirtyStatusBefore = gitStatus(worktreePath);
     assert.match(dirtyStatusBefore, /done-required-evidence\.json/, 'done-required evidence must be dirty before done_prepare scenario');
 
-    let closureCanAttemptDone: boolean | null = null;
-    try {
-      const closure = JSON.parse(runLattice(worktreePath, 'done_closure', { storyId: PREPARE_STORY_ID, json: true })) as { canAttemptDone?: unknown };
-      closureCanAttemptDone = closure.canAttemptDone === true;
-    } catch {
-      closureCanAttemptDone = null;
-    }
+    const finalClosure = probeDoneClosure(worktreePath);
+    assert.equal(
+      finalClosure.closureCanAttemptDone,
+      true,
+      'dirty metadata scenario must be otherwise closure-ready after done-required evidence exists',
+    );
+    assert.deepEqual(
+      finalClosure.closureBlockingRows,
+      [],
+      'dirty metadata scenario must have no closure blockers after done-required evidence exists',
+    );
 
     const prepared = await timed(() => runLattice(worktreePath, 'done_prepare', {
       storyId: PREPARE_STORY_ID,
@@ -483,13 +546,18 @@ async function runDonePrepareDirtyMetadataScenario(slowMs: number, keepTemp: boo
       : /DONE prepare: BLOCKED/.test(prepared.value)
         ? 'blocked'
         : 'unknown';
+    const blockerCleared = status === 'pass' || (status === 'blocked' && blockedAt !== null && blockedAt !== 'cleanTree');
     return {
       durationMs: prepared.ms,
       dirtyStatusBefore,
-      closureCanAttemptDone,
+      closureDiagnosticProbe,
+      closureCanAttemptDone: finalClosure.closureCanAttemptDone,
+      closureBlockingRows: finalClosure.closureBlockingRows,
       status,
       blockedAt,
       outputFirstLine: firstLine,
+      blockerCleared,
+      avoidedHumanLoop: finalClosure.closureCanAttemptDone === true && blockerCleared,
     };
   } finally {
     if (!keepTemp) rmSync(root, { recursive: true, force: true });
@@ -504,17 +572,69 @@ function unique(values: string[]): string[] {
   return [...new Set(values)].sort();
 }
 
-function baselineAverageRecoveryMs(baseline: unknown): number | null {
-  if (!baseline || typeof baseline !== 'object') return null;
-  const current = (baseline as { current?: unknown }).current;
-  if (!current || typeof current !== 'object') return null;
-  const metadata = (current as { metadataHeadDrift?: unknown }).metadataHeadDrift;
-  if (!metadata || typeof metadata !== 'object') return null;
-  const value = (metadata as { averageRecoveryMs?: unknown }).averageRecoveryMs;
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' ? value as Record<string, unknown> : null;
+}
+
+function numberValue(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-function compareToBaseline(baseline: unknown, currentAverageRecoveryMs: number): BenchmarkReport['comparison'] | undefined {
+function stringValue(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
+}
+
+function donePrepareStatusValue(value: unknown): DonePrepareDirtyMetadataResult['status'] | null {
+  return value === 'pass' || value === 'blocked' || value === 'unknown' ? value : null;
+}
+
+function baselineAverageRecoveryMs(baseline: unknown): number | null {
+  const current = objectValue(objectValue(baseline)?.current);
+  const metadata = objectValue(current?.metadataHeadDrift);
+  return numberValue(metadata?.averageRecoveryMs);
+}
+
+function baselineDonePrepareDirtyMetadata(baseline: unknown): Partial<DonePrepareDirtyMetadataResult> | null {
+  const current = objectValue(objectValue(baseline)?.current);
+  const dirtyMetadata = objectValue(current?.donePrepareDirtyMetadata);
+  if (!dirtyMetadata) return null;
+  return {
+    ...(numberValue(dirtyMetadata.durationMs) !== null ? { durationMs: numberValue(dirtyMetadata.durationMs)! } : {}),
+    ...(donePrepareStatusValue(dirtyMetadata.status) !== null ? { status: donePrepareStatusValue(dirtyMetadata.status)! } : {}),
+    ...(stringValue(dirtyMetadata.blockedAt) !== null || dirtyMetadata.blockedAt === null ? { blockedAt: stringValue(dirtyMetadata.blockedAt) } : {}),
+  };
+}
+
+function compareDonePrepareDirtyMetadata(
+  baseline: unknown,
+  current: DonePrepareDirtyMetadataResult,
+): DonePrepareDirtyMetadataComparison {
+  const baselineDirtyMetadata = baselineDonePrepareDirtyMetadata(baseline);
+  const baselineDurationMs = numberValue(baselineDirtyMetadata?.durationMs);
+  const savedMs = baselineDurationMs === null ? null : baselineDurationMs - current.durationMs;
+  const savedPercent = baselineDurationMs && savedMs !== null
+    ? Math.round((savedMs / baselineDurationMs) * 1000) / 10
+    : null;
+  const baselineBlockedAt = baselineDirtyMetadata?.blockedAt ?? null;
+  return {
+    baselineStatus: baselineDirtyMetadata?.status ?? null,
+    currentStatus: current.status,
+    baselineBlockedAt,
+    currentBlockedAt: current.blockedAt,
+    baselineDurationMs,
+    currentDurationMs: current.durationMs,
+    savedMs,
+    savedPercent,
+    blockerCleared: baselineBlockedAt === 'cleanTree' && current.blockerCleared,
+    avoidedHumanLoop: baselineBlockedAt === 'cleanTree' && current.avoidedHumanLoop,
+  };
+}
+
+function compareToBaseline(
+  baseline: unknown,
+  currentAverageRecoveryMs: number,
+  donePrepareDirtyMetadata: DonePrepareDirtyMetadataResult,
+): BenchmarkReport['comparison'] | undefined {
   const baselineMs = baselineAverageRecoveryMs(baseline);
   if (baselineMs === null) return undefined;
   const savedMs = baselineMs - currentAverageRecoveryMs;
@@ -524,6 +644,7 @@ function compareToBaseline(baseline: unknown, currentAverageRecoveryMs: number):
     currentAverageRecoveryMs,
     savedMs,
     savedPercent,
+    donePrepareDirtyMetadata: compareDonePrepareDirtyMetadata(baseline, donePrepareDirtyMetadata),
   };
 }
 
@@ -562,11 +683,21 @@ async function main(): Promise<void> {
       donePrepareDirtyMetadata,
     },
     ...(baseline !== undefined ? { baseline } : {}),
-    ...(baseline !== undefined ? { comparison: compareToBaseline(baseline, averageRecoveryMs) } : {}),
+    ...(baseline !== undefined ? { comparison: compareToBaseline(baseline, averageRecoveryMs, donePrepareDirtyMetadata) } : {}),
   };
 
   assert.equal(report.current.materialDrift.blockedRounds, args.rounds, 'every material-drift round must block');
   assert.notEqual(report.current.donePrepareDirtyMetadata.status, 'unknown', 'done_prepare dirty metadata result must be classified');
+  assert.equal(
+    report.current.donePrepareDirtyMetadata.closureCanAttemptDone,
+    true,
+    'dirty metadata scenario precondition must be DONE-closure ready before done_prepare',
+  );
+  assert.notEqual(
+    `${report.current.donePrepareDirtyMetadata.status}:${report.current.donePrepareDirtyMetadata.blockedAt}`,
+    'blocked:cleanTree',
+    'metadata-only done-required-evidence dirt must not block done_prepare at cleanTree',
+  );
 
   if (args.writeCurrentPath) {
     writeFileSync(args.writeCurrentPath, JSON.stringify(report, null, 2) + '\n', 'utf8');

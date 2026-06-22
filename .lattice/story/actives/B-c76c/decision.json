@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Host-neutral canonical checkout state matters more than whichever host first produced a commit.",
+    "Only fix the observed baseline correctness drift; avoid opportunistic cleanup or refactor.",
+    "Tracked code/config/docs may move; local evidence and retired-root warnings remain local/legacy.",
+    "Version metadata must be regenerated consistently, not copied blindly when the old lockfile is stale."
+  ],
+  "drivers": [
+    "Proofbound must become the active canonical checkout before retired-root guard work continues.",
+    "Orchestrate is retired but currently contains the newer 0.3.63 tracked baseline.",
+    "Old untracked experiments and evidence must remain out of GitHub-facing proofbound history."
+  ],
+  "options": [
+    {
+      "name": "A: Narrow tracked baseline import from Orchestrate into proofbound",
+      "pros": [
+        "Directly resolves the observed 0.3.60 versus 0.3.63 drift.",
+        "Preserves proofbound as the active canonical checkout.",
+        "Keeps legacy evidence and retired warnings excluded by explicit path policy."
+      ],
+      "cons": [
+        "Requires careful exclusion of stale package-lock metadata and Orchestrate-only local warnings.",
+        "Does not normalize migrated B-3523/B-fbb6 branch history in the same story."
+      ]
+    },
+    {
+      "name": "B: Continue retired-root guard work on proofbound 0.3.60",
+      "pros": [
+        "Avoids an intermediate baseline sync story.",
+        "Keeps current B-bcd4 momentum."
+      ],
+      "cons": [
+        "Would implement new guard behavior on a stale canonical checkout.",
+        "Could overwrite or conflict with newer 0.3.63 CLI behavior already present in retired Orchestrate/global CLI."
+      ]
+    },
+    {
+      "name": "C: Make Orchestrate canonical again",
+      "pros": [
+        "Uses the newest local tracked baseline immediately.",
+        "Avoids importing diffs."
+      ],
+      "cons": [
+        "Contradicts the user-approved migration to proofbound.",
+        "Reopens the old write entry we are trying to retire."
+      ]
+    }
+  ],
+  "chosen": "A: Narrow tracked baseline import from Orchestrate into proofbound",
+  "rationale": "Choose the narrow import because it fixes the real baseline correctness issue while preserving proofbound as canonical and avoiding arbitrary cleanup or legacy evidence movement.",
+  "preMortem": [
+    {
+      "scenario": "Orchestrate retired warning text is copied into proofbound AGENTS.md or CLAUDE.md.",
+      "trigger": "A broad checkout/import includes excluded root docs.",
+      "consequence": "New agents in proofbound are incorrectly told the canonical checkout is retired.",
+      "mitigation": "Exclude AGENTS.md and CLAUDE.md from import and verify git status/diff before commit."
+    },
+    {
+      "scenario": "Stale Orchestrate package-lock 0.3.49 metadata is copied as-is.",
+      "trigger": "A blind checkout imports package-lock without regeneration.",
+      "consequence": "Proofbound package metadata remains internally inconsistent despite source version 0.3.63.",
+      "mitigation": "Run npm install in proofbound and explicitly verify package-lock root metadata is 0.3.63."
+    },
+    {
+      "scenario": "Legacy evidence or untracked experiments become staged in proofbound.",
+      "trigger": "A recursive filesystem copy is used instead of tracked git import.",
+      "consequence": "GitHub-facing proofbound history is polluted with local research/evidence artifacts.",
+      "mitigation": "Use git tracked path import only and verify no .lattice/local-evidence, experiments, docs/story, or tests/fixtures paths are staged."
+    }
+  ],
+  "timestamp": "2026-06-22T20:51:58.320Z"
+}

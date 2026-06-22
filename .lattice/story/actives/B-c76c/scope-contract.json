@@ -1,0 +1,41 @@
+{
+  "storyId": "B-c76c",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "packages/main/package.json",
+    "lattice.config.json",
+    "packages/main/src",
+    "scripts",
+    "docs/requirements",
+    "package-lock.json",
+    "packages/utils"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These files are story-local DONE evidence artifacts produced by Lattice delivery_context_pack and live_smoke_transcript for B-c76c; they do not expand product or code scope and are required for delivery and user-value acceptance gates.",
+      "timestamp": "2026-06-22T21:29:28.583Z",
+      "paths": [
+        ".lattice/story/actives/B-c76c/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-c76c/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c76c/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-c76c/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1c4374b5507df0c752179153b845b8709551c32c",
+      "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953"
+    }
+  ],
+  "createdAt": "2026-06-22T21:15:14.711Z",
+  "updatedAt": "2026-06-22T21:29:28.583Z"
+}

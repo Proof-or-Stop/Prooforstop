@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-c76c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: test-coverage lane reviewed at HEAD 4007fc97610f034a03613db46735977aa43a11df. checklist_get/test_list/evidence_plan show 12/12 required verification intents covered with result=pass; evidence_plan reports fresh=12, missing=0, rerun=0, refresh-only=0. lifecycle_check target REVIEW reports localReady=true, blockers=0, materialHash=f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953, storyFilesHash=0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65. test_list records lattice validate --story=B-c76c --json PASS at 2026-06-22T21:14:17.330Z with configured build command passing and CLI/version evidence at 0.3.63. Excluded-path audit is covered by CHK-001:adversarial:0, CHK-002:edge:0, CHK-002:adversarial:0, and CHK-004:adversarial:0.",
+      "createdAt": "2026-06-22T21:17:57.806Z",
+      "reviewRound": "2026-06-22T21:15:20.315Z",
+      "reviewRunId": "B-c76c:RR-003",
+      "_hash": "c12c5d1f4d20eeb81bc23bd289c66d8de797689429de0791cbb8b5db43d53a6d"
+    },
+    {
+      "id": "B-c76c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: main...HEAD changed paths include no ignored/excluded files; all 37 non-story material files are tracked in the Orchestrate baseline and byte-identical except package-lock.json, where the only Orchestrate mismatch is expected version metadata regenerated to 0.3.63. Root package.json, packages/main/package.json, and package-lock root version fields are all 0.3.63.",
+      "createdAt": "2026-06-22T21:18:05.439Z",
+      "reviewRound": "2026-06-22T21:15:20.315Z",
+      "reviewRunId": "B-c76c:RR-001",
+      "_hash": "fc31cb16840fea5cce93ac2b7b6932a508e4d6224226ac294dc00796a8328c2b"
+    },
+    {
+      "id": "B-c76c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS for baseline sync. Evidence: refs/remotes/orchestrate/main resolves to e037fd83 and reports package/LATTICE version 0.3.63; git diff --name-status HEAD refs/remotes/orchestrate/main -- package.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements produced no diff; package-lock.json differs only by two root version fields, with proofbound corrected to 0.3.63 while the Orchestrate ref still has stale 0.3.49 lock metadata; git diff --name-only main...HEAD -- AGENTS.md CLAUDE.md .lattice/local-evidence experiments docs/story tests/fixtures packages/main/tests/fixtures produced no imported excluded paths; git diff main...HEAD -G for Orchestrate/user paths/retired-root/.omx terms in changed hunks produced no output; node bin/lattice.js --version printed Lattice CLI 0.3.63.",
+      "createdAt": "2026-06-22T21:19:05.089Z",
+      "reviewRound": "2026-06-22T21:15:20.315Z",
+      "reviewRunId": "B-c76c:RR-002",
+      "_hash": "f8e7fe4e50d0cad0dff1321e22007d690e9ae7fbf12479e83f5060b327321cf4"
+    },
+    {
+      "id": "B-c76c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality re-review PASS. Scope limited to acknowledgement for .lattice/story/actives/B-c76c/evidence/delivery-context-pack.json and .lattice/story/actives/B-c76c/evidence/live-smoke-transcript.json plus no product/code scope change since prior review. Evidence: review_run_start B-c76c:RR-004 bound head 03d8709 story 0213eee scope f8a33d3/6742d4b; git show 68135066d scope-contract ack lists exactly those two paths with reason story-local DONE evidence artifacts and no product/code expansion; git diff --name-status 1c4374b55..HEAD shows only .lattice/story/actives/B-c76c/index.json, process-metrics.json, scope-contract.json; git diff --name-status 1c4374b55..HEAD excluding .lattice/story/actives/B-c76c/** produced no non-story paths; git diff 68135066d..HEAD only index.json; evidence file histories show delivery-context-pack.json last changed at a9400e77/97ca5c7 and live-smoke-transcript.json at 01b66837, so the acknowledgement did not alter product/code or those evidence artifacts.",
+      "createdAt": "2026-06-22T21:32:11.377Z",
+      "reviewRound": "2026-06-22T21:29:44.657Z",
+      "reviewRunId": "B-c76c:RR-004",
+      "_hash": "6eb3fb5c9a272d77575b685a4517e86eee16263b90e076f23e187d26f4b72fb8"
+    }
+  ]
+}

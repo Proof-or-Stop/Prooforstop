@@ -231,7 +231,7 @@ function fakeStore(events: Array<{ storyId: string; event: Record<string, unknow
 // ---------------------------------------------------------------------------
 {
   const plan = jobPlan('authority');
-  const SECRET = ['ghp', '_0123456789abcdefghijABCDEFGHIJ012345'].join('');
+  const SECRET = 'ghp_0123456789abcdefghijABCDEFGHIJ012345';
   // A synthetic executed step carrying a secret in BOTH its reason and a summary note
   // (the shape a real provider/validation failure could surface).
   const dirtyStep: PlannedStepExecution = {

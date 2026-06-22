@@ -8,7 +8,7 @@
         "AGENTS.md",
         "CLAUDE.md"
       ],
-      "userSees": "The terminal shows a concise diff summary proving which tracked files differ between proofbound and Orchestrate before any import happens.",
+      "userSees": "The terminal prints `39 files changed, 4606 insertions(+), 139 deletions(-)` for the tracked Orchestrate-vs-proofbound baseline diff, with AGENTS.md/CLAUDE.md listed only as excluded root-doc drift.",
       "verificationIntent": {
         "happy": [
           {
@@ -32,9 +32,49 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T21:01:54.186Z",
+      "endTime": "2026-06-22T21:02:52.266Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "Baseline stat including root-doc exclusions printed 39 files changed, 4606 insertions(+), 139 deletions(-); allowed import surface alone is 37 files changed, 4592 insertions(+), 139 deletions(-).",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "AGENTS.md and CLAUDE.md account for 2 excluded files / 14 insertions of retired-root warning drift and will not be imported.",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --stat HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence experiments docs/story tests/fixtures && git diff --name-only HEAD..refs/remotes/orchestrate/main -- .lattice/local-evidence docs/story tests/fixtures",
+          "result": "pass",
+          "note": "Excluded audit showed experiments-only tracked drift under experiments plus no output for .lattice/local-evidence, docs/story, or tests/fixtures; none are import candidates.",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -45,7 +85,7 @@
         "packages/main/package.json",
         "lattice.config.json"
       ],
-      "userSees": "Proofbound tracked source and config reflect the 0.3.63 baseline while AGENTS.md and CLAUDE.md remain proofbound-appropriate.",
+      "userSees": "The terminal path audit prints `excludedRootDocs: clean` and `excludedLegacyEvidence: clean` while imported tracked paths show source/config/docs changes only.",
       "verificationIntent": {
         "happy": [
           {
@@ -69,9 +109,56 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T21:03:10.443Z",
+      "endTime": "2026-06-22T21:05:22.678Z",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "lattice.config.json",
+          "packages/main/src",
+          "scripts",
+          "docs/requirements"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements",
+          "result": "pass",
+          "note": "After commit 15a3405d5, allowed tracked code/config/docs paths produced no diff against refs/remotes/orchestrate/main.",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "git diff --name-only HEAD -- AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "excludedRootDocs: clean; AGENTS.md and CLAUDE.md were not overwritten by retired Orchestrate root warning text.",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only HEAD -- .lattice/local-evidence experiments docs/story tests/fixtures && git status --short --branch",
+          "result": "pass",
+          "note": "excludedLegacyEvidence: clean; no files under .lattice/local-evidence, experiments, docs/story, or tests/fixtures were staged/imported, and git status was clean on story/B-c76c.",
+          "headHash": "c196655a0d2c73812cb4fe19fcf49f9843eb0e7b",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:08:09.977Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -82,7 +169,7 @@
         "packages/main/package.json",
         "package-lock.json"
       ],
-      "userSees": "package.json, packages/main/package.json, package-lock.json, and lattice --version agree on the imported CLI version.",
+      "userSees": "The version metadata check prints `package.json 0.3.63`, `packages/main/package.json 0.3.63`, and `package-lock root 0.3.63 / 0.3.63`.",
       "verificationIntent": {
         "happy": [
           {
@@ -106,9 +193,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T21:05:34.833Z",
+      "endTime": "2026-06-22T21:12:43.343Z",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "package-lock.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm pkg get version | grep 0.3.63 && npm --prefix packages/main pkg get version | grep 0.3.63",
+          "result": "pass",
+          "note": "package.json and packages/main/package.json both printed 0.3.63 and the grep assertions passed after npm install.",
+          "headHash": "ffb82cb3c3b594763026fd8a108306cf90368392",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:12:43.847Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "sed -n 1,12p package-lock.json | grep -c 0.3.63 | grep 2",
+          "result": "pass",
+          "note": "The package-lock header and root package block contain two 0.3.63 entries, proving the stale copied 0.3.49 root lock metadata was regenerated.",
+          "headHash": "ffb82cb3c3b594763026fd8a108306cf90368392",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:12:44.335Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "! grep -R 0\\.3\\.60\\|0\\.3\\.49 package.json packages/main/package.json package-lock.json",
+          "result": "pass",
+          "note": "The metadata surfaces contain neither 0.3.60 nor 0.3.49, so the assertion would fail if stale versions remained.",
+          "headHash": "ffb82cb3c3b594763026fd8a108306cf90368392",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:12:44.795Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -116,13 +247,14 @@
       "context": "Run focused build/version checks to prove proofbound no longer lags behind Orchestrate before continuing retired-root guard work.",
       "relatedDocs": [
         "package.json",
-        "packages/main/package.json"
+        "packages/main/package.json",
+        "packages/utils/package.json"
       ],
-      "userSees": "The terminal prints proofbound Lattice CLI 0.3.63 from the local checkout and build checks pass.",
+      "userSees": "The terminal prints `Lattice CLI 0.3.63` from `node bin/lattice.js --version`, after `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` both pass.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "npm --prefix packages/main run build succeeds after baseline import.",
+            "desc": "npm --prefix packages/main run build and npm --prefix packages/utils run build both succeed after baseline import.",
             "type": "cli",
             "priority": "must"
           }
@@ -142,9 +274,52 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T21:06:49.081Z",
+      "endTime": "2026-06-22T21:07:23.314Z",
+      "files": {
+        "modify": [
+          "packages/main/src",
+          "packages/utils"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build",
+          "result": "pass",
+          "note": "Both requested builds passed: @lattice-agent/core@0.3.63 build ran tsc and @lattice-agent/utils@0.3.1 build ran tsc.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:23.749Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js --version",
+          "result": "pass",
+          "note": "Local proofbound CLI output was exactly: Lattice CLI 0.3.63.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:24.220Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short --branch && git diff --name-only HEAD -- AGENTS.md CLAUDE.md .lattice/local-evidence experiments docs/story tests/fixtures",
+          "result": "pass",
+          "note": "git status was clean on story/B-c76c, and excluded retired-root docs/evidence/experiments/story/fixture paths produced no diff output.",
+          "headHash": "8fb1f960d48873c56dd17d0c5a41cb13ba094d82",
+          "materialHash": "f6b12364fc7c2cc6e9f7a8ba5f47dd486365b3c9b3b7697c5048290c3881c953",
+          "storyFilesHash": "0213eee30edd4966ae58ee9a6638465a3328b94f52202951ea8aebb78fd09f65",
+          "timestamp": "2026-06-22T21:07:24.647Z"
+        }
+      ]
     }
   ]
 }

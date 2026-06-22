@@ -216,12 +216,6 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'review_pass_set',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
-  implementation_review_result_set: {
-    name: 'implementation-review.json',
-    path: 'implementation-review.json',
-    signed: false,
-    producerCommand: 'implementation_review_result_set',
-  },
   review_loop_start: {
     name: 'review-loops.jsonl',
     path: 'review-loops.jsonl',
@@ -820,15 +814,6 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_pass_set,
     rationale: 'No-blocker review pass signatures are accepted by the review gate.',
-  },
-  {
-    name: 'artifact:implementation-review.json',
-    kind: 'artifact',
-    semantics: ['artifact'],
-    level: 'L3',
-    producer: 'handlers/implementation-review',
-    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.implementation_review_result_set,
-    rationale: 'Implementation review result is durable advisory story metadata and is not consumed by lifecycle gates.',
   },
   {
     name: 'artifact:review-loops.jsonl',
