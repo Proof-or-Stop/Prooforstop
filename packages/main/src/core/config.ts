@@ -42,6 +42,14 @@ export interface DoneRequiredCommandConfig {
 }
 
 export interface LatticeConfig {
+  /**
+   * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
+   * commands are blocked before handler dispatch and should be rerun from
+   * canonicalRoot.
+   */
+  retiredRoot?: boolean;
+  /** Canonical active project root for a retiredRoot checkout. Required when retiredRoot is true. */
+  canonicalRoot?: string;
   scanRoot: string;
   /** 源码子目录（相对 scanRoot，对应 tsconfig rootDir，默认和 scanRoot 相同） */
   rootDir?: string;

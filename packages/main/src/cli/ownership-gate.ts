@@ -11,6 +11,7 @@ import {
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core/command-policy.js';
 import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import type { LatticeConfig } from '../core/config.js';
 
 export interface ActiveStoryForOwnershipGate {
   storyId: string;
@@ -147,6 +148,58 @@ export function resolveEffectiveOwnershipClass(
   }
 
   return cls;
+}
+
+const RETIRED_ROOT_BLOCKED_OWNERSHIP_CLASSES: ReadonlySet<OwnershipClass> = new Set([
+  'storyScopedMutating',
+  'reviewerWrite',
+  'mainSharedMutating',
+  'dangerousMutating',
+]);
+
+function canonicalRootFromConfig(config: Pick<LatticeConfig, 'canonicalRoot'>): string | null {
+  if (typeof config.canonicalRoot !== 'string') return null;
+  const trimmed = config.canonicalRoot.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+export function enforceRetiredRootGuard(
+  cmd: string,
+  args: Record<string, unknown>,
+  config: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'>,
+  activeStory: ActiveStoryForOwnershipGate | null,
+  projectRoot: string,
+): void {
+  if (config.retiredRoot !== true) return;
+
+  const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+
+  if (cls === null) {
+    throw new Error(
+      `Retired Lattice root guard cannot classify command "${cmd}" because command-policy.ts has no valid ownershipClass. ` +
+      `Retired root: ${projectRoot}. Add a CommandPolicy.ownershipClass entry before running this command.`,
+    );
+  }
+  if (!RETIRED_ROOT_BLOCKED_OWNERSHIP_CLASSES.has(cls)) return;
+
+  const canonicalRoot = canonicalRootFromConfig(config);
+  if (!canonicalRoot) {
+    throw new Error(
+      `Lattice root is retired: ${projectRoot}\n` +
+      `retiredRoot is true but canonicalRoot is not configured.\n` +
+      `Use canonicalRoot: <configure canonicalRoot in lattice.config.json>\n` +
+      `Fail-closed before mutating command "${cmd}" (${cls}). ` +
+      `Add "canonicalRoot": "/path/to/canonical/project" to lattice.config.json, or set retiredRoot=false only in the active canonical project.`,
+    );
+  }
+
+  throw new Error(
+    `Lattice root is retired: ${projectRoot}\n` +
+    `Use canonicalRoot: ${canonicalRoot}\n` +
+    `Command "${cmd}" resolves to ${cls} and is blocked before handler dispatch.\n` +
+    `Run the mutating command from canonicalRoot, or use this retired root only for read-only legacy evidence inspection.`,
+  );
 }
 
 export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {

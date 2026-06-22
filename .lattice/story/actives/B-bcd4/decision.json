@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Host-neutral workflow commands must remain independent of Codex, Claude, or any single host namespace.",
+    "Do not optimize arbitrarily; reuse existing command ownership policy where it already encodes mutating versus read-only behavior.",
+    "Only fix the correctness issue: retired roots must reject new writes while preserving legacy evidence readability.",
+    "Keep migration evidence intact and avoid business changes to B-3523 or B-fbb6."
+  ],
+  "drivers": [
+    "Prevent future agents from opening or mutating Lattice stories in the retired Orchestrate checkout.",
+    "Keep /Users/jek/Documents/Work/Orchestrate usable as a local evidence source for paper/research needs.",
+    "Make the failure actionable by naming /Users/jek/Documents/Work/proofbound as canonicalRoot."
+  ],
+  "options": [
+    {
+      "name": "A: config-driven retiredRoot guard using command-policy mutation classes",
+      "pros": [
+        "Works for every host and agent because it lives in the CLI workflow layer.",
+        "Reuses existing command-policy semantics instead of duplicating command lists.",
+        "Preserves read-only inspection commands for legacy evidence."
+      ],
+      "cons": [
+        "Requires careful tests to avoid blocking harmless read-only commands.",
+        "Needs a small config schema addition and runtime gate wiring."
+      ]
+    },
+    {
+      "name": "B: shell hooks only in the old Orchestrate checkout",
+      "pros": [
+        "Fast local stopgap and already partially present through local git hooks.",
+        "Does not change CLI code."
+      ],
+      "cons": [
+        "Does not protect all Lattice CLI mutating commands.",
+        "Not host-neutral and can be bypassed by another shell or host.",
+        "Does not help future users who hit the same retired-root layout."
+      ]
+    },
+    {
+      "name": "C: physically delete or archive the old Orchestrate checkout",
+      "pros": [
+        "Removes the immediate source of accidental writes.",
+        "Simple to explain locally."
+      ],
+      "cons": [
+        "Destroys convenient access to legacy local evidence.",
+        "Conflicts with the requirement to keep evidence for future paper work.",
+        "Does not encode the product behavior in Lattice CLI."
+      ]
+    }
+  ],
+  "chosen": "A: config-driven retiredRoot guard using command-policy mutation classes",
+  "rationale": "Chosen because it fixes the real correctness issue at the Lattice workflow boundary while preserving host-neutral semantics and legacy evidence access. It avoids a Codex/Claude-specific workaround and avoids deleting evidence.",
+  "preMortem": [
+    {
+      "scenario": "Read-only evidence commands are accidentally blocked",
+      "trigger": "The retired-root predicate treats every command as mutating instead of using command-policy classification.",
+      "consequence": "Users cannot inspect old Orchestrate evidence or recover migration history.",
+      "mitigation": "Test session_brief/story_get style read-only commands in a retired-root fixture and keep the guard tied to command-policy mutation classes."
+    },
+    {
+      "scenario": "A mutating command still writes in Orchestrate",
+      "trigger": "The guard is installed too late in CLI startup or misses commands that write metadata such as validate/review/checklist.",
+      "consequence": "New zombie stories or stale evidence appear in the retired root, recreating the split-brain problem.",
+      "mitigation": "Run the guard before handler dispatch and add focused smoke coverage for story_create, checklist_update, story_advance, and validate --story rejection."
+    },
+    {
+      "scenario": "Guard becomes host-specific and violates Lattice abstraction",
+      "trigger": "Implementation keys behavior off Codex, Claude, shell cwd prompts, or agent-specific assets.",
+      "consequence": "Other hosts can still mutate the retired root or prompts imply Lattice workflow is host-owned.",
+      "mitigation": "Model the state as project config and canonicalRoot fields consumed by the core CLI, with no Codex/Claude namespace in the enforcement path."
+    },
+    {
+      "scenario": "Override is too broad",
+      "trigger": "A bypass env var or flag disables the guard without audit or applies to all future commands silently.",
+      "consequence": "The retired root becomes writable again and the safeguard loses meaning.",
+      "mitigation": "If an override is added, keep it explicit, narrow, documented, and visible in test output; otherwise omit it until a real workflow requires it."
+    }
+  ],
+  "timestamp": "2026-06-22T21:38:42.104Z"
+}

@@ -8,6 +8,9 @@ repository's `main` branch.
 
 - New Proofbound development records new lifecycle evidence in this repository.
 - Legacy Orchestrate evidence remains local-only in the original archive.
+- `/Users/jek/Documents/Work/proofbound` is the canonical active checkout.
+- `/Users/jek/Documents/Work/Orchestrate` is a retired read-only legacy evidence
+  root and should not receive new Lattice writes.
 - Do not commit old `.lattice/story/**` or `.lattice/artifacts/**` into this
   repository's `main` branch.
 - Paper drafts may cite curated claims from this index, but raw review logs,
@@ -17,6 +20,8 @@ repository's `main` branch.
 ## Migration Anchor
 
 - Source archive project: Orchestrate
+- Retired local root: `/Users/jek/Documents/Work/Orchestrate`
+- Canonical active root: `/Users/jek/Documents/Work/proofbound`
 - Clean export source commit: `379bc689106fe13931b027ed9eb176509b45e4f8`
 - Export policy: source code and curated public-safe documentation only
 - Excluded evidence classes:
@@ -25,6 +30,19 @@ repository's `main` branch.
   - local authority trust files
   - local env/key files
   - runtime traces, locks, temporary logs, and worktrees
+
+## Preserved Active Worktrees
+
+The old active Orchestrate story worktrees were preserved inside proofbound for
+local recovery:
+
+| Story | Proofbound path | Note |
+| --- | --- | --- |
+| B-3523 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-3523` | exact old worktree preservation; not normalized or completed by the retirement story |
+| B-fbb6 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` | exact old worktree preservation; not normalized or completed by the retirement story |
+
+Remaining Orchestrate lab or temporary worktrees are legacy artifacts, not active
+migrated stories.
 
 ## Paper Evidence Workflow
 

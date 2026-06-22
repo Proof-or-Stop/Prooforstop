@@ -41,6 +41,7 @@ import {
 import {
   ownerLeaseHelpBlock,
   storyIdFromArgs,
+  enforceRetiredRootGuard,
   enforceStoryOwnerLeaseGate,
 } from './cli/ownership-gate.js';
 import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
@@ -77,6 +78,7 @@ export {
   resolveEffectiveOwnershipClass,
   isDeliveryReviewerActor,
   resolveTakeoverIntent,
+  enforceRetiredRootGuard,
   enforceStoryOwnerLeaseGate,
 } from './cli/ownership-gate.js';
 export type {
@@ -909,6 +911,20 @@ export async function runCli(opts?: {
     // or acquire/mutate lease state.
     try {
       enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory);
+    } catch (e: any) {
+      clearInterval(watchdog);
+      log(`${cmd} failed: ${e.message}`);
+      process.stderr.write(`Error: ${e.message}\n`);
+      process.exitCode = 1;
+      return;
+    }
+    // Retired-root guard: a checkout configured as retiredRoot is a read-only
+    // legacy/evidence root. Reuse the same effective ownership classification
+    // as the owner-lease gate, but block reviewerWrite/mainSharedMutating too
+    // because those are still writes even though they are intentionally exempt
+    // from per-story owner leases.
+    try {
+      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);

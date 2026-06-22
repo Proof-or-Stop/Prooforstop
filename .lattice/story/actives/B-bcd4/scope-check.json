@@ -1,0 +1,52 @@
+{
+  "storyId": "B-bcd4",
+  "checkedAt": "2026-06-22T21:43:36.392Z",
+  "features": [
+    {
+      "feature": "retired-root config semantics",
+      "covered_by": "plan CHK-001 defines retiredRoot/canonicalRoot behavior and malformed retired config failure; checklist CHK-001 covers typed policy, unchanged proofbound config, and missing canonicalRoot rejection; understanding distinguishes proofbound canonical root from retired Orchestrate evidence root.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get/understanding_get"
+    },
+    {
+      "feature": "mutating-command guard",
+      "covered_by": "plan CHK-002 wires the guard before handler dispatch and blocks only mutating workflow commands; checklist CHK-002 covers story/checklist/review/validation/evidence writers and read-only command allowance; understanding requires reuse of existing command policy/ownership semantics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get/understanding_get"
+    },
+    {
+      "feature": "focused smoke tests",
+      "covered_by": "plan CHK-003 and the validation checklist require focused retired-root smoke coverage; checklist CHK-003 covers read-only allowed, mutating rejected, missing canonicalRoot rejected, non-retired proofbound unchanged, and bypass/override behavior visible if introduced.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get"
+    },
+    {
+      "feature": "retirement docs",
+      "covered_by": "plan CHK-004 documents proofbound canonical checkout, Orchestrate read-only evidence, and B-3523/B-fbb6 migration preservation; checklist CHK-004 requires host-neutral wording and no claim that migrated business work is finished.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get"
+    },
+    {
+      "feature": "migrated-worktree verification",
+      "covered_by": "plan CHK-005 verifies proofbound .worktrees/B-3523 and .worktrees/B-fbb6 plus absence of healthy Orchestrate active migrated worktrees; checklist CHK-005 separates remaining lab/temp Orchestrate worktrees from active migrated stories.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "45ba464761028c430421e75a45cd131d56b2aaaff3c845450f8ee6dfd7a3ab9b",
+  "openQuestions": []
+}

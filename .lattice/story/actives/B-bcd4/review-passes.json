@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-bcd4:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: retiredRoot/canonicalRoot semantics are config-driven and host-neutral; enforcement runs before hooks/handler dispatch and reuses the existing command ownership classifier instead of adding a second taxonomy; proofbound remains non-retired while the legacy Orchestrate config points to canonicalRoot; docs preserve B-3523/B-fbb6 as recoverable worktrees without claiming they are finished, normalized, or production/Authority complete.",
+      "createdAt": "2026-06-22T22:00:23.211Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-001",
+      "_hash": "f14e79eef07b626a4e7e507965778a110549e9c6fa0ea1ddd69a9fadee64bf03"
+    },
+    {
+      "id": "B-bcd4:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed. Checklist intents/evidence cover read-only allowed, mutating rejected, validate diagnostic vs --story boundary, missing canonicalRoot fail-closed behavior, actual Orchestrate retired-root manual transcript expectations, and B-3523/B-fbb6 migration checks. Reran focused scripts: npm --prefix packages/main run test:retired-root-guard and npm --prefix packages/main run test:command-ownership-contract; both passed. Also verified Orchestrate config is retiredRoot with canonicalRoot proofbound and migrated proofbound worktree directories exist with no B-3523/B-fbb6 Orchestrate worktree/branch entries.",
+      "createdAt": "2026-06-22T22:00:29.036Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-002",
+      "_hash": "cdedff8f48e880920a1df7897718c9030966a3f2a1d9b86a6b4715430bed199d"
+    },
+    {
+      "id": "B-bcd4:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: retired-root guard is wired in cli-engine before preCommand hooks and before handler dispatch; it reuses resolveEffectiveOwnershipClass for dynamic ownership classification, blocks storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating classes, preserves read-only legacy inspection, and emits actionable canonicalRoot guidance. Checked code diff, command-policy integration, Orchestrate retired config, live blocked story_create/read-only session_brief behavior, git diff --check, and npm --prefix packages/main run build -- --noEmit.",
+      "createdAt": "2026-06-22T22:01:00.235Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-003",
+      "_hash": "66fbe277e3c369a4b3cab08ddf29fe230c97837d15798102130468e32fdfb9f8"
+    },
+    {
+      "id": "B-bcd4:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: orchestrate-retirement.md states proofbound canonical active root, Orchestrate retired read-only evidence root, host/agent-neutral behavior, B-3523/B-fbb6 preserved but not normalized/completed, lab/temp worktrees separate; legacy index keeps evidence local-only and no raw publication. Verified proofbound preserved worktree dirs exist, Orchestrate has no story/B-3523 or story/B-fbb6 branches/worktrees, and Orchestrate config points retiredRoot to proofbound.",
+      "createdAt": "2026-06-22T22:03:11.741Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-004",
+      "_hash": "5f1dd3834eb91d9555d8405f8e9230d9617052e369be8bbb6dafd21fbb1661fc"
+    }
+  ]
+}

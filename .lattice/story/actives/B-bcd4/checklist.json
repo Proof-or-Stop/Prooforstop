@@ -4,49 +4,411 @@
       "id": "CHK-001",
       "title": "Define retired-root configuration semantics",
       "context": "Add a small config surface that can mark a project root retired and identify canonicalRoot, without changing normal project behavior.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "Project config can explicitly say this checkout is retired and points to /Users/jek/Documents/Work/proofbound as canonicalRoot; read-only commands still show legacy evidence instead of deleting it."
+      "endTime": "2026-06-22T21:55:44.112Z",
+      "userSees": "Configuration supports exact retired-root state: config contains `retiredRoot: true` and `canonicalRoot: \"/Users/jek/Documents/Work/proofbound\"`; proofbound config does not print a retired-root warning.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/evidence/orchestrate-legacy-index.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "docs/requirements/decisions/orchestrate-retirement.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A project config with retiredRoot true and canonicalRoot resolves to a typed retired-root policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A normal proofbound config without retiredRoot behaves exactly as before and does not emit a retired-root warning.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A retiredRoot config without canonicalRoot fails with an actionable config error instead of silently allowing writes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: retiredRoot true with canonicalRoot is classified and mutating commands are blocked while read-only commands stay available.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.363Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: non-retired config leaves story_create unchanged and diagnostic validate without --story stays read-only.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.561Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: retiredRoot true without canonicalRoot fails closed and explains canonicalRoot is not configured.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Enforce retired-root guard before mutating commands",
       "context": "Use existing command policy ownership classes so read-only commands remain available and story/checklist/validate/evidence writes fail closed with a canonical-root message.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "From the retired Orchestrate root, story_create/story_advance/validate --story/checklist_update fail with a clear message that names the canonical proofbound root; session_brief/story_get remain readable."
+      "endTime": "2026-06-22T21:55:45.369Z",
+      "userSees": "From `/Users/jek/Documents/Work/Orchestrate`, `lattice story_create ...` exits nonzero and prints `Lattice root is retired: /Users/jek/Documents/Work/Orchestrate` plus `Use canonicalRoot: /Users/jek/Documents/Work/proofbound`; `lattice session_brief` still prints the legacy brief.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mutating workflow commands in a retired root are rejected before handler dispatch with canonicalRoot recovery text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Read-only workflow commands in a retired root remain available for evidence inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Story, checklist, review, validation, and evidence-writing commands cannot bypass the retired-root guard through normal CLI invocation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4/bin/lattice.js --root /Users/jek/Documents/Work/Orchestrate story_create <retired-root-smoke>",
+          "result": "pass",
+          "note": "Command exited 1 as expected and printed both \"Lattice root is retired: /Users/jek/Documents/Work/Orchestrate\" and \"Use canonicalRoot: /Users/jek/Documents/Work/proofbound\" before handler dispatch.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.573Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4/bin/lattice.js --root /Users/jek/Documents/Work/Orchestrate session_brief",
+          "result": "pass",
+          "note": "Read-only retired-root inspection still works and reports legacy Orchestrate state without creating new story metadata.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.761Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Smoke covers story_create, checklist_update, validate --story, review_pass_set, and story_discard blocking; ownership contract confirms dynamic validate/read-only boundaries still resolve as ruled.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.951Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add focused tests for retired-root behavior",
       "context": "Verify read-only commands still work, mutating commands are rejected, and explicit override is narrow and auditable.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "The automated test transcript shows read-only retired-root access passing and mutating retired-root commands rejected unless the explicit human override is set."
+      "endTime": "2026-06-22T21:55:46.549Z",
+      "userSees": "`npm --prefix packages/main run test:retired-root-guard` prints PASS for read-only allowed, mutating rejected, missing canonicalRoot rejected, and explicit override behavior either absent or auditable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused retired-root smoke proves read-only commands pass and representative mutating commands fail closed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke proves non-retired proofbound behavior is unchanged and version/build output still works.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves malformed retired-root config and bypass attempts do not silently permit writes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused retired-root guard smoke prints PASS and covers read-only allowed plus representative mutating commands blocked.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:46.751Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding config fields, guard wiring, and smoke script; non-retired behavior remains type-compatible.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:46.938Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Smoke covers malformed retiredRoot config without canonicalRoot and confirms it does not silently permit writes.",
+          "headHash": "14bfd61a2e332c2a10a82f1bdba4929f2208abe1",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:47.129Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Document Orchestrate retirement and migration recovery path",
       "context": "Record that B-3523 and B-fbb6 were migrated into proofbound worktrees and that Orchestrate is read-only legacy evidence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "Docs/summary tell future Hosts to use /Users/jek/Documents/Work/proofbound, and show B-3523/B-fbb6 migration recovery paths without claiming old Orchestrate is still active."
+      "endTime": "2026-06-22T21:55:47.771Z",
+      "userSees": "`docs/requirements/decisions/orchestrate-retirement.md` says Orchestrate is read-only legacy evidence, proofbound is canonical, and B-3523/B-fbb6 were preserved under proofbound `.worktrees`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/evidence/orchestrate-legacy-index.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/evidence/orchestrate-legacy-index.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/orchestrate-retirement.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documentation states the canonical proofbound root and the retired Orchestrate role without host-specific wording.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation preserves local evidence use and does not instruct users to delete legacy story evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does not claim B-3523/B-fbb6 business work is finished or that old Orchestrate remains active.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"proofbound|Orchestrate|Host-neutral|Agent-neutral\" docs/requirements/decisions/orchestrate-retirement.md docs/evidence/orchestrate-legacy-index.md",
+          "result": "pass",
+          "note": "Docs state proofbound is canonical, Orchestrate is retired read-only evidence, and the behavior is Host-neutral and Agent-neutral.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:47.975Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"local-only|Legacy Orchestrate evidence|Do not commit old|raw evidence\" docs/evidence/orchestrate-legacy-index.md docs/requirements/decisions/orchestrate-retirement.md",
+          "result": "pass",
+          "note": "Docs preserve local evidence use and warn not to publish raw legacy evidence.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:48.210Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"not normalized|not completed|does not finish|not active migrated stories\" docs/requirements/decisions/orchestrate-retirement.md docs/evidence/orchestrate-legacy-index.md",
+          "result": "pass",
+          "note": "Docs explicitly avoid claiming B-3523/B-fbb6 business work is done and separate lab/temp worktrees from active migrated stories.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:48.459Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Verify migrated active stories are visible in proofbound and absent from Orchestrate active worktrees",
       "context": "User-observable migration acceptance: B-3523 and B-fbb6 must be recoverable at /Users/jek/Documents/Work/proofbound/.worktrees/*, while /Users/jek/Documents/Work/Orchestrate no longer has story/B-3523 or story/B-fbb6 worktrees/branches.",
       "relatedDocs": [
-        ".lattice/story/actives/B-bcd4/background.md"
+        "docs/evidence/orchestrate-legacy-index.md",
+        "docs/requirements/decisions/orchestrate-retirement.md"
       ],
-      "userSees": "Running session_brief in proofbound lists B-3523 and B-fbb6 as active worktree-authority stories; running session_brief/worktree list in Orchestrate shows no healthy active B-3523 or B-fbb6 worktree.",
-      "status": "pending",
+      "userSees": "`test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-3523` and `test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` succeed; `git -C /Users/jek/Documents/Work/Orchestrate worktree list` has no active `B-3523` or `B-fbb6` worktree path.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-22T21:55:49.184Z",
+      "files": {
+        "modify": [
+          "docs/evidence/orchestrate-legacy-index.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Proofbound contains recoverable B-3523 and B-fbb6 worktree directories.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Old Orchestrate no longer has active story/B-3523 or story/B-fbb6 branches or healthy active worktrees.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any remaining Orchestrate lab/temp worktrees are reported separately and not misrepresented as active migrated stories.",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-3523 && test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6",
+          "result": "pass",
+          "note": "Both migrated proofbound worktree directories exist.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.420Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "git -C /Users/jek/Documents/Work/Orchestrate worktree list --porcelain | rg 'B-3523|B-fbb6' || true; git -C /Users/jek/Documents/Work/Orchestrate branch --list 'story/B-3523' 'story/B-fbb6'",
+          "result": "pass",
+          "note": "Commands returned no B-3523/B-fbb6 Orchestrate worktree or branch entries.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git -C /Users/jek/Documents/Work/Orchestrate worktree list --porcelain",
+          "result": "pass",
+          "note": "Remaining Orchestrate worktrees are main plus detached temp/lab branches; they are reported separately and are not B-3523/B-fbb6 active migrated stories.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.814Z"
+        }
+      ]
     }
   ]
 }
