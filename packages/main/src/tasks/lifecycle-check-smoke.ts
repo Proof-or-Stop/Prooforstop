@@ -8,11 +8,13 @@ import { join, relative } from 'node:path';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { runDoneRequiredValidation } from '../core/done-required-validation.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { signReviewRun } from '../core/review-run.js';
 import { StoryStore } from '../core/store.js';
-import type { StoryInfo } from '../core/types.js';
+import type { ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { buildStoryReadinessReport, type StoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -39,6 +41,10 @@ function gitStatus(root: string): string {
 }
 
 function writeConfig(root: string): void {
+  writeConfigWithProfile(root, 'balanced');
+}
+
+function writeConfigWithProfile(root: string, profile: 'light' | 'balanced'): void {
   writeFileSync(
     join(root, 'lattice.config.json'),
     JSON.stringify({
@@ -46,9 +52,9 @@ function writeConfig(root: string): void {
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
-      workflow: { profile: 'balanced' },
+      workflow: { profile },
       doneRequiredCommands: [
-        { label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] },
+        { label: 'required pass', command: process.execPath, args: ['-e', 'process.exit(0)'] },
       ],
     }, null, 2) + '\n',
     'utf8',
@@ -105,6 +111,116 @@ function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext
     }],
   });
   writeReviewerPass(root, store, 'lattice-review-concept');
+  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  return { root, store, ctx };
+}
+
+async function createDoneReadyFixture(): Promise<{ root: string; store: StoryStore; ctx: HandlerContext }> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lifecycle-check-ready-'));
+  mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+  writeConfigWithProfile(root, 'light');
+  writeFileSync(join(root, 'README.md'), '# lifecycle check ready smoke\n', 'utf8');
+  writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const ready = true;\n', 'utf8');
+  git(root, ['init']);
+  git(root, ['checkout', '-b', 'main']);
+  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['commit', '-m', 'base']);
+
+  const store = new StoryStore(root);
+  const now = '2026-06-20T00:00:00.000Z';
+  const story: StoryInfo = {
+    storyId: STORY_ID,
+    name: 'lifecycle-check-ready-smoke',
+    title: 'Lifecycle check ready smoke',
+    description: 'Synthetic DONE-ready story for lifecycle_check V1 smoke coverage.',
+    type: 'chore',
+    phase: 'TEST',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+  };
+  store.writeStory(STORY_ID, story);
+  store.writeChecklist(STORY_ID, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Synthetic completed item',
+      context: 'Synthetic completed context',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+      verificationIntent: {
+        happy: [{ desc: 'happy proof exists', type: 'logic', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      verificationEvidence: [{
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        result: 'pass',
+        note: 'synthetic proof for lifecycle_check ready smoke',
+      }],
+    }],
+  });
+  store.writeTestEvidence(STORY_ID, {
+    command: 'lifecycle-check-ready-smoke',
+    output: JSON.stringify({ allPass: true, summary: 'lifecycle check ready smoke passed' }),
+    result: 'PASS',
+    timestamp: now,
+    headHash: currentGitHead(root),
+    materialHash: currentMaterialHash(root, 'HEAD', root),
+    storyFilesHash: currentStoryFilesHash(root, 'HEAD', root),
+    verificationCoverage: {
+      total: 1,
+      required: 1,
+      covered: 1,
+      missingRequired: 0,
+      entries: [],
+    },
+  });
+  store.writeBugs(STORY_ID, { bugs: [] });
+  const docsPromises: DocsPromise[] = [];
+  const realMachineTests: RealMachineTest[] = [{
+    featureId: 'CHK-001',
+    transcript: 'lifecycle_check ready fixture has synthetic real-machine coverage.',
+  }];
+  const closingSelfCheck: ClosingSelfCheck = {
+    hasRealMachineTest: true,
+    hasEdgeCaseCoverage: true,
+    hasUnresolvedTodos: false,
+    summary: 'lifecycle_check ready fixture closure evidence is complete.',
+  };
+  store.writeDeliveryCheck(STORY_ID, {
+    storyId: STORY_ID,
+    checkedAt: now,
+    reviewRound: '',
+    agentId: 'lattice-review-delivery',
+    docsPromises,
+    realMachineTests,
+    closingSelfCheck,
+    _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests, closingSelfCheck, ''),
+  });
+  store.writeSummary(STORY_ID, {
+    storyId: STORY_ID,
+    createdAt: now,
+    updatedAt: now,
+    changes: 'Synthetic lifecycle_check ready fixture changes.',
+    usage: 'Run lifecycle_check against the synthetic ready fixture.',
+    expectedOutcome: 'The only missing done_prepare row is advisory.',
+    actualTranscript: 'Synthetic fixture has all DONE oracle blockers satisfied.',
+    outcomeDiff: 'No difference.',
+    acceptanceVerdict: 'accepted',
+    outcomeKind: 'success',
+    realMachineCoverage: { ran: [], skipped: [] },
+    limitations: 'Synthetic smoke fixture only.',
+    pitfalls: 'Keep done_prepare advisory only when DONE oracle rows are clean.',
+  });
+  await runDoneRequiredValidation({
+    projectRoot: root,
+    storyId: STORY_ID,
+    store,
+    gitCwd: root,
+  });
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   return { root, store, ctx };
 }
@@ -260,6 +376,36 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
 
     const directReport = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store, root });
     assertReportShape(directReport);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const { root, store, ctx } = await createDoneReadyFixture();
+  try {
+    const registry = createMainRegistry(ctx);
+    const handler = registry.get('lifecycle_check');
+    assert.ok(handler, 'registry exposes lifecycle_check for ready fixture');
+
+    const jsonReport = handler!({ storyId: STORY_ID, target: 'DONE', json: true }) as StoryReadinessReport;
+    assertReportShape(jsonReport);
+    const donePrepareRow = jsonReport.readiness.find((row) => row.code === 'missing_done_prepare_report');
+    assert.ok(donePrepareRow, 'missing done_prepare row remains visible');
+    assert.equal(donePrepareRow.blocking, false, 'missing done_prepare is advisory when DONE oracle rows have no blockers');
+    assert.equal(donePrepareRow.status, 'warn');
+    assert.equal(donePrepareRow.category, 'advisory');
+    assert.match(donePrepareRow.reason, /advisory preflight guidance/);
+    assert.equal(jsonReport.readiness.some((row) => row.blocking), false, 'ready fixture has no hard readiness blockers');
+    assert.equal(jsonReport.claims.localReady, true, 'advisory missing done_prepare does not make localReady false');
+
+    const textReport = handler!({ storyId: STORY_ID, target: 'DONE', format: 'text' }) as string;
+    assert.match(textReport, /localReady: true/);
+    assert.match(textReport, /\[WARN\] done\.done_prepare code=missing_done_prepare_report category=advisory/);
+
+    const directReport = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store, root });
+    const directDonePrepareRow = directReport.readiness.find((row) => row.code === 'missing_done_prepare_report');
+    assert.equal(directDonePrepareRow?.blocking, false, 'direct report keeps missing done_prepare advisory');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -17,6 +17,10 @@ import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
 import { buildExecutionBoundary, buildScopeBoundary, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import {
+  assertEnglishAuthoringText,
+  type EnglishAuthoringTextSource,
+} from './english-artifact-gate.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -121,6 +125,58 @@ function assertStoryCreateExplicitExcludes(args: {
     `story_create text includes explicitly excluded scope keyword "${hit.keyword}" in ${hit.source}${itemRef}. [excluded_keyword_in_story_create]\n` +
     `→ Move excluded directions into checklist.excludes only, or create a scope_extension_proposal after INIT review.`,
   );
+}
+
+/**
+ * Refine the offending field name for a 1-based line in background content by
+ * naming the enclosing "## Section", so the early refusal points at the section
+ * the author must fix. Mirrors the background.ts helper.
+ */
+function backgroundFieldForLine(content: string, line: number): string {
+  const lines = content.split(/\r?\n/);
+  let section: string | null = null;
+  for (let i = 0; i < Math.min(line, lines.length); i++) {
+    const match = lines[i].match(/^##\s+(.+?)\s*$/);
+    if (match) section = match[1].trim();
+  }
+  return section ? `background (${section})` : 'background';
+}
+
+/**
+ * Collect the ordered list of AUTHOR-controlled text fields scanned by the
+ * shift-left English-only check: title, description, background, and each
+ * checklist item's title / context / userSees. NEVER includes code, scope
+ * boundaries, or runtime artifacts — only author prose. Both the normal and
+ * the from-draft create paths feed their (differently shaped) inputs through
+ * this so the refusal coverage is identical.
+ */
+function storyCreateAuthoringFields(args: {
+  title?: unknown;
+  description?: unknown;
+  background?: unknown;
+  checklist?: unknown;
+}): EnglishAuthoringTextSource[] {
+  const fields: EnglishAuthoringTextSource[] = [
+    { field: 'title', text: args.title },
+    { field: 'description', text: args.description },
+  ];
+  if (typeof args.background === 'string') {
+    const background = args.background;
+    fields.push({
+      field: 'background',
+      text: background,
+      fieldForLine: (line) => backgroundFieldForLine(background, line),
+    });
+  }
+  if (Array.isArray(args.checklist)) {
+    args.checklist.forEach((item: { title?: unknown; context?: unknown; userSees?: unknown }, index: number) => {
+      const itemRef = `checklist[${index + 1}]`;
+      fields.push({ field: `${itemRef}.title`, text: item?.title });
+      fields.push({ field: `${itemRef}.context`, text: item?.context });
+      fields.push({ field: `${itemRef}.userSees`, text: item?.userSees });
+    });
+  }
+  return fields;
 }
 
 /**
@@ -338,6 +394,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const draftBg = readFileSync(join(draftsDir, 'background.md'), 'utf-8');
         const draftChecklist = JSON.parse(readFileSync(join(draftsDir, 'checklist.json'), 'utf-8'));
 
+        // Shift-left English-only policy: refuse CJK author text from the draft
+        // before any artifact is materialized, reusing the same detectCjk
+        // predicate as the REVIEW->TEST gate.
+        assertEnglishAuthoringText('story_create', storyCreateAuthoringFields({
+          title: draftIndex.title,
+          description: draftIndex.description,
+          background: draftBg,
+          checklist: draftChecklist.items,
+        }));
+
         // 3. GATE 1: missing_draft_check
         const draftCheckPath = join(draftsDir, 'draft-check.json');
         if (!existsSync(draftCheckPath)) {
@@ -441,6 +507,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
         return `Story ${storyId} created from draft '${draftName}' (INIT)\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
+
+      // Shift-left English-only policy: refuse CJK in any author-provided field
+      // (title / description / background / checklist text) BEFORE idempotency
+      // resolution or any persistence, reusing the same detectCjk predicate as
+      // the REVIEW->TEST english-artifact gate. Missing background still follows
+      // the existing idempotency behavior below (reuse returns without touching
+      // background); this only refuses non-English text that IS supplied.
+      assertEnglishAuthoringText('story_create', storyCreateAuthoringFields(args));
 
       // B-45ed CHK-006: background is required + four-section validation.
       // Only enforce strict validation on the "new story" path; the idempotency-reuse branch does not need background.

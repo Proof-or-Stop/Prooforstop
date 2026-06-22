@@ -164,10 +164,16 @@ function recordReviewerPasses(registry: ReturnType<typeof createMainRegistry>): 
   for (const lane of REVIEW_LANES) startRunAndPass(registry, lane);
 }
 
+let materialChangeCounter = 1;
 function commitMaterialChange(root: string): void {
-  write(root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = 2;\n');
-  git(root, ['add', 'packages/main/src/index.ts']);
-  git(root, [...COMMIT_ENV, 'commit', '-m', 'stale previous reviewer passes']);
+  // Each call must produce a DISTINCT materialDigest (a new commit with new content), so the
+  // counter guarantees the file content actually changes even across repeated calls.
+  materialChangeCounter += 1;
+  write(root, 'packages/main/src/index.ts', `export const seed = true;\nexport const changed = ${materialChangeCounter};\n`);
+  // Stage the whole tree so any verdict/process-event files written by a prior quorum are
+  // committed too, leaving a clean working tree for the next review_run_start preflight.
+  git(root, ['add', '-A']);
+  git(root, [...COMMIT_ENV, 'commit', '-m', `material change ${materialChangeCounter}`]);
 }
 
 let passed = 0;
@@ -272,8 +278,65 @@ try {
     }
   });
 
+  check('refuses a same-material re-submit and writes no new verdicts', () => {
+    // No material change since the rounds=3 quorum above, so runIds r1..r3 already carry
+    // verdicts at the current materialDigest. A second quorum_submit must refuse instead of
+    // silently piling duplicate verdicts onto the same runIds.
+    const beforeEvents = hostVerdictEventCount(store);
+    const beforeVerdicts = verdictFileCount(root);
+    const handler = registry.get('quorum_submit')!;
+    assert.throws(
+      () => handler({
+        storyId: STORY_ID,
+        hostA: 'claude-host',
+        hostB: 'codex-host',
+        rounds: 3,
+        providerA: 'claude',
+        providerB: 'codex',
+        note: 'quorum_submit smoke same-material re-submit',
+        format: 'json',
+      }),
+      /quorum_submit refuses: verdicts already exist for runId/,
+      'same-material re-submit is refused',
+    );
+    assert.equal(hostVerdictEventCount(store), beforeEvents, 'same-material refusal writes no host_verdict events');
+    assert.equal(verdictFileCount(root), beforeVerdicts, 'same-material refusal writes no verdict files');
+  });
+
+  check('allows a fresh quorum after a material change', () => {
+    // A real material change (new commit) yields a different materialDigest, so the guard
+    // does not collide and a fresh quorum is allowed for the same runIds.
+    commitMaterialChange(root);
+    recordReviewerPasses(registry);
+    const beforeVerdicts = verdictFileCount(root);
+    const handler = registry.get('quorum_submit')!;
+    const freshResult: any = handler({
+      storyId: STORY_ID,
+      hostA: 'claude-host',
+      hostB: 'codex-host',
+      rounds: 3,
+      providerA: 'claude',
+      providerB: 'codex',
+      note: 'quorum_submit smoke fresh-material re-quorum',
+      format: 'json',
+    });
+    assert.equal(freshResult.emittedCount, 6, 'fresh-material re-quorum emits rounds x 2 verdicts');
+    assert.equal(verdictFileCount(root) - beforeVerdicts, 6, 'fresh-material re-quorum writes new verdict files');
+    for (const runId of freshResult.runIds) {
+      const summary = summarizeVerdicts(root, 'local', STORY_ID, runId, 2, {
+        currentAnchor: { materialDigest: freshResult.materialDigest },
+      });
+      assert.equal(summary.status, 'pass');
+      assert.equal(summary.passingIndependentHosts, 2);
+    }
+  });
+
   check('--rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds', () => {
     // INIT product-reviewer advisory: prove the rounds knob is honored for N != 3.
+    // Advance the material first so the rounds=2 quorum runs at a fresh materialDigest and
+    // does not collide with the r1/r2 verdicts already written at earlier materials.
+    commitMaterialChange(root);
+    recordReviewerPasses(registry);
     const customRounds = 2;
     const beforeEvents = hostVerdictEventCount(store);
     const beforeVerdicts = verdictFileCount(root);

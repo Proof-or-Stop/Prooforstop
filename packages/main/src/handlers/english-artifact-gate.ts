@@ -94,6 +94,16 @@ export interface EnglishArtifactGateDeps {
   readFile?: FileReader;
 }
 
+/** One author-provided text field to scan at authoring time (before persistence). */
+export interface EnglishAuthoringTextSource {
+  /** User-facing field name, e.g. "background" or "checklist[1].title". */
+  field: string;
+  /** Author-provided text to check. Non-string / empty values are ignored. */
+  text: unknown;
+  /** Optional field refinement based on the offending 1-based line number. */
+  fieldForLine?: (line: number) => string;
+}
+
 // Field / record separators are emitted BY git via %x1f (Unit Separator) and
 // %x1e (Record Separator) inside the --pretty format string. The argv we pass
 // holds the ASCII escape spec ("%x1f"/"%x1e"), not raw control bytes, so
@@ -215,4 +225,68 @@ export function renderEnglishArtifactViolations(
   return violations.map(
     (v) => `${v.source}:${v.line}: non-English (CJK) text -> ${v.preview}`,
   );
+}
+
+/**
+ * Shared authoring/gate predicate for the English-only CJK policy — a thin
+ * wrapper over the single source of truth core/cjk-detect.ts `detectCjk`. The
+ * REVIEW->TEST gate's scanText() and the authoring-time refusal below both flow
+ * through detectCjk, so an authoring rejection is exactly what the later gate
+ * would have flagged (the smoke asserts this agreement). Never add a second CJK
+ * regex — reuse this / detectCjk.
+ */
+export function containsCJK(text: string): boolean {
+  return typeof text === 'string' && detectCjk(text).found;
+}
+
+/**
+ * Find the FIRST CJK violation across an ordered list of author-provided text
+ * fields (authoring time, before any artifact is written). Returns null when
+ * every field is English. Detection is delegated to scanText -> detectCjk so it
+ * never diverges from the persisted-artifact gate. Non-string / empty fields are
+ * skipped (a missing optional field is not a violation).
+ */
+export function findFirstEnglishAuthoringViolation(
+  fields: readonly EnglishAuthoringTextSource[],
+): EnglishArtifactViolation | null {
+  for (const field of fields) {
+    if (typeof field.text !== 'string' || field.text.length === 0) continue;
+    const hits: EnglishArtifactViolation[] = [];
+    scanText(field.field, field.text, hits);
+    const hit = hits[0];
+    if (!hit) continue;
+    return {
+      ...hit,
+      source: field.fieldForLine ? field.fieldForLine(hit.line) : hit.source,
+    };
+  }
+  return null;
+}
+
+/** Render the single-line authoring refusal message for a detected violation. */
+export function renderEnglishAuthoringRefusal(
+  commandName: string,
+  violation: EnglishArtifactViolation,
+): string {
+  const rendered = renderEnglishArtifactViolations([violation])[0];
+  return (
+    `${commandName} refuses: ${rendered}. ` +
+    `Story artifacts must be English. Found: ${violation.preview}. ` +
+    `[english_artifact_cjk_authoring]`
+  );
+}
+
+/**
+ * Throw a clear English refusal if any author-provided field carries CJK,
+ * BEFORE the caller persists the artifact. No-op when every field is English.
+ * Scans only the author-controlled text it is handed (background / checklist
+ * text / title / description) — never code or runtime files.
+ */
+export function assertEnglishAuthoringText(
+  commandName: string,
+  fields: readonly EnglishAuthoringTextSource[],
+): void {
+  const violation = findFirstEnglishAuthoringViolation(fields);
+  if (!violation) return;
+  throw new Error(renderEnglishAuthoringRefusal(commandName, violation));
 }

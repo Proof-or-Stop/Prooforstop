@@ -164,19 +164,28 @@ Supported `dryRun` behavior:
 
 Dirty-file policy:
 
-- the first implementation requires `git status --porcelain` to be clean before
-  mutation;
-- no pre-existing dirty files are allowed, including Lattice metadata files;
+- supersedes the first implementation's blanket clean-tree rule: initial
+  preflight may proceed when the only dirty rows classify as Lattice story
+  lifecycle metadata, such as
+  `.lattice/story/actives/<storyId>/done-required-evidence.json`;
+- initial preflight still blocks material/source, fixture, runtime artifact,
+  declared artifact, and unexpected dirty rows using the shared dirty-worktree
+  classifier;
+- unchanged pre-existing Lattice story lifecycle metadata remains advisory for
+  `done_prepare`; it does not force a `blockedAt: cleanTree` result by itself;
 - if prepare work leaves uncommitted metadata changes, the command must stop at
   `cleanTree` and list the exact files to commit before DONE;
 - if prepare work advances HEAD by delegating to an existing metadata writer that
   auto-commits, the command must stop at `cleanTree`, list the generated
   commit(s), and tell the operator to review them and rerun `done_prepare` from
   the new HEAD;
-- a successful `DONE prepare: PASS` requires the worktree to be clean.
+- a successful `DONE prepare: PASS` requires no new or changed dirty rows beyond
+  unchanged pre-existing Lattice story lifecycle metadata.
 
-This keeps the first implementation conservative while allowing already-existing
-metadata writers to retain their established auto-commit semantics.
+This keeps the implementation fail-closed for material drift and generated
+outputs while aligning pre-existing lifecycle metadata dirt with the DONE oracle's
+metadata-only semantics. Existing metadata writers retain their established
+auto-commit semantics.
 
 ### 2. Merge Main
 

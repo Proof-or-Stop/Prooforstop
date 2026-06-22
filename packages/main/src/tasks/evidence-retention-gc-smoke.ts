@@ -35,38 +35,28 @@ function sha256Hex(input: string): string {
 // Part 1: content redaction (§B4a)
 // ---------------------------------------------------------------------------
 function testRedaction(): void {
-  const awsAccessKeyId = ['AKIA', 'IOSFODNN7EXAMPLE'].join('');
-  const githubToken = ['ghp', '_0123456789abcdefghijABCDEFGHIJ012345'].join('');
-  const openAiKey = ['sk', '-abcdefghijklmnopqrstuvwxyz0123456789'].join('');
-  const slackToken = ['xoxb', '-12345-abcdefABCDEF'].join('');
-  const privateKeyLabel = ['BEGIN RSA ', 'PRIVATE KEY'].join('');
-  const privateKeyPem = [
-    `-----${privateKeyLabel}-----`,
-    'MIIEowIBAAKCAQEAabc',
-    `-----END RSA ${'PRIVATE KEY'}-----`,
-  ].join('\n');
   const secrets = [
-    awsAccessKeyId,
-    githubToken,
-    openAiKey,
-    slackToken,
+    'AKIAIOSFODNN7EXAMPLE',
+    'ghp_0123456789abcdefghijABCDEFGHIJ012345',
+    'sk-abcdefghijklmnopqrstuvwxyz0123456789',
+    'xoxb-12345-abcdefABCDEF',
   ];
   const dirty = [
     'Starting run...',
     `Authorization: Bearer ${'a'.repeat(40)}`,
-    `export GITHUB_TOKEN=${githubToken}`,
+    'export GITHUB_TOKEN=ghp_0123456789abcdefghijABCDEFGHIJ012345',
     'db_password=hunter2supersecretvalue',
     'MULTI_WORD_SECRET=alpha beta gamma',
     'api-key=plainsecretvalue',
     'LATTICE_AUTHORITY_ACTOR_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    `{"apiKey":"${openAiKey}","ok":true}`,
+    '{"apiKey":"sk-abcdefghijklmnopqrstuvwxyz0123456789","ok":true}',
     'Set-Cookie: session=deadbeefcafebabe; HttpOnly',
     'short auth Basic abc',
     'lowercase bearer bearer lowercase-secret-token-1234567890',
     'lowercase basic basic abcdef123456',
-    `aws id ${awsAccessKeyId} used`,
-    `token ${slackToken} posted`,
-    privateKeyPem,
+    'aws id AKIAIOSFODNN7EXAMPLE used',
+    'token xoxb-12345-abcdefABCDEF posted',
+    '-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAabc\n-----END RSA PRIVATE KEY-----',
     'normal log line with no secrets',
   ].join('\n');
 
@@ -83,7 +73,7 @@ function testRedaction(): void {
   assert(!text.includes('Basic abc'), 'short Basic credential must be redacted');
   assert(!text.includes('bearer lowercase-secret-token-1234567890'), 'lowercase Bearer credential must be redacted');
   assert(!text.includes('basic abcdef123456'), 'lowercase Basic credential must be redacted');
-  assert(!text.includes(privateKeyLabel) || !text.includes('MIIEowIBAA'), 'PEM key body must be redacted');
+  assert(!text.includes('BEGIN RSA PRIVATE KEY') || !text.includes('MIIEowIBAA'), 'PEM key body must be redacted');
   assert(!text.includes('deadbeefcafebabe'), 'session cookie value must be redacted');
   assert(text.includes(REDACTION_PLACEHOLDER), 'redacted output must contain the placeholder');
   // Non-secret content survives.
@@ -108,10 +98,10 @@ function testRedaction(): void {
     stdout: 'ok',
     stderr: 'Authorization: Bearer secrettokenvalue1234567890',
     note: 'no secrets here',
-    prompt: `use API_KEY=${openAiKey} please`,
+    prompt: 'use API_KEY=sk-abcdefghijklmnopqrstuvwxyz0123456789 please',
   });
   assert(!ev.evidence.stderr!.includes('secrettokenvalue'), 'stderr secret must be redacted');
-  assert(!ev.evidence.prompt!.includes(openAiKey), 'prompt secret must be redacted');
+  assert(!ev.evidence.prompt!.includes('sk-abcdefghijklmnopqrstuvwxyz0123456789'), 'prompt secret must be redacted');
   assert.equal(ev.evidence.stdout, 'ok', 'clean field unchanged');
   assert.equal(ev.summary.redacted, true, 'merged summary must report redaction');
 

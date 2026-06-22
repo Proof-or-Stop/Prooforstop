@@ -53,7 +53,6 @@ import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
 import { createReviewRunHandlers } from './handlers/review-run.js';
 import { createReviewLoopHandlers } from './handlers/review-loop.js';
-import { createImplementationReviewHandlers } from './handlers/implementation-review.js';
 import { createCheckHandlers } from './handlers/check.js';
 import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
 import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
@@ -181,7 +180,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createVerifierHandlers(ctx));
   registry.registerBatch(createReviewRunHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
-  registry.registerBatch(createImplementationReviewHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));
