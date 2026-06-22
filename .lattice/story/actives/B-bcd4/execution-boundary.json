@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bcd4",
+  "allowedCommands": [
+    "git apply*",
+    "git branch*",
+    "git commit*",
+    "git diff*",
+    "git fetch*",
+    "git log*",
+    "git status*",
+    "git worktree*",
+    "lattice session_brief",
+    "lattice story_discard",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-bcd4",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "legacy-orchestrate-delete"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Keep edits scoped to retired-root guard implementation, tests, docs, and B-bcd4 metadata. Orchestrate legacy evidence may be read and frozen, not deleted.",
+  "createdAt": "2026-06-22T20:38:25.478Z",
+  "updatedAt": "2026-06-22T20:38:25.478Z",
+  "_hash": "1a70e4f9e2c244b5b28be99d239fbbc4a5267a8215c6a37f45423c54bb76d754"
+}

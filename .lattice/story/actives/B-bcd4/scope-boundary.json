@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bcd4",
+  "mode": "feature",
+  "allowed": [
+    "Add a host-neutral CLI guard that blocks mutating commands in retired roots while preserving read-only evidence access",
+    "Add config semantics for retired legacy roots and canonicalRoot pointers",
+    "Add focused tests proving read-only allowed, mutating blocked, explicit override narrow",
+    "Document Orchestrate retirement and B-3523/B-fbb6 migration recovery path",
+    "Verify proofbound has migrated B-3523/B-fbb6 worktrees and Orchestrate no longer has those active worktrees"
+  ],
+  "excluded": [
+    "Do not claim Authority/fullAuthority/production readiness",
+    "Do not delete Orchestrate legacy evidence",
+    "Do not finish or merge B-3523 or B-fbb6 business changes in this story",
+    "Do not push to GitHub or modify remote settings"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User approved: first freeze Orchestrate local writes, then in proofbound add retired-root/canonical-root guard; migrate active B-3523 and B-fbb6 worktrees to proofbound and pause old active work immediately.",
+  "createdAt": "2026-06-22T20:38:15.198Z",
+  "updatedAt": "2026-06-22T20:38:15.198Z",
+  "_hash": "b62ed7fd80844ab96bfdb521ec11e801ad7afea97917a888e3e72bab33ca8893"
+}
