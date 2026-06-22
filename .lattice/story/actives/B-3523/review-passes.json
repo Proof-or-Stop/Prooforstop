@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-22T23:21:17.622Z",
       "reviewRunId": "B-3523:RR-001",
       "_hash": "bfb1d7d75192bc5cd404903fba3bafa9e6f4a2d1de41ff92807361e5d7b534ab"
+    },
+    {
+      "id": "B-3523:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs/guidance review passed: README.md, CLAUDE.md, authority-client-role.md, done-full-test-gate-execution-plan.md, .claude/.codex scope hooks, and .githooks/pre-push now describe @lattice/core / @lattice/lab as the active canonical packages. Remaining @lattice-agent references are limited to historical CHANGELOG entries or negative verifier assertions, and I found no active guidance claiming historical references were globally cleaned. Verified with node scripts/verify-runtime-fact-contract.mjs and node scripts/verify-global-lab-entrypoint.mjs.",
+      "createdAt": "2026-06-22T23:25:04.294Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-004",
+      "_hash": "be6a4a2cb70cb1a7abb715cb41b1e0747bcae29c964d1eeaeb322e8928dded73"
     }
   ]
 }
