@@ -1,6 +1,6 @@
 {
   "storyId": "B-c76c",
-  "checkedAt": "2026-06-22T20:55:21.501Z",
+  "checkedAt": "2026-06-22T20:58:20.586Z",
   "features": [
     {
       "feature": "Sync proofbound tracked code/config/docs baseline from retired Orchestrate 0.3.63 into proofbound",
@@ -18,7 +18,7 @@
     },
     {
       "feature": "Import selected tracked source/config/docs paths from Orchestrate main",
-      "covered_by": "CHK-002; plan CHK-002; decision option A",
+      "covered_by": "CHK-002; plan CHK-002; CHK-002 files.modify; decision option A",
       "status": "covered",
       "excluded_by": "",
       "source": "checklist_get CHK-002, plan_get CHK-002, decision_get"
@@ -32,10 +32,17 @@
     },
     {
       "feature": "Verify proofbound local CLI/build/status after import",
-      "covered_by": "CHK-004; plan CHK-004 for local version and path audit; CHK-004 verificationIntent edge/adversarial",
+      "covered_by": "CHK-004; plan CHK-004; CHK-004 verificationIntent happy/edge/adversarial; CHK-004 userSees",
       "status": "covered",
       "excluded_by": "",
       "source": "checklist_get CHK-004 and plan_get CHK-004"
+    },
+    {
+      "feature": "Build packages/utils as part of final verification",
+      "covered_by": "understanding.outcome and touchpoints; CHK-004 relatedDocs/files.modify/userSees/verificationIntent happy; plan CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get, checklist_get CHK-004, plan_get CHK-004"
     },
     {
       "feature": "Orchestrate retired-root warning text in AGENTS.md and CLAUDE.md",
@@ -57,24 +64,17 @@
       "status": "excluded",
       "excluded_by": "decision option A cons; plan CHK-002",
       "source": "decision_get and plan_get CHK-002"
-    },
-    {
-      "feature": "Build packages/utils as part of final verification",
-      "covered_by": "plan CHK-004 only",
-      "status": "drift",
-      "excluded_by": "",
-      "source": "plan_get CHK-004 declares building packages/utils, while checklist_get CHK-004 verificationIntent only requires npm --prefix packages/main run build and understanding_get touchpoints omit packages/utils"
     }
   ],
   "summary": {
     "total": 9,
-    "covered": 5,
+    "covered": 6,
     "excluded": 3,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "1c6dfef02a9de3f9676b8934e82c3a6d1200dd49736b732845cded6ad4054aff",
+  "_hash": "196d073751739ec5d8ad8049e934d6b26665772bf449ab0fad5b2440b18d2a8c",
   "openQuestions": []
 }
