@@ -133,6 +133,19 @@
           "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
           "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
           "timestamp": "2026-06-22T23:43:21.922Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-strength-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke assertion 'endpoints differ (0 vs 1.0) -> metric measures real discrimination' (assert.notEqual testOnly.catchRate, specAware.catchRate) — guards against a tautological/constant metric.",
+          "headHash": "e8147a49dcdfb274613955c968a62e6ee2d36fea",
+          "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
+          "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
+          "timestamp": "2026-06-22T23:43:22.616Z"
         }
       ]
     }
