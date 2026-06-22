@@ -62,8 +62,9 @@ node run-ablation.mjs --tasks parse-range,median,text-stats --k 3
 cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs .
 ```
 
-The end-to-end runners shell out to the host CLI (`claude -p`); the ablation/fixture
-checks above need only Node.
+The fixture self-consistency check above needs only Node. The end-to-end recovery/ablation
+runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) shell out to the host CLI
+(`claude -p`).
 
 ## Data lives elsewhere
 

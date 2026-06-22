@@ -1,6 +1,7 @@
 // Generalized §6 recovery runner: run a task under an ARM, inject a fault at a fixed point,
-// classify the 3-way recovery outcome. Currently implements arm=a2prime (bare naive-retry loop).
-// A4 (Lattice) arm is added in a later milestone.
+// classify the 3-way recovery outcome. Implements three arms (--arm): a2prime (bare naive-retry
+// loop), a4 (same loop + ONE post-hoc review gate), and a4b (bounded in-loop reflection: an
+// independent reviewer runs each time acceptance passes, and BLOCK feeds back for a retry).
 //
 // Usage:
 //   node run-recovery.mjs --task <taskDir> --arm a2prime --injection <id|none>
