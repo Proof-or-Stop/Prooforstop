@@ -7,7 +7,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`npm ls --workspaces --depth=0` and package metadata show @lattice/core, @lattice/utils, and @lattice/lab, while the root package remains `lattice` and the CLI bin remains `lattice`.",
+      "userSees": "Package metadata checks show @lattice/core, @lattice/utils, and @lattice/lab; the root package remains `lattice`, the CLI bin remains `lattice`, and `node bin/lattice.js --version` prints `Lattice CLI 0.3.65`.",
       "files": {
         "modify": [
           "package.json",
