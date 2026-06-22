@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Define retired-root configuration semantics",
       "context": "Add a small config surface that can mark a project root retired and identify canonicalRoot, without changing normal project behavior.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T21:55:44.112Z",
       "userSees": "Configuration supports exact retired-root state: config contains `retiredRoot: true` and `canonicalRoot: \"/Users/jek/Documents/Work/proofbound\"`; proofbound config does not print a retired-root warning.",
       "relatedDocs": [
         "docs/requirements/decisions/orchestrate-retirement.md",
@@ -46,7 +46,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: retiredRoot true with canonicalRoot is classified and mutating commands are blocked while read-only commands stay available.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.363Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: non-retired config leaves story_create unchanged and diagnostic validate without --story stays read-only.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.561Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard",
+          "result": "pass",
+          "note": "Focused smoke passed: retiredRoot true without canonicalRoot fails closed and explains canonicalRoot is not configured.",
+          "headHash": "a29c1e83a494b7a163d575177a0bc77093699b88",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:44.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
