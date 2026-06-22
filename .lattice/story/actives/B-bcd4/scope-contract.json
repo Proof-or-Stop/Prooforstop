@@ -22,7 +22,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "package-lock.json had to stay synchronized with package.json 0.3.64 after merging the canonical proofbound main baseline; reverting it would recreate version metadata drift unrelated to retired-root behavior.",
+      "timestamp": "2026-06-22T21:56:22.706Z",
+      "paths": [
+        "package-lock.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package-lock.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3833e8396e81ef9ac97bf7d8f2a1bd991632a239",
+      "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+      "anchors": [
+        "version_lock_consistency",
+        "canonical_proofbound_main_merge"
+      ]
+    }
+  ],
   "createdAt": "2026-06-22T21:44:17.934Z",
-  "updatedAt": "2026-06-22T21:44:17.934Z"
+  "updatedAt": "2026-06-22T21:56:22.706Z"
 }
