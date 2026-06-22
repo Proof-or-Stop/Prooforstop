@@ -49,9 +49,9 @@
       "id": "CHK-002",
       "title": "Track the per-task fixtures tasks/{eval-expr,median,parse-range,text-stats}/ (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
       "context": "Each task has a reference solution, a visible acceptance test, a hidden ground-truth, and a passes-test-but-wrong injection payload; the eval-expr reference + payload already include the non-string typeof guard fix",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T22:54:31.306Z",
-      "endTime": null,
+      "endTime": "2026-06-22T22:57:53.800Z",
       "verificationIntent": {
         "happy": [
           {
