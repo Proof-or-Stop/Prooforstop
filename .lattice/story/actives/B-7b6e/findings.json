@@ -5,7 +5,7 @@
       "desc": "specAwareReviewer reads defectKind from ReviewerView which is a harness-authored label co-designed to be 1-to-1 with groundTruthPass (defectKind=none iff groundTruthPass=true in STANDING_CORPUS). The reviewer trivially achieves catchRate=1.0 by proxy-reading the hidden ground truth through the label — it does not analyze the artifact. Comments claim it detects the defect; it actually reads a harness-invariant tag. The non-vacuous claim in the smoke holds for testOnlyReviewer but not specAwareReviewer: the upper bound is tautological. The corpus invariant (defectKind=none ↔ groundTruthPass=true) must be enforced or documented, and the JSDoc on ReviewerView.defectKind and the specAwareReviewer comment must be corrected to say this is a harness-invariant label, not independent artifact analysis.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-22T23:47:54.716Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/gate-strength.ts:113"
       ],
       "signatureTag": "edge|ts:40|specawarereviewer-reads-defectkind",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: renamed specAwareReviewer->oracleReviewer, JSDoc now states it reads the harness-provided defectKind LABEL not the artifact; ReviewerView.defectKind documented as a label a real reviewer would ignore. Smoke uses oracleReviewer.",
+      "resolvedAt": "2026-06-22T23:55:13.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b6e:F-002",
