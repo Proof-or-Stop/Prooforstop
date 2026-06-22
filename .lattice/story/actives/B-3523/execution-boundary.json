@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3523",
+  "allowedCommands": [
+    ".githooks/pre-push",
+    "git *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node scripts/verify-*.mjs",
+    "npm --prefix * run build",
+    "npm install",
+    "npm run build*",
+    "npm run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".claude/hooks/",
+    ".codex/hooks/",
+    ".githooks/",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/",
+    "package.json",
+    "packages/lab/package.json",
+    "packages/lab/src/",
+    "packages/main/package.json",
+    "packages/main/src/",
+    "packages/utils/package.json",
+    "packages/utils/src/",
+    "README.md",
+    "scripts/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Self-host npm scope rename @lattice-agent->@lattice + pre-push fix + retire @koala-agent global fallback. Real npm install required. Keep top-level `lattice` name/bin; keep anti-residue checkers; do not rewrite frozen history.",
+  "createdAt": "2026-06-20T23:34:12.595Z",
+  "updatedAt": "2026-06-20T23:34:12.595Z",
+  "_hash": "a73f4fa7a689cc9b9fc8fc2840a491a32b9f87c2a5ecb7abc8d1b8f775489d47"
+}
