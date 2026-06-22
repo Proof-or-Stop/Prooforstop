@@ -4,7 +4,7 @@
   "title": "Sync proofbound tracked code baseline to Orchestrate 0.3.63",
   "description": "Proofbound is intended to be the canonical active checkout, but proofbound main is still at 0.3.60 while the retired Orchestrate checkout and global CLI are at 0.3.63. Import only tracked code/config/docs baseline needed for CLI correctness, excluding legacy evidence, Orchestrate retired-root warnings, and dirty untracked experiments.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "proofbound",
@@ -52,11 +52,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-0c928755e0ecf42d",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T21:15:20.315Z",
+      "branch": "story/B-c76c",
+      "user": "Harmonygo",
+      "sessionId": "sess-0c928755e0ecf42d",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-c76c",
     "branch": "story/B-c76c",
     "createdAt": "2026-06-22T20:50:31.831Z"
-  }
+  },
+  "currentReviewRound": "2026-06-22T21:15:20.315Z"
 }
