@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7b6e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit (0560975d2): 4 files changed, 393 insertions, 1 deletion (comma). New symbols gate-strength.ts + gate-strength-contract-smoke.ts: all 15 exported identifiers (runGateStrength, gateStrengthBundle, gateStrengthDigest, testOnlyReviewer, specAwareReviewer, STANDING_CORPUS, Probe, ReviewerView, ReviewerDecision, Reviewer, ProbeDefectKind, ProbeClassification, ProbeOutcome, GateStrengthResult, toView internal) exist only in the new files and B-7b6e story metadata — zero dangling references elsewhere in the repo. ReceiptBundleBinding reuse confirmed: exported at receipt-bundle.ts:51, properly imported. lattice.config.json change is additive only (trailing comma + new validate entry). No concept deletion, no renamed concept, no partial migration, no residual orphan, no doc-promise-undelivered: CHANGELOG description matches the code delivery 1-for-1. Concept residue check complete — no blocker.",
+      "createdAt": "2026-06-22T23:45:22.476Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-001",
+      "_hash": "27597e964e764cb8c3143f24a61cda2d0d7800f1725675df1fd9a93cb8e275fd"
+    }
+  ]
+}
