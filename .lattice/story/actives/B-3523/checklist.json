@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice",
       "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T23:16:02.538Z",
-      "endTime": null,
+      "endTime": "2026-06-22T23:16:10.631Z",
       "userSees": "Package metadata checks show @lattice/core, @lattice/utils, and @lattice/lab; the root package remains `lattice`, the CLI bin remains `lattice`, and `node bin/lattice.js --version` prints `Lattice CLI 0.3.65`.",
       "files": {
         "modify": [
@@ -49,7 +49,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node package/package-lock scope assertion",
+          "result": "pass",
+          "note": "Verified root package remains lattice; packages/main is @lattice/core; packages/utils is @lattice/utils; packages/lab is @lattice/lab; CLI bin remains lattice.",
+          "headHash": "23365347f60105dce98b98d9f63f6a2258d1d9c8",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:11.419Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node package/package-lock scope assertion",
+          "result": "pass",
+          "note": "Verified inter-package dependencies: core depends on @lattice/lab@0.3.1; utils and lab depend on @lattice/core@0.3.1.",
+          "headHash": "23365347f60105dce98b98d9f63f6a2258d1d9c8",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:12.073Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node package/package-lock scope assertion",
+          "result": "pass",
+          "note": "Verified packages/main/package-lock.json root package is @lattice/core and depends on @lattice/lab@0.3.1; root lock shape is non-workspace and was not used as false workspace evidence.",
+          "headHash": "23365347f60105dce98b98d9f63f6a2258d1d9c8",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:12.671Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"@lattice-agent|@koala-agent\" package.json package-lock.json packages/main/package.json packages/main/package-lock.json packages/utils/package.json packages/lab/package.json || true",
+          "result": "pass",
+          "note": "No @lattice-agent or @koala-agent residues were found in live package manifests or package locks.",
+          "headHash": "23365347f60105dce98b98d9f63f6a2258d1d9c8",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:13.281Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
