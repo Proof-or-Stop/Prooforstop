@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define retired-root configuration semantics",
+      "context": "Add a small config surface that can mark a project root retired and identify canonicalRoot, without changing normal project behavior.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Enforce retired-root guard before mutating commands",
+      "context": "Use existing command policy ownership classes so read-only commands remain available and story/checklist/validate/evidence writes fail closed with a canonical-root message.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused tests for retired-root behavior",
+      "context": "Verify read-only commands still work, mutating commands are rejected, and explicit override is narrow and auditable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document Orchestrate retirement and migration recovery path",
+      "context": "Record that B-3523 and B-fbb6 were migrated into proofbound worktrees and that Orchestrate is read-only legacy evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
