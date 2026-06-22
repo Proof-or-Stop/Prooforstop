@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-003",
       "_hash": "16ded5f1058d2b2053117906dd9b29b76c56a0b4bfef24bc24b0980ea5d3ec15"
+    },
+    {
+      "id": "B-7b6e:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) are bound to gate-strength-contract-smoke.js, which was independently executed and produced 7 concrete assertions matching each intent exactly. Smoke is hermetic and non-vacuous: catchRate endpoints differ (0 vs 1.0), per-probe reasons name defect kinds, receipt verifies offline, tampered digest rejected (signature_invalid), stale materialHash rejected. Evidence command concretely exercises each stated intent — no broad-description fallback detected.",
+      "createdAt": "2026-06-22T23:47:14.197Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-004",
+      "_hash": "e9f0499a2227dd9c6b118f2521c5557020137eccb67779c1edb9a7709e50cf4c"
     }
   ]
 }
