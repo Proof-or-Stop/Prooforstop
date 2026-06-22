@@ -155,7 +155,55 @@
       "context": "Copy reference-solution.mjs to solution.mjs per task and run acceptance.mjs + ground-truth.mjs; both must PASS for all 4 tasks",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For eval-expr: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the eval-expr reference solution is self-consistent with its own fixture tests",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For median: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the median reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For parse-range: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the parse-range reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For text-stats: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the text-stats reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For each task, the subtle-wrong-output.mjs payload (renamed to solution.mjs) passes acceptance.mjs but FAILS ground-truth.mjs (exit != 0); WHY: validates the fixture design -- the injection must fool the visible test but be caught by the hidden ground-truth, otherwise the experiment harness has no discriminating power",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Running acceptance.mjs with no solution.mjs present -> exits non-zero with a clear error; WHY: confirms the test gracefully rejects a missing solution rather than crashing with an unhandled exception",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After running the self-consistency check, the temporary solution.mjs file is cleaned up (rm solution.mjs) and NOT left tracked in git (git ls-files tasks/*/solution.mjs returns empty); WHY: the verification process itself must not leave dirty state that could be accidentally committed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Running ground-truth.mjs with a zero-byte solution.mjs -> exits non-zero; WHY: a degenerate empty file must not be treated as passing by the ground-truth check",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
