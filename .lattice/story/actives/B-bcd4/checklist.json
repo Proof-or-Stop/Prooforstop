@@ -104,7 +104,46 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The automated test transcript shows read-only retired-root access passing and mutating retired-root commands rejected unless the explicit human override is set."
+      "userSees": "`npm --prefix packages/main run test:retired-root-guard` prints PASS for read-only allowed, mutating rejected, missing canonicalRoot rejected, and explicit override behavior either absent or auditable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused retired-root smoke proves read-only commands pass and representative mutating commands fail closed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke proves non-retired proofbound behavior is unchanged and version/build output still works.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves malformed retired-root config and bypass attempts do not silently permit writes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
