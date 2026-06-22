@@ -37,7 +37,45 @@
       "context": "Each task has a reference solution, a visible acceptance test, a hidden ground-truth, and a passes-test-but-wrong injection payload; the eval-expr reference + payload already include the non-string typeof guard fix",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/tasks/ -> lists files for all 4 tasks (eval-expr, median, parse-range, text-stats), each containing at minimum: prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs; WHY: confirms the core fixture quintet is tracked for every task",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git ls-files experiments/recovery-runner/tasks/ | grep subtle-wrong-output -> returns one hit per task (4 total); WHY: confirms the shared injection payload is present in all 4 tasks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "eval-expr has payload-subtle.mjs tracked; median and parse-range each have overfit-output.mjs tracked; text-stats has neither (only subtle-wrong-output.mjs); WHY: the per-task injection payloads vary by task and the checklist must match the source exactly",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Total tracked file count under tasks/ matches source: eval-expr=7, median=7, parse-range=7, text-stats=6 (27 total); WHY: guards against missing or extra files in any task directory",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No solution.mjs is tracked in any task directory (git ls-files experiments/recovery-runner/tasks/*/solution.mjs returns empty); WHY: solution.mjs is a runtime artifact produced by live LLM runs and must never be committed -- its presence would indicate a dirty copy from a prior experiment run",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No .jsonl files tracked under tasks/ (git ls-files experiments/recovery-runner/tasks/ | grep .jsonl returns empty); WHY: run-record data must be excluded per story scope",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
