@@ -4,7 +4,7 @@
   "title": "Clean up non-product legacy code and unwired cleanup debt",
   "description": "Remove or correctly wire code that is not part of the current Proofbound/Lattice CLI product surface: unused MCP dependency, implementation review handler not registered, obsolete intent coverage module, one-time migration scripts, and package-local legacy active story metadata. Follow the principles: do not optimize for optimization, do not optimize arbitrarily, only fix real correctness issues, and preserve consistency of logic.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -32,6 +32,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:27:48.227Z",
+      "branch": "story/B-76a3",
+      "user": "Harmonygo",
+      "sessionId": "sess-a01afd006aec8080",
       "agent": "main"
     }
   ],

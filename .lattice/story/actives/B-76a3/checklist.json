@@ -9,7 +9,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Root package metadata and package-lock no longer declare @modelcontextprotocol/sdk; verify with node -e that package.json dependency sections and package-lock.json contain no @modelcontextprotocol/sdk entries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No live source, bin, or script import/reference requires @modelcontextprotocol/sdk after removal; verify with: ! rg -n \"@modelcontextprotocol/sdk\" package.json package-lock.json bin packages/main/src packages/utils/src packages/lab/src scripts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The dependency cleanup does not mask unrelated dependency churn and the suite still runs; verify git diff -- package.json package-lock.json shows only the @modelcontextprotocol/sdk removal or lock normalization, then run npm test successfully.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
