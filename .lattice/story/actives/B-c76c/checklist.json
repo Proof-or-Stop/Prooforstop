@@ -99,7 +99,7 @@
         "packages/main/package.json",
         "package-lock.json"
       ],
-      "userSees": "package.json, packages/main/package.json, package-lock.json, and lattice --version agree on the imported CLI version.",
+      "userSees": "The version metadata check prints `package.json 0.3.63`, `packages/main/package.json 0.3.63`, and `package-lock root 0.3.63 / 0.3.63`.",
       "verificationIntent": {
         "happy": [
           {
@@ -125,7 +125,16 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "package-lock.json"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
