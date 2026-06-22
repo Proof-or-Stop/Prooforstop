@@ -1,0 +1,28 @@
+{
+  "storyId": "B-bcd4",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/config.ts",
+    "lattice.config.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/package.json",
+    "packages/main/src/registry.ts",
+    "docs/evidence/orchestrate-legacy-index.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/orchestrate-retirement.md",
+    "packages/main/src/tasks/retired-root-guard-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/retired-root-guard-smoke.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T21:44:17.934Z",
+  "updatedAt": "2026-06-22T21:44:17.934Z"
+}
