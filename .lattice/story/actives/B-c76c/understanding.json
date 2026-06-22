@@ -1,12 +1,13 @@
 {
   "task": "Sync proofbound tracked source/config/docs baseline so the canonical checkout no longer trails retired Orchestrate 0.3.63.",
-  "outcome": "After this story, running `node bin/lattice.js --version` in /Users/jek/Documents/Work/proofbound prints `Lattice CLI 0.3.63`, and package.json, packages/main/package.json, and package-lock.json all agree on 0.3.63.",
+  "outcome": "After this story, running `node bin/lattice.js --version` in /Users/jek/Documents/Work/proofbound prints `Lattice CLI 0.3.63`, package.json, packages/main/package.json, and package-lock.json all agree on 0.3.63, and the build transcript includes both `@lattice-agent/core@0.3.63 build` and `@lattice-agent/utils@0.3.1 build`.",
   "facts": [
     "Retired Orchestrate package.json and packages/main/package.json report 0.3.63.",
     "Global lattice --version reports Lattice CLI 0.3.63.",
     "Proofbound package.json and packages/main/package.json currently report 0.3.60 before this sync.",
     "Orchestrate package-lock root metadata is stale at 0.3.49, so proofbound must regenerate lock metadata rather than blindly copying that part.",
-    "Orchestrate contains retired-root warnings and dirty untracked experiments that are explicitly excluded from this sync."
+    "Orchestrate contains retired-root warnings and dirty untracked experiments that are explicitly excluded from this sync.",
+    "The local bin/lattice.js bootstrap needs both packages/main and packages/utils build artifacts to run reliably inside a worktree."
   ],
   "constraints": [
     "Do not optimize for the sake of optimization; only resolve the correctness mismatch between canonical proofbound and retired Orchestrate baseline.",
@@ -23,8 +24,9 @@
     "lattice.config.json",
     "packages/main/src",
     "packages/main/tests",
+    "packages/utils",
     "scripts",
     "docs/requirements"
   ],
-  "timestamp": "2026-06-22T20:51:38.392Z"
+  "timestamp": "2026-06-22T20:56:43.935Z"
 }

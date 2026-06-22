@@ -8,7 +8,7 @@
         "AGENTS.md",
         "CLAUDE.md"
       ],
-      "userSees": "The terminal shows a concise diff summary proving which tracked files differ between proofbound and Orchestrate before any import happens.",
+      "userSees": "The terminal prints `39 files changed, 4606 insertions(+), 139 deletions(-)` for the tracked Orchestrate-vs-proofbound baseline diff, with AGENTS.md/CLAUDE.md listed only as excluded root-doc drift.",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,12 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
