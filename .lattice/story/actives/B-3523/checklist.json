@@ -120,7 +120,56 @@
       "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`.githooks/pre-push` identifies this repository as @lattice/core for the self-host build+tsc gate, and global fallback checks no longer search @koala-agent/core.",
+      "files": {
+        "modify": [
+          ".githooks/pre-push",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-koala-residue.mjs",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-koala-residue.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "pre-push package-name check matches @lattice/core and therefore runs for proofbound self-host pushes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "global fallback heartbeat candidates include @lattice/core only for live Lattice core resolution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "@koala-agent/core remains only as a forbidden residue pattern or historical mention, not as a live fallback candidate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runtime fact verifier fails if @koala-agent/core fallback or @lattice-agent/core canonical naming is reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
