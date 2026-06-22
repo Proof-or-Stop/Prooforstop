@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-7b6e:F-001",
+      "desc": "specAwareReviewer reads defectKind from ReviewerView which is a harness-authored label co-designed to be 1-to-1 with groundTruthPass (defectKind=none iff groundTruthPass=true in STANDING_CORPUS). The reviewer trivially achieves catchRate=1.0 by proxy-reading the hidden ground truth through the label — it does not analyze the artifact. Comments claim it detects the defect; it actually reads a harness-invariant tag. The non-vacuous claim in the smoke holds for testOnlyReviewer but not specAwareReviewer: the upper bound is tautological. The corpus invariant (defectKind=none ↔ groundTruthPass=true) must be enforced or documented, and the JSDoc on ReviewerView.defectKind and the specAwareReviewer comment must be corrected to say this is a harness-invariant label, not independent artifact analysis.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T23:47:54.716Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-002",
+      "_hash": "77d71c92deae9f206fcd9bc054fc58ba9d99021f07f283897421ff5717c42954",
+      "files": [
+        "packages/main/src/core/gate-strength.ts:40",
+        "packages/main/src/core/gate-strength.ts:113"
+      ],
+      "signatureTag": "edge|ts:40|specawarereviewer-reads-defectkind",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
