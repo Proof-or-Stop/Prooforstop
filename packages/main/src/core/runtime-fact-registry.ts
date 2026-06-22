@@ -65,9 +65,9 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'warn',
     checker: 'resolveGlobalCoreRealpath',
     outputKey: 'globalCoreRealpath',
-    rationale: 'Global @lattice-agent/core drift makes bare `lattice` commands run stale handlers.',
-    driftMessage: 'The globally installed @lattice-agent/core realpath does not match the expected Lattice core package.',
-    repairHint: 'Relink or reinstall the global @lattice-agent/core package, then rerun `lattice doctor --format=json`.',
+    rationale: 'Global @lattice/core drift makes bare `lattice` commands run stale handlers.',
+    driftMessage: 'The globally installed @lattice/core realpath does not match the expected Lattice core package.',
+    repairHint: 'Relink or reinstall the global @lattice/core package, then rerun `lattice doctor --format=json`.',
   },
   {
     id: 'project-local-bin',

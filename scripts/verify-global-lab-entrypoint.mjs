@@ -8,7 +8,7 @@ import { join } from 'path';
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'lattice.js');
-const EXPECTED_CORE_VERSION = '0.3.8';
+const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_EXTENSION_VERSION = '0.3.1';
 
 function assert(condition, message) {
@@ -61,15 +61,18 @@ const checks = {
     const core = readPackage('packages/main/package.json');
     const utils = readPackage('packages/utils/package.json');
     const lab = readPackage('packages/lab/package.json');
-    assert(core.name === '@lattice-agent/core', `core package name mismatch: ${core.name}`);
-    assert(utils.name === '@lattice-agent/utils', `utils package name mismatch: ${utils.name}`);
-    assert(lab.name === '@lattice-agent/lab', `lab package name mismatch: ${lab.name}`);
+    assert(core.name === '@lattice/core', `core package name mismatch: ${core.name}`);
+    assert(utils.name === '@lattice/utils', `utils package name mismatch: ${utils.name}`);
+    assert(lab.name === '@lattice/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
-    assert(core.dependencies?.['@lattice-agent/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @lattice-agent/lab@${EXPECTED_EXTENSION_VERSION}`);
-    assert(utils.dependencies?.['@lattice-agent/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @lattice-agent/core@${EXPECTED_EXTENSION_VERSION}`);
-    assert(lab.dependencies?.['@lattice-agent/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @lattice-agent/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(core.dependencies?.['@lattice/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @lattice/lab@${EXPECTED_EXTENSION_VERSION}`);
+    assert(utils.dependencies?.['@lattice/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @lattice/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(lab.dependencies?.['@lattice/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @lattice/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
+    assert(!utils.dependencies?.['@lattice-agent/core'], 'utils should not depend on retired @lattice-agent/core');
+    assert(!lab.dependencies?.['@lattice-agent/core'], 'lab should not depend on retired @lattice-agent/core');
     assert(!core.dependencies?.['@koala-agent/lab'], 'core should not depend on legacy @koala-agent/lab');
     assert(!utils.dependencies?.['@koala-agent/core'], 'utils should not depend on legacy @koala-agent/core');
     assert(!lab.dependencies?.['@koala-agent/core'], 'lab should not depend on legacy @koala-agent/core');
@@ -77,7 +80,7 @@ const checks = {
   'lab-help': () => {
     const out = run(['lab_create', '--help']);
     assert(out.includes('lattice lab_create'), 'global core bin should show lab_create help through the lattice bootstrap');
-    assert(out.includes('兼容: koala lab_create'), 'global core bin should preserve koala lab_create alias help');
+    assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
   'lab-create-policy-gate': () => {
     const temp = createTempProject();
@@ -100,7 +103,10 @@ const checks = {
       assert(out.includes('# lattice session brief'), 'core command should still work when lab dist is absent');
       const failed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
       assert(!failed.ok, 'lab command should fail when lab extension is unavailable');
-      assert(failed.text.includes('未知命令: lab_create') || failed.text.includes('Recovery'), 'lab failure should show unavailable lab command or recovery hint');
+      assert(
+        failed.text.includes('Unknown command: lab_create') || failed.text.includes('未知命令: lab_create') || failed.text.includes('Recovery'),
+        'lab failure should show unavailable lab command or recovery hint',
+      );
     } finally {
       if (existsSync(backup)) renameSync(backup, dist);
       rmSync(temp, { recursive: true, force: true });

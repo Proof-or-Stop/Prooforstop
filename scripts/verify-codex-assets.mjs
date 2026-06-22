@@ -174,7 +174,7 @@ assertCheckFails(
   const previousPath = process.env.PATH;
   try {
     mkdirSync(join(dir, 'packages', 'main'), { recursive: true });
-    const fakeGlobalCore = join(fakeGlobalRoot, '@lattice-agent', 'core');
+    const fakeGlobalCore = join(fakeGlobalRoot, '@lattice', 'core');
     mkdirSync(join(fakeGlobalCore, 'bin'), { recursive: true });
     writeFileSync(join(fakeGlobalCore, 'bin', 'lattice'), '#!/bin/sh\nexit 0\n');
     chmodSync(join(fakeGlobalCore, 'bin', 'lattice'), 0o755);
