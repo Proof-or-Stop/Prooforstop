@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7b6e",
+  "mode": "maintenance",
+  "allowed": [
+    "Contract smoke + register in lattice.config.json + CHANGELOG",
+    "Emit the gate-strength result as a B-4c65 ReceiptBundle (reuse buildReceiptBundle/verifyReceiptBundleOffline) so it is offline-verifiable",
+    "New core/gate-strength.ts: reviewer-agnostic runGateStrength scoring catch-rate vs hidden ground-truth + standing passes-visible-test-but-wrong probe corpus + test-only and spec-aware reference reviewers"
+  ],
+  "excluded": [
+    "Any change to gate behavior / DONE policy / receipt-bundle.ts semantics",
+    "Continuous/scheduled running of the meter (follow-up)",
+    "Live claude -p review-lane dispatch as a reviewer (follow-up)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directed 2026-06-23: build capability slice 2 (gate-strength self-red-team) hermetically, reusing the B-4c65 receipt for verifiable output; live review-lane dispatch deferred. maintenance mode (mentions but does not build Authority/live-dispatch).",
+  "createdAt": "2026-06-22T23:28:19.219Z",
+  "updatedAt": "2026-06-22T23:28:19.219Z",
+  "_hash": "c3166bca3daaf7e7f2c289aa9c12e6d02d8579bd90884536419894cdb02264ba"
+}
