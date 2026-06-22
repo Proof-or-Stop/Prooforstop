@@ -109,9 +109,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T21:03:10.443Z",
-      "endTime": null,
+      "endTime": "2026-06-22T21:05:22.678Z",
       "files": {
         "modify": [
           "package.json",
@@ -123,7 +123,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only refs/remotes/orchestrate/main -- package.json package-lock.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements",
+          "result": "pass",
+          "note": "After commit 15a3405d5, allowed tracked code/config/docs paths produced no diff against refs/remotes/orchestrate/main.",
+          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
+          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
+          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
+          "timestamp": "2026-06-22T21:05:23.190Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "git diff --name-only HEAD -- AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "excludedRootDocs: clean; AGENTS.md and CLAUDE.md were not overwritten by retired Orchestrate root warning text.",
+          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
+          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
+          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
+          "timestamp": "2026-06-22T21:05:23.699Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only HEAD -- .lattice/local-evidence experiments docs/story tests/fixtures && git status --short --branch",
+          "result": "pass",
+          "note": "excludedLegacyEvidence: clean; no files under .lattice/local-evidence, experiments, docs/story, or tests/fixtures were staged/imported, and git status was clean on story/B-c76c.",
+          "headHash": "15a3405d5cd2ee6116b2ef0ebd05b501349c26bd",
+          "materialHash": "3cb797ab52b9b2ce1fdc2cce488cc026e43e0d907d541924360482eb78840393",
+          "storyFilesHash": "058ac310ff300ad4944ee9e5bfe9f73ce9656ecbfde93359f251f2a954456dbc",
+          "timestamp": "2026-06-22T21:05:24.207Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
