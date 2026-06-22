@@ -148,7 +148,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-22T18:54:54.798Z",
+      "endTime": "2026-06-22T18:55:28.035Z",
       "verificationIntent": {
         "happy": [
           {
@@ -179,10 +179,10 @@
           "command": "test ! -e packages/main/src/core/intent-coverage.ts",
           "result": "pass",
           "note": "The obsolete legacy intent coverage helper is no longer present as an active runtime core module.",
-          "headHash": "3a0e16e743fcffb4fa884ed84dd1a08179a51905",
+          "headHash": "913926fcfb720944d1cbf1a09eb02383bebdae9d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:54:55.043Z"
+          "timestamp": "2026-06-22T18:55:28.273Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -190,21 +190,21 @@
           "command": "if rg -n \"from [\\\"'].*intent-coverage|import\\([^)]*intent-coverage|require\\([^)]*intent-coverage\" packages/main/src packages/utils/src packages/lab/src bin scripts; then exit 1; else echo \"no runtime intent-coverage imports\"; fi",
           "result": "pass",
           "note": "No runtime source, bin, or script path imports or dynamically loads intent-coverage.",
-          "headHash": "3a0e16e743fcffb4fa884ed84dd1a08179a51905",
+          "headHash": "913926fcfb720944d1cbf1a09eb02383bebdae9d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:54:55.266Z"
+          "timestamp": "2026-06-22T18:55:28.489Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
-          "command": "npm test; node bin/lattice.js story_review '{\"storyId\":\"B-76a3\"}'",
+          "command": "npm test; node bin/lattice.js checklist_get '{\"storyId\":\"B-76a3\",\"slim\":true,\"fields\":[\"items\"]}' | rg '\"id\": \"CHK-00[1-5]\"|\"total\": 3|\"must\": 3'",
           "result": "pass",
-          "note": "Full suite passed and PLAN story_review still reports 0 blockers with all five checklist items retaining happy/edge/adversarial verificationIntent coverage.",
-          "headHash": "3a0e16e743fcffb4fa884ed84dd1a08179a51905",
+          "note": "Full suite passed and checklist_get confirms CHK-001 through CHK-005 still retain three must verificationIntent entries each.",
+          "headHash": "913926fcfb720944d1cbf1a09eb02383bebdae9d",
           "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
           "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
-          "timestamp": "2026-06-22T18:54:55.493Z"
+          "timestamp": "2026-06-22T18:55:28.706Z"
         }
       ]
     },
