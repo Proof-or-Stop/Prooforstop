@@ -1,0 +1,27 @@
+{
+  "task": "Build a hermetic, reviewer-agnostic gate-strength self-red-team harness that scores a reviewer's discrimination over passes-the-visible-test-but-wrong probes (vs a hidden ground-truth) and publishes the catch-rate as a B-4c65-verifiable receipt. Live review-lane dispatch deferred.",
+  "outcome": "Running the new smoke prints: '✓ gate-strength contract smoke passed: test-only reviewer caught 0/N (visible-test gap proven), spec-aware reviewer caught N/N with the correct per-probe reason (discrimination is real, not a constant), gate-strength receipt verifies offline (accepted), catch-rate metric correct.'",
+  "facts": [
+    "core/receipt-bundle.ts exports buildReceiptBundle + verifyReceiptBundleOffline (B-4c65, DONE) — reuse to make the gate-strength output offline-verifiable",
+    "A passes-visible-test-but-wrong probe = an artifact that passes a visible acceptance test but fails a HIDDEN ground-truth (the §6 overfit/subtle/buried family)",
+    "Gate strength = discrimination rate over such probes (block wrong, ship genuine), scored vs the hidden ground-truth",
+    "Live claude -p review-lane dispatch is heavy (agent calls) — slice 1 is hermetic with reference reviewers"
+  ],
+  "constraints": [
+    "Hermetic: NO live agent/review-lane dispatch, NO network",
+    "Reuse receipt-bundle.ts (do not change its semantics); reuse its assurance label local-key-single-host",
+    "No gate-behavior/DONE-policy change; tsc green",
+    "Probes synthetic + prompt-sized (large/diffuse-artifact probes are future)"
+  ],
+  "unknowns": [
+    "RESOLVE IN DEV: exact ReceiptBundleEvidence shape to feed buildReceiptBundle for the gate-strength receipt (read receipt-bundle.ts)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/gate-strength.ts (new)",
+    "packages/main/src/core/receipt-bundle.ts (reuse)",
+    "packages/main/src/tasks/gate-strength-contract-smoke.ts (new)",
+    "lattice.config.json",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-22T23:31:28.083Z"
+}

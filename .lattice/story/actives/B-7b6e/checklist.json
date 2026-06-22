@@ -6,7 +6,40 @@
       "context": "New core/gate-strength.ts: a reviewer-agnostic runGateStrength(reviewer, corpus) that scores catch-rate + per-probe reason against a HIDDEN ground-truth; a standing corpus of passes-visible-test-but-wrong probes (overfit lookup-table, subtle falsy-guard, buried-needle), each with a hidden ground-truth distinct from the visible acceptance; ship testOnlyReviewer (catches 0) + specAwareReviewer (catches all). Emit the gate-strength result as a B-4c65 ReceiptBundle (reuse buildReceiptBundle) so it is offline-verifiable via verifyReceiptBundleOffline. No live agent dispatch.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ runGateStrength(specAwareReviewer, corpus) returns catchRate 1.0 (catches every passes-test-but-wrong probe, ships the genuine one); gateStrengthBundle(...) emits a receipt that verifyReceiptBundleOffline ACCEPTS — the gate's strength is itself offline-verifiable evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/receipt-bundle.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/core/gate-strength.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/gate-strength-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runGateStrength(specAwareReviewer, STANDING_CORPUS) → catchRate 1.0, falseShip 0, falseBlock 0; per-probe reasons name the defect; WHY: proves the harness scores discrimination correctly.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gateStrengthBundle(result, key) → a B-4c65 ReceiptBundle that verifyReceiptBundleOffline accepts (assurance local-key-single-host); WHY: the gate-strength claim is offline-verifiable evidence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "testOnlyReviewer → catchRate 0 (ships every wrong probe because the visible test is green); WHY: proves 'test green ≠ correct' and that the metric is not a block-everything constant.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

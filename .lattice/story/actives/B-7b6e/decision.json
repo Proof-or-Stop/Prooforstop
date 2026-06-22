@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Smallest hermetic slice that yields a verifiable gate-strength metric",
+    "Reuse the B-4c65 receipt — the strength claim is itself evidence",
+    "Prove discrimination with bracketing reference reviewers, not a single constant",
+    "Honest scope: reference reviewers now, live gate deferred"
+  ],
+  "drivers": [
+    "Live review-lane dispatch is heavy/non-hermetic",
+    "§6 recovery-runner is untracked scratch, not a capability",
+    "The metric must be provably non-vacuous"
+  ],
+  "options": [
+    {
+      "name": "Hermetic reviewer-agnostic harness + 2 reference reviewers + verifiable receipt",
+      "pros": [
+        "Ships + demos now, no live dispatch",
+        "Reference reviewers (0 vs all) prove the metric discriminates",
+        "Output is a B-4c65 receipt → offline-verifiable (composes 🥇+🥈)"
+      ],
+      "cons": [
+        "Measures the reference reviewers, not the LIVE gate — live-lane plug-in is a follow-up (stated honestly)"
+      ]
+    },
+    {
+      "name": "Live review-lane dispatch as the reviewer now",
+      "pros": [
+        "Measures the real gate"
+      ],
+      "cons": [
+        "Needs agent dispatch (claude -p) — not hermetic, heavy, slow; wrong for slice 1"
+      ]
+    },
+    {
+      "name": "Just re-run the §6 recovery-runner scratch",
+      "pros": [
+        "Exists"
+      ],
+      "cons": [
+        "Untracked scratch, not a first-class story-gated capability; no verifiable receipt"
+      ]
+    }
+  ],
+  "chosen": "Hermetic reviewer-agnostic harness + 2 reference reviewers + verifiable receipt",
+  "rationale": "Only this ships hermetically now, proves the metric discriminates (test-only 0 vs spec-aware all), and composes with 🥇 by emitting a B-4c65-verifiable receipt. The live review-lane reviewer plugs into the same reviewer-agnostic interface as a follow-up.",
+  "preMortem": [
+    {
+      "scenario": "The catch-rate is meaningless because the reference reviewer is a constant",
+      "trigger": "Only one reviewer, or both behave the same",
+      "consequence": "A tautological metric",
+      "mitigation": "Ship BOTH a test-only reviewer (must catch 0) AND a spec-aware reviewer (must catch all) — the smoke asserts the two endpoints differ, proving the harness measures real discrimination"
+    },
+    {
+      "scenario": "The gate-strength receipt is read as an Authority strong proof",
+      "trigger": "Receipt omits the single-host/hermetic caveat",
+      "consequence": "Overclaim",
+      "mitigation": "Reuse B-4c65 assurance=local-key-single-host; the receipt + smoke + CHANGELOG state hermetic/reference-reviewer scope, live gate deferred"
+    },
+    {
+      "scenario": "Probes are too easy, overstating gate strength",
+      "trigger": "Only obvious overfit probes",
+      "consequence": "Inflated catch-rate",
+      "mitigation": "Corpus includes obvious + subtle + buried probes; report is scoped to synthetic prompt-sized artifacts; large/diffuse probes flagged as future"
+    }
+  ],
+  "timestamp": "2026-06-22T23:31:28.431Z"
+}
