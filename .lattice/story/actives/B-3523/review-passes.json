@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-22T23:31:02.764Z",
       "reviewRunId": "B-3523:RR-007",
       "_hash": "8a50a71e86c00ec62d39577d0a06d629cf1ed3a4276d56518f0dc703a0a8a72c"
+    },
+    {
+      "id": "B-3523:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs review round 2 after F-001 fix: inspected package/version/lock/verifier changes around ca6818920. Packages and locks now name @lattice/core, @lattice/lab, @lattice/utils at 0.3.65 where applicable; stale sweep found no docs/prompt current-version claims implying @lattice/lab or @lattice/utils are still 0.3.1. Remaining retired-scope hits are negative verifier assertions. Verifiers passed: verify-global-lab-entrypoint, verify-entrypoints, verify-runtime-fact-contract, verify-codex-assets. No docs blocker.",
+      "createdAt": "2026-06-22T23:37:33.475Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-008",
+      "_hash": "dfdf05d85f3f4beaf2776c615679e7094dd302d34d9dd0b06fb16fc4199b6daa"
     }
   ]
 }
