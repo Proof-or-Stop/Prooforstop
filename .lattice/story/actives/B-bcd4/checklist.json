@@ -195,12 +195,45 @@
       "title": "Verify migrated active stories are visible in proofbound and absent from Orchestrate active worktrees",
       "context": "User-observable migration acceptance: B-3523 and B-fbb6 must be recoverable at /Users/jek/Documents/Work/proofbound/.worktrees/*, while /Users/jek/Documents/Work/Orchestrate no longer has story/B-3523 or story/B-fbb6 worktrees/branches.",
       "relatedDocs": [
-        ".lattice/story/actives/B-bcd4/background.md"
+        "docs/evidence/orchestrate-legacy-index.md",
+        "docs/requirements/decisions/orchestrate-retirement.md"
       ],
-      "userSees": "Running session_brief in proofbound lists B-3523 and B-fbb6 as active worktree-authority stories; running session_brief/worktree list in Orchestrate shows no healthy active B-3523 or B-fbb6 worktree.",
+      "userSees": "`test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-3523` and `test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` succeed; `git -C /Users/jek/Documents/Work/Orchestrate worktree list` has no active `B-3523` or `B-fbb6` worktree path.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/evidence/orchestrate-legacy-index.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Proofbound contains recoverable B-3523 and B-fbb6 worktree directories.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Old Orchestrate no longer has active story/B-3523 or story/B-fbb6 branches or healthy active worktrees.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any remaining Orchestrate lab/temp worktrees are reported separately and not misrepresented as active migrated stories.",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
