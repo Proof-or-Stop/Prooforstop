@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e37e",
+  "mode": "feature",
+  "allowed": [
+    "Fallback from SSE to existing polling/claim behavior",
+    "Lattice CLI authority runner SSE client for /v1/runners/{runnerId}/jobs/stream",
+    "Tests and docs for SSE-as-hint semantics, auth handling, reconnect/resume or retry behavior, and snapshot-only compatibility"
+  ],
+  "excluded": [
+    "Adding multi-tenant server behavior",
+    "Changing Authority receipt, gate, or productionDone semantics",
+    "Changing credential bundle generation",
+    "Lattice Authority Server endpoint implementation",
+    "Pushing to remote GitHub"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved starting the previous CLI-side SSE task after confirming canonical proofbound root on 2026-06-23.",
+  "createdAt": "2026-06-22T23:23:55.986Z",
+  "updatedAt": "2026-06-22T23:23:55.986Z",
+  "_hash": "eb55ac628ea1e0a4fdc015df3484a41a650b6f08c42b5dbb1d0031d1fd713cc1"
+}

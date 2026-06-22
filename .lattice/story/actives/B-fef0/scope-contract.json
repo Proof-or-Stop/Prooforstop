@@ -1,0 +1,19 @@
+{
+  "storyId": "B-fef0",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/recovery-runner/**"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/recovery-runner/*.jsonl"
+  ],
+  "scopeChangeReason": "Onboard recovery-runner code (not the .jsonl data) into proofbound.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T22:48:17.178Z",
+  "updatedAt": "2026-06-22T22:48:17.178Z"
+}

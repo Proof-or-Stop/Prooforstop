@@ -1,0 +1,87 @@
+{
+  "storyId": "B-fef0",
+  "checkedAt": "2026-06-22T22:52:49.150Z",
+  "features": [
+    {
+      "feature": "Track the 3 runners: run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs under experiments/recovery-runner/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track per-task fixtures for eval-expr task (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track per-task fixtures for median task (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track per-task fixtures for parse-range task (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track per-task fixtures for text-stats task (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track generic file-op injection: injections/corrupt-output.mjs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track generic file-op injection: injections/delete-output.mjs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add experiments/recovery-runner/README.md explaining the harness and pointing to the paper repo for run-record data",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Exclude .jsonl run-records from tracking (data lives in paper repo)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fixture self-consistency verification: each task reference-solution passes its own acceptance.mjs and ground-truth.mjs, without invoking the live LLM loop",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8eee76a968a3f4a53e0e7ad81128183c33f80c58921273191d3fcc1f8c402363",
+  "openQuestions": []
+}

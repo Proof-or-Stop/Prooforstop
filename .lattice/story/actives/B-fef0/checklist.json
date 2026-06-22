@@ -4,41 +4,396 @@
       "id": "CHK-001",
       "title": "Track the recovery-runner runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) under experiments/recovery-runner/",
       "context": "Copy from the legacy Orchestrate checkout into the story worktree and git add",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T22:54:06.341Z",
+      "endTime": "2026-06-22T22:57:52.668Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/run-*.mjs -> lists exactly run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs (3 files); WHY: confirms all 3 runners are tracked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each runner file is non-empty (wc -l > 0) and starts with a valid JS/ESM construct (import or const); WHY: guards against accidentally tracking empty or corrupt placeholder files",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No other .mjs files exist at experiments/recovery-runner/ root besides the 3 runners (git ls-files experiments/recovery-runner/*.mjs returns exactly 3); WHY: catches accidental tracking of stray files at the runner level that do not belong",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/run-*.mjs",
+          "result": "pass",
+          "note": "Lists exactly run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs (3 files tracked).",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Track the per-task fixtures tasks/{eval-expr,median,parse-range,text-stats}/ (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
       "context": "Each task has a reference solution, a visible acceptance test, a hidden ground-truth, and a passes-test-but-wrong injection payload; the eval-expr reference + payload already include the non-string typeof guard fix",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T22:54:31.306Z",
+      "endTime": "2026-06-22T22:57:53.800Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/tasks/ -> lists files for all 4 tasks (eval-expr, median, parse-range, text-stats), each containing at minimum: prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs; WHY: confirms the core fixture quintet is tracked for every task",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git ls-files experiments/recovery-runner/tasks/ | grep subtle-wrong-output -> returns one hit per task (4 total); WHY: confirms the shared injection payload is present in all 4 tasks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "eval-expr has payload-subtle.mjs tracked; median and parse-range each have overfit-output.mjs tracked; text-stats has neither (only subtle-wrong-output.mjs); WHY: the per-task injection payloads vary by task and the checklist must match the source exactly",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Total tracked file count under tasks/ matches source: eval-expr=7, median=7, parse-range=7, text-stats=6 (27 total); WHY: guards against missing or extra files in any task directory",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No solution.mjs is tracked in any task directory (git ls-files experiments/recovery-runner/tasks/*/solution.mjs returns empty); WHY: solution.mjs is a runtime artifact produced by live LLM runs and must never be committed -- its presence would indicate a dirty copy from a prior experiment run",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No .jsonl files tracked under tasks/ (git ls-files experiments/recovery-runner/tasks/ | grep .jsonl returns empty); WHY: run-record data must be excluded per story scope",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/tasks/ | grep -E '(prompt.md|task.json|acceptance.mjs|ground-truth.mjs|reference-solution.mjs)$' | wc -l",
+          "result": "pass",
+          "note": "20 quintet files = 5 core fixtures x 4 tasks; all 4 task dirs have prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/tasks/ | grep subtle-wrong-output | wc -l",
+          "result": "pass",
+          "note": "4 hits = one subtle-wrong-output.mjs per task.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/tasks/*/solution.mjs | wc -l",
+          "result": "pass",
+          "note": "0 hits: no runtime solution.mjs tracked in any task dir (rsync excluded it; fixture run cleaned up).",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/recovery-runner/tasks",
+          "command": "git ls-files experiments/recovery-runner/tasks/*/",
+          "result": "pass",
+          "note": "Per-task injection payloads match the source exactly: eval-expr has payload-subtle.mjs; median + parse-range each have overfit-output.mjs (+ subtle-wrong-output.mjs); text-stats has subtle-wrong-output.mjs only. Verified via git ls-files per task dir.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Track the generic file-op injections injections/{corrupt-output,delete-output}.mjs",
       "context": "Generic injections shared across tasks",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T22:54:32.358Z",
+      "endTime": "2026-06-22T22:57:55.787Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/injections/ -> lists exactly corrupt-output.mjs and delete-output.mjs (2 files); WHY: confirms both generic injection files are tracked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each injection file is non-empty and exports a default function or contains a recognizable handler (grep for export or module pattern); WHY: guards against empty stubs being tracked instead of real injection code",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No extra files exist under injections/ besides the two expected (git ls-files experiments/recovery-runner/injections/ | wc -l == 2); WHY: catches accidental tracking of stray injection files or experiment artifacts that should not be in scope",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/injections/",
+          "result": "pass",
+          "note": "Lists exactly corrupt-output.mjs and delete-output.mjs (2 generic injection files).",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Add experiments/recovery-runner/README.md explaining the harness and pointing to the paper repo for run-record data; do not track the .jsonl run-records",
       "context": "The .jsonl outputs are experiment data and live in Proofbound-AI/paper",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T22:54:42.158Z",
+      "endTime": "2026-06-22T22:57:56.890Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/README.md -> returns exactly 1 hit; WHY: confirms README is tracked",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "README.md contains a reference to Proofbound-AI/paper or the paper repo as the location for run-record data; WHY: the story requires the README to point users to the paper repo for .jsonl data",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/*.jsonl returns empty AND git ls-files experiments/recovery-runner/ | grep .jsonl returns empty; WHY: confirms no .jsonl run-records are tracked anywhere under recovery-runner, matching the explicit exclusion requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No .gitignore or .gitkeep files are tracked under experiments/recovery-runner/ that might inadvertently affect future tracking behavior (git ls-files experiments/recovery-runner/.git* returns empty); WHY: a .gitignore could silently suppress files that should be tracked; if one exists it should be deliberate and reviewed",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "README.md is not a trivial placeholder (wc -l > 10 or wc -c > 200); WHY: catches a stub README that technically exists but fails the spirit of explaining the harness",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README.md tracked (1 hit).",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Proofbound-AI/paper' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README 'Data lives elsewhere' section points run-record .jsonl data to companion paper repo Proofbound-AI/paper. Source README already canonical-proofbound; no Orchestrate references found (grep -ri orchestrate -> none); no edit needed.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/*.jsonl; git ls-files experiments/recovery-runner/ | grep .jsonl",
+          "result": "pass",
+          "note": "Both return empty: zero .jsonl run-records tracked anywhere under recovery-runner.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/recovery-runner",
+          "command": "git ls-files experiments/recovery-runner | grep -c .jsonl",
+          "result": "pass",
+          "note": "Zero .jsonl tracked anywhere under experiments/recovery-runner (git ls-files grep .jsonl = 0), matching the explicit exclusion requirement.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Verify each task reference-solution passes its own acceptance + hidden ground-truth (fixture self-consistency), without invoking the live LLM loop",
       "context": "Copy reference-solution.mjs to solution.mjs per task and run acceptance.mjs + ground-truth.mjs; both must PASS for all 4 tasks",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T22:54:55.606Z",
+      "endTime": "2026-06-22T22:57:58.166Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For eval-expr: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the eval-expr reference solution is self-consistent with its own fixture tests",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For median: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the median reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For parse-range: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the parse-range reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For text-stats: cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . -> both print PASS and exit 0; WHY: confirms the text-stats reference solution is self-consistent",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For each task, the subtle-wrong-output.mjs payload (renamed to solution.mjs) passes acceptance.mjs but FAILS ground-truth.mjs (exit != 0); WHY: validates the fixture design -- the injection must fool the visible test but be caught by the hidden ground-truth, otherwise the experiment harness has no discriminating power",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Running acceptance.mjs with no solution.mjs present -> exits non-zero with a clear error; WHY: confirms the test gracefully rejects a missing solution rather than crashing with an unhandled exception",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After running the self-consistency check, the temporary solution.mjs file is cleaned up (rm solution.mjs) and NOT left tracked in git (git ls-files tasks/*/solution.mjs returns empty); WHY: the verification process itself must not leave dirty state that could be accidentally committed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Running ground-truth.mjs with a zero-byte solution.mjs -> exits non-zero; WHY: a degenerate empty file must not be treated as passing by the ground-truth check",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/eval-expr && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "eval-expr reference solution self-consistent: ACCEPT PASS (20 checks) + GROUND-TRUTH PASS (9 held-out checks); temp solution.mjs removed.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/median && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "median reference solution self-consistent: ACCEPT PASS (8 checks) + GROUND-TRUTH PASS (8 held-out checks); temp solution.mjs removed.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/parse-range && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "parse-range reference solution self-consistent: ACCEPT PASS (11 checks) + GROUND-TRUTH PASS (12 held-out checks); temp solution.mjs removed.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cd experiments/recovery-runner/tasks/text-stats && cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-truth.mjs . && rm -f solution.mjs",
+          "result": "pass",
+          "note": "text-stats reference solution self-consistent: ACCEPT PASS (6 checks) + GROUND-TRUTH PASS (5 held-out checks); temp solution.mjs removed.",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/tasks/*/solution.mjs | wc -l",
+          "result": "pass",
+          "note": "0: no temporary solution.mjs left tracked after the self-consistency runs; working tree clean (find . -name solution.mjs -> 0).",
+          "headHash": "9191ca70121ca396766d9b047d8cfbeecb75361f",
+          "materialHash": "d54063cebdfef961efe95671a8301a8a7b40366a8c86032857be69190df616d4",
+          "storyFilesHash": "b116d7b5d82d79145480c71f9f53ef426f5950be37adc27435cf7179c3a1afd0",
+          "timestamp": "2026-06-22T23:07:28.118Z"
+        }
+      ]
     }
   ]
 }

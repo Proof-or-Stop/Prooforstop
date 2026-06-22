@@ -1,0 +1,114 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Detect and consume runner jobs SSE as a notification hint",
+      "context": "Add CLI authority runner logic that opens /v1/runners/{runnerId}/jobs/stream when live authority mode is active, parses jobs.available events, and triggers the existing signed claim path without treating the event as ownership proof.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-authority-customer-api-key-access.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A live authority runner with valid customer key and runner identity receives a jobs.available SSE event and immediately attempts the existing signed claim path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If the stream returns a single snapshot with no jobs, disconnects, times out, or is not text/event-stream, the CLI falls back to existing polling without blocking the runner forever.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A jobs.available event is never treated as a leased job; the CLI must still require claim success before execution and must not claim productionDone or receipt verification from SSE alone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Preserve auth, retry, and host-neutral provider boundaries",
+      "context": "Ensure Authorization/customer-key handling, runner provider configuration, reconnect/backoff, and diagnostics stay consistent with authority_enforce_runner and autopilot authority paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The SSE request carries the same Authority customer API key source as other protected Authority reads and works for codex/claude runner identities without provider-specific shortcuts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "401/403/404/server-unavailable stream failures produce a clear readiness/fallback diagnostic and continue through the configured safe fallback path where appropriate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Provider-specific or host-specific assumptions cannot bypass runner registration, heartbeat, session binding, claim ownership, or the existing execution boundaries.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document server dependency and client fallback contract",
+      "context": "Update CLI-facing docs so developers understand that SSE improves notification latency only when the server supports long-lived job push, and that polling fallback remains the compatibility path.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/orchestrate-retirement.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs state how the CLI uses runner jobs SSE, what server capability is required, and how fallback behaves.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs clarify that retired Orchestrate is read-only legacy evidence and canonical proofbound is the mutating development root.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not overclaim faster provider execution, Authority completion, productionDone, or server-side push support before the server endpoint actually provides it.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
