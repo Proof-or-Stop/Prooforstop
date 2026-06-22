@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-22T23:31:02.764Z",
       "reviewRunId": "B-3523:RR-006",
       "_hash": "abe6a35b1a95331fcd1009e23c4abcaef4673f0d07c03b4c6ee47d9d86ad36f3"
+    },
+    {
+      "id": "B-3523:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review passed after F-001 fix. Verified CHK-001 package and dependency evidence now asserts @lattice core/utils/lab package versions 0.3.65, inter-package deps @lattice/lab and @lattice/core at 0.3.65, and dry-run package-lock installs for packages/main, packages/lab, and packages/utils. Spot-check commands passed: npm --prefix packages/main install --package-lock-only --dry-run --ignore-scripts; npm --prefix packages/lab install --package-lock-only --dry-run --ignore-scripts; npm --prefix packages/utils install --package-lock-only --dry-run --ignore-scripts; node scripts/verify-global-lab-entrypoint.mjs versions; node scripts/verify-entrypoints.mjs; node scripts/verify-runtime-fact-contract.mjs. CHK-004:happy:2 global relink evidence reports @lattice/core and Lattice CLI 0.3.65, with post-DONE relink caveat. No blocker.",
+      "createdAt": "2026-06-22T23:34:48.956Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-007",
+      "_hash": "8a50a71e86c00ec62d39577d0a06d629cf1ed3a4276d56518f0dc703a0a8a72c"
     }
   ]
 }
