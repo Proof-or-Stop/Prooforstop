@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-76a3",
+  "mode": "maintenance",
+  "allowed": [
+    "Implementation review command wiring: registry, command catalog/schema, focused smoke coverage, and directly related docs if needed",
+    "One-time migration scripts under scripts/ that are not npm-script or runtime entrypoints: convert-fixtures.cjs, migrate-annotations.cjs, migrate-fixture-reform*.mjs, remove-file-level-test.cjs, and directly linked docs references",
+    "Package-local obsolete metadata under packages/main/docs/story/actives and packages/main/docs/metadata when proven not required by current runtime",
+    "packages/main/src/core/intent-coverage.ts and tests/fixtures that directly prove its current status",
+    "Root package dependency metadata and lockfile entries for unused @modelcontextprotocol/sdk only"
+  ],
+  "excluded": [
+    "No broad architecture rewrite or formatting-only cleanup",
+    "No changes to Authority, dispatch, planner, serve, browser verifier, or unrelated lifecycle gates unless required by the five listed cleanup items",
+    "No deletion of packages/lab or lab command surface in this story",
+    "No GitHub push from story worktree",
+    "No mutation of migrated local .lattice legacy evidence except B-76a3 story metadata written by this story",
+    "No relocation of all smoke tests or packages/main/src/tasks test architecture"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User approved the five-item cleanup order and asked to execute it through Lattice stories. Scope is limited to real correctness cleanup: unused dependency, unwired implementation-review protocol, obsolete intent coverage status, one-time migration scripts, and package-local legacy active story metadata.",
+  "createdAt": "2026-06-22T18:26:20.515Z",
+  "updatedAt": "2026-06-22T18:26:20.515Z",
+  "_hash": "346817d6d8583cdf017147bf8da4e34c72feac68c9f07b467a5b61d004daa1ff"
+}

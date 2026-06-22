@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-76a3",
+  "checkedAt": "2026-06-22T18:26:55.498Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "346817d6d8583cdf017147bf8da4e34c72feac68c9f07b467a5b61d004daa1ff",
+  "executionBoundaryHash": "101817661d8f59bbb3e1248265b194cfb6791dea3942dd7a744f8ec710be33b3",
+  "freshnessHash": "2b89ec6dcde285a98862edff07207c80d1d6cda3342050f168eab562f1236b12",
+  "effectiveExcludedKeywords": [
+    "No broad architecture rewrite or formatting-only cleanup",
+    "No changes to Authority, dispatch, planner, serve, browser verifier, or unrelated lifecycle gates unless required by the five listed cleanup items",
+    "No deletion of packages/lab or lab command surface in this story",
+    "No GitHub push from story worktree",
+    "No mutation of migrated local .lattice legacy evidence except B-76a3 story metadata written by this story",
+    "No relocation of all smoke tests or packages/main/src/tasks test architecture"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No broad architecture rewrite or formatting-only cleanup",
+      "source": "scopeBoundary.excluded",
+      "text": "No broad architecture rewrite or formatting-only cleanup",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to Authority, dispatch, planner, serve, browser verifier, or unrelated lifecycle gates unless required by the five listed cleanup items",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to Authority, dispatch, planner, serve, browser verifier, or unrelated lifecycle gates unless required by the five listed cleanup items",
+      "excluded": true
+    },
+    {
+      "keyword": "No deletion of packages/lab or lab command surface in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "No deletion of packages/lab or lab command surface in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "No GitHub push from story worktree",
+      "source": "scopeBoundary.excluded",
+      "text": "No GitHub push from story worktree",
+      "excluded": true
+    },
+    {
+      "keyword": "No mutation of migrated local .lattice legacy evidence except B-76a3 story metadata written by this story",
+      "source": "scopeBoundary.excluded",
+      "text": "No mutation of migrated local .lattice legacy evidence except B-76a3 story metadata written by this story",
+      "excluded": true
+    },
+    {
+      "keyword": "No relocation of all smoke tests or packages/main/src/tasks test architecture",
+      "source": "scopeBoundary.excluded",
+      "text": "No relocation of all smoke tests or packages/main/src/tasks test architecture",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "381b4d40f35e943fb883a6ba38119234faccdbbb2a336b640be72e1df03a86c6"
+}

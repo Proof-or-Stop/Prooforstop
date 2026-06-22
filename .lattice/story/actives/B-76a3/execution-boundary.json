@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-76a3",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm install --package-lock-only *",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent reviewer lanes"
+  ],
+  "allowedPaths": [
+    ".gitignore",
+    ".lattice/story/actives/B-76a3",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/docs",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "rm -rf .lattice *",
+    "rm -rf /Users/jek/Documents/Work/Orchestrate *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".lattice/artifacts",
+    ".lattice/story/actives/B-000c",
+    ".lattice/story/actives/B-001",
+    ".omx",
+    "node_modules"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Execution is limited to the five approved cleanup items. Do not push to GitHub. Do not mutate migrated legacy evidence except the current B-76a3 story metadata.",
+  "createdAt": "2026-06-22T18:26:42.261Z",
+  "updatedAt": "2026-06-22T18:26:42.261Z",
+  "_hash": "101817661d8f59bbb3e1248265b194cfb6791dea3942dd7a744f8ec710be33b3"
+}
