@@ -60,7 +60,24 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "F-001 fix requires package-lock metadata for @lattice/lab and @lattice/utils so dry-run installs validate renamed package dependencies instead of relying on stale manual manifests.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice live_smoke_transcript --write produced this story-scoped evidence artifact to record the user-visible lattice --version transcript for DONE acceptance; it is metadata evidence, not product code expansion.",
+      "timestamp": "2026-06-22T23:51:26.718Z",
+      "paths": [
+        ".lattice/story/actives/B-3523/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3523/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "df5bba1cfa67ca8f8799135b2546f8763d751af0",
+      "materialHash": "c132c70256b1011810cea159f0f1a2870fc30aa41ad685590b74db5fa6d2b219"
+    }
+  ],
   "createdAt": "2026-06-22T23:04:09.249Z",
-  "updatedAt": "2026-06-22T23:30:29.319Z"
+  "updatedAt": "2026-06-22T23:51:26.718Z"
 }
