@@ -1,0 +1,29 @@
+{
+  "task": "Add a host-neutral retired-root guard so legacy Orchestrate cannot keep accepting new mutating Lattice writes after proofbound becomes canonical.",
+  "outcome": "When a user or agent runs a mutating command in /Users/jek/Documents/Work/Orchestrate, the terminal says that the root is retired and points to /Users/jek/Documents/Work/proofbound; read-only inspection commands still work for evidence lookup.",
+  "facts": [
+    "/Users/jek/Documents/Work/proofbound is the canonical active checkout for future Lattice work.",
+    "/Users/jek/Documents/Work/Orchestrate is now a legacy evidence root that should remain readable but should not accept new story/checklist/review/test writes.",
+    "B-3523 and B-fbb6 old worktrees have been preserved under proofbound/.worktrees and old Orchestrate active worktrees have been discarded.",
+    "CLI command ownership is already centralized in packages/main/src/core/command-policy.ts and resolved dynamically in packages/main/src/cli/ownership-gate.ts.",
+    "The correct guard must be Host-neutral and Agent-neutral: it must not depend on Codex, Claude, or any single host namespace."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization; add only the correctness guard needed to prevent old-root writes.",
+    "Do not optimize arbitrarily; reuse existing command ownership classification instead of creating a second command taxonomy.",
+    "Only fix real correctness issues: retired roots must block mutating commands while preserving read-only evidence access.",
+    "Maintain consistency of logic with existing phase/owner-lease gates and command-policy semantics.",
+    "Do not delete legacy Orchestrate evidence and do not finish or merge B-3523/B-fbb6 business changes in this story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "packages/main/src/tasks/retired-root-guard-smoke.ts",
+    "lattice.config.json",
+    "docs/requirements/decisions/orchestrate-retirement.md"
+  ],
+  "timestamp": "2026-06-22T20:43:36.895Z"
+}
