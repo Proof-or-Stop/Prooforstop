@@ -6,7 +6,30 @@
       "context": "Copy from the legacy Orchestrate checkout into the story worktree and git add",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files experiments/recovery-runner/run-*.mjs -> lists exactly run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs (3 files); WHY: confirms all 3 runners are tracked",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each runner file is non-empty (wc -l > 0) and starts with a valid JS/ESM construct (import or const); WHY: guards against accidentally tracking empty or corrupt placeholder files",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No other .mjs files exist at experiments/recovery-runner/ root besides the 3 runners (git ls-files experiments/recovery-runner/*.mjs returns exactly 3); WHY: catches accidental tracking of stray files at the runner level that do not belong",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
