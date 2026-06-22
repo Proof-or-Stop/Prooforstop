@@ -28,7 +28,7 @@
       "desc": "tampered.receipts[0]! non-null assertion in smoke line 116: bundle.receipts is typed as ReceiptBundleReceipt[] (not a tuple), so TypeScript cannot prove receipts[0] is non-null. The assertion is runtime-safe only because gateStrengthBundle always emits exactly one receipt — a structural invariant not enforced at the type level. If that invariant ever breaks, the ! silently makes the assignment target undefined and the tamper-check produces a misleading false-negative or downstream TypeError rather than a clear assertion failure. Should be guarded with assert.equal(tampered.receipts.length, 1) before the index access, or use const [receipt] = tampered.receipts; assert.ok(receipt);.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-22T23:48:01.748Z",
@@ -39,7 +39,11 @@
         "packages/main/src/tasks/gate-strength-contract-smoke.ts:116"
       ],
       "signatureTag": "edge|ts:116|tampered-receipts-assertion",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: smoke now asserts tampered.receipts.length===1 before the [0]! index, so the runtime invariant (gateStrengthBundle emits exactly one receipt) is checked explicitly.",
+      "resolvedAt": "2026-06-22T23:55:14.403Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b6e:F-003",
