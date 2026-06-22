@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-fef0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit. All run-recovery.mjs / run-a2prime.mjs / run-ablation.mjs imports resolve to node: built-ins only — no unresolvable external deps. README correctly notes .jsonl run-records are excluded and live in Proofbound-AI/paper companion repo; no .jsonl files are present in this commit. No Orchestrate/KOALA/koala naming residue found in experiments/recovery-runner/. No concept deletion or replacement detected — concept residue check finds nothing to block.",
+      "createdAt": "2026-06-22T23:00:26.364Z",
+      "reviewRound": "2026-06-22T22:58:54.385Z",
+      "reviewRunId": "B-fef0:RR-003",
+      "_hash": "c144c959b90ce688b364f059c6046b39d4f6c4bbf08e2e046227f64bd4f42fdd"
+    },
+    {
+      "id": "B-fef0:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All changed files reviewed (experiments/recovery-runner/**). No dead code: all imports in run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs are used; reviewArtifact() is a hoisted function declaration so call-before-definition is valid. No as-any or empty-catch (pure JS, no TS). No secrets or API keys. No shell isolation concern (no bridge.ts in this project). README accurately describes the three arms, four tasks, injection resolution order, and the known fixture-shape differences (eval-expr payload-subtle.mjs vs median/parse-range overfit-output.mjs) — intentional two-injection-mechanism design, not a defect. Run-record .jsonl exclusion is intentional and matches the commit message and README.",
+      "createdAt": "2026-06-22T23:00:58.245Z",
+      "reviewRound": "2026-06-22T22:58:54.385Z",
+      "reviewRunId": "B-fef0:RR-001",
+      "_hash": "3e65c4a263edba46a727844f338e2ecfdb6082e02566a9014a18574741a34adb"
+    },
+    {
+      "id": "B-fef0:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 14 must-priority verificationIntent entries covered (0 required missing); independently re-ran all 4 fixture self-consistency checks (eval-expr ACCEPT PASS 20 + GROUND-TRUTH PASS 9; median ACCEPT PASS 8 + GROUND-TRUTH PASS 8; parse-range ACCEPT PASS 11 + GROUND-TRUTH PASS 12; text-stats ACCEPT PASS 6 + GROUND-TRUTH PASS 5); git ls-files confirms no .jsonl tracked and README.md tracked; no solution.mjs residue; validate allPass=true; 10 missing should-priority entries are advisory only.",
+      "createdAt": "2026-06-22T23:02:26.003Z",
+      "reviewRound": "2026-06-22T22:58:54.385Z",
+      "reviewRunId": "B-fef0:RR-002",
+      "_hash": "5807b8a0bd30a6aadb6620f802473138e4ec00ed2af1fa4baf9f0ce61c7e5ce8"
+    },
+    {
+      "id": "B-fef0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 doc-fix commit 324fc31d7 checked. Deleted concepts: (1) node-only CLI claim replaced with accurate node-vs-host-CLI split; (2) stale single-arm comment (only a2prime, A4 Lattice as later milestone) replaced with correct three-arm declaration (a2prime, a4, a4b). All three arms confirmed implemented in run-recovery.mjs. Zero residue of old phrases in .ts/.md/.mjs/.json files — grepped for A4 (Lattice)/arm is added in a later milestone/end-to-end runners shell out (old form). run-ablation.mjs comment uses A4 Lattice-loop as a correct mapping label, not stale residue. No concept deletion or replacement is incomplete. No blocker.",
+      "createdAt": "2026-06-22T23:08:55.691Z",
+      "reviewRound": "2026-06-22T23:07:15.198Z",
+      "reviewRunId": "B-fef0:RR-006",
+      "_hash": "f05ea787ce7f5fa37d9e01117ece197c2d742ba20dfe6b9b955b7770c0e90759"
+    },
+    {
+      "id": "B-fef0:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 doc fixes verified: (1) README now correctly separates fixture-only=Node from end-to-end runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) that shell out to claude -p — confirmed by grep of execFileSync(claude) in all three runner files; run-ablation.mjs invokes run-recovery.mjs which calls claude, consistent with the README. (2) run-recovery.mjs header comment now lists a2prime/a4/a4b matching the three arm branches in code (lines 88, 137, 146). No dead imports, no empty catch swallowing errors (all catch blocks return structured error objects), no secrets, no doc-promise-undelivered. No blockers found.",
+      "createdAt": "2026-06-22T23:09:24.631Z",
+      "reviewRound": "2026-06-22T23:07:15.198Z",
+      "reviewRunId": "B-fef0:RR-004",
+      "_hash": "c07377a1eaedf9f4093ae4543375535eb5daff1becc452e87d21d420c0bfd584"
+    },
+    {
+      "id": "B-fef0:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 8/8 fixture self-consistency checks confirmed independently (eval-expr ACCEPT 20+GT 9, median ACCEPT 8+GT 8, parse-range ACCEPT 11+GT 12, text-stats ACCEPT 6+GT 5); git ls-files experiments/recovery-runner/*.jsonl empty; validate allPass=true; 15/25 intents covered, 0 required-must gaps; all 10 missing intents are priority=should; no blocker found.",
+      "createdAt": "2026-06-22T23:10:07.583Z",
+      "reviewRound": "2026-06-22T23:07:15.198Z",
+      "reviewRunId": "B-fef0:RR-005",
+      "_hash": "d4c608b1ac55e70c25e93dce3ffce47d3e5f80182bc16fbcd25d022cff53a4cb"
+    }
+  ]
+}

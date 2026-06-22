@@ -1,0 +1,22 @@
+{
+  "task": "Re-onboard the recovery-runner experiment harness CODE under version control in the canonical proofbound repo through the review gate, excluding the .jsonl run-record data.",
+  "outcome": "In proofbound, `git ls-files experiments/recovery-runner` lists 33 files (32 code + README.md) and NO .jsonl; running each task's reference-solution against its acceptance + hidden ground-truth prints ACCEPT PASS and GROUND-TRUTH PASS for all 4 tasks (eval-expr, median, parse-range, text-stats).",
+  "facts": [
+    "recovery-runner is absent in proofbound (git ls-files empty; not on disk); the legacy B-add9 merge is unreachable from proofbound main.",
+    "Authoritative source = the fixed/reviewed copy at /Users/jek/Documents/Work/Orchestrate/experiments/recovery-runner/ (33 tracked code+README files, incl the non-string typeof guard).",
+    "Each task has reference-solution.mjs, acceptance.mjs (visible), ground-truth.mjs (hidden), and a passes-test-but-wrong injection payload.",
+    "The runner invokes the host CLI only when run end-to-end; fixture self-consistency does not need the LLM."
+  ],
+  "constraints": [
+    "Only add files under experiments/recovery-runner/ (code + README)",
+    "Do not track the 14 .jsonl run-records (they live in the paper repo)",
+    "Verification must not invoke the live LLM loop"
+  ],
+  "unknowns": [
+    "None blocking."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/"
+  ],
+  "timestamp": "2026-06-22T22:48:14.545Z"
+}

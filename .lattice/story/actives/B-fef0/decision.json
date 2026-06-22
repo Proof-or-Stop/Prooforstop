@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Track reproducible code, not bulky generated data",
+    "Make the experiment code auditable via the canonical-repo review gate",
+    "Keep the product repo clean (data lives with the paper)"
+  ],
+  "drivers": [
+    "Re-establish the section-6 experiment code in the canonical repo",
+    "Auditability via the review gate",
+    "Avoid dumping experiment output into the product repo"
+  ],
+  "options": [
+    {
+      "name": "code-only-onboard-fresh-story",
+      "pros": [
+        "Auditable code under proofbound's gate",
+        "Product repo stays clean",
+        "Reproducible"
+      ],
+      "cons": [
+        "Re-reviews bytes already reviewed in the legacy B-add9"
+      ]
+    },
+    {
+      "name": "cherry-pick-legacy-merge",
+      "pros": [
+        "Fast"
+      ],
+      "cons": [
+        "The legacy merge is unreachable from proofbound main; cherry-picking bypasses proofbound's review gate (defeats the auditability goal)"
+      ]
+    },
+    {
+      "name": "code-plus-data-onboard",
+      "pros": [
+        "Everything in one place"
+      ],
+      "cons": [
+        "Dumps 14 bulky .jsonl data files into the product repo; duplicates the paper repo"
+      ]
+    }
+  ],
+  "chosen": "code-only-onboard-fresh-story",
+  "rationale": "A fresh gate-reviewed story in proofbound re-establishes the harness code auditably in the canonical repo; cherry-picking the unreachable legacy merge would bypass the gate, and tracking the .jsonl would pollute the product repo.",
+  "preMortem": [
+    {
+      "scenario": "Data accidentally tracked",
+      "trigger": "git add globs in the .jsonl",
+      "consequence": "Bulky data dumped into the product repo",
+      "mitigation": "Add only the explicit non-jsonl files; verify git ls-files shows no .jsonl"
+    },
+    {
+      "scenario": "Fixtures inconsistent",
+      "trigger": "A reference-solution does not pass its own acceptance/ground-truth",
+      "consequence": "The tracked harness is broken",
+      "mitigation": "CHK-005 runs each reference-solution against acceptance + ground-truth before DONE"
+    },
+    {
+      "scenario": "Verification triggers the expensive LLM loop",
+      "trigger": "Running run-recovery.mjs directly",
+      "consequence": "Slow/costly review",
+      "mitigation": "Verify fixture self-consistency only, never the live loop"
+    }
+  ],
+  "timestamp": "2026-06-22T22:48:15.533Z"
+}

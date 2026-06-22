@@ -1,0 +1,79 @@
+{
+  "storyId": "B-fef0",
+  "checkedAt": "2026-06-22T23:15:18.113Z",
+  "reviewRound": "2026-06-22T23:07:15.198Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md#the-three-arms",
+      "promise": "README documents three arms: a2prime (bare naive-retry), a4 (post-hoc review gate), a4b (bounded reflection loop)",
+      "status": "verified",
+      "verifiedBy": "grep + read",
+      "evidence": "README lines 14-21 describe all three arms; run-recovery.mjs header lines 2-3 list the same three arms; dispatch code at lines 88/137/146 implements them"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#the-four-tasks",
+      "promise": "README documents four tasks: eval-expr, median, parse-range, text-stats",
+      "status": "verified",
+      "verifiedBy": "grep + git ls-files",
+      "evidence": "README line 27 lists all four tasks; all four task dirs present in git ls-files (33 files total)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#layout-of-a-task-dir",
+      "promise": "README describes task directory layout: prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads",
+      "status": "verified",
+      "verifiedBy": "read + git ls-files",
+      "evidence": "README lines 33-41 match; git ls-files confirms each task has all described files"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#injections",
+      "promise": "README documents two generic injections: corrupt-output.mjs and delete-output.mjs",
+      "status": "verified",
+      "verifiedBy": "read + git ls-files",
+      "evidence": "README lines 47-48 describe both; injections/corrupt-output.mjs and injections/delete-output.mjs present in git ls-files"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#running-a-task",
+      "promise": "Fixture self-consistency check needs only Node; end-to-end runners shell out to claude -p",
+      "status": "verified",
+      "verifiedBy": "read",
+      "evidence": "README lines 63-67: fixture check needs only Node; end-to-end runners shell out to host CLI (claude -p). host-2 node-only wording finding fixed in commit 324fc31d7."
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#data-lives-elsewhere",
+      "promise": ".jsonl run-records are not tracked in this repo; they live in companion paper repo",
+      "status": "verified",
+      "verifiedBy": "git ls-files + read",
+      "evidence": "README lines 70-73 state this; git ls-files experiments/recovery-runner/*.jsonl returns empty"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-005",
+      "transcript": "eval-expr: ACCEPT PASS 20 checks, GROUND-TRUTH PASS 9 held-out checks. median: ACCEPT PASS 8 checks, GROUND-TRUTH PASS 8 held-out checks. parse-range: ACCEPT PASS 11 checks, GROUND-TRUTH PASS 12 held-out checks. text-stats: ACCEPT PASS 6 checks, GROUND-TRUTH PASS 5 held-out checks. All 4 tasks passed both acceptance and ground-truth using reference-solution.mjs, without invoking the live LLM."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "git ls-files confirms run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs tracked under experiments/recovery-runner/. run-recovery.mjs header lists all three arms (a2prime/a4/a4b) and dispatch code implements them."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "git ls-files shows all 4 task dirs with required fixtures: prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, and injection payloads. Total 33 files, 0 .jsonl files."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "git ls-files confirms injections/corrupt-output.mjs and injections/delete-output.mjs present. No .jsonl files present."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "README.md present and accurate: documents 3 arms, 4 tasks, layout, injections, Node-only fixture path vs claude -p end-to-end, and data-lives-elsewhere pointer. host-2 findings (node-only claim + stale arm comment) fixed in commit 324fc31d7 and re-verified."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 README documentation promises verified against code and git ls-files. All 4 tasks produce ACCEPT PASS and GROUND-TRUTH PASS using reference-solution on this machine without LLM. 33-file count matches story promise, zero .jsonl run-records tracked. host-2 round-1 BLOCK findings fixed in commit 324fc31d7. Checklist 5/5 done, no unresolved TODOs in diff."
+  },
+  "_hash": "0a036b11e838fead074a6b5e7a1b39971e2f02f8b1b8004d8506690a4c1b69ef"
+}
