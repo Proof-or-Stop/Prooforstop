@@ -104,6 +104,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host2-tamper",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7b6e:F-007",
+      "desc": "[codex-host2 #5] canonicalResult sorts perProbe with localeCompare, which is locale/ICU-dependent for arbitrary IDs and can produce a different digest order on another runtime. FIX: use a deterministic code-point sort.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:38.659Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "86ae7c597fb6b29f81fc049d7717dedd2888e943cf9872dbb5b475bf01b1e562",
+      "files": [
+        "packages/main/src/core/gate-strength.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host2-canonicalresult",
+      "signatureTagSource": "auto"
     }
   ]
 }
