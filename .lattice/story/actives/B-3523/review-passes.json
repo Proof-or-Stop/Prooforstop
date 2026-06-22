@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-22T23:21:17.622Z",
       "reviewRunId": "B-3523:RR-003",
       "_hash": "b327ff62550fb27d16e377465e8fa259ce17b10d1ffa3b4566b68fb51ee8c427"
+    },
+    {
+      "id": "B-3523:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "F-001 re-review pass: packages/main, packages/utils, and packages/lab manifests plus locks are coherent on @lattice/* 0.3.65 dependencies; package locks match manifest roots; scripts/verify-global-lab-entrypoint.mjs derives core version from root package.json, asserts retired @lattice-agent/@koala-agent deps absent, and does not introduce host-specific paths or global fallback assumptions. Verified with node scripts/verify-global-lab-entrypoint.mjs versions and a parsed manifest/lock consistency check.",
+      "createdAt": "2026-06-22T23:32:47.731Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-005",
+      "_hash": "045ffbbb977fae6ba5947da0c5ef08ecc85c040e0da8ae20e564f5cc6596c2f9"
     }
   ]
 }
