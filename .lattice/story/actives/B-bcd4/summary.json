@@ -1,0 +1,55 @@
+{
+  "storyId": "B-bcd4",
+  "changes": "Added a host-neutral retired-root/canonical-root guard to Lattice CLI, documented Orchestrate as a read-only legacy evidence root, recorded B-3523/B-fbb6 migration recovery paths, and configured old Orchestrate to point writes to proofbound.",
+  "usage": "Use /Users/jek/Documents/Work/proofbound for all new Lattice work. The old /Users/jek/Documents/Work/Orchestrate root can still run read-only inspection commands, but mutating commands now fail before handler dispatch and print the proofbound canonicalRoot.",
+  "expectedOutcome": "Agents and hosts can no longer accidentally create or mutate stories in the retired Orchestrate checkout; legacy evidence remains readable locally, and B-3523/B-fbb6 are recoverable from proofbound .worktrees.",
+  "actualTranscript": "Read-only Orchestrate session_brief succeeded. A story_create attempt against Orchestrate exited nonzero and printed `Lattice root is retired: /Users/jek/Documents/Work/Orchestrate` and `Use canonicalRoot: /Users/jek/Documents/Work/proofbound`. B-3523 and B-fbb6 directories exist under proofbound .worktrees, and Orchestrate has no active story/B-3523 or story/B-fbb6 worktree/branch entries. Validate passed 25/25 configured commands and DONE-required validation passed packages/main build plus root full test suite.",
+  "outcomeDiff": "Expected and actual behavior match for migration safety: the retired root is readable but not writable, and the failure path gives the canonical proofbound recovery command target. Remaining Orchestrate lab/temp worktrees are separate legacy artifacts, not active migrated B-3523/B-fbb6 story worktrees.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story does not normalize, rebase, finish, or merge B-3523/B-fbb6 business work; it preserves them under proofbound. It also does not delete remaining Orchestrate lab/temp worktrees or unrelated local experiment files.",
+  "pitfalls": "The guard only activates when a root config declares retiredRoot true with canonicalRoot. The proofbound CLI code and the old Orchestrate local config both matter; changing only one side would leave either no enforcement or no activation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 295944
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 184837
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 3714210
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 748179
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 519913
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 488463
+    }
+  },
+  "totalDurationMs": 5951559,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T22:13:24.982Z",
+  "updatedAt": "2026-06-22T22:13:24.982Z"
+}
