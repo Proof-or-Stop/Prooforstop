@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Track the recovery-runner runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) under experiments/recovery-runner/",
+      "context": "Copy from the legacy Orchestrate checkout into the story worktree and git add",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Track the per-task fixtures tasks/{eval-expr,median,parse-range,text-stats}/ (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, injection payloads)",
+      "context": "Each task has a reference solution, a visible acceptance test, a hidden ground-truth, and a passes-test-but-wrong injection payload; the eval-expr reference + payload already include the non-string typeof guard fix",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Track the generic file-op injections injections/{corrupt-output,delete-output}.mjs",
+      "context": "Generic injections shared across tasks",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add experiments/recovery-runner/README.md explaining the harness and pointing to the paper repo for run-record data; do not track the .jsonl run-records",
+      "context": "The .jsonl outputs are experiment data and live in Proofbound-AI/paper",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify each task reference-solution passes its own acceptance + hidden ground-truth (fixture self-consistency), without invoking the live LLM loop",
+      "context": "Copy reference-solution.mjs to solution.mjs per task and run acceptance.mjs + ground-truth.mjs; both must PASS for all 4 tasks",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

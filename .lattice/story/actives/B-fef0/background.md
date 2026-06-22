@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-23, after the working repo migrated from the legacy Orchestrate checkout to the canonical proofbound repo (https://github.com/Proofbound-AI/proofbound), the recovery-runner experiment harness — previously onboarded in the legacy checkout via story B-add9 — did NOT carry over: `git ls-files experiments/recovery-runner` returns 0 in proofbound and the directory is absent on disk (the legacy B-add9 merge commit exists in the object database but is unreachable from proofbound main; the two checkouts diverged onto different remotes). To keep the section-6 experiment code auditable in the canonical repo, it must be re-onboarded here through the review gate.
+
+## Key Insights
+The harness is about 1276 lines across 32 code files: the runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs), per-task fixtures under tasks/{eval-expr,median,parse-range,text-stats}/ (prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, and the passes-the-visible-test-but-wrong injection payloads), and generic file-op injections under injections/ (corrupt-output.mjs, delete-output.mjs), plus a README. The authoritative source is the fixed, already-reviewed copy in the legacy Orchestrate checkout at /Users/jek/Documents/Work/Orchestrate/experiments/recovery-runner/ (it already includes the non-string-input typeof guard fix). The 14 .jsonl run-record outputs are experiment DATA and stay in the paper repo (Proofbound-AI/paper), not in the product repo.
+
+## Solution Tradeoffs
+Re-run the onboarding as a fresh Lattice story in proofbound (full gate review in the canonical repo) rather than cherry-picking the stranded legacy merge — the merge object is unreachable from proofbound main and cherry-picking would bypass proofbound's own review gate. Onboard only the CODE plus a README, excluding the bulky .jsonl run-records. Verification must NOT run the live LLM loop; it checks fixture self-consistency instead.
+
+## Conversational Texture
+The operator confirmed re-doing the recovery-runner onboarding in the new canonical proofbound repo after we noticed the legacy B-add9 work did not migrate. This story re-establishes the gate-audited harness code in the canonical repo; verification proves each task's reference solution is self-consistent with its own acceptance and hidden ground-truth checks.
