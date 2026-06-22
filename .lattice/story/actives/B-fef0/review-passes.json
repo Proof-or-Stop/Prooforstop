@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-22T22:58:54.385Z",
       "reviewRunId": "B-fef0:RR-003",
       "_hash": "c144c959b90ce688b364f059c6046b39d4f6c4bbf08e2e046227f64bd4f42fdd"
+    },
+    {
+      "id": "B-fef0:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All changed files reviewed (experiments/recovery-runner/**). No dead code: all imports in run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs are used; reviewArtifact() is a hoisted function declaration so call-before-definition is valid. No as-any or empty-catch (pure JS, no TS). No secrets or API keys. No shell isolation concern (no bridge.ts in this project). README accurately describes the three arms, four tasks, injection resolution order, and the known fixture-shape differences (eval-expr payload-subtle.mjs vs median/parse-range overfit-output.mjs) — intentional two-injection-mechanism design, not a defect. Run-record .jsonl exclusion is intentional and matches the commit message and README.",
+      "createdAt": "2026-06-22T23:00:58.245Z",
+      "reviewRound": "2026-06-22T22:58:54.385Z",
+      "reviewRunId": "B-fef0:RR-001",
+      "_hash": "3e65c4a263edba46a727844f338e2ecfdb6082e02566a9014a18574741a34adb"
     }
   ]
 }
