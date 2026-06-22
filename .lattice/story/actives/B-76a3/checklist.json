@@ -13,14 +13,14 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Root package metadata and package-lock no longer declare @modelcontextprotocol/sdk; verify with node -e that package.json dependency sections and package-lock.json contain no @modelcontextprotocol/sdk entries.",
+            "desc": "Root package metadata and package-lock no longer declare @modelcontextprotocol/sdk; verify: node -e 'const fs=require(\"fs\"); const pkg=JSON.parse(fs.readFileSync(\"package.json\",\"utf8\")); for (const k of [\"dependencies\",\"devDependencies\",\"optionalDependencies\",\"peerDependencies\"]) if (pkg[k]?.[\"@modelcontextprotocol/sdk\"]) throw new Error(k+\" still declares dependency\"); const lock=fs.readFileSync(\"package-lock.json\",\"utf8\"); if (lock.includes(\"@modelcontextprotocol/sdk\")) throw new Error(\"lockfile still contains dependency\");'",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "No live source, bin, or script import/reference requires @modelcontextprotocol/sdk after removal; verify with: ! rg -n \"@modelcontextprotocol/sdk\" package.json package-lock.json bin packages/main/src packages/utils/src packages/lab/src scripts",
+            "desc": "No live source, bin, or script import/reference requires @modelcontextprotocol/sdk after removal; verify: ! rg -n \"@modelcontextprotocol/sdk\" package.json package-lock.json bin packages/main/src packages/utils/src packages/lab/src scripts",
             "type": "cli",
             "priority": "must"
           }
