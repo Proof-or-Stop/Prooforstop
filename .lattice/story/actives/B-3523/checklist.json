@@ -6,7 +6,50 @@
       "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm ls --workspaces --depth=0` and package metadata show @lattice/core, @lattice/utils, and @lattice/lab, while the root package remains `lattice` and the CLI bin remains `lattice`.",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "package.json names are @lattice/core, @lattice/utils, and @lattice/lab with root name still lattice.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "workspace dependency edges use @lattice/lab and @lattice/core, not @lattice-agent/*.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "package-lock.json and packages/main/package-lock.json are regenerated consistently instead of leaving stale package names.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg over package manifests finds no live @lattice-agent or @koala-agent package dependency.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
