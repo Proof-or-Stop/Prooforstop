@@ -1,0 +1,179 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-bcd4:RR-001",
+      "storyId": "B-bcd4",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "startedAt": "2026-06-22T21:57:52.634Z",
+      "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+      "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+      "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6af7bcea10dd7a9c4631ded76f9b4e0a3d1d375ad5669e50c89786b920c494e7",
+        "diffPackHash": "b237adc061f09f7cb10728635ab9ce6b3140b375693fd9e5be8a0534e4ccb085",
+        "reviewedChangedFiles": [
+          "docs/evidence/orchestrate-legacy-index.md",
+          "docs/requirements/decisions/orchestrate-retirement.md",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0",
+          "CHK-005:adversarial:0",
+          "CHK-005:edge:0",
+          "CHK-005:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "00666c4379eaa47013fe3b75c4069bf357fddf05f1ae248a2fd125759c700da5",
+          "1259ed1d64821f88c8e652320a1985c6ba44447424e73f6098580698639c8fa4",
+          "22bd1ca1cc40db6c30f9500a05c80be32864b8ecf839c14d8e67cc70a98dfec2",
+          "2a4a61e120f11eea95a130058e9be85c79486c8802f54f41cc140b5f819232c5",
+          "3b9f684417d7511da5661cfd1b3acb99b9ea3f3825b99b5975dc5085de019506",
+          "7a2d44a21927a7ea0b2dcb190a9349998631471e82204a4de012395f2fa8c3a6",
+          "89a3a32352557a4a64490bcedb67a53d15e2f8aed26f231e3900f4d24700d28e",
+          "a9492b81f0c36a0c207b4f1f70716b78a8cc1824fa42b9c82f1eab21d02656b3",
+          "b39d965d1c2276eb7a8eab4239281c3e7c4e3ead2f0fd84669e852b0424d4183",
+          "d96eea8212de87a395baf91e9718bd77c1f9a97164024fa2a9b79aaf81bb8ee9"
+        ],
+        "bindingHash": "36cf63d50d0f0faf7fca9a85469e71fd76db0962015e722f8cfdd2b60cac89d7"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "workspaceMode": "story-worktree",
+        "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+        "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+        "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+        "bindingHash": "6c01a24e5c4d0d3246e9192195738ab044d7523b8ca967458209e4f6bb237cc7"
+      },
+      "_hash": "f3a88a198e77e1a5a24ec37ce593c3f613972608737597f00dcbcb7c5b9d3f16"
+    },
+    {
+      "reviewRunId": "B-bcd4:RR-002",
+      "storyId": "B-bcd4",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "startedAt": "2026-06-22T21:58:08.160Z",
+      "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+      "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+      "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6af7bcea10dd7a9c4631ded76f9b4e0a3d1d375ad5669e50c89786b920c494e7",
+        "diffPackHash": "b237adc061f09f7cb10728635ab9ce6b3140b375693fd9e5be8a0534e4ccb085",
+        "reviewedChangedFiles": [
+          "docs/evidence/orchestrate-legacy-index.md",
+          "docs/requirements/decisions/orchestrate-retirement.md",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "00666c4379eaa47013fe3b75c4069bf357fddf05f1ae248a2fd125759c700da5",
+          "1259ed1d64821f88c8e652320a1985c6ba44447424e73f6098580698639c8fa4",
+          "22bd1ca1cc40db6c30f9500a05c80be32864b8ecf839c14d8e67cc70a98dfec2",
+          "2a4a61e120f11eea95a130058e9be85c79486c8802f54f41cc140b5f819232c5",
+          "3b9f684417d7511da5661cfd1b3acb99b9ea3f3825b99b5975dc5085de019506",
+          "7a2d44a21927a7ea0b2dcb190a9349998631471e82204a4de012395f2fa8c3a6",
+          "89a3a32352557a4a64490bcedb67a53d15e2f8aed26f231e3900f4d24700d28e",
+          "a9492b81f0c36a0c207b4f1f70716b78a8cc1824fa42b9c82f1eab21d02656b3",
+          "b39d965d1c2276eb7a8eab4239281c3e7c4e3ead2f0fd84669e852b0424d4183",
+          "d96eea8212de87a395baf91e9718bd77c1f9a97164024fa2a9b79aaf81bb8ee9"
+        ],
+        "bindingHash": "f5db8b7303e97cf8b300228961bdc6a78eb8f6cc187d112d31b8e215a1c8456a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "workspaceMode": "story-worktree",
+        "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+        "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+        "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+        "bindingHash": "6c01a24e5c4d0d3246e9192195738ab044d7523b8ca967458209e4f6bb237cc7"
+      },
+      "_hash": "82f49d88026a186a29f3cf711abb1ba9bce916afb40a22c0692b25d0599c59ad"
+    },
+    {
+      "reviewRunId": "B-bcd4:RR-003",
+      "storyId": "B-bcd4",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "startedAt": "2026-06-22T21:58:21.448Z",
+      "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+      "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+      "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6af7bcea10dd7a9c4631ded76f9b4e0a3d1d375ad5669e50c89786b920c494e7",
+        "diffPackHash": "b237adc061f09f7cb10728635ab9ce6b3140b375693fd9e5be8a0534e4ccb085",
+        "reviewedChangedFiles": [
+          "docs/evidence/orchestrate-legacy-index.md",
+          "docs/requirements/decisions/orchestrate-retirement.md",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "00666c4379eaa47013fe3b75c4069bf357fddf05f1ae248a2fd125759c700da5",
+          "1259ed1d64821f88c8e652320a1985c6ba44447424e73f6098580698639c8fa4",
+          "22bd1ca1cc40db6c30f9500a05c80be32864b8ecf839c14d8e67cc70a98dfec2",
+          "2a4a61e120f11eea95a130058e9be85c79486c8802f54f41cc140b5f819232c5",
+          "3b9f684417d7511da5661cfd1b3acb99b9ea3f3825b99b5975dc5085de019506",
+          "7a2d44a21927a7ea0b2dcb190a9349998631471e82204a4de012395f2fa8c3a6",
+          "89a3a32352557a4a64490bcedb67a53d15e2f8aed26f231e3900f4d24700d28e",
+          "a9492b81f0c36a0c207b4f1f70716b78a8cc1824fa42b9c82f1eab21d02656b3",
+          "b39d965d1c2276eb7a8eab4239281c3e7c4e3ead2f0fd84669e852b0424d4183",
+          "d96eea8212de87a395baf91e9718bd77c1f9a97164024fa2a9b79aaf81bb8ee9"
+        ],
+        "bindingHash": "f5db8b7303e97cf8b300228961bdc6a78eb8f6cc187d112d31b8e215a1c8456a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4",
+        "workspaceMode": "story-worktree",
+        "headHash": "8fa82b512918ec8e18e0691a15647dde5094f03c",
+        "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+        "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+        "bindingHash": "6c01a24e5c4d0d3246e9192195738ab044d7523b8ca967458209e4f6bb237cc7"
+      },
+      "_hash": "933e12d93aa5dae3c3b0af311017d7078457f95efcdd65cbda425f6350fc3f9c"
+    }
+  ]
+}
