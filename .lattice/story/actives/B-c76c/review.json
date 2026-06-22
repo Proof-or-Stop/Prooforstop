@@ -51,6 +51,29 @@
         }
       ],
       "_hash": "f3a1e57ca44b09628b7949b63a03b4033d1c930590103ce6074e4a631d4c826a"
+    },
+    {
+      "timestamp": "2026-06-22T20:59:05.400Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Compare proofbound and Orchestrate tracked baseline + Import canonical tracked code and config changes without legacy evidence are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/tests is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-c76c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "03e5198c65aa6cb7b3bf8ec7e552bb38deeda7a3e7ed76e29513ae5d7f8d96a4"
     }
   ]
 }
