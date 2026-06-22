@@ -76,9 +76,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T18:54:41.260Z",
       "verificationIntent": {
         "happy": [
           {
@@ -101,7 +101,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js implementation_review_result_set --help && node bin/lattice.js implementation_review_result_get --help && node bin/lattice.js help | rg \"implementation_review_result_(set|get)\"",
+          "result": "pass",
+          "note": "Both implementation review commands are exposed through CLI help and command listing at Lattice CLI 0.3.59.",
+          "headHash": "6be4176511da91dddad5be2f1a915cc264e335fa",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:41.509Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js implementation_review_result_set '{\"storyId\":\"B-76a3\",\"verdict\":\"pass\",\"findings\":\"bad\",\"summary\":\"valid summary\"}' exits nonzero with findings expected-array validation",
+          "result": "pass",
+          "note": "Malformed findings payload is rejected by the command schema before any bad review data can be written.",
+          "headHash": "6be4176511da91dddad5be2f1a915cc264e335fa",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:41.738Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js --root <temp-project> implementation_review_result_set '{\"storyId\":\"B-test\",\"verdict\":\"pass\",\"findings\":[{\"file\":\"src/x.ts\",\"line\":1,\"why\":\"high severity should not pass\",\"severity\":\"high\"}],\"summary\":\"invalid pass should fail\"}' exits nonzero with verdict=pass high-severity rejection",
+          "result": "pass",
+          "note": "Handler invariant remains enforced: verdict=pass cannot include a high severity finding.",
+          "headHash": "6be4176511da91dddad5be2f1a915cc264e335fa",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:54:41.966Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
