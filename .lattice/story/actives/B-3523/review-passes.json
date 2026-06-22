@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-22T23:51:43.015Z",
       "reviewRunId": "B-3523:RR-009",
       "_hash": "87d498ec41481fe12d27d9ce49272830c4104f8a3da8a94cd7baf0bbd9868ace"
+    },
+    {
+      "id": "B-3523:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass for merge-after-review delta: reviewed incremental context from prior concept pass 4d8e26e to HEAD 2ad0d11. New material is experiments/recovery-runner harness plus B-3523 metadata. Targeted scans found no @lattice-agent/@koala-agent strings in experiments/recovery-runner and no live old-scope dependency or fallback in package/code surfaces. package.json remains lattice, packages/main/package.json remains @lattice/core with bin lattice. Orchestrate/pre-push guard surfaces are unchanged since the prior concept pass and current pre-push self-host detection still keys on @lattice/core. Verified with node scripts/verify-runtime-fact-contract.mjs and node scripts/verify-entrypoints.mjs.",
+      "createdAt": "2026-06-22T23:57:08.459Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-011",
+      "_hash": "a8d5b51baff684b6f1e04814236c58ed986d31d71e8cd0dcd4818e3b5f629617"
     }
   ]
 }
