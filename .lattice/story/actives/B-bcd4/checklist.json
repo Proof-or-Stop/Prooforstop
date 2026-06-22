@@ -254,9 +254,9 @@
       "id": "CHK-004",
       "title": "Document Orchestrate retirement and migration recovery path",
       "context": "Record that B-3523 and B-fbb6 were migrated into proofbound worktrees and that Orchestrate is read-only legacy evidence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T21:55:47.771Z",
       "userSees": "`docs/requirements/decisions/orchestrate-retirement.md` says Orchestrate is read-only legacy evidence, proofbound is canonical, and B-3523/B-fbb6 were preserved under proofbound `.worktrees`.",
       "relatedDocs": [
         "docs/requirements/decisions/orchestrate-retirement.md",
@@ -293,7 +293,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"proofbound|Orchestrate|Host-neutral|Agent-neutral\" docs/requirements/decisions/orchestrate-retirement.md docs/evidence/orchestrate-legacy-index.md",
+          "result": "pass",
+          "note": "Docs state proofbound is canonical, Orchestrate is retired read-only evidence, and the behavior is Host-neutral and Agent-neutral.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:47.975Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"local-only|Legacy Orchestrate evidence|Do not commit old|raw evidence\" docs/evidence/orchestrate-legacy-index.md docs/requirements/decisions/orchestrate-retirement.md",
+          "result": "pass",
+          "note": "Docs preserve local evidence use and warn not to publish raw legacy evidence.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:48.210Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"not normalized|not completed|does not finish|not active migrated stories\" docs/requirements/decisions/orchestrate-retirement.md docs/evidence/orchestrate-legacy-index.md",
+          "result": "pass",
+          "note": "Docs explicitly avoid claiming B-3523/B-fbb6 business work is done and separate lab/temp worktrees from active migrated stories.",
+          "headHash": "8f4b21f9023afcd560f6a80fa945e4765bef8cb0",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:48.459Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
