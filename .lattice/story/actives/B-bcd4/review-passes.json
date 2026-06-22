@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-22T21:56:36.606Z",
       "reviewRunId": "B-bcd4:RR-002",
       "_hash": "cdedff8f48e880920a1df7897718c9030966a3f2a1d9b86a6b4715430bed199d"
+    },
+    {
+      "id": "B-bcd4:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: retired-root guard is wired in cli-engine before preCommand hooks and before handler dispatch; it reuses resolveEffectiveOwnershipClass for dynamic ownership classification, blocks storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating classes, preserves read-only legacy inspection, and emits actionable canonicalRoot guidance. Checked code diff, command-policy integration, Orchestrate retired config, live blocked story_create/read-only session_brief behavior, git diff --check, and npm --prefix packages/main run build -- --noEmit.",
+      "createdAt": "2026-06-22T22:01:00.235Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-003",
+      "_hash": "66fbe277e3c369a4b3cab08ddf29fe230c97837d15798102130468e32fdfb9f8"
     }
   ]
 }
