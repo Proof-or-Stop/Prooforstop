@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-3523:F-001",
+      "desc": "Renamed @lattice packages still encode stale 0.3.1 cross-dependencies that do not resolve under the new scope. packages/main depends on @lattice/lab@0.3.1, while lab/utils depend on @lattice/core@0.3.1 even though core is 0.3.65. Dry-run installs fail with E404/ETARGET for @lattice/lab@0.3.1 and @lattice/core@0.3.1, but scripts/verify-global-lab-entrypoint.mjs versions passes because EXPECTED_EXTENSION_VERSION is hard-coded to 0.3.1. This leaves install/publish metadata broken and the verifier blessing the stale manual lock/manifest edits.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T23:25:26.921Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-002",
+      "_hash": "9f4b6d649efaa62b6c587c12ce0480c07fccd92f15928bdd8843d2e2eb8a79f5",
+      "files": [
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "missing|json|renamed-lattice-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
