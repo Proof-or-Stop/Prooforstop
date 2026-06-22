@@ -238,6 +238,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:57:18.141Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/*.jsonl; git ls-files experiments/recovery-runner/ | grep .jsonl",
+          "result": "pass",
+          "note": "Both return empty: zero .jsonl run-records tracked anywhere under recovery-runner.",
+          "headHash": "1868becc55269682961e59120219d762c996ab0b",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:57:20.250Z"
         }
       ]
     },
