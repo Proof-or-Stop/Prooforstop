@@ -226,6 +226,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:57:16.268Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Proofbound-AI/paper' experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "README 'Data lives elsewhere' section points run-record .jsonl data to companion paper repo Proofbound-AI/paper. Source README already canonical-proofbound; no Orchestrate references found (grep -ri orchestrate -> none); no edit needed.",
+          "headHash": "57ed89d3c1acb916f7122ec2925eadfddff1cb4f",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:57:18.141Z"
         }
       ]
     },
