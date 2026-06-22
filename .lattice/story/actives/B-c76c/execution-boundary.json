@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c76c",
+  "allowedCommands": [
+    "git checkout -- <paths from legacy ref>",
+    "git diff",
+    "git show",
+    "git status",
+    "node bin/lattice.js --version",
+    "node bin/lattice.js validate --story=<storyId>",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm install"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "packages/utils",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/local-evidence",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/story",
+    "experiments",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Keep the sync narrow: tracked canonical code/config/docs only, not old evidence or local retired-root warnings.",
+  "createdAt": "2026-06-22T20:48:19.324Z",
+  "updatedAt": "2026-06-22T20:48:19.324Z",
+  "_hash": "0f1b0c21680a680b1326484de753f88bf531882d0f5192c9db4209fd1d0919fe"
+}

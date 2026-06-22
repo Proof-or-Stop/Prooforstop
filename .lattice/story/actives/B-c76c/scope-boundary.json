@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c76c",
+  "mode": "maintenance",
+  "allowed": [
+    "compare proofbound main against retired Orchestrate main",
+    "import tracked source/config/docs baseline needed for CLI correctness",
+    "run focused build/version checks",
+    "sync package version and lockfile metadata"
+  ],
+  "excluded": [
+    "copy legacy evidence into tracked GitHub history",
+    "copy Orchestrate retired-root AGENTS/CLAUDE warnings into proofbound",
+    "copy untracked experiments",
+    "finish or merge migrated B-3523/B-fbb6 business changes",
+    "push to remote"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User asked whether old version was already 0.3.62; local verification showed old Orchestrate/global CLI are 0.3.63 while proofbound is 0.3.60, so baseline sync is required before continuing guard work.",
+  "createdAt": "2026-06-22T20:48:19.324Z",
+  "updatedAt": "2026-06-22T20:48:19.324Z",
+  "_hash": "07e1afc03e190fcb84c08afc67b8432bca76232535d12f775c23ddc335051a89"
+}

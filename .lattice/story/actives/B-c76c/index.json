@@ -1,0 +1,30 @@
+{
+  "storyId": "B-c76c",
+  "name": "sync-proofbound-to-orchestrate-0-3-63-baseline",
+  "title": "Sync proofbound tracked code baseline to Orchestrate 0.3.63",
+  "description": "Proofbound is intended to be the canonical active checkout, but proofbound main is still at 0.3.60 while the retired Orchestrate checkout and global CLI are at 0.3.63. Import only tracked code/config/docs baseline needed for CLI correctness, excluding legacy evidence, Orchestrate retired-root warnings, and dirty untracked experiments.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "proofbound",
+    "orchestrate",
+    "version",
+    "baseline",
+    "canonical-root"
+  ],
+  "createdAt": "2026-06-22T20:48:19.324Z",
+  "startedAt": "2026-06-22T20:48:19.324Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T20:48:19.334Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-237cb179931a1513",
+      "agent": "main"
+    }
+  ]
+}

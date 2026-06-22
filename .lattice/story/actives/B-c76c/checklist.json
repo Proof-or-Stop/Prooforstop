@@ -1,0 +1,150 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Compare proofbound and Orchestrate tracked baseline",
+      "context": "Establish the exact tracked diff from Orchestrate main to proofbound main and separate code/config/docs from retired-root local warnings and legacy evidence.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "userSees": "The terminal shows a concise diff summary proving which tracked files differ between proofbound and Orchestrate before any import happens.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff --stat against the legacy ref lists the expected tracked code/config/docs differences.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "AGENTS.md and CLAUDE.md retired-root warning differences are identified as proofbound exclusions, not imported baseline content.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Untracked Orchestrate experiments and local evidence do not appear in the import candidate set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Import canonical tracked code and config changes without legacy evidence",
+      "context": "Apply the Orchestrate 0.3.63 tracked source/config/docs baseline into proofbound while excluding old local evidence, dirty untracked experiments, and Orchestrate-specific retired-root warning text.",
+      "relatedDocs": [
+        "package.json",
+        "packages/main/package.json",
+        "lattice.config.json"
+      ],
+      "userSees": "Proofbound tracked source and config reflect the 0.3.63 baseline while AGENTS.md and CLAUDE.md remain proofbound-appropriate.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Tracked code/config/docs selected for import match Orchestrate main after exclusions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "AGENTS.md and CLAUDE.md are not overwritten by Orchestrate retired-root warning text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No files under .lattice/local-evidence, experiments, docs/story, or tests/fixtures are staged for import.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regenerate version artifacts consistently",
+      "context": "After import, sync package-lock and build artifacts so proofbound package metadata reports the same CLI version as the canonical code baseline.",
+      "relatedDocs": [
+        "package.json",
+        "packages/main/package.json",
+        "package-lock.json"
+      ],
+      "userSees": "package.json, packages/main/package.json, package-lock.json, and lattice --version agree on the imported CLI version.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "package.json and packages/main/package.json both report 0.3.63.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "package-lock root metadata is regenerated to 0.3.63 instead of copying the stale Orchestrate 0.3.49 lock metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A version check fails if any package metadata surface remains at 0.3.60 or 0.3.49.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify proofbound reports the imported CLI baseline",
+      "context": "Run focused build/version checks to prove proofbound no longer lags behind Orchestrate before continuing retired-root guard work.",
+      "relatedDocs": [
+        "package.json",
+        "packages/main/package.json"
+      ],
+      "userSees": "The terminal prints proofbound Lattice CLI 0.3.63 from the local checkout and build checks pass.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build succeeds after baseline import.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/lattice.js --version reports Lattice CLI 0.3.63 from proofbound, independent of the global fallback.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git status review shows no legacy evidence or Orchestrate-only retired-root warning files were imported.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
