@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c76c",
+  "changes": "Synced proofbound tracked code, config, docs, and package metadata to the Orchestrate 0.3.63 baseline while keeping legacy evidence and local experiment paths out of the publishable repository state.",
+  "usage": "Run the CLI from proofbound with node bin/lattice.js or the installed lattice command; node bin/lattice.js --version now reports Lattice CLI 0.3.63 and package metadata is aligned at 0.3.63.",
+  "expectedOutcome": "Proofbound is the canonical clean checkout at the same tracked Lattice CLI/runtime baseline as Orchestrate 0.3.63, without importing retired-root prompts, story evidence, fixtures, or local experiments.",
+  "actualTranscript": "node bin/lattice.js --version -> Lattice CLI 0.3.63; npm --prefix packages/main run build passed; npm --prefix packages/utils run build passed; node bin/lattice.js validate --story=B-c76c --json passed 25/25 configured commands and 12/12 verification intents; node bin/lattice.js done_required_validate --storyId=B-c76c passed packages/main build and root full test suite; delivery_check_set accepted the delivery evidence.",
+  "outcomeDiff": "No functional version mismatch remains for the tracked proofbound baseline. The only noted process nuance was story-local delivery evidence needing explicit scope acknowledgement because the scope classifier did not automatically classify those evidence JSON files.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story does not normalize the preserved B-3523/B-fbb6 migrated branch history, remove non-active Orchestrate lab or temporary worktrees, or implement the retired-root/canonical-root guard; B-bcd4 covers the guard next.",
+  "pitfalls": "Do not copy Orchestrate package-lock metadata blindly because its root lock version was stale; proofbound regenerated lock metadata to 0.3.63 and intentionally excluded docs/story, tests/fixtures, AGENTS.md, CLAUDE.md, local evidence, and experiments.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 132767
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38457
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 519197
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 953768
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 661655
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 578357
+    }
+  },
+  "totalDurationMs": 2884211,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T21:36:23.535Z",
+  "updatedAt": "2026-06-22T21:36:23.535Z"
+}
