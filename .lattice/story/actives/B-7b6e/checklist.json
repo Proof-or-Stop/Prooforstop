@@ -53,6 +53,19 @@
           "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
           "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
           "timestamp": "2026-06-22T23:43:19.088Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-strength-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke assertion 'gate-strength receipt verifies offline (ACCEPTED) against matching materialHash' — proves gateStrengthBundle emits a B-4c65 bundle verifyReceiptBundleOffline accepts (assurance local-key-single-host).",
+          "headHash": "4c35efb758cd66f7916155550c142cece38f5d9b",
+          "materialHash": "f022f5a80feddfa02115f2f2696fb7aba6da8bcf3dd5b40b0adbcaa5d3933eac",
+          "storyFilesHash": "6f9eb65bc126c94acb493cd974532ea69bdb5eeb48c21e2b4f883f56d25e2b48",
+          "timestamp": "2026-06-22T23:43:20.274Z"
         }
       ]
     },
