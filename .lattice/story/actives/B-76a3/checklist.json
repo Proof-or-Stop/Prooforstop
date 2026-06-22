@@ -43,7 +43,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "implementation_review_result_set and implementation_review_result_get are wired as real CLI commands with help/schema entries; verify node bin/lattice.js implementation_review_result_set --help, node bin/lattice.js implementation_review_result_get --help, and node bin/lattice.js help | rg \"implementation_review_result_(set|get)\" all succeed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The wired set command rejects malformed payloads through the handler/schema instead of silently writing bad review data; verify node bin/lattice.js implementation_review_result_set \"{\"storyId\":\"B-76a3\",\"verdict\":\"pass\",\"findings\":\"bad\",\"summary\":\"valid summary\"}\" exits nonzero with a findings-array validation error.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The command wiring preserves handler invariants: verdict=pass cannot include a high-severity finding; verify node bin/lattice.js implementation_review_result_set \"{\"storyId\":\"B-76a3\",\"verdict\":\"pass\",\"findings\":[{\"file\":\"packages/main/src/handlers/implementation-review.ts\",\"line\":1,\"why\":\"high severity should not pass\",\"severity\":\"high\"}],\"summary\":\"invalid pass should fail\"}\" exits nonzero.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
