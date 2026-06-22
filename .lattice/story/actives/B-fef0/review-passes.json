@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fef0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit. All run-recovery.mjs / run-a2prime.mjs / run-ablation.mjs imports resolve to node: built-ins only — no unresolvable external deps. README correctly notes .jsonl run-records are excluded and live in Proofbound-AI/paper companion repo; no .jsonl files are present in this commit. No Orchestrate/KOALA/koala naming residue found in experiments/recovery-runner/. No concept deletion or replacement detected — concept residue check finds nothing to block.",
+      "createdAt": "2026-06-22T23:00:26.364Z",
+      "reviewRound": "2026-06-22T22:58:54.385Z",
+      "reviewRunId": "B-fef0:RR-003",
+      "_hash": "c144c959b90ce688b364f059c6046b39d4f6c4bbf08e2e046227f64bd4f42fdd"
+    }
+  ]
+}
