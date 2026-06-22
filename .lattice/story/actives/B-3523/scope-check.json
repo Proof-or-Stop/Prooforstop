@@ -1,0 +1,45 @@
+{
+  "storyId": "B-3523",
+  "checkedAt": "2026-06-22T23:02:02.512Z",
+  "features": [
+    {
+      "feature": "Rename live npm package manifests and workspace cross-dependencies from @lattice-agent/{core,utils,lab} to @lattice/{core,utils,lab} while keeping the root package name lattice and the lattice bin unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rewrite live internal imports and runtime/self-host package-name constants from @lattice-agent/* to @lattice/*, including the dev-host import and runtime/version resolution checks",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix .githooks/pre-push self-host detection to @lattice/core and retire the legacy @koala-agent/core global fallback while updating runtime and entrypoint verifier expectations",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description; decisions:done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Update active hooks and active operator guidance/docs to @lattice and verify no live @lattice-agent or @koala-agent fallback references remain outside intentional residue assertions, without broad historical prose cleanup",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "CHK-004 excludes frozen .lattice history/docs/koala audits and limits the cleanup to active guidance",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0e6dd29cb11ad1649d41440e292661ac68a361769f711127e515d59d2fc5dea5",
+  "openQuestions": []
+}
