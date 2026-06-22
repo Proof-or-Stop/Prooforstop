@@ -146,7 +146,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Package-local legacy active story metadata is gone from the tracked product tree; verify test -z \"$(git ls-files packages/main/docs/story/actives)\".",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Current story metadata remains under the canonical .lattice path and is still CLI-readable after removing package-local residue; verify node bin/lattice.js checklist_get \"{\"storyId\":\"B-76a3\"}\" succeeds.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No live runtime/test/doc reference still treats packages/main/docs/story/actives as an active story source; verify ! rg -n \"packages/main/docs/story/actives\" package.json packages/main/src packages/main/tests docs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
