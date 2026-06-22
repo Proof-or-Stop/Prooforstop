@@ -284,9 +284,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T18:55:56.187Z",
       "verificationIntent": {
         "happy": [
           {
@@ -309,7 +309,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "test -z \"$(git ls-files packages/main/docs/story/actives packages/main/docs/metadata/task.json)\"",
+          "result": "pass",
+          "note": "Package-local legacy active story metadata and package-local stale task metadata are no longer tracked in the product tree.",
+          "headHash": "7884ae89106a18aa2c529e503785da264ce7fad3",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:55:56.409Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js checklist_get '{\"storyId\":\"B-76a3\"}'",
+          "result": "pass",
+          "note": "Current story metadata remains readable from the canonical .lattice story store after removing package-local legacy residue.",
+          "headHash": "7884ae89106a18aa2c529e503785da264ce7fad3",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:55:56.624Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n \"packages/main/docs/story/actives\" package.json packages/main/src packages/main/tests docs; then exit 1; else echo \"no package-local story active refs\"; fi",
+          "result": "pass",
+          "note": "No live runtime/test/doc reference treats packages/main/docs/story/actives as active story storage.",
+          "headHash": "7884ae89106a18aa2c529e503785da264ce7fad3",
+          "materialHash": "4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424",
+          "storyFilesHash": "45d70c4cd60f90e2bc81e472262adc3698218e4a8d91281b6b72cf30414b478c",
+          "timestamp": "2026-06-22T18:55:56.846Z"
+        }
+      ]
     }
   ]
 }
