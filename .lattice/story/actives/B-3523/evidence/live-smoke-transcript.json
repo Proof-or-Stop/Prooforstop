@@ -1,0 +1,20 @@
+{
+  "storyId": "B-3523",
+  "expected": "Package metadata checks show @lattice/core, @lattice/utils, and @lattice/lab; the root package remains `lattice`, the CLI bin remains `lattice`, and `node bin/lattice.js --version` prints `Lattice CLI 0.3.65`.",
+  "actual": {
+    "command": "lattice --version",
+    "exitCode": 0,
+    "stdout": "Lattice CLI 0.3.65\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-22T23:46:31.264Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "b4389f0430e2681e542bbf95e04e30ffb966cfb7",
+  "materialHash": "c132c70256b1011810cea159f0f1a2870fc30aa41ad685590b74db5fa6d2b219"
+}
