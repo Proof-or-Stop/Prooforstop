@@ -87,9 +87,9 @@
       "id": "CHK-002",
       "title": "Enforce retired-root guard before mutating commands",
       "context": "Use existing command policy ownership classes so read-only commands remain available and story/checklist/validate/evidence writes fail closed with a canonical-root message.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T21:55:45.369Z",
       "userSees": "From `/Users/jek/Documents/Work/Orchestrate`, `lattice story_create ...` exits nonzero and prints `Lattice root is retired: /Users/jek/Documents/Work/Orchestrate` plus `Use canonicalRoot: /Users/jek/Documents/Work/proofbound`; `lattice session_brief` still prints the legacy brief.",
       "relatedDocs": [
         "docs/requirements/decisions/orchestrate-retirement.md",
@@ -130,7 +130,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4/bin/lattice.js --root /Users/jek/Documents/Work/Orchestrate story_create <retired-root-smoke>",
+          "result": "pass",
+          "note": "Command exited 1 as expected and printed both \"Lattice root is retired: /Users/jek/Documents/Work/Orchestrate\" and \"Use canonicalRoot: /Users/jek/Documents/Work/proofbound\" before handler dispatch.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.573Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/proofbound/.worktrees/B-bcd4/bin/lattice.js --root /Users/jek/Documents/Work/Orchestrate session_brief",
+          "result": "pass",
+          "note": "Read-only retired-root inspection still works and reports legacy Orchestrate state without creating new story metadata.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.761Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:retired-root-guard && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Smoke covers story_create, checklist_update, validate --story, review_pass_set, and story_discard blocking; ownership contract confirms dynamic validate/read-only boundaries still resolve as ruled.",
+          "headHash": "0765daaa18ab3ceec282184e343a91a5e19a4896",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:45.951Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
