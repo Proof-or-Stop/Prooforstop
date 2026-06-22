@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-22T22:58:54.385Z",
       "reviewRunId": "B-fef0:RR-002",
       "_hash": "5807b8a0bd30a6aadb6620f802473138e4ec00ed2af1fa4baf9f0ce61c7e5ce8"
+    },
+    {
+      "id": "B-fef0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 doc-fix commit 324fc31d7 checked. Deleted concepts: (1) node-only CLI claim replaced with accurate node-vs-host-CLI split; (2) stale single-arm comment (only a2prime, A4 Lattice as later milestone) replaced with correct three-arm declaration (a2prime, a4, a4b). All three arms confirmed implemented in run-recovery.mjs. Zero residue of old phrases in .ts/.md/.mjs/.json files — grepped for A4 (Lattice)/arm is added in a later milestone/end-to-end runners shell out (old form). run-ablation.mjs comment uses A4 Lattice-loop as a correct mapping label, not stale residue. No concept deletion or replacement is incomplete. No blocker.",
+      "createdAt": "2026-06-22T23:08:55.691Z",
+      "reviewRound": "2026-06-22T23:07:15.198Z",
+      "reviewRunId": "B-fef0:RR-006",
+      "_hash": "f05ea787ce7f5fa37d9e01117ece197c2d742ba20dfe6b9b955b7770c0e90759"
     }
   ]
 }
