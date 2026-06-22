@@ -92,7 +92,7 @@
       "desc": "[codex-host2 #3] ReviewerView leaks defectKind and specAwareReviewer uses it as the answer key (ship = defectKind==='none'), scoring 1.0 without reading the artifact. Labeling it an honest 'spec-aware' reviewer is overstated. FIX: rename to oracleReviewer, document it reads the harness-provided label (not the artifact) as an upper-bound oracle, and enforce the corpus invariant defectKind==='none' <-> groundTruthPass===true. (Corroborates Claude quality F-001.)",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-22T23:50:21.630Z",
@@ -102,7 +102,11 @@
         "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host2-reviewerview",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa (corroborated F-001): oracleReviewer rename + oracle labeling + enforced corpus invariant defectKind==='none' <-> groundTruthPass===true (assertCorpusInvariant, smoke asserts the throw on violation).",
+      "resolvedAt": "2026-06-22T23:55:17.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7b6e:F-006",
