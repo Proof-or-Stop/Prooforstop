@@ -1,0 +1,150 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: flow repair script passes",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"npm\", [\"run\", \"test:flow-annotations\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nreturn { verified: out.includes(\"flow annotation repair verified\") };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-a04f:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "c2021ca2-2f18-4e80-a585-56a751f4baee",
+      "nextCaseId": "963d4577-ce89-4ccb-a8e7-28fead9dd03b"
+    },
+    {
+      "name": "CHK-001 edge: merged scan keeps story_advance step 2",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { loadConfig } = await import($root + \"/packages/main/dist/core/config.js\");\nconst { scan, extractFlows } = await import($root + \"/packages/main/dist/tasks/extract.js\");\nconst { join } = await import(\"path\");\nconst config = loadConfig($root);\nconst tasks = scan(join($root, config.scanRoot));\nconst chain = extractFlows(tasks).find((flow) => flow.name === \"story-lifecycle\");\nreturn { hasStep2: chain.steps.some((step) => step.step === 2 && step.functionName === \"story_advance\") };",
+      "expect": {
+        "hasStep2": true
+      },
+      "intentRef": "B-a04f:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "963d4577-ce89-4ccb-a8e7-28fead9dd03b",
+      "prevCaseId": "c2021ca2-2f18-4e80-a585-56a751f4baee",
+      "nextCaseId": "52575ed1-2ede-4155-aa02-dc0f6fa0f288"
+    },
+    {
+      "name": "CHK-001 adversarial: duplicate metadata still yields complete flow ordering",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { loadConfig } = await import($root + \"/packages/main/dist/core/config.js\");\nconst { scan, extractFlows } = await import($root + \"/packages/main/dist/tasks/extract.js\");\nconst { validateFlows } = await import($root + \"/packages/main/dist/tasks/validate.js\");\nconst { join } = await import(\"path\");\nconst config = loadConfig($root);\nconst tasks = scan(join($root, config.scanRoot));\nconst chains = extractFlows(tasks);\nconst issues = validateFlows(chains, tasks).issues.filter((issue) => issue.flow === \"story-lifecycle\");\nreturn { noGap: issues.every((issue) => !issue.msg.includes(\"gap between step 1 and 3\")) };",
+      "expect": {
+        "noGap": true
+      },
+      "intentRef": "B-a04f:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "52575ed1-2ede-4155-aa02-dc0f6fa0f288",
+      "prevCaseId": "963d4577-ce89-4ccb-a8e7-28fead9dd03b",
+      "nextCaseId": "6b594a87-afb6-49ce-91d9-651e8d6e5a13"
+    },
+    {
+      "name": "CHK-002 happy: summary.ts no longer has required field errors",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { loadConfig } = await import($root + \"/packages/main/dist/core/config.js\");\nconst { validate } = await import($root + \"/packages/main/dist/tasks/validate.js\");\nconst { join } = await import(\"path\");\nconst config = loadConfig($root);\nconst errors = validate(join($root, config.scanRoot)).errors.filter((issue) => issue.loc.startsWith(\"src/handlers/summary.ts\"));\nreturn { noErrors: errors.length === 0 };",
+      "expect": {
+        "noErrors": true
+      },
+      "intentRef": "B-a04f:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "6b594a87-afb6-49ce-91d9-651e8d6e5a13",
+      "prevCaseId": "52575ed1-2ede-4155-aa02-dc0f6fa0f288",
+      "nextCaseId": "b2a90462-8ae4-4c35-b5ba-dbbff086b59d"
+    },
+    {
+      "name": "CHK-002 edge: summary annotation contains all required structural tags",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/handlers/summary.ts\", \"utf8\");\nreturn { hasChecklist: text.includes(\"@checklist\"), hasType: text.includes(\"@type\"), hasPriority: text.includes(\"@priority\"), hasChanges: text.includes(\"@changes\") };",
+      "expect": {
+        "hasChecklist": true,
+        "hasType": true,
+        "hasPriority": true,
+        "hasChanges": true
+      },
+      "intentRef": "B-a04f:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "b2a90462-8ae4-4c35-b5ba-dbbff086b59d",
+      "prevCaseId": "6b594a87-afb6-49ce-91d9-651e8d6e5a13",
+      "nextCaseId": "28917138-1b49-4c5c-a816-c77a31dd1a3d"
+    },
+    {
+      "name": "CHK-002 adversarial: summary fix does not add file-level @test misuse",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/handlers/summary.ts\", \"utf8\");\nreturn { noFileLevelTest: !text.includes(\"@test\") };",
+      "expect": {
+        "noFileLevelTest": true
+      },
+      "intentRef": "B-a04f:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "28917138-1b49-4c5c-a816-c77a31dd1a3d",
+      "prevCaseId": "b2a90462-8ae4-4c35-b5ba-dbbff086b59d",
+      "nextCaseId": "c3fc8fd6-a6fd-44be-a7c7-def781f2c9b5"
+    },
+    {
+      "name": "CHK-003 happy: convergence flow check is green after repair",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { StoryStore } = await import($root + \"/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import($root + \"/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore($root);\nconst result = checkConvergence($root, store);\nconst flowCheck = result.checks.find((check) => check.name === \"Flow 链路完整\");\nreturn { flowPassed: flowCheck?.passed === true };",
+      "expect": {
+        "flowPassed": true
+      },
+      "intentRef": "B-a04f:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "c3fc8fd6-a6fd-44be-a7c7-def781f2c9b5",
+      "prevCaseId": "28917138-1b49-4c5c-a816-c77a31dd1a3d",
+      "nextCaseId": "0047e673-6ba2-4d6f-a80d-8e16d77e3fa3"
+    },
+    {
+      "name": "CHK-003 edge: convergence annotation check is green after repair",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { StoryStore } = await import($root + \"/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import($root + \"/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore($root);\nconst result = checkConvergence($root, store);\nconst codeCheck = result.checks.find((check) => check.name === \"代码注释合规\");\nreturn { codePassed: codeCheck?.passed === true };",
+      "expect": {
+        "codePassed": true
+      },
+      "intentRef": "B-a04f:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "0047e673-6ba2-4d6f-a80d-8e16d77e3fa3",
+      "prevCaseId": "c3fc8fd6-a6fd-44be-a7c7-def781f2c9b5",
+      "nextCaseId": "3de2288c-d00d-4f23-87d5-9e03b40845c0"
+    },
+    {
+      "name": "CHK-003 adversarial: regression script and convergence agree on repaired surfaces",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst { StoryStore } = await import($root + \"/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import($root + \"/packages/main/dist/tasks/gap-analyze.js\");\nconst out = execFileSync(\"npm\", [\"run\", \"test:flow-annotations\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst store = new StoryStore($root);\nconst result = checkConvergence($root, store);\nreturn { scriptPass: out.includes(\"flow annotation repair verified\"), convergenceStillHasOtherWork: result.converged === false };",
+      "expect": {
+        "scriptPass": true,
+        "convergenceStillHasOtherWork": true
+      },
+      "intentRef": "B-a04f:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-a04f",
+      "_id": "3de2288c-d00d-4f23-87d5-9e03b40845c0",
+      "prevCaseId": "0047e673-6ba2-4d6f-a80d-8e16d77e3fa3"
+    }
+  ]
+}

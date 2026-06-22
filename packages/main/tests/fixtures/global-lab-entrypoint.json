@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: global core bin shows lab help",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'lab-help'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok lab-help') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "51ce759f-2f12-4675-860b-227e597b17fd",
+      "nextCaseId": "9b168f91-1437-479b-beaa-9f69f8867db4"
+    },
+    {
+      "name": "CHK-001 edge: core command works without lab dist",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'core-without-lab'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok core-without-lab') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "9b168f91-1437-479b-beaa-9f69f8867db4",
+      "prevCaseId": "51ce759f-2f12-4675-860b-227e597b17fd",
+      "nextCaseId": "3025baba-86a8-4d3e-8482-7e0eb8c53859"
+    },
+    {
+      "name": "CHK-001 adversarial: lab command without lab dist shows recovery",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'core-without-lab'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok core-without-lab') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "3025baba-86a8-4d3e-8482-7e0eb8c53859",
+      "prevCaseId": "9b168f91-1437-479b-beaa-9f69f8867db4",
+      "nextCaseId": "cfc182e0-20c7-4e5e-a4a5-cbb6fa7d9a8d"
+    },
+    {
+      "name": "CHK-002 happy: package versions are 0.2.2",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'versions'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok versions') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "cfc182e0-20c7-4e5e-a4a5-cbb6fa7d9a8d",
+      "prevCaseId": "3025baba-86a8-4d3e-8482-7e0eb8c53859",
+      "nextCaseId": "3bcebecb-4101-4e68-b9d6-03e5a016911f"
+    },
+    {
+      "name": "CHK-002 edge: lab exports and create path remain resolvable",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'lab-create'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok lab-create') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "3bcebecb-4101-4e68-b9d6-03e5a016911f",
+      "prevCaseId": "cfc182e0-20c7-4e5e-a4a5-cbb6fa7d9a8d",
+      "nextCaseId": "187d3199-4863-4d27-a2d0-332d8f2cbc6c"
+    },
+    {
+      "name": "CHK-002 adversarial: version mismatch would fail check",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'versions'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok versions') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "187d3199-4863-4d27-a2d0-332d8f2cbc6c",
+      "prevCaseId": "3bcebecb-4101-4e68-b9d6-03e5a016911f",
+      "nextCaseId": "531249e9-10c1-4821-b405-93675bca3c76"
+    },
+    {
+      "name": "CHK-003 happy: global lab entrypoint create works",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'lab-create'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok lab-create') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "531249e9-10c1-4821-b405-93675bca3c76",
+      "prevCaseId": "187d3199-4863-4d27-a2d0-332d8f2cbc6c",
+      "nextCaseId": "1c74eea3-fcb9-4ea3-bd12-38fe677fa63e"
+    },
+    {
+      "name": "CHK-003 edge: global core session_brief still works",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'core-without-lab'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok core-without-lab') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "1c74eea3-fcb9-4ea3-bd12-38fe677fa63e",
+      "prevCaseId": "531249e9-10c1-4821-b405-93675bca3c76",
+      "nextCaseId": "2cf14209-3eb9-42ab-9dbb-1d17a3994cc8"
+    },
+    {
+      "name": "CHK-003 adversarial: no lab extension gives recovery hint",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-global-lab-entrypoint.mjs', 'core-without-lab'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok core-without-lab') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-48ac:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-48ac",
+      "_id": "2cf14209-3eb9-42ab-9dbb-1d17a3994cc8",
+      "prevCaseId": "1c74eea3-fcb9-4ea3-bd12-38fe677fa63e"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "cases": [
+    {
+      "name": "branch removed → removed nodes",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const old = [{fn:\"A\",file:\"a.ts\",line:1,children:[{fn:\"B\",file:\"b.ts\",line:2,children:[]}]}]; const now = [{fn:\"A\",file:\"a.ts\",line:1,children:[]}]; const r = diffTraces(old,now); return r.removed.length >= 1",
+      "expect": true,
+      "intentRef": "CHK-004:happy:2",
+      "sandbox": false
+    },
+    {
+      "name": "fork A→B→C to A→B→D",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const old = [{fn:\"A\",file:\"a.ts\",line:1,children:[{fn:\"B\",file:\"b.ts\",line:2,children:[{fn:\"C\",file:\"c.ts\",line:3,children:[]}]}]}]; const now = [{fn:\"A\",file:\"a.ts\",line:1,children:[{fn:\"B\",file:\"b.ts\",line:2,children:[{fn:\"D\",file:\"d.ts\",line:4,children:[]}]}]}]; const r = diffTraces(old,now); return r.forked.length >= 1",
+      "expect": true,
+      "intentRef": "CHK-004:happy:3",
+      "sandbox": false
+    },
+    {
+      "name": "empty old tree",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const r = diffTraces([],[{fn:\"X\",file:\"x.ts\",line:1,children:[]}]); return r.added.length >= 1",
+      "expect": true,
+      "intentRef": "CHK-004:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "large vs small perf",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const big = Array.from({length:100},(_,i)=>({fn:\"f\"+i,file:\"f.ts\",line:i,children:[]})); const t0=Date.now(); diffTraces([big[0]],big); return (Date.now()-t0)<1000",
+      "expect": true,
+      "intentRef": "CHK-004:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "same fn diff file",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const r = diffTraces([{fn:\"init\",file:\"a.ts\",line:1,children:[]}],[{fn:\"init\",file:\"b.ts\",line:1,children:[]}]); return r.added.length===1 && r.removed.length===1",
+      "expect": true,
+      "intentRef": "CHK-004:edge:2",
+      "sandbox": false
+    },
+    {
+      "name": "circular ref no hang",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const a={fn:\"A\",file:\"a.ts\",line:1,children:[]}; const b={fn:\"B\",file:\"b.ts\",line:2,children:[a]}; a.children=[b]; return diffTraces([a],[{fn:\"A\",file:\"a.ts\",line:1,children:[]}])!==null",
+      "expect": true,
+      "intentRef": "CHK-004:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "null fields no crash",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const r = diffTraces([{fn:null,file:undefined,line:0,children:[]}],[{fn:\"X\",file:\"x.ts\",line:1,children:[]}]); return r.added.length>=0",
+      "expect": true,
+      "intentRef": "CHK-004:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "different roots all swap",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const r = diffTraces([{fn:\"Old\",file:\"old.ts\",line:1,children:[{fn:\"OC\",file:\"o.ts\",line:2,children:[]}]}],[{fn:\"New\",file:\"new.ts\",line:1,children:[{fn:\"NC\",file:\"n.ts\",line:2,children:[]}]}]); return r.removed.length>=2 && r.added.length>=2 && r.forked.length===0",
+      "expect": true,
+      "intentRef": "CHK-004:adversarial:2",
+      "sandbox": false
+    },
+    {
+      "name": "identical trees no diff",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const tree = [{fn:\"A\",file:\"a.ts\",line:1,children:[{fn:\"B\",file:\"b.ts\",line:2,children:[]}]}]; const r = diffTraces(tree,tree); return r.added.length===0 && r.removed.length===0 && r.forked.length===0",
+      "expect": true,
+      "intentRef": "CHK-004:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "new leaf added",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const {diffTraces} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-diff.js\"); const old = [{fn:\"A\",file:\"a.ts\",line:1,children:[]}]; const now = [{fn:\"A\",file:\"a.ts\",line:1,children:[{fn:\"B\",file:\"b.ts\",line:2,children:[]}]}]; const r = diffTraces(old,now); return r.added.length===1 && r.added[0].fn===\"B\" && r.added[0].file===\"b.ts\"",
+      "expect": true,
+      "intentRef": "CHK-004:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: nodeKey includes line number",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "tasks/trace-diff",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const old = [{fn:\"foo\",file:\"a.ts\",line:10,children:[]},{fn:\"foo\",file:\"a.ts\",line:20,children:[]}]; const nw = [{fn:\"foo\",file:\"a.ts\",line:10,children:[]},{fn:\"foo\",file:\"a.ts\",line:30,children:[]}]; const diff = m.diffTraces(old,nw); return diff.removed.length===1 && diff.removed[0].line===20 && diff.added.length===1 && diff.added[0].line===30",
+      "expect": true,
+      "intentRef": "CHK-006:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: same fn different lines not merged",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "tasks/trace-diff",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const old = [{fn:\"bar\",file:\"b.ts\",line:5,children:[{fn:\"x\",file:\"c.ts\",line:1,children:[]}]},{fn:\"bar\",file:\"b.ts\",line:15,children:[{fn:\"y\",file:\"c.ts\",line:2,children:[]}]}]; const nw = [{fn:\"bar\",file:\"b.ts\",line:5,children:[{fn:\"x\",file:\"c.ts\",line:1,children:[]}]},{fn:\"bar\",file:\"b.ts\",line:15,children:[{fn:\"z\",file:\"c.ts\",line:3,children:[]}]}]; const diff = m.diffTraces(old,nw); return diff.forked.length===1 && diff.forked[0].line===15",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: diffTraces with identical traces returns empty",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "tasks/trace-diff",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const t = [{fn:\"a\",file:\"x.ts\",line:1,children:[{fn:\"b\",file:\"y.ts\",line:2,children:[]}]}]; const diff = m.diffTraces(t,t); return diff.added.length===0 && diff.removed.length===0 && diff.forked.length===0",
+      "expect": true,
+      "intentRef": "CHK-001:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: first run no history no diff",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "tasks/trace-store",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); const snap = m.loadTraceSnapshot($root,\"nonexistent-fixture.json\",\"no-case\"); return snap === null",
+      "expect": true,
+      "intentRef": "CHK-001:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: line=0 nodeKey dedup",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const old=[{fn:\"x\",file:\"a.ts\",line:0,children:[]},{fn:\"x\",file:\"a.ts\",line:0,children:[]}]; const nw=[{fn:\"x\",file:\"a.ts\",line:0,children:[]}]; const diff=m.diffTraces(old,nw); return diff.removed.length===0 && diff.added.length===0",
+      "expect": true,
+      "intentRef": "CHK-006:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: line move reports added+removed not forked",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const old=[{fn:\"f\",file:\"a.ts\",line:10,children:[]}]; const nw=[{fn:\"f\",file:\"a.ts\",line:20,children:[]}]; const diff=m.diffTraces(old,nw); return diff.removed.length===1 && diff.added.length===1 && diff.forked.length===0",
+      "expect": true,
+      "intentRef": "CHK-006:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: different files same name same line not confused",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const old=[{fn:\"f\",file:\"a.ts\",line:1,children:[]},{fn:\"f\",file:\"b.ts\",line:1,children:[]}]; const nw=[{fn:\"f\",file:\"a.ts\",line:1,children:[]}]; const diff=m.diffTraces(old,nw); return diff.removed.length===1 && diff.removed[0].file===\"b.ts\"",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-006: unchanged line no added/removed",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const t=[{fn:\"a\",file:\"x.ts\",line:5,children:[{fn:\"b\",file:\"y.ts\",line:10,children:[]}]}]; const diff=m.diffTraces(t,JSON.parse(JSON.stringify(t))); return diff.added.length===0 && diff.removed.length===0",
+      "expect": true,
+      "intentRef": "CHK-006:happy:1",
+      "sandbox": false
+    }
+  ]
+}

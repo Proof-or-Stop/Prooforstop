@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: baseline and testIntent candidates exist",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'samples-complete'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-complete') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "d58b5b54-10a9-4a5b-bcdc-d7ea91985710",
+      "nextCaseId": "c1ef1270-0877-46bc-9d68-35da629c673e"
+    },
+    {
+      "name": "CHK-001 edge: missing mapping candidate is summarized",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'samples-missing-mapping'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-missing-mapping') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "c1ef1270-0877-46bc-9d68-35da629c673e",
+      "prevCaseId": "d58b5b54-10a9-4a5b-bcdc-d7ea91985710",
+      "nextCaseId": "f78c9fa5-1966-42a0-a0f6-23b8d602ccef"
+    },
+    {
+      "name": "CHK-001 adversarial: candidate directory generation is required",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'samples-empty-fails'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-empty-fails') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "f78c9fa5-1966-42a0-a0f6-23b8d602ccef",
+      "prevCaseId": "c1ef1270-0877-46bc-9d68-35da629c673e",
+      "nextCaseId": "a30d9767-2346-4247-a950-7176373c30c7"
+    },
+    {
+      "name": "CHK-002 happy: testIntent score table is generated",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'scores-table'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok scores-table') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "a30d9767-2346-4247-a950-7176373c30c7",
+      "prevCaseId": "f78c9fa5-1966-42a0-a0f6-23b8d602ccef",
+      "nextCaseId": "cb96c530-03c8-4ce7-b33c-168bb1165702"
+    },
+    {
+      "name": "CHK-002 edge: weak adversarial candidate is identified",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'weak-adversarial'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok weak-adversarial') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "cb96c530-03c8-4ce7-b33c-168bb1165702",
+      "prevCaseId": "a30d9767-2346-4247-a950-7176373c30c7",
+      "nextCaseId": "3a28ffd5-619c-4fd0-a30c-3600fde15e71"
+    },
+    {
+      "name": "CHK-002 adversarial: duplicate/noise candidate is contained",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'bad-candidate-contained'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok bad-candidate-contained') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "3a28ffd5-619c-4fd0-a30c-3600fde15e71",
+      "prevCaseId": "cb96c530-03c8-4ce7-b33c-168bb1165702",
+      "nextCaseId": "15ef1882-0430-4de1-8100-efaf696e7f67"
+    },
+    {
+      "name": "CHK-003 happy: report contains Top 3 and recommendation",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'report-top3'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-top3') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "15ef1882-0430-4de1-8100-efaf696e7f67",
+      "prevCaseId": "3a28ffd5-619c-4fd0-a30c-3600fde15e71",
+      "nextCaseId": "f1e59903-3ae1-43dd-9787-9db5cb5eb2d0"
+    },
+    {
+      "name": "CHK-003 edge: report explains mapping and duplicate tradeoff",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'report-tradeoff'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-tradeoff') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "f1e59903-3ae1-43dd-9787-9db5cb5eb2d0",
+      "prevCaseId": "15ef1882-0430-4de1-8100-efaf696e7f67",
+      "nextCaseId": "54d41dc2-0a42-4f0e-b86d-996454fae091"
+    },
+    {
+      "name": "CHK-003 adversarial: report recommends prompt direction",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-experiment.mjs', 'report-recommends-candidate'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-recommends-candidate') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-832d:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-832d",
+      "_id": "54d41dc2-0a42-4f0e-b86d-996454fae091",
+      "prevCaseId": "f1e59903-3ae1-43dd-9787-9db5cb5eb2d0"
+    }
+  ]
+}

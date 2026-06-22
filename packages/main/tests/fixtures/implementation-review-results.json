@@ -1,0 +1,201 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: result set/get round-trips structured findings",
+      "run_type": "cli",
+      "file": "handlers/implementation-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-review-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  const cli = $root + '/packages/main/dist/cli.js';\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name:'impl-review', title:'Impl review', description:'tmp', type:'feature', priority:'medium', checklist:[{ title:'x', context:'x' }] })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  execFileSync('node', [cli, '--root', dir, 'implementation_review_result_set', JSON.stringify({ storyId, verdict:'fail', findings:[{ file:'src/foo.ts', line:42, why:'missing null guard', severity:'medium' }], summary:'implementation review found one issue' })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const raw = execFileSync('node', [cli, '--root', dir, 'implementation_review_result_get', JSON.stringify({ storyId })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const data = JSON.parse(raw.slice(raw.indexOf('{')));\n  return { verdict: data.verdict === 'fail', findings: data.findings.length === 1, fileOk: data.findings[0].file === 'src/foo.ts' };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "verdict": true,
+        "findings": true,
+        "fileOk": true
+      },
+      "intentRef": "B-78d2:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "71248f94-9cdf-428e-bba8-115e43e0f593",
+      "nextCaseId": "3344492b-facf-4a39-8a34-226c94433d7d"
+    },
+    {
+      "name": "CHK-001 edge: pass verdict accepts empty findings",
+      "run_type": "cli",
+      "file": "handlers/implementation-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-pass-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  const cli = $root + '/packages/main/dist/cli.js';\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name:'impl-pass', title:'Impl pass', description:'tmp', type:'feature', priority:'medium', checklist:[{ title:'x', context:'x' }] })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  const out = execFileSync('node', [cli, '--root', dir, 'implementation_review_result_set', JSON.stringify({ storyId, verdict:'pass', findings:[], summary:'no implementation issues found' })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  return { saved: out.includes('Implementation review saved') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "saved": true
+      },
+      "intentRef": "B-78d2:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "3344492b-facf-4a39-8a34-226c94433d7d",
+      "prevCaseId": "71248f94-9cdf-428e-bba8-115e43e0f593",
+      "nextCaseId": "e3249bce-b009-4f3a-9095-e7aa68727f7e"
+    },
+    {
+      "name": "CHK-001 adversarial: pass verdict rejects high severity finding",
+      "run_type": "cli",
+      "file": "handlers/implementation-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-invalid-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  const cli = $root + '/packages/main/dist/cli.js';\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name:'impl-invalid', title:'Impl invalid', description:'tmp', type:'feature', priority:'medium', checklist:[{ title:'x', context:'x' }] })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  try {\n    execFileSync('node', [cli, '--root', dir, 'implementation_review_result_set', JSON.stringify({ storyId, verdict:'pass', findings:[{ file:'src/foo.ts', line:42, why:'catastrophic issue', severity:'high' }], summary:'bad summary' })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n    return { rejected: false };\n  } catch (error) {\n    const text = String(error.stdout || '') + String(error.stderr || '');\n    return { rejected: text.includes('high severity') };\n  }\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "rejected": true
+      },
+      "intentRef": "B-78d2:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "e3249bce-b009-4f3a-9095-e7aa68727f7e",
+      "prevCaseId": "3344492b-facf-4a39-8a34-226c94433d7d",
+      "nextCaseId": "2766ceef-76ee-43ac-afb3-f1cd21ba13e8"
+    },
+    {
+      "name": "CHK-002 happy: session_brief shows implementation review verdict and findings",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-brief-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId:'B-test', name:'x', title:'x', description:'x', type:'feature', phase:'TEST_CASE_REVIEW', priority:'medium', createdAt:new Date().toISOString(), startedAt:new Date().toISOString(), endedAt:null, worktree:{ path:'.', branch:'story/B-test', createdAt:new Date().toISOString() } }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'implementation-review.json'), JSON.stringify({ storyId:'B-test', verdict:'fail', findings:[{ file:'src/foo.ts', line:7, why:'missing branch guard', severity:'medium' }], summary:'one implementation issue', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['checkout', '-b', 'story/B-test'], { cwd: dir, stdio:['pipe','pipe','pipe'] });\n  const cli = $root + '/packages/main/dist/cli.js';\n  const brief = execFileSync('node', [cli, '--root', dir, 'session_brief'], { cwd: dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  return { hasSection: brief.includes('## Implementation review'), hasVerdict: brief.includes('verdict: fail'), hasFindings: brief.includes('findings: 1') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasSection": true,
+        "hasVerdict": true,
+        "hasFindings": true
+      },
+      "intentRef": "B-78d2:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "2766ceef-76ee-43ac-afb3-f1cd21ba13e8",
+      "prevCaseId": "e3249bce-b009-4f3a-9095-e7aa68727f7e",
+      "nextCaseId": "b2ba35fa-cbac-41df-8647-2062f6eca44b"
+    },
+    {
+      "name": "CHK-002 edge: session_brief indicates result support exists",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/src/handlers/session.ts', 'utf8');\nreturn { mentionsResult: text.includes('Implementation review') && text.includes('implementationReviewVerdict') };",
+      "expect": {
+        "mentionsResult": true
+      },
+      "intentRef": "B-78d2:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "b2ba35fa-cbac-41df-8647-2062f6eca44b",
+      "prevCaseId": "2766ceef-76ee-43ac-afb3-f1cd21ba13e8",
+      "nextCaseId": "0a8fdfad-c665-40fe-8dc9-98646b69e45a"
+    },
+    {
+      "name": "CHK-002 adversarial: fail verdict changes TEST_CASE_REVIEW next step guidance",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-next-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId:'B-test', name:'x', title:'x', description:'x', type:'feature', phase:'TEST_CASE_REVIEW', priority:'medium', createdAt:new Date().toISOString(), startedAt:new Date().toISOString(), endedAt:null, worktree:{ path:'.', branch:'story/B-test', createdAt:new Date().toISOString() } }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'implementation-review.json'), JSON.stringify({ storyId:'B-test', verdict:'fail', findings:[{ file:'src/foo.ts', line:7, why:'missing branch guard', severity:'medium' }], summary:'one implementation issue', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['checkout', '-b', 'story/B-test'], { cwd: dir, stdio:['pipe','pipe','pipe'] });\n  const cli = $root + '/packages/main/dist/cli.js';\n  const brief = execFileSync('node', [cli, '--root', dir, 'session_brief'], { cwd: dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  return { pointsBackToDev: brief.includes('implementation review 标记为 fail') || brief.includes('回 DEV 修实现') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "pointsBackToDev": true
+      },
+      "intentRef": "B-78d2:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "0a8fdfad-c665-40fe-8dc9-98646b69e45a",
+      "prevCaseId": "b2ba35fa-cbac-41df-8647-2062f6eca44b",
+      "nextCaseId": "3cd58ebc-2b9a-43a6-8596-06e2faf4df8e"
+    },
+    {
+      "name": "CHK-003 happy: implementation review result remains advisory only",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/src/handlers/session.ts', 'utf8');\nreturn { noHardGateMention: !text.includes('implementation review 必须通过') }",
+      "expect": {
+        "noHardGateMention": true
+      },
+      "intentRef": "B-78d2:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "3cd58ebc-2b9a-43a6-8596-06e2faf4df8e",
+      "prevCaseId": "0a8fdfad-c665-40fe-8dc9-98646b69e45a",
+      "nextCaseId": "d19dc7a6-1452-49e6-b66c-2314dbb520ba"
+    },
+    {
+      "name": "CHK-003 edge: result missing does not block TEST_CASE_REVIEW automatically",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/src/handlers/session.ts', 'utf8');\nreturn { stillAdvisory: text.includes('建议同时用 implementation_review_result_set') };",
+      "expect": {
+        "stillAdvisory": true
+      },
+      "intentRef": "B-78d2:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "d19dc7a6-1452-49e6-b66c-2314dbb520ba",
+      "prevCaseId": "3cd58ebc-2b9a-43a6-8596-06e2faf4df8e",
+      "nextCaseId": "87579967-9a95-4762-890f-f06184dae56d"
+    },
+    {
+      "name": "CHK-003 adversarial: fail result changes hint but not gate wiring",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/src/handlers/session.ts', 'utf8');\nreturn { mentionsFailHint: text.includes('implementation review 标记为 fail'), noGateWord: !text.includes('hard gate') };",
+      "expect": {
+        "mentionsFailHint": true,
+        "noGateWord": true
+      },
+      "intentRef": "B-78d2:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "87579967-9a95-4762-890f-f06184dae56d",
+      "prevCaseId": "d19dc7a6-1452-49e6-b66c-2314dbb520ba",
+      "nextCaseId": "5a5eb20d-19a0-4004-ad2f-bbdc620785f6"
+    },
+    {
+      "name": "CHK-004 happy: result protocol and session consumer are both covered",
+      "run_type": "cli",
+      "file": "handlers/implementation-review",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/tests/fixtures/implementation-review-results.json', 'utf8');\nreturn { hasSetGet: text.includes('implementation_review_result_set'), hasSession: text.includes('## Implementation review') };",
+      "expect": {
+        "hasSetGet": true,
+        "hasSession": true
+      },
+      "intentRef": "B-78d2:CHK-004:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "5a5eb20d-19a0-4004-ad2f-bbdc620785f6",
+      "prevCaseId": "87579967-9a95-4762-890f-f06184dae56d",
+      "nextCaseId": "07ce8bf9-24fc-48d0-b321-9b0ff5acc72c"
+    },
+    {
+      "name": "CHK-004 edge: low-quality result schema is rejected by validator",
+      "run_type": "cli",
+      "file": "handlers/implementation-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-impl-invalid2-')); \ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  const cli = $root + '/packages/main/dist/cli.js';\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name:'impl-invalid2', title:'Impl invalid2', description:'tmp', type:'feature', priority:'medium', checklist:[{ title:'x', context:'x' }] })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  try {\n    execFileSync('node', [cli, '--root', dir, 'implementation_review_result_set', JSON.stringify({ storyId, verdict:'fail', findings:[{ file:'', line:0, why:'good enough why', severity:'medium' }], summary:'valid summary text' })], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] });\n    return { rejected:false };\n  } catch (error) {\n    const text = String(error.stdout || '') + String(error.stderr || '');\n    return { rejected:text.includes('finding.file') || text.includes('finding.line') };\n  }\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "rejected": true
+      },
+      "intentRef": "B-78d2:CHK-004:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "07ce8bf9-24fc-48d0-b321-9b0ff5acc72c",
+      "prevCaseId": "5a5eb20d-19a0-4004-ad2f-bbdc620785f6",
+      "nextCaseId": "b06e57b3-2923-422d-adb8-6d972d943a87"
+    },
+    {
+      "name": "CHK-004 adversarial: registry and CLI both expose implementation review result commands",
+      "run_type": "cli",
+      "file": "registry",
+      "execute": "const { readFileSync } = await import('fs');\nconst reg = readFileSync($root + '/packages/main/src/registry.ts', 'utf8');\nconst cli = readFileSync($root + '/packages/main/src/cli-engine.ts', 'utf8');\nreturn { registryHasHandler: reg.includes('createImplementationReviewHandlers'), cliHasCommands: cli.includes('implementation_review_result_set') && cli.includes('implementation_review_result_get') };",
+      "expect": {
+        "registryHasHandler": true,
+        "cliHasCommands": true
+      },
+      "intentRef": "B-78d2:CHK-004:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-78d2",
+      "_id": "b06e57b3-2923-422d-adb8-6d972d943a87",
+      "prevCaseId": "07ce8bf9-24fc-48d0-b321-9b0ff5acc72c"
+    }
+  ]
+}

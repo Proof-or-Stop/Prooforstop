@@ -1,0 +1,47 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: drifted path recovers to linked worktree",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "2bd72acc-5c84-4d27-930b-f3a290da77f6",
+      "nextCaseId": "a1e3d4f2-ddfd-4973-be32-a85d5711753f"
+    },
+    {
+      "name": "CHK-001 edge: drift only auto-repairs when linked worktree is canonical",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "a1e3d4f2-ddfd-4973-be32-a85d5711753f",
+      "prevCaseId": "2bd72acc-5c84-4d27-930b-f3a290da77f6",
+      "nextCaseId": "394070a0-3819-47e6-91fd-d84412611f06"
+    },
+    {
+      "name": "CHK-001 adversarial: rollback path still preserves live worktree registration",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "394070a0-3819-47e6-91fd-d84412611f06",
+      "prevCaseId": "a1e3d4f2-ddfd-4973-be32-a85d5711753f"
+    }
+  ]
+}

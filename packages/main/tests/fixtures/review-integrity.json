@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "name": "setup: 创建带完美 testIntent 的 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"review-int\",\"title\":\"Review Integrity Test\",\"description\":\"test review signing\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"功能A\",\"testIntent\":{\"happy\":[{\"desc\":\"正常操作成功\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"空输入处理\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"非法输入拒绝\",\"type\":\"whitebox\"}]}},{\"title\":\"功能B\",\"testIntent\":{\"happy\":[{\"desc\":\"正常调用\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"边界值\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"越权操作拒绝\",\"type\":\"whitebox\"}]}}]}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "无 review → PLAN→DEV 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "throws": "未通过 story_review"
+    },
+    {
+      "name": "第一次 review: issueCount >= 1",
+      "run_type": "cli",
+      "fn": "story_review",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_review({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "expect": {
+        "pattern": "issueCount.*[1-9]"
+      }
+    },
+    {
+      "name": "多次 review: reviewRound 递增",
+      "run_type": "cli",
+      "fn": "story_review",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_review({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "expect": {
+        "pattern": "reviewRound.*[2-9]"
+      }
+    },
+    {
+      "name": "review 后 advance DEV 成功",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "expect": {
+        "pattern": "advanced to DEV"
+      }
+    },
+    {
+      "name": "setup: 创建无 checklist story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"empty-cl\",\"title\":\"Empty CL\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "空 checklist review → 报错",
+      "run_type": "cli",
+      "fn": "story_review",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_review({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "throws": "not found"
+    }
+  ]
+}

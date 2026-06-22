@@ -1,0 +1,145 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: product-reviewer and test-case-reviewer have distinct scopes",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst product = readFileSync(join($root, '.Codex', 'agents', 'product-reviewer.md'), 'utf8');\nconst reviewer = readFileSync(join($root, '.Codex', 'agents', 'test-case-reviewer.md'), 'utf8');\nreturn {\n  productHasUserValueScope: product.includes('用户视角') || product.includes('user-facing transcript'),\n  productRejectsEngineeringReview: product.includes('不审 fixture') || product.includes('不审 testIntent') || product.includes('不改代码'),\n  reviewerKeepsEngineeringScope: reviewer.includes('testIntent') && reviewer.includes('fixture')\n};",
+      "expect": {
+        "productHasUserValueScope": true,
+        "productRejectsEngineeringReview": true,
+        "reviewerKeepsEngineeringScope": true
+      },
+      "intentRef": "B-990d:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "2f8a943c-60c4-481a-9707-8c2b10245afa",
+      "nextCaseId": "33abd6ce-69a2-47c5-894e-fb6c654358af"
+    },
+    {
+      "name": "CHK-001 edge: init assets include product-reviewer for both platforms",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { execFileSync } = await import('node:child_process');\nconst temp = mkdtempSync(join(tmpdir(), 'koala-product-reviewer-edge2-'));\ntry {\n  mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  const created = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_create', JSON.stringify({ name: 'pr-refactor', title: 'PR refactor', description: 'tmp', type: 'refactor', priority: 'low', checklist: [{ title: 'review lane', context: 'tmp context' }] })], { cwd: $root, encoding: 'utf8' });\n  const storyId = (created.match(/B-[a-f0-9]+/) || [])[0];\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({ storyId, task: '验证低风险 story 的产品验收提醒仍为 advisory', outcome: '事件链路已经打通，但用户仍看不出具体完成画面。', facts: ['tmp'], constraints: ['tmp'], unknowns: [], touchpoints: ['packages/main/src/handlers/story-review.ts'] })], { cwd: $root, encoding: 'utf8' });\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'checklist_update', JSON.stringify({ storyId, itemId: 'CHK-001', testIntent: { happy: [{ desc: 'ok', type: 'cli_blackbox' }], edge: [{ desc: 'ok', type: 'cli_blackbox' }], adversarial: [{ desc: 'ok', type: 'cli_blackbox' }] }, agent: 'test-intent' })], { cwd: $root, encoding: 'utf8' });\n  const raw = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_review', JSON.stringify({ storyId })], { cwd: $root, encoding: 'utf8' });\n  const review = JSON.parse(raw.slice(raw.indexOf('{')));\n  const weak = (review.issues || []).find((issue) => issue.type === 'weak_outcome_transcript');\n  return { hasWeakOutcome: Boolean(weak), blockerCount: review.summary.blockerCount };\n} finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "hasWeakOutcome": true,
+        "blockerCount": 0
+      },
+      "intentRef": "B-990d:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "33abd6ce-69a2-47c5-894e-fb6c654358af",
+      "prevCaseId": "2f8a943c-60c4-481a-9707-8c2b10245afa",
+      "nextCaseId": "9161cb23-ab94-4ef9-9522-a3c5697591ea"
+    },
+    {
+      "name": "CHK-001 adversarial: codex product-reviewer asset is generated",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst product = readFileSync(join($root, '.Codex', 'agents', 'product-reviewer.md'), 'utf8');\nconst reviewer = readFileSync(join($root, '.Codex', 'agents', 'test-case-reviewer.md'), 'utf8');\nconst agents = readFileSync(join($root, 'AGENTS.md'), 'utf8');\nreturn {\n  productSaysNotEngineering: product.includes('不审 fixture') || product.includes('不审 testIntent'),\n  reviewerSaysEngineering: reviewer.includes('fixture') && reviewer.includes('testIntent'),\n  agentDocsMentionProductReviewer: agents.includes('product-reviewer') || readFileSync(join($root, 'docs/requirements/decisions/cc-learnings.md'), 'utf8').includes('product-reviewer')\n};",
+      "expect": {
+        "productSaysNotEngineering": true,
+        "reviewerSaysEngineering": true,
+        "agentDocsMentionProductReviewer": true
+      },
+      "intentRef": "B-990d:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "9161cb23-ab94-4ef9-9522-a3c5697591ea",
+      "prevCaseId": "33abd6ce-69a2-47c5-894e-fb6c654358af",
+      "nextCaseId": "2e168fb1-02e1-4150-ab93-30c0620aa6d6"
+    },
+    {
+      "name": "CHK-002 happy: product-reviewer verifier passes",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['scripts/verify-product-reviewer.mjs'], { cwd: $root, encoding: 'utf8' });\nreturn { ok: out.includes('product reviewer verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-990d:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "2e168fb1-02e1-4150-ab93-30c0620aa6d6",
+      "prevCaseId": "9161cb23-ab94-4ef9-9522-a3c5697591ea",
+      "nextCaseId": "a13aa0b3-5488-4943-a905-974eb65509e5"
+    },
+    {
+      "name": "CHK-002 edge: transcript-like outcome avoids weak outcome advisory",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { execFileSync } = await import('node:child_process');\nconst temp = mkdtempSync(join(tmpdir(), 'koala-product-reviewer-short-'));\ntry {\n  mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  const created = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_create', JSON.stringify({ name: 'pr-short', title: 'PR short', description: 'tmp', type: 'chore', priority: 'low', checklist: [{ title: 'review lane', context: 'tmp context' }] })], { cwd: $root, encoding: 'utf8' });\n  const storyId = (created.match(/B-[a-f0-9]+/) || [])[0];\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({ storyId, task: '验证抽象 outcome 提醒', outcome: '这段输出仍然太抽象', facts: ['tmp'], constraints: ['tmp'], unknowns: [], touchpoints: ['packages/main/src/handlers/story-review.ts'] })], { cwd: $root, encoding: 'utf8' });\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'checklist_update', JSON.stringify({ storyId, itemId: 'CHK-001', testIntent: { happy: [{ desc: 'ok', type: 'cli_blackbox' }], edge: [{ desc: 'ok', type: 'cli_blackbox' }], adversarial: [{ desc: 'ok', type: 'cli_blackbox' }] }, agent: 'test-intent' })], { cwd: $root, encoding: 'utf8' });\n  const raw = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_review', JSON.stringify({ storyId })], { cwd: $root, encoding: 'utf8' });\n  const review = JSON.parse(raw.slice(raw.indexOf('{')));\n  return { weakOutcomeIssue: (review.issues || []).some((issue) => issue.type === 'weak_outcome_transcript') };\n} finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "weakOutcomeIssue": true
+      },
+      "intentRef": "B-990d:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "a13aa0b3-5488-4943-a905-974eb65509e5",
+      "prevCaseId": "2e168fb1-02e1-4150-ab93-30c0620aa6d6",
+      "nextCaseId": "a321d53d-234b-4bac-aa55-01e8fe5aa9ca"
+    },
+    {
+      "name": "CHK-002 adversarial: abstract outcome triggers weak outcome advisory",
+      "run_type": "cli",
+      "file": "story-review",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { execFileSync } = await import('node:child_process');\nconst temp = mkdtempSync(join(tmpdir(), 'koala-product-reviewer-adv-'));\ntry {\n  mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  const created = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_create', JSON.stringify({ name: 'pr-adv', title: 'PR adv', description: 'tmp', type: 'chore', priority: 'low', checklist: [{ title: 'review lane', context: 'tmp context' }] })], { cwd: $root, encoding: 'utf8' });\n  const storyId = (created.match(/B-[a-f0-9]+/) || [])[0];\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({ storyId, task: '验证工程通过但用户仍会问然后呢的提醒', outcome: '链路打通，事件触发，机制闭环。', facts: ['tmp'], constraints: ['tmp'], unknowns: [], touchpoints: ['packages/main/src/handlers/story-review.ts'] })], { cwd: $root, encoding: 'utf8' });\n  execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'checklist_update', JSON.stringify({ storyId, itemId: 'CHK-001', testIntent: { happy: [{ desc: 'ok', type: 'cli_blackbox' }], edge: [{ desc: 'ok', type: 'cli_blackbox' }], adversarial: [{ desc: 'ok', type: 'cli_blackbox' }] }, agent: 'test-intent' })], { cwd: $root, encoding: 'utf8' });\n  const raw = execFileSync('node', [join($root, 'packages/main/dist/cli.js'), '--root', temp, 'story_review', JSON.stringify({ storyId })], { cwd: $root, encoding: 'utf8' });\n  const review = JSON.parse(raw.slice(raw.indexOf('{')));\n  return { weakOutcomeIssue: (review.issues || []).some((issue) => issue.type === 'weak_outcome_transcript') };\n} finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "weakOutcomeIssue": true
+      },
+      "intentRef": "B-990d:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "a321d53d-234b-4bac-aa55-01e8fe5aa9ca",
+      "prevCaseId": "a13aa0b3-5488-4943-a905-974eb65509e5",
+      "nextCaseId": "a0bc0f93-5b9c-4332-b302-118832bf3ce5"
+    },
+    {
+      "name": "CHK-003 happy: DONE hint includes product-reviewer advisory",
+      "run_type": "cli",
+      "file": "story-advance",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst text = readFileSync(join($root, 'packages/main/src/handlers/story-advance.ts'), 'utf8');\nreturn {\n  hasProductReviewerHint: text.includes('product-reviewer（第一版 advisory）'),\n  hasUserValueReminder: text.includes('用户价值视角自检') || text.includes('然后呢')\n};",
+      "expect": {
+        "hasProductReviewerHint": true,
+        "hasUserValueReminder": true
+      },
+      "intentRef": "B-990d:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "a0bc0f93-5b9c-4332-b302-118832bf3ce5",
+      "prevCaseId": "a321d53d-234b-4bac-aa55-01e8fe5aa9ca",
+      "nextCaseId": "f993aff2-e9f9-4c45-926e-5b869a8e6513"
+    },
+    {
+      "name": "CHK-003 edge: product-reviewer remains advisory not hard blocker",
+      "run_type": "cli",
+      "file": "story-advance",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst text = readFileSync(join($root, 'packages/main/src/handlers/story-advance.ts'), 'utf8');\nreturn {\n  saysAdvisory: text.includes('第一版 advisory'),\n  notHardGateOnly: !text.includes('product-reviewer 必须通过')\n};",
+      "expect": {
+        "saysAdvisory": true,
+        "notHardGateOnly": true
+      },
+      "intentRef": "B-990d:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "f993aff2-e9f9-4c45-926e-5b869a8e6513",
+      "prevCaseId": "a0bc0f93-5b9c-4332-b302-118832bf3ce5",
+      "nextCaseId": "1955a168-c82a-4a55-bb89-679eeaca1fe6"
+    },
+    {
+      "name": "CHK-003 adversarial: engineering-only finish path is explicitly challenged",
+      "run_type": "cli",
+      "file": "story-advance",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst text = readFileSync(join($root, 'packages/main/src/handlers/story-advance.ts'), 'utf8');\nreturn {\n  warnsAgainstEngineeringOnly: text.includes('不要硬推 DONE') || text.includes('用户价值视角'),\n  mentionsThenWhatRisk: text.includes('然后呢')\n};",
+      "expect": {
+        "warnsAgainstEngineeringOnly": true,
+        "mentionsThenWhatRisk": true
+      },
+      "intentRef": "B-990d:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-990d",
+      "_id": "1955a168-c82a-4a55-bb89-679eeaca1fe6",
+      "prevCaseId": "f993aff2-e9f9-4c45-926e-5b869a8e6513"
+    }
+  ]
+}

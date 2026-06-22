@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: total score is computed deterministically",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'score-happy'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok score-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "7b4582b9-e5df-498d-917f-fd3fdf92a304",
+      "nextCaseId": "1c8453af-c077-41d5-a86a-b92bcc342bda"
+    },
+    {
+      "name": "CHK-001 edge: penalties can outweigh quality",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'score-edge'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok score-edge') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "1c8453af-c077-41d5-a86a-b92bcc342bda",
+      "prevCaseId": "7b4582b9-e5df-498d-917f-fd3fdf92a304",
+      "nextCaseId": "3489dc43-5ef4-4d90-bac1-f49527816329"
+    },
+    {
+      "name": "CHK-001 adversarial: invalid score inputs fail explicitly",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'score-invalid'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok score-invalid') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "3489dc43-5ef4-4d90-bac1-f49527816329",
+      "prevCaseId": "1c8453af-c077-41d5-a86a-b92bcc342bda",
+      "nextCaseId": "def81d83-5c96-4707-acff-68f469e06c99"
+    },
+    {
+      "name": "CHK-002 happy: reviewer profile emits metric bundle",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'profile-happy'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok profile-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "def81d83-5c96-4707-acff-68f469e06c99",
+      "prevCaseId": "3489dc43-5ef4-4d90-bac1-f49527816329",
+      "nextCaseId": "5660da8f-cfcf-4b4e-a11e-883b927f94fa"
+    },
+    {
+      "name": "CHK-002 edge: profile keeps stable metric shape when cues are absent",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'profile-edge'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok profile-edge') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "5660da8f-cfcf-4b4e-a11e-883b927f94fa",
+      "prevCaseId": "def81d83-5c96-4707-acff-68f469e06c99",
+      "nextCaseId": "f22d6261-ac70-4058-846c-5df80ed685c3"
+    },
+    {
+      "name": "CHK-002 adversarial: unknown profile fails clearly",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'profile-unknown'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok profile-unknown') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "f22d6261-ac70-4058-846c-5df80ed685c3",
+      "prevCaseId": "5660da8f-cfcf-4b4e-a11e-883b927f94fa",
+      "nextCaseId": "b7c904d8-2521-420f-98f8-c44629cd6a60"
+    },
+    {
+      "name": "CHK-003 happy: compare reports kept best run with delta",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'compare-kept'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-kept') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "b7c904d8-2521-420f-98f8-c44629cd6a60",
+      "prevCaseId": "f22d6261-ac70-4058-846c-5df80ed685c3",
+      "nextCaseId": "8f7aac3f-ceea-4adb-a00c-632d0df020ac"
+    },
+    {
+      "name": "CHK-003 edge: candidate below minScoreGain is discarded",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'compare-discard'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-discard') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "8f7aac3f-ceea-4adb-a00c-632d0df020ac",
+      "prevCaseId": "b7c904d8-2521-420f-98f8-c44629cd6a60",
+      "nextCaseId": "4f07e3c9-43c1-4b20-a1ee-debcf53ad7e5"
+    },
+    {
+      "name": "CHK-003 adversarial: promote fails when no kept run exists",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'promote-no-kept'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok promote-no-kept') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "4f07e3c9-43c1-4b20-a1ee-debcf53ad7e5",
+      "prevCaseId": "8f7aac3f-ceea-4adb-a00c-632d0df020ac",
+      "nextCaseId": "1acda4d0-c06b-4d9a-9f98-5e05ff8cb120"
+    },
+    {
+      "name": "CHK-004 happy: stable repeats keep zero stability penalty",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'stability-stable'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok stability-stable') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "1acda4d0-c06b-4d9a-9f98-5e05ff8cb120",
+      "prevCaseId": "4f07e3c9-43c1-4b20-a1ee-debcf53ad7e5",
+      "nextCaseId": "4bc7f29e-9d03-4507-8e3a-b2425ef9f032"
+    },
+    {
+      "name": "CHK-004 edge: soft volatility records stddev without penalty",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'stability-soft-volatile'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok stability-soft-volatile') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "4bc7f29e-9d03-4507-8e3a-b2425ef9f032",
+      "prevCaseId": "1acda4d0-c06b-4d9a-9f98-5e05ff8cb120",
+      "nextCaseId": "710ec51e-0341-45aa-901a-cbff24b7a663"
+    },
+    {
+      "name": "CHK-004 adversarial: crash-on-repeat increases stability penalty",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-scoring-core.mjs', 'stability-crash'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok stability-crash') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-a591:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-a591",
+      "_id": "710ec51e-0341-45aa-901a-cbff24b7a663",
+      "prevCaseId": "4bc7f29e-9d03-4507-8e3a-b2425ef9f032"
+    }
+  ]
+}

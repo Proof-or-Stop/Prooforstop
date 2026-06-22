@@ -1,0 +1,175 @@
+{
+  "cases": [
+    {
+      "name": "happy: no guard session → allow no-decision",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/foo.ts'], contract: null, storyId: undefined });\nreturn { verdict: result.verdict, noDecision: result.noDecision };",
+      "expect": {
+        "verdict": "allow",
+        "noDecision": true
+      },
+      "intentRef": "prewrite-guard:happy:0"
+    },
+    {
+      "name": "happy: enforce mode, in-scope path → allow",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'enforce', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/foo.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict, violations: result.violations };",
+      "expect": {
+        "verdict": "allow",
+        "violations": null
+      },
+      "intentRef": "prewrite-guard:happy:1"
+    },
+    {
+      "name": "happy: enforce mode, out-of-scope path → deny",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'enforce', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/bar.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict, violationRule: result.violations?.[0]?.rule };",
+      "expect": {
+        "verdict": "deny",
+        "violationRule": "out_of_scope"
+      },
+      "intentRef": "prewrite-guard:happy:2"
+    },
+    {
+      "name": "happy: shadow mode, out-of-scope path → shadow",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'shadow', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/bar.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict };",
+      "expect": {
+        "verdict": "shadow"
+      },
+      "intentRef": "prewrite-guard:happy:3"
+    },
+    {
+      "name": "happy: local mode, out-of-scope path → ask",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'local', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/bar.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict };",
+      "expect": {
+        "verdict": "ask"
+      },
+      "intentRef": "prewrite-guard:happy:4"
+    },
+    {
+      "name": "edge: corrupt contract → deny (fail-closed)",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/foo.ts'], contract: null, contractError: 'JSON parse error: unexpected token' });\nreturn { verdict: result.verdict, hasReason: result.reasons[0].includes('fail-closed') };",
+      "expect": {
+        "verdict": "deny",
+        "hasReason": true
+      },
+      "intentRef": "prewrite-guard:edge:0"
+    },
+    {
+      "name": "edge: ambiguous guard sessions → deny (fail-closed)",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/foo.ts'], contract: null, resolutionError: 'Ambiguous: 2 active guard sessions found' });\nreturn { verdict: result.verdict, hasReason: result.reasons[0].includes('fail-closed') };",
+      "expect": {
+        "verdict": "deny",
+        "hasReason": true
+      },
+      "intentRef": "prewrite-guard:edge:1"
+    },
+    {
+      "name": "edge: protected file → deny in enforce mode",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'enforce', allowedModify: ['src/'], allowedCreate: [], allowedTest: [], protectedFiles: ['src/critical.ts'], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/critical.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict, violationRule: result.violations?.[0]?.rule };",
+      "expect": {
+        "verdict": "deny",
+        "violationRule": "protected"
+      },
+      "intentRef": "prewrite-guard:edge:2"
+    },
+    {
+      "name": "edge: no paths to evaluate → allow",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'enforce', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: [], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict };",
+      "expect": {
+        "verdict": "allow"
+      },
+      "intentRef": "prewrite-guard:edge:3"
+    },
+    {
+      "name": "edge: acknowledged out-of-scope path → allow",
+      "run_type": "logic",
+      "fn": "prewrite_guard_check",
+      "file": "core/prewrite-guard",
+      "execute": "const { runPrewriteGuardCheck } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst contract = { storyId: 'B-001', mode: 'enforce', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [{ paths: ['src/bar.ts'], reason: 'needed for refactor', acknowledgedAt: new Date().toISOString() }], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };\nconst result = runPrewriteGuardCheck({ normalizedPaths: ['src/bar.ts'], contract, storyId: 'B-001' });\nreturn { verdict: result.verdict };",
+      "expect": {
+        "verdict": "allow"
+      },
+      "intentRef": "prewrite-guard:edge:4"
+    },
+    {
+      "name": "adversarial: isWriteLikeTool correctly identifies write tools",
+      "run_type": "logic",
+      "fn": "isWriteLikeTool",
+      "file": "core/prewrite-guard",
+      "execute": "const { isWriteLikeTool } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nreturn { edit: isWriteLikeTool('Edit'), write: isWriteLikeTool('Write'), multiEdit: isWriteLikeTool('MultiEdit'), notebookEdit: isWriteLikeTool('NotebookEdit'), read: isWriteLikeTool('Read'), bash: isWriteLikeTool('Bash'), strReplaceEditor: isWriteLikeTool('str_replace_editor') };",
+      "expect": {
+        "edit": true,
+        "write": true,
+        "multiEdit": true,
+        "notebookEdit": true,
+        "read": false,
+        "bash": false,
+        "strReplaceEditor": true
+      },
+      "intentRef": "prewrite-guard:adversarial:0"
+    },
+    {
+      "name": "adversarial: extractPathsFromToolInput handles Edit/Write/NotebookEdit",
+      "run_type": "logic",
+      "fn": "extractPathsFromToolInput",
+      "file": "core/prewrite-guard",
+      "execute": "const { extractPathsFromToolInput } = await import($root + '/packages/main/dist/core/prewrite-guard.js');\nconst editPaths = extractPathsFromToolInput('Edit', JSON.stringify({ path: 'src/foo.ts', old_string: 'a', new_string: 'b' }));\nconst writePaths = extractPathsFromToolInput('Write', JSON.stringify({ file_path: 'src/bar.ts', content: 'hello' }));\nconst notebookPaths = extractPathsFromToolInput('NotebookEdit', JSON.stringify({ notebook_path: 'nb.ipynb', cell_id: 1 }));\nconst badJson = extractPathsFromToolInput('Edit', 'not-json');\nreturn { editPaths, writePaths, notebookPaths, badJson };",
+      "expect": {
+        "editPaths": ["src/foo.ts"],
+        "writePaths": ["src/bar.ts"],
+        "notebookPaths": ["nb.ipynb"],
+        "badJson": []
+      },
+      "intentRef": "prewrite-guard:adversarial:1"
+    },
+    {
+      "name": "smoke: CLI handler prewrite_guard_check — no guard session → allow",
+      "run_type": "cli",
+      "fn": "prewrite_guard_check",
+      "file": "handlers/prewrite-guard",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { execFileSync } = await import('node:child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { createPrewriteGuardHandlers } = await import($root + '/packages/main/dist/handlers/prewrite-guard.js');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-prewrite-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  const store = new StoryStore(dir);\n  const handlers = createPrewriteGuardHandlers({ store, root: dir, scanRoot: join(dir, 'packages', 'main') });\n  const out = handlers.prewrite_guard_check({ toolName: 'Edit', toolInputJson: JSON.stringify({ path: 'src/foo.ts' }), json: true });\n  const result = JSON.parse(out);\n  return { verdict: result.verdict, noDecision: result.noDecision };\n} finally {\n  rmSync(dir, { recursive: true, force: true });\n}",
+      "expect": {
+        "verdict": "allow",
+        "noDecision": true
+      },
+      "intentRef": "prewrite-guard:smoke:0"
+    },
+    {
+      "name": "smoke: CLI handler prewrite_guard_check — enforce mode with scope contract",
+      "run_type": "cli",
+      "fn": "prewrite_guard_check",
+      "file": "handlers/prewrite-guard",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { createPrewriteGuardHandlers } = await import($root + '/packages/main/dist/handlers/prewrite-guard.js');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-prewrite-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  const store = new StoryStore(dir);\n  const storyId = 'B-001';\n  const now = new Date().toISOString();\n  store.writeStory(storyId, { storyId, name: storyId, title: 'test', description: 'test', type: 'feature', phase: 'DEV', priority: 'low', createdAt: now, startedAt: now, endedAt: null, events: [] });\n  store.writeScopeContract(storyId, { storyId, mode: 'enforce', allowedModify: ['src/foo.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: now, updatedAt: now });\n  const handlers = createPrewriteGuardHandlers({ store, root: dir, scanRoot: join(dir, 'packages', 'main') });\n  const inScope = JSON.parse(handlers.prewrite_guard_check({ storyId, toolName: 'Edit', targetPaths: 'src/foo.ts', json: true }));\n  const outOfScope = JSON.parse(handlers.prewrite_guard_check({ storyId, toolName: 'Edit', targetPaths: 'src/bar.ts', json: true }));\n  return { inScopeVerdict: inScope.verdict, outOfScopeVerdict: outOfScope.verdict };\n} finally {\n  rmSync(dir, { recursive: true, force: true });\n}",
+      "expect": {
+        "inScopeVerdict": "allow",
+        "outOfScopeVerdict": "deny"
+      },
+      "intentRef": "prewrite-guard:smoke:1"
+    }
+  ]
+}

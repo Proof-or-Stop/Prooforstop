@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: reviewer run writes real patch artifact",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'patch-happy'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok patch-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "32cdd6b7-304f-4c34-a6ed-67b40dd52ba5",
+      "nextCaseId": "6575dc33-73ac-411f-9eb6-5cdcf370cbe3"
+    },
+    {
+      "name": "CHK-001 edge: no-op reviewer run leaves no candidate patch",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'patch-none'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok patch-none') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "6575dc33-73ac-411f-9eb6-5cdcf370cbe3",
+      "prevCaseId": "32cdd6b7-304f-4c34-a6ed-67b40dd52ba5",
+      "nextCaseId": "aef0fec8-1250-4788-ad94-139748e8a2f6"
+    },
+    {
+      "name": "CHK-001 adversarial: protected-path diff is rejected by patch policy",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'patch-policy-reject'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok patch-policy-reject') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "aef0fec8-1250-4788-ad94-139748e8a2f6",
+      "prevCaseId": "6575dc33-73ac-411f-9eb6-5cdcf370cbe3",
+      "nextCaseId": "489058ef-9d8a-400d-bdd1-ad852bda7089"
+    },
+    {
+      "name": "CHK-002 happy: compare and promote expose patch path plus baseline ref",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'compare-promote-happy'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-promote-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "489058ef-9d8a-400d-bdd1-ad852bda7089",
+      "prevCaseId": "aef0fec8-1250-4788-ad94-139748e8a2f6",
+      "nextCaseId": "4c450641-97c0-4782-8a87-a2da9b2520fe"
+    },
+    {
+      "name": "CHK-002 edge: compare tie-break prefers lower complexity at equal score",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'compare-tiebreak'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-tiebreak') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "4c450641-97c0-4782-8a87-a2da9b2520fe",
+      "prevCaseId": "489058ef-9d8a-400d-bdd1-ad852bda7089",
+      "nextCaseId": "b3acd057-96b9-4ddc-b080-4e4d667f9fb5"
+    },
+    {
+      "name": "CHK-002 adversarial: promote refuses rejected or patchless reviewer runs",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'promote-rejected'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok promote-rejected') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "b3acd057-96b9-4ddc-b080-4e4d667f9fb5",
+      "prevCaseId": "4c450641-97c0-4782-8a87-a2da9b2520fe",
+      "nextCaseId": "f14c4b26-2998-4da5-95a3-e54ed90787e9"
+    },
+    {
+      "name": "CHK-003 happy: reviewer MVP verify script completes kept+patch flow",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'verify-happy'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok verify-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "f14c4b26-2998-4da5-95a3-e54ed90787e9",
+      "prevCaseId": "b3acd057-96b9-4ddc-b080-4e4d667f9fb5",
+      "nextCaseId": "5f2b0163-f430-4eaf-b5ad-e0bcc8f8042d"
+    },
+    {
+      "name": "CHK-003 edge: insufficient reviewer gain stays rejected",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'verify-rejected'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok verify-rejected') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "5f2b0163-f430-4eaf-b5ad-e0bcc8f8042d",
+      "prevCaseId": "f14c4b26-2998-4da5-95a3-e54ed90787e9",
+      "nextCaseId": "ab6b7592-f106-4831-a1fb-fc2ff2446184"
+    },
+    {
+      "name": "CHK-003 adversarial: volatile reviewer run records stability but does not promote",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-reviewer-mvp.mjs', 'verify-volatile'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok verify-volatile') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-17a6:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-17a6",
+      "_id": "ab6b7592-f106-4831-a1fb-fc2ff2446184",
+      "prevCaseId": "5f2b0163-f430-4eaf-b5ad-e0bcc8f8042d"
+    }
+  ]
+}

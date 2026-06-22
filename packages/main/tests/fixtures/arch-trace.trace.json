@@ -1,0 +1,501 @@
+{
+  "snapshots": {
+    "arch_trace json output": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:46.409Z",
+      "caseName": "arch_trace json output",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace mermaid": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:48.140Z",
+      "caseName": "arch_trace mermaid",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace json fields": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:49.752Z",
+      "caseName": "arch_trace json fields",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": [
+                                    {
+                                      "fn": "scan",
+                                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                      "line": 86,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace single trace": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:51.474Z",
+      "caseName": "arch_trace single trace",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": [
+                                    {
+                                      "fn": "scan",
+                                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                      "line": 86,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace dedup": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:53.168Z",
+      "caseName": "arch_trace dedup",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": [
+                                    {
+                                      "fn": "scan",
+                                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                      "line": 86,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace no traces": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:54.854Z",
+      "caseName": "arch_trace no traces",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "arch_trace corrupt file": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:56.554Z",
+      "caseName": "arch_trace corrupt file",
+      "fixturePath": "arch-trace.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "arch_trace",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+              "line": 8,
+              "children": [
+                {
+                  "fn": "detectBlindZones",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                  "line": 83,
+                  "children": [
+                    {
+                      "fn": "scan",
+                      "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                      "line": 86,
+                      "children": [
+                        {
+                          "fn": "scan",
+                          "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                          "line": 86,
+                          "children": [
+                            {
+                              "fn": "scan",
+                              "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                              "line": 86,
+                              "children": [
+                                {
+                                  "fn": "scan",
+                                  "file": "/work/koala/packages/main/dist/mcp/handlers/arch-trace.js",
+                                  "line": 86,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

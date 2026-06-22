@@ -1,0 +1,233 @@
+{
+  "cases": [
+    {
+      "name": "CHK001-happy-0: cli_test 扫描执行 CLI case",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "\"passed\":0"
+      },
+      "intentRef": "CHK-001:happy:0"
+    },
+    {
+      "name": "CHK001-happy-1: 多 fixture 中 CLI case 均被发现",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({})",
+      "expect": {
+        "pattern": "\"passed\":0"
+      },
+      "intentRef": "CHK-001:happy:1"
+    },
+    {
+      "name": "CHK001-edge-0: 无 CLI case 返回 0/0",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "\"passed\":0,\"failed\":0"
+      },
+      "intentRef": "CHK-001:edge:0"
+    },
+    {
+      "name": "CHK002-happy-0: git clean 时正常执行",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-002:happy:0"
+    },
+    {
+      "name": "CHK003-happy-0: worktree 创建执行后清理",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-003:happy:0"
+    },
+    {
+      "name": "CHK003-edge-0: 无 case 时 worktree 仍正确创建清理",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "\"passed\":0"
+      },
+      "intentRef": "CHK-003:edge:0"
+    },
+    {
+      "name": "CHK004-happy-0: story_create 链式 case 通过",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-004:happy:0"
+    },
+    {
+      "name": "CHK005-happy-0: 输出含 passed/failed 字段",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "\"passed\":"
+      },
+      "intentRef": "CHK-005:happy:0"
+    },
+    {
+      "name": "CHK005-happy-1: 失败时有 details 字段",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "\"details\":"
+      },
+      "intentRef": "CHK-005:happy:1"
+    },
+    {
+      "name": "CHK005-edge-0: 无 case 时 passed=0 failed=0 details 空",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "\"passed\":0,\"failed\":0"
+      },
+      "intentRef": "CHK-005:edge:0"
+    },
+    {
+      "name": "CHK001-adv-1: case input 缺必填参数导致 fail",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "(passed|failed)"
+      },
+      "intentRef": "CHK-001:adversarial:1"
+    },
+    {
+      "name": "CHK002-adv-0: untracked 文件不影响执行",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "\"passed\":0"
+      },
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "CHK003-adv-0: case 崩溃后 worktree 仍清理",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "(passed|failed)"
+      },
+      "intentRef": "CHK-003:adversarial:0"
+    },
+    {
+      "name": "CHK004-happy-1: $prev 链式引用在 story fixture 中工作",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"story-checklist\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-004:happy:1"
+    },
+    {
+      "name": "CHK005-edge-1: 全部失败时 passed=0",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "(passed|failed)"
+      },
+      "intentRef": "CHK-005:edge:1"
+    },
+    {
+      "name": "CHK005-adv-0: 超时 case 标记 fail",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"tools-story_get\"})",
+      "expect": {
+        "pattern": "(passed|failed|Timeout)"
+      },
+      "intentRef": "CHK-005:adversarial:0"
+    },
+    {
+      "name": "CHK001-edge-1: fn 为不存在工具名时 case fail",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "(passed|failed)"
+      },
+      "intentRef": "CHK-001:edge:1"
+    },
+    {
+      "name": "CHK001-adv-0: fixture JSON 损坏报清晰错误",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"__corrupted__\"})",
+      "throws": "不存在",
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "CHK002-edge-0: staged 改动拒绝执行",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "CHK002-edge-1: unstaged 改动拒绝执行",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "passed"
+      },
+      "intentRef": "CHK-002:edge:1"
+    },
+    {
+      "name": "CHK003-edge-1: worktree 删除失败报警告不崩溃",
+      "run_type": "cli",
+      "fn": "cli_test",
+      "file": "mcp/handlers/cli-test",
+      "execute": "return $handlers.cli_test({\"fixture\":\"skip\"})",
+      "expect": {
+        "pattern": "passed|failed"
+      },
+      "intentRef": "CHK-003:edge:1"
+    }
+  ]
+}

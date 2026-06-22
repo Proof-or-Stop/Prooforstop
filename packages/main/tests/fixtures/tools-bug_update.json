@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"t\",\"title\":\"Bug Update Test\",\"description\":\"t\",\"type\":\"feature\",\"priority\":\"high\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "prereq: report bug",
+      "run_type": "cli",
+      "fn": "bug_report",
+      "file": "mcp/handlers/bug",
+      "execute": "$ctx.bugId = \"BUG-\"+Date.now(); return $handlers.bug_report({\"storyId\":\"\" + $ctx.storyId + \"\",\"id\":$ctx.bugId,\"title\":\"Test bug for update\",\"fixtureId\":\"fid-\"+Date.now()})",
+      "expect": {
+        "pattern": "Bug BUG-"
+      }
+    }
+  ]
+}

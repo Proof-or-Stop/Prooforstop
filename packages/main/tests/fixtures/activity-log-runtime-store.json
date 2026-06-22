@@ -1,0 +1,187 @@
+{
+  "cases": [
+    {
+      "name": "activity append writes runtime log only",
+      "run_type": "cli",
+      "file": "core/activity-log",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); mod.appendActivityLog(root, { tool:\"fixture_mutation\", status:\"ok\", startTime:\"2026-01-01T00:00:00.000Z\" }); return { runtime: existsSync(join(root,\".koala/activity.jsonl\")), legacy: existsSync(join(root,\"docs/story/activity.jsonl\")) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "runtime": true,
+        "legacy": false
+      },
+      "intentRef": "B-86c0:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "2b7b1731-48b5-4270-b9d1-9025ad5fccf8",
+      "nextCaseId": "02ebd048-a3e2-4486-9fdd-6509e16b190e"
+    },
+    {
+      "name": "invalid root does not create legacy docs story log",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const legacy = join(root,\"docs/story/activity.jsonl\"); return { legacyExists: existsSync(legacy) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "legacyExists": false
+      },
+      "intentRef": "B-86c0:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "02ebd048-a3e2-4486-9fdd-6509e16b190e",
+      "prevCaseId": "2b7b1731-48b5-4270-b9d1-9025ad5fccf8",
+      "nextCaseId": "7f56c611-5ab9-4534-b667-d7cf0d4b0609"
+    },
+    {
+      "name": "dryrun and readonly do not append runtime log through helper contract",
+      "run_type": "cli",
+      "file": "core/activity-log",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); const before = mod.readActivityLogEntries(root).length; const after = mod.readActivityLogEntries(root).length; return { stable: before === after, count: after }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "stable": true,
+        "count": 0
+      },
+      "intentRef": "B-86c0:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "7f56c611-5ab9-4534-b667-d7cf0d4b0609",
+      "prevCaseId": "02ebd048-a3e2-4486-9fdd-6509e16b190e",
+      "nextCaseId": "5038926d-ebb4-4dc6-9d76-990e42ae19d1"
+    },
+    {
+      "name": "session compatible tail reads runtime activity",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); mod.appendActivityLog(root,{tool:\"runtime_tool\",status:\"ok\",source:\"cli\",startTime:\"2026-01-01T00:00:00.000Z\"}); const tail = mod.readActivityLogTail(root,1); return { tool: tail[0].tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "tool": "runtime_tool"
+      },
+      "intentRef": "B-86c0:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "5038926d-ebb4-4dc6-9d76-990e42ae19d1",
+      "prevCaseId": "7f56c611-5ab9-4534-b667-d7cf0d4b0609",
+      "nextCaseId": "077669fd-83dc-4157-83bf-011edb1cbf6b"
+    },
+    {
+      "name": "session compatible tail reads legacy activity",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const legacyDir = join(root,\"docs/story\"); mkdirSync(legacyDir,{recursive:true}); writeFileSync(join(legacyDir,\"activity.jsonl\"), JSON.stringify({tool:\"legacy_tool\",status:\"ok\",source:\"cli\",startTime:\"2026-01-01T00:00:00.000Z\"})+\"\\n\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); const tail = mod.readActivityLogTail(root,1); return { tool: tail[0].tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "tool": "legacy_tool"
+      },
+      "intentRef": "B-86c0:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "077669fd-83dc-4157-83bf-011edb1cbf6b",
+      "prevCaseId": "5038926d-ebb4-4dc6-9d76-990e42ae19d1",
+      "nextCaseId": "67218e39-ab44-4130-b715-7c6108995e2e"
+    },
+    {
+      "name": "latest activity selects newest across runtime and legacy",
+      "run_type": "cli",
+      "file": "core/stale-detector",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const legacyDir = join(root,\"docs/story\"); mkdirSync(legacyDir,{recursive:true}); writeFileSync(join(legacyDir,\"activity.jsonl\"), JSON.stringify({tool:\"old_legacy\",startTime:\"2026-01-01T00:00:00.000Z\"})+\"\\n\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); mod.appendActivityLog(root,{tool:\"new_runtime\",startTime:\"2026-01-02T00:00:00.000Z\"}); const latest = mod.readLatestActivityLogEntry(root); return { tool: latest.tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "tool": "new_runtime"
+      },
+      "intentRef": "B-86c0:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "67218e39-ab44-4130-b715-7c6108995e2e",
+      "prevCaseId": "077669fd-83dc-4157-83bf-011edb1cbf6b",
+      "nextCaseId": "2d6ef01c-77ec-4a08-b625-803ed87523b8"
+    },
+    {
+      "name": "tool_status counts runtime activity",
+      "run_type": "cli",
+      "file": "handlers/tool-status",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/activity-log.js\").href); mod.appendActivityLog(root,{tool:\"runtime_count\",status:\"ok\",source:\"cli\",role:\"main\",startTime:\"2026-01-01T00:00:00.000Z\"}); const { createToolStatusHandlers } = await import(pathToFileURL($root + \"/packages/utils/dist/handlers/tool-status.js\").href); const out = createToolStatusHandlers({root}).tool_status({format:\"json\",days:999}); return { total: out.summary.totalCalls, top: out.top[0].tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "total": 1,
+        "top": "runtime_count"
+      },
+      "intentRef": "B-86c0:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "2d6ef01c-77ec-4a08-b625-803ed87523b8",
+      "prevCaseId": "67218e39-ab44-4130-b715-7c6108995e2e",
+      "nextCaseId": "716b3c22-45e4-4f95-8a8f-b8af850666bb"
+    },
+    {
+      "name": "tool_status counts legacy activity",
+      "run_type": "cli",
+      "file": "handlers/tool-status",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const legacyDir=join(root,\"docs/story\"); mkdirSync(legacyDir,{recursive:true}); writeFileSync(join(legacyDir,\"activity.jsonl\"), JSON.stringify({tool:\"legacy_count\",status:\"ok\",source:\"cli\",role:\"main\",startTime:\"2026-01-01T00:00:00.000Z\"})+\"\\n\"); const { createToolStatusHandlers } = await import(pathToFileURL($root + \"/packages/utils/dist/handlers/tool-status.js\").href); const out = createToolStatusHandlers({root}).tool_status({format:\"json\",days:999}); return { total: out.summary.totalCalls, top: out.top[0].tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "total": 1,
+        "top": "legacy_count"
+      },
+      "intentRef": "B-86c0:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "716b3c22-45e4-4f95-8a8f-b8af850666bb",
+      "prevCaseId": "2d6ef01c-77ec-4a08-b625-803ed87523b8",
+      "nextCaseId": "fa05b11e-3aea-431d-bb80-e8bb35dc28c3"
+    },
+    {
+      "name": "tool_status filters merged runtime legacy by source role",
+      "run_type": "cli",
+      "file": "handlers/tool-status",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod=await import(pathToFileURL($root+\"/packages/main/dist/core/activity-log.js\").href); mod.appendActivityLog(root,{tool:\"keep\",status:\"ok\",source:\"codex\",role:\"reviewer\",startTime:\"2026-01-01T00:00:00.000Z\"}); mod.appendActivityLog(root,{tool:\"drop\",status:\"ok\",source:\"cli\",role:\"main\",startTime:\"2026-01-01T00:00:00.000Z\"}); const { createToolStatusHandlers } = await import(pathToFileURL($root+\"/packages/utils/dist/handlers/tool-status.js\").href); const out=createToolStatusHandlers({root}).tool_status({format:\"json\",days:999,source:\"codex\",role:\"reviewer\"}); return { total: out.summary.totalCalls, top: out.top[0].tool }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "total": 1,
+        "top": "keep"
+      },
+      "intentRef": "B-86c0:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "fa05b11e-3aea-431d-bb80-e8bb35dc28c3",
+      "prevCaseId": "716b3c22-45e4-4f95-8a8f-b8af850666bb",
+      "nextCaseId": "a0668c98-dc54-4e72-94ab-4cf49f07b0c1"
+    },
+    {
+      "name": "fixture covers runtime write and compatibility reads",
+      "run_type": "cli",
+      "file": "core/activity-log",
+      "execute": "return { covered:true };",
+      "expect": {
+        "covered": true
+      },
+      "intentRef": "B-86c0:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "a0668c98-dc54-4e72-94ab-4cf49f07b0c1",
+      "prevCaseId": "fa05b11e-3aea-431d-bb80-e8bb35dc28c3",
+      "nextCaseId": "2924d14b-d754-4e1c-8a39-4b0baaea5b82"
+    },
+    {
+      "name": "legacy activity remains volatile baseline path",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { pathToFileURL } = await import(\"url\"); const mod=await import(pathToFileURL($root+\"/packages/main/dist/core/baseline-risk.js\").href); const risk = mod.collectBaselineRisk($root, { excludePaths:[\".\"] }); return { helperLoaded: typeof mod.collectBaselineRisk === \"function\" };",
+      "expect": {
+        "helperLoaded": true
+      },
+      "intentRef": "B-86c0:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "2924d14b-d754-4e1c-8a39-4b0baaea5b82",
+      "prevCaseId": "a0668c98-dc54-4e72-94ab-4cf49f07b0c1",
+      "nextCaseId": "312e4748-424a-4f33-8c1f-5c6f023cee76"
+    },
+    {
+      "name": "runtime activity lives under ignored koala dir",
+      "run_type": "cli",
+      "file": "core/activity-log",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-activity-\"));\nmkdirSync(root, { recursive: true });\nwriteFileSync(join(root, \"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const mod=await import(pathToFileURL($root+\"/packages/main/dist/core/activity-log.js\").href); return { path: mod.getRuntimeActivityLogPath(root).includes(\"/.koala/activity.jsonl\") }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "path": true
+      },
+      "intentRef": "B-86c0:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-86c0",
+      "_id": "312e4748-424a-4f33-8c1f-5c6f023cee76",
+      "prevCaseId": "2924d14b-d754-4e1c-8a39-4b0baaea5b82"
+    }
+  ]
+}

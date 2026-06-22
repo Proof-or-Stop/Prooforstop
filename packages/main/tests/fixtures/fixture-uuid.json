@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001-h0: batch_add generates uuid _id",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "const r = $handlers.fixture_batch_add({fixturePath:\"_test_uuid\",cases:[{name:\"t1\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\"}]}); const f = $handlers.fixture_get({fixturePath:\"_test_uuid\"}); const c = f.cases[0]; const hasUuid = c._id && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(c._id); return hasUuid ? \"uuid_ok\" : \"no_uuid: \" + JSON.stringify(c._id)",
+      "expect": {
+        "pattern": "uuid_ok"
+      },
+      "intentRef": "CHK-001:happy:0",
+      "_id": "0c04c18f-1ea9-4793-ab52-b7598fc69566"
+    },
+    {
+      "name": "CHK-001-h1: fixture_update add generates _id",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_update({fixturePath:\"_test_uuid2\",action:\"add\",case:{name:\"t1\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\"}}); const f = $handlers.fixture_get({fixturePath:\"_test_uuid2\"}); return f.cases[0]._id ? \"has_id\" : \"no_id\"",
+      "expect": {
+        "pattern": "has_id"
+      },
+      "intentRef": "CHK-001:happy:1",
+      "_id": "ad623403-6f4b-49aa-be2d-a73b7dd030b6"
+    },
+    {
+      "name": "CHK-001-e0: batch add multiple cases unique ids",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_uuid3\",cases:[{name:\"a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 1\"},{name:\"b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 2\"},{name:\"c\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 3\"}]}); const f = $handlers.fixture_get({fixturePath:\"_test_uuid3\"}); const ids = f.cases.map(c=>c._id); const unique = new Set(ids).size === ids.length; return unique ? \"all_unique\" : \"duplicates\"",
+      "expect": {
+        "pattern": "all_unique"
+      },
+      "intentRef": "CHK-001:edge:0",
+      "_id": "4afd4a37-65f3-4fa9-a2c7-fbb856466860"
+    },
+    {
+      "name": "CHK-001-e1: old case without _id runs fine",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "\n    const fs = await import(\"fs\");\n    const path = await import(\"path\");\n    const fp = path.join($root, \"packages/main/tests/fixtures/_test_old_compat.json\");\n    fs.writeFileSync(fp, JSON.stringify({cases:[{name:\"old_case\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]},null,2));\n    const f = $handlers.fixture_get({fixturePath:\"_test_old_compat\"});\n    return f.cases[0].name === \"old_case\" && !f.cases[0]._id ? \"old_compat_ok\" : \"has_id_unexpectedly\"\n  ",
+      "expect": {
+        "pattern": "old_compat_ok"
+      },
+      "intentRef": "CHK-001:edge:1",
+      "_id": "f7f27e8e-a3b9-41aa-913b-3b214999e958",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001-a0: manual _id preserved",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "\n      $handlers.fixture_batch_add({fixturePath:\"_test_override\",cases:[{name:\"ext\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 1\",_id:\"custom-id-123\"}]});\n      const f = $handlers.fixture_get({fixturePath:\"_test_override\"});\n      return f.cases[0]._id !== \"custom-id-123\" ? \"overridden\" : \"preserved\"\n    ",
+      "expect": {
+        "pattern": "overridden"
+      },
+      "intentRef": "CHK-001:adversarial:0",
+      "_id": "314734a8-1379-4aaa-ab42-3e8a0b5bb7d5"
+    },
+    {
+      "name": "CHK-001-a1: 100 cases all unique ids",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "const cases = []; for(let i=0;i<100;i++) cases.push({name:\"c\"+i,run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return \"+i}); $handlers.fixture_batch_add({fixturePath:\"_test_uuid5\",cases}); const f = $handlers.fixture_get({fixturePath:\"_test_uuid5\"}); const ids = f.cases.map(c=>c._id); return new Set(ids).size === 100 ? \"100_unique\" : \"has_dupes\"",
+      "expect": {
+        "pattern": "100_unique"
+      },
+      "intentRef": "CHK-001:adversarial:1",
+      "_id": "30eecd0f-7ca1-4fb4-a7ba-59d770e4b8d9"
+    }
+  ]
+}

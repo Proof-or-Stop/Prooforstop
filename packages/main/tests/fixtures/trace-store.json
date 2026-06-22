@@ -1,0 +1,227 @@
+{
+  "cases": [
+    {
+      "name": "save and load trace snapshot",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; const trace = [{fn:\"test\",file:\"t.ts\",line:1,children:[]}]; ts.saveTraceSnapshot(dir,\"_test-trace-store\",\"case1\",trace,$root); const loaded = ts.loadTraceSnapshot(dir,\"_test-trace-store\",\"case1\"); const ok = !!(loaded && loaded.trace[0].fn===\"test\" && loaded.commit && loaded.timestamp); try{fs.unlinkSync(dir+\"/_test-trace-store.trace.json\")}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "trace snapshot overwrite update",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; ts.saveTraceSnapshot(dir,\"_test-overwrite\",\"c1\",[{fn:\"v1\",file:\"f\",line:1,children:[]}],$root); ts.saveTraceSnapshot(dir,\"_test-overwrite\",\"c1\",[{fn:\"v2\",file:\"f\",line:1,children:[]}],$root); const s = ts.loadTraceSnapshot(dir,\"_test-overwrite\",\"c1\"); const ok = s && s.trace[0].fn===\"v2\"; try{fs.unlinkSync(dir+\"/_test-overwrite.trace.json\")}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "empty trace array saved",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; ts.saveTraceSnapshot(dir,\"_test-empty\",\"c1\",[],$root); const s = ts.loadTraceSnapshot(dir,\"_test-empty\",\"c1\"); const ok = s && Array.isArray(s.trace) && s.trace.length===0; try{fs.unlinkSync(dir+\"/_test-empty.trace.json\")}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "auto create fixtures dir",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures/_subdir_test\"; ts.saveTraceSnapshot(dir,\"test\",\"c1\",[{fn:\"x\",file:\"f\",line:1,children:[]}],$root); const ok = fs.existsSync(dir+\"/test.trace.json\"); try{fs.rmSync(dir,{recursive:true})}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "special chars in case name",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; ts.saveTraceSnapshot(dir,\"_test-special\",\"case with spaces & 中文\",[{fn:\"x\",file:\"f\",line:1,children:[]}],$root); const s = ts.loadTraceSnapshot(dir,\"_test-special\",\"case with spaces & 中文\"); const ok = s && s.caseName===\"case with spaces & 中文\"; try{fs.unlinkSync(dir+\"/_test-special.trace.json\")}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:edge:2",
+      "sandbox": false
+    },
+    {
+      "name": "corrupt trace json ignored",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; fs.writeFileSync(dir+\"/_test-corrupt.trace.json\",\"not json\"); const s = ts.loadTraceSnapshot(dir,\"_test-corrupt\",\"c1\"); try{fs.unlinkSync(dir+\"/_test-corrupt.trace.json\")}catch{} return s === null",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "write fail no crash",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); try { ts.saveTraceSnapshot(\"/nonexistent/path\",\"test\",\"c1\",[{fn:\"x\",file:\"f\",line:1,children:[]}],$root); } catch(e) { return true; } return true",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "concurrent write safe",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; const p1 = ts.saveTraceSnapshot(dir,\"_test-conc\",\"c1\",[{fn:\"a\",file:\"f\",line:1,children:[]}],$root); const p2 = ts.saveTraceSnapshot(dir,\"_test-conc\",\"c2\",[{fn:\"b\",file:\"f\",line:1,children:[]}],$root); const data = JSON.parse(fs.readFileSync(dir+\"/_test-conc.trace.json\",\"utf-8\")); const ok = data.snapshots && Object.keys(data.snapshots).length >= 1; try{fs.unlinkSync(dir+\"/_test-conc.trace.json\")}catch{} return ok",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:2",
+      "sandbox": false
+    },
+    {
+      "name": "setup: clean test traces",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceDir = path.join($root, \".koala\", \"traces\"); try { fs.rmSync(path.join(traceDir, \"test-CHK.trace.json\"), {force:true}); } catch {} return \"cleaned\"",
+      "expect": {
+        "pattern": "cleaned"
+      },
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: saveTraceSnapshot writes to .koala/traces/",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root, \"test-CHK.json\", \"case-a\", [{fn:\"foo\",file:\"bar.ts\",line:1,children:[]}]); return \"saved\"",
+      "expect": {
+        "pattern": "saved"
+      },
+      "intentRef": "CHK-002:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: loadTraceSnapshot reads from .koala/traces/",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); const snap = m.loadTraceSnapshot($root, \"test-CHK.json\", \"case-a\"); return snap && snap.caseName === \"case-a\" && snap.trace[0].fn === \"foo\"",
+      "expect": true,
+      "intentRef": "CHK-002:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: trace survives git restore",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const {execSync} = await import(\"node:child_process\"); try { execSync(\"git restore .\", {cwd:$root,stdio:\"pipe\"}); } catch {} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); const snap = m.loadTraceSnapshot($root, \"test-CHK.json\", \"case-a\"); return snap !== null && snap.caseName === \"case-a\"",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: mkdirSync auto-creates .koala/traces/",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const subDir = path.join($root, \".koala\", \"traces\", \"sub\"); try { fs.rmSync(path.join(subDir), {recursive:true,force:true}); } catch {} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root, \"sub/nested.json\", \"case-x\", [{fn:\"bar\",file:\"x.ts\",line:1,children:[]}]); const snap = m.loadTraceSnapshot($root, \"sub/nested.json\", \"case-x\"); try { fs.rmSync(path.join(subDir), {recursive:true,force:true}); } catch {} return snap !== null",
+      "expect": true,
+      "intentRef": "CHK-002:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: Windows backslash path handled",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"sub\\win-test.json\",\"wc\",[{fn:\"w\",file:\"w.ts\",line:1,children:[]}]); const snap = m.loadTraceSnapshot($root,\"sub\\win-test.json\",\"wc\"); const traceFile = path.join($root,\".koala\",\"traces\",\"sub\",\"win-test.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} try{fs.rmdirSync(path.join($root,\".koala\",\"traces\",\"sub\"));}catch{} return snap !== null && snap.caseName===\"wc\"",
+      "expect": true,
+      "intentRef": "CHK-002:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: partial corrupt trace still loads",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-corrupt.json\",\"good\",[{fn:\"g\",file:\"g.ts\",line:1,children:[]}]); const traceFile = path.join($root,\".koala\",\"traces\",\"test-corrupt.trace.json\"); const data = JSON.parse(fs.readFileSync(traceFile,\"utf-8\")); data.snapshots[\"bad\"] = \"not-an-object\"; fs.writeFileSync(traceFile, JSON.stringify(data)); const snap = m.loadTraceSnapshot($root,\"test-corrupt.json\",\"good\"); try{fs.rmSync(traceFile,{force:true});}catch{} return snap !== null && snap.trace[0].fn===\"g\"",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: Windows backslash path",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"sub/win-test.json\",\"wc\",[{fn:\"w\",file:\"w.ts\",line:1,children:[]}]); const snap = m.loadTraceSnapshot($root,\"sub/win-test.json\",\"wc\"); const traceFile = path.join($root,\".koala\",\"traces\",\"sub\",\"win-test.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} try{fs.rmdirSync(path.join($root,\".koala\",\"traces\",\"sub\"));}catch{} return snap !== null && snap.caseName===\"wc\"",
+      "expect": true,
+      "intentRef": "CHK-002:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: same commit dedup overwrites",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-dedup.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-dedup.json\",\"dd\",[{fn:\"first\",file:\"a.ts\",line:1,children:[]}]); m.saveTraceSnapshot($root,\"test-dedup.json\",\"dd\",[{fn:\"second\",file:\"a.ts\",line:2,children:[]}]); const raw = JSON.parse(fs.readFileSync(traceFile,\"utf-8\")); const keys = Object.keys(raw.snapshots).filter(k=>k.startsWith(\"dd:\")||k===\"dd\"); const snap = m.loadTraceSnapshot($root,\"test-dedup.json\",\"dd\"); try{fs.rmSync(traceFile,{force:true});}catch{} return keys.length===1 && snap.trace[0].fn===\"second\"",
+      "expect": true,
+      "intentRef": "CHK-003:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: malformed key no crash",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-malfmt.trace.json\"); fs.mkdirSync(path.dirname(traceFile),{recursive:true}); fs.writeFileSync(traceFile, JSON.stringify({snapshots:{\"plain-no-colon\":[{commit:\"x\",timestamp:\"2024-01-01\",caseName:\"plain-no-colon\",fixturePath:\"t\",trace:[{fn:\"ok\",file:\"o.ts\",line:1,children:[]}]}],\"bad-val\":\"not-an-array\",\"null-val\":null}})); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); const good = m.loadTraceSnapshot($root,\"test-malfmt.json\",\"plain-no-colon\"); const bad = m.loadTraceSnapshot($root,\"test-malfmt.json\",\"bad-val\"); const nul = m.loadTraceSnapshot($root,\"test-malfmt.json\",\"null-val\"); try{fs.rmSync(traceFile,{force:true});}catch{} return good!==null && good.trace[0].fn===\"ok\" && bad===null && nul===null",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: load returns newest timestamp across commits",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-newest.trace.json\"); fs.mkdirSync(path.dirname(traceFile),{recursive:true}); fs.writeFileSync(traceFile, JSON.stringify({snapshots:{\"mc:abc\":[{commit:\"abc\",timestamp:\"2024-01-01T00:00:00Z\",caseName:\"mc\",fixturePath:\"test-newest.json\",trace:[{fn:\"old\",file:\"o.ts\",line:1,children:[]}]}],\"mc:def\":[{commit:\"def\",timestamp:\"2024-06-01T00:00:00Z\",caseName:\"mc\",fixturePath:\"test-newest.json\",trace:[{fn:\"new\",file:\"n.ts\",line:2,children:[]}]}]}})); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); const snap = m.loadTraceSnapshot($root,\"test-newest.json\",\"mc\"); try{fs.rmSync(traceFile,{force:true});}catch{} return snap!==null && snap.trace[0].fn===\"new\" && snap.commit===\"def\"",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: 3 different commit keys preserved",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-3keys.trace.json\"); fs.mkdirSync(path.dirname(traceFile),{recursive:true}); fs.writeFileSync(traceFile, JSON.stringify({snapshots:{\"hc:aaa\":[{commit:\"aaa\",timestamp:\"2024-01-01T00:00:00Z\",caseName:\"hc\",fixturePath:\"test-3keys.json\",trace:[{fn:\"v1\",file:\"a.ts\",line:1,children:[]}]}],\"hc:bbb\":[{commit:\"bbb\",timestamp:\"2024-02-01T00:00:00Z\",caseName:\"hc\",fixturePath:\"test-3keys.json\",trace:[{fn:\"v2\",file:\"a.ts\",line:2,children:[]}]}]}})); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-3keys.json\",\"hc\",[{fn:\"v3\",file:\"a.ts\",line:3,children:[]}]); const raw = JSON.parse(fs.readFileSync(traceFile,\"utf-8\")); const keys = Object.keys(raw.snapshots).filter(k=>k.startsWith(\"hc:\")); const snap = m.loadTraceSnapshot($root,\"test-3keys.json\",\"hc\"); try{fs.rmSync(traceFile,{force:true});}catch{} return keys.length===3 && snap.trace[0].fn===\"v3\"",
+      "expect": true,
+      "intentRef": "CHK-003:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: 6 keys evicts oldest to keep 5",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-evict.trace.json\"); fs.mkdirSync(path.dirname(traceFile),{recursive:true}); const snaps = {}; for(let i=0;i<5;i++){const c='c'+i; snaps['ev:'+c]=[{commit:c,timestamp:'2024-0'+(i+1)+'-01T00:00:00Z',caseName:'ev',fixturePath:'test-evict.json',trace:[{fn:'f'+i,file:'a.ts',line:i,children:[]}]}];} fs.writeFileSync(traceFile, JSON.stringify({snapshots:snaps})); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-evict.json\",\"ev\",[{fn:\"f5\",file:\"a.ts\",line:5,children:[]}]); const raw = JSON.parse(fs.readFileSync(traceFile,\"utf-8\")); const keys = Object.keys(raw.snapshots).filter(k=>k.startsWith(\"ev:\")); const hasOldest = keys.some(k=>k===\"ev:c0\"); try{fs.rmSync(traceFile,{force:true});}catch{} return keys.length===5 && !hasOldest",
+      "expect": true,
+      "intentRef": "CHK-003:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: N=1 config evicts to single entry",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const configPath = path.join($root,\"koala.config.json\"); const origConfig = fs.readFileSync(configPath,\"utf-8\"); const cfg = JSON.parse(origConfig); cfg.maxTraceSnapshots = 1; fs.writeFileSync(configPath, JSON.stringify(cfg,null,2)); const traceFile = path.join($root,\".koala\",\"traces\",\"test-n1.trace.json\"); fs.mkdirSync(path.dirname(traceFile),{recursive:true}); fs.writeFileSync(traceFile, JSON.stringify({snapshots:{\"n1:old\":[{commit:\"old\",timestamp:\"2024-01-01T00:00:00Z\",caseName:\"n1\",fixturePath:\"test-n1.json\",trace:[{fn:\"old\",file:\"a.ts\",line:1,children:[]}]}]}})); try { const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-n1.json\",\"n1\",[{fn:\"new\",file:\"a.ts\",line:2,children:[]}]); const raw = JSON.parse(fs.readFileSync(traceFile,\"utf-8\")); const keys = Object.keys(raw.snapshots).filter(k=>k.startsWith(\"n1:\")); fs.writeFileSync(configPath, origConfig); try{fs.rmSync(traceFile,{force:true});}catch{} return keys.length===1 && !keys.includes(\"n1:old\"); } catch(e) { fs.writeFileSync(configPath, origConfig); throw e; }",
+      "expect": true,
+      "intentRef": "CHK-003:edge:1",
+      "sandbox": false
+    }
+  ]
+}

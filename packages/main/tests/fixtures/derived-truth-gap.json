@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: truth_scan marks primary and derived tiers",
+      "run_type": "cli",
+      "file": "tasks/truth",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'truth-tier'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(truth-tier\\)"
+      },
+      "intentRef": "B-4db7:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "77d549ed-7ffb-4e14-8ccb-24cd7595f884",
+      "nextCaseId": "b4f9232c-fe25-4c56-8428-e46ccb0e6a48"
+    },
+    {
+      "name": "CHK-001 edge: truth_scan summary still keeps derived topics",
+      "run_type": "cli",
+      "file": "tasks/truth",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'summary-keeps-derived'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(summary-keeps-derived\\)"
+      },
+      "intentRef": "B-4db7:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "b4f9232c-fe25-4c56-8428-e46ccb0e6a48",
+      "prevCaseId": "77d549ed-7ffb-4e14-8ccb-24cd7595f884",
+      "nextCaseId": "cb026303-85f2-41f4-88e6-7f5861a4014a"
+    },
+    {
+      "name": "CHK-001 adversarial: missing source tier semantics would break derived filtering",
+      "run_type": "cli",
+      "file": "tasks/truth",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'truth-tier'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(truth-tier\\)"
+      },
+      "intentRef": "B-4db7:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "cb026303-85f2-41f4-88e6-7f5861a4014a",
+      "prevCaseId": "b4f9232c-fe25-4c56-8428-e46ccb0e6a48",
+      "nextCaseId": "cbfc9ca7-c2c0-4a8b-bf2d-b3e51d1f2dac"
+    },
+    {
+      "name": "CHK-002 happy: gap_analyze no longer raises high gaps from extracted docs",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'gap-filters-derived'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(gap-filters-derived\\)"
+      },
+      "intentRef": "B-4db7:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "cbfc9ca7-c2c0-4a8b-bf2d-b3e51d1f2dac",
+      "prevCaseId": "cb026303-85f2-41f4-88e6-7f5861a4014a",
+      "nextCaseId": "4d9bc22c-5197-4825-8924-fcff2c392500"
+    },
+    {
+      "name": "CHK-002 edge: primary decisions still produce real high requirement gaps",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'gap-keeps-primary'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(gap-keeps-primary\\)"
+      },
+      "intentRef": "B-4db7:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "4d9bc22c-5197-4825-8924-fcff2c392500",
+      "prevCaseId": "cbfc9ca7-c2c0-4a8b-bf2d-b3e51d1f2dac",
+      "nextCaseId": "096cf336-8e85-4d31-b857-91fa65494176"
+    },
+    {
+      "name": "CHK-002 adversarial: derived filtering does not erase all requirement gaps",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'gap-keeps-primary'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(gap-keeps-primary\\)"
+      },
+      "intentRef": "B-4db7:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "096cf336-8e85-4d31-b857-91fa65494176",
+      "prevCaseId": "4d9bc22c-5197-4825-8924-fcff2c392500",
+      "nextCaseId": "ed6d6c2c-1371-4840-8ce2-f0a3be7574fe"
+    },
+    {
+      "name": "CHK-003 happy: verifier script locks primary-vs-derived gap behavior",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:derived-truth-gap'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(all\\)"
+      },
+      "intentRef": "B-4db7:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "ed6d6c2c-1371-4840-8ce2-f0a3be7574fe",
+      "prevCaseId": "096cf336-8e85-4d31-b857-91fa65494176",
+      "nextCaseId": "f36b6bbb-8fc4-4693-abcc-904f2ab8412d"
+    },
+    {
+      "name": "CHK-003 edge: verifier keeps derived summary visibility under test",
+      "run_type": "cli",
+      "file": "tasks/truth",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'summary-keeps-derived'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(summary-keeps-derived\\)"
+      },
+      "intentRef": "B-4db7:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "f36b6bbb-8fc4-4693-abcc-904f2ab8412d",
+      "prevCaseId": "ed6d6c2c-1371-4840-8ce2-f0a3be7574fe",
+      "nextCaseId": "6e348a8b-3ffc-43c9-8fad-152de7619fe7"
+    },
+    {
+      "name": "CHK-003 adversarial: verifier would fail if extracted became high again",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-derived-truth-gap.mjs', 'gap-filters-derived'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "derived truth gap verified \\(gap-filters-derived\\)"
+      },
+      "intentRef": "B-4db7:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4db7",
+      "_id": "6e348a8b-3ffc-43c9-8fad-152de7619fe7",
+      "prevCaseId": "f36b6bbb-8fc4-4693-abcc-904f2ab8412d"
+    }
+  ]
+}

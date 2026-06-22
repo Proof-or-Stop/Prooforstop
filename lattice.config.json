@@ -1,0 +1,50 @@
+{
+  "scanRoot": "packages/main",
+  "rootDir": "src",
+  "outDir": "packages/main/dist",
+  "testsDir": "packages/main/tests",
+  "fixturesDir": "packages/main/tests/fixtures",
+  "storyDir": ".lattice/story/actives",
+  "requirementsDir": "docs/requirements",
+  "validate": {
+    "commands": [
+      { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000 },
+      "node packages/main/dist/tasks/authority-client-smoke.js",
+      "node packages/main/dist/tasks/authority-completion-smoke.js",
+      { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
+      "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "node packages/main/dist/tasks/done-required-validation-smoke.js",
+      "node packages/main/dist/tasks/done-required-freshness-smoke.js",
+      "node packages/main/dist/tasks/done-required-head-drift-proof.js",
+      "node packages/main/dist/tasks/version-bump-smoke.js",
+      "node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js",
+      "node packages/main/dist/tasks/parallel-gate-config-smoke.js",
+      "node packages/main/dist/tasks/parallel-wave-advisory-smoke.js",
+      "node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js",
+      "node packages/main/dist/tasks/adversarial-review-contract-smoke.js",
+      "node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js",
+      "node packages/main/dist/tasks/adversarial-review-verifier-smoke.js",
+      "node packages/main/dist/tasks/adversarial-review-critic-smoke.js",
+      "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+      "node packages/main/dist/tasks/material-hash-large-tree-smoke.js",
+      "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
+      "node packages/main/dist/tasks/init-preflight-smoke.js",
+      "node packages/main/dist/tasks/quorum-submit-smoke.js"
+    ]
+  },
+  "doneRequiredCommands": [
+    { "label": "packages/main build", "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "providesBuildProof": "packages-main-build" },
+    { "label": "root full test suite", "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
+  ],
+  "baselineRiskAcceptedLocalPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".claude/skills/"
+  ],
+  "storyPrefix": "B",
+  "flows": {
+    "defaults": {},
+    "patterns": []
+  }
+}

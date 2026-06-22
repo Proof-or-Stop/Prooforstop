@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: browser screenshot smoke generates png",
+      "run_type": "cli",
+      "file": "tasks/browser-executor",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/scripts/verify-browser-screenshot-smoke.mjs', 'smoke-json'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return JSON.parse(raw);",
+      "expect": {
+        "verified": true,
+        "screenshotCount": 1
+      },
+      "intentRef": "B-0fd4:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "6ec7c13a-7d8d-40de-bc83-c74e077b3401",
+      "nextCaseId": "b9eaaf80-79a8-4666-9cda-1114a919b2a9"
+    },
+    {
+      "name": "CHK-001 edge: smoke explicitly validates canvas path",
+      "run_type": "cli",
+      "file": "tasks/browser-client",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/scripts/verify-browser-screenshot-smoke.mjs', 'smoke-json'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return JSON.parse(raw);",
+      "expect": {
+        "verified": true,
+        "strategy": "canvas"
+      },
+      "intentRef": "B-0fd4:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "b9eaaf80-79a8-4666-9cda-1114a919b2a9",
+      "prevCaseId": "6ec7c13a-7d8d-40de-bc83-c74e077b3401",
+      "nextCaseId": "c00869e2-fa3d-4937-88c0-8bca7281a56b"
+    },
+    {
+      "name": "CHK-001 adversarial: broken browser environment is classified clearly",
+      "run_type": "cli",
+      "file": "tasks/browser-executor",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/scripts/verify-browser-screenshot-smoke.mjs', 'broken-env-json'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return JSON.parse(raw);",
+      "expect": {
+        "verified": true,
+        "category": "browser-environment"
+      },
+      "intentRef": "B-0fd4:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "c00869e2-fa3d-4937-88c0-8bca7281a56b",
+      "prevCaseId": "b9eaaf80-79a8-4666-9cda-1114a919b2a9",
+      "nextCaseId": "54d960f7-b052-48c4-8268-0aa1635a0123"
+    },
+    {
+      "name": "CHK-002 happy: npm smoke entry is repeatable",
+      "run_type": "cli",
+      "file": "tasks/browser-executor",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('npm', ['run', 'test:browser-screenshot-smoke'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { verified: out.includes('browser screenshot smoke verified') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-0fd4:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "54d960f7-b052-48c4-8268-0aa1635a0123",
+      "prevCaseId": "c00869e2-fa3d-4937-88c0-8bca7281a56b",
+      "nextCaseId": "fb010ef9-9e4d-43a7-84a7-76913e6f16d3"
+    },
+    {
+      "name": "CHK-002 edge: direct script entry works without fixture context",
+      "run_type": "cli",
+      "file": "tasks/browser-executor",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-browser-screenshot-smoke.mjs', 'smoke'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { verified: out.includes('browser screenshot smoke verified') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-0fd4:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "fb010ef9-9e4d-43a7-84a7-76913e6f16d3",
+      "prevCaseId": "54d960f7-b052-48c4-8268-0aa1635a0123",
+      "nextCaseId": "6c88b74a-b284-4a46-99d4-40a940b1baea"
+    },
+    {
+      "name": "CHK-002 adversarial: regression would surface on broken env probe",
+      "run_type": "cli",
+      "file": "tasks/browser-executor",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/scripts/verify-browser-screenshot-smoke.mjs', 'broken-env-json'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const parsed = JSON.parse(raw); return { verified: parsed.verified === true, category: parsed.category };",
+      "expect": {
+        "verified": true,
+        "category": "browser-environment"
+      },
+      "intentRef": "B-0fd4:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-0fd4",
+      "_id": "6c88b74a-b284-4a46-99d4-40a940b1baea",
+      "prevCaseId": "fb010ef9-9e4d-43a7-84a7-76913e6f16d3"
+    }
+  ]
+}

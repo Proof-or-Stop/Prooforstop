@@ -1,0 +1,203 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: DEV invariant reports missing intent and review codes",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getPhaseInvariantStatus } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-dev-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'PLAN', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [{ id: 'CHK-001', title: 'x', status: 'pending', startTime: null, endTime: null }] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getPhaseInvariantStatus('B-test', store, 'DEV');\n  return { ok: status.ok === false, hasIntent: status.issues.some((i) => i.code === 'missing_test_intent_happy'), hasReview: status.issues.some((i) => i.code === 'missing_story_review') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "ok": true,
+        "hasIntent": true,
+        "hasReview": true
+      },
+      "intentRef": "B-119e:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "9626b2e0-9f35-4952-af0b-1bb9181748ef",
+      "nextCaseId": "002a9685-9e02-42f6-8937-8beba32b8af5"
+    },
+    {
+      "name": "CHK-001 edge: satisfied DONE invariant returns empty issue list",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getPhaseInvariantStatus } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-done-ok-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'test-evidence.json'), JSON.stringify({ command: 'test_story', output: JSON.stringify({ allPassed: true }), result: 'PASS', timestamp: new Date().toISOString() }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs: [] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getPhaseInvariantStatus('B-test', store, 'DONE');\n  return { ok: status.ok === true, noIssues: status.issues.length === 0 };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "ok": true,
+        "noIssues": true
+      },
+      "intentRef": "B-119e:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "002a9685-9e02-42f6-8937-8beba32b8af5",
+      "prevCaseId": "9626b2e0-9f35-4952-af0b-1bb9181748ef",
+      "nextCaseId": "463c0afd-1a5e-44f7-bf95-28babb53e428"
+    },
+    {
+      "name": "CHK-001 adversarial: TEST invariant flags missing reviewer result with code",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getPhaseInvariantStatus } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-test-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'TEST_CASE_REVIEW', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [{ id: 'CHK-001', title: 'x', status: 'done', startTime: null, endTime: null, testIntent: { happy: [{ desc: 'x', type: 'cli_blackbox' }], edge: [], adversarial: [] } }] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getPhaseInvariantStatus('B-test', store, 'TEST');\n  return { hasCode: status.issues.some((i) => i.code === 'testintent_not_passed') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasCode": true
+      },
+      "intentRef": "B-119e:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "463c0afd-1a5e-44f7-bf95-28babb53e428",
+      "prevCaseId": "002a9685-9e02-42f6-8937-8beba32b8af5",
+      "nextCaseId": "6f70392e-37fe-4f58-a4f9-d838e7c40e35"
+    },
+    {
+      "name": "CHK-002 happy: DONE invariant emits open_bugs code",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getPhaseInvariantStatus } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-bugs-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'test-evidence.json'), JSON.stringify({ command: 'test_story', output: JSON.stringify({ allPassed: true }), result: 'PASS', timestamp: new Date().toISOString() }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs: [{ id: 'BUG-1', title: 'x', status: 'open', foundAt: new Date().toISOString(), fixedAt: null }] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getPhaseInvariantStatus('B-test', store, 'DONE');\n  return { hasBugCode: status.issues.some((i) => i.code === 'open_bugs') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasBugCode": true
+      },
+      "intentRef": "B-119e:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "6f70392e-37fe-4f58-a4f9-d838e7c40e35",
+      "prevCaseId": "463c0afd-1a5e-44f7-bf95-28babb53e428",
+      "nextCaseId": "3288dfcb-95a1-41c2-9388-8c2688aeccc6"
+    },
+    {
+      "name": "CHK-002 edge: getGuardFailureReason renders codes in text output",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getGuardFailureReason } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-reason-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }, null, 2));\n  const store = new StoryStore(dir);\n  const text = getGuardFailureReason('B-test', store, 'DONE') || '';\n  return { hasCode: text.includes('[missing_test_evidence]'), hasPrefix: text.includes('Cannot enter DONE') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasCode": true,
+        "hasPrefix": true
+      },
+      "intentRef": "B-119e:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "3288dfcb-95a1-41c2-9388-8c2688aeccc6",
+      "prevCaseId": "6f70392e-37fe-4f58-a4f9-d838e7c40e35",
+      "nextCaseId": "d94f7a54-93cd-4005-b73b-12c9866c3c67"
+    },
+    {
+      "name": "CHK-002 adversarial: story_advance failure includes multiple structured codes",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst root = $root;\nconst cli = root + '/packages/main/dist/cli.js';\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-advance-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  writeFileSync(join(dir, '.gitignore'), 'node_modules\\n');\n  execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name: 'phase-advance-codes', title: 'Phase advance codes', description: 'tmp', type: 'feature', priority: 'high', checklist: [{ title: 'x', context: 'x' }] })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  execFileSync('node', [cli, '--root', dir, 'story_advance', JSON.stringify({ storyId, phase: 'INIT_CHECK' })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const wt = join(dir, '.worktrees', storyId);\n  execFileSync('node', [cli, '--root', dir, 'story_advance', JSON.stringify({ storyId, phase: 'PLAN' })], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  try {\n    execFileSync('node', [cli, '--root', dir, 'story_advance', JSON.stringify({ storyId, phase: 'DEV' })], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n    return { hasPrefix: false, hasBoth: false };\n  } catch (error) {\n    const text = String(error.stdout || '') + String(error.stderr || '');\n    return { hasPrefix: text.includes('Reason code:'), hasBoth: text.includes('[missing_test_intent_happy]') && text.includes('[missing_story_review]') };\n  }\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasPrefix": true,
+        "hasBoth": true
+      },
+      "intentRef": "B-119e:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "d94f7a54-93cd-4005-b73b-12c9866c3c67",
+      "prevCaseId": "3288dfcb-95a1-41c2-9388-8c2688aeccc6",
+      "nextCaseId": "bff45449-45e6-42e2-94f4-42d89c058b4a"
+    },
+    {
+      "name": "CHK-003 happy: session_brief shows Missing invariants section",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst root = $root;\nconst cli = root + '/packages/main/dist/cli.js';\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-brief-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  writeFileSync(join(dir, '.gitignore'), 'node_modules\\n');\n  execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name: 'phase-brief', title: 'Phase brief', description: 'tmp', type: 'feature', priority: 'high', phase: 'DEV', checklist: [{ title: 'x', context: 'x', testIntent: { happy: [{ desc: 'covered', type: 'cli_blackbox' }], edge: [], adversarial: [] } }] })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  const wt = join(dir, '.worktrees', storyId);\n  mkdirSync(wt, { recursive: true });\n  execFileSync('git', ['checkout', '-b', 'story/' + storyId], { cwd: wt, stdio: ['pipe','pipe','pipe'] });\n  const brief = execFileSync('node', [cli, '--root', dir, 'session_brief'], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  return { hasSection: brief.includes('## Missing invariants'), hasPrimary: brief.includes('primary reason: story_review_missing') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasSection": true,
+        "hasPrimary": true
+      },
+      "intentRef": "B-119e:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "bff45449-45e6-42e2-94f4-42d89c058b4a",
+      "prevCaseId": "d94f7a54-93cd-4005-b73b-12c9866c3c67",
+      "nextCaseId": "7880e625-04f4-4b57-aa21-7f4e3b021e78"
+    },
+    {
+      "name": "CHK-003 edge: session_brief omits Missing invariants when current phase is satisfied",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst root = $root;\nconst cli = root + '/packages/main/dist/cli.js';\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-brief-clean-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  writeFileSync(join(dir, '.gitignore'), 'node_modules\\n');\n  execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name: 'phase-brief-clean', title: 'Phase brief clean', description: 'tmp', type: 'feature', priority: 'high', checklist: [{ title: 'x', context: 'x', testIntent: { happy: [{ desc: 'ok', type: 'cli_blackbox' }], edge: [], adversarial: [] } }] })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  execFileSync('node', [cli, '--root', dir, 'story_advance', JSON.stringify({ storyId, phase: 'INIT_CHECK' })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const wt = join(dir, '.worktrees', storyId);\n  execFileSync('node', [cli, '--root', dir, 'story_advance', JSON.stringify({ storyId, phase: 'PLAN' })], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const brief = execFileSync('node', [cli, '--root', dir, 'session_brief'], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  return { hasNoSection: !brief.includes('## Missing invariants') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasNoSection": true
+      },
+      "intentRef": "B-119e:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "7880e625-04f4-4b57-aa21-7f4e3b021e78",
+      "prevCaseId": "bff45449-45e6-42e2-94f4-42d89c058b4a",
+      "nextCaseId": "b860de16-13f9-4abd-b403-eba87694e764"
+    },
+    {
+      "name": "CHK-003 adversarial: session_brief shows multiple codes not just prose",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst root = $root;\nconst cli = root + '/packages/main/dist/cli.js';\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-brief-codes-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });\n  mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });\n  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2));\n  execFileSync('git', ['init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  writeFileSync(join(dir, '.gitignore'), 'node_modules\\n');\n  execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe','pipe','pipe'] });\n  const created = execFileSync('node', [cli, '--root', dir, 'story_create', JSON.stringify({ name: 'phase-brief-codes', title: 'Phase brief codes', description: 'tmp', type: 'feature', priority: 'high', phase: 'DEV', checklist: [{ title: 'x', context: 'x' }] })], { cwd: root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  const storyId = created.match(/B-[a-f0-9]+/)?.[0];\n  const wt = join(dir, '.worktrees', storyId);\n  mkdirSync(wt, { recursive: true });\n  execFileSync('git', ['checkout', '-b', 'story/' + storyId], { cwd: wt, stdio: ['pipe','pipe','pipe'] });\n  const brief = execFileSync('node', [cli, '--root', dir, 'session_brief'], { cwd: wt, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });\n  return { hasPrimary: brief.includes('primary reason: missing_test_intent'), hasCode: brief.includes('[missing_test_intent_happy]') && brief.includes('[missing_story_review]') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasPrimary": true,
+        "hasCode": true
+      },
+      "intentRef": "B-119e:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "b860de16-13f9-4abd-b403-eba87694e764",
+      "prevCaseId": "7880e625-04f4-4b57-aa21-7f4e3b021e78",
+      "nextCaseId": "82d365c5-6a5f-45de-bcfd-b60664ca4780"
+    },
+    {
+      "name": "CHK-004 happy: fixture set covers both helper and session consumers",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/tests/fixtures/phase-invariants.json', 'utf8');\nreturn { hasMachineCase: text.includes('getPhaseInvariantStatus'), hasSessionCase: text.includes('session_brief shows Missing invariants section') };",
+      "expect": {
+        "hasMachineCase": true,
+        "hasSessionCase": true
+      },
+      "intentRef": "B-119e:CHK-004:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "82d365c5-6a5f-45de-bcfd-b60664ca4780",
+      "prevCaseId": "b860de16-13f9-4abd-b403-eba87694e764",
+      "nextCaseId": "e118f7cf-6eb1-44fb-b5b9-d9cc10fd7bdf"
+    },
+    {
+      "name": "CHK-004 edge: fixture covers clean path omission as regression",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs');\nconst text = readFileSync($root + '/packages/main/tests/fixtures/phase-invariants.json', 'utf8');\nreturn { hasCleanPath: text.includes('session_brief omits Missing invariants when current phase is satisfied') };",
+      "expect": {
+        "hasCleanPath": true
+      },
+      "intentRef": "B-119e:CHK-004:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "e118f7cf-6eb1-44fb-b5b9-d9cc10fd7bdf",
+      "prevCaseId": "82d365c5-6a5f-45de-bcfd-b60664ca4780",
+      "nextCaseId": "3c355048-5acb-4e9c-bf62-886e75b98b29"
+    },
+    {
+      "name": "CHK-004 adversarial: DONE invariant reports both missing evidence and open bugs",
+      "run_type": "cli",
+      "file": "core/machine",
+      "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getPhaseInvariantStatus } = await import($root + '/packages/main/dist/core/machine.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-phase-done-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }, null, 2));\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs: [{ id: 'BUG-1', title: 'x', status: 'open', foundAt: new Date().toISOString(), fixedAt: null }] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getPhaseInvariantStatus('B-test', store, 'DONE');\n  return { hasEvidenceCode: status.issues.some((i) => i.code === 'missing_test_evidence'), hasBugCode: status.issues.some((i) => i.code === 'open_bugs') };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "hasEvidenceCode": true,
+        "hasBugCode": true
+      },
+      "intentRef": "B-119e:CHK-004:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-119e",
+      "_id": "3c355048-5acb-4e9c-bf62-886e75b98b29",
+      "prevCaseId": "e118f7cf-6eb1-44fb-b5b9-d9cc10fd7bdf"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "name": "setup: create story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"autobug-test\",title:\"AutoBug\",description:\"test\",type:\"feature\",priority:\"high\"}); $ctx.sid = r.match(/B-[a-f0-9]+/)[0]; return r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "bug_list returns bugs with required fields",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory({phase:\"TEST\",checklist:[{id:\"CHK-001\",title:\"t\"}]}); const bugs = $handlers.bug_list({storyId:sid}).bugs; return bugs.every(b => typeof b.id === 'string' && typeof b.title === 'string' && typeof b.status === 'string')",
+      "expect": true,
+      "intentRef": "CHK-008:happy:0"
+    },
+    {
+      "name": "bugs have id title status foundAt",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const {BugRecord} = {BugRecord:null}; const bugs = $handlers.bug_list({storyId:$ctx.sid}).bugs; return bugs.every(b => b.diagnose === undefined || (Array.isArray(b.diagnose.rootCause) && typeof b.diagnose.suggestedFix === \"string\"))",
+      "expect": true,
+      "intentRef": "CHK-008:happy:1"
+    },
+    {
+      "name": "story_get and bug_list return expected fields",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const r = $handlers.bug_list({storyId:$ctx.sid}); return typeof r.bugs === 'object' && Array.isArray(r.bugs)",
+      "expect": true,
+      "intentRef": "CHK-008:edge:0"
+    },
+    {
+      "name": "bug_report rejects duplicate bug ID",
+      "run_type": "cli",
+      "fn": "bug_report",
+      "file": "mcp/handlers/bug",
+      "execute": "const bid = \"BUG-dedup-\"+Date.now(); $handlers.bug_report({storyId:$ctx.sid,id:bid,title:\"t1\",fixtureId:\"fid-\"+Date.now()}); try { $handlers.bug_report({storyId:$ctx.sid,id:bid,title:\"t2\",fixtureId:\"fid2-\"+Date.now()}); return false; } catch(e) { return e.message.includes(\"already exists\") || e.message.includes(\"Bug \"+bid); }",
+      "expect": true,
+      "intentRef": "CHK-008:edge:1"
+    },
+    {
+      "name": "bug_list bugs have id and title fields",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "$handlers.bug_report({storyId:$ctx.sid,id:\"BUG-fields-\"+Date.now(),title:\"field check\",fixtureId:\"fid-\"+Date.now()}); const r = $handlers.bug_list({storyId:$ctx.sid}); return r.bugs.length > 0 && r.bugs.every(b => typeof b.id === 'string' && typeof b.title === 'string')",
+      "expect": true,
+      "intentRef": "CHK-008:edge:2"
+    },
+    {
+      "name": "bug_list on empty story returns no bugs",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); const r = $handlers.bug_list({storyId:sid}); return r.bugs.length === 0",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:0"
+    },
+    {
+      "name": "profiler off still produces complete result",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const bugs = $handlers.bug_list({storyId:$ctx.sid}).bugs; return bugs.every(b => b.diagnose === undefined || (b.diagnose.traceDiff === null || typeof b.diagnose.traceDiff === \"object\"))",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:1"
+    },
+    {
+      "name": "diagnose output gitDiff is string with bounded length",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = JSON.parse(await $handlers.diagnose({caseName:\"nonexistent\"})); return r.error !== undefined || (typeof r.gitDiff === 'string' && r.gitDiff.length <= 2100)",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:2"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "storyId": "B-e5f1",
+  "name": "worktree-relpath",
+  "title": "index.json worktree.path 改为相对路径",
+  "description": "story index.json 的 worktree.path 当前存的是绝对路径，不同机器/环境下不可移植，应改为相对于 git repo root 的相对路径",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-04-03T16:07:12.055Z",
+  "startedAt": "2026-04-03T16:07:12.055Z",
+  "endedAt": "2026-04-03T18:22:06.637Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-03T16:07:12.055Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-03T16:07:12.109Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-03T18:17:12.572Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-03T18:22:06.637Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".claude/worktrees/B-e5f1",
+    "branch": "story/B-e5f1",
+    "createdAt": "2026-04-03T16:07:13.566Z"
+  }
+}

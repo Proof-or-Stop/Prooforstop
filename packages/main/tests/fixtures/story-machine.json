@@ -1,0 +1,740 @@
+{
+  "cases": [
+    {
+      "name": "setup: 创建带 testIntent 的 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"gate-test\",\"title\":\"Gate Test\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[\"ok\"],\"edge\":[\"ok\"],\"adversarial\":[\"ok\"]}}]}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "PLAN→DEV 无 review → 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "throws": "未通过 story_review"
+    },
+    {
+      "name": "setup: story_review 通过",
+      "run_type": "cli",
+      "fn": "story_review",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_review({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "expect": {
+        "pattern": "审查"
+      }
+    },
+    {
+      "name": "PLAN→DEV 有 review 通过 → 成功",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "expect": {
+        "pattern": "advanced to DEV"
+      }
+    },
+    {
+      "name": "DEV→PLAN 回退成功",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"PLAN\"})",
+      "expect": {
+        "pattern": "advanced to PLAN"
+      }
+    },
+    {
+      "name": "setup: 回退后 review",
+      "run_type": "cli",
+      "fn": "story_review",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_review({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "expect": {
+        "pattern": "审查"
+      }
+    },
+    {
+      "name": "回退后再进 DEV → 成功",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "expect": {
+        "pattern": "advanced to DEV"
+      }
+    },
+    {
+      "name": "setup: 创建无 testIntent 的 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"no-intent\",\"title\":\"No Intent\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\"}]}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "缺 testIntent → PLAN→DEV 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "throws": "缺少完整 testIntent"
+    },
+    {
+      "name": "setup: 创建新 story 测新阶段",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"phase-test\",\"title\":\"Phase Test\",\"description\":\"test new phases\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"browser_blackbox\"}]}}],\"phase\":\"DEV\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "DEV→TEST_CASE checklist未完成 → 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE\"})",
+      "throws": "not done"
+    },
+    {
+      "name": "setup: checklist done",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"done\"})",
+      "expect": {
+        "pattern": "done"
+      }
+    },
+    {
+      "name": "DEV→TEST_CASE_REVIEW 跳阶段 → 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE_REVIEW\"})",
+      "throws": "Cannot transition"
+    },
+    {
+      "name": "setup: 创建 TEST_CASE_REVIEW story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"review-gate\",\"title\":\"Review Gate\",\"description\":\"test review gate\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"happy test\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"edge test\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"adv test\",\"type\":\"browser_blackbox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "TEST_CASE_REVIEW→TEST 无 results → 自动回退",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:happy:0"
+    },
+    {
+      "name": "setup: 创建 blackbox-only 失败 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"bb-fail\",\"title\":\"BB Fail\",\"description\":\"test blackbox rollback\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"happy\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"edge\",\"type\":\"browser_blackbox\"}],\"adversarial\":[{\"desc\":\"adv\",\"type\":\"cli_blackbox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "黑盒失败回退 TEST_CASE",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:happy:1"
+    },
+    {
+      "name": "旧 story 兼容流转",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"old-story\",\"title\":\"Old\",\"description\":\"old format\",\"type\":\"feature\",\"priority\":\"high\",\"phase\":\"DEV\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      },
+      "intentRef": "CHK-001:edge:4"
+    },
+    {
+      "name": "篡改 phase 后 advance 报错",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"INVALID_PHASE\"})",
+      "throws": "Invalid target phase",
+      "intentRef": "CHK-001:adversarial:3"
+    },
+    {
+      "name": "StoryPhase 包含新枚举值",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"enum-check\",\"title\":\"Enum\",\"description\":\"check\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\"}],\"phase\":\"TEST_CASE\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      },
+      "intentRef": "CHK-001:happy:4"
+    },
+    {
+      "name": "PHASE_TO_EVENT→TEST_CASE_REVIEW",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE_REVIEW\"})",
+      "expect": {
+        "pattern": "advanced to TEST_CASE_REVIEW"
+      },
+      "intentRef": "CHK-001:happy:5"
+    },
+    {
+      "name": "TEST_CASE_REVIEW 手动回退 TEST_CASE 被拒",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE\"})",
+      "intentRef": "CHK-001:edge:3",
+      "expect": {
+        "pattern": "TEST_CASE"
+      }
+    },
+    {
+      "name": "全链路: 创建 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"full-chain\",\"title\":\"Full Chain\",\"description\":\"full flow test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      },
+      "intentRef": "CHK-001:happy:3"
+    },
+    {
+      "name": "门禁: 缺 testIntent → 拦截",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"no-ti-gate\",\"title\":\"No TI Gate\",\"description\":\"no testIntent\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\"}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "缺 testIntent 字段 → 门禁拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:edge:3"
+    },
+    {
+      "name": "门禁: 部分栏无 results",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"partial-results\",\"title\":\"Partial\",\"description\":\"partial results\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"edge\":[{\"desc\":\"no result\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"no result\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "edge/adversarial 无 results → 拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:edge:4"
+    },
+    {
+      "name": "门禁: 旧格式 testIntent",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"old-format\",\"title\":\"Old Format\",\"description\":\"old string format\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[\"old string\"],\"edge\":[\"old string\"],\"adversarial\":[\"old string\"]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "旧格式纯字符串 → 拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:edge:5"
+    },
+    {
+      "name": "门禁: pass 为字符串 true",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"str-pass\",\"title\":\"String Pass\",\"description\":\"string true\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":\"true\",\"note\":\"str\"}]}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":\"true\",\"note\":\"str\"}]}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":\"true\",\"note\":\"str\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "字符串 true 非布尔 → 拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:adversarial:2"
+    },
+    {
+      "name": "门禁: 单条 fail 精确报告",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"one-fail\",\"title\":\"One Fail\",\"description\":\"single fail\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"pass1\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]},{\"desc\":\"fail1\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"edge\":[{\"desc\":\"pass2\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"pass3\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "单条 fail → 精确报告并拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "fail1"
+      },
+      "intentRef": "CHK-002:adversarial:3"
+    },
+    {
+      "name": "browser_blackbox 失败 → 回退 TEST_CASE",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"bb-browser\",\"title\":\"BB Browser\",\"description\":\"browser blackbox fail\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"browser_blackbox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"browser_blackbox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"browser_blackbox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "browser_blackbox → TEST_CASE 回退",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:happy:2"
+    },
+    {
+      "name": "回退详细信息包含失败描述",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"detail-check\",\"title\":\"Detail\",\"description\":\"detail check\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"具体失败描述XXX\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "回退返回含失败描述和目标阶段",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "具体失败描述XXX"
+      },
+      "intentRef": "CHK-003:happy:3"
+    },
+    {
+      "name": "whitebox全pass+cli_blackbox fail→仅回退TEST_CASE",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"mixed-type\",\"title\":\"Mixed\",\"description\":\"mixed type fail\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"wb ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"edge\":[{\"desc\":\"cb fail\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"wb ok2\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "混合类型仅cli_blackbox fail → TEST_CASE",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:edge:2"
+    },
+    {
+      "name": "回退事件记录",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "return JSON.stringify($handlers.story_get({\"storyId\":\"\" + $ctx.storyId + \"\",\"detail\":true}))",
+      "expect": {
+        "pattern": "gate-rollback"
+      },
+      "intentRef": "CHK-003:edge:3"
+    },
+    {
+      "name": "type 缺失兜底",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"no-type\",\"title\":\"No Type\",\"description\":\"missing type\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"no type entry\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "缺 type → 兜底为 whitebox 回退 DEV",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:adversarial:1"
+    },
+    {
+      "name": "���退不重置 checklist status",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"no-reset\",\"title\":\"No Reset\",\"description\":\"status preserved\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "setup: mark done before rollback",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"done\"})",
+      "expect": {
+        "pattern": "done"
+      }
+    },
+    {
+      "name": "回退后 checklist 仍 done",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      }
+    },
+    {
+      "name": "验证 status 未被重置",
+      "run_type": "cli",
+      "fn": "checklist_get",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_get({\"storyId\":\"\" + $ctx.storyId + \"\"})",
+      "expect": {
+        "pattern": "done"
+      },
+      "intentRef": "CHK-003:adversarial:2"
+    },
+    {
+      "name": "重复回退: 回到 TEST_CASE_REVIEW",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"repeat-rb\",\"title\":\"Repeat\",\"description\":\"repeat rollback\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"cli_blackbox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\",\"role\":\"reviewer\"}]}],\"edge\":[{\"desc\":\"ok\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"cli_blackbox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\",\"role\":\"reviewer\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "第1次回退",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      }
+    },
+    {
+      "name": "回到 TEST_CASE_REVIEW",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "await $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"done\"}); await $handlers.testintent_record({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":true,\"note\":\"fixed\",\"agent\":\"test-case-reviewer\"}); await $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE\"}); return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE_REVIEW\"})",
+      "expect": {
+        "pattern": "advanced to TEST_CASE_REVIEW"
+      }
+    },
+    {
+      "name": "第2次门禁检查",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "advanced to TEST"
+      },
+      "intentRef": "CHK-003:edge:4"
+    },
+    {
+      "name": "events 不无限膨胀",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "return JSON.stringify($handlers.story_get({\"storyId\":\"\" + $ctx.storyId + \"\",\"detail\":true}))",
+      "expect": {
+        "pattern": "events"
+      },
+      "intentRef": "CHK-003:adversarial:3"
+    },
+    {
+      "name": "setup: DEV story for skip test",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"dev-skip\",\"title\":\"Dev Skip\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"DEV\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "DEV→TEST 直接跳 → 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "throws": "Cannot",
+      "intentRef": "CHK-001:edge:0"
+    },
+    {
+      "name": "setup: TEST_CASE story for rollback",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"tc-rb\",\"title\":\"TC RB\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "TEST_CASE→DEV 回退允许",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"DEV\"})",
+      "expect": {
+        "pattern": "advanced to DEV"
+      },
+      "intentRef": "CHK-001:edge:2"
+    },
+    {
+      "name": "拼写错误 TEST_CASEE → 报错",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASEE\"})",
+      "throws": "Invalid target phase",
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "setup: TEST_CASE story for idempotent",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"tc-idem\",\"title\":\"TC Idem\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\"}]}}],\"phase\":\"TEST_CASE\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "TEST_CASE→TEST_CASE 幂等 → 拒绝",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST_CASE\"})",
+      "throws": "Cannot",
+      "intentRef": "CHK-001:adversarial:1"
+    },
+    {
+      "name": "setup: all-pass gate story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"gate-ok\",\"title\":\"Gate OK\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"h\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\",\"role\":\"reviewer\"}]}],\"edge\":[{\"desc\":\"e\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\",\"role\":\"reviewer\"}]}],\"adversarial\":[{\"desc\":\"a\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\",\"role\":\"reviewer\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "门禁通过: all results pass=true → TEST",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "advanced to TEST"
+      },
+      "intentRef": "CHK-001:happy:2"
+    },
+    {
+      "name": "setup: history results story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"hist-res\",\"title\":\"Hist\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"h\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"fail\"},{\"time\":\"2026-04-04T01:00:00Z\",\"pass\":true,\"note\":\"fixed\"}]}],\"edge\":[{\"desc\":\"e\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"a\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "先 fail 后 pass → 门禁通过",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "setup: empty results story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"empty-res\",\"title\":\"Empty Res\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"h\",\"type\":\"whitebox\",\"results\":[]}],\"edge\":[{\"desc\":\"e\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"a\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "results 空数组 → 门禁拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:edge:1"
+    },
+    {
+      "name": "setup: last-fail story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"last-fail\",\"title\":\"Last Fail\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"h\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"},{\"time\":\"2026-04-04T01:00:00Z\",\"pass\":false,\"note\":\"regressed\"}]}],\"edge\":[{\"desc\":\"e\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"a\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "最后 fail 倒数第二 pass → 拦截",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "setup: wb+cb fail story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"wb-cb-fail\",\"title\":\"WB CB Fail\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"wb fail\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"edge\":[{\"desc\":\"cb fail\",\"type\":\"cli_blackbox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "whitebox+cli_blackbox 同时失败 → 回退 DEV",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:edge:0"
+    },
+    {
+      "name": "setup: all-type fail story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"all-fail\",\"title\":\"All Fail\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"wb\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"edge\":[{\"desc\":\"cb\",\"type\":\"cli_blackbox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"adversarial\":[{\"desc\":\"bb\",\"type\":\"browser_blackbox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "三种 type 全失败 → 回退 DEV",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:edge:1"
+    },
+    {
+      "name": "setup: unknown type story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"unk-type\",\"title\":\"Unk Type\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\",\"testIntent\":{\"happy\":[{\"desc\":\"ok\",\"type\":\"unknown_type\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":false,\"note\":\"bad\"}]}],\"edge\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}],\"adversarial\":[{\"desc\":\"ok\",\"type\":\"whitebox\",\"results\":[{\"time\":\"2026-04-04T00:00:00Z\",\"pass\":true,\"note\":\"ok\"}]}]}}],\"phase\":\"TEST_CASE_REVIEW\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "type=unknown → 不崩溃兜底回退",
+      "run_type": "cli",
+      "fn": "story_advance",
+      "file": "mcp/handlers/story",
+      "execute": "return $handlers.story_advance({\"storyId\":\"\" + $ctx.storyId + \"\",\"phase\":\"TEST\"})",
+      "expect": {
+        "pattern": "rollback"
+      },
+      "intentRef": "CHK-003:adversarial:0"
+    }
+  ]
+}

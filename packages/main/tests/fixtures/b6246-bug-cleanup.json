@@ -1,0 +1,143 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: reconcile script drains the historical B-6246 open bugs",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:b6246-bug-cleanup'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "B-6246 open bugs reconciled"
+      },
+      "intentRef": "B-46e8:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "e98da423-1c00-47cb-bc0a-d0bd0986d49a",
+      "nextCaseId": "48697a3d-0145-4936-9382-a80f3a3e8463"
+    },
+    {
+      "name": "CHK-001 edge: current B-6246 bug list no longer contains the old visible open bug ids",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { noH0: !openIds.has('BUG-fid-test-h0'), noH1: !openIds.has('BUG-fid-test-h1'), noOld: !openIds.has('BUG-old-format'), noDang: !openIds.has('BUG-dangling-v2'), noReject: !openIds.has('BUG-reject-v2') };",
+      "expect": {
+        "noH0": true,
+        "noH1": true,
+        "noOld": true,
+        "noDang": true,
+        "noReject": true
+      },
+      "intentRef": "B-46e8:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "48697a3d-0145-4936-9382-a80f3a3e8463",
+      "prevCaseId": "e98da423-1c00-47cb-bc0a-d0bd0986d49a",
+      "nextCaseId": "fc21af6c-bddf-46a5-bbb4-10a17f58f3d3"
+    },
+    {
+      "name": "CHK-001 adversarial: if cleanup stopped working the same five ids would reappear as open",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { catchesRegression: !openIds.has('BUG-fid-test-h0') && !openIds.has('BUG-old-format') };",
+      "expect": {
+        "catchesRegression": true
+      },
+      "intentRef": "B-46e8:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "fc21af6c-bddf-46a5-bbb4-10a17f58f3d3",
+      "prevCaseId": "48697a3d-0145-4936-9382-a80f3a3e8463",
+      "nextCaseId": "60a41b35-f8fc-448f-9262-30c4dd4dbc7b"
+    },
+    {
+      "name": "CHK-002 happy: fixture-bug-binding no longer hardcodes B-6246 for bug pollution cases",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/tests/fixtures/fixture-bug-binding.json', 'utf8'); return { noHardcodedBugStory: !text.includes('storyId:\"B-6246\"'), usesTempStories: text.includes('$testStory') };",
+      "expect": {
+        "noHardcodedBugStory": true,
+        "usesTempStories": true
+      },
+      "intentRef": "B-46e8:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "60a41b35-f8fc-448f-9262-30c4dd4dbc7b",
+      "prevCaseId": "fc21af6c-bddf-46a5-bbb4-10a17f58f3d3",
+      "nextCaseId": "1da972ab-95fd-499d-9aed-f38473c63280"
+    },
+    {
+      "name": "CHK-002 edge: legacy bugs without fixtureId can now be cleaned through bug_update",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const dir = mkdtempSync(join(tmpdir(), 'koala-legacy-bug-clean-')); try { mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true }); writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId:'B-test', name:'x', title:'x', description:'x', type:'bug', phase:'DONE', priority:'medium', createdAt:new Date().toISOString(), startedAt:new Date().toISOString(), endedAt:new Date().toISOString() }, null, 2)); writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs:[{ id:'BUG-old', title:'old style bug', status:'open', foundAt:new Date().toISOString(), fixedAt:null }] }, null, 2)); const out = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', dir, 'bug_update', JSON.stringify({ storyId:'B-test', id:'BUG-old', status:'fixed' })], { cwd:$root, encoding:'utf8' }); return { cleaned: out.includes('legacy bug without fixtureId') }; } finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "cleaned": true
+      },
+      "intentRef": "B-46e8:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "1da972ab-95fd-499d-9aed-f38473c63280",
+      "prevCaseId": "60a41b35-f8fc-448f-9262-30c4dd4dbc7b",
+      "nextCaseId": "af0062bf-aa8a-4cb5-afe0-aec4f5aeb9fd"
+    },
+    {
+      "name": "CHK-002 adversarial: stale fixtureId cleanup still uses bug_update instead of hand-editing bug.json",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/handlers/bug.ts', 'utf8'); return { hasStaleCleanup: text.includes('staleFixtureCleanup'), hasLegacyCleanup: text.includes('legacyFixtureCleanup') };",
+      "expect": {
+        "hasStaleCleanup": true,
+        "hasLegacyCleanup": true
+      },
+      "intentRef": "B-46e8:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "af0062bf-aa8a-4cb5-afe0-aec4f5aeb9fd",
+      "prevCaseId": "1da972ab-95fd-499d-9aed-f38473c63280",
+      "nextCaseId": "98d1e71b-523b-4068-beba-1160a5a02566"
+    },
+    {
+      "name": "CHK-003 happy: cleanup script is the repeatable entry for closing B-6246 bug debt",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:b6246-bug-cleanup'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "B-6246 open bugs reconciled"
+      },
+      "intentRef": "B-46e8:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "98d1e71b-523b-4068-beba-1160a5a02566",
+      "prevCaseId": "af0062bf-aa8a-4cb5-afe0-aec4f5aeb9fd",
+      "nextCaseId": "a8a020fe-5242-4adc-adf2-4c49b8258f21"
+    },
+    {
+      "name": "CHK-003 edge: cleanup verification does not touch already fixed B-6246 bug records",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', $root, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: $root, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); return { keepsFixed: data.bugs.some((b) => b.id === 'BUG-fix-v2' && b.status === 'fixed') && data.bugs.some((b) => b.id === 'BUG-fix8-1775435194470' && b.status === 'fixed') };",
+      "expect": {
+        "keepsFixed": true
+      },
+      "intentRef": "B-46e8:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "a8a020fe-5242-4adc-adf2-4c49b8258f21",
+      "prevCaseId": "98d1e71b-523b-4068-beba-1160a5a02566",
+      "nextCaseId": "c7f68236-1666-42b4-8e4e-36d5972396a2"
+    },
+    {
+      "name": "CHK-003 adversarial: if open bug debt comes back the cleanup verification fails",
+      "run_type": "cli",
+      "file": "handlers/bug",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); return { noOpenBugs: data.bugs.every((b) => b.status === 'fixed') };",
+      "expect": {
+        "noOpenBugs": true
+      },
+      "intentRef": "B-46e8:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-46e8",
+      "_id": "c7f68236-1666-42b4-8e4e-36d5972396a2",
+      "prevCaseId": "a8a020fe-5242-4adc-adf2-4c49b8258f21"
+    }
+  ]
+}

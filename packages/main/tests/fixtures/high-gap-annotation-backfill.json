@@ -1,0 +1,136 @@
+{
+  "cases": [
+    {
+      "name": "CHK-003 happy: gap_analyze no longer marks guardrails and flow desc as uncovered",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { noGuardrailGap: !descs.some((d) => d.includes('危险命令') || d.includes('irreversible 命令默认要求 --confirm')), noFlowDescGap: !descs.some((d) => d.includes('Flow的每一步都应该有说明')) };",
+      "expect": {
+        "noGuardrailGap": true,
+        "noFlowDescGap": true
+      },
+      "intentRef": "B-4b17:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "296e3125-7560-4f61-82f1-bc51f262abed",
+      "nextCaseId": "1a283804-08b8-4db5-8d48-fc397567ea6f"
+    },
+    {
+      "name": "CHK-003 edge: unrelated high gaps still remain visible",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { keepsOtherGap: descs.some((d) => d.includes('Superpowers 可以触发 workflow')) || descs.some((d) => d.includes('AI 通过接口访问比原生还高效')) };",
+      "expect": {
+        "keepsOtherGap": true
+      },
+      "intentRef": "B-4b17:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "1a283804-08b8-4db5-8d48-fc397567ea6f",
+      "prevCaseId": "296e3125-7560-4f61-82f1-bc51f262abed",
+      "nextCaseId": "860591d1-da4e-469d-b959-c2263a778779"
+    },
+    {
+      "name": "CHK-003 adversarial: source annotations remain present on targeted files",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const targets = [\n      $root + '/packages/main/src/cli-engine.ts',\n      $root + '/packages/main/src/handlers/worktree.ts',\n      $root + '/packages/main/src/handlers/fixture.ts',\n      $root + '/packages/main/src/handlers/test-auto.ts',\n      $root + '/packages/main/src/tasks/extract.ts',\n      $root + '/packages/main/src/tasks/validate.ts',\n    ]; const ok = targets.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-4b17') && text.includes('@changes'); }); return { annotationsPresent: ok };",
+      "expect": {
+        "annotationsPresent": true
+      },
+      "intentRef": "B-4b17:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "860591d1-da4e-469d-b959-c2263a778779",
+      "prevCaseId": "1a283804-08b8-4db5-8d48-fc397567ea6f"
+    },
+    {
+      "name": "CHK-001 happy: guardrail files carry B-4b17 task metadata",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/cli-engine.ts', $root + '/packages/main/src/handlers/worktree.ts', $root + '/packages/main/src/handlers/fixture.ts', $root + '/packages/main/src/handlers/test-auto.ts']; return { allTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-4b17') && text.includes('dry-run'); }) };",
+      "expect": {
+        "allTagged": true
+      },
+      "intentRef": "B-4b17:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "fb27057b-177f-4af0-8134-e07566f6d821",
+      "nextCaseId": "e7162773-d483-4865-b479-62371ebd6626"
+    },
+    {
+      "name": "CHK-001 edge: guardrail annotations avoid file-level @test misuse",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/cli-engine.ts', $root + '/packages/main/src/handlers/worktree.ts', $root + '/packages/main/src/handlers/fixture.ts', $root + '/packages/main/src/handlers/test-auto.ts']; return { noTopLevelTaskWithoutChanges: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@changes') && text.includes('@checklist'); }) };",
+      "expect": {
+        "noTopLevelTaskWithoutChanges": true
+      },
+      "intentRef": "B-4b17:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "e7162773-d483-4865-b479-62371ebd6626",
+      "prevCaseId": "fb27057b-177f-4af0-8134-e07566f6d821",
+      "nextCaseId": "7d28bcdf-4ce9-4e43-97f0-e0085561420f"
+    },
+    {
+      "name": "CHK-001 adversarial: guardrail gap would still appear without source annotations",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { guardrailGapGone: !descs.some((d) => d.includes('危险命令') || d.includes('irreversible 命令默认要求 --confirm')) };",
+      "expect": {
+        "guardrailGapGone": true
+      },
+      "intentRef": "B-4b17:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "7d28bcdf-4ce9-4e43-97f0-e0085561420f",
+      "prevCaseId": "e7162773-d483-4865-b479-62371ebd6626",
+      "nextCaseId": "371d22f7-690b-489a-b4d4-1bd0b8f7cc9d"
+    },
+    {
+      "name": "CHK-002 happy: flow step desc files carry B-4b17 metadata",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/tasks/extract.ts', $root + '/packages/main/src/tasks/validate.ts']; return { allTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-4b17') && text.includes('@desc'); }) };",
+      "expect": {
+        "allTagged": true
+      },
+      "intentRef": "B-4b17:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "371d22f7-690b-489a-b4d4-1bd0b8f7cc9d",
+      "prevCaseId": "7d28bcdf-4ce9-4e43-97f0-e0085561420f",
+      "nextCaseId": "9b0f4379-c97b-4510-8e55-98afb4ea58c1"
+    },
+    {
+      "name": "CHK-002 edge: annotation backfill does not add new validate errors",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { flowDescStillVerified: out.includes('flow step desc verified') };",
+      "expect": {
+        "flowDescStillVerified": true
+      },
+      "intentRef": "B-4b17:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "9b0f4379-c97b-4510-8e55-98afb4ea58c1",
+      "prevCaseId": "371d22f7-690b-489a-b4d4-1bd0b8f7cc9d",
+      "nextCaseId": "8950cc29-d4ed-4557-932a-aa6c7b49b0b5"
+    },
+    {
+      "name": "CHK-002 adversarial: flow description uncovered gap no longer appears",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { flowGapGone: !descs.some((d) => d.includes('Flow的每一步都应该有说明')) };",
+      "expect": {
+        "flowGapGone": true
+      },
+      "intentRef": "B-4b17:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4b17",
+      "_id": "8950cc29-d4ed-4557-932a-aa6c7b49b0b5",
+      "prevCaseId": "9b0f4379-c97b-4510-8e55-98afb4ea58c1"
+    }
+  ]
+}

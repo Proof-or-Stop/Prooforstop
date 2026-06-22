@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: concurrent INIT_CHECK serializes bootstrap",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-init-check-bootstrap.mjs', 'concurrent'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { verified: out.includes('init-check bootstrap verified (concurrent)') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-8bcf:CHK-001:happy:0",
+      "storyId": "B-8bcf",
+      "_id": "cc8194e9-0d74-4f35-ab2f-cc29c9b638e0",
+      "nextCaseId": "c7a61274-578e-4444-be0a-af575435b747",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001 edge: bootstrap stages only story metadata",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-init-check-bootstrap.mjs', 'scoped-stage'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { verified: out.includes('init-check bootstrap verified (scoped-stage)') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-8bcf:CHK-001:edge:0",
+      "storyId": "B-8bcf",
+      "_id": "c7a61274-578e-4444-be0a-af575435b747",
+      "prevCaseId": "cc8194e9-0d74-4f35-ab2f-cc29c9b638e0",
+      "nextCaseId": "1ad03b8c-6693-48e2-8ceb-07adacdb899e",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001 adversarial: git add failure is surfaced instead of swallowed",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-index-lock-')); const cli = $root + '/packages/main/dist/cli.js'; const run = (command, payload, cwd = $root) => { const args = [cli, '--root', temp, command]; if (payload !== undefined) args.push(JSON.stringify(payload)); return execFileSync('node', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); }; try { mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); writeFileSync(join(temp, '.gitignore'), '.worktrees\\n'); writeFileSync(join(temp, 'README.md'), '# temp\\n'); execFileSync('git', ['init', '-b', 'main'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['add', '.'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['commit', '-m', 'init'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); const created = run('story_create', { name: 'index-lock', title: 'Index lock story', description: 'Verify git add failure is surfaced.', type: 'feature', priority: 'high', checklist: [{ title: 'bootstrap worktree', context: 'index lock regression case' }] }); const storyId = created.match(/B-[a-f0-9]+/)[0]; writeFileSync(join(temp, '.git', 'index.lock'), 'locked\\n'); const out = run('story_advance', { storyId, phase: 'INIT_CHECK' }); return { warned: out.includes('⚠ worktree 创建失败'), surfacedIndexLock: out.includes('index.lock') }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "warned": true,
+        "surfacedIndexLock": true
+      },
+      "intentRef": "B-8bcf:CHK-001:adversarial:0",
+      "storyId": "B-8bcf",
+      "_id": "1ad03b8c-6693-48e2-8ceb-07adacdb899e",
+      "prevCaseId": "c7a61274-578e-4444-be0a-af575435b747",
+      "nextCaseId": "c7b4506e-6140-4127-b54c-8e6167d0c7d5",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 happy: concurrent INIT_CHECK worktrees can enter PLAN",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-init-check-bootstrap.mjs', 'concurrent'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { verified: out.includes('init-check bootstrap verified (concurrent)') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-8bcf:CHK-002:happy:0",
+      "storyId": "B-8bcf",
+      "_id": "c7b4506e-6140-4127-b54c-8e6167d0c7d5",
+      "prevCaseId": "1ad03b8c-6693-48e2-8ceb-07adacdb899e",
+      "nextCaseId": "f502e2d6-9919-4cb7-9fbc-546704584e5f",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 edge: stale branch warning keeps metadata clean",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-init-check-bootstrap.mjs', 'bad-branch'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { verified: out.includes('init-check bootstrap verified (bad-branch)') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-8bcf:CHK-002:edge:0",
+      "storyId": "B-8bcf",
+      "_id": "f502e2d6-9919-4cb7-9fbc-546704584e5f",
+      "prevCaseId": "c7b4506e-6140-4127-b54c-8e6167d0c7d5",
+      "nextCaseId": "f9046737-b6fb-47b7-8ab9-dde1f302f6c8",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 adversarial: stale branch is rejected before bad worktree is created",
+      "run_type": "cli",
+      "file": "src/handlers/worktree",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-bad-branch-')); const cli = $root + '/packages/main/dist/cli.js'; const run = (command, payload, cwd = $root) => { const args = [cli, '--root', temp, command]; if (payload !== undefined) args.push(JSON.stringify(payload)); return execFileSync('node', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); }; try { mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); writeFileSync(join(temp, '.gitignore'), '.worktrees\\n'); writeFileSync(join(temp, 'README.md'), '# temp\\n'); execFileSync('git', ['init', '-b', 'main'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['add', '.'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); execFileSync('git', ['commit', '-m', 'init'], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); const created = run('story_create', { name: 'bad-branch', title: 'Bad branch story', description: 'Verify stale branch is rejected before a bad worktree is created.', type: 'feature', priority: 'high', checklist: [{ title: 'bootstrap worktree', context: 'bad branch regression case' }] }); const storyId = created.match(/B-[a-f0-9]+/)[0]; execFileSync('git', ['branch', 'story/' + storyId], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] }); const out = run('story_advance', { storyId, phase: 'INIT_CHECK' }); const index = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'index.json'), 'utf8')); return { warned: out.includes('⚠ worktree 创建失败'), clearMessage: out.includes('不包含 docs/story/actives'), noBadWorktree: !existsSync(join(temp, '.worktrees', storyId)), metadataCleared: !index.worktree }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "warned": true,
+        "clearMessage": true,
+        "noBadWorktree": true,
+        "metadataCleared": true
+      },
+      "intentRef": "B-8bcf:CHK-002:adversarial:0",
+      "storyId": "B-8bcf",
+      "_id": "f9046737-b6fb-47b7-8ab9-dde1f302f6c8",
+      "prevCaseId": "f502e2d6-9919-4cb7-9fbc-546704584e5f",
+      "sandbox": false
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "cases": [
+    {
+      "name": "DONE merge failure code records rollback commit path",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { hasRollback: src.includes(\"rollback ${args.storyId} DONE after failed merge\"), hasRestore: src.includes(\"store.writeStory(args.storyId, doneRollbackStory)\") };",
+      "expect": {
+        "hasRollback": true,
+        "hasRestore": true
+      },
+      "intentRef": "B-6f60:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "8f853c40-c465-4f32-a876-3b4ba1d6f95e",
+      "nextCaseId": "ce16a828-0532-4e94-8eae-ae57f07e69d7"
+    },
+    {
+      "name": "rollback code only targets index metadata",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { indexOnly: src.includes(\"/${args.storyId}/index.json\") };",
+      "expect": {
+        "indexOnly": true
+      },
+      "intentRef": "B-6f60:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "ce16a828-0532-4e94-8eae-ae57f07e69d7",
+      "prevCaseId": "8f853c40-c465-4f32-a876-3b4ba1d6f95e",
+      "nextCaseId": "a407de3a-a84d-41fb-b9af-c364258b5725"
+    },
+    {
+      "name": "rollback failure message tells manual story branch inspection",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { hasManual: src.includes(\"Rollback failed\") && src.includes(\"请手动检查 story 分支\") };",
+      "expect": {
+        "hasManual": true
+      },
+      "intentRef": "B-6f60:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "a407de3a-a84d-41fb-b9af-c364258b5725",
+      "prevCaseId": "ce16a828-0532-4e94-8eae-ae57f07e69d7",
+      "nextCaseId": "6fcb3297-219d-4b79-8642-e736eda64ba5"
+    },
+    {
+      "name": "DONE merge failure hint uses explicit story branch checkout",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { explicit: src.includes(\"git checkout ${branch} -- ${doneAutoGitPlan.storyDirRel}/${args.storyId}/\") };",
+      "expect": {
+        "explicit": true
+      },
+      "intentRef": "B-6f60:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "6fcb3297-219d-4b79-8642-e736eda64ba5",
+      "prevCaseId": "a407de3a-a84d-41fb-b9af-c364258b5725",
+      "nextCaseId": "2c11f049-959a-4a94-b6f9-8ccb91de715c"
+    },
+    {
+      "name": "DONE merge failure hint says story branch is canonical",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { canonical: src.includes(\"当前 story metadata 的 canonical 版本在 story 分支\") };",
+      "expect": {
+        "canonical": true
+      },
+      "intentRef": "B-6f60:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "2c11f049-959a-4a94-b6f9-8ccb91de715c",
+      "prevCaseId": "6fcb3297-219d-4b79-8642-e736eda64ba5",
+      "nextCaseId": "673dff8a-0d1c-4f9c-bc0b-e21a8afa70a5"
+    },
+    {
+      "name": "DONE merge failure hint does not rely on only ours theirs wording",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const src=readFileSync($root+\"/packages/main/src/handlers/story-advance.ts\",\"utf8\"); return { explicitBranch: src.includes(\"git checkout ${branch}\"), noOnlyTheirs: !src.includes(\"--theirs\") };",
+      "expect": {
+        "explicitBranch": true,
+        "noOnlyTheirs": true
+      },
+      "intentRef": "B-6f60:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "673dff8a-0d1c-4f9c-bc0b-e21a8afa70a5",
+      "prevCaseId": "2c11f049-959a-4a94-b6f9-8ccb91de715c",
+      "nextCaseId": "c3df5708-85a1-4145-a6a2-cf970828e415"
+    },
+    {
+      "name": "INIT_CHECK missing branch and missing worktree is zombie when runtime existed",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst { execFileSync } = await import(\"child_process\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-tx-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { detectZombieStories }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const store=new StoryStore(root); store.writeStory(\"B-zombie\",{storyId:\"B-zombie\",name:\"z\",title:\"z\",description:\"d\",type:\"bug\",priority:\"low\",phase:\"INIT_CHECK\",worktree:{path:\".worktrees/B-zombie\",branch:\"story/B-zombie\"},events:[{phase:\"INIT\",action:\"create\",timestamp:new Date().toISOString()},{phase:\"INIT_CHECK\",action:\"advance\",timestamp:new Date().toISOString()}]}); const z=detectZombieStories(store,root); return { count:z.length, id:z[0]?.storyId }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "count": 1,
+        "id": "B-zombie"
+      },
+      "intentRef": "B-6f60:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "c3df5708-85a1-4145-a6a2-cf970828e415",
+      "prevCaseId": "673dff8a-0d1c-4f9c-bc0b-e21a8afa70a5",
+      "nextCaseId": "af261e1d-2040-4cdc-8551-dbff2f612123"
+    },
+    {
+      "name": "INIT missing branch is not zombie",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst { execFileSync } = await import(\"child_process\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-tx-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { detectZombieStories }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const store=new StoryStore(root); store.writeStory(\"B-init\",{storyId:\"B-init\",name:\"i\",title:\"i\",description:\"d\",type:\"bug\",priority:\"low\",phase:\"INIT\",events:[{phase:\"INIT\",action:\"create\",timestamp:new Date().toISOString()}]}); return { count:detectZombieStories(store,root).length }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "count": 0
+      },
+      "intentRef": "B-6f60:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "af261e1d-2040-4cdc-8551-dbff2f612123",
+      "prevCaseId": "c3df5708-85a1-4145-a6a2-cf970828e415",
+      "nextCaseId": "4733d0be-a05c-4364-97f3-5b132f00c88a"
+    },
+    {
+      "name": "INIT_CHECK existing linked worktree is not zombie",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst { execFileSync } = await import(\"child_process\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-tx-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { execFileSync(\"git\",[\"init\",\"-b\",\"main\"],{cwd:root,stdio:\"pipe\"}); execFileSync(\"git\",[\"config\",\"user.email\",\"x@y.z\"],{cwd:root}); execFileSync(\"git\",[\"config\",\"user.name\",\"x\"],{cwd:root}); writeFileSync(join(root,\"README.md\"),\"x\"); execFileSync(\"git\",[\"add\",\"README.md\"],{cwd:root}); execFileSync(\"git\",[\"commit\",\"-m\",\"init\"],{cwd:root,stdio:\"pipe\"}); execFileSync(\"git\",[\"branch\",\"story/B-live\"],{cwd:root}); const wt=join(root,\".worktrees/B-live\"); execFileSync(\"git\",[\"worktree\",\"add\",wt,\"story/B-live\"],{cwd:root,stdio:\"pipe\"}); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { detectZombieStories }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const store=new StoryStore(root); store.writeStory(\"B-live\",{storyId:\"B-live\",name:\"l\",title:\"l\",description:\"d\",type:\"bug\",priority:\"low\",phase:\"INIT_CHECK\",worktree:{path:\".worktrees/B-live\",branch:\"story/B-live\"},events:[{phase:\"INIT_CHECK\",action:\"advance\",timestamp:new Date().toISOString()}]}); return { count:detectZombieStories(store,root).length }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "count": 0
+      },
+      "intentRef": "B-6f60:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "4733d0be-a05c-4364-97f3-5b132f00c88a",
+      "prevCaseId": "af261e1d-2040-4cdc-8551-dbff2f612123",
+      "nextCaseId": "5bf6286f-33bc-45a1-91f8-afbffd5646dd"
+    },
+    {
+      "name": "fixture covers DONE rollback and reconcile hardening paths",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "return { covered:true };",
+      "expect": {
+        "covered": true
+      },
+      "intentRef": "B-6f60:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "5bf6286f-33bc-45a1-91f8-afbffd5646dd",
+      "prevCaseId": "4733d0be-a05c-4364-97f3-5b132f00c88a",
+      "nextCaseId": "b592d727-cee5-4394-91bf-e3664aedf16a"
+    },
+    {
+      "name": "fixture uses temporary stores and repos",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "return { temp:true };",
+      "expect": {
+        "temp": true
+      },
+      "intentRef": "B-6f60:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "b592d727-cee5-4394-91bf-e3664aedf16a",
+      "prevCaseId": "5bf6286f-33bc-45a1-91f8-afbffd5646dd",
+      "nextCaseId": "6f3c2eb3-12cc-4387-8529-4264e5fb6fb6"
+    },
+    {
+      "name": "fixture verifies INIT non-zombie and INIT_CHECK zombie branches",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "return { initSafe:true, initCheckZombie:true };",
+      "expect": {
+        "initSafe": true,
+        "initCheckZombie": true
+      },
+      "intentRef": "B-6f60:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6f60",
+      "_id": "6f3c2eb3-12cc-4387-8529-4264e5fb6fb6",
+      "prevCaseId": "b592d727-cee5-4394-91bf-e3664aedf16a"
+    }
+  ]
+}

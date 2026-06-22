@@ -1,0 +1,22 @@
+{
+  "name": "@lattice-agent/utils",
+  "version": "0.3.1",
+  "description": "Lattice 辅助工具：元数据扫描、架构提取、诊断、文档列表、真相源等离线分析能力",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./register": "./dist/register.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@lattice-agent/core": "0.3.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

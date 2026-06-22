@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: low-priority riskSignal elevation rolls back on dismiss, isHighRisk clears",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-risk-elevation-rollback.mjs', 'happy'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-30b2:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-30b2",
+      "_id": "78be39fc-0c01-432e-867d-943c0c413781",
+      "nextCaseId": "ba94e65c-c0c8-49b7-a6e0-13c69a6a2c4d"
+    },
+    {
+      "name": "CHK-001 edge: user-set high is never downgraded by dismiss",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-risk-elevation-rollback.mjs', 'edge-high'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok edge-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-30b2:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-30b2",
+      "_id": "ba94e65c-c0c8-49b7-a6e0-13c69a6a2c4d",
+      "prevCaseId": "78be39fc-0c01-432e-867d-943c0c413781",
+      "nextCaseId": "62f7553e-59b8-472c-9f6b-8d7800ebdf34"
+    },
+    {
+      "name": "CHK-001 edge: user-set critical is never downgraded by dismiss",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-risk-elevation-rollback.mjs', 'edge-critical'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok edge-critical') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-30b2:CHK-001:edge:1",
+      "sandbox": false,
+      "storyId": "B-30b2",
+      "_id": "62f7553e-59b8-472c-9f6b-8d7800ebdf34",
+      "prevCaseId": "ba94e65c-c0c8-49b7-a6e0-13c69a6a2c4d",
+      "nextCaseId": "e55be706-1319-4740-b605-dddae67ca3f6"
+    },
+    {
+      "name": "CHK-001 edge: multi-category dismiss-one keeps high-risk and does not roll back",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-risk-elevation-rollback.mjs', 'multi'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok multi') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-30b2:CHK-001:edge:2",
+      "sandbox": false,
+      "storyId": "B-30b2",
+      "_id": "e55be706-1319-4740-b605-dddae67ca3f6",
+      "prevCaseId": "62f7553e-59b8-472c-9f6b-8d7800ebdf34",
+      "nextCaseId": "8195dea8-c04c-4a46-b46f-f8a861c03983"
+    },
+    {
+      "name": "CHK-001 adversarial: missing/tampered marker never downgrades user high/critical",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-risk-elevation-rollback.mjs', 'adversarial'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok adversarial') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-30b2:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-30b2",
+      "_id": "8195dea8-c04c-4a46-b46f-f8a861c03983",
+      "prevCaseId": "e55be706-1319-4740-b605-dddae67ca3f6"
+    }
+  ]
+}

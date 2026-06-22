@@ -1,0 +1,158 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: anti-stall helper exposes retry fix discard",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { renderAntiStall } = await import($root + \"/packages/main/dist/core/anti-stall.js\");\nconst text = renderAntiStall({ storyId: \"B-test\", retry: \"retry step\", fix: \"fix step\" });\nreturn { hasRetry: text.includes(\"retry:\"), hasFix: text.includes(\"fix:\"), hasDiscard: text.includes(\"discard:\") };",
+      "expect": {
+        "hasRetry": true,
+        "hasFix": true,
+        "hasDiscard": true
+      },
+      "intentRef": "B-3302:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "a1d5791d-909e-4166-b0df-4daf26a0a2dd",
+      "nextCaseId": "94bbe285-3744-42bb-8b8c-02d555cdfcf8"
+    },
+    {
+      "name": "CHK-001 edge: waiting anti-stall keeps discard but does not drop retry",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { waitingAntiStall } = await import($root + \"/packages/main/dist/core/anti-stall.js\");\nconst text = waitingAntiStall(\"B-test\");\nreturn { hasRetry: text.includes(\"retry:\"), hasDiscard: text.includes(\"discard:\") };",
+      "expect": {
+        "hasRetry": true,
+        "hasDiscard": true
+      },
+      "intentRef": "B-3302:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "94bbe285-3744-42bb-8b8c-02d555cdfcf8",
+      "prevCaseId": "a1d5791d-909e-4166-b0df-4daf26a0a2dd",
+      "nextCaseId": "99266c94-a53a-4c26-81b5-85955c98a6ee"
+    },
+    {
+      "name": "CHK-001 adversarial: test anti-stall names bug fix path instead of vague retry loop",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { testAntiStall } = await import($root + \"/packages/main/dist/core/anti-stall.js\");\nconst text = testAntiStall(\"B-test\", [\"BUG-123\"]);\nreturn { mentionsBug: text.includes(\"BUG-123\"), hasFix: text.includes(\"fix:\") };",
+      "expect": {
+        "mentionsBug": true,
+        "hasFix": true
+      },
+      "intentRef": "B-3302:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "99266c94-a53a-4c26-81b5-85955c98a6ee",
+      "prevCaseId": "94bbe285-3744-42bb-8b8c-02d555cdfcf8",
+      "nextCaseId": "8d5cde28-3deb-49fd-8846-92a995317977"
+    },
+    {
+      "name": "CHK-002 happy: anti-stall script passes",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"npm\", [\"run\", \"test:anti-stall\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nreturn { verified: out.includes(\"anti-stall guardrails verified\") };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-3302:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "8d5cde28-3deb-49fd-8846-92a995317977",
+      "prevCaseId": "99266c94-a53a-4c26-81b5-85955c98a6ee",
+      "nextCaseId": "9c0327ed-7a96-4293-a062-23131e9aedaf"
+    },
+    {
+      "name": "CHK-002 edge: checklist output path includes anti-stall helper calls",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/handlers/checklist.ts\", \"utf8\");\nreturn { hasReview: text.includes(\"reviewAntiStall(\"), hasWaiting: text.includes(\"waitingAntiStall(\"), hasBlocked: text.includes(\"renderAntiStall({\") };",
+      "expect": {
+        "hasReview": true,
+        "hasWaiting": true,
+        "hasBlocked": true
+      },
+      "intentRef": "B-3302:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "9c0327ed-7a96-4293-a062-23131e9aedaf",
+      "prevCaseId": "8d5cde28-3deb-49fd-8846-92a995317977",
+      "nextCaseId": "6c148075-5c33-4358-9b7b-10e4dda91b2e"
+    },
+    {
+      "name": "CHK-002 adversarial: story advance and session share anti-stall helpers",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst advance = readFileSync($root + \"/packages/main/src/handlers/story-advance.ts\", \"utf8\");\nconst session = readFileSync($root + \"/packages/main/src/handlers/session.ts\", \"utf8\");\nreturn { advanceHooks: advance.includes(\"reviewAntiStall(\") && advance.includes(\"testAntiStall(\"), sessionHooks: session.includes(\"reviewAntiStall(\") && session.includes(\"testAntiStall(\") && session.includes(\"waitingAntiStall(\") };",
+      "expect": {
+        "advanceHooks": true,
+        "sessionHooks": true
+      },
+      "intentRef": "B-3302:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "6c148075-5c33-4358-9b7b-10e4dda91b2e",
+      "prevCaseId": "9c0327ed-7a96-4293-a062-23131e9aedaf",
+      "nextCaseId": "7b8b7a89-94e6-4273-81a2-7011e83f3324"
+    },
+    {
+      "name": "CHK-003 happy: stale-detector now surfaces anti-stall exits",
+      "run_type": "cli",
+      "file": "core/stale-detector",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/core/stale-detector.ts\", \"utf8\");\nreturn { hasReview: text.includes(\"reviewAntiStall(\"), hasTest: text.includes(\"testAntiStall(\"), hasWaiting: text.includes(\"waitingAntiStall(\") };",
+      "expect": {
+        "hasReview": true,
+        "hasTest": true,
+        "hasWaiting": true
+      },
+      "intentRef": "B-3302:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "7b8b7a89-94e6-4273-81a2-7011e83f3324",
+      "prevCaseId": "6c148075-5c33-4358-9b7b-10e4dda91b2e",
+      "nextCaseId": "db273312-0653-47e2-8d91-f8856bdfe14b"
+    },
+    {
+      "name": "CHK-003 edge: anti-stall helper is wired through package script",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/package.json\", \"utf8\");\nreturn { hasScript: text.includes('\"test:anti-stall\"') };",
+      "expect": {
+        "hasScript": true
+      },
+      "intentRef": "B-3302:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "db273312-0653-47e2-8d91-f8856bdfe14b",
+      "prevCaseId": "7b8b7a89-94e6-4273-81a2-7011e83f3324",
+      "nextCaseId": "6e931aa6-303b-416e-99bb-21c50e9c012d"
+    },
+    {
+      "name": "CHK-003 adversarial: anti-stall verification checks all four surfaces",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/scripts/verify-anti-stall-guardrails.mjs\", \"utf8\");\nreturn { checklist: text.includes(\"packages/main/src/handlers/checklist.ts\"), session: text.includes(\"packages/main/src/handlers/session.ts\"), advance: text.includes(\"packages/main/src/handlers/story-advance.ts\"), stale: text.includes(\"packages/main/src/core/stale-detector.ts\") };",
+      "expect": {
+        "checklist": true,
+        "session": true,
+        "advance": true,
+        "stale": true
+      },
+      "intentRef": "B-3302:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-3302",
+      "_id": "6e931aa6-303b-416e-99bb-21c50e9c012d",
+      "prevCaseId": "db273312-0653-47e2-8d91-f8856bdfe14b"
+    }
+  ]
+}

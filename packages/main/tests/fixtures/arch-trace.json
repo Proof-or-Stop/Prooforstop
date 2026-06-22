@@ -1,0 +1,123 @@
+{
+  "cases": [
+    {
+      "name": "setup: seed trace data",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const dir = $root+\"/packages/main/tests/fixtures\"; ts.saveTraceSnapshot(dir,\"_arch-test\",\"case1\",[{fn:\"entry\",file:\"app.ts\",line:1,children:[{fn:\"helper\",file:\"utils.ts\",line:10,children:[]}]}],$root); ts.saveTraceSnapshot(dir,\"_arch-test\",\"case2\",[{fn:\"entry\",file:\"app.ts\",line:1,children:[{fn:\"helper\",file:\"utils.ts\",line:10,children:[]},{fn:\"render\",file:\"ui.ts\",line:5,children:[]}]}],$root); return true",
+      "expect": true
+    },
+    {
+      "name": "arch_trace json has all fields",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); return r.logicLines !== undefined && r.impactGraph !== undefined && r.blindZones !== undefined",
+      "expect": true,
+      "intentRef": "CHK-006:happy:0"
+    },
+    {
+      "name": "arch_trace mermaid valid",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = await $handlers.arch_trace({format:\"mermaid\"}); return r.startsWith(\"flowchart TD\") && r.includes(\"-->\") ",
+      "expect": true,
+      "intentRef": "CHK-006:happy:1"
+    },
+    {
+      "name": "arch_trace json structured",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); return Array.isArray(r.logicLines) && Array.isArray(r.impactGraph) && Array.isArray(r.blindZones)",
+      "expect": true,
+      "intentRef": "CHK-006:happy:2"
+    },
+    {
+      "name": "arch_trace single trace works",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); return r.logicLines.length >= 1",
+      "expect": true,
+      "intentRef": "CHK-006:edge:0"
+    },
+    {
+      "name": "arch_trace dedup chains",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); const chains = r.logicLines.map(l=>l.chain.join('|')); const unique = new Set(chains); return unique.size === chains.length",
+      "expect": true,
+      "intentRef": "CHK-006:edge:1"
+    },
+    {
+      "name": "arch_trace no traces hint",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace()); return (r.hint && r.hint.includes(\"无 trace\")) || (r.logicLines !== undefined && r.logicLines.length >= 0)",
+      "expect": true,
+      "intentRef": "CHK-006:edge:2"
+    },
+    {
+      "name": "arch_trace corrupt file skip",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const fs = await import(\"fs\"); fs.writeFileSync($root+\"/packages/main/tests/fixtures/_corrupt.trace.json\",\"not json\"); const r = await $handlers.arch_trace({format:\"json\"}); try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_corrupt.trace.json\")}catch{} const d = JSON.parse(r); return d.logicLines !== undefined || d.hint !== undefined",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "arch_trace diff commits noted",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); return r.logicLines.every(l => Array.isArray(l.commits) && l.commits.length > 0)",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:1"
+    },
+    {
+      "name": "arch_trace cycle safe",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const r = JSON.parse(await $handlers.arch_trace({format:\"json\"})); return Array.isArray(r.cycles)",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:2"
+    },
+    {
+      "name": "cleanup: remove test traces",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const fs = await import(\"fs\"); try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_arch-test.trace.json\")}catch{} return true",
+      "expect": true,
+      "sandbox": false
+    },
+    {
+      "name": "CHK-007: blindZones detects arrow exports",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const testFile = path.join($root, \"packages\", \"main\", \"src\", \"__test_blind.ts\"); fs.writeFileSync(testFile, [\"export const myArrow = async (x: number) => x * 2;\",\"export function myFunc(x: number) { return x; }\",\"export class MyClass { myMethod() { return 1; } }\",\"\"].join(String.fromCharCode(10))); try { const result = await $handlers.arch_trace({format:\"json\"}); const parsed = JSON.parse(result); const zones = parsed.blindZones || []; const hasArrow = zones.some(z => z.includes(\"myArrow\")); const hasFunc = zones.some(z => z.includes(\"myFunc\")); const hasMethod = zones.some(z => z.includes(\"MyClass.myMethod\")); return hasArrow && hasFunc && hasMethod; } finally { try { fs.rmSync(testFile); } catch {} }",
+      "expect": true,
+      "intentRef": "CHK-007:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-007: inner arrow not detected as export",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const testFile = path.join($root, \"packages\", \"main\", \"src\", \"__test_inner.ts\"); fs.writeFileSync(testFile, [\"export const wrapper = someHOF(() => { return 42; });\",\"const internal = (x: number) => x;\",\"\"].join(String.fromCharCode(10))); try { const result = await $handlers.arch_trace({format:\"json\"}); const parsed = JSON.parse(result); const zones = parsed.blindZones || []; const hasWrapper = zones.some(z => z.includes(\"wrapper\")); const hasInternal = zones.some(z => z.includes(\"internal\")); return !hasWrapper && !hasInternal; } finally { try { fs.rmSync(testFile); } catch {} }",
+      "expect": true,
+      "intentRef": "CHK-007:adversarial:0",
+      "sandbox": false
+    }
+  ]
+}

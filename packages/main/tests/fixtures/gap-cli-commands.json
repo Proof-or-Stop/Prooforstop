@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: help and direct CLI expose gap commands",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const help = execFileSync('node', [cli, 'help'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); const convergence = execFileSync('node', [cli, 'convergence_check'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { helpHasGap: help.includes('gap_analyze') && help.includes('convergence_check'), runsDirectly: convergence.includes('converged') && !convergence.includes('未知命令') };",
+      "expect": {
+        "helpHasGap": true,
+        "runsDirectly": true
+      },
+      "intentRef": "B-5a58:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "d69acfcc-f899-471b-93dc-4c9dfa38440d",
+      "nextCaseId": "5c5f39ab-cdca-4c50-9165-bd177617b75e"
+    },
+    {
+      "name": "CHK-001 edge: gap_analyze keeps structured output",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); return { hasCoveragePercent: typeof json.coveragePercent === 'number', hasGapsArray: Array.isArray(json.gaps) };",
+      "expect": {
+        "hasCoveragePercent": true,
+        "hasGapsArray": true
+      },
+      "intentRef": "B-5a58:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "5c5f39ab-cdca-4c50-9165-bd177617b75e",
+      "prevCaseId": "d69acfcc-f899-471b-93dc-4c9dfa38440d",
+      "nextCaseId": "75da8da5-a843-4015-a37b-908a88bc2a73"
+    },
+    {
+      "name": "CHK-001 adversarial: convergence_check is wired to a real handler",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, 'convergence_check'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { noHandlerError: !raw.includes('handler not found') && !raw.includes('未知命令'), hasChecks: Array.isArray(JSON.parse(raw.slice(raw.indexOf('{'))).checks) };",
+      "expect": {
+        "noHandlerError": true,
+        "hasChecks": true
+      },
+      "intentRef": "B-5a58:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "75da8da5-a843-4015-a37b-908a88bc2a73",
+      "prevCaseId": "5c5f39ab-cdca-4c50-9165-bd177617b75e",
+      "nextCaseId": "9fc231e3-1f9a-4111-a786-89bd634476d8"
+    },
+    {
+      "name": "CHK-002 happy: verifier script checks help and execution together",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-gap-cli-commands.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { verified: out.includes('gap CLI commands verified') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-5a58:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "9fc231e3-1f9a-4111-a786-89bd634476d8",
+      "prevCaseId": "75da8da5-a843-4015-a37b-908a88bc2a73",
+      "nextCaseId": "a43b06c0-cbf4-486b-9afe-baf7a87bc533"
+    },
+    {
+      "name": "CHK-002 edge: help shows Gap group in default CLI",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const help = execFileSync('node', [cli, 'help'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { hasGapGroup: help.includes('Gap:'), hasGapAnalyze: help.includes('gap_analyze'), hasConvergence: help.includes('convergence_check') };",
+      "expect": {
+        "hasGapGroup": true,
+        "hasGapAnalyze": true,
+        "hasConvergence": true
+      },
+      "intentRef": "B-5a58:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "a43b06c0-cbf4-486b-9afe-baf7a87bc533",
+      "prevCaseId": "9fc231e3-1f9a-4111-a786-89bd634476d8",
+      "nextCaseId": "fec12c01-c5a2-4440-b00a-c0669b18acf7"
+    },
+    {
+      "name": "CHK-002 adversarial: regression script would fail if tools disappear again",
+      "run_type": "cli",
+      "file": "src/handlers/gap",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('npm', ['run', 'test:gap-cli'], { cwd: $root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }); return { scriptPassed: out.includes('gap CLI commands verified') };",
+      "expect": {
+        "scriptPassed": true
+      },
+      "intentRef": "B-5a58:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-5a58",
+      "_id": "fec12c01-c5a2-4440-b00a-c0669b18acf7",
+      "prevCaseId": "a43b06c0-cbf4-486b-9afe-baf7a87bc533"
+    }
+  ]
+}

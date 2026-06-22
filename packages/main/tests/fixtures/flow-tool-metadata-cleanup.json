@@ -1,0 +1,138 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: stale flow tool no_test entries disappear after metadata cleanup",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:flow-tool-metadata'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "flow tool metadata cleanup verified"
+      },
+      "intentRef": "B-9bd2:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "5891726e-a2fe-4e41-9854-a82a4b1220f8",
+      "nextCaseId": "9f715820-48c1-45cd-be35-597f954b2115"
+    },
+    {
+      "name": "CHK-001 edge: live metadata-backed tasks still participate in no_test analysis",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/scripts/verify-flow-tool-metadata-cleanup.mjs'], { cwd: $root, encoding: 'utf8' }).trim(); return raw;",
+      "expect": {
+        "pattern": "flow tool metadata cleanup verified"
+      },
+      "intentRef": "B-9bd2:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "9f715820-48c1-45cd-be35-597f954b2115",
+      "prevCaseId": "5891726e-a2fe-4e41-9854-a82a4b1220f8",
+      "nextCaseId": "b71d7670-10ae-4818-8b9e-4de8fb9b44e8"
+    },
+    {
+      "name": "CHK-001 adversarial: stale metadata would still leak no_test if source filtering regressed",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/tasks/extract.ts', 'utf8'); return { skipsMissingFiles: text.includes('!existsSync(candidateFile)') };",
+      "expect": {
+        "skipsMissingFiles": true
+      },
+      "intentRef": "B-9bd2:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "b71d7670-10ae-4818-8b9e-4de8fb9b44e8",
+      "prevCaseId": "9f715820-48c1-45cd-be35-597f954b2115",
+      "nextCaseId": "d69e4e59-e247-4c85-ab6d-d7b5800ee8de"
+    },
+    {
+      "name": "CHK-002 happy: scan skips deleted-source flow metadata records",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:flow-tool-metadata'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "flow tool metadata cleanup verified"
+      },
+      "intentRef": "B-9bd2:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "d69e4e59-e247-4c85-ab6d-d7b5800ee8de",
+      "prevCaseId": "b71d7670-10ae-4818-8b9e-4de8fb9b44e8",
+      "nextCaseId": "231b0466-49f4-4072-9686-59de57bf07a8"
+    },
+    {
+      "name": "CHK-002 edge: current flow validation implementation remains visible",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/tasks/validate.ts', 'utf8'); return { hasValidateFlows: text.includes('validateFlows') && text.includes('flow function') };",
+      "expect": {
+        "hasValidateFlows": true
+      },
+      "intentRef": "B-9bd2:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "231b0466-49f4-4072-9686-59de57bf07a8",
+      "prevCaseId": "d69e4e59-e247-4c85-ab6d-d7b5800ee8de",
+      "nextCaseId": "fca71604-f36e-4002-8aef-269142ad6eff"
+    },
+    {
+      "name": "CHK-002 adversarial: if deleted source metadata were still merged gap would keep reporting flow tool no_test",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/tasks/extract.ts', 'utf8'); return { mergesMetadata: text.includes('store.tasks'), filtersMissingFiles: text.includes('continue;') };",
+      "expect": {
+        "mergesMetadata": true,
+        "filtersMissingFiles": true
+      },
+      "intentRef": "B-9bd2:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "fca71604-f36e-4002-8aef-269142ad6eff",
+      "prevCaseId": "231b0466-49f4-4072-9686-59de57bf07a8",
+      "nextCaseId": "4d772f17-3bc6-417a-bfd5-4e5f70ce5628"
+    },
+    {
+      "name": "CHK-003 happy: cleanup script is the repeatable entry for clearing flow no_test drift",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:flow-tool-metadata'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "flow tool metadata cleanup verified"
+      },
+      "intentRef": "B-9bd2:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "4d772f17-3bc6-417a-bfd5-4e5f70ce5628",
+      "prevCaseId": "fca71604-f36e-4002-8aef-269142ad6eff",
+      "nextCaseId": "25050a4d-9709-40a1-86f9-3489c8f6369a"
+    },
+    {
+      "name": "CHK-003 edge: cleanup-legacy decision that flow commands stay deleted still holds",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const help = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'help'], { cwd: $root, encoding: 'utf8' }); return { noFlowCommands: !help.includes('flow_trace') && !help.includes('flow_list') };",
+      "expect": {
+        "noFlowCommands": true
+      },
+      "intentRef": "B-9bd2:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "25050a4d-9709-40a1-86f9-3489c8f6369a",
+      "prevCaseId": "4d772f17-3bc6-417a-bfd5-4e5f70ce5628",
+      "nextCaseId": "67020f07-12a3-467a-8861-82e2ca2c8534"
+    },
+    {
+      "name": "CHK-003 adversarial: if stale metadata comes back gap_analyze would fail this guard",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'gap_analyze'], { cwd: $root, encoding: 'utf8' }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const stale = json.gaps.filter((g) => g.type === 'no_test' && (g.description.includes('tools-flow_trace') || g.description.includes('tools-flow_list'))); return { noStaleFlowNoTest: stale.length === 0 };",
+      "expect": {
+        "noStaleFlowNoTest": true
+      },
+      "intentRef": "B-9bd2:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-9bd2",
+      "_id": "67020f07-12a3-467a-8861-82e2ca2c8534",
+      "prevCaseId": "25050a4d-9709-40a1-86f9-3489c8f6369a"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: every phase can expose a structured invariant status",
+      "run_type": "cli",
+      "file": "core/phase-protocol",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'empty-plan-status'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(empty-plan-status\\)"
+      },
+      "intentRef": "B-119e:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "cd53d5ba-1e6e-46c0-a26e-d7991b992664",
+      "nextCaseId": "a290a810-ab99-4831-bd88-3f8aeae9dd4f"
+    },
+    {
+      "name": "CHK-001 edge: invariant structure stays legal when DEV has gaps",
+      "run_type": "cli",
+      "file": "core/phase-protocol",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'dev-primary-reason'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(dev-primary-reason\\)"
+      },
+      "intentRef": "B-119e:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "a290a810-ab99-4831-bd88-3f8aeae9dd4f",
+      "prevCaseId": "cd53d5ba-1e6e-46c0-a26e-d7991b992664",
+      "nextCaseId": "f53d349a-ff66-4bad-b164-3463269b5ff5"
+    },
+    {
+      "name": "CHK-001 adversarial: consumers no longer depend on opaque prose parsing",
+      "run_type": "cli",
+      "file": "core/phase-protocol",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'dev-primary-reason'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(dev-primary-reason\\)"
+      },
+      "intentRef": "B-119e:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "f53d349a-ff66-4bad-b164-3463269b5ff5",
+      "prevCaseId": "a290a810-ab99-4831-bd88-3f8aeae9dd4f",
+      "nextCaseId": "6d0c1366-3497-4811-9f9b-b0aa4be1cc8d"
+    },
+    {
+      "name": "CHK-002 happy: blocked DEV transition returns a stable reason code",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'blocked-dev-missing-review'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(blocked-dev-missing-review\\)"
+      },
+      "intentRef": "B-119e:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "6d0c1366-3497-4811-9f9b-b0aa4be1cc8d",
+      "prevCaseId": "f53d349a-ff66-4bad-b164-3463269b5ff5",
+      "nextCaseId": "d51e8409-12a1-47d6-91d2-20b5a66dde3b"
+    },
+    {
+      "name": "CHK-002 edge: multiple DEV gaps still converge on a primary reason",
+      "run_type": "cli",
+      "file": "core/phase-protocol",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'dev-primary-reason'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(dev-primary-reason\\)"
+      },
+      "intentRef": "B-119e:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "d51e8409-12a1-47d6-91d2-20b5a66dde3b",
+      "prevCaseId": "6d0c1366-3497-4811-9f9b-b0aa4be1cc8d",
+      "nextCaseId": "ecd1ea8a-3fb9-4af1-a2c9-d288397bd872"
+    },
+    {
+      "name": "CHK-002 adversarial: auto rollback path still emits a reason code",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'rollback-review-failed'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(rollback-review-failed\\)"
+      },
+      "intentRef": "B-119e:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "ecd1ea8a-3fb9-4af1-a2c9-d288397bd872",
+      "prevCaseId": "d51e8409-12a1-47d6-91d2-20b5a66dde3b",
+      "nextCaseId": "ed5aa364-f955-4328-a934-b892fae5606b"
+    },
+    {
+      "name": "CHK-003 happy: blocked advance returns both reason code and human hint",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'blocked-dev-missing-review'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(blocked-dev-missing-review\\)"
+      },
+      "intentRef": "B-119e:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "ed5aa364-f955-4328-a934-b892fae5606b",
+      "prevCaseId": "ecd1ea8a-3fb9-4af1-a2c9-d288397bd872",
+      "nextCaseId": "5c9ef107-750e-482c-8e1e-b97be53cad96"
+    },
+    {
+      "name": "CHK-003 edge: successful advance keeps human hint without inventing a reason",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'successful-transition-hint'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(successful-transition-hint\\)"
+      },
+      "intentRef": "B-119e:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "5c9ef107-750e-482c-8e1e-b97be53cad96",
+      "prevCaseId": "ed5aa364-f955-4328-a934-b892fae5606b",
+      "nextCaseId": "6436371d-f3e1-4ae0-997a-e4dc3fcd54a3"
+    },
+    {
+      "name": "CHK-003 adversarial: hint and reason stay aligned on blocked advance",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'blocked-dev-missing-review'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(blocked-dev-missing-review\\)"
+      },
+      "intentRef": "B-119e:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "6436371d-f3e1-4ae0-997a-e4dc3fcd54a3",
+      "prevCaseId": "5c9ef107-750e-482c-8e1e-b97be53cad96",
+      "nextCaseId": "7c22f385-9ed7-4123-9a2c-c3b951b1ea5b"
+    },
+    {
+      "name": "CHK-004 happy: rollback path is covered by a stable regression case",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'rollback-review-failed'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(rollback-review-failed\\)"
+      },
+      "intentRef": "B-119e:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "7c22f385-9ed7-4123-9a2c-c3b951b1ea5b",
+      "prevCaseId": "6436371d-f3e1-4ae0-997a-e4dc3fcd54a3",
+      "nextCaseId": "0be0ae9d-8795-41b6-b0a9-23be3c9ee846"
+    },
+    {
+      "name": "CHK-004 edge: legacy blocked transition still yields an explainable code",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'blocked-dev-missing-review'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(blocked-dev-missing-review\\)"
+      },
+      "intentRef": "B-119e:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "0be0ae9d-8795-41b6-b0a9-23be3c9ee846",
+      "prevCaseId": "7c22f385-9ed7-4123-9a2c-c3b951b1ea5b",
+      "nextCaseId": "feb0266c-c9e4-48ff-8da2-23a2649db31d"
+    },
+    {
+      "name": "CHK-004 adversarial: successful and failed paths are both covered explicitly",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-phase-gate-protocol.mjs', 'successful-transition-hint'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "phase gate protocol verified \\(successful-transition-hint\\)"
+      },
+      "intentRef": "B-119e:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-119e",
+      "_id": "feb0266c-c9e4-48ff-8da2-23a2649db31d",
+      "prevCaseId": "0be0ae9d-8795-41b6-b0a9-23be3c9ee846"
+    }
+  ]
+}

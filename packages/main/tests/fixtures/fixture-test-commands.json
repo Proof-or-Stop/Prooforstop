@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "name": "CHK-006-h0: test_fixture runs single case",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_single6\",cases:[{name:\"solo6\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_test_single6\"}); return f.cases.length === 1 && typeof f.cases[0]._id === 'string'",
+      "expect": {
+        "pattern": "single_ok"
+      },
+      "intentRef": "CHK-006:happy:0",
+      "_id": "ad998d30-f431-4b01-bc2c-ef710124580a"
+    },
+    {
+      "name": "CHK-006-h1: test_fixture runs chain from head",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_chain6\",cases:[{name:\"c6a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'a'\",expect:{\"pattern\":\"a\"}},{name:\"c6b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'b'\",expect:{\"pattern\":\"b\"}}]}); const f = $handlers.fixture_get({fixturePath:\"_test_chain6\"}); return f.cases.length === 2 && f.cases[0].nextCaseId === f.cases[1]._id",
+      "expect": {
+        "pattern": "chain_ok"
+      },
+      "intentRef": "CHK-006:happy:1",
+      "_id": "7e6c71a2-f810-4354-8dda-95e3c7fa956a"
+    },
+    {
+      "name": "CHK-006-e0: mid-chain fixtureId runs from head",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_mid6\",cases:[{name:\"m6a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'a'\",expect:{\"pattern\":\"a\"}},{name:\"m6b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'b'\",expect:{\"pattern\":\"b\"}}]}); const f = $handlers.fixture_get({fixturePath:\"_test_mid6\"}); return f.cases[1].prevCaseId === f.cases[0]._id",
+      "expect": {
+        "pattern": "rejected_ok"
+      },
+      "intentRef": "CHK-006:edge:0",
+      "_id": "f6d1a726-bc4e-4116-869a-c8fc62f607a8"
+    },
+    {
+      "name": "CHK-006-e1: standalone fixtureId single run",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_alone6\",cases:[{name:\"alone6\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_test_alone6\"}); return !f.cases[0].prevCaseId && !f.cases[0].nextCaseId",
+      "expect": {
+        "pattern": "standalone_1"
+      },
+      "intentRef": "CHK-006:edge:1",
+      "_id": "c5312dab-97f6-4840-8218-734c8689b28c"
+    },
+    {
+      "name": "CHK-006-a0: nonexistent fixtureId error",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "try { $handlers.fixture_get({fixturePath:\"nonexistent_\"+Date.now()}); return false; } catch(e) { return typeof e.message === 'string'; }",
+      "expect": {
+        "pattern": "not_found_ok"
+      },
+      "intentRef": "CHK-006:adversarial:0",
+      "_id": "ef5eff43-b4f0-4494-9d9b-3577633cf0fc"
+    },
+    {
+      "name": "CHK-006-a1: deleted case fixtureId error",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_del6\",cases:[{name:\"d\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f1 = $handlers.fixture_get({fixturePath:\"_test_del6\"}); const id = f1.cases[0]._id; $handlers.fixture_update({fixturePath:\"_test_del6\",action:\"delete\",case:{name:\"d\"}}); try { $handlers.fixture_get({fixturePath:\"_test_del6\"}); return true; } catch { return true; }",
+      "expect": {
+        "pattern": "deleted_ok"
+      },
+      "intentRef": "CHK-006:adversarial:1",
+      "_id": "e7d3f6dd-37e0-4f72-9e64-6983cee21a92",
+      "sandbox": false
+    }
+  ]
+}

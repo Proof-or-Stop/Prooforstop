@@ -1,0 +1,207 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: setup parallel policy fixture project",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst tempRoot = mkdtempSync(join(tmpdir(), \"koala-parallel-fixture-\"));\nmkdirSync(join(tempRoot, \"docs\", \"story\", \"actives\"), { recursive: true });\nmkdirSync(join(tempRoot, \"docs\", \"requirements\"), { recursive: true });\nwriteFileSync(join(tempRoot, \"koala.config.json\"), JSON.stringify({\n  scanRoot: \"packages/main\",\n  rootDir: \"src\",\n  outDir: \"packages/main/dist\",\n  testsDir: \"packages/main/tests\",\n  fixturesDir: \"packages/main/tests/fixtures\",\n  storyDir: \"docs/story/actives\",\n  requirementsDir: \"docs/requirements\",\n  storyPrefix: \"B\"\n}, null, 2));\nconst cli = $root + \"/packages/main/dist/cli.js\";\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", tempRoot, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractStoryId = (text) => {\n  const match = text.match(/B-[a-f0-9]+/);\n  if (!match) throw new Error(\"failed to parse story id from \" + text);\n  return match[0];\n};\n$ctx.parallelTmp = tempRoot;\n$ctx.parallelCli = cli;\n$ctx.primaryId = extractStoryId(run(\"story_create\", {\n  name: \"parallel-primary\",\n  title: \"Primary lane story\",\n  description: \"Mainline story for fixture verification.\",\n  type: \"feature\",\n  priority: \"high\",\n  phase: \"DEV\",\n  lane: \"mainline\",\n  parallelSafe: \"no\",\n  sharedHotspots: [\"packages/main/src/handlers/session.ts\"]\n}));\n$ctx.candidateId = extractStoryId(run(\"story_create\", {\n  name: \"parallel-candidate\",\n  title: \"Supporting plan-only story\",\n  description: \"Supporting story that should stay in PLAN.\",\n  type: \"chore\",\n  priority: \"medium\",\n  phase: \"PLAN\",\n  lane: \"supporting\",\n  parallelSafe: \"plan_only\",\n  sharedHotspots: [\"packages/main/src/handlers/worktree.ts\"]\n}));\n$ctx.conflictId = extractStoryId(run(\"story_create\", {\n  name: \"parallel-conflict\",\n  title: \"Conflicting DEV story\",\n  description: \"Supporting story that collides with the primary hotspot.\",\n  type: \"feature\",\n  priority: \"medium\",\n  phase: \"DEV\",\n  lane: \"supporting\",\n  parallelSafe: \"yes\",\n  sharedHotspots: [\"packages/main/src/handlers/session.ts\"]\n}));\n$ctx.reviewId = extractStoryId(run(\"story_create\", {\n  name: \"parallel-review-target\",\n  title: \"Review target for parallel policy\",\n  description: \"Validate story_review parallel policy advisories.\",\n  type: \"feature\",\n  priority: \"high\",\n  phase: \"PLAN\",\n  depends: [$ctx.primaryId],\n  lane: \"supporting\",\n  parallelSafe: \"yes\",\n  sharedHotspots: [\"packages/main/src/handlers/session.ts\"],\n  checklist: [{\n    title: \"Plan the multi-session execution policy\",\n    context: \"Need advisory-only guardrails before any hard gates.\",\n    testIntent: {\n      happy: [{ desc: \"primary lane and candidates are visible\", type: \"cli_blackbox\" }],\n      edge: [{ desc: \"depends + parallelSafe=yes warns instead of hard failing\", type: \"cli_blackbox\" }],\n      adversarial: [{ desc: \"shared hotspot overlap is surfaced as a conflict warning\", type: \"cli_blackbox\" }]\n    }\n  }]\n}));\nrun(\"understanding_set\", {\n  storyId: $ctx.reviewId,\n  task: \"Verify story_review parallel policy advisory behavior\",\n  outcome: \">>> koala session_brief\\n## Primary lane\\n  B-xxxx DEV Primary lane story [mainline/no]\\n## Parallel candidates\\n  B-yyyy PLAN [supporting/plan_only] keep this in PLAN only\\n## Conflict warnings\\n  - B-zzzz: shares hotspots with B-xxxx: packages/main/src/handlers/session.ts\",\n  facts: [\"parallelSafe=yes should stay advisory even with depends\"],\n  constraints: [\"first version is advisory-only\"],\n  unknowns: [],\n  touchpoints: [\"packages/main/src/handlers/story-review.ts\"]\n});\nrun(\"decision_set\", {\n  storyId: $ctx.reviewId,\n  principles: [\"Prefer advisory over hard gate\", \"Expose conflicts early\", \"Keep the model understandable\"],\n  drivers: [\"avoid harming mainline tasks\", \"support multi-session planning\"],\n  options: [\n    { name: \"A: advisory review + brief hints\", pros: [\"low friction\"], cons: [\"operators must read warnings\"] },\n    { name: \"B: hard gate on every conflict\", pros: [\"strict safety\"], cons: [\"too heavy for first rollout\"] }\n  ],\n  chosen: \"A: advisory review + brief hints\",\n  rationale: \"The first rollout should surface conflicts without blocking legitimate planning work.\",\n  preMortem: [\n    { scenario: \"Hints are too noisy\", trigger: \"Every story gets multiple warnings\", consequence: \"Operators ignore them\", mitigation: \"Keep checks focused on lane/safety/hotspot mismatches\" },\n    { scenario: \"Conflicts stay invisible\", trigger: \"Hotspots are omitted\", consequence: \"Parallel DEV collides later\", mitigation: \"Add a missing_hotspots advisory\" },\n    { scenario: \"Dependencies are ignored\", trigger: \"parallelSafe=yes on downstream story\", consequence: \"A dependent story races into DEV\", mitigation: \"Flag depends + yes as advisory\" }\n  ]\n});\n$ctx.missingMetaId = extractStoryId(run(\"story_create\", {\n  name: \"parallel-missing-metadata\",\n  title: \"Missing policy metadata story\",\n  description: \"Validate missing lane/safety/hotspot advisories.\",\n  type: \"chore\",\n  priority: \"medium\",\n  phase: \"PLAN\",\n  checklist: [{\n    title: \"Document the rollout shape\",\n    context: \"Need enough structure for a lightweight review.\",\n    testIntent: {\n      happy: [{ desc: \"review still runs without blocking\", type: \"cli_blackbox\" }],\n      edge: [{ desc: \"missing metadata is surfaced clearly\", type: \"cli_blackbox\" }],\n      adversarial: [{ desc: \"operators do not need to guess what to fill next\", type: \"cli_blackbox\" }]\n    }\n  }]\n}));\nrun(\"understanding_set\", {\n  storyId: $ctx.missingMetaId,\n  task: \"Verify missing parallel metadata advisories\",\n  outcome: \"> koala story_review\\nparallel_policy_missing_lane\\nparallel_policy_missing_safety\\nparallel_policy_missing_hotspots\",\n  facts: [\"metadata is optional but should be nudged\"],\n  constraints: [\"must remain advisory\"],\n  unknowns: [],\n  touchpoints: [\"packages/main/src/handlers/story-review.ts\"]\n});\nrun(\"decision_set\", {\n  storyId: $ctx.missingMetaId,\n  principles: [\"Keep the policy light\", \"Prefer explicit metadata over guesses\", \"Do not block planning\"],\n  drivers: [\"clarity\", \"low friction\"],\n  options: [\n    { name: \"A: advisory nudges\", pros: [\"easy to adopt\"], cons: [\"relies on operator follow-through\"] },\n    { name: \"B: hard gate\", pros: [\"strict completeness\"], cons: [\"too disruptive\"] }\n  ],\n  chosen: \"A: advisory nudges\",\n  rationale: \"Missing metadata should be visible, but teams still need room to keep planning moving.\"\n});\nreturn { createdAll: Boolean($ctx.primaryId && $ctx.candidateId && $ctx.conflictId && $ctx.reviewId && $ctx.missingMetaId) };",
+      "expect": {
+        "createdAll": true
+      },
+      "intentRef": "B-d307:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "55fd8295-eee8-4f6e-86d1-1f8565000b26",
+      "nextCaseId": "8ae13cef-3d76-4e5c-85a2-5435b1c68217"
+    },
+    {
+      "name": "CHK-001 edge: legacy stories still get useful defaults",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst brief = run(\"session_brief\");\nreturn { missingMetaVisible: brief.includes($ctx.missingMetaId), defaultPolicyVisible: brief.includes('[supporting/plan_only]') };",
+      "expect": {
+        "missingMetaVisible": true,
+        "defaultPolicyVisible": true
+      },
+      "intentRef": "B-d307:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "8ae13cef-3d76-4e5c-85a2-5435b1c68217",
+      "prevCaseId": "55fd8295-eee8-4f6e-86d1-1f8565000b26",
+      "nextCaseId": "7be405b3-8d6d-47f7-b3de-ede541fecd76"
+    },
+    {
+      "name": "CHK-001 adversarial: conflicting metadata surfaces in review",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst review = extractJsonObject(run(\"story_review\", { storyId: $ctx.reviewId }));\nreturn { dependsConflict: review.issues.some((issue) => issue.type === \"parallel_policy_depends_conflict\"), hotspotConflict: review.issues.some((issue) => issue.type === \"parallel_policy_conflict\") };",
+      "expect": {
+        "dependsConflict": true,
+        "hotspotConflict": true
+      },
+      "intentRef": "B-d307:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "7be405b3-8d6d-47f7-b3de-ede541fecd76",
+      "prevCaseId": "8ae13cef-3d76-4e5c-85a2-5435b1c68217",
+      "nextCaseId": "b2d10ae8-bdd9-448f-8a27-abda66f076a7"
+    },
+    {
+      "name": "CHK-002 happy: session_brief shows primary lane",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst brief = run(\"session_brief\");\nreturn { hasPrimarySection: brief.includes(\"## Primary lane\"), primaryStoryShown: brief.includes($ctx.primaryId), primaryPolicyShown: brief.includes('[mainline/no]') };",
+      "expect": {
+        "hasPrimarySection": true,
+        "primaryStoryShown": true,
+        "primaryPolicyShown": true
+      },
+      "intentRef": "B-d307:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "b2d10ae8-bdd9-448f-8a27-abda66f076a7",
+      "prevCaseId": "7be405b3-8d6d-47f7-b3de-ede541fecd76",
+      "nextCaseId": "e05a9656-6b4e-43e3-b845-878a94491e48"
+    },
+    {
+      "name": "CHK-002 edge: session_brief shows plan-only candidate",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst brief = run(\"session_brief\");\nreturn { hasCandidatesSection: brief.includes(\"## Parallel candidates\"), candidateShown: brief.includes($ctx.candidateId), planOnlyHint: brief.includes(\"keep this in PLAN only\") || brief.includes(\"plan_only\") };",
+      "expect": {
+        "hasCandidatesSection": true,
+        "candidateShown": true,
+        "planOnlyHint": true
+      },
+      "intentRef": "B-d307:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "e05a9656-6b4e-43e3-b845-878a94491e48",
+      "prevCaseId": "b2d10ae8-bdd9-448f-8a27-abda66f076a7",
+      "nextCaseId": "737cfd64-6f90-449e-8441-96231a9b2584"
+    },
+    {
+      "name": "CHK-002 adversarial: session_brief keeps conflict out of candidates",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst brief = run(\"session_brief\");\nconst candidateSection = brief.includes(\"## Conflict warnings\") ? brief.split(\"## Conflict warnings\")[0] : brief;\nconst candidateLine = $ctx.conflictId + \" DEV [supporting/yes] ready for parallel DEV\";\nreturn { hasConflictWarning: brief.includes($ctx.conflictId), notRecommendedAsCandidate: !candidateSection.includes(candidateLine) };",
+      "expect": {
+        "hasConflictWarning": true,
+        "notRecommendedAsCandidate": true
+      },
+      "intentRef": "B-d307:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "737cfd64-6f90-449e-8441-96231a9b2584",
+      "prevCaseId": "e05a9656-6b4e-43e3-b845-878a94491e48",
+      "nextCaseId": "19f1e4a0-884c-4646-aab9-f174ce91204c"
+    },
+    {
+      "name": "CHK-003 happy: story_review exposes parallel advisories",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst review = extractJsonObject(run(\"story_review\", { storyId: $ctx.reviewId }));\nreturn { issueVisible: review.issues.some((issue) => issue.type === \"parallel_policy_conflict\"), advisoryOnly: (review.summary?.blockerCount ?? 0) === 0 };",
+      "expect": {
+        "issueVisible": true,
+        "advisoryOnly": true
+      },
+      "intentRef": "B-d307:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "19f1e4a0-884c-4646-aab9-f174ce91204c",
+      "prevCaseId": "737cfd64-6f90-449e-8441-96231a9b2584",
+      "nextCaseId": "96558347-ae2b-4af4-92e3-6d14cb1819f5"
+    },
+    {
+      "name": "CHK-003 edge: missing metadata stays advisory",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst review = extractJsonObject(run(\"story_review\", { storyId: $ctx.missingMetaId }));\nconst types = new Set(review.issues.map((issue) => issue.type));\nreturn { lane: types.has(\"parallel_policy_missing_lane\"), safety: types.has(\"parallel_policy_missing_safety\"), hotspots: types.has(\"parallel_policy_missing_hotspots\"), blockerCountZero: (review.summary?.blockerCount ?? 0) === 0 };",
+      "expect": {
+        "lane": true,
+        "safety": true,
+        "hotspots": true,
+        "blockerCountZero": true
+      },
+      "intentRef": "B-d307:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "96558347-ae2b-4af4-92e3-6d14cb1819f5",
+      "prevCaseId": "19f1e4a0-884c-4646-aab9-f174ce91204c",
+      "nextCaseId": "ef3fbd32-d713-4066-b817-9a3e8f33bf03"
+    },
+    {
+      "name": "CHK-003 adversarial: hotspot warning names the exact file",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [$ctx.parallelCli, \"--root\", $ctx.parallelTmp, command, JSON.stringify(payload)], {\n  cwd: $root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst extractJsonObject = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst review = extractJsonObject(run(\"story_review\", { storyId: $ctx.reviewId }));\nreturn { hotspotPathNamed: review.issues.some((issue) => issue.message.includes(\"packages/main/src/handlers/session.ts\")) };",
+      "expect": {
+        "hotspotPathNamed": true
+      },
+      "intentRef": "B-d307:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "ef3fbd32-d713-4066-b817-9a3e8f33bf03",
+      "prevCaseId": "96558347-ae2b-4af4-92e3-6d14cb1819f5",
+      "nextCaseId": "06659915-cca2-451e-aa13-64f0bf464d42"
+    },
+    {
+      "name": "CHK-004 happy: verification script passes",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-parallel-execution-policy.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nreturn { verified: out.includes(\"parallel execution policy verified\") };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-d307:CHK-004:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "06659915-cca2-451e-aa13-64f0bf464d42",
+      "prevCaseId": "ef3fbd32-d713-4066-b817-9a3e8f33bf03",
+      "nextCaseId": "44a33caf-50e7-4573-9df1-a4efcb9b6e13"
+    },
+    {
+      "name": "CHK-004 edge: package.json exposes the new regression command",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/package.json\", \"utf8\");\nreturn { hasScript: text.includes('\"test:parallel-policy\"') };",
+      "expect": {
+        "hasScript": true
+      },
+      "intentRef": "B-d307:CHK-004:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "44a33caf-50e7-4573-9df1-a4efcb9b6e13",
+      "prevCaseId": "06659915-cca2-451e-aa13-64f0bf464d42",
+      "nextCaseId": "9f9bb32d-e038-49da-b676-8da8677d3e48"
+    },
+    {
+      "name": "CHK-004 adversarial: verification script checks cross-surface drift and cleans temp project",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync, rmSync, existsSync } = await import(\"fs\");\nconst script = readFileSync($root + \"/scripts/verify-parallel-execution-policy.mjs\", \"utf8\");\nconst tempRoot = $ctx.parallelTmp;\nrmSync(tempRoot, { recursive: true, force: true });\nreturn { checksBrief: script.includes('## Primary lane') && script.includes('## Parallel candidates'), checksReview: script.includes('parallel_policy_conflict'), cleaned: !existsSync(tempRoot) };",
+      "expect": {
+        "checksBrief": true,
+        "checksReview": true,
+        "cleaned": true
+      },
+      "intentRef": "B-d307:CHK-004:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-d307",
+      "_id": "9f9bb32d-e038-49da-b676-8da8677d3e48",
+      "prevCaseId": "44a33caf-50e7-4573-9df1-a4efcb9b6e13"
+    }
+  ]
+}

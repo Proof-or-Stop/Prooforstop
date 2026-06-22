@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: prompt profile detects fixture-friendly rules",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-high'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "30f98b1d-427f-4ece-9317-69e4d64a8ba1",
+      "nextCaseId": "9d502ef7-24e0-4b82-97f0-82454649a4ca"
+    },
+    {
+      "name": "CHK-001 edge: missing nonmandatory guidance lowers score",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-low'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-low') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "9d502ef7-24e0-4b82-97f0-82454649a4ca",
+      "prevCaseId": "30f98b1d-427f-4ece-9317-69e4d64a8ba1",
+      "nextCaseId": "e30e53d9-998e-4a0a-b431-03f21d588f06"
+    },
+    {
+      "name": "CHK-001 adversarial: missing input expect WHY is detected",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-low'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-low') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "e30e53d9-998e-4a0a-b431-03f21d588f06",
+      "prevCaseId": "9d502ef7-24e0-4b82-97f0-82454649a4ca",
+      "nextCaseId": "fbb031b0-ab5e-4ffa-aa19-c43847bcee1b"
+    },
+    {
+      "name": "CHK-002 happy: current production prompt scores high",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-high'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "fbb031b0-ab5e-4ffa-aa19-c43847bcee1b",
+      "prevCaseId": "e30e53d9-998e-4a0a-b431-03f21d588f06",
+      "nextCaseId": "24773a2f-fa79-4b0b-b680-257bcfe5f6af"
+    },
+    {
+      "name": "CHK-002 edge: old prompt scores lower than current prompt",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-low'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-low') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "24773a2f-fa79-4b0b-b680-257bcfe5f6af",
+      "prevCaseId": "fbb031b0-ab5e-4ffa-aa19-c43847bcee1b",
+      "nextCaseId": "5ef29e88-4312-4e3c-a0d9-4343ab4335da"
+    },
+    {
+      "name": "CHK-002 adversarial: wrong profile is not used for prompt validation",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'registry'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok registry') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "5ef29e88-4312-4e3c-a0d9-4343ab4335da",
+      "prevCaseId": "24773a2f-fa79-4b0b-b680-257bcfe5f6af",
+      "nextCaseId": "8a54200e-d451-4d1e-9733-05af9be0284e"
+    },
+    {
+      "name": "CHK-003 happy: prompt profile regression passes",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-high'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "8a54200e-d451-4d1e-9733-05af9be0284e",
+      "prevCaseId": "5ef29e88-4312-4e3c-a0d9-4343ab4335da",
+      "nextCaseId": "3407df6f-33d7-4dc3-85da-8787ff2da804"
+    },
+    {
+      "name": "CHK-003 edge: profile registry contains both prompt and output profiles",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'registry'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok registry') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "3407df6f-33d7-4dc3-85da-8787ff2da804",
+      "prevCaseId": "8a54200e-d451-4d1e-9733-05af9be0284e",
+      "nextCaseId": "de95904f-3bc0-4306-a136-07556dc54663"
+    },
+    {
+      "name": "CHK-003 adversarial: removing fixture-heavy rule fails scoring expectation",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-test-intent-prompt-profile.mjs', 'prompt-low'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok prompt-low') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-57e7:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-57e7",
+      "_id": "de95904f-3bc0-4306-a136-07556dc54663",
+      "prevCaseId": "3407df6f-33d7-4dc3-85da-8787ff2da804"
+    }
+  ]
+}

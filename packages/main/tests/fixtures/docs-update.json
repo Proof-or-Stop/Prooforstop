@@ -1,0 +1,74 @@
+{
+  "cases": [
+    {
+      "name": "CLAUDE.md TEST flow complete",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); return md.includes(\"diagnose\") && md.includes(\"bug_report\") && md.includes(\"trace 快照\") && md.includes(\"自动 bug_report\") && md.includes(\"自动标 fixed\")",
+      "expect": true,
+      "intentRef": "CHK-010:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CLAUDE.md reviewer not responsible for test_auto",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import('fs'); const path = await import('path'); const p = path.join($root, '.claude', 'agents', 'test-case-reviewer.md'); const prompt = fs.readFileSync(p,'utf-8'); return prompt.includes('不要运行 test_auto') && prompt.includes('不修改代码')",
+      "expect": true,
+      "intentRef": "CHK-010:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "non-TEST sections preserved",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); return md.includes(\"PLAN → DEV → TEST_CASE\") && md.includes(\"三方制衡\") && md.includes(\"Fixture 写法\") && md.includes(\"行为准则\")",
+      "expect": true,
+      "intentRef": "CHK-010:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "hint text matches CLAUDE.md TEST section",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); const storySrc = fs.readFileSync($root+\"/packages/main/src/mcp/handlers/story.ts\",\"utf-8\"); return md.includes(\"V8 profiler trace\") && storySrc.includes(\"V8 profiler trace\")",
+      "expect": true,
+      "intentRef": "CHK-010:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "TEST stage described only once in detail",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); const detailMatches = (md.match(/### TEST 阶段详细流程/g) || []).length; return detailMatches === 1",
+      "expect": true,
+      "intentRef": "CHK-010:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "reviewer section preserves pass/fail rules",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); return md.includes(\"判定权始终在 reviewer\") && md.includes(\"不改代码也不改 case\")",
+      "expect": true,
+      "intentRef": "CHK-010:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CLAUDE.md includes diagnose and arch_trace commands",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); const md = fs.readFileSync($root+\"/CLAUDE.md\",\"utf-8\"); return md.includes(\"koala diagnose\") && md.includes(\"koala arch_trace\")",
+      "expect": true,
+      "intentRef": "CHK-010:adversarial:2",
+      "sandbox": false
+    }
+  ]
+}

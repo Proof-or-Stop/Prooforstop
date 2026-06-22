@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "name": "null-only doc story no longer blocks TEST or DONE reviewer gates",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-testintent-null-gates.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"testIntent:null gate handling verified\") };",
+      "expect": {
+        "ok": true
+      },
+      "sandbox": false,
+      "storyId": "B-b2b3",
+      "_id": "17959ada-2c50-4c2e-ac57-ca606dbe9171"
+    }
+  ]
+}

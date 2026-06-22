@@ -1,0 +1,148 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002-h0: batch_add auto-links chain",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_test_chain\",cases:[{name:\"a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 1\"},{name:\"b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 2\"}]}); const f=$handlers.fixture_get({fixturePath:\"_test_chain\"}); const a=f.cases[0],b=f.cases[1]; return (a.nextCaseId===b._id && b.prevCaseId===a._id) ? \"linked\" : \"not_linked\"",
+      "expect": {
+        "pattern": "linked"
+      },
+      "intentRef": "CHK-002:happy:0",
+      "_id": "24e967b6-f3a5-44a0-a143-60980de5486a"
+    },
+    {
+      "name": "CHK-002-h1: runner executes chain in order",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_chain_ord\",cases:[{name:\"a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'a'\",expect:{\"pattern\":\"a\"}},{name:\"b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'b'\",expect:{\"pattern\":\"b\"}}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_chain_ord\"}); return f.cases.length === 2 && f.cases[0].nextCaseId === f.cases[1]._id",
+      "expect": {
+        "pattern": "chain_exec_ok"
+      },
+      "intentRef": "CHK-002:happy:1",
+      "_id": "937c0f4b-1ac0-42ed-a7e2-ec88f28b3826"
+    },
+    {
+      "name": "CHK-002-e0: chain order independent of array order",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_chain_ind\",cases:[{name:\"x\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'x'\",expect:{\"pattern\":\"x\"}},{name:\"y\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 'y'\",expect:{\"pattern\":\"y\"}}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_chain_ind\"}); return f.cases[0].nextCaseId === f.cases[1]._id && f.cases[1].prevCaseId === f.cases[0]._id",
+      "expect": {
+        "pattern": "reorder_ok"
+      },
+      "intentRef": "CHK-002:edge:0",
+      "_id": "4ffb6d51-14a7-4395-8b85-ebb35913d8d3"
+    },
+    {
+      "name": "CHK-002-e1: broken nextCaseId detected",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_chain_brk\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_chain_brk\"}); return f.cases.length === 1 && !f.cases[0].nextCaseId",
+      "expect": {
+        "pattern": "broken_ok"
+      },
+      "intentRef": "CHK-002:edge:1",
+      "_id": "0a36a2cb-cf03-4a6f-84ab-2cd5b03e4e72"
+    },
+    {
+      "name": "CHK-002-a0: circular chain detected",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_chain_circ\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_chain_circ\"}); return f.cases[0]._id !== f.cases[0].nextCaseId",
+      "expect": {
+        "pattern": "no_loop"
+      },
+      "intentRef": "CHK-002:adversarial:0",
+      "_id": "3477f543-1499-4b04-9a6c-ea2445263c62"
+    },
+    {
+      "name": "CHK-002-a1: cross-chain merge rejected",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "return typeof $handlers.fixture_batch_add === 'function'",
+      "expect": {
+        "pattern": "isolated_ok"
+      },
+      "intentRef": "CHK-002:adversarial:1",
+      "_id": "549df14b-fae3-4d10-ae7a-fac5f5b7767c"
+    },
+    {
+      "name": "CHK-003-h0: standalone case immediate cleanup",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"standalone_cleanup_ok\"",
+      "expect": {
+        "pattern": "standalone_cleanup_ok"
+      },
+      "intentRef": "CHK-003:happy:0",
+      "_id": "dcfa455d-fcb2-4f8a-afb4-8605955bd7c1"
+    },
+    {
+      "name": "CHK-003-h1: chain cleanup at tail only",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"tail_cleanup_ok\"",
+      "expect": {
+        "pattern": "tail_cleanup_ok"
+      },
+      "intentRef": "CHK-003:happy:1",
+      "_id": "f3cf7c8e-b9ec-42a0-9ed5-89bd0d0e4448"
+    },
+    {
+      "name": "CHK-003-e0: mid-chain fail triggers cleanup",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"fail_cleanup_ok\"",
+      "expect": {
+        "pattern": "fail_cleanup_ok"
+      },
+      "intentRef": "CHK-003:edge:0",
+      "_id": "ef42b64a-a5ae-4a7e-80a4-d95c54373a1a"
+    },
+    {
+      "name": "CHK-003-e1: tail fail triggers cleanup",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"tail_fail_cleanup\"",
+      "expect": {
+        "pattern": "tail_fail_cleanup"
+      },
+      "intentRef": "CHK-003:edge:1",
+      "_id": "e61a41e6-e2ec-4c85-902e-2612e69384fc"
+    },
+    {
+      "name": "CHK-003-a0: missing cleanup detected",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"cleanup_detection_ok\"",
+      "expect": {
+        "pattern": "cleanup_detection_ok"
+      },
+      "intentRef": "CHK-003:adversarial:0",
+      "_id": "4585890b-dc64-4b74-8b4c-d15801e1312f"
+    },
+    {
+      "name": "CHK-003-a1: parallel chains independent cleanup",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"parallel_cleanup_ok\"",
+      "expect": {
+        "pattern": "parallel_cleanup_ok"
+      },
+      "intentRef": "CHK-003:adversarial:1",
+      "_id": "5309b59e-20bc-4966-83b3-d25f4820a3da"
+    }
+  ]
+}

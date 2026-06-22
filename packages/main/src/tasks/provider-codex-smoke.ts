@@ -1,0 +1,265 @@
+#!/usr/bin/env node
+/**
+ * Focused smoke for REAL bounded `provider.codex` execution (M7).
+ *
+ * The stubbed provider suite in `planner-unattended-smoke.ts` drives the executor
+ * gates with an injected `BoundedProviderExecutor`. This smoke instead exercises
+ * the REAL spawn seam — `codexCliAvailable` + `runBoundedCodexProvider` against an
+ * actual temp `codex` binary on PATH, plus one end-to-end `executePlannedSteps`
+ * run with the DEFAULT executor — so the parts a stub can never prove are covered:
+ *
+ *   - the availability preflight actually resolves the binary on PATH;
+ *   - a real spawn captures stdout/stderr as digests + byte counts, exit code, and
+ *     duration, and NEVER surfaces raw output (no credential/transcript leakage);
+ *   - stdin is closed so a bounded action cannot hang on an interactive prompt;
+ *   - a non-zero exit, a missing binary, and a timeout each classify correctly;
+ *   - through the executor: provider success is gated, redacted, and NEVER equals
+ *     validation success or authority DONE; disabled/unavailable fail closed.
+ *
+ * Run: npm run test:legacy -- provider-codex
+ */
+
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
+import { executePlannedSteps } from '../core/planned-steps-executor.js';
+
+type JsonObject = Record<string, any>;
+
+const sha256Json = (value: unknown): string =>
+  createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
+
+const work = mkdtempSync(join(tmpdir(), 'lattice-provider-codex-'));
+const binDir = join(work, 'bin');
+const emptyBinDir = join(work, 'empty-bin');
+const projectRoot = join(work, 'project');
+for (const dir of [binDir, emptyBinDir, projectRoot]) mkdirSync(dir, { recursive: true });
+
+/** Install a fake `codex` executable that behaves per the embedded script body. */
+function installFakeCodex(body: string): void {
+  const path = join(binDir, 'codex');
+  writeFileSync(path, `#!/bin/sh\n${body}\n`, 'utf8');
+  chmodSync(path, 0o755);
+}
+
+const STDOUT_MARKER = 'CODEX_STDOUT_MARKER_a1b2c3';
+const STDERR_MARKER = 'CODEX_STDERR_MARKER_d4e5f6';
+
+try {
+  // ----------------------------------------------------------------------------
+  // 1. codexCliAvailable preflight resolves the real binary on PATH (B3a).
+  // ----------------------------------------------------------------------------
+  installFakeCodex('exit 0');
+  assert.equal(codexCliAvailable({ PATH: binDir }), true, 'codex on PATH is available');
+  assert.equal(codexCliAvailable({ PATH: emptyBinDir }), false, 'codex absent from PATH is unavailable');
+  assert.equal(codexCliAvailable({}), false, 'no PATH at all is unavailable, never throws');
+
+  // ----------------------------------------------------------------------------
+  // 2. runBoundedCodexProvider: REAL spawn capture — digests/bytes/exit/duration,
+  //    and raw stdout/stderr is NEVER surfaced in the structured result.
+  // ----------------------------------------------------------------------------
+  installFakeCodex(`printf '%s' '${STDOUT_MARKER}'\nprintf '%s' '${STDERR_MARKER}' 1>&2\nexit 0`);
+  const ok = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec', '--task', 'implement'],
+    cwd: projectRoot,
+    timeoutMs: 10_000,
+    maxAttempts: 1,
+    env: { PATH: binDir },
+  });
+  assert.equal(ok.provider, 'codex');
+  assert.equal(ok.exitCode, 0, 'clean exit is captured');
+  assert.equal(ok.spawnError, false);
+  assert.equal(ok.timedOut, false);
+  assert.equal(ok.attempts, 1);
+  assert.equal(ok.stdoutBytes, Buffer.byteLength(STDOUT_MARKER, 'utf8'), 'stdout byte count is captured');
+  assert.equal(ok.stderrBytes, Buffer.byteLength(STDERR_MARKER, 'utf8'), 'stderr byte count is captured');
+  assert.equal(ok.stdoutDigest, sha256Json(STDOUT_MARKER), 'stdout digest matches sha256(JSON(stdout))');
+  assert.equal(ok.stderrDigest, sha256Json(STDERR_MARKER), 'stderr digest matches sha256(JSON(stderr))');
+  assert.equal(ok.argvDigest, sha256Json(['exec', '--task', 'implement']), 'argv digest is over the argv array');
+  assert.equal(typeof ok.durationMs, 'number');
+  assert.ok(ok.durationMs >= 0, 'duration is recorded');
+  // The single most important leakage invariant: raw transcript never escapes.
+  const okSerialized = JSON.stringify(ok);
+  assert.ok(!okSerialized.includes(STDOUT_MARKER), 'raw stdout must never appear in the provider result');
+  assert.ok(!okSerialized.includes(STDERR_MARKER), 'raw stderr must never appear in the provider result');
+
+  // ----------------------------------------------------------------------------
+  // 3. stdin is closed: a script that blocks on stdin must still terminate, not hang.
+  //    (`read` returns EOF immediately because stdin is closed by the runner.)
+  // ----------------------------------------------------------------------------
+  installFakeCodex('read LINE\nexit 0');
+  const stdinClosed = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 1,
+    env: { PATH: binDir },
+  });
+  assert.equal(stdinClosed.timedOut, false, 'stdin-closed bounded action does not hang on a prompt');
+  assert.equal(stdinClosed.spawnError, false);
+
+  // ----------------------------------------------------------------------------
+  // 4. Non-zero exit is captured terminally (not retried, not promoted to success).
+  // ----------------------------------------------------------------------------
+  installFakeCodex(`printf 'boom' 1>&2\nexit 3`);
+  const failed = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 3,
+    env: { PATH: binDir },
+  });
+  assert.equal(failed.exitCode, 3, 'non-zero exit code is captured');
+  assert.equal(failed.timedOut, false);
+  assert.equal(failed.spawnError, false);
+  assert.equal(failed.attempts, 1, 'a definite non-zero exit is terminal — retries are not burned');
+
+  // ----------------------------------------------------------------------------
+  // 5. Missing binary -> spawnError, exitCode null (fail-closed signal upstream).
+  // ----------------------------------------------------------------------------
+  const missing = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 2,
+    env: { PATH: emptyBinDir },
+  });
+  assert.equal(missing.spawnError, true, 'a missing codex binary is a spawnError');
+  assert.equal(missing.exitCode, null, 'spawnError yields a null exit code');
+  assert.equal(missing.attempts, 1, 'a missing binary is not retryable');
+
+  // ----------------------------------------------------------------------------
+  // 6. Timeout -> timedOut true (bounded wall-clock is enforced via the kill signal).
+  //    Pure-builtin infinite loop (no external `sleep`), so the only env it needs is
+  //    the binDir on PATH — the bounded timeout SIGTERMs it at ~250ms.
+  // ----------------------------------------------------------------------------
+  installFakeCodex('while :; do :; done');
+  const timed = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 250,
+    maxAttempts: 1,
+    env: { PATH: binDir },
+  });
+  assert.equal(timed.timedOut, true, 'a bounded timeout is detected from the kill signal');
+  assert.equal(timed.attempts, 1);
+
+  // ----------------------------------------------------------------------------
+  // 7. End-to-end through executePlannedSteps with the DEFAULT executor (real spawn):
+  //    enabled + credentialed + available codex runs, evidence is redacted, and
+  //    success NEVER equals validation success or authority DONE.
+  // ----------------------------------------------------------------------------
+  const envProbeFile = join(work, 'codex-env-probe.txt');
+  if (existsSync(envProbeFile)) rmSync(envProbeFile);
+  // Fake codex records the two credentials it actually received, then succeeds.
+  // Pure-builtin (printf + redirection) so it needs nothing but the binDir on PATH:
+  // an allowlisted var expands to its value; a redacted var expands to empty.
+  installFakeCodex(
+    `printf 'CODEX_KEY=%s\\n' "$CODEX_KEY" > '${envProbeFile}'\n`
+    + `printf 'UNRELATED_SECRET=%s\\n' "$UNRELATED_SECRET" >> '${envProbeFile}'\n`
+    + `printf '%s' '${STDOUT_MARKER}'\nexit 0`,
+  );
+
+  const store = {
+    readStory: () => ({ phase: 'DEV' } as JsonObject),
+    storyExists: () => true,
+    listStoryIds: () => [] as string[],
+    appendProcessEvent: () => {},
+  } as any;
+
+  const codexStep = (overrides: JsonObject = {}): JsonObject => ({
+    stepId: 'step-codex',
+    type: 'provider.codex',
+    title: 'bounded codex',
+    purpose: 'bounded provider action',
+    cwdPolicy: 'story-worktree',
+    timeoutMs: 10_000,
+    maxAttempts: 1,
+    requiresCleanWorktree: false,
+    producesEvidence: true,
+    blocksUntilEvidenceUploaded: true,
+    provider: 'codex',
+    evidenceBinding: 'B-codex:provider',
+    args: { operation: 'implement', argv: ['exec', '--task', 'implement'] },
+    ...overrides,
+  });
+
+  const plan = (step: JsonObject, providerPolicy: JsonObject): JsonObject => ({
+    schemaVersion: 'lattice.job_plan.v1',
+    plannerRunId: 'run-codex',
+    storyId: 'B-codex',
+    mode: 'local',
+    until: 'TEST',
+    developmentWorkflow: 'standard',
+    plannedSteps: [step],
+    coverageMap: [],
+    multiHostPolicy: {},
+    providerPolicy,
+    plannerDigest: 'pd',
+    jobPlanDigest: 'jd',
+    status: 'planned',
+  });
+
+  const exec = (jobPlan: JsonObject, env: JsonObject): JsonObject =>
+    executePlannedSteps({ root: projectRoot, store, jobPlan: jobPlan as any, env }) as JsonObject;
+
+  const e2e = exec(
+    plan(codexStep(), {
+      allowedProviders: ['codex'],
+      productionDoneProviders: ['codex'],
+      credentialsEnvAllowlist: ['CODEX_KEY'],
+    }),
+    { PATH: binDir, HOME: work, CODEX_KEY: 'super-secret-value', UNRELATED_SECRET: 'do-not-leak' },
+  );
+  const e2eStep = e2e.steps[0];
+  assert.equal(e2eStep.status, 'passed', 'real codex spawn through the executor passes');
+  assert.equal(e2eStep.type, 'provider.codex');
+  assert.equal(e2eStep.summary.exitCode, 0);
+  assert.equal(e2eStep.summary.validationSatisfied, false, 'provider success never equals validation success');
+  assert.equal(e2eStep.summary.providerProseAcceptedAsEvidence, false);
+  assert.equal(e2eStep.summary.productionAuthorityEligible, false, 'bounded provider evidence is never production-authority-eligible');
+  assert.equal(e2e.authorityDone, false, 'provider success is never authority DONE');
+  assert.equal(e2e.fullAuthorityDone, false);
+  assert.equal(e2e.receiptVerified, false);
+  assert.equal(e2e.multiHostVerified, false);
+  // No raw credential anywhere in the structured execution result.
+  assert.ok(!JSON.stringify(e2e).includes('super-secret-value'), 'raw credential must never surface in execution evidence');
+
+  // Redaction proof: the credential the policy allowlists reaches the child; an
+  // unrelated secret in the ambient env does NOT (redactedProviderEnv strips it).
+  assert.ok(existsSync(envProbeFile), 'fake codex actually ran and recorded its environment');
+  const childEnv = readFileSync(envProbeFile, 'utf8');
+  assert.ok(/^CODEX_KEY=super-secret-value$/m.test(childEnv), 'allowlisted credential is projected to the provider process');
+  assert.ok(/^UNRELATED_SECRET=$/m.test(childEnv), 'non-allowlisted var resolves empty in the child (it was stripped)');
+  assert.ok(!childEnv.includes('do-not-leak'), 'non-allowlisted secret value never reaches the provider env projection');
+
+  // ----------------------------------------------------------------------------
+  // 8. Fail-closed through the executor: not enabled, and enabled-but-unavailable.
+  // ----------------------------------------------------------------------------
+  const disabled = exec(
+    plan(codexStep(), { allowedProviders: [], credentialsEnvAllowlist: [] }),
+    { PATH: binDir, CODEX_KEY: 'k' },
+  );
+  assert.equal(disabled.steps[0].status, 'blocked');
+  assert.equal(disabled.steps[0].reason, 'disabled', 'codex must be explicitly enabled in providerPolicy.allowedProviders');
+  assert.equal(disabled.authorityDone, false);
+
+  const unavailable = exec(
+    plan(codexStep(), { allowedProviders: ['codex'], credentialsEnvAllowlist: ['CODEX_KEY'] }),
+    { PATH: emptyBinDir, CODEX_KEY: 'k' },
+  );
+  assert.equal(unavailable.steps[0].status, 'blocked');
+  assert.equal(unavailable.steps[0].reason, 'provider_unavailable', 'codex blocks when the CLI is unavailable on this host');
+
+  console.log('✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed');
+} finally {
+  rmSync(work, { recursive: true, force: true });
+}
