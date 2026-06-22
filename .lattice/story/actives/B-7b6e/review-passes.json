@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-004",
       "_hash": "e9f0499a2227dd9c6b118f2521c5557020137eccb67779c1edb9a7709e50cf4c"
+    },
+    {
+      "id": "B-7b6e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Scope: rename specAwareReviewer->oracleReviewer (commit 5b06232aa). Grep of all *.ts, *.md, *.json excluding node_modules/dist/.git/.lattice: zero occurrences of specAwareReviewer in source or non-story docs. oracleReviewer present in gate-strength.ts:149 (exported), gate-strength-contract-smoke.ts (imported+used 4x), CHANGELOG.md (narrative). Remaining specAwareReviewer strings are solely inside .lattice/story/actives/B-7b6e/ audit-trail files (findings.json resolvedReason, plan.md, checklist.json, review-passes.json, test-evidence.json, scope-check.json) — these are historical audit records, not active concept references, and do not count as residue. receipt-bundle.ts: git show 5b06232aa -- packages/main/src/core/receipt-bundle.ts returned empty diff — file unmodified. Change is purely additive: blockAllReviewer + verifyGateStrengthResult + GATE_STRENGTH_RECEIPT_LABEL added, no existing concept deleted. No doc-promise-undelivered found. No blocker.",
+      "createdAt": "2026-06-22T23:56:42.329Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-005",
+      "_hash": "5242f668a01f993612071e3cf78a24bd264a3166351f6e1a76dc4c21a7896746"
     }
   ]
 }
