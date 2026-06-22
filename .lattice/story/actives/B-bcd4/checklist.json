@@ -152,7 +152,43 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Docs/summary tell future Hosts to use /Users/jek/Documents/Work/proofbound, and show B-3523/B-fbb6 migration recovery paths without claiming old Orchestrate is still active."
+      "userSees": "`docs/requirements/decisions/orchestrate-retirement.md` says Orchestrate is read-only legacy evidence, proofbound is canonical, and B-3523/B-fbb6 were preserved under proofbound `.worktrees`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/evidence/orchestrate-legacy-index.md"
+      ],
+      "files": {
+        "modify": [
+          "docs/evidence/orchestrate-legacy-index.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/orchestrate-retirement.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documentation states the canonical proofbound root and the retired Orchestrate role without host-specific wording.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation preserves local evidence use and does not instruct users to delete legacy story evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does not claim B-3523/B-fbb6 business work is finished or that old Orchestrate remains active.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
