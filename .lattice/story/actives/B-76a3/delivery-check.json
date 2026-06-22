@@ -1,0 +1,86 @@
+{
+  "storyId": "B-76a3",
+  "checkedAt": "2026-06-22T19:20:36.371Z",
+  "reviewRound": "2026-06-22T19:11:50.872Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/project-vision.md",
+      "promise": "Project management operations and product state changes are driven through Lattice CLI or MCP structured entry points, and the active product surface remains the lattice CLI.",
+      "status": "verified",
+      "verifiedBy": "diff review plus CLI checks",
+      "evidence": "The story used Lattice story and evidence commands; node bin/lattice.js --version returned Lattice CLI 0.3.59; root package metadata removed only the unused @modelcontextprotocol/sdk declaration after live reference checks showed no source/script references."
+    },
+    {
+      "docPath": "docs/requirements/decisions/stack-layering.md",
+      "promise": "Project state, gates, fixture results, and implementation review records belong to the deterministic Lattice substrate rather than ad hoc LLM judgment.",
+      "status": "verified",
+      "verifiedBy": "registry, command catalog, command policy, and help output inspection",
+      "evidence": "packages/main/src/registry.ts registers createImplementationReviewHandlers; command-catalog exposes implementation_review_result_set/get; command-policy marks set as storyScopedMutating advisory metadata and get as readOnly; both help commands succeeded on Lattice CLI 0.3.59."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Current lifecycle evidence uses verificationIntent, verificationEvidence, REVIEW records, lattice validate, DONE-required validation when configured, summary, and delivery-check gates with fresh material hashes.",
+      "status": "verified",
+      "verifiedBy": "checklist_get and lifecycle_check",
+      "evidence": "checklist_get shows CHK-001..CHK-005 done with happy, edge, and adversarial must intents plus 15 passing evidence records; lifecycle_check shows validation PASS, verification coverage 15/15, evidence freshness PASS, done-required validation PASS, no bugs, synced branch, and review assurance floor PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-completeness.md",
+      "promise": "Gate-consumed test-evidence must contain real validation metadata and cannot be replaced by prose alone.",
+      "status": "verified",
+      "verifiedBy": "test-evidence.json and done-required-evidence.json inspection",
+      "evidence": "test-evidence.json reports PASS at 2026-06-22T19:16:26.304Z with 15/15 required verification intents covered and 23 configured validation commands passed; done-required-evidence.json reports PASS for packages/main build and root npm test."
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-fixture-spec.md",
+      "promise": "Old fixture conversion is a one-time migration; remaining fixture work should use current CLI validation paths and docs must not instruct use of removed conversion scripts.",
+      "status": "verified",
+      "verifiedBy": "doc diff, rg, and fixture diff review",
+      "evidence": "test-fixture-spec now says to update JSON directly or use fixture_update or fixture_batch_add; rg found no active references to removed migration scripts; fixture-preview-runner-parity was adjusted to remove intent-coverage imports while preserving fixture behavior."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-76a3/background.md",
+      "promise": "Cleanup must stay limited to concrete inconsistencies, not a broad optimization pass.",
+      "status": "verified",
+      "verifiedBy": "plan and diff scope review",
+      "evidence": "git diff main...HEAD is scoped to the unused MCP dependency and lock transitive cleanup, implementation-review command wiring, obsolete intent-coverage removal, approved one-time scripts, package-local legacy metadata removal, version bump, and directly related docs/fixtures; git diff --check passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-76a3/plan.md",
+      "promise": "All five approved cleanup outcomes should be observable from product-maintainer terminal commands before DONE.",
+      "status": "verified",
+      "verifiedBy": "transcript-diff and local checks",
+      "evidence": "evidence/transcript-diff.md records npm test PASS, implementation_review_result_set/get help output, no MCP SDK refs, empty git ls-files for approved scripts and package-local metadata, and canonical checklist_get readability; targeted local checks in this review matched those outcomes."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Transcript and review checks show root package.json and package-lock.json no longer contain @modelcontextprotocol/sdk; rg over package metadata, bin, packages/*/src, and scripts returned no live MCP SDK refs; npm test passed as part of story evidence and DONE-required root full suite."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node bin/lattice.js implementation_review_result_set --help and implementation_review_result_get --help both returned Lattice CLI 0.3.59 help text; catalog, registry, command policy, and process fact registry entries are present; checklist evidence records malformed findings and high-severity pass rejection as passing negative tests."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "test ! -e packages/main/src/core/intent-coverage.ts passed; rg found no runtime import or dynamic load of intent-coverage; checklist evidence records npm test plus verificationIntent coverage staying intact for CHK-001 through CHK-005."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "git ls-files for scripts/convert-fixtures.cjs, scripts/migrate-annotations.cjs, scripts/migrate-fixture-reform.mjs, scripts/migrate-fixture-reform-v2.mjs, and scripts/remove-file-level-test.cjs returned empty; rg found no active invocation refs; the script-only deletion predicate and npm test passed in checklist evidence."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "git ls-files for packages/main/docs/story/actives and packages/main/docs/metadata/task.json returned empty; node bin/lattice.js checklist_get for B-76a3 succeeds from canonical .lattice story metadata; rg found no live references treating packages/main/docs/story/actives as active story storage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepted: real-machine transcript and structured evidence cover all five cleanup items, docs promises are satisfied, and no unresolved TODO or blocker was found."
+  },
+  "_hash": "e6e8435a0b6bdb9321889b4bff6baefa657964cd2de380c212302aa5de5d2c9a"
+}
