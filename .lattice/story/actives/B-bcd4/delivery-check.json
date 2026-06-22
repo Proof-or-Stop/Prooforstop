@@ -1,0 +1,50 @@
+{
+  "storyId": "B-bcd4",
+  "checkedAt": "2026-06-22T22:12:27.879Z",
+  "reviewRound": "2026-06-22T21:56:36.606Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/orchestrate-retirement.md",
+      "promise": "States proofbound is the canonical active checkout, Orchestrate is a retired read-only evidence root, retiredRoot/canonicalRoot are the config contract, read-only inspection remains available, and mutating commands fail before handler dispatch with canonicalRoot guidance.",
+      "status": "verified",
+      "verifiedBy": "manual diff review, rg, Orchestrate config read, checklist evidence, transcript-diff.md",
+      "evidence": "Read docs/requirements/decisions/orchestrate-retirement.md, checked rg hits, confirmed /Users/jek/Documents/Work/Orchestrate/lattice.config.json has retiredRoot true and canonicalRoot proofbound, and inspected transcript-diff blocked story_create/session_brief behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/orchestrate-retirement.md#Migrated Active Stories",
+      "promise": "Documents B-3523 and B-fbb6 as preserved proofbound worktrees while explicitly not claiming they are finished, rebased, normalized, merged, or production complete; remaining Orchestrate lab/temp worktrees are separate legacy artifacts.",
+      "status": "verified",
+      "verifiedBy": "manual doc review, transcript-diff.md, checklist CHK-005 evidence",
+      "evidence": "Docs list both proofbound .worktrees paths and the non-completion limitation; transcript-diff and checklist evidence record proofbound directories present and no B-3523/B-fbb6 Orchestrate worktree or branch entries."
+    },
+    {
+      "docPath": "docs/evidence/orchestrate-legacy-index.md",
+      "promise": "States legacy Orchestrate evidence stays local-only, proofbound is canonical, Orchestrate is retired read-only, raw story/artifact evidence should not be committed, and B-3523/B-fbb6 were preserved under proofbound for local recovery.",
+      "status": "verified",
+      "verifiedBy": "manual diff review and docs_check evidence",
+      "evidence": "Read docs/evidence/orchestrate-legacy-index.md and inspected CHK-004 docs_check evidence for local-only/raw-evidence policy plus migrated-worktree wording."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002",
+      "transcript": "Inspected transcript-diff.md: retired Orchestrate session_brief remains readable, while Orchestrate story_create exits 1 with retired-root and canonicalRoot guidance before handler dispatch; checklist evidence records these as passing manual_transcript checks."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Inspected validation evidence: npm --prefix packages/main run test:retired-root-guard and test:command-ownership-contract passed; routine lattice validate passed with 15/15 verification intents covered and DONE-required validation passed build plus root npm test."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Inspected transcript-diff.md and checklist evidence: proofbound .worktrees/B-3523 and .worktrees/B-fbb6 exist, and Orchestrate worktree/branch checks show no active B-3523 or B-fbb6 entries; remaining lab/temp worktrees are described as legacy artifacts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery acceptable: docs promises match changed docs and actual Orchestrate config, real-machine transcripts cover read-only inspection, fail-closed mutating behavior, focused guard tests, validation, DONE-required tests, and migrated-worktree checks; no unresolved delivery blocker found."
+  },
+  "_hash": "285aaaf1b61659bf571f931eb6586bdcc1814e557416b2bef4372877200feed6"
+}
