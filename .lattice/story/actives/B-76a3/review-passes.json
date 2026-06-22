@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-76a3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: diff stays within the approved narrow cleanup scope, preserves host-neutral Lattice boundaries, avoids packages/lab or unrelated package deletion, and exposes implementation-review results as advisory metadata rather than lifecycle gate evidence.",
+      "createdAt": "2026-06-22T18:59:20.156Z",
+      "reviewRound": "2026-06-22T18:56:08.643Z",
+      "reviewRunId": "B-76a3:RR-001",
+      "_hash": "89573e9fe3ae4768ae2804819163c3aedc6be74c5048f547a86f27ebbf503461"
+    },
+    {
+      "id": "B-76a3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocking issue in registry/catalog/policy/process-fact wiring, lock/version consistency, deleted script/doc reference cleanup, package-local metadata removal, stale intent-coverage references, or unrelated behavior; separate test-coverage finding B-76a3:F-001 remains open.",
+      "createdAt": "2026-06-22T19:01:06.732Z",
+      "reviewRound": "2026-06-22T18:56:08.643Z",
+      "reviewRunId": "B-76a3:RR-002",
+      "_hash": "dca722535ba8dd330656f701f0b054ede9a15c84d96120f3e6d69b9fa8c7faf8"
+    },
+    {
+      "id": "B-76a3:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 targeted coverage pass: F-001 is resolved; CHK-004 adversarial evidence now uses a scripts-only git show -- scripts predicate and no longer conflates the CHK-003 intent-coverage deletion; rerunning the scripts-only disallowed-deletion predicate produced no output with exit 1 as expected; evidence_plan reports all 15 required verification intent refs fresh with 0 missing, 0 rerun, and 0 refreshOnly.",
+      "createdAt": "2026-06-22T19:04:32.009Z",
+      "reviewRound": "2026-06-22T19:02:40.255Z",
+      "reviewRunId": "B-76a3:RR-004",
+      "_hash": "3fb6a6ff2acdb5a518f68e9ab03c64b41cdb942a2dac907fcd6f68eb10eea1bb"
+    },
+    {
+      "id": "B-76a3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept pass: validate --concept raw-deleted symbols and residual references inspected. LATTICE_CLI_VERSION is still live and intentionally bumped from 0.3.58 to 0.3.59 in root package.json, packages/main/package.json, and packages/main/src/core/lattice-brand.ts, so residual references are expected current runtime/test/doc uses rather than a semantic removal. collectFixtureIntentRefs and summarizeIntentCoverage only belonged to the deleted obsolete packages/main/src/core/intent-coverage.ts; targeted rg found no live imports or references in packages/main/src, packages/main/tests, or scripts. ./node_modules/.bin/tsc --noEmit --pretty false -p packages/main/tsconfig.json passes, confirming no broken runtime import remains. The standalone concept gate residual count is therefore benign for this round; no conceptual blocker remains.",
+      "createdAt": "2026-06-22T19:07:36.484Z",
+      "reviewRound": "2026-06-22T19:02:40.255Z",
+      "reviewRunId": "B-76a3:RR-005",
+      "_hash": "05ebe095a268d3831fd95b6b2bc452a799af6429ab0e7c152fc809c78850453a"
+    },
+    {
+      "id": "B-76a3:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test coverage reviewed: evidence_plan reports 15/15 fresh required verification intents, F-001 is resolved with strong fixed evidence, and no open blocking coverage findings remain.",
+      "createdAt": "2026-06-22T19:13:30.336Z",
+      "reviewRound": "2026-06-22T19:11:50.872Z",
+      "reviewRunId": "B-76a3:RR-008",
+      "_hash": "141af68d77ac4d3e7be3b3b011dac5ed479cd5189c53d69d6740316c67b8e812"
+    },
+    {
+      "id": "B-76a3:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review checked resolved F-001, live 0.3.59 version bump, intentional obsolete intent-coverage removal, and scoped cleanup/implementation-review wiring; no conceptual blocker remains.",
+      "createdAt": "2026-06-22T19:13:45.816Z",
+      "reviewRound": "2026-06-22T19:11:50.872Z",
+      "reviewRunId": "B-76a3:RR-006",
+      "_hash": "b5073286bb77094c94a5f465c899f87893416c11f1da18767bf6f6137db01e86"
+    },
+    {
+      "id": "B-76a3:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality pass: verified tsc --noEmit, process/runtime fact contracts, koala residue scan, version/lock consistency, CLI version output, and removed cleanup targets have no live references.",
+      "createdAt": "2026-06-22T19:14:29.595Z",
+      "reviewRound": "2026-06-22T19:11:50.872Z",
+      "reviewRunId": "B-76a3:RR-007",
+      "_hash": "1fc306c1795b60738c80e52a3aee5a2e245c99e2d656a042b1265e89f38dbfe4"
+    }
+  ]
+}

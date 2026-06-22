@@ -1,0 +1,51 @@
+{
+  "storyId": "B-76a3",
+  "checkedAt": "2026-06-22T19:20:56.831Z",
+  "reviewRound": "2026-06-22T19:11:50.872Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/test-fixture-spec.md",
+      "promise": "Old dispatch-style fixture conversion is no longer documented as a live script workflow; remaining cases should use direct JSON updates or fixture_update/fixture_batch_add.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD -- docs/requirements/decisions/test-fixture-spec.md",
+      "evidence": "Diff renames Batch-Converting the Old Format to Migrating the Old Format and removes node scripts/convert-fixtures.cjs examples."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "promise": "The midflight repair plan no longer promises reuse of removed packages/main/src/core/intent-coverage.ts.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD -- docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "evidence": "Diff replaces the intent-coverage.ts reuse row with packages/main/src/handlers/checklist.ts structured intent-ref parsing."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-76a3:npm-test",
+      "transcript": "done-required-evidence.json records root full test suite command npm test PASS at 2026-06-22T19:10:26.322Z, duration 22691ms; transcript-diff.md also records npm test -> ALL PASS."
+    },
+    {
+      "featureId": "B-76a3:lattice-validate",
+      "transcript": "test-evidence.json records lattice validate PASS at 2026-06-22T19:16:26.304Z with verificationCoverage total=15 required=15 covered=15 missingRequired=0 and evidence freshness passing for materialHash 4f895340aff2f5cd9412e1b626b7f857bc703d52b69e2bd8918bfa5eaeaa6424."
+    },
+    {
+      "featureId": "B-76a3:done-required-validate",
+      "transcript": "done-required-evidence.json records status PASS at 2026-06-22T19:10:26.492Z for 2 required commands: npm --prefix packages/main run build PASS and npm test PASS."
+    },
+    {
+      "featureId": "B-76a3:targeted-residue-checks",
+      "transcript": "Reviewer reran read-only checks: rg @modelcontextprotocol/sdk over package metadata/bin/source/scripts produced no live refs; implementation_review_result_set/get appear in node bin/lattice.js help; named one-time migration scripts are not tracked; package-local legacy story metadata is not tracked; packages/main/src/core/intent-coverage.ts is absent."
+    },
+    {
+      "featureId": "B-76a3:lifecycle-readiness",
+      "transcript": "node bin/lattice.js lifecycle_check for target DONE reports checklist 5/5 done, current-round review evidence present, no open blocking findings, validation passed, done-required validation passed, git worktree clean, branch synced with main. Remaining blockers are delivery-check, story-summary, and done_prepare."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery evidence is acceptable for the completed cleanup: all five checklist items are done with 15/15 must verification intents covered, routine validation and DONE-required build/test evidence pass, and independent residue checks agree with the transcript. I do not claim Authority/fullAuthority/production completion, and DONE still needs summary_set and done_prepare after this delivery-check artifact."
+  },
+  "_hash": "edf6211182eb9c174094733e4fad28e5acc14f1ae00fec0b5418713cc711cf82"
+}

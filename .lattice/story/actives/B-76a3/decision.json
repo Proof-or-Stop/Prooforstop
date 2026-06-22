@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Only remove or wire code with a demonstrated correctness mismatch.",
+    "Keep current host-neutral Lattice workflow boundaries intact.",
+    "Prefer narrow product-tree cleanup over broad architecture rearrangement.",
+    "Preserve regression coverage for any behavior that remains supported."
+  ],
+  "drivers": [
+    "The repo currently contains declared-but-unused dependency state and defined-but-unreachable implementation-review commands.",
+    "Package-local legacy active story metadata can confuse the active .lattice lifecycle model.",
+    "One-time migration scripts and legacy intent coverage helpers inflate the product tree unless clearly retained as supported tooling."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal correctness cleanup and command wiring",
+      "pros": [
+        "Fixes the concrete inconsistencies found by audit.",
+        "Keeps smoke tests and packages/lab out of scope.",
+        "Lowest behavioral risk while reducing misleading product surface."
+      ],
+      "cons": [
+        "Leaves broader test/source layout cleanup for a future story.",
+        "Requires careful reference checks before deleting scripts or metadata."
+      ]
+    },
+    {
+      "name": "B: Broad repository slimming pass",
+      "pros": [
+        "Could reduce line count more aggressively.",
+        "Would make the tree look cleaner immediately."
+      ],
+      "cons": [
+        "Risks deleting regression assets that protect Lattice lifecycle behavior.",
+        "Violates the no arbitrary optimization constraint.",
+        "Harder to verify as one focused correctness change."
+      ]
+    },
+    {
+      "name": "C: Do nothing and document the debt",
+      "pros": [
+        "No immediate code-change risk.",
+        "Preserves all historical artifacts in place."
+      ],
+      "cons": [
+        "Leaves implementation_review_result_set/get unreachable.",
+        "Leaves unused dependency metadata and obsolete active-story residue visible in the product tree.",
+        "Does not satisfy the user-approved cleanup request."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal correctness cleanup and command wiring",
+  "rationale": "Choose the narrow cleanup because each target has a specific correctness or product-surface inconsistency, while broader slimming would optimize for appearance rather than real defects.",
+  "preMortem": [
+    {
+      "scenario": "A one-time migration script is still referenced by a test or doc example.",
+      "trigger": "Deletion happens before full rg/npm-script reference checks.",
+      "consequence": "Tests or documented maintenance workflows break silently.",
+      "mitigation": "Use rg and package script checks first; only delete scripts with no live product references or update obsolete docs in the same scoped change."
+    },
+    {
+      "scenario": "implementation_review_result_set is wired without command schema or process fact alignment.",
+      "trigger": "Only registry registration is added.",
+      "consequence": "The command exists but help, validation, or review process semantics drift.",
+      "mitigation": "Wire registry and command catalog together, add a focused smoke test that exercises help/set/get behavior."
+    },
+    {
+      "scenario": "Removing intent-coverage.ts weakens legacy fixture compatibility unexpectedly.",
+      "trigger": "The file is deleted while fixtures still direct-import its dist module.",
+      "consequence": "Legacy fixture tests or coverage diagnostics fail after build.",
+      "mitigation": "Run reference checks and either remove/update direct legacy fixture tests or keep the module only if it has an active supported caller."
+    },
+    {
+      "scenario": "Package-local old story metadata removal hides useful evidence.",
+      "trigger": "Deleting old docs/story files without confirming they are not used by runtime tests.",
+      "consequence": "Historical traceability or fixture expectations are lost.",
+      "mitigation": "Keep migrated .lattice evidence untouched and verify no live runtime references package-local active story files before deletion."
+    }
+  ],
+  "timestamp": "2026-06-22T18:28:38.417Z"
+}

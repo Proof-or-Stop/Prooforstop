@@ -324,7 +324,7 @@ Likely files:
 | --- | --- |
 | `packages/main/src/handlers/checklist.ts` | Add repair handler or shared checklist mutation helper. |
 | `packages/main/src/handlers/story-review.ts` | Add evidence-aware missing-intent diagnostics. |
-| `packages/main/src/core/intent-coverage.ts` | Reuse evidence ref parsing and avoid duplicate parsing logic. |
+| `packages/main/src/handlers/checklist.ts` | Reuse the structured intent-ref parsing already used by verification evidence repair. |
 | `packages/main/src/core/verification.ts` | Add repair hint for validation output when legacy evidence exists. |
 | `packages/main/src/core/command-policy.ts` | Register the new command policy. |
 | `packages/main/src/core/process-fact-levels.ts` | Register repair audit facts if consumed by gates or reviews. |

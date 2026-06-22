@@ -329,17 +329,11 @@ When multiple methods of a module/class share one fixture, **each case must be a
 { "fn": "sendRoomMessage", "input": { "conversationKey": "bot1:room1", "content": "Hello" } }
 ```
 
-## Batch-Converting the Old Format
+## Migrating the Old Format
 
-For existing dispatch-style fixtures, batch-process them with the conversion script:
-
-```bash
-# Convert the entire fixtures directory
-node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures
-
-# Convert a single file
-node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
-```
+The old dispatch-style fixture conversion was a one-time migration. For any
+remaining cases, update the JSON directly or use `fixture_update` /
+`fixture_batch_add` so the fixture stays under the current CLI validation path.
 
 Conversion rules:
 - `input.method` → top-level `fn`

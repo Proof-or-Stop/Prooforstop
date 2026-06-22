@@ -88,54 +88,21 @@
       "storyId": "B-26bb",
       "_id": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
       "prevCaseId": "be88b7f4-e18c-4b15-8ed8-56176b728d23",
-      "nextCaseId": "8048036b-a300-469d-9358-737a274e9e6d"
-    },
-    {
-      "name": "coverage normalizes scoped and legacy refs",
-      "run_type": "cli",
-      "file": "core/intent-coverage",
-      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-coverage-\"));\ntry { mkdirSync(join(root,\"tests/fixtures\"),{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n writeFileSync(join(root,\"tests/fixtures/f.json\"), JSON.stringify({ cases:[{name:\"scoped\", intentRef:\"B-target:CHK-001:happy:0\"},{name:\"legacy\", storyId:\"B-target\", intentRef:\"CHK-001:edge:0\"},{name:\"other\", intentRef:\"B-other:CHK-001:adversarial:0\"}] }));\n const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); const refs = [...mod.collectFixtureIntentRefs(root,\"B-target\")].sort(); return { refs }; } finally { rmSync(root,{recursive:true,force:true}); }",
-      "expect": {
-        "refs": [
-          "CHK-001:edge:0",
-          "CHK-001:happy:0"
-        ]
-      },
-      "intentRef": "B-26bb:CHK-003:happy:0",
-      "sandbox": false,
-      "storyId": "B-26bb",
-      "_id": "8048036b-a300-469d-9358-737a274e9e6d",
-      "prevCaseId": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
       "nextCaseId": "78653eb0-de49-4a15-8ac1-d55316ebdfb0"
     },
     {
-      "name": "fixture_batch_add auto prefixes legacy intentRef for coverage",
+      "name": "fixture_batch_add auto prefixes legacy intentRef",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-prefix-\"));\ntry { mkdirSync(root,{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href); const { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href); const cov = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); const store = new StoryStore(root);\n createFixtureHandlers({root,scanRoot:root,store}).fixture_batch_add({fixturePath:\"auto\",storyId:\"B-target\",cases:[{name:\"auto prefix\",run_type:\"cli\",file:\"x\",execute:\"return true;\",expect:true,intentRef:\"CHK-001:happy:0\"}]});\n const refs = [...cov.collectFixtureIntentRefs(root,\"B-target\")]; return { ref: refs[0] }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-prefix-\"));\ntry { mkdirSync(root,{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href); const { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href); const store = new StoryStore(root);\n createFixtureHandlers({root,scanRoot:root,store}).fixture_batch_add({fixturePath:\"auto\",storyId:\"B-target\",cases:[{name:\"auto prefix\",run_type:\"cli\",file:\"x\",execute:\"return true;\",expect:true,intentRef:\"CHK-001:happy:0\"}]});\n const data = JSON.parse(readFileSync(join(root,\"tests/fixtures/auto.json\"),\"utf8\")); return { ref: data.cases[0].intentRef }; } finally { rmSync(root,{recursive:true,force:true}); }",
       "expect": {
-        "ref": "CHK-001:happy:0"
+        "ref": "B-target:CHK-001:happy:0"
       },
       "intentRef": "B-26bb:CHK-003:edge:0",
       "sandbox": false,
       "storyId": "B-26bb",
       "_id": "78653eb0-de49-4a15-8ac1-d55316ebdfb0",
-      "prevCaseId": "8048036b-a300-469d-9358-737a274e9e6d",
-      "nextCaseId": "59521777-eb77-40a9-9e1d-80c784626dd6"
-    },
-    {
-      "name": "other storyId scoped intentRef does not count",
-      "run_type": "cli",
-      "file": "core/intent-coverage",
-      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-other-\"));\ntry { mkdirSync(join(root,\"tests/fixtures\"),{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} })); writeFileSync(join(root,\"tests/fixtures/f.json\"), JSON.stringify({ cases:[{name:\"other\", intentRef:\"B-other:CHK-001:happy:0\"}] })); const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); return { count: mod.collectFixtureIntentRefs(root,\"B-target\").size }; } finally { rmSync(root,{recursive:true,force:true}); }",
-      "expect": {
-        "count": 0
-      },
-      "intentRef": "B-26bb:CHK-003:adversarial:0",
-      "sandbox": false,
-      "storyId": "B-26bb",
-      "_id": "59521777-eb77-40a9-9e1d-80c784626dd6",
-      "prevCaseId": "78653eb0-de49-4a15-8ac1-d55316ebdfb0",
+      "prevCaseId": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
       "nextCaseId": "b86f5c97-d635-408e-b644-92af035823cd"
     },
     {
@@ -150,7 +117,7 @@
       "sandbox": false,
       "storyId": "B-26bb",
       "_id": "b86f5c97-d635-408e-b644-92af035823cd",
-      "prevCaseId": "59521777-eb77-40a9-9e1d-80c784626dd6",
+      "prevCaseId": "78653eb0-de49-4a15-8ac1-d55316ebdfb0",
       "nextCaseId": "fa69a9a7-5788-41ec-b0c8-2585d064e397"
     },
     {

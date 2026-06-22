@@ -1,0 +1,36 @@
+{
+  "task": "Clean up concrete non-product or internally inconsistent legacy code in the Proofbound/Lattice CLI tree.",
+  "outcome": "After the story is done, running `npm test` prints all configured checks passing, `rg \"@modelcontextprotocol/sdk\" package.json packages/main/src packages/utils/src packages/lab/src` no longer finds a live dependency/import, `lattice implementation_review_result_set --help` shows a real command, and `git ls-files packages/main/docs/story/actives scripts/migrate-fixture-reform-v2.mjs scripts/migrate-fixture-reform.mjs scripts/convert-fixtures.cjs scripts/migrate-annotations.cjs scripts/remove-file-level-test.cjs` prints no product-tracked legacy residue.",
+  "facts": [
+    "Root package.json declares @modelcontextprotocol/sdk but current source has no import for it.",
+    "packages/main/src/handlers/implementation-review.ts exports createImplementationReviewHandlers but registry and command catalog do not expose implementation_review_result_set/get.",
+    "packages/main/src/core/intent-coverage.ts has no current runtime import and still models fixture/testIntent coverage.",
+    "Several scripts are one-time migration utilities and are not referenced by npm scripts or runtime entrypoints.",
+    "packages/main/docs/story/actives contains old package-local active story metadata while current story state lives under .lattice/story/actives."
+  ],
+  "constraints": [
+    "Do not optimize for optimization or arbitrary cleanup.",
+    "Only fix real correctness issues and preserve consistency of logic.",
+    "Keep packages/lab and the smoke/regression suite unless directly affected by the five approved cleanup items.",
+    "Do not mutate migrated local legacy evidence except current B-76a3 metadata.",
+    "No GitHub push from this story worktree."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/implementation-review.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/tests/fixtures/fixture-preview-runner-parity.json",
+    "scripts/convert-fixtures.cjs",
+    "scripts/migrate-annotations.cjs",
+    "scripts/migrate-fixture-reform.mjs",
+    "scripts/migrate-fixture-reform-v2.mjs",
+    "scripts/remove-file-level-test.cjs",
+    "packages/main/docs/story/actives",
+    "packages/main/docs/metadata/task.json"
+  ],
+  "timestamp": "2026-06-22T18:28:19.982Z"
+}

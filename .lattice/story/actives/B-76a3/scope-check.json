@@ -1,0 +1,86 @@
+{
+  "storyId": "B-76a3",
+  "checkedAt": "2026-06-22T18:38:51.374Z",
+  "features": [
+    {
+      "feature": "CHK-001 root MCP dependency cleanup",
+      "covered_by": "Checklist CHK-001 requires removing @modelcontextprotocol/sdk only from root package metadata and package-lock after live-reference checks; plan.md CHK-001 limits the change to package.json/package-lock.json dependency removal or lock normalization and requires rg plus diff review.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist, understanding, decision, plan.md"
+    },
+    {
+      "feature": "CHK-002 implementation-review command wiring",
+      "covered_by": "Checklist CHK-002 identifies implementation_review_result_set/get as defined but unwired and prefers wiring because docs/store already reference implementation-review.json; plan.md CHK-002 registers createImplementationReviewHandlers, adds command catalog schema/help, preserves handler invariants, and verifies help plus negative validation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist, understanding, decision, plan.md"
+    },
+    {
+      "feature": "CHK-003 obsolete intent-coverage removal",
+      "covered_by": "Checklist CHK-003 requires resolving packages/main/src/core/intent-coverage.ts without weakening verificationIntent/verificationEvidence coverage; plan.md CHK-003 confirms no live runtime import, removes obsolete runtime core module only if held by legacy direct fixture references, and verifies story_review still recognizes all intents.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist, understanding, decision, plan.md"
+    },
+    {
+      "feature": "CHK-004 one-time migration script deletion and docs update",
+      "covered_by": "Checklist CHK-004 names the one-time migration scripts and requires no package/runtime/test/doc invocation remains; plan.md CHK-004 deletes only the approved script list after reference checks and updates docs that mention removed script paths.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist, understanding, decision, plan.md"
+    },
+    {
+      "feature": "CHK-005 package-local legacy metadata removal",
+      "covered_by": "Checklist CHK-005 targets packages/main/docs/story/actives while preserving canonical .lattice story metadata; plan.md CHK-005 removes tracked package-local legacy active story files, preserves current B-76a3 .lattice metadata, and verifies CLI readability.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist, understanding, decision, plan.md"
+    },
+    {
+      "feature": "Broad repository slimming or architecture rewrite",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Decision option B is rejected as too broad; plan.md Scope Principles excludes broad architecture rewrites and arbitrary optimization.",
+      "source": "decision, plan.md"
+    },
+    {
+      "feature": "Deleting packages/lab or supported smoke/regression tooling",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints preserve packages/lab and smoke/regression suite unless directly affected by the five approved items; plan.md explicitly excludes deleting packages/lab or supported smoke/regression tooling.",
+      "source": "understanding, plan.md"
+    },
+    {
+      "feature": "Unrelated Authority dispatch planner browser or serve behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope excludes reworking Authority, dispatch, planner, browser, or serve behavior unrelated to the five approved cleanup targets.",
+      "source": "plan.md"
+    },
+    {
+      "feature": "Mutating migrated legacy evidence outside current B-76a3 metadata",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints say not to mutate migrated local legacy evidence except current B-76a3 metadata; plan.md Out of scope repeats that migrated local legacy evidence outside B-76a3 must not be mutated.",
+      "source": "understanding, plan.md"
+    },
+    {
+      "feature": "Remote GitHub publishing",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints forbid GitHub push from this story worktree; plan.md Out of scope excludes pushing to GitHub.",
+      "source": "understanding, plan.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 5,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2b6480837f0ee5b77a29e20b961c5cb5bd89bad70c9117b13ff198e7e42bb046"
+}

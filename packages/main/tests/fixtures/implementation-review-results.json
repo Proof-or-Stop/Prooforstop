@@ -185,7 +185,7 @@
       "name": "CHK-004 adversarial: registry and CLI both expose implementation review result commands",
       "run_type": "cli",
       "file": "registry",
-      "execute": "const { readFileSync } = await import('fs');\nconst reg = readFileSync($root + '/packages/main/src/registry.ts', 'utf8');\nconst cli = readFileSync($root + '/packages/main/src/cli-engine.ts', 'utf8');\nreturn { registryHasHandler: reg.includes('createImplementationReviewHandlers'), cliHasCommands: cli.includes('implementation_review_result_set') && cli.includes('implementation_review_result_get') };",
+      "execute": "const { readFileSync } = await import('fs');\nconst reg = readFileSync($root + '/packages/main/src/registry.ts', 'utf8');\nconst cli = readFileSync($root + '/packages/main/src/cli/command-catalog.ts', 'utf8');\nreturn { registryHasHandler: reg.includes('createImplementationReviewHandlers'), cliHasCommands: cli.includes('implementation_review_result_set') && cli.includes('implementation_review_result_get') };",
       "expect": {
         "registryHasHandler": true,
         "cliHasCommands": true
