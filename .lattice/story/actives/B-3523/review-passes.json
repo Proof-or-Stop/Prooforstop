@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-22T23:51:43.015Z",
       "reviewRunId": "B-3523:RR-010",
       "_hash": "784741a6a7326effc0075c16049cbbe703b58c9ae09543948fce42cde4e430db"
+    },
+    {
+      "id": "B-3523:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality merge review clean: experiments/recovery-runner has no @lattice-agent/@koala-agent/lattice-agent/koala-agent/package-runtime references; package.json and lockfile metadata use @lattice/core,@lattice/utils,@lattice/lab; runtime and entrypoint guards passed via verify-runtime-fact-contract, verify-entrypoints, and verify-global-lab-entrypoint all.",
+      "createdAt": "2026-06-22T23:56:36.229Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-009",
+      "_hash": "87d498ec41481fe12d27d9ce49272830c4104f8a3da8a94cd7baf0bbd9868ace"
     }
   ]
 }
