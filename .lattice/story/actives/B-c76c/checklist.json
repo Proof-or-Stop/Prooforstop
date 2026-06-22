@@ -50,7 +50,7 @@
         "packages/main/package.json",
         "lattice.config.json"
       ],
-      "userSees": "Proofbound tracked source and config reflect the 0.3.63 baseline while AGENTS.md and CLAUDE.md remain proofbound-appropriate.",
+      "userSees": "The terminal path audit prints `excludedRootDocs: clean` and `excludedLegacyEvidence: clean` while imported tracked paths show source/config/docs changes only.",
       "verificationIntent": {
         "happy": [
           {
@@ -76,7 +76,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "lattice.config.json",
+          "packages/main/src",
+          "scripts",
+          "docs/requirements"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
