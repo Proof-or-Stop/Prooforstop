@@ -339,9 +339,9 @@
         "docs/requirements/decisions/orchestrate-retirement.md"
       ],
       "userSees": "`test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-3523` and `test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` succeed; `git -C /Users/jek/Documents/Work/Orchestrate worktree list` has no active `B-3523` or `B-fbb6` worktree path.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-22T21:55:49.184Z",
       "files": {
         "modify": [
           "docs/evidence/orchestrate-legacy-index.md"
@@ -373,7 +373,42 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-3523 && test -d /Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6",
+          "result": "pass",
+          "note": "Both migrated proofbound worktree directories exist.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.420Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "git -C /Users/jek/Documents/Work/Orchestrate worktree list --porcelain | rg 'B-3523|B-fbb6' || true; git -C /Users/jek/Documents/Work/Orchestrate branch --list 'story/B-3523' 'story/B-fbb6'",
+          "result": "pass",
+          "note": "Commands returned no B-3523/B-fbb6 Orchestrate worktree or branch entries.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git -C /Users/jek/Documents/Work/Orchestrate worktree list --porcelain",
+          "result": "pass",
+          "note": "Remaining Orchestrate worktrees are main plus detached temp/lab branches; they are reported separately and are not B-3523/B-fbb6 active migrated stories.",
+          "headHash": "d901f20a58031eefca3a3c318bf334b5d668ff19",
+          "materialHash": "3f53c64583c01f52b7ba7bb1e374d6ec813c5744a87c408de9d0df4e8bcf0bce",
+          "storyFilesHash": "453551dd4480bb41b13c0ac2d3420df488c93427357dce9676b76f045a16f8c8",
+          "timestamp": "2026-06-22T21:55:49.814Z"
+        }
+      ]
     }
   ]
 }
