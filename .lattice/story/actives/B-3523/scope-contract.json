@@ -7,7 +7,9 @@
     "packages/main/package.json",
     "packages/main/package-lock.json",
     "packages/utils/package.json",
+    "packages/utils/package-lock.json",
     "packages/lab/package.json",
+    "packages/lab/package-lock.json",
     "packages/main/src/init-assets.ts",
     "packages/main/src/cli-init.ts",
     "packages/main/src/cli.ts",
@@ -57,8 +59,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Audit found two active smoke fixtures still generating or resolving the retired @lattice-agent/core package name; updating them is required for package-scope consistency.",
+  "scopeChangeReason": "F-001 fix requires package-lock metadata for @lattice/lab and @lattice/utils so dry-run installs validate renamed package dependencies instead of relying on stale manual manifests.",
   "acknowledgements": [],
   "createdAt": "2026-06-22T23:04:09.249Z",
-  "updatedAt": "2026-06-22T23:11:20.438Z"
+  "updatedAt": "2026-06-22T23:30:29.319Z"
 }
