@@ -185,6 +185,39 @@
         }
       ],
       "_hash": "0e42467b2be3047ac88b0261a0bf54de60f14a863624e261eb7dd120c6432f18"
+    },
+    {
+      "timestamp": "2026-06-22T23:03:39.568Z",
+      "issueCount": 5,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice + Flip the 27 internal imports + self-host name constants to @lattice/core are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: scripts/verify-*.mjs is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: AGENTS.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3523 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "e9746523b520ccb7bda585418af39a861dc51ba34b122333049cfb8deed1146f"
     }
   ]
 }
