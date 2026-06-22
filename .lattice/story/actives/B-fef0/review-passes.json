@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-22T23:07:15.198Z",
       "reviewRunId": "B-fef0:RR-006",
       "_hash": "f05ea787ce7f5fa37d9e01117ece197c2d742ba20dfe6b9b955b7770c0e90759"
+    },
+    {
+      "id": "B-fef0:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 doc fixes verified: (1) README now correctly separates fixture-only=Node from end-to-end runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) that shell out to claude -p — confirmed by grep of execFileSync(claude) in all three runner files; run-ablation.mjs invokes run-recovery.mjs which calls claude, consistent with the README. (2) run-recovery.mjs header comment now lists a2prime/a4/a4b matching the three arm branches in code (lines 88, 137, 146). No dead imports, no empty catch swallowing errors (all catch blocks return structured error objects), no secrets, no doc-promise-undelivered. No blockers found.",
+      "createdAt": "2026-06-22T23:09:24.631Z",
+      "reviewRound": "2026-06-22T23:07:15.198Z",
+      "reviewRunId": "B-fef0:RR-004",
+      "_hash": "c07377a1eaedf9f4093ae4543375535eb5daff1becc452e87d21d420c0bfd584"
     }
   ]
 }
