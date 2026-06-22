@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fef0",
+  "changes": "Re-onboarded the recovery-runner experiment harness CODE into the canonical proofbound repo (33 files: 3 runners + per-task fixtures for eval-expr/median/parse-range/text-stats + 2 generic injections + README); the 14 .jsonl run-records stay in the paper repo. Source = the fixed/reviewed copy from the legacy Orchestrate checkout (incl the non-string typeof guard). Closed the migration gap where the legacy B-add9 onboarding did not carry to proofbound.",
+  "usage": "In proofbound, git ls-files experiments/recovery-runner now lists 33 code files + README and zero .jsonl; to re-verify a task copy its reference-solution.mjs to solution.mjs and run acceptance.mjs + ground-truth.mjs.",
+  "expectedOutcome": "The harness code is version-controlled + gate-reviewed in proofbound; each task reference-solution passes its acceptance + hidden ground-truth; no .jsonl tracked.",
+  "actualTranscript": "33 files tracked, 0 .jsonl; fixture self-consistency all PASS (eval-expr 20/9, median 8/8, parse-range 11/12, text-stats 6/5); genuine 2-host: 3 claude lanes PASS, codex host-2 round-1 BLOCK on 2 doc inaccuracies (README node-only wording; stale run-recovery arm comment) -> fixed in 324fc31d7 -> codex round-2 SHIP; full npm test green.",
+  "outcomeDiff": "expected == actual: code tracked + reviewed in the canonical repo, data excluded, fixtures self-consistent; the 2 host-2 doc findings were fixed and re-verified.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The 14 .jsonl run-records are intentionally not tracked (experiment data in the paper repo). The runner end-to-end invokes the host CLI (claude -p); only fixture self-consistency was verified in-gate.",
+  "pitfalls": "Two injection mechanisms coexist: eval-expr uses a drop-in payload-subtle.mjs while median/parse-range use inject()-module payloads (overfit/subtle-wrong-output.mjs) that fail acceptance if copied directly as solution.mjs. Cross-vendor review mattered: host-2 (codex) caught 2 doc inaccuracies the 3 same-vendor lanes passed over.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 124854
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12640
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 343169
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 409190
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 783265
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 186804
+    }
+  },
+  "totalDurationMs": 1859942,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T23:16:25.183Z",
+  "updatedAt": "2026-06-22T23:16:25.183Z"
+}
