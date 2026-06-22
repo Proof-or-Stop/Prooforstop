@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-22T21:15:20.315Z",
       "reviewRunId": "B-c76c:RR-001",
       "_hash": "fc31cb16840fea5cce93ac2b7b6932a508e4d6224226ac294dc00796a8328c2b"
+    },
+    {
+      "id": "B-c76c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS for baseline sync. Evidence: refs/remotes/orchestrate/main resolves to e037fd83 and reports package/LATTICE version 0.3.63; git diff --name-status HEAD refs/remotes/orchestrate/main -- package.json packages/main/package.json lattice.config.json packages/main/src scripts docs/requirements produced no diff; package-lock.json differs only by two root version fields, with proofbound corrected to 0.3.63 while the Orchestrate ref still has stale 0.3.49 lock metadata; git diff --name-only main...HEAD -- AGENTS.md CLAUDE.md .lattice/local-evidence experiments docs/story tests/fixtures packages/main/tests/fixtures produced no imported excluded paths; git diff main...HEAD -G for Orchestrate/user paths/retired-root/.omx terms in changed hunks produced no output; node bin/lattice.js --version printed Lattice CLI 0.3.63.",
+      "createdAt": "2026-06-22T21:19:05.089Z",
+      "reviewRound": "2026-06-22T21:15:20.315Z",
+      "reviewRunId": "B-c76c:RR-002",
+      "_hash": "f8e7fe4e50d0cad0dff1321e22007d690e9ae7fbf12479e83f5060b327321cf4"
     }
   ]
 }
