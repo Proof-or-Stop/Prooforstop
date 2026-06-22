@@ -1,0 +1,51 @@
+{
+  "storyId": "B-3523",
+  "checkedAt": "2026-06-20T23:33:25.408Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "Background Key Insights claims 27 internal @lattice-agent imports; actual count of import/require statements in packages/src is 1 (cli-init.ts:798). The remaining references are string literals, path joins, constants, comments, and test fixtures — not import statements. CHK-002 title propagates the same count. CHK-004 git-grep acceptance gate catches any misses."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-002 and CHK-003 both touch codex-adapter-checks.ts globalCoreCandidates without stating the split explicitly: CHK-002 owns the @lattice-agent/core entry, CHK-003 owns @koala-agent/core. Ambiguity could cause one item to assume the other covers it."
+    },
+    {
+      "severity": "low",
+      "desc": "Several @lattice-agent files not enumerated in background or checklist scope: prompt-registry.ts (PROMPT_REGISTRY_SOURCE), runtime-fact-registry.ts (3 strings), init-assets.ts (path joins + error strings). CHK-004 grep gate covers them regardless."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-20T23:33:03.019Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 leaves the @lattice-agent/core transitional-fallback keep/drop decision as optionally for PLAN to finalize. This is appropriately deferred but the planner should make a definitive call before DEV begins."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-20T23:33:25.408Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Background Key Insights claims 27 internal @lattice-agent imports; actual count of import/require statements in packages/src is 1 (cli-init.ts:798). The remaining references are string literals, path joins, constants, comments, and test fixtures — not import statements. CHK-002 title propagates the same count. CHK-004 git-grep acceptance gate catches any misses."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 and CHK-003 both touch codex-adapter-checks.ts globalCoreCandidates without stating the split explicitly: CHK-002 owns the @lattice-agent/core entry, CHK-003 owns @koala-agent/core. Ambiguity could cause one item to assume the other covers it."
+        },
+        {
+          "severity": "low",
+          "desc": "Several @lattice-agent files not enumerated in background or checklist scope: prompt-registry.ts (PROMPT_REGISTRY_SOURCE), runtime-fact-registry.ts (3 strings), init-assets.ts (path joins + error strings). CHK-004 grep gate covers them regardless."
+        }
+      ]
+    }
+  ],
+  "_hash": "44c8b95bf1048c80577c60d28ee211cfbc0e3f9d0d8b1bee06f4a63a2849d534"
+}

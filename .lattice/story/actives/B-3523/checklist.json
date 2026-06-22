@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice",
+      "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Flip the 27 internal imports + self-host name constants to @lattice/core",
+      "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fix pre-push self-host check + retire legacy @koala-agent/core global fallback",
+      "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update hooks + docs to @lattice; run all self-host gates green",
+      "context": "Update .codex/hooks + .claude/hooks, README.md, CLAUDE.md, CHANGELOG.md, and the couple of decision docs that name @lattice-agent as the current scope (NOT frozen .lattice/ history or docs/koala/ audits). Acceptance: `git grep -nE '@lattice-agent' -- . ':(exclude).lattice/**'` shows no LIVE current-scope reference (only intentional anti-residue assertions naming it as forbidden, if any, are justified); `git grep '@koala-agent/core'` shows only the residue-checker pattern + anti-residue assertions, no live fallback. Run green: full build + recursive tsc --noEmit, `lattice codex verify`, `lattice rollout check`, the koala-residue + runtime-fact + entrypoints verifiers, and confirm .githooks/pre-push now executes its build+tsc path under @lattice/core.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
