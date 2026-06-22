@@ -102,6 +102,18 @@
           "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
           "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
           "timestamp": "2026-06-22T22:56:08.933Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files experiments/recovery-runner/tasks/ | grep subtle-wrong-output | wc -l",
+          "result": "pass",
+          "note": "4 hits = one subtle-wrong-output.mjs per task.",
+          "headHash": "878e82d587f0f2802d92758febac83a40c03085e",
+          "materialHash": "843106f697da26519622f9c139313132aeddc0d152014b180e9e276498c4ba24",
+          "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+          "timestamp": "2026-06-22T22:56:10.738Z"
         }
       ]
     },
