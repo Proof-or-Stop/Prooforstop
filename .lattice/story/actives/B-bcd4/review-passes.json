@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-22T21:56:36.606Z",
       "reviewRunId": "B-bcd4:RR-001",
       "_hash": "f14e79eef07b626a4e7e507965778a110549e9c6fa0ea1ddd69a9fadee64bf03"
+    },
+    {
+      "id": "B-bcd4:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed. Checklist intents/evidence cover read-only allowed, mutating rejected, validate diagnostic vs --story boundary, missing canonicalRoot fail-closed behavior, actual Orchestrate retired-root manual transcript expectations, and B-3523/B-fbb6 migration checks. Reran focused scripts: npm --prefix packages/main run test:retired-root-guard and npm --prefix packages/main run test:command-ownership-contract; both passed. Also verified Orchestrate config is retiredRoot with canonicalRoot proofbound and migrated proofbound worktree directories exist with no B-3523/B-fbb6 Orchestrate worktree/branch entries.",
+      "createdAt": "2026-06-22T22:00:29.036Z",
+      "reviewRound": "2026-06-22T21:56:36.606Z",
+      "reviewRunId": "B-bcd4:RR-002",
+      "_hash": "cdedff8f48e880920a1df7897718c9030966a3f2a1d9b86a6b4715430bed199d"
     }
   ]
 }
