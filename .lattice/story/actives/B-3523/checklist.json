@@ -101,9 +101,9 @@
       "id": "CHK-002",
       "title": "Flip the 27 internal imports + self-host name constants to @lattice/core",
       "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-22T23:16:17.675Z",
-      "endTime": null,
+      "endTime": "2026-06-22T23:16:56.131Z",
       "userSees": "`node bin/lattice.js --version` still prints Lattice CLI 0.3.65 after TypeScript imports, self-host constants, and generated local bootstrap paths use @lattice/core.",
       "files": {
         "modify": [
@@ -162,7 +162,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/lab run build",
+          "result": "pass",
+          "note": "All three TypeScript packages build under @lattice/core, @lattice/utils, and @lattice/lab; live TypeScript imports/constants compile.",
+          "headHash": "9761c9ae5a4daab893b3e3e7681f70636787df94",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:56.794Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Entry point verifier confirms generated local bootstrap searches node_modules/@lattice/core and rejects stale global fallback without required commands.",
+          "headHash": "9761c9ae5a4daab893b3e3e7681f70636787df94",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:57.444Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg retired @lattice-agent runtime candidates in active src and verifier files",
+          "result": "pass",
+          "note": "Only anti-regression assertions remain for retired @lattice-agent/core; no live runtime candidate or bootstrap path uses it.",
+          "headHash": "9761c9ae5a4daab893b3e3e7681f70636787df94",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:57.990Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js && node bin/lattice.js --version",
+          "result": "pass",
+          "note": "Runtime contract, version-bump fixture, validation-protocol runtime fixture, and local CLI version all pass with @lattice/core.",
+          "headHash": "9761c9ae5a4daab893b3e3e7681f70636787df94",
+          "materialHash": "381ad59943896e8d6c1ddd4739aedcd3949c8d81893295611cfe1ee5e7381544",
+          "storyFilesHash": "444383ffe4c4228a560c85d1a5a41216739a29562685ba2560db1abeed7b34e6",
+          "timestamp": "2026-06-22T23:16:58.642Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
