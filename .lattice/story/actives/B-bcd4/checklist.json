@@ -7,7 +7,46 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Project config can explicitly say this checkout is retired and points to /Users/jek/Documents/Work/proofbound as canonicalRoot; read-only commands still show legacy evidence instead of deleting it."
+      "userSees": "Configuration supports exact retired-root state: config contains `retiredRoot: true` and `canonicalRoot: \"/Users/jek/Documents/Work/proofbound\"`; proofbound config does not print a retired-root warning.",
+      "relatedDocs": [
+        "docs/requirements/decisions/orchestrate-retirement.md",
+        "docs/evidence/orchestrate-legacy-index.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "docs/requirements/decisions/orchestrate-retirement.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-root-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A project config with retiredRoot true and canonicalRoot resolves to a typed retired-root policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A normal proofbound config without retiredRoot behaves exactly as before and does not emit a retired-root warning.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A retiredRoot config without canonicalRoot fails with an actionable config error instead of silently allowing writes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
