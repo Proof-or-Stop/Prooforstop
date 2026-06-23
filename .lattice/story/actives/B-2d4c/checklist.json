@@ -62,6 +62,17 @@
           "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-23T04:12:23.645Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
+          "result": "pass",
+          "note": "Clean inputs (benign source paths, benign prose, ls/cat, src create, ls) => every detector returns false; empty-input case asserts each unsafeChecks key strict-boolean false.",
+          "headHash": "1411e062fcb9f02f467b9a56c3d4374ed7bbd91f",
+          "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:12:24.139Z"
         }
       ]
     },
