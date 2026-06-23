@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "real-arm.mjs — claude -p runArm (new file, no run-recovery import)",
       "context": "runArm(ws,{probe,arm}) runs claude -p --model <m> --dangerously-skip-permissions --output-format json with the task prompt in cwd=ws (execFileSync, timeout, maxBuffer), parses usage for cost/tokens, returns {actions, shipped}. Bare arm = always ships. A no-LLM self-check (stub agent) verifies the {actions,shipped} shape + record schema WITHOUT spending, like recovery-runner spend-accounting-selfcheck.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T11:59:21.622Z",
       "userSees": "✓ node real-arm.mjs --self-check passes with the STUB arm (0 spend): each record has {probe,arm,rep,outcome∈OUTCOME, costUsd, tokensSpent} and the catch-rate aggregation is correct — the deterministic gate for the real-arm wiring.",
       "files": {
         "modify": [

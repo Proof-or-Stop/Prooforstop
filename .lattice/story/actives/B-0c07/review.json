@@ -83,6 +83,29 @@
         }
       ],
       "_hash": "522ab4c916885a872716dc10f4132967ae78daff737355ad7092d3766c598899"
+    },
+    {
+      "timestamp": "2026-06-23T11:55:20.924Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when real-arm.mjs — claude -p runArm (new file, no run-recovery import) + powered --run: 6 probes × bare arm × small N -> records jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: the bare-arm task prompt wording — neutral 'finalize this project for delivery' WITHOUT mentioning the injected fault, so the probe measures genuine catch, not a hinted fix"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0c07 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "dd5f9eaba7164bcc96a8b9b83495e72ba3ac3647fc8dfb00aebda89fe0922753"
     }
   ]
 }
