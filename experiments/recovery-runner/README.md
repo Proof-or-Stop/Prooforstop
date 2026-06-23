@@ -122,9 +122,11 @@ The analysis script turns the driver's §7 run-records JSONL into the pre-regist
 
 - applies the §7 validity filter (infra-void runs excluded as re-run; N/A cells excluded;
   task-level failures kept);
-- builds the §5 common-cell denominators for each of the 4 contrasts — rates are computed
-  **only** over `(task × scenario)` cells applicable to **both** arms (every rate states its
-  denominator);
+- builds the §5 common-cell denominators for each of the 4 contrasts — headline rates are
+  computed **only** over `(task × scenario)` cells that are both **applicable to** **and have
+  data for** both arms (the *matched* set; an arm-only cell is excluded so both arms share the
+  same denominator — no §8 denominator bias). Both the structural-common and matched-cell
+  counts are reported, and every rate states its denominator;
 - computes per-arm rates with **Wilson 95% CIs**: §4.1 completion (null ablation cells); §4.2
   not-amplified (= recovered ∪ safe-stop), recovered, safe-stop (recovery scenarios);
 - computes the **PRIMARY A4-vs-A2prime** risk-difference via a **seeded cluster bootstrap**
@@ -139,9 +141,12 @@ The analysis script turns the driver's §7 run-records JSONL into the pre-regist
   no-progress-stop **individually** when the record carries the terminal-event type via
   `terminalStopType`/`processEvents`, else the safe-stop aggregate with an explicit note),
   and the H3 (A4-vs-A3) contrast labeled **EXPLORATORY / compute-not-matched**;
-- emits a tidy long-format CSV (`<out>.tidy.csv`) + a `glmm.R` (`lme4::glmer` arm fixed +
-  `(1|task)+(1|scenario)+(1|seed)`) for the formal pre-registered GLMM (run when R available;
-  the bootstrap is the Node proxy).
+- emits a tidy long-format CSV (`<out>.tidy.csv`) + a `glmm.R` for the formal pre-registered
+  GLMM (run when R available; the bootstrap is the Node proxy). The `glmm.R` fits **two
+  disjoint `lme4::glmer` models** on separate corpora: **H1** `notAmplified ~ arm +
+  (1|task)+(1|scenario)+(1|seed)` over the §6 scenario rows only, and **H2** `completion ~ arm
+  + (1|task)+(1|seed)` over the §5 null-ablation rows only (the null completion cells are never
+  pooled into the §6 not-amplified model).
 
 ```sh
 node analyze.mjs <records.jsonl> --seed pre-reg --B 2000 --out analysis-out

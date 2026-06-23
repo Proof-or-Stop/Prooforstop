@@ -139,14 +139,34 @@ export const OUTCOME = Object.freeze({
   amplified: (r) => r.adjudicatedOutcome === 'amplified',
 });
 
-// perArmRate(records, arm, predicate, {scenarioPred}) -> Wilson result over the arm's runs
-// (optionally restricted by a scenario predicate, e.g. null-only for completion).
-export function perArmRate(records, arm, predicate, { scenarioPred } = {}) {
+const cellKeyOf = (r) => `${r.taskId}|${r.scenarioId == null ? null : r.scenarioId}`;
+// matchedCellKeys: the (task,scenario) cells that are (a) structurally common to the contrast
+// (scenario applies to BOTH arms), (b) pass the optional scenarioPred, AND (c) have >=1 kept
+// run for BOTH armA and armB. Headline common-cell rates use THIS matched set so both arms
+// share the SAME denominator (avoids the §8 denominator-bias an arm-only cell would cause).
+export function matchedCellKeys(records, contrastId, armA, armB, { scenarioPred } = {}) {
+  const hasA = new Set(), hasB = new Set();
+  for (const r of (records || [])) {
+    const sc = r.scenarioId == null ? null : r.scenarioId;
+    if (!isCommonCell(contrastId, sc)) continue;
+    if (scenarioPred && !scenarioPred(sc)) continue;
+    if (r.arm === armA) hasA.add(cellKeyOf(r));
+    else if (r.arm === armB) hasB.add(cellKeyOf(r));
+  }
+  const out = new Set();
+  for (const k of hasA) if (hasB.has(k)) out.add(k);
+  return out;
+}
+// perArmRate(records, arm, predicate, {scenarioPred, cellKeys}) -> Wilson result over the arm's
+// runs. When cellKeys (a Set of "task|scenario") is given, only runs in those matched cells are
+// counted — so a paired contrast scores both arms over the SAME denominator.
+export function perArmRate(records, arm, predicate, { scenarioPred, cellKeys } = {}) {
   let k = 0, n = 0;
   for (const r of (records || [])) {
     if (r.arm !== arm) continue;
     const sc = r.scenarioId == null ? null : r.scenarioId;
     if (scenarioPred && !scenarioPred(sc)) continue;
+    if (cellKeys && !cellKeys.has(cellKeyOf(r))) continue;
     n++; if (predicate(r)) k++;
   }
   return wilson(k, n);
@@ -175,7 +195,9 @@ export function clusterBootstrap(records, {
     if (!clusters.has(key)) clusters.set(key, { A: [], B: [] });
     clusters.get(key)[r.arm === armA ? 'A' : 'B'].push(r);
   }
-  const keys = [...clusters.keys()];
+  // MATCHED clusters only: a cluster where one arm has no kept run is dropped, so the
+  // resampled per-arm rates are always over the SAME cells (no denominator bias; F-010).
+  const keys = [...clusters.keys()].filter((k) => clusters.get(k).A.length > 0 && clusters.get(k).B.length > 0);
   const rate = (rows) => {
     let k = 0, n = 0;
     for (const r of rows) { n++; if (predicate(r)) k++; }
@@ -405,10 +427,19 @@ export function analyze(parsedRecords, { seed = 'pre-reg', bootstrapB = 2000 } =
   const filtered = applyValidityFilter(parsedRecords);
   const kept = filtered.kept;
 
-  // per-contrast common-cell denominators
+  // per-contrast denominators: the structural common cells (scenario applies to both arms) AND
+  // the MATCHED cells (both arms also have >=1 kept run) — headline rates use the matched set.
+  const scenarioPredFor = (contrastId) => (sc) => sc !== ABLATION_SCENARIO && isCommonCell(contrastId, sc);
   const denominators = {};
+  const matchedFor = {};
   for (const c of CONTRASTS) {
-    denominators[c.id] = { role: c.role, arms: c.arms, commonCells: commonCellKeys(c.id, kept) };
+    const matched = matchedCellKeys(kept, c.id, c.arms[0], c.arms[1], { scenarioPred: scenarioPredFor(c.id) });
+    matchedFor[c.id] = matched;
+    denominators[c.id] = {
+      role: c.role, arms: c.arms,
+      commonCells: commonCellKeys(c.id, kept),       // structural (applicable to both arms)
+      matchedCells: [...matched].sort(),             // both arms also have data (rate denominator)
+    };
   }
 
   // §5 ablation completion (null cells) per arm
@@ -416,17 +447,18 @@ export function analyze(parsedRecords, { seed = 'pre-reg', bootstrapB = 2000 } =
   const completion = {};
   for (const a of ARMS) completion[a] = perArmRate(kept, a, OUTCOME.completion, { scenarioPred: nullPred });
 
-  // §6 per-arm not-amplified/recovered/safe-stop over each contrast's common cells
-  const scenarioPredFor = (contrastId) => (sc) => sc !== ABLATION_SCENARIO && isCommonCell(contrastId, sc);
+  // §6 per-arm not-amplified/recovered/safe-stop over each contrast's MATCHED common cells
+  // (both arms scored over the SAME cell set → no denominator bias, F-010).
   const recoveryRates = {};
   for (const c of CONTRASTS) {
     const sp = scenarioPredFor(c.id);
+    const ck = matchedFor[c.id];
     recoveryRates[c.id] = {};
     for (const a of c.arms) {
       recoveryRates[c.id][a] = {
-        notAmplified: perArmRate(kept, a, OUTCOME.notAmplified, { scenarioPred: sp }),
-        recovered: perArmRate(kept, a, OUTCOME.recovered, { scenarioPred: sp }),
-        safeStop: perArmRate(kept, a, OUTCOME.safeStop, { scenarioPred: sp }),
+        notAmplified: perArmRate(kept, a, OUTCOME.notAmplified, { scenarioPred: sp, cellKeys: ck }),
+        recovered: perArmRate(kept, a, OUTCOME.recovered, { scenarioPred: sp, cellKeys: ck }),
+        safeStop: perArmRate(kept, a, OUTCOME.safeStop, { scenarioPred: sp, cellKeys: ck }),
       };
     }
   }
@@ -498,7 +530,7 @@ function main() {
   for (const a of ARMS) console.log(`  ${a.padEnd(8)} ${pct(res.completion[a])}`);
   console.log(`\n## §6 not-amplified per arm over each contrast's common cells (denominator stated)`);
   for (const c of CONTRASTS) {
-    console.log(`  [${c.id}] common cells=${res.denominators[c.id].commonCells.length}`);
+    console.log(`  [${c.id}] common cells=${res.denominators[c.id].commonCells.length} | matched (both arms have data)=${res.denominators[c.id].matchedCells.length}`);
     for (const a of c.arms) console.log(`    ${a.padEnd(8)} not-amplified ${pct(res.recoveryRates[c.id][a].notAmplified)} | recovered ${pct(res.recoveryRates[c.id][a].recovered)} | safe-stop ${pct(res.recoveryRates[c.id][a].safeStop)}`);
   }
   const rd = (x) => x.riskDiff == null ? 'n/a' : `${(100 * x.riskDiff).toFixed(1)}pp [${(100 * x.ciLo).toFixed(1)},${(100 * x.ciHi).toFixed(1)}] (${x.nClusters} clusters, B=${x.B}, seed=${x.seed})`;

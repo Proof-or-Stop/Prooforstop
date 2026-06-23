@@ -8,7 +8,7 @@
 // fdr (Benjamini–Hochberg), reporting (cost / A2prime tolerance-band / secondary detectors /
 // H3 label), emit (CSV + glmm.R), and a NEGATIVE CONTROL proving the asserts aren't vacuous.
 import {
-  parseRecords, applyValidityFilter, isCommonCell, commonCellKeys, wilson, OUTCOME,
+  parseRecords, applyValidityFilter, isCommonCell, commonCellKeys, matchedCellKeys, wilson, OUTCOME,
   perArmRate, clusterBootstrap, twoProportionZ, benjaminiHochberg, costCoMetric,
   a2primeBudgetCompliance, secondaryDetectors, emitTidyCsv, emitGlmmR, analyze, makeRng,
 } from './analyze.mjs';
@@ -70,6 +70,20 @@ group('denominators: §5 common-cell membership per contrast');
     rec('A4', 't1', 'B4', 1, 'recovered'), rec('A1', 't1', 'B4', 1, 'amplified')];
   eq(commonCellKeys('A4_vs_A2prime', recs), ['t1|B1', 't1|B4'], 'denom: A4_vs_A2prime keys include B4');
   eq(commonCellKeys('A4_vs_A1', recs), ['t1|B1'], 'denom: A4_vs_A1 keys exclude B4');
+  // F-010 (denominator bias): a cell where only ONE arm has data is NOT a matched cell, so it
+  // is excluded from the headline denominator (both arms share the SAME cell set).
+  const sp = (sc) => sc !== null && isCommonCell('A4_vs_A2prime', sc);
+  const biasRecs = [
+    rec('A4', 't1', 'B1', 1, 'recovered'), rec('A2prime', 't1', 'B1', 1, 'amplified'), // matched cell t1|B1
+    rec('A4', 't2', 'B1', 1, 'recovered'),                                              // A4-ONLY cell t2|B1
+  ];
+  const matched = matchedCellKeys(biasRecs, 'A4_vs_A2prime', 'A4', 'A2prime', { scenarioPred: sp });
+  eq([...matched], ['t1|B1'], 'denom: matchedCellKeys excludes the A4-only cell (F-010)');
+  // perArmRate over matched cells: A4 scored over t1|B1 ONLY (n=1), NOT both cells (n=2)
+  const a4m = perArmRate(biasRecs, 'A4', OUTCOME.notAmplified, { scenarioPred: sp, cellKeys: matched });
+  const a4u = perArmRate(biasRecs, 'A4', OUTCOME.notAmplified, { scenarioPred: sp }); // unmatched (old biased)
+  eq(a4m.n, 1, 'denom: A4 matched-cell denominator n=1 (the A4-only cell excluded) (F-010)');
+  eq(a4u.n, 2, 'denom: control — without matching A4 would be n=2 (the bias the fix removes)');
 }
 
 // =========================================================================================
