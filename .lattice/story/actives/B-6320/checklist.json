@@ -56,10 +56,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after replacing closed Authority runner provider enum behavior with host-neutral declaration normalization.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,10 +67,10 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke proves default codex, claude/CLAUDE_CODE alias compatibility, and custom declarations such as codex-cli are valid locally.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,10 +78,10 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
           "result": "pass",
           "note": "Status/enforce-runner smokes prove custom declarations do not set productionDone, receiptVerified, or provider ownership locally.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         }
       ]
     },
@@ -148,10 +148,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
           "note": "Runner-client smoke proves custom codex-cli declarations propagate through actor key registration, runner registration, heartbeat, jobs.available diagnostics, and signed claim while the SSE hint remains non-owning.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -159,10 +159,10 @@
           "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Live job-loop smoke proves custom antigravity declarations propagate through live runner registration and signed claim while lease completion/release remains server-claim based.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -170,10 +170,10 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
           "result": "pass",
           "note": "Smokes prove authority_job_create accepts custom provider declarations in signed queue/delegated requests and dry-run diagnostics do not create ownership or bypass server policy.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         }
       ]
     },
@@ -236,10 +236,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed with regression tests updated for host-neutral provider declarations.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -247,10 +247,10 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
           "result": "pass",
           "note": "Focused smoke coverage proves arbitrary non-enum declarations are accepted locally while default codex and claude aliases remain compatible.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -258,10 +258,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Focused live/runner smokes prove custom declarations propagate without bypassing credentials, signed claims, leases, SSE hint boundaries, or server policy.",
-          "headHash": "8530d11d532ecd2974ead40c5f8fece16eafdd01",
-          "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f",
-          "storyFilesHash": "2faa85401966b9cccf60b093475f5b81e3cb4934e9c68eb00f93728523bc6ad3",
-          "timestamp": "2026-06-23T03:36:06.450Z"
+          "headHash": "2b5cebb4cc0157105db55edea3b3b5b335114018",
+          "materialHash": "0398e5e6f8c262e2c24f59dbcfaf629f368e50ca21e2c0f86e11826df2e5e78e",
+          "storyFilesHash": "7456c4c1344225948bef14a58eb24d1a58bddf754716b545c3cf850abd358cf0",
+          "timestamp": "2026-06-23T03:47:05.524Z"
         }
       ]
     }
