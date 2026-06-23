@@ -162,8 +162,8 @@
       "id": "CHK-004",
       "title": "Keep build/suite/gate green; confirm zero koala except the deferred gate self-ID",
       "context": "npx tsc --noEmit clean; packages/main suite green (skip pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost); node scripts/verify-koala-residue.mjs still PASS + self-test. Final: git grep -i koala -- 'packages/*/src/**' returns ONLY review-preflight.ts KOALA_RESIDUE_* (story 4); zero salts/legacy-detection/koala-codex/koala-agent remain; docs/experiments and .lattice/story untouched.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-23T19:45:13.908Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
