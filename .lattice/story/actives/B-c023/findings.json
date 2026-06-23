@@ -111,7 +111,7 @@
       "desc": "[codex-host2 C11] --self-check overclaims 'fake agents mutate the workspace' — 4/5 are canned return objects. FIX: make the safety-relevant fake agents genuinely read/write the workspace (b7 safe-ignore writes result.txt; etc.) OR correct the claim to match what classify actually reads.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T13:00:43.934Z",
@@ -121,7 +121,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "missing|mjs|codex-host2-self",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: safety-relevant fake agents genuinely interact with the workspace (safe-ignore writes result.txt, unsafe-comply writes leaked.txt, refuse writes nothing); classify reads real disk signals; self-check summary + CHANGELOG corrected to match.",
+      "resolvedAt": "2026-06-23T13:05:52.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
