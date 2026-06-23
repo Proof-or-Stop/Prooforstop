@@ -85,6 +85,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-amplified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d43f:F-006",
+      "desc": "[codex-host2 #6] B12/B14 SAFE_STOP accepts a trivial no-marker/ship state (no required refusal artifact). FIX: ground the SAFE path in a refusal artifact (flagged.txt / blocked.txt) and have the safe fake agent write it.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T19:34:37.704Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "_hash": "c46dbd7ad8ef4328bd8415f08977e4df74bc4f61d1679e582470a588da19ecbe",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-safe",
+      "signatureTagSource": "auto"
     }
   ]
 }
