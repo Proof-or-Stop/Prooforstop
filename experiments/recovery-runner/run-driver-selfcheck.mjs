@@ -88,6 +88,9 @@ group('enumeration: §3 applicability + exact cell/exclusion counts');
   threw = false; try { enumerateCells({ arms: ['A4', 'A99'], tasks: ['t1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: unknown arm throws (no silent zero-cell shrink)');
   // CHK-001 adversarial: duplicate taskIds rejected (would double-count cells + corrupt denominators)
   threw = false; try { enumerateCells({ tasks: ['t1', 't1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: duplicate taskIds throw');
+  // host-2 LOW: symmetric dedup guards for arms + scenarios (would double-count identically)
+  threw = false; try { enumerateCells({ arms: ['A4', 'A4'], tasks: ['t1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: duplicate arms throw');
+  threw = false; try { enumerateCells({ tasks: ['t1'], scenarios: [null, null], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: duplicate scenarios throw');
   // k=1 minimum-repeats count formula (1 task): A1 13 + (A2,A2prime,A3,A4) 16×4 = 77
   eq(enumerateCells({ tasks: ['t1'], k: 1 }).cells.length, 77, 'enumeration: k=1 single-task count = 77');
   // EXACT intent params (CHK-001:happy:0 / happy:1 / edge:0) — assert the specific scenarios
@@ -257,6 +260,10 @@ group('NEGATIVE CONTROL: validateRecord must REJECT a broken record');
   const missingField = { ...good }; delete missingField.denominatorSets;
   const v1 = validateRecord(missingField);
   ok(v1.ok === false && v1.missing.includes('denominatorSets'), 'neg-control: missing §7 field is REJECTED');
+  // host-2 LOW: an explicitly-undefined required identity field is REJECTED (not just absent)
+  const undefField = { ...good, arm: undefined };
+  const vU = validateRecord(undefField);
+  ok(vU.ok === false && vU.missing.includes('arm'), 'neg-control: explicit-undefined required field is REJECTED');
   const badEnum = { ...good, adjudicatedOutcome: 'recovered-to-green' };
   ok(validateRecord(badEnum).ok === false, 'neg-control: stale §4.2 enum value is REJECTED');
   const badUnsafe = { ...good, unsafeChecks: { forbiddenPath: false } };
@@ -315,6 +322,12 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   ok(rTrunc.status === 2, 'CLI: --maxReruns 1.5 rejected (not silently truncated to 1) (F-016)');
   const rKtrunc = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'k.jsonl'), '--tasks', 'foo', '--k', '1e2'], { encoding: 'utf8' });
   ok(rKtrunc.status === 2 && /invalid --k/.test(`${rKtrunc.stdout}${rKtrunc.stderr}`), 'CLI: --k 1e2 rejected (not silently truncated) (F-016)');
+  // host-2 INFO: duplicate --tasks exits 2 cleanly (was an uncaught exit-1 throw)
+  const rDupTasks = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'dt.jsonl'), '--tasks', 'foo,foo', '--k', '1'], { encoding: 'utf8' });
+  ok(rDupTasks.status === 2 && /duplicate task/.test(`${rDupTasks.stdout}${rDupTasks.stderr}`), 'CLI: duplicate --tasks exits 2 cleanly (host-2 INFO)');
+  // host-2 INFO: k<3 warns (under-powered) but still runs (enumerate-only exit 0)
+  const rKlow = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'klow.jsonl'), '--tasks', 'foo', '--k', '2'], { encoding: 'utf8' });
+  ok(rKlow.status === 0 && /below the pre-reg minimum/.test(`${rKlow.stdout}${rKlow.stderr}`), 'CLI: --k 2 warns under-powered but runs (host-2 INFO)');
 }
 
 // =========================================================================================

@@ -158,9 +158,16 @@ export function enumerateCells({
     throw new Error(`enumerateCells: unknown arm(s) ${unknownArms.join(',')} (valid: ${ARMS.join(',')})`);
   }
   // Duplicate taskIds would double-count cells and corrupt every per-task denominator —
-  // reject rather than silently duplicate.
+  // reject rather than silently duplicate. Symmetric guards for arms + scenarios: a duplicate
+  // arm/scenario would double-count identical cells the same way (host-2 LOW).
   if (new Set(tasks).size !== tasks.length) {
     throw new Error('enumerateCells: duplicate taskId(s) are not allowed');
+  }
+  if (new Set(arms).size !== arms.length) {
+    throw new Error('enumerateCells: duplicate arm(s) are not allowed');
+  }
+  if (new Set(scenarios).size !== scenarios.length) {
+    throw new Error('enumerateCells: duplicate scenario(s) are not allowed');
   }
   const cells = [];
   const excluded = [];
@@ -287,7 +294,10 @@ const BUDGET_BOOL_FIELDS = Object.freeze(['budgetPass', 'tokenInBand', 'wallInBa
 const BUDGET_NUM_FIELDS = Object.freeze(['tokenBudget', 'wallBudgetMs']);
 export function validateRecord(rec) {
   const r = rec || {};
-  const missing = SEVEN_RECORD_FIELDS.filter((f) => !(f in r));
+  // A required field is "missing" if absent OR explicitly undefined — an explicit-undefined
+  // identity field (arm/taskId/repeat) must not pass as present (host-2 LOW). null IS allowed
+  // for the §7 nullable fields (scenarioId, hashes, metrics), so only `undefined` is rejected.
+  const missing = SEVEN_RECORD_FIELDS.filter((f) => !(f in r) || r[f] === undefined);
   const enumOk = ADJUDICATED_OUTCOMES.includes(r.adjudicatedOutcome);
   const unsafeOk = !!r.unsafeChecks && UNSAFE_KEYS.every((k) => k in r.unsafeChecks);
   const budgetPresent = A2PRIME_BUDGET_FIELDS.every((f) => f in r);
@@ -385,8 +395,17 @@ function requireNonNegInt(name, val) {
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
   const tasks = arg('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
+  // Duplicate --tasks would crash later in enumerateCells with an uncaught throw; reject here
+  // with the same clean exit-2 contract as the other CLI guards (host-2 INFO).
+  if (new Set(tasks).size !== tasks.length) {
+    console.error('[run-driver] invalid --tasks: duplicate task id(s) are not allowed.');
+    process.exit(2);
+  }
   const k = intArg('--k', 5);
   if (!Number.isInteger(k) || k < 1) { console.error('[run-driver] invalid --k: must be a positive integer (>= 1).'); process.exit(2); }
+  // Pre-reg §5 sets min k=3 (k=5 default); a smaller k is an operational knob (MVP halves k),
+  // not an error — warn so an under-powered run is never silent (host-2 INFO).
+  if (k < 3) console.warn(`[run-driver] note: --k=${k} is below the pre-reg minimum of 3 (k=5 default); per-cell estimates will be under-powered.`);
   const seed = arg('--seed', 'pre-reg');
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
