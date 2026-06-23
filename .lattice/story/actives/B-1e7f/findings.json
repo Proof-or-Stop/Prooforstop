@@ -5,7 +5,7 @@
       "desc": "Real authority_enforce_runner --live CLI dispatch is not story-scoped. The public command schema for authority_enforce_runner omits both live and storyId (packages/main/src/cli/command-catalog.ts:1993), and CLI validation builds z.object(tool.schema) for non-autopilot commands (packages/main/src/cli-engine.ts:425), so unknown --live/--storyId flags are stripped before handler dispatch. The implementation only added handler types/options, and the smoke calls runAuthorityEnforceRunner() directly (packages/main/src/tasks/authority-runner-client-smoke.ts:621), bypassing CLI parsing/validation. As a result the real lattice authority_enforce_runner --live --storyId=B-current path does not reach runLatticeAuthorityControlPlaneOnce with storyId and does not prove or send signed claim.storyId from the actual command path.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T11:04:14.777Z",
@@ -19,7 +19,11 @@
         "packages/main/src/tasks/authority-runner-client-smoke.ts"
       ],
       "signatureTag": "edge|ts|real-authority-enforce",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added authority_enforce_runner live/storyId schema fields so CLI validation no longer strips them. authority-enforce-runner smoke exercises the command catalog/parser path for --live --storyId=B-current, and authority-runner-client smoke verifies storyId remains inside signed claim.storyId with no query selector.",
+      "resolvedAt": "2026-06-23T11:12:14.082Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
