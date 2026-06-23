@@ -1,0 +1,77 @@
+{
+  "storyId": "B-e37e",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-e37e/checklist.json",
+      ".lattice/story/actives/B-e37e/decision.json",
+      ".lattice/story/actives/B-e37e/findings.json",
+      ".lattice/story/actives/B-e37e/index.json",
+      ".lattice/story/actives/B-e37e/plan.md",
+      ".lattice/story/actives/B-e37e/process-events.jsonl",
+      ".lattice/story/actives/B-e37e/process-metrics.json",
+      ".lattice/story/actives/B-e37e/review-passes.json",
+      ".lattice/story/actives/B-e37e/review-runs.json",
+      ".lattice/story/actives/B-e37e/review.json",
+      ".lattice/story/actives/B-e37e/scope-check.json",
+      ".lattice/story/actives/B-e37e/scope-contract.json",
+      ".lattice/story/actives/B-e37e/understanding.json",
+      "docs/guide.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "packages/main/src/core/authority-client.ts",
+      "packages/main/src/core/authority-runner.ts",
+      "packages/main/src/tasks/authority-runner-client-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-e37e/checklist.json       | 231 +++++-\n .lattice/story/actives/B-e37e/decision.json        |  77 ++\n .lattice/story/actives/B-e37e/findings.json        | 144 ++++\n .lattice/story/actives/B-e37e/index.json           |  77 +-\n .lattice/story/actives/B-e37e/plan.md              |  31 +\n .lattice/story/actives/B-e37e/process-events.jsonl |  29 +\n .lattice/story/actives/B-e37e/process-metrics.json | 361 +++++++++\n .lattice/story/actives/B-e37e/review-passes.json   |  67 ++\n .lattice/story/actives/B-e37e/review-runs.json     | 838 +++++++++++++++++++++\n .lattice/story/actives/B-e37e/review.json          |  45 ++\n .lattice/story/actives/B-e37e/scope-check.json     |  73 ++\n .lattice/story/actives/B-e37e/scope-contract.json  |  35 +\n .lattice/story/actives/B-e37e/understanding.json   |  26 +\n docs/guide.md                                      |   4 +-\n .../lattice-authority-live-integration.md          |  29 +-\n .../decisions/orchestrate-retirement.md            |   5 +\n packages/main/src/core/authority-client.ts         | 397 ++++++++++\n packages/main/src/core/authority-runner.ts         |  60 +-\n .../src/tasks/authority-runner-client-smoke.ts     | 272 ++++++-\n 19 files changed, 2764 insertions(+), 37 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "Smoke output includes \"GET /v1/runners/runner-1/jobs/stream\" before \"POST /v1/runners/runner-1/jobs/claim\", and the result still reports claim success only after the signed claim response."
+    },
+    {
+      "source": "userSees",
+      "promise": "Failure diagnostics say \"runner jobs stream unavailable; falling back to signed claim\" and do not contain \"Authorization\", \"Bearer\", or the configured customer API key value."
+    },
+    {
+      "source": "userSees",
+      "promise": "Docs contain \"runner jobs SSE is a notification hint\" and \"polling/signed claim fallback remains the compatibility path\", and also state canonical work continues under /Users/jek/Documents/Work/proofbound rather than retired Orchestrate."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/authority-runner-client-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-runner-client-smoke.js",
+      "rg -n \"jobs_stream|jobs.available|notification hint|signed claim|fallback\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+      "rg -n \"not evidence of approval|not production authority|notification hint before claim|must not claim\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+      "rg -n \"proofbound|retired Orchestrate|jobs_stream\" docs/requirements/decisions/orchestrate-retirement.md"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-23T01:17:36.936Z",
+    "headHash": "a5c851e825d6d15de993e0ede311e67f754274ca",
+    "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+    "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066"
+  },
+  "reviewRound": "2026-06-23T01:07:50.675Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

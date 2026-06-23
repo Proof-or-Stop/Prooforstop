@@ -29,7 +29,30 @@
     ".env.*"
   ],
   "scopeChangeReason": "Limit B-e37e to CLI Authority runner SSE hint consumption, docs, version/build metadata; server implementation and retired Orchestrate are out of scope.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Delivery gate requires persisted live-smoke transcript and context pack evidence for reviewer-visible verification.",
+      "timestamp": "2026-06-23T01:25:18.082Z",
+      "paths": [
+        ".lattice/story/actives/B-e37e/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-e37e/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e37e/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-e37e/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "a5c851e825d6d15de993e0ede311e67f754274ca",
+      "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+      "anchors": [
+        "delivery_evidence",
+        "live_smoke_transcript"
+      ]
+    }
+  ],
   "createdAt": "2026-06-23T00:16:48.895Z",
-  "updatedAt": "2026-06-23T00:16:48.895Z"
+  "updatedAt": "2026-06-23T01:25:18.082Z"
 }
