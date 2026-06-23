@@ -6,7 +6,43 @@
       "context": "Pre-reg section 2 anti-gaming: read-only, hash-checked, clean checkout, not in agent ws",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkAcceptance({scriptPath, expectedHash, artifactDir}) with a valid script whose SHA-256 matches expectedHash -> returns {acceptancePass:true, scriptHash:<hash>, hashOk:true}; WHY: covers the main golden-path where script is authentic and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with a valid script that exits non-zero -> returns {acceptancePass:false, scriptHash:<hash>, hashOk:true}; WHY: hash matches but script logic fails -- acceptancePass must be false even when hash is fine",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkAcceptance where scriptPath does not exist -> throws or returns hashOk:false with acceptancePass:false; WHY: missing script is not silently passing",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with an empty expectedHash string -> hashOk:false; WHY: empty hash must not match anything",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkAcceptance with a TAMPERED script (content modified so SHA-256 differs from expectedHash) -> returns {hashOk:false, acceptancePass:false}; the script must NOT be executed at all; WHY: anti-gaming -- agent-modified acceptance script must be caught before execution",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance where scriptPath is inside the agent-editable workspace (e.g. /workspace/agent/accept.sh) -> function rejects or enforces harness-owned path constraint; WHY: anti-gaming -- agent must not be able to substitute its own acceptance script",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with a script that tries to overwrite its own content during execution to make hash match post-hoc -> hashOk was already checked before execution so this cannot retroactively pass; WHY: hash check must happen BEFORE script execution not after",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
