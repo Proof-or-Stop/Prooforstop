@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-2d4c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Concept residue check completed: (1) adjudicate.mjs emits the §7 enum value recovered (not recovered-to-green) as quoted strings only — confirmed zero quoted occurrences of recovered-to-green in either new file; prose label appears only in explanatory comments, which is correct. (2) safeStop/safe_stop residue in injection-probes/ and run-recovery.mjs is pre-existing code not touched by this story (git diff main...HEAD shows only adjudicate.mjs + adjudicate-selfcheck.mjs + .lattice/ metadata). (3) unsafeChecks keys are exactly {forbiddenPath, secretScan, perms, forbiddenCreate, destructiveCmd} — the five §4.2 detectors, verified by both source inspection and the selfcheck assertion (83/83 pass). (4) No half-wired concept: all 5 detector functions exported and imported consistently; terminalStopEvent added in second commit is properly exported and imported; adjudicate() state machine implements the correct 4-rule total order. No blocker.",
+      "createdAt": "2026-06-23T04:27:30.005Z",
+      "reviewRound": "2026-06-23T04:24:55.641Z",
+      "reviewRunId": "B-2d4c:RR-002",
+      "_hash": "0d8c7e30b6fea6266ee50ae21b5b16b03d05d92bdd941bffad41724fef29d21b"
+    },
+    {
+      "id": "B-2d4c:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 intents (CHK-001 through CHK-005, happy/edge/adversarial) have valid verificationEvidence bound to node experiments/recovery-runner/adjudicate-selfcheck.mjs; selfcheck ran 83 assertions offline (no LLM), exits 0; validate allPass:true; total-order precedence (unsafe AND resolved => amplified) and enum correctness (recovered not recovered-to-green) confirmed by direct assertion inspection in selfcheck source; no must-gap, no waiver, no blocker.",
+      "createdAt": "2026-06-23T04:33:27.388Z",
+      "reviewRound": "2026-06-23T04:24:55.641Z",
+      "reviewRunId": "B-2d4c:RR-003",
+      "_hash": "b8a861b449e9483f6da27efb4ce8ef687aa231a44629594ff09b4ff5e7aa60fd"
+    },
+    {
+      "id": "B-2d4c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 fix d784885e3 verified clean. (1) TERMINAL_STOP_TYPES=[stop,rollback,human_gate] exactly matches §4.2; terminal:true branch now also requires TERMINAL_STOP_TYPES.includes(kind) so the three-kind boundary is consistently enforced on all paths. (2) toRegExp strips g/y flags via new RegExp(p.source, p.flags.replace(/[gy]/g,\"\")) — restores stateless purity, no lastIndex leak. (3) Selfcheck pins F-A and F-B added for both fixes; all imported symbols (forbiddenPathEdit, secretScanHit, permChange, forbiddenCreate, destructiveCmd, terminalStopEvent, detectUnsafe, adjudicate) resolve in adjudicate.mjs. (4) No call-count, no old enum residue, no doc-promise-undelivered findings. 0 findings registered this round.",
+      "createdAt": "2026-06-23T04:42:38.977Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-006",
+      "_hash": "e59338efa4e955a8a2bece76948d3078ac9298eef228bd271cef20c90ed67a71"
+    },
+    {
+      "id": "B-2d4c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 clean. F-001 (terminalStopEvent kind widening) resolved in d784885e3: now requires TERMINAL_STOP_TYPES.includes(kind) even on terminal:true branch. F-A (regex lastIndex leak) resolved: toRegExp strips g/y flags on global/sticky regexes, confirmed stateless. Selfcheck pins confirm both regression pins pass (98/98). Changed files adjudicate.mjs + adjudicate-selfcheck.mjs: no dead code, no type safety issues, no I/O isolation violations. No new findings.",
+      "createdAt": "2026-06-23T04:42:54.658Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-004",
+      "_hash": "b2690ba7b0fcd66cc173046707f34d7f2cd4d1ac217e0fab150bba5cdf29a821"
+    },
+    {
+      "id": "B-2d4c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 intents across 5 checklist items (CHK-001 through CHK-005) have valid verificationEvidence (manual_transcript, result=pass, command=node experiments/recovery-runner/adjudicate-selfcheck.mjs). Selfcheck confirmed 98/98 assertions pass offline. F-A pins (stateless-regex determinism): toRegExp strips g/y flags; selfcheck calls each regex-accepting detector twice with a shared global-regex object and asserts both results identical — non-vacuous, fails on pre-fix code. F-B pins (terminalStopEvent kind-restriction): {terminal:true,type:edit} asserted false, {terminal:true,type:rollback} asserted true, adjudicate() propagation verified — non-vacuous, fails on pre-fix code. validate allPass:true, 0 missingRequired. No blocker found.",
+      "createdAt": "2026-06-23T04:47:39.638Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-005",
+      "_hash": "4b233b0b884ee3ee5ca57040be8c93c10aa5c4b59763088e9bcef8753ff687cb"
+    }
+  ]
+}

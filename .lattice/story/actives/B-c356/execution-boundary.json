@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c356",
+  "allowedCommands": [
+    "lattice done_required_validate --storyId=<storyId> --json",
+    "lattice validate --focus=fast --json",
+    "lattice validate --story=<storyId> --json",
+    "node packages/main/dist/tasks/prompt-registry-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/templates/agents/lattice-review-quality.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/handlers/authority-enforce.ts"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Boundary repaired before INIT_CHECK to include the actual quality reviewer template source path; scope remains baseline item 2 only.",
+  "createdAt": "2026-06-23T09:58:09.544Z",
+  "updatedAt": "2026-06-23T09:58:09.544Z",
+  "_hash": "70a3300811fe017f099612ab58941b8a1f64125c642cd23fb251b818d2e67d94"
+}

@@ -1,0 +1,34 @@
+{
+  "storyId": "B-73cf",
+  "checkedAt": "2026-06-23T05:02:37.104Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-06-23T05:02:37.104Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-23T05:02:37.104Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Independent INIT subagents were not explicitly authorized in this turn, and the tool policy prevents spawning them solely from a CLI prompt. Manual fallback checked B-73cf background, checklist verificationIntent arrays, scopeBoundary/executionBoundary, related baseline doc docs/requirements/decisions/lattice-workflow-efficiency-baseline.md, and confirmed the story is narrowly scoped to validateCostAndTimeoutRisk with no Authority, delivery-check, DONE summary, reviewer proof metadata, Codex adapter, push, or deployment changes.",
+    "evidenceRefs": [
+      "lattice init_preflight --storyId=B-73cf --json showed scope-boundary and execution-boundary PASS after scope_freeze_check",
+      "lattice story_get --storyId=B-73cf --json showed 3 checklist items with happy/edge/adversarial verification intents",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md validateCostAndTimeoutRisk dimension"
+    ],
+    "actor": "codex",
+    "session": "sess-7f55c8d5292c7c45",
+    "attestedAt": "2026-06-23T05:02:37.104Z",
+    "headHash": "01563933c9155db8ae557bc2ba9c8621ad75ae82",
+    "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283"
+  },
+  "_hash": "3226bf99be4998178fa5fde2d9705b8b7cd4a9fd92a44c77e2db2bbaaf402320"
+}

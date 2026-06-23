@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ebbb",
+  "mode": "feature",
+  "allowed": [
+    "Create experiments/recovery-runner/checks-selfcheck.mjs (offline unit test)",
+    "Create experiments/recovery-runner/checks.mjs (harness-owned acceptance + hidden-regression + diff-hygiene, pure)"
+  ],
+  "excluded": [
+    "Do not run the live LLM loop",
+    "No changes to run-recovery.mjs/run-ablation.mjs/adjudicate.mjs (wiring is the next piece)",
+    "No product code (core/, bin/, packages/)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator: finish all of infra-(a). This is the scoring-checks layer (pure deterministic module + offline selfcheck).",
+  "createdAt": "2026-06-23T10:02:52.507Z",
+  "updatedAt": "2026-06-23T10:02:52.507Z",
+  "_hash": "c1b1deba9f807ee285e978b657353d64f21f3075860176e2c9e0761fc07a13a8"
+}

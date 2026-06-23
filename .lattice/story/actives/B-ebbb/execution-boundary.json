@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ebbb",
+  "allowedCommands": [
+    "git add",
+    "node"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "node",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin/",
+    "core/",
+    "packages/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Create checks.mjs + checks-selfcheck.mjs; verify offline (node --check + selfcheck), no live LLM.",
+  "createdAt": "2026-06-23T10:02:52.910Z",
+  "updatedAt": "2026-06-23T10:02:52.910Z",
+  "_hash": "545ee698b21c284a35814979cea7b523c2ee48115555b47e70a2854cb4acf5e1"
+}

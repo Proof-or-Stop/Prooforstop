@@ -1,0 +1,59 @@
+{
+  "storyId": "B-73cf",
+  "checkedAt": "2026-06-23T05:06:01.683Z",
+  "features": [
+    {
+      "feature": "Explicit focused validate profile for development/review checks, e.g. lattice validate --focus=fast --json selects only configured fast commands and labels output as focused.",
+      "covered_by": "CHK-001; understanding.outcome; decision.chosen; plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#validate-cost-and-timeout-risk"
+    },
+    {
+      "feature": "Default lattice validate remains full and focused validation cannot be mistaken for final full validation or DONE-required proof.",
+      "covered_by": "CHK-001 edge/adversarial verificationIntent; understanding.constraints[0]; plan.md CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#validate-cost-and-timeout-risk"
+    },
+    {
+      "feature": "Safer bounded validate timeout defaults with explicit per-command timeoutMs override and preserved timeout attribution/process-group kill behavior.",
+      "covered_by": "CHK-002; understanding.facts DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=240000; decision.preMortem timeout scenario; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#validate-cost-and-timeout-risk"
+    },
+    {
+      "feature": "Derived post-fix baseline comparison artifact under experiments/baselines/ referencing lattice-workflow-efficiency-baseline-v1 and B-73cf without claiming wall-clock reduction alone as proof.",
+      "covered_by": "CHK-003; understanding.outcome; plan.md CHK-003; baseline doc Machine Baseline Schema",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#machine-baseline-schema"
+    },
+    {
+      "feature": "Authority Server, delivery-check, DONE summary, reviewer proof metadata, Codex adapter behavior, deployment, and remote publishing changes remain outside this story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints[1]; plan.md intro; decision.preMortem scope creep scenario",
+      "source": "B-73cf PLAN artifacts"
+    },
+    {
+      "feature": "Original immutable baseline experiments/baselines/lattice-workflow-efficiency-baseline-v1.json rewrite remains outside this story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-003 edge verificationIntent; understanding.constraints[2]; plan.md CHK-003; baseline doc Machine Baseline Schema",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#machine-baseline-schema"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ef5033980cc20928c690ee05bd4c65dd14b028bd49b95bc6652d06d770fc2206",
+  "openQuestions": []
+}

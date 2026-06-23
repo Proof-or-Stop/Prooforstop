@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c356",
+  "checkedAt": "2026-06-23T09:59:22.283Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "24be718ec4c80544ccf167acb58b4b8c4489e7a05841e8f7b515cfff2581a09b",
+  "executionBoundaryHash": "70a3300811fe017f099612ab58941b8a1f64125c642cd23fb251b818d2e67d94",
+  "freshnessHash": "2da192330b7aa8e9a0bf05c58b1dd763d0e234732c77c4e411c43508c1ccb182",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Authority Server business logic",
+    "customerKeyRef",
+    "Deployment or remote push",
+    "Layer4",
+    "Provider execution behavior",
+    "Receipt verification semantics",
+    "repair UX",
+    "Unrelated reviewer prompt rewrites"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server business logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority Server business logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server business logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Deployment or remote push",
+      "source": "scopeBoundary.excluded",
+      "text": "Deployment or remote push",
+      "excluded": true
+    },
+    {
+      "keyword": "Provider execution behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Provider execution behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Receipt verification semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Receipt verification semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated reviewer prompt rewrites",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated reviewer prompt rewrites",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "2dcfca369efb1d25719e449c151e1ecd1f37c8d05809baae5976282901ae5afd"
+}

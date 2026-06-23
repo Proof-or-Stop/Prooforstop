@@ -1,0 +1,106 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add job-plus-run proof metadata review guidance",
+      "context": "Update Lattice reviewer guidance so quality review explicitly checks that server-authored proof keys cannot be trusted from either job.metadata or linked run.metadata when those fields are client-controlled or stale. Keep this as review guidance, not server business logic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The quality reviewer prompt/checklist names both job.metadata and linked run.metadata for server-authored proof key checks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The guidance is framed as a correctness review rule, not a broad optimization or product behavior change.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The guidance warns that checking only job.metadata or only run.metadata is insufficient for proof metadata spoofing review.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression smoke for prompt coverage",
+      "context": "Add or extend a smoke test that verifies generated reviewer prompt/registry content contains the job+run metadata proof review rule.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A smoke test fails if the quality reviewer prompt omits job.metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A smoke test fails if the prompt omits linked run.metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A smoke test fails if the prompt allows one metadata location to stand in for the other.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write baseline comparison result for item 2",
+      "context": "Create a derived result artifact under experiments/baselines/ for the proofMetadataReviewCoverage baseline dimension; do not rewrite the immutable baseline JSON.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The result artifact references baselineId, story id, and proofMetadataReviewCoverage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline file remains unchanged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact does not claim that reviewer guidance alone is receipt-backed production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

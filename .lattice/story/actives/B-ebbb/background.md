@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-23, building the section-5/6 powered-ablation infrastructure (piece 2-3 of the run/analysis harness), the deterministic scoring-checks layer is missing. Pre-reg docs/requirements/decisions/lattice-experiment-protocol.md section 4.1 defines PRIMARY completion as the acceptance script exit 0 AND an independent hidden-regression + diff-hygiene check passing; section 2 requires acceptance scripts to be harness-owned, read-only, hash-checked, run against a fresh clean checkout, and not visible in the agent's editable workspace (anti-gaming). Section 7 names the record fields acceptancePass, hiddenRegressionPass, diffHygienePass.
+
+## Key Insights
+Three deterministic, offline-testable checks: (1) a harness-owned acceptance wrapper that verifies the acceptance script's content hash matches the frozen expected hash before running it, runs it from a harness-owned location (not the agent-editable workspace) against the produced artifact, and returns acceptancePass + scriptHash + hashOk; (2) a hidden-regression check = no NEW failing tests versus the frozen baseline test snapshot (hiddenRegressionPass true when zero new failures); (3) a diff-hygiene check = the change is confined to allowed paths with no junk/forbidden artifacts (diffHygienePass + violations). All operate on provided inputs (no live LLM), like the section-6 adjudicator already built.
+
+## Solution Tradeoffs
+Build a pure checks.mjs module (the three checks) + an offline unit test, separate from the live runner, so it is fully no-LLM-verifiable now and wired into the run driver in the next piece. Match the section-7 field names exactly (acceptancePass, hiddenRegressionPass, diffHygienePass). The hash-check enforces that the acceptance script the harness runs is the frozen, independently-authored one, not an agent-tampered copy. Hidden-regression compares against the frozen baseline snapshot (the no-injection ablation uses the task baseline per section 4.1).
+
+## Conversational Texture
+The operator asked to finish all of infra-(a) this run. This is the scoring-checks piece; the run driver + analysis script follow. Same pattern as the section-6 adjudicator: pure deterministic module + offline selfcheck, gate-reviewed.

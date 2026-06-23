@@ -4,7 +4,7 @@
   "title": "Register a workflow-efficiency baseline for the six Lattice follow-up fixes",
   "description": "Create the baseline reference that future Lattice workflow optimization stories must compare against before claiming improvement.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "source": "user-approved baseline-first workflow on 2026-06-23",
   "keywords": [
@@ -23,7 +23,7 @@
   ],
   "createdAt": "2026-06-23T03:57:40.398Z",
   "startedAt": "2026-06-23T03:57:40.398Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T04:53:55.866Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,6 +42,96 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:01:16.082Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:08:27.914Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:13:10.087Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:21:11.342Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:23:15.916Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:37:11.615Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:45:00.672Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:45:27.822Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:50:40.563Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:53:55.866Z",
+      "branch": "story/B-4bd7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a75695e4ef5416be",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -51,9 +141,5 @@
       "at": "2026-06-23T04:00:08.652Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4bd7",
-    "branch": "story/B-4bd7",
-    "createdAt": "2026-06-23T04:01:00.968Z"
-  }
+  "currentReviewRound": "2026-06-23T04:45:27.822Z"
 }

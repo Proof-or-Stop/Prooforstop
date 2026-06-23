@@ -1,0 +1,150 @@
+{
+  "storyId": "B-4bd7",
+  "checkedAt": "2026-06-23T04:06:16.068Z",
+  "features": [
+    {
+      "feature": "Create a workflow-efficiency baseline reference for future optimization comparison",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register the human-readable baseline protocol decision document",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Register the machine-readable baseline JSON artifact path",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Record the source incident and six workflow costs as baseline observations",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Keep observedBefore and targetAfter separate before any improvement claim",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Validate cost and timeout risk baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Proof metadata review coverage baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Codex adapter evidence gate scope baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Main merge readiness baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Delivery-check freshness baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "DONE summary freshness baseline dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Baseline JSON parses and all six observed dimensions are checked",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Original baseline remains immutable and future follow-ups write separate result artifacts",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Future follow-up stories must name the baseline dimension and compare before and after",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Implement any of the six workflow optimization fixes in this baseline story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: Do not implement any of the six workflow fixes in this item; CHK-003 excludes: Do not claim any of the six follow-up fixes are already implemented by this story",
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Change Authority Server business logic or provider authorization behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes Authority/provider implementation surfaces; CHK-003 adversarial verification forbids Authority Server and provider authorization changes",
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Deploy, push, or publish remote branches",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes: Do not deploy, push, or publish remote branches",
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Treat local or non-authority evidence as Authority proof",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "baseline document Non-Goals: Do not treat local/non-authority evidence as Authority proof",
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Weaken review, delivery-check, validate, or DONE gates to improve time",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 adversarial verification plus baseline non-goal forbids weakening review, delivery-check, validate, or DONE gates",
+      "source": "decisions:decisions/lattice-workflow-efficiency-baseline.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 14,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0374d8221c1fd51a76ce84e6a74ace0ee203d0295dc31ff25cf8bd1eadbcca89",
+  "openQuestions": []
+}

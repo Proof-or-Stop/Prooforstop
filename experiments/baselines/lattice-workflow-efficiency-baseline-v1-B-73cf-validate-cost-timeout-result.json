@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.workflow_efficiency_baseline_result.v1",
+  "baselineId": "lattice-workflow-efficiency-baseline-v1",
+  "story": "B-73cf",
+  "baselineDimension": "validateCostAndTimeoutRisk",
+  "createdAt": "2026-06-23T05:12:27Z",
+  "result": {
+    "focusedValidateProfileAdded": true,
+    "focusedProfileName": "fast",
+    "defaultValidateJsonRemainsFull": true,
+    "focusedConfiguredCommandsFailClosedWhenNoTagMatches": true,
+    "focusedOutputIdentifiesNonFinalProof": true,
+    "doneRequiredValidationChanged": false,
+    "defaultTimeoutMsBefore": 240000,
+    "defaultTimeoutMsAfter": 270000,
+    "boundedExecutionPreserved": true,
+    "explicitPerCommandTimeoutMsOverridePreserved": true,
+    "processGroupKillPreserved": true,
+    "timeoutAttributionExitCode": 124
+  },
+  "configuration": {
+    "focusedCommandTag": "validate.commands[].focus",
+    "focusedCommandsInRootConfig": [
+      "npm --prefix packages/main run build",
+      "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "node packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+    ],
+    "fullCommandBehavior": "No-focus lattice validate --json uses the complete configured validate.commands list unchanged."
+  },
+  "verification": [
+    {
+      "command": "npm --prefix packages/main run build",
+      "status": "PASS"
+    },
+    {
+      "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "status": "PASS",
+      "observed": "validate-command-timeout smoke passed: 18 assertions"
+    },
+    {
+      "command": "node packages/main/dist/tasks/validate-focused-full-layering-smoke.js",
+      "status": "PASS",
+      "observed": "validate-focused-full-layering smoke passed: 10 assertions"
+    },
+    {
+      "command": "node packages/main/dist/cli.js validate --focus=fast --json",
+      "status": "PASS",
+      "observedProvider": "lattice-verifier-configured-commands-focused",
+      "observedSummary": "Focused validation (fast): Project validation commands passed; not final full validation or DONE-required proof",
+      "observedCommandCount": 3
+    },
+    {
+      "command": "lattice validate --focus=fast --json",
+      "status": "NOT_USED_AS_PROOF",
+      "observed": "The globally installed lattice binary was stale for this worktree and ignored --focus, starting the full configured run; it was interrupted before completion."
+    }
+  ],
+  "immutableBaselineFileModified": false
+}
