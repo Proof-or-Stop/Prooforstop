@@ -392,6 +392,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:21:40.051Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "git show --stat 9329c6a4f (14 files, +51/-53)",
+          "result": "pass",
+          "note": "Balanced +51/-53 line counts across 14 files indicate token-for-token string/comment renames, not control-flow removal; tsc --noEmit clean afterward confirms no functional logic was stripped — cleanup is cosmetic, not behavioral",
+          "headHash": "21b018e7bc723963e11dfb0b7f7a70cc4d0c522d",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:41.463Z"
         }
       ]
     },
