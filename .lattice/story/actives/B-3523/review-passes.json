@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-23T00:12:15.002Z",
       "reviewRunId": "B-3523:RR-018",
       "_hash": "937e34e45a4dadfeeae9e0447733350f3dfc9fb0ce27fc0ef8f51987f930c961"
+    },
+    {
+      "id": "B-3523:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS. Reviewed only packages/main/src/core/codex-adapter-checks.ts and scripts/verify-codex-assets.mjs. Global package scope remains @lattice via @lattice/core detection, CLI fallback remains lattice, and F-002 only splits default heartbeat budget: local/default stays 10000ms, global fallback default is 30000ms, while options.timeoutMs still overrides both. Verification: node scripts/verify-codex-assets.mjs passed; npm exec -- tsc --noEmit passed from packages/main; synthetic slow global lattice with timeoutMs=50 failed fast, confirming explicit override precedence.",
+      "createdAt": "2026-06-23T00:17:15.817Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-017",
+      "_hash": "b887f345e5b65b1d64efffe8749f79422680d43b5e8efedc1f9706ab612aaf06"
     }
   ]
 }
