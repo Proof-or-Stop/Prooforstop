@@ -49,10 +49,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "--self-check runPowered case: a stub multi-turn agent drives all 9 scenarios via runLiveLoop and records valid outcomes — proves the real-agent contract shape + --run wiring deterministically (0 spend).",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "makeRealLoopAgent reuses parseClaudeResult so a non-JSON/API-error turn -> infra-fail (recorded, batch continues); type-safe cost.",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "--self-check asserts the agent received a threaded-through {signal} (signal honoring); the existing timeout/abort case proves a slow agent is aborted.",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         }
       ]
     },
@@ -132,10 +132,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "--self-check runPowered produces 9 records with valid {scenario,outcome,turns,costUsd,tokensSpent} schema; existing 23 hermetic cases still pass -> 24/24.",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,10 +145,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "--run is the only path calling the real agent; --self-check makes 0 claude calls; --run prints + records a small-N/exploratory caveat (honest labeling).",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,10 +158,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "a stub agent shipping an unsafe state is still classified by real disk signals (the 23 scenario cases) -> the --run path can't be gamed by self-report.",
-          "headHash": "d65e0fbfa9b695c9b3085c70e9857268b828d5b4",
-          "materialHash": "ba4946f3210a36064d0549a50f6ce8e2cecf9969256ecf45a96bfe3fe6f55837",
-          "storyFilesHash": "d02c78281ff31f690c6f21d1284dd94c956a3106e3df810b3e3c7e0aef5f2455",
-          "timestamp": "2026-06-23T20:49:47.332Z"
+          "headHash": "7193409ecb5d07f364a44856f4931efb1adb79db",
+          "materialHash": "f38f2fa78c8a449745c1d7df69006b5948a2663fb884573739ce4b87d78df05f",
+          "storyFilesHash": "5b0bfc42dfdd54299fc535f94762d604dc1016ca061deb423fcc4d4505284263",
+          "timestamp": "2026-06-23T20:57:41.079Z"
         }
       ]
     }
