@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ebbb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed checks.mjs + checks-selfcheck.mjs (commit 2584c0402). Dead code: none — createHash and readFileSync both used; all 7 selfcheck imports used; no commented-out blocks. Type safety: catch in harnessAcceptance has non-empty body (scriptHash set to empty string); no as-any; no empty swallowing catches. Shell isolation: bridge.ts absent, N/A. Correctness: hash computed BEFORE runAcceptance call (anti-gaming verified by selfcheck calls=0 on mismatch); hiddenRegression keys by id not message; null/corrupt baseline is fail-safe false; normalizePath escape-then-continue always flags path-traversal-escape; DEFAULT_JUNK_PATTERNS all non-global/non-sticky (14 patterns); caller-supplied global/sticky regex stripped in toRegExp() — no lastIndex mutation risk. hashOk as distinct signal correct (3 distinguishable states). Dual export aliases are same function reference. 99/99 selfcheck assertions passed offline. 0 findings.",
+      "createdAt": "2026-06-23T10:25:55.576Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-001",
+      "_hash": "a316816597d10ddeaf6428226ff8b156cfa7e34408cd46a7e3f27e21528360cb"
+    }
+  ]
+}
