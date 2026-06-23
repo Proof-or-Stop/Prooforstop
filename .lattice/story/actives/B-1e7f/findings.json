@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-1e7f:F-001",
+      "desc": "Real authority_enforce_runner --live CLI dispatch is not story-scoped. The public command schema for authority_enforce_runner omits both live and storyId (packages/main/src/cli/command-catalog.ts:1993), and CLI validation builds z.object(tool.schema) for non-autopilot commands (packages/main/src/cli-engine.ts:425), so unknown --live/--storyId flags are stripped before handler dispatch. The implementation only added handler types/options, and the smoke calls runAuthorityEnforceRunner() directly (packages/main/src/tasks/authority-runner-client-smoke.ts:621), bypassing CLI parsing/validation. As a result the real lattice authority_enforce_runner --live --storyId=B-current path does not reach runLatticeAuthorityControlPlaneOnce with storyId and does not prove or send signed claim.storyId from the actual command path.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T11:04:14.777Z",
+      "reviewRound": "2026-06-23T10:58:43.608Z",
+      "reviewRunId": "B-1e7f:RR-001",
+      "_hash": "5470bf676daf33b121289a7065c1bafc5f22fdaa5328e6108843dbea15527dd6",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|real-authority-enforce",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
