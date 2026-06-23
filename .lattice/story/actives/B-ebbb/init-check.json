@@ -1,0 +1,42 @@
+{
+  "storyId": "B-ebbb",
+  "checkedAt": "2026-06-23T10:01:48.402Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Conversational Texture section uses the term \"infra-(a)\" (\"finish all of infra-(a) this run\") without any definition or expansion anywhere in the background. A new reader cannot determine what infra-(a) designates or what other infra parts exist."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md uses the abbreviation \"pre-reg\" (for pre-registration) on first use and throughout, without expanding it. The full phrase never appears; a reader unfamiliar with the project convention must infer meaning from context."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T10:01:33.286Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T10:01:48.402Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Conversational Texture section uses the term \"infra-(a)\" (\"finish all of infra-(a) this run\") without any definition or expansion anywhere in the background. A new reader cannot determine what infra-(a) designates or what other infra parts exist."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md uses the abbreviation \"pre-reg\" (for pre-registration) on first use and throughout, without expanding it. The full phrase never appears; a reader unfamiliar with the project convention must infer meaning from context."
+        }
+      ]
+    }
+  ],
+  "_hash": "59afd7be9331d1c3a24043720354eae7dce31d1c3191f49dcf9e7949f01a7e42"
+}
