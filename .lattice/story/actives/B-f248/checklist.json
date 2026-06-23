@@ -654,11 +654,11 @@
           "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "whole selfcheck: runs with a deterministic injected stub engine (no claude -p), 104 assertions pass, exit 0.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "note": "whole selfcheck runs with a deterministic injected stub engine (no claude -p), all assertions pass, exit 0. (F-015 resolved: note no longer cites a hardcoded assertion count, which drifts as the suite grows.)",
+          "headHash": "36e44ad8ac0200e199456ea900d1335fda9700e9",
+          "materialHash": "26255bbfc9ab59783fa943f23612abdb94db461be0f11f67979190a16ed82f73",
+          "storyFilesHash": "884d4358d5466a408c5f7a6482e3a775dbffb5af0280442c5c8b05669e17195f",
+          "timestamp": "2026-06-23T12:51:00.908Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
