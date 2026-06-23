@@ -146,7 +146,31 @@
       "context": "So the run-record + analysis agree with the locked schema",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Import checks.mjs and call all three check functions -> each returned object contains exactly the section-7 field names: acceptancePass (from checkAcceptance), hiddenRegressionPass (from checkHiddenRegression), diffHygienePass (from checkDiffHygiene); WHY: schema contract enforcement -- the run-record and analysis depend on these exact names",
+            "type": "cli"
+          },
+          {
+            "desc": "Grep/AST-scan checks.mjs for the literal strings acceptancePass, hiddenRegressionPass, diffHygienePass -> all three present as object keys in return statements; WHY: static verification that field names are not computed/dynamic",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify that no EXTRA top-level boolean pass/fail fields beyond the three section-7 names are returned (e.g. no pass, no result, no success) -> only the exact field names; WHY: extra fields would confuse the analysis script or create ambiguity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify field names are case-exact (not acceptancepass, AcceptancePass, ACCEPTANCEPASS etc.) -> camelCase as specified in section 7; WHY: case mismatch would silently break JSON-keyed lookups in the analysis pipeline",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
