@@ -109,11 +109,41 @@ Every harness module has a deterministic, no-LLM self-check. The aggregator runs
 them and is wired into the root `npm test` via `npm run test:experiments`:
 
 ```sh
-node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver selfchecks
+node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver + analyze selfchecks
 node run-driver-selfcheck.mjs  # the driver alone (enumeration, schema, denominators, validity, …)
 ```
 
 These self-checks spawn **no** `claude -p`.
+
+## Analysis (`analyze.mjs`)
+
+The analysis script turns the driver's §7 run-records JSONL into the pre-registered readouts
+(`docs/requirements/decisions/lattice-experiment-protocol.md` rev3.1 — the authority). It:
+
+- applies the §7 validity filter (infra-void runs excluded as re-run; N/A cells excluded;
+  task-level failures kept);
+- builds the §5 common-cell denominators for each of the 4 contrasts — rates are computed
+  **only** over `(task × scenario)` cells applicable to **both** arms (every rate states its
+  denominator);
+- computes per-arm rates with **Wilson 95% CIs**: §4.1 completion (null ablation cells); §4.2
+  not-amplified (= recovered ∪ safe-stop), recovered, safe-stop (recovery scenarios);
+- computes the **PRIMARY A4-vs-A2prime** risk-difference via a **seeded cluster bootstrap**
+  (resampling whole `(task,scenario)` clusters with their k repeats, so within-cell dependence
+  is preserved — the in-Node verifiable proxy for the §5 GLMM; only the primary contrast gets a
+  bootstrap CI, A1/A2/A3 are reference cells);
+- runs **one Benjamini–Hochberg FDR** over the **exploratory** per-scenario two-proportion
+  tests (never primary);
+- reports the §8 cost co-metric (tokens + wall-clock per arm), the §1/§8 A2prime
+  tolerance-band compliance (flagging out-of-band runs, fail-closed), the §4.2 secondary
+  detectors, and the H3 (A4-vs-A3) contrast labeled **EXPLORATORY / compute-not-matched**;
+- emits a tidy long-format CSV (`<out>.tidy.csv`) + a `glmm.R` (`lme4::glmer` arm fixed +
+  `(1|task)+(1|scenario)+(1|seed)`) for the formal pre-registered GLMM (run when R available;
+  the bootstrap is the Node proxy).
+
+```sh
+node analyze.mjs <records.jsonl> --seed pre-reg --B 2000 --out analysis-out
+node analyze-selfcheck.mjs   # offline assertions over synthetic fixtures of known rates/contrasts (no live LLM)
+```
 
 ## Data lives elsewhere
 

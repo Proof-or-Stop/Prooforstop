@@ -14,6 +14,7 @@ const SELFCHECKS = [
   'checks-selfcheck.mjs',
   'spend-accounting-selfcheck.mjs',
   'run-driver-selfcheck.mjs',
+  'analyze-selfcheck.mjs',
 ];
 
 let failed = 0;
