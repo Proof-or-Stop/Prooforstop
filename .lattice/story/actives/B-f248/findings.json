@@ -259,6 +259,23 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-readme",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-013",
+      "desc": "--maxReruns is parsed (parseInt) but never validated. --maxReruns abc -> NaN; --maxReruns -1 -> negative. Then the runDriver loop attempt<=maxReruns+1 is always false, the engine is NEVER invoked, and every cell is falsely logged reason:exhausted-reruns instead of rejecting the invalid input. Fix: validate maxReruns is a non-negative integer in main() (clear CLI error + non-zero exit) and defensively in runDriver (throw).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T12:30:24.130Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "_hash": "26136df6b5511860934c92c8c0ed9d99dfda840052427683c10981e94d55ca67",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|maxreruns-parsed-parseint",
+      "signatureTagSource": "auto"
     }
   ]
 }
