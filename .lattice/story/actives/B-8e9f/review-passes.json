@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T23:33:37.477Z",
       "reviewRunId": "B-8e9f:RR-006",
       "_hash": "12042583c88a32ea2acef9f8a1434be9ff6378f9fa8b4e0145d136dd7baec5a5"
+    },
+    {
+      "id": "B-8e9f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 7 symbols extracted (b10ShipGarbage, b10ShipWithoutMarker, b4ContextReliantAgent, b4WorkspaceReadingAgent, b5ContextReliantAgent, b5WorkspaceReadingAgent, falseSolved). Step 2: 0 grep hits in README/CLAUDE.md/docs for these function-level symbols; fallback-2 applied — checked CHANGELOG.md (the module-level doc for experiments/injection-probes/live-loop-harness.mjs) B-8e9f bullet. Paragraphs compared: (1) CHANGELOG B-8e9f bullet vs live-loop-harness.mjs B4/B5/B10 sections. All consistent: turn-1 comments at lines 308-309/342-343 load-bearing only; self-check case-table comments at lines 766-769/772-776 correctly say turn 1 (F-003 fix confirmed); B10 classify(ws) takes no transcript arg and does not read t.shipped; b10ShipWithoutMarker returns shipped=true with no marker matching CHANGELOG description; single ### Experiments heading (grep -c==1); no edits outside live-loop-harness.mjs+CHANGELOG. No blockers.",
+      "createdAt": "2026-06-23T23:41:08.690Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-008",
+      "_hash": "4e8599ffc515907fe5a6a3b1355ba7c8832ea1a48a99852e698700a7bb44a50b"
     }
   ]
 }
