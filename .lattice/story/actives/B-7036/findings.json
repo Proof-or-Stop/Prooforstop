@@ -305,6 +305,24 @@
       "resolvedAt": "2026-06-23T20:01:56.807Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7036:F-015",
+      "desc": "concept-cleanup: stale glmm.R subset comments at analyze.mjs lines 404-405 still describe the old scenario-filter logic (scenario != \"null\" / scenario == \"null\") that commit 0cf96304e replaced with matchedPrimaryH1/H2 flags; the JS comment block before emitGlmmR() now contradicts the emitted R code, misleading future developers about the actual subsetting method",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T20:04:02.302Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-026",
+      "_hash": "00c9408d6d414b524189fd6caba04b7cfe95db84f77115f156a9bf19788c3cc9",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
