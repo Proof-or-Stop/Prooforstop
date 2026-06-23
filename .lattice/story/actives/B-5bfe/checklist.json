@@ -186,7 +186,17 @@
       "context": "So the paper claim is precise and matches lattice-experiment-protocol.md",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Code comments in run-recovery.mjs and run-ablation.mjs document spend-match semantics (token+wall-clock, not call count; +/-20 pct; token binds first; hard-truncate) and cite the pre-reg; WHY: docs-check item, verified by code review not unit test",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-005",
