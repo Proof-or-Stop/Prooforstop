@@ -4,7 +4,7 @@
   "title": "Add the deterministic scoring-checks layer: harness-owned acceptance + hidden-regression + diff-hygiene",
   "description": "The powered ablation scores PRIMARY completion as acceptance exit 0 AND an independent hidden-regression + diff-hygiene check pass, with acceptance scripts harness-owned, read-only, hash-checked, run against a clean checkout and NOT in the agent's editable workspace (anti-gaming). Build these deterministic, offline-unit-testable checks.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "ablation",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-23T10:00:15.847Z",
   "startedAt": "2026-06-23T10:00:15.847Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T11:05:22.357Z",
   "events": [
     {
       "phase": "INIT",
@@ -88,12 +88,16 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:05:22.357Z",
+      "branch": "story/B-ebbb",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ebbb",
-    "branch": "story/B-ebbb",
-    "createdAt": "2026-06-23T10:02:53.912Z"
-  },
   "currentReviewRound": "2026-06-23T10:39:35.759Z"
 }
