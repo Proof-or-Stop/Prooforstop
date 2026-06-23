@@ -18,7 +18,30 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Concept review found real CLI parser/catalog strips authority_enforce_runner live/storyId before handler dispatch; catalog and command smoke are required to fix the public command path.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-cli",
+      "reason": "Delivery and live-smoke command-generated evidence consumed by delivery-check; no product scope expansion.",
+      "timestamp": "2026-06-23T11:37:38.494Z",
+      "paths": [
+        ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-1e7f/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-1e7f/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "996642825f36267bf2f9739cd6ba9ceb20dc2673",
+      "materialHash": "ff308f0b43e94a807b3995ca75c0fb9090b4cabdf7821e5a52f03222b7d6ce11",
+      "anchors": [
+        "delivery_evidence",
+        "live_smoke_transcript"
+      ]
+    }
+  ],
   "createdAt": "2026-06-23T10:37:12.658Z",
-  "updatedAt": "2026-06-23T11:05:33.206Z"
+  "updatedAt": "2026-06-23T11:37:38.494Z"
 }
