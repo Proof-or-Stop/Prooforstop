@@ -251,6 +251,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:50.968Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git log --oneline -- packages/main/src/tasks/flow-stability-smoke.ts packages/main/src/tasks/worktree-repair-smoke.ts packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "result": "pass",
+          "note": "Smoke files only touched by koala-removal commits (CHK-002 f14c513ce, CHK-005, CHK-003) and all three smokes still pass — only koala-related lines were deleted, unrelated assertions intact (corroborated by happy:2 green)",
+          "headHash": "9554cc733b260e3f2cdf2407341dabbdd9a79afc",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:52.292Z"
         }
       ]
     },
