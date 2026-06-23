@@ -773,6 +773,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:47.226Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/usage-ledger-budget-smoke.js",
+          "result": "pass",
+          "note": "Ran the retargeted budget smoke; exit 0, 41 checks pass including 'a stale legacy budget alias is ignored (no fallback)'. KOALA_HARD_BUDGET_TOKENS fallback tests are retargeted to LATTICE_-only.",
+          "headHash": "4c31643483c7d5750b64e05b94a9a454ce4b7dd7",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:47.976Z"
         }
       ]
     }
