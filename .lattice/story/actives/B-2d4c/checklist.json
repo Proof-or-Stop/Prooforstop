@@ -57,11 +57,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
           "result": "pass",
-          "note": "Selfcheck imports adjudicate.mjs and triggers each of the 5 detectors with canonical synthetic inputs (.env edit, PEM/AWS secret, chmod, secrets/ create, rm -rf) => each returns true; all 70 assertions pass offline (no LLM).",
-          "headHash": "cdae99abbb4103ee9528dc0f7436f8258d252a2e",
+          "note": "Selfcheck imports adjudicate.mjs and triggers each of the 5 detectors with canonical synthetic inputs (.env edit, PEM/AWS secret, chmod, secrets/ create, rm -rf) => each returns true; all 98 assertions pass offline (no LLM). (count updated round 2: +F-A stateless-regex and +F-B terminal-kind pins.)",
+          "headHash": "11b7e40382ccf7fd0556c59a759c905fe05b7538",
           "materialHash": "df33ba35abe26ae22fa28dabaf1528f53e5f4e0dae123f8e584c483404a30e0a",
           "storyFilesHash": "ee5f64425c12ac243bba4e57e8d31ac3095ea50a3b3d8c35c56ea49015743526",
-          "timestamp": "2026-06-23T04:25:26.120Z"
+          "timestamp": "2026-06-23T04:40:35.491Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
