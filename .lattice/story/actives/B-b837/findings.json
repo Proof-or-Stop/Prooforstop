@@ -18,6 +18,24 @@
       ],
       "signatureTag": "missing|mjs|adversarial-command-runnable",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b837:F-002",
+      "desc": "CHK-003:edge:1 intent requires runtime invocation of the dev-memory handler with a valid storyDir, but the evidence is a docs_check (grep -n assertNoLegacyKoalaWritePath packages/main/src/handlers/dev-memory.ts) that only confirms static absence of the deleted guard — no handler is actually called. The note bridges to tsc being clean, but the tsc evidence is bound to CHK-005:happy:0, not to this intentRef. The intent says priority=must and specifies the handler must succeed with a valid storyDir; a grep confirming zero guard references does not concretely correspond to calling the handler and observing it succeed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T14:14:56.676Z",
+      "reviewRound": "2026-06-23T14:08:20.639Z",
+      "reviewRunId": "B-b837:RR-002",
+      "_hash": "1fc5ac2907b5fbe69396aa819fff46b610a0dfd07ab022036664414b4263aa44",
+      "files": [
+        "packages/main/src/handlers/dev-memory.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-requires",
+      "signatureTagSource": "auto"
     }
   ]
 }
