@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5bfe:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. (1) The three occurrences of call-count in recovery-runner code are all explicit NOT-call-count contrasting statements — no mislabeling. (2) agentCallCount is a secondary §7 accounting field, not the budget-matching variable; budget-matching uses tokensSpent (token binds first) and wall-clock elapsed, consistent with the pre-reg. (3) Pre-reg §7 field names tokensSpent/wallClockMs/agentCallCount/truncated are present verbatim in the record literal with an explicit citation. (4) Token-binds-first implemented correctly in budgetExceeded. (5) Hard-truncate upper bound = 1.2*median correctly in a2primeBudget. (6) All imports are Node built-ins and resolve. (7) B-b8c8/background.md retains old call-count description but B-b8c8 is INIT-phase superseded story (historical metadata, no code shipped). No concept deletion requiring residue check occurred; no blocker found.",
+      "createdAt": "2026-06-23T01:58:01.198Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-003",
+      "_hash": "b305d26ee55f51db547624aa365e4a6aa9579e6efc91959aea0e04ffb1e98c6b"
+    }
+  ]
+}
