@@ -224,7 +224,7 @@
       "desc": "Exhausted-reruns terminal void is appended to in-memory voids[] but NOT sent through onVoid, so <record>.voids.jsonl never records reason:exhausted-reruns — the incomplete cell (the most important void) is not durably logged, and stdout voids.length over-counts vs the sidecar rows. Violates §7/F-004 durable logging. Fix: route the exhausted-reruns void through onVoid too.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T12:19:39.183Z",
@@ -234,7 +234,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|exhausted-reruns-terminal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "exhausted-reruns terminal void routed through onVoid -> durably logged to <record>.voids.jsonl; selfcheck CLI-integration asserts /exhausted-reruns/ in the sidecar + voids/onVoid lock-step; commit 8a3ae6d5c",
+      "resolvedAt": "2026-06-23T12:22:41.269Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
