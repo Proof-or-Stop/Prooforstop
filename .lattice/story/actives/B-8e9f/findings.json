@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-8e9f:F-001",
+      "desc": "concept-cleanup: B4/B5 turn-1 concept still has 2 stale comments in the self-check case table (lines 766 and 772) saying \"truncate hook on turn 2\" and \"kill hook on turn 2\" respectively — these directly contradict the new turn-1 design and will mislead future developers; must be updated to say turn 1",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T23:35:18.115Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-001",
+      "_hash": "4dc61d8f7a6ef6eac7bffe4cb498a17662c2480aa83a3d3d5578f053ed0fd28f",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-turn",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
