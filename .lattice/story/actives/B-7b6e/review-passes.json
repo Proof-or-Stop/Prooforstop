@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-012",
       "_hash": "d89182fdfcb06ec5f63dda95fbd163ad8520674014fa490734d797a7c5c8d833"
+    },
+    {
+      "id": "B-7b6e:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete (RR-013, head f3e13e3). specAwareReviewer grep across all .ts/.md/.json excluding .lattice/ story metadata, node_modules, dist, .git: zero hits. All occurrences are confined to .lattice/ audit trail (historical findings, prior review-passes, plan.md, checklist.json, test-evidence.json) — not live source. The rename specAwareReviewer->oracleReviewer is complete in packages/. receipt-bundle.ts: git diff main...HEAD produces empty output — file unmodified. No concept deletion or replacement requiring residue cleanup this round. No doc-promise-undelivered: F-008 fix (canonicalResult binds reason into per-probe digest) is purely additive/tightening with no new doc promises. No blocker.",
+      "createdAt": "2026-06-23T00:29:06.514Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-013",
+      "_hash": "ccbf2042b397849a5754d6d4c07511d5a35497f127d95fd718f8e8b573ded62a"
     }
   ]
 }
