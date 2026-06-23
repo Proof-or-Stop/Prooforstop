@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-23T12:22:34.323Z",
       "reviewRunId": "B-f248:RR-012",
       "_hash": "9d20255d5f6458fcf65e4ba4b5ff148d3811fad756de87314e551298ee40a56b"
+    },
+    {
+      "id": "B-f248:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 concept scan complete. Two changes in 4fa945531: (1) run-driver.mjs -- maxReruns validation (runDriver throw + main() exit 2); (2) README.md enumerate-only comment corrected to reflect sidecar write. Searched: writes-nothing residue in run-driver.mjs / run-driver-selfcheck.mjs / README.md (zero hits); stale enumerate-only/writes-nothing claim (zero hits in experiments/ dir); maxReruns dead-letter references (none). No concept deleted or replaced without cleanup. No doc-promise-undelivered: --maxReruns validation behavior is not over-promised in README. Selfcheck: 128 assertions, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T12:36:28.165Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-014",
+      "_hash": "8e4c04b9a1462ee3e964b6835d1bedf406bb9709d57bfd1e60a69ca5aa415d83"
     }
   ]
 }
