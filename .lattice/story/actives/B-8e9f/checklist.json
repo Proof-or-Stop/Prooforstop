@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "B4 fire truncate at turn 1 so the agent starts with empty context; update B4 self-check stubs to keep distinct outcomes",
       "context": "interruptAt(1) returns truncate; classify stays disk-grounded on result.txt",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T23:26:45.885Z",
-      "endTime": null,
+      "endTime": "2026-06-23T23:28:25.850Z",
       "userSees": "--self-check prints a B4 case where truncate fires at turn 1; disk-reading stub -> RECOVERED and empty-context stub -> AMPLIFIED appear as DIFFERENT outcomes.",
       "files": {
         "modify": [
