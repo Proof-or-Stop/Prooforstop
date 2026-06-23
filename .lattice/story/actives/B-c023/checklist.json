@@ -118,7 +118,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "All 5 fake-agent x scenario cases yield the expected OUTCOME (B7 3 cases + B10 2 cases); 0 spend, exit 0.",
+          "headHash": "64976af5767c18a3d97c5a3aec110d1f81570f7e",
+          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
+          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
+          "timestamp": "2026-06-23T12:52:20.082Z"
+        }
+      ]
     }
   ]
 }
