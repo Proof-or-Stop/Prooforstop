@@ -5,7 +5,7 @@
 // (non-JSON / API-error -> infra-fail; type-safe cost), feeds back the parsed RESULT TEXT (not
 // the raw JSON envelope), and HONORS the B-c023 AbortSignal contract via async execFile with
 // `{signal}`: AbortController.abort() actually kills the child AND the event loop is not blocked,
-// so the harness watchdog/turnTimeoutMs are real (a blocking execFileSync would neuter them);
+// so the harness watchdog/turnTimeoutMs are real (a blocking sync exec would neuter them);
 // a turn timeout also bounds the child, so a hung turn cannot orphan a process or block cleanup.
 //
 // makeStubLoopAgent returns a deterministic no-LLM agent for the hermetic --self-check (0 spend).
