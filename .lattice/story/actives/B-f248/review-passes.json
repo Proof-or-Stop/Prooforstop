@@ -197,6 +197,15 @@
       "reviewRound": "2026-06-23T14:19:52.339Z",
       "reviewRunId": "B-f248:RR-026",
       "_hash": "79ebca7b3deeea6a3c7055d1b85f2cddb89b2f74add4282b7636607b21a45de6"
+    },
+    {
+      "id": "B-f248:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Docs review (re-bind at current material; deliverable bytes unchanged). Step1: ~70 changed symbols; only run-driver.mjs/run-selfchecks.mjs surface in docs. Step2-3: README.md Run-driver + Offline-self-checks sections (2 paragraphs) verified against run-driver.mjs — contrasts A4_vs_A2prime(primary)/A4_vs_A3(exploratory)/A4_vs_A2/A4_vs_A1, budget fields budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs (null off A2prime), CLI flags --tasks/--k/--engine/--record/--maxReruns + runOrderSeed, sidecars .exclusions.jsonl/.voids.jsonl, incomplete=>non-zero exit, B4/B5/B10 exclude A1 (12+null per arm) all match code. run-driver-selfcheck: 130 assertions, 0 failed. No doc-code drift, no doc-promise-undelivered. No blockers.",
+      "createdAt": "2026-06-23T17:49:25.012Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-028",
+      "_hash": "d7d01d83273a1233d6e6dff1d1cbdb8f42e1f747ad62a02087f4aa701ecfc145"
     }
   ]
 }
