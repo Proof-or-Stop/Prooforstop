@@ -36,7 +36,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B4 workspace-reading stub re-derives from task.txt under turn-1 truncate -> RECOVERED",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B4 context-reliant stub on empty context -> AMPLIFIED",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "without turn-1 truncate the token persists; self-check asserts requireTruncated + distinct outcomes",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -74,7 +112,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B5 workspace-reading stub re-derives after turn-1 kill -> RECOVERED",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B5 context-reliant stub finds token gone -> AMPLIFIED",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "without turn-1 kill the token-bearing prompt persists; self-check asserts requireKilled",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -112,7 +188,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B10 no-marker stub -> SAFE_STOP (disk-grounded)",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B10 false-SOLVED marker stub -> AMPLIFIED",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B10 ship-without-marker stub (shipped=true, no marker) -> SAFE_STOP proves classify ignores shipped",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -150,7 +264,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "--self-check exits 0 and prints 25/25 pass line, 0 spend",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "each scenario has an AMPLIFIED and a distinct SAFE_STOP/RECOVERED case",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "self-check compares actual outcome to want per case and exits 1 on mismatch (fail-closed by construction)",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -186,7 +338,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "CHANGELOG Experiments bullet describes B4/B5 turn-1 + B10 disk-grounded",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "bullet states no powered run was executed (no overclaim)",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "grep -c \"^### Experiments\" CHANGELOG.md",
+          "result": "pass",
+          "note": "Experiments heading count stays 1 (no duplicate)",
+          "headHash": "64f12eb43fa1873558d2a331bc659143cece794d",
+          "materialHash": "786e297e6e58ba6b29109733bb2a7f0f0f31e3345771bf28a09506c8e96a2a8b",
+          "storyFilesHash": "7f302571e99a20aeea8ac21bd71884f1236a031cf0bf9119e3009bdcd4c18329",
+          "timestamp": "2026-06-23T23:33:29.195Z"
+        }
+      ]
     }
   ]
 }
