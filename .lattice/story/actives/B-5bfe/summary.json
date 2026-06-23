@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5bfe",
+  "changes": "Added the spend-matched A2-prime ablation arm + accurate token/wall-clock/agentCallCount accounting to the recovery runner (run-recovery.mjs records tokensSpent/wallClockMs/agentCallCount per pre-reg section 7 + a token+wall-clock spend-budget truncation mode, token binds first, hard-truncate; run-ablation.mjs computes A4 per-task median spend and runs A2-prime = a2prime bounded by 1.2x that median, recording per-run budgetPass requiring BOTH token AND wall-clock within plus-or-minus 20 percent). Added a no-LLM selfcheck (56 assertions).",
+  "usage": "Run the ablation: A2-prime now spends token+wall-clock budget matched to A4 per-task median (not call count). Each run record carries tokensSpent/wallClockMs/agentCallCount/truncated; A2-prime jsonl carries budgetPass/tokenInBand/wallInBand. Verify offline: node experiments/recovery-runner/spend-accounting-selfcheck.mjs.",
+  "expectedOutcome": "A2-prime is compute-matched to A4 on token+wall-clock spend per the locked pre-registration; budgetPass=true only when BOTH axes are within plus-or-minus 20 percent.",
+  "actualTranscript": "selfcheck 56/56 assertions pass (no live LLM); genuine 2-host: 3 claude lanes PASS + codex host-2 round-1 BLOCK on budgetPass being token-only -> fixed (db47ecc7b) -> codex round-2 SHIP; 2 low quality findings + 1 high stale-evidence finding all resolved; full npm test green.",
+  "outcomeDiff": "expected == actual: spend-match on token+wall-clock, both-band budgetPass, token-binds-first truncation, pre-reg section 7 field names.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "A2-prime is a budget-match: a2prime stops at first acceptance pass, so on a passes-the-visible-test fault it may spend under budget (recorded via budgetPass under-match flag). The powered fault-bearing 24-task run is separate future work.",
+  "pitfalls": "budgetPass MUST check both token AND wall-clock bands (a token-only check silently passes wall-clock out-of-tolerance runs — the host-2 round-1 finding). Cross-vendor review mattered: codex host-2 caught this; the 3 same-vendor lanes passed it.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 230930
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15825
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 545482
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1278163
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2986567
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 417806
+    }
+  },
+  "totalDurationMs": 5474792,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T02:56:03.227Z",
+  "updatedAt": "2026-06-23T02:56:03.227Z"
+}
