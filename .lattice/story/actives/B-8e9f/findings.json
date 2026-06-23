@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|mjs|concept-cleanup-turn",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8e9f:F-002",
+      "desc": "stale-comment: live-loop-harness.mjs:766,772 self-check inline comments still say \"truncate hook on turn 2\" and \"kill hook on turn 2\" but the implementation now fires these hooks at turn 1; a reader sees the opposite of the actual behavior",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T23:35:46.770Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-002",
+      "_hash": "7ebe7052f76cf72850f72737c775447d67b3a60a6ee3ec50f8141fb02399dffd",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "missing|mjs|stale-comment-live",
+      "signatureTagSource": "auto"
     }
   ]
 }
