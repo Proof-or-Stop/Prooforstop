@@ -118,7 +118,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test prints 18/18 PASS (6 probes × {RECOVERED,SAFE_STOP,AMPLIFIED}) + visible pass line, exit 0 — end-to-end wiring proven hermetically, 0 cost.",
+          "headHash": "0d556291b05ba4371048fc9bab0e88e13e02f700",
+          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
+          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
+          "timestamp": "2026-06-23T09:57:55.267Z"
+        }
+      ]
     }
   ]
 }
