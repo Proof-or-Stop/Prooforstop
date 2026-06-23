@@ -284,6 +284,24 @@
       "resolvedAt": "2026-06-23T12:32:26.377Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f248:F-014",
+      "desc": "quality-cleanup: run-driver-selfcheck.mjs:21 imports buildCanonicalRecord from run-driver.mjs but never calls it directly (exercised only indirectly via runDriver); pre-existing since initial commit but the file is in the changed set",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:38:20.849Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-013",
+      "_hash": "32491df17f1281a97e49f3a172a0dd0874a3e39b0b3436a0837ee0fdb20e8691",
+      "files": [
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-driver",
+      "signatureTagSource": "auto"
     }
   ]
 }
