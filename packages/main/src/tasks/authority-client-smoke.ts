@@ -1461,7 +1461,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   });
   assert.equal(blockedFakeProvider.ok, false, 'fake provider plans cannot be silently rewritten into server jobs');
   assert.match(blockedFakeProvider.reason ?? '', /explicit non-fake provider declaration/, 'blocked reason asks for an explicit non-fake provider declaration');
-  for (const provider of ['fake', 'Fake', 'FAKE']) {
+  for (const provider of ['fake', 'Fake', 'FAKE', 'fake-provider', 'FAKE_PROVIDER']) {
     const blockedOverride = await submitAuthorityJobFromPlan(authorityJobPlan(), {
       env: authorityEnv(),
       fetchImpl,
@@ -1471,7 +1471,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     assert.equal(blockedOverride.ok, false, `reserved fake provider override is rejected: ${provider}`);
     assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `reserved fake reason asks for a non-fake provider: ${provider}`);
   }
-  for (const provider of ['fake', 'Fake', 'FAKE', '', '   ']) {
+  for (const provider of ['fake', 'Fake', 'FAKE', 'fake-provider', 'FAKE_PROVIDER', '', '   ']) {
     const blockedOverride = await submitAuthorityJobFromPlan(realProviderJobPlan, {
       env: authorityEnv(),
       fetchImpl,

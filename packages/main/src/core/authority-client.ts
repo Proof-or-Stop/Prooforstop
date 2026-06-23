@@ -1552,10 +1552,15 @@ function serverProviderFromPlan(jobPlan: JobPlan, override?: string): ServerProv
 
 function normalizeServerProvider(value: unknown): string | null {
   if (typeof value !== 'string' || value.trim().length === 0) return null;
-  if (value.trim().toLowerCase().replace(/_/g, '-') === 'fake') return null;
+  if (isReservedServerFakeProvider(value)) return null;
   const provider = normalizeAuthorityRunnerProvider(value).provider;
-  if (!provider || provider === 'fake') return null;
+  if (!provider || isReservedServerFakeProvider(provider)) return null;
   return provider;
+}
+
+function isReservedServerFakeProvider(value: string): boolean {
+  const aliasKey = value.trim().toLowerCase().replace(/_/g, '-');
+  return aliasKey === 'fake' || aliasKey === 'fake-provider';
 }
 
 function serverProviderList(value: unknown): string[] {
