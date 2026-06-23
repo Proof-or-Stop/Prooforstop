@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.workflow_efficiency_baseline_result.v1",
+  "baselineId": "lattice-workflow-efficiency-baseline-v1",
+  "story": "B-4c48",
+  "baselineItem": 4,
+  "baselineDimension": "mainMergeReadiness",
+  "createdAt": "2026-06-23T12:00:00Z",
+  "result": {
+    "localLifecycleReadinessCoverageOnly": true,
+    "preReviewOrReviewEntryMainSyncAdvisory": true,
+    "behindMainCountIncludedWhenAvailable": true,
+    "donePrepareCommandIncluded": true,
+    "syncedBranchFalseWarningAvoided": true,
+    "reviewAndTestBlockingChanged": false,
+    "mergeAuthorityChanged": false,
+    "authorityChanged": false,
+    "authorityServerContact": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "claimsAuthorityOrProductionProof": false
+  },
+  "configuration": {
+    "readinessSurface": [
+      "lattice session_brief",
+      "lattice lifecycle_check --target=REVIEW",
+      "lattice lifecycle_check --target=TEST"
+    ],
+    "smokeTest": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+    "validateCommand": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+    "validateFocus": "fast",
+    "proofBoundary": "Local read-only lifecycle/session readiness evidence only; no Authority receipt, production deployment, DONE merge, delivery-check freshness, or DONE summary freshness proof."
+  },
+  "verification": [
+    {
+      "command": "npm --prefix packages/main run build",
+      "status": "PASS"
+    },
+    {
+      "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+      "status": "PASS",
+      "observed": "main-sync-readiness smoke passed"
+    },
+    {
+      "command": "lattice validate --focus=fast --json",
+      "status": "PASS",
+      "observedProvider": "lattice-verifier-configured-commands-focused",
+      "observedCommand": "configured validate.commands[7]: node packages/main/dist/tasks/main-sync-readiness-smoke.js"
+    }
+  ],
+  "immutableBaselineFileModified": false
+}
