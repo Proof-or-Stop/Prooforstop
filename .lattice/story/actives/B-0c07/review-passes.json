@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0c07:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff is purely additive (13 files, 1126 insertions, 0 deletions of concept-bearing lines). New files: experiments/injection-probes/real-arm.mjs + powered-run-records.jsonl + CHANGELOG.md entry. No concept deleted or renamed. Forbidden imports (run-recovery.mjs, run-ablation.mjs, run-a2prime.mjs) appear only in a comment in real-arm.mjs, not as actual imports. Reused files (run-injection-arms.mjs, probe-contract.mjs) show zero diff against main. No files outside stated scope (.lattice metadata + CHANGELOG + experiments/injection-probes). Concept residue check: no deletion/replacement identified, nothing to grep for. No blocker.",
+      "createdAt": "2026-06-23T12:08:37.057Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-001",
+      "_hash": "20adcac7bd0236ea5108c5025c28c17c9ed7a0d2aafcbcc70409d0d88e9500f3"
+    }
+  ]
+}
