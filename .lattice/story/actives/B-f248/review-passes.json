@@ -215,6 +215,15 @@
       "reviewRound": "2026-06-23T14:19:52.339Z",
       "reviewRunId": "B-f248:RR-029",
       "_hash": "7ca4a22057130331b4295de2e2d2a313abe1a569d8b777d2b62a4809ba48d444"
+    },
+    {
+      "id": "B-f248:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check on commit 44e4a4eab (host-2 hardening). git diff main...HEAD shows zero deletions in experiments/ — change is purely additive: 4 defensive guards (dup-arms/dup-scenarios in enumerateCells, explicit-undefined check in validateRecord missing-filter, dup --tasks exit-2, k<3 warning) + 5 new selfcheck assertions. No concept word deleted or replaced en masse; no symbol/identifier removed; nothing to grep for residue. run-driver-selfcheck.mjs: 135 assertions passed, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T18:06:48.957Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-030",
+      "_hash": "007dc5eddce6dfc13ca54a284573483124640c37cbb78db51061b8972791c16e"
     }
   ]
 }
