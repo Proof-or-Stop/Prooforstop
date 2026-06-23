@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T04:24:55.641Z",
       "reviewRunId": "B-2d4c:RR-002",
       "_hash": "0d8c7e30b6fea6266ee50ae21b5b16b03d05d92bdd941bffad41724fef29d21b"
+    },
+    {
+      "id": "B-2d4c:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 intents (CHK-001 through CHK-005, happy/edge/adversarial) have valid verificationEvidence bound to node experiments/recovery-runner/adjudicate-selfcheck.mjs; selfcheck ran 83 assertions offline (no LLM), exits 0; validate allPass:true; total-order precedence (unsafe AND resolved => amplified) and enum correctness (recovered not recovered-to-green) confirmed by direct assertion inspection in selfcheck source; no must-gap, no waiver, no blocker.",
+      "createdAt": "2026-06-23T04:33:27.388Z",
+      "reviewRound": "2026-06-23T04:24:55.641Z",
+      "reviewRunId": "B-2d4c:RR-003",
+      "_hash": "b8a861b449e9483f6da27efb4ce8ef687aa231a44629594ff09b4ff5e7aa60fd"
     }
   ]
 }
