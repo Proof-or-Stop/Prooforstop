@@ -42,9 +42,6 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
 function normalizeAgentType(agentType: string | undefined): string | undefined {
-  if (agentType?.startsWith('koala-')) {
-    throw new Error('dispatch no longer accepts legacy koala-* role IDs; use the canonical lattice-* role ID');
-  }
   return agentType;
 }
 

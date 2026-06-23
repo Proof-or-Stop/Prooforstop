@@ -68,7 +68,6 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
   assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
   assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
   assert.match(content, /\blattice --version\b/, `${label} verifies lattice binary version`);
-  assert.doesNotMatch(content, /\bkoala --version\b/, `${label} does not require legacy koala alias version verification`);
   assert.match(content, /\blattice check\b/, `${label} documents lattice check`);
   assert.match(content, /\blattice doctor --format=json\b/, `${label} documents lattice doctor json`);
   assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
@@ -78,13 +77,9 @@ assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active
 assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
 assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
 assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
-assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README does not use bin/koala.js generic command examples');
 assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
-assert.doesNotMatch(guide, /koala` is retained only as a legacy alias/, 'guide does not preserve koala as active alias');
-assert.doesNotMatch(guide, new RegExp('`ko' + 'ala` is a legacy alias'), 'guide does not claim removed alias wording');
 assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
 assert.match(projectVision, /`lattice rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
-assert.doesNotMatch(projectVision, /`lattice --version`[\s\S]{0,120}`koala --version`/, 'project vision does not require alias version verification');
 
 for (const file of targetDocs) {
   const content = read(file);

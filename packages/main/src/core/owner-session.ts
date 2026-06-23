@@ -4,7 +4,7 @@ import { resolveAdapterOwnerSession, type OwnerSessionEnv, type OwnerSessionHost
 import { gitProbe } from './git-probe.js';
 
 export type SessionSource = 'explicit-env' | 'host-adapter' | 'generated-token' | 'derived-ppid';
-export type LegacySessionSource = 'koala-env' | 'claude-code-env';
+export type LegacySessionSource = 'claude-code-env';
 
 export interface SessionIdentity {
   sessionId: string;
@@ -35,7 +35,6 @@ export function normalizeSessionSource(value: unknown): SessionSource | null {
   if (value === 'explicit-env' || value === 'host-adapter' || value === 'generated-token' || value === 'derived-ppid') {
     return value;
   }
-  if (value === 'koala-env') return 'explicit-env';
   if (value === 'claude-code-env') return 'host-adapter';
   return null;
 }

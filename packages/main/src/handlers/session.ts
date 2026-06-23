@@ -546,7 +546,6 @@ export function renderMetaAuditBlock(storyId: string): string[] {
 
 function normalizeSessionCommandHints(text: string): string {
   return text
-    .replace(/\bkoala\s+(validate|status|checklist_get|session_brief|next)\b/g, 'lattice $1')
     .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
 }
 

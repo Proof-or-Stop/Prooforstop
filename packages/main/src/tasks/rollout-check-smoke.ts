@@ -104,11 +104,9 @@ assert.equal(
 const help = runCli(['help']);
 assert.match(help, /rollout_check/, 'help exposes rollout_check');
 assert.match(help, /Entrypoint:\s+lattice/, 'help names lattice as entrypoint');
-assert.doesNotMatch(help, /Legacy alias:\s+koala/, 'help does not advertise koala alias');
 const storyCreateHelp = runCli(['story_create', '--help']);
 assert.match(storyCreateHelp, /lattice story_create/, 'story_create help uses lattice examples');
 assert.match(storyCreateHelp, /lattice session_brief/, 'story_create help next step uses lattice');
-assert.doesNotMatch(storyCreateHelp, /legacy alias: koala|Compatible: koala/, 'tool help does not document koala alias');
 
 const flat = runJson(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
 assertRolloutShape(flat, 'flat command');

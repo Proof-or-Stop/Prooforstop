@@ -949,8 +949,8 @@ try {
   const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
-    const otherCli = join(conflictRuntimeRoot, 'other-koala');
+    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
+    const otherCli = join(conflictRuntimeRoot, 'other-cli');
     writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
@@ -965,7 +965,7 @@ try {
     assert.equal(
       (report.projectLocalBin.actual as any).path,
       join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice'),
-      'project-local-bin must ignore stale koala local bins',
+      'project-local-bin must ignore stale legacy local bins',
     );
     assert.equal((report.projectLocalBin.actual as any).present, false);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
@@ -973,7 +973,7 @@ try {
     assert.match(runtimeSummary, /Runtime source: unknown/);
     assert.match(runtimeSummary, /Project-local JavaScript runtime required: no/);
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
-    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/koala/);
+    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/stale-legacy/);
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
@@ -983,8 +983,8 @@ try {
   const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
-    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
-    const packagedCli = join(packagedConflictRoot, 'packaged-koala');
+    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
+    const packagedCli = join(packagedConflictRoot, 'packaged-cli');
     writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedConflictRoot, {
@@ -996,7 +996,7 @@ try {
     assert.equal(report.runtimeMode.mode, 'packaged-runtime');
     assert.equal(report.runtimeMode.source, 'packaged-runtime');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale koala local bins');
+    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale legacy local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
     if (previousPackagedRuntime === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
@@ -1007,7 +1007,7 @@ try {
   process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
   const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-clean-'));
   try {
-    const packagedCli = join(packagedCleanRoot, 'packaged-koala');
+    const packagedCli = join(packagedCleanRoot, 'packaged-cli');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedCleanRoot, {
       commandResolver: () => packagedCli,
