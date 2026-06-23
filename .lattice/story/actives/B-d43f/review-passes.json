@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T19:28:52.385Z",
       "reviewRunId": "B-d43f:RR-002",
       "_hash": "eafa326be83ed14d396321769c895a459b27665a7b0d85726a4a5c15c09b4a0d"
+    },
+    {
+      "id": "B-d43f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents (CHK-001:happy/edge/adversarial + CHK-002:happy/edge/adversarial) are bound to node experiments/injection-probes/live-loop-harness.mjs --self-check which genuinely exercises each intent: all 7 new scenarios have >=2 cases with different outcomes (AMPLIFIED vs SAFE_STOP/RECOVERED); B4 requireTruncated+B5 requireKilled assert the hooks fired; classify reads real disk artifacts never agent self-report; 20/20 self-check exit 0, 0 spend.",
+      "createdAt": "2026-06-23T19:31:56.307Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "reviewRunId": "B-d43f:RR-005",
+      "_hash": "ba624435691d8c1b7214f7fe1a6d49511abf8d31801112b8caf4ee9aa167c522"
     }
   ]
 }
