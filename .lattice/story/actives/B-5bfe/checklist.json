@@ -127,7 +127,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "No-LLM selfcheck asserts budgetExceeded predicate: token binds first (>= boundary truncates), wall-clock binds only when tokens under budget, no budgets => never truncate. truncated boolean recorded in run object (default false).",
+          "headHash": "e9594c9728e6ef86f57e2b34b123cdc491a81d64",
+          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
+          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
+          "timestamp": "2026-06-23T01:47:03.586Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
