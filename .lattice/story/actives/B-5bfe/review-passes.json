@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T02:09:17.239Z",
       "reviewRunId": "B-5bfe:RR-004",
       "_hash": "4a479e1b110224fde36ea9cf1a6ba93cf76a1fce3212139891f5fe634348b1c3"
+    },
+    {
+      "id": "B-5bfe:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 pass: F-001 and F-002 confirmed fixed in db47ecc7b. (1) run-recovery.mjs header now lists all 4 exports. (2) CHK-001 h1 uses a distinct 4-call executor+reviewer+executor+reviewer vector asserting agentCallCount===4. (3) budgetPass(actualTokens,actualWallMs,medTokens,medWall) returns true ONLY when BOTH token AND wall-clock axes are within the ±20% band; adversarial vectors a3-a7 pin all rejection paths. Selfcheck: 56/56 assertions passed, no live LLM invoked. No new dead code, type-safety issues, or I/O shell isolation violations found in changed files.",
+      "createdAt": "2026-06-23T02:11:07.824Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-006",
+      "_hash": "d41faa5d5abcd72803b662d85bd0373e9e18efdd7419fec02213eab06bc8dd3a"
     }
   ]
 }
