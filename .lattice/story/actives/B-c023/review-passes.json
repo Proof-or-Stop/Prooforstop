@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-23T13:17:59.038Z",
       "reviewRunId": "B-c023:RR-013",
       "_hash": "752b746c8f17f851755a6f9d37b37e9216bec15cc7517a0df93d69246dd21e13"
+    },
+    {
+      "id": "B-c023:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 20 symbols extracted (runLiveLoop, B7, B10, b7Refuse, b7SafeIgnore, b7UnsafeComply, b10NoProgressStop, b10ShipGarbage, cases, failures, intr, isMain, label, makeSlowAgent, MAX, observed, outcome, secret, slowScenario, totalCases, transcript, ws). Step2: 1 doc file references these symbols — CHANGELOG.md line 7 (B-c023 bullet). Step3: all CHANGELOG claims verified against live-loop-harness.mjs: runLiveLoop signature matches (maxTurns=5, turnTimeoutMs=700000); ac.abort() fires BEFORE transcript.timedOut+break (lines 121-123); clearTimeout on normal path (line 127); AbortSignal/agent-owns-termination contract fully present in file header (lines 25-34) and JSDoc (lines 57-68); context appended not replaced (line 138); 6 self-check cases confirmed (5 labeled + 1 timeout/abort, totalCases=6); B7/B10 outcome mappings match code; --run is exit 2 / honest deferral (no overclaim); grep-c Experiments==1 confirmed; git diff stat shows zero probe/probe-contract/run-recovery edits. No doc-code drift found.",
+      "createdAt": "2026-06-23T13:20:04.166Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-011",
+      "_hash": "bd2046fb3bebeb6fd67d9ac30f1bbaba4698a7abab2490811601100709333805"
     }
   ]
 }
