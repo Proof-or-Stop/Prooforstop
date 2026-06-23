@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6de6",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/src/core",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "experiments"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Core gate-logic change (review-assurance-floor) + offline smoke; storyFilesHash stays a secondary downgrade-accept; no whole-tree-materialHash primary-key change.",
+  "createdAt": "2026-06-23T23:34:43.980Z",
+  "updatedAt": "2026-06-23T23:34:43.980Z",
+  "_hash": "b11c68ab92b15ec21b82f1d74a61b1c746ac4c85d8454c17550df3bf40258469"
+}

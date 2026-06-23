@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-23, two Proofbound stories (B-f248 run-driver, B-7036 analysis) each spent hours on the whole-tree-materialHash vs active-main DONE-merge race: every DONE pre-check auto-syncs main, drifts the whole-tree materialHash, and the review-assurance floor then ignores the story's just-submitted quorum host-verdicts as materialDigest-stale (found 0 fresh rounds), forcing a full re-bind. storyFilesHash (B-5a9a, DONE) + its advisory (B-edf1, DONE) already exist but are not consulted by the strict floor's fresh-round count.
+
+## Key Insights
+The data is already present: host-verdict records carry storyFilesHash (verdicts.ts), currentStoryFilesHash() exists (evidence-freshness.ts:199), and the evidence-freshness path already implements the exact downgrade-accept pattern (evidence-freshness.ts ~305: storyFilesHash matches => stale whole-tree materialHash is accepted with a re-attestation advisory, valid-with-advisory not a block). The gap is only that review-assurance-floor.ts evaluateHostVerdictRounds keys verdict freshness on materialHash alone (the 'materialHash is stale' reason at ~596) and never consults storyFilesHash. A second, smaller gap: the per-round duplicate-host/session/key-identity check counts truly-stale accumulated verdicts, so a re-bind can produce duplicate-identity-invalid rounds requiring a brand-new material to escape.
+
+## Solution Tradeoffs
+Reuse currentStoryFilesHash + mirror the evidence-freshness downgrade-accept rather than inventing a new freshness notion, so the floor and the evidence/escalation paths agree. Keep whole-tree materialHash as the primary key and storyFilesHash strictly as the secondary downgrade-accept (valid-with-advisory), so the change is conservative: a verdict only survives whole-tree drift when the story-owned files are genuinely unchanged; a real story-file change still stales it. Exclude stale verdicts from the duplicate-identity check rather than mutating/replacing stored verdicts, to avoid rewriting the append-only event log.
+
+## Conversational Texture
+The operator hit this friction repeatedly across a multi-day program and asked to finish the last mile so this class of story merges in minutes, not hours, while keeping the gate sound (no gaming: only unrelated whole-tree drift is forgiven, never a real story-file change).

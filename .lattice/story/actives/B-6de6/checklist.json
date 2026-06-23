@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the floor fresh-round count storyFilesHash-authoritative (valid-with-advisory)",
+      "context": "In review-assurance-floor.ts evaluateHostVerdictRounds (+ the fallback/degraded paths), when a host verdict's materialHash != current materialHash but its stored storyFilesHash == currentStoryFilesHash(gitCwd,'HEAD',projectRoot), count it as a VALID local round (not ignored), attach the whole-tree-drift re-attestation advisory, and surface it as valid-with-advisory (mirroring evidence-freshness.ts ~305). Reuse currentStoryFilesHash; do not invent a new hash. A verdict with no storyFilesHash, or whose storyFilesHash differs, stays stale/ignored.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Exclude truly-stale verdicts from the per-round duplicate-host-identity check",
+      "context": "So an accumulated prior-submit verdict (stale by both materialHash AND storyFilesHash) cannot create a 'duplicate host/session/key identity' invalid round that forces a brand-new-material re-bind. Only freshness-valid verdicts (current materialHash OR storyFilesHash-matching) participate in a round's identity/validity evaluation; stale ones are filtered out before the duplicate check.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Anti-gaming + advisory correctness preserved",
+      "context": "A real story-owned-file change (storyFilesHash differs) MUST still stale the floor rounds (the storyFilesHash downgrade-accept only forgives unrelated whole-tree drift). The re-attestation advisory must be surfaced (not silently swallowed) on a storyFilesHash-accepted floor pass, consistent with B-edf1's escalation-row advisory.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Offline smoke/contract test + wire into npm test",
+      "context": "Add a smoke (packages/main, in the existing review-assurance / done-* smoke style) asserting: (a) quorum at material X, then an unrelated whole-tree change (materialHash drifts, storyFilesHash unchanged) => floor still counts the rounds valid with the advisory; (b) a re-bind after such drift does not produce duplicate-identity-invalid rounds; (c) inverse control: a real story-file change (storyFilesHash differs) DOES stale the rounds (found 0). Wire into the root npm test chain.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
