@@ -1,0 +1,35 @@
+{
+  "task": "Make Lattice CLI Authority runner flows accept host-neutral provider declarations instead of rejecting non-enum host names locally.",
+  "outcome": "A senior developer can place the server-generated three-file bundle in a project, set LATTICE_AUTHORITY_RUNNER_PROVIDER=codex-cli, claude-code, antigravity, or another host declaration, then run Authority register/heartbeat/SSE/claim/takeover flows without a local unsupported-provider enum error; if the server rejects the declaration, the terminal says it is a server policy or authorization rejection.",
+  "facts": [
+    "The blocking local enum is normalizeAuthorityRunnerProvider in packages/main/src/core/authority-mode.ts.",
+    "buildAuthorityReadiness, buildAuthorityEnforceRunnerPlan, readLiveRunnerOptions, and buildLiveRunnerOptionsFromEnv consume runnerProviderValid and currently fail before the server can evaluate custom declarations.",
+    "authority_job_create also exposes a closed z.enum provider argument, which can block host-neutral queued job routing.",
+    "Server-side provider authorization is already owned by Authority Server story B-e9cb.",
+    "SSE jobs.available is only a hint; signed claim remains the ownership boundary."
+  ],
+  "constraints": [
+    "Do not add a hardcoded exhaustive host product enum.",
+    "Do not weaken API key, actor key, signature, lease, or server policy enforcement.",
+    "Do not rewrite scheduler or automatic host selection in this story.",
+    "Do not move server-owned senior bundle generation into the CLI.",
+    "Do not push to remote or use .omx."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+    "docs/requirements/decisions/lattice-authority-live-integration.md"
+  ],
+  "timestamp": "2026-06-23T02:48:20.856Z"
+}

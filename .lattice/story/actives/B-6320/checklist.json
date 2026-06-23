@@ -12,7 +12,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "authority_status / authority_enforce_runner shows runnerProvider=codex-cli or antigravity with runnerProviderValid=true instead of a local unsupported-provider warning.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "LATTICE_AUTHORITY_RUNNER_PROVIDER=codex-cli or antigravity normalizes to the same declaration string and is reported valid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing runner provider still defaults to codex and claude / CLAUDE_CODE aliases still normalize to claude-code.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A custom provider declaration is not treated as authorization proof and does not set productionDone, receiptVerified, or authorityReady by itself.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
