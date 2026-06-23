@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T20:27:12.983Z",
       "reviewRunId": "B-b739:RR-004",
       "_hash": "8cc30588599405b5473de9dad1c92339aff0385f8f529773f67bd9ce7688630b"
+    },
+    {
+      "id": "B-b739:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. Diff adds real-loop-agent.mjs (new) + live-loop-harness.mjs (additive) + CHANGELOG.md (additive). No concept deleted or replaced en masse. Checked candidates: (1) deferred — old --run deferred-stub text fully removed in harness, grep of experiments/ returns zero code hits; (2) execFileSync — references in real-loop-agent.mjs comments are doc-contrast (explaining why async execFile chosen), not residue of a replaced concept; real-arm.mjs/run-all-selftests.mjs legitimately use execFileSync and are untouched by this story; (3) neutered — appears only in CHANGELOG description as contrast wording, not a deprecated API/concept; (4) live-loop-powered-records.jsonl — correctly absent from git diff and working tree (operator-triggered). No concept deletion/replacement; no residue blocker found.",
+      "createdAt": "2026-06-23T20:38:01.974Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-006",
+      "_hash": "253e72cb5b1c6fbaf758ba8704fdd126045572a177b3ad80a368dd64ab39734c"
     }
   ]
 }
