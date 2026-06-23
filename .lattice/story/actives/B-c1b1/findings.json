@@ -80,7 +80,7 @@
       "desc": "lifecycle_check smoke remains stale after DONE-required recovery remap: npm run test:lifecycle-check-smoke fails at packages/main/src/tasks/lifecycle-check-smoke.ts:362-365 with AssertionError \"next actions include DONE-required guidance\". The implementation now routes done-required-validation blockers through lattice done_prepare, matching done_closure, but the smoke still only accepts done_required_validate or a reason containing missing_done_required_validation, leaving the smoke suite red.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T02:27:16.279Z",
@@ -91,7 +91,11 @@
         "packages/main/src/tasks/lifecycle-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|lifecycle-check-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 85bdb42: lifecycle-check-smoke now expects DONE-required recovery next actions to route through lattice done_prepare while preserving the missing_done_required_validation readiness classification. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:lifecycle-check-smoke, node packages/main/dist/tasks/done-prepare-smoke.js, git diff --check, and full lattice validate --story=B-c1b1 --json passing 26 configured commands.",
+      "resolvedAt": "2026-06-23T02:40:24.681Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
