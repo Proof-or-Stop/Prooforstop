@@ -510,16 +510,15 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
   switch (row.id) {
     case 'test-evidence':
     case 'verification-intent-coverage':
-    case 'evidence-freshness':
       return validationCommand(storyId);
+    case 'evidence-freshness':
     case 'done-required-validation':
-      return row.blocking ? `lattice done_required_validate --storyId=${storyId}` : undefined;
+    case 'branch-synced-main':
+      return row.blocking ? donePrepareCommand(storyId) : undefined;
     case 'bugs-fixed':
       return row.blocking ? `lattice bug_list '{"storyId":"${storyId}"}'` : undefined;
     case 'git-working-tree':
       return row.blocking ? 'git status --short' : undefined;
-    case 'branch-synced-main':
-      return row.blocking ? 'git merge main' : undefined;
     case 'story-summary':
       return row.blocking ? row.hint : undefined;
     case 'delivery-check':
