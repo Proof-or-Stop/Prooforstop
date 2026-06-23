@@ -758,7 +758,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nE '\\.koala/' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: all .koala/ runtime path references are gone from packages/*/src — path rename complete",
+          "headHash": "ad2787a016a9f940442e671291d12a6943462249",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:15.237Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
