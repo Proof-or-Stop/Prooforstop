@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-b837:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness scan complete. All deleted symbols confirmed absent from packages/*/src: LATTICE_LEGACY_KOALA_ACTIVITY_LOG, getMigratedLegacyKoalaActivityLogPath, activity.legacy-koala.jsonl, containsLegacyKoalaDir, assertNoLegacyKoalaWritePath, FORBIDDEN_WRITE_DIR, isLegacyKoalaWritePath, legacy_koala_write rule, legacyKoalaViolations, isGeneratedLegacyKoalaAgentPrompt, cleanupGeneratedLegacyKoalaAgentPrompts, legacy-koala-extra, koala:internal/LEGACY_INTERNAL_SECTION_RE, KOALA_HARD_BUDGET_TOKENS/KOALA_USAGE_LEDGER env fallbacks, KOALA_ from dispatch-runner SAFE_ENV_PREFIXES, koala|lattice dual-accept regexes ((?:koala|lattice) replaced with lattice-only in managed-assets.ts, cli-init.ts, claude-md-sync.ts). Expected residual ONLY in handlers/review-preflight.ts (KOALA_RESIDUE_* gate wiring, deferred to story 4) confirmed present and isolated there plus a single cli-prompts.ts gate-name reference tightly coupled to it. No orphan references found in other packages/*/src files.",
+      "createdAt": "2026-06-23T14:12:40.064Z",
+      "reviewRound": "2026-06-23T14:08:20.639Z",
+      "reviewRunId": "B-b837:RR-001",
+      "_hash": "d2dd7177ecd28a777fcf2a3d8f905273e3350c0fac3a4b03f8bf800501afc040"
+    }
+  ]
+}
