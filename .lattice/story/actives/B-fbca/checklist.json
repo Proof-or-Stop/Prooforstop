@@ -164,7 +164,60 @@
       "context": "npx tsc --noEmit clean; packages/main suite green (skip pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost); node scripts/verify-koala-residue.mjs still PASS + self-test. Final: git grep -i koala -- 'packages/*/src/**' returns ONLY review-preflight.ts KOALA_RESIDUE_* (story 4); zero salts/legacy-detection/koala-codex/koala-agent remain; docs/experiments and .lattice/story untouched.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npx tsc --noEmit -> exit 0, zero type errors; WHY: build must be clean after all renames/deletions",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test (packages/main suite, skipping pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) -> all non-skipped tests pass; WHY: suite must remain green",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node scripts/verify-koala-residue.mjs -> PASS; WHY: the residue gate itself must still function (it detects unauthorized koala references)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala -- packages/*/src -> output contains ONLY review-preflight.ts KOALA_RESIDUE_* lines; WHY: the acceptance criterion -- zero koala except deferred gate self-ID",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "run verify-koala-residue.mjs self-test mode -> self-test passes; WHY: the gate must be able to detect a future koala reintroduction (self-test injects a fake violation and checks the gate catches it)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala -- docs/ experiments/ -> hits are allowed (docs are out of scope) but verify they exist as expected baseline; WHY: ensures the grep scope boundary is correctly drawn at packages/*/src",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "temporarily inject a koala-* salt string into a packages/*/src file, run verify-koala-residue.mjs -> gate FAILS (detects the injection); then revert; WHY: proves the residue gate is still functional after all the renames -- it would catch a regression",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify .lattice/story/ files are unchanged by the entire story (across all CHK items) -> git diff .lattice/story/ shows no modifications to story metadata; WHY: story metadata must not be collateral damage",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify no koala-* salt strings appear in the built dist/ output (if dist is committed) -> grep the dist for old salts returns zero; WHY: a stale dist cache could re-introduce old salts at runtime even if source is clean",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
