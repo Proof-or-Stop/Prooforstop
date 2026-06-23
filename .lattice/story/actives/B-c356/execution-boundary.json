@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c356",
+  "allowedCommands": [
+    "lattice done_required_validate --storyId=<storyId> --json",
+    "lattice validate --focus=fast --json",
+    "lattice validate --story=<storyId> --json",
+    "node packages/main/dist/tasks/prompt-registry-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/handlers/authority-enforce.ts"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Only reviewer guidance, prompt smoke, and baseline result artifacts are in scope.",
+  "createdAt": "2026-06-23T09:56:30.572Z",
+  "updatedAt": "2026-06-23T09:56:30.572Z",
+  "_hash": "110f5cf98af361a81115a8db34d7cf718a1ca6e1421ad7bc5609303d7c20e1ad"
+}

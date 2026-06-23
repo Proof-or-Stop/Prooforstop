@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c356",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Derived baseline result artifact for proofMetadataReviewCoverage",
+    "Quality reviewer guidance for server-authored proof metadata review",
+    "Regression smoke coverage for prompt/checklist content"
+  ],
+  "excluded": [
+    "Authority Server business logic",
+    "Deployment or remote push",
+    "Provider execution behavior",
+    "Receipt verification semantics",
+    "Unrelated reviewer prompt rewrites"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested the six baseline issues to be fixed one story at a time; this story handles only baseline item 2.",
+  "createdAt": "2026-06-23T09:56:30.572Z",
+  "updatedAt": "2026-06-23T09:56:30.572Z",
+  "_hash": "24be718ec4c80544ccf167acb58b4b8c4489e7a05841e8f7b515cfff2581a09b"
+}
