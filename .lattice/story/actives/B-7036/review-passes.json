@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-23T19:24:39.177Z",
       "reviewRunId": "B-7036:RR-014",
       "_hash": "7e3d2d743b75698dfc786f2866cc51d9f6a873f9d8813a894fbd88001f51d537"
+    },
+    {
+      "id": "B-7036:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. matchedCellKeys() is a NEW function added alongside (not replacing) commonCellKeys(). commonCellKeys remains the structural-basis denominator (line 110, line 440 reporting). matchedCellKeys is the new rate denominator (lines 147, 436, 441, 459-461, 533). No call site was incorrectly left without cellKeys: completion rate (line 448) is intentionally unpaired; per-scenario exploratory (lines 476-477) naturally has same-denominator by single-scenario restriction. Selfcheck: 68 assertions, 0 failed — confirmed by running node experiments/recovery-runner/analyze-selfcheck.mjs. No residue of any deleted concept found in any .mjs, .md, or .ts file.",
+      "createdAt": "2026-06-23T19:27:05.565Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-015",
+      "_hash": "e287d46ae652c01ddfa3b9eead7210bd8ef8255c648e4dbd28f79387cb68e3ab"
     }
   ]
 }
