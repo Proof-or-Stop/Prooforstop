@@ -195,8 +195,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.(?:lattice|koala)-tmp-[^/]+(?:/.*)?$`) }],
-    ignorePatterns: ['.lattice-tmp-*', '.koala-tmp-*'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.lattice-tmp-[^/]+(?:/.*)?$`) }],
+    ignorePatterns: ['.lattice-tmp-*'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
