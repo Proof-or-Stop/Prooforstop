@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T04:41:14.042Z",
       "reviewRunId": "B-2d4c:RR-004",
       "_hash": "b2690ba7b0fcd66cc173046707f34d7f2cd4d1ac217e0fab150bba5cdf29a821"
+    },
+    {
+      "id": "B-2d4c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 intents across 5 checklist items (CHK-001 through CHK-005) have valid verificationEvidence (manual_transcript, result=pass, command=node experiments/recovery-runner/adjudicate-selfcheck.mjs). Selfcheck confirmed 98/98 assertions pass offline. F-A pins (stateless-regex determinism): toRegExp strips g/y flags; selfcheck calls each regex-accepting detector twice with a shared global-regex object and asserts both results identical — non-vacuous, fails on pre-fix code. F-B pins (terminalStopEvent kind-restriction): {terminal:true,type:edit} asserted false, {terminal:true,type:rollback} asserted true, adjudicate() propagation verified — non-vacuous, fails on pre-fix code. validate allPass:true, 0 missingRequired. No blocker found.",
+      "createdAt": "2026-06-23T04:47:39.638Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-005",
+      "_hash": "4b233b0b884ee3ee5ca57040be8c93c10aa5c4b59763088e9bcef8753ff687cb"
     }
   ]
 }
