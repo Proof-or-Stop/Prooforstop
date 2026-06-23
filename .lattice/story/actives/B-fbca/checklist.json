@@ -475,7 +475,75 @@
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:02:17.478Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Exit 1 (no matches) confirms literal zero koala references in product runtime source",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly",
+            "type": "manual",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala intr...",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed...",
+            "type": "manual",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koa...",
+            "type": "manual",
+            "priority": "should"
+          },
+          {
+            "desc": "Reconstructed from manual_transcript evidence: Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
