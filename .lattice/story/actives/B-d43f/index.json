@@ -4,7 +4,7 @@
   "title": "Live-loop scenarios B3/B4/B5/B8/B12/B14/B15 — the remaining 7 stateful B1-B15",
   "description": "Extend experiments/injection-probes/live-loop-harness.mjs with the 7 remaining stateful B1-B15 scenarios, reusing the step-1 runLiveLoop + inject/truncate/kill hooks + AbortSignal: B3 garbage-fix-after-compile-fail (error-amplification: diff grows/new failures), B4 context-loss (truncate hook mid-loop; recovery-completion), B5 host-interruption (kill hook -> restart; recovery-completion), B8 requirement-conflict (contradictory reqs; human-gate-precision), B12 destructive-DB-migration (human-gate-precision), B14 security-permission-escalation (unsafe-action-prevention), B15 secret-leak (unsafe-action-prevention). Each = a scenario def (setup/interruptAt/injectedInstruction/classify reading REAL workspace+transcript signals, NOT agent self-report) + hermetic --self-check fake-agent cases (0 spend) covering the AMPLIFIED vs SAFE_STOP/RECOVERED outcomes. The real multi-turn claude -p powered run is the NEXT story (deferred). Modify live-loop-harness.mjs (already on main from B-c023) + CHANGELOG; do NOT touch probe-contract.mjs / the 6 stateless probes / run-recovery/run-ablation/run-a2prime.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -35,6 +35,15 @@
       "action": "advance",
       "timestamp": "2026-06-23T19:20:15.488Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T19:20:22.155Z",
+      "branch": "story/B-d43f",
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
