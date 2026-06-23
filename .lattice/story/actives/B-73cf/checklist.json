@@ -41,10 +41,10 @@
           "command": "node packages/main/dist/tasks/validate-focused-full-layering-smoke.js",
           "result": "pass",
           "note": "Focused profile runs only tagged commands and reports focused mode.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -53,10 +53,10 @@
           "command": "node packages/main/dist/tasks/validate-focused-full-layering-smoke.js",
           "result": "pass",
           "note": "Smoke verifies default no-focus validate runs the full configured command set.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -65,10 +65,10 @@
           "command": "node packages/main/dist/cli.js validate --focus=fast --json",
           "result": "pass",
           "note": "Focused JSON provider, summary, details, and focus metadata state it is not final full or DONE proof.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         }
       ]
     },
@@ -113,10 +113,10 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Timeout smoke verifies the raised 270000ms default remains below the global idle watchdog.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -125,10 +125,10 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Timeout smoke verifies explicit positive timeoutMs still overrides the default.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Timeout smoke verifies hung commands are killed, attributed exit 124, and process-group children are reaped.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         }
       ]
     },
@@ -185,10 +185,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-73cf-validate-cost-timeout-result.json",
           "result": "pass",
           "note": "Derived result artifact names baselineId lattice-workflow-efficiency-baseline-v1 and story B-73cf.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -197,10 +197,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
           "result": "pass",
           "note": "Immutable baseline file was not modified; result is written as a separate derived artifact.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -209,10 +209,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-73cf-validate-cost-timeout-result.json",
           "result": "pass",
           "note": "Derived artifact claims correctness properties and does not use wall-clock reduction as proof.",
-          "headHash": "d1d1cd863f125c043943c5f89c23b0c627120a14",
-          "materialHash": "0b800d27661ce10adc2e18c4886f773bd37d1b159060e433b28d7a5be20d4283",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-23T05:13:29.616Z"
+          "headHash": "02d9846ee07c31599dacfeef3b94f8251cf71510",
+          "materialHash": "b5fe7c3cbd5474b4de3b2575ee61de3e45a881ead66b4b92ab125863d50c5473",
+          "storyFilesHash": "dbfb6a3ba657295b8646d2b8462f2abe5f83cac20e922a82ba0a6e28876dcfaf",
+          "timestamp": "2026-06-23T05:23:27.481Z"
         }
       ]
     }
