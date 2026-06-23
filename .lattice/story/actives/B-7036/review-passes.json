@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-23T19:24:39.177Z",
       "reviewRunId": "B-7036:RR-016",
       "_hash": "9e9f5f9f47867cc37f3f231b8307cbde12a1579fc2d1a52f4474a54ade0075f6"
+    },
+    {
+      "id": "B-7036:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Commit a24fe81ce changed completion from per-arm (res.completion) to per-contrast matched (res.completionRates). Full grep across all .mjs/.ts/.js/.md/.json in experiments/ and entire repo confirms zero stale res.completion references (non-Rates). analyze-selfcheck.mjs runs 71 assertions, 0 failed. No concept deletion incomplete; no blocker.",
+      "createdAt": "2026-06-23T19:41:30.378Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-019",
+      "_hash": "9a919dfbc6e07d0f101ef68778fe1205843c47531bc611f1af63754339b1667e"
     }
   ]
 }
