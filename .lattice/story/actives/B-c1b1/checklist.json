@@ -6,13 +6,46 @@
       "context": "Map the current DONE path for version bump, dist rebuild, package metadata, main sync, story DONE metadata, done-required evidence, review quorum, delivery check, and material hash binding. The target is only real CLI-owned mutations after final evidence, not broad optimization.",
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-        "docs/requirements/decisions/story-files-hash-material-drift.md",
-        "AGENTS.md#DONE-gate"
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Agent can point to the concrete DONE ordering: pre-DONE readiness checks and user-triggered done_prepare happen before final DONE evidence consumption, while version bump, dist build, and experience cache refresh remain post-DONE merge effects.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/done-closure.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Map the current DONE transition and recovery order so the exact deterministic writes before versus after final evidence checks are explicit.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm post-DONE version bump, dist build, and experience cache refresh are not moved into pre-DONE readiness because they intentionally mutate runtime material state after DONE persistence.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any broad lifecycle redesign that weakens evidence freshness, autoSyncMain safety, storyFilesHash binding, or material hash blocking semantics.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

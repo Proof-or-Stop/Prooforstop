@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Only fix the observed correctness issue; do not optimize DONE broadly.",
+    "Preserve materialHash/storyFilesHash safety and fail closed on real drift.",
+    "Keep Lattice workflow host-neutral; recovery commands must not be Codex/Claude specific."
+  ],
+  "drivers": [
+    "B-3523 showed repeated stale-recovery loops during DONE closure.",
+    "done_prepare already contains the intended safe sequencing.",
+    "Moving version bump before DONE would violate existing requirements."
+  ],
+  "options": [
+    {
+      "name": "A: Route ordering-sensitive DONE blockers through done_prepare hints",
+      "pros": [
+        "Small targeted change",
+        "Uses existing safe sequencing",
+        "Does not weaken gates or move version bump",
+        "Low blast radius"
+      ],
+      "cons": [
+        "It improves recovery guidance rather than making raw DONE run every recovery step automatically"
+      ]
+    },
+    {
+      "name": "B: Make story_advance DONE run done_prepare internally",
+      "pros": [
+        "Could reduce one manual command"
+      ],
+      "cons": [
+        "Adds hidden mutation and validation work inside DONE",
+        "Blurs explicit lifecycle boundary",
+        "Higher risk of long-running or surprising DONE attempts"
+      ]
+    },
+    {
+      "name": "C: Move version/dist finalization before final evidence",
+      "pros": [
+        "Would make some post-DONE hashes align earlier"
+      ],
+      "cons": [
+        "Contradicts done_prepare requirements",
+        "Version bump changes material hash before DONE",
+        "High risk and not necessary for the observed recovery loop"
+      ]
+    }
+  ],
+  "chosen": "A: Route ordering-sensitive DONE blockers through done_prepare hints",
+  "rationale": "Option A fixes the actual operator/agent recovery loop by converging scattered stale/sync hints onto the existing ordered done_prepare command, while preserving all freshness gates and keeping version/dist finalization post-DONE.",
+  "preMortem": [
+    {
+      "scenario": "Hint-only change fails to cover the stale loop",
+      "trigger": "DONE blockers still print git merge main or done_required_validate as primary recovery",
+      "consequence": "Agents manually stitch commands together and repeat stale evidence work",
+      "mitigation": "Regression smoke asserts branch sync and DONE-required blockers expose done_prepare as the next command"
+    },
+    {
+      "scenario": "Change weakens safety by hiding real material drift",
+      "trigger": "A stale command-backed or material-drift evidence record is treated as pass",
+      "consequence": "DONE could proceed on unverified material",
+      "mitigation": "Do not change freshness predicates; only change recovery hints/nextCommand routing"
+    },
+    {
+      "scenario": "Version bump moves into pre-DONE work",
+      "trigger": "Implementation tries to satisfy final evidence by bumping version before DONE",
+      "consequence": "materialHash changes and evidence becomes stale by design",
+      "mitigation": "Keep version bump code unchanged and document that done_prepare remains pre-DONE only"
+    }
+  ],
+  "timestamp": "2026-06-23T01:43:19.350Z"
+}
