@@ -204,7 +204,55 @@
       "context": "The runner shells out to claude -p; use synthetic-record unit checks + code-level review, do not run the live loop",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "median function on synthetic A4 records [150,250,200] returns 200; WHY: unit-tests the median helper used to derive A2-prime budget",
+            "type": "cli"
+          },
+          {
+            "desc": "budget-truncation decision: cumTokens=900 vs tokenBudget=1000 => not truncated; cumTokens=1050 vs tokenBudget=1000 => truncated; WHY: unit-tests the core truncation predicate",
+            "type": "cli"
+          },
+          {
+            "desc": "token/wallclock accumulation on 3 synthetic agent-call records => tokensSpent = sum of all input+output tokens, wallClockMs = sum of per-call durations; WHY: unit-tests accumulator logic without live LLM",
+            "type": "cli"
+          },
+          {
+            "desc": "output record field names include tokensSpent, wallClockMs, agentCallCount matching pre-reg section 7 exactly (no camelCase variants like tokens_spent); WHY: schema compliance check",
+            "type": "cli"
+          },
+          {
+            "desc": "no live LLM invocation occurs during the unit test (no claude -p subprocess spawned); WHY: confirms the verification constraint is met",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "accumulation with a single call => tokensSpent = that call tokens, agentCallCount = 1; WHY: minimum-call boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "median of two values [100,200] => 150 (average); WHY: even-count boundary for median",
+            "type": "cli"
+          },
+          {
+            "desc": "budget check at exact boundary: cumTokens === tokenBudget => truncated (>= semantics); WHY: off-by-one boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "synthetic record with tokensSpent field misspelled as tokens_spent => unit test detects the naming violation against pre-reg section 7; WHY: adversarial schema drift that would break the analysis script",
+            "type": "cli"
+          },
+          {
+            "desc": "synthetic record missing agentCallCount entirely => unit test flags the omission; WHY: adversarial incomplete schema",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
