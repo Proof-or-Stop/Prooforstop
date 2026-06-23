@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Only fix the observed stale-job claim correctness gap.",
+    "Keep the server as the enforcement authority and the CLI as the signed intent declarer.",
+    "Preserve generic broad claims for paths that are not story-scoped.",
+    "Keep SSE advisory and never make stream hints lease ownership."
+  ],
+  "drivers": [
+    "Server B-28c5 expects optional storyId/jobId inside the signed claim payload.",
+    "Autopilot and authority_enforce_runner live paths are story-scoped and know the intended story.",
+    "Existing smokes must prove the old claimed-job-story-mismatch class is gone without depending on staging state."
+  ],
+  "options": [
+    {
+      "name": "signed-story-selector-in-claim",
+      "pros": [
+        "Matches server B-28c5 contract",
+        "Smallest client-side fix",
+        "Keeps selector covered by actor signature"
+      ],
+      "cons": [
+        "Requires updating multiple live claim paths and smokes"
+      ]
+    },
+    {
+      "name": "client-release-and-retry-on-mismatch",
+      "pros": [
+        "Could work with old server behavior"
+      ],
+      "cons": [
+        "Leaves broad claim bug intact",
+        "Adds retry complexity and can churn stale queues"
+      ]
+    },
+    {
+      "name": "server-queue-purge-or-cancel",
+      "pros": [
+        "Can clear current test residue"
+      ],
+      "cons": [
+        "Does not fix future broad CLI claims",
+        "Out of scope for CLI story"
+      ]
+    }
+  ],
+  "chosen": "signed-story-selector-in-claim",
+  "rationale": "The CLI already knows the intended story in live runner flows, and the server now enforces signed selectors; sending storyId in the signed claim is the smallest correct fix.",
+  "preMortem": [
+    {
+      "scenario": "Selector is added only to one live path",
+      "trigger": "autopilot smoke passes but authority_enforce_runner still broad-claims",
+      "consequence": "Users still see stale job mismatch in another command",
+      "mitigation": "Patch and test both authority-job-loop-live and authority-runner live claim paths."
+    },
+    {
+      "scenario": "Tests only assert field presence",
+      "trigger": "reviewer accepts body snapshot but stale-job scenario remains unmodeled",
+      "consequence": "Original bug can recur with queued residue",
+      "mitigation": "Add a stale other-story queued job regression in existing smoke coverage."
+    },
+    {
+      "scenario": "Selector is sent outside the signed claim",
+      "trigger": "storyId added as query param or unsigned top-level metadata",
+      "consequence": "Server cannot trust selector as actor intent",
+      "mitigation": "Keep storyId/jobId in signed JobClaim schema/payload only."
+    }
+  ],
+  "timestamp": "2026-06-23T10:37:57.366Z"
+}

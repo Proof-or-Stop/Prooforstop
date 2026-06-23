@@ -34,7 +34,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-runner-contracts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
