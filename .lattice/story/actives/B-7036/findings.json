@@ -50,7 +50,7 @@
       "desc": "dead-code: analyze.mjs:30 imports A2PRIME_BUDGET_FIELDS from run-driver.mjs but it is never referenced anywhere in analyze.mjs; the a2primeBudgetCompliance function accesses budgetPass/tokenInBand/wallInBand directly from record fields without using this constant",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T19:00:24.494Z",
@@ -61,7 +61,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-analyze",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "removed unused A2PRIME_BUDGET_FIELDS import; commit 4de4ce33a",
+      "resolvedAt": "2026-06-23T19:06:26.016Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-004",
