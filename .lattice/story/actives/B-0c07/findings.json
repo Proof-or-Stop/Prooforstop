@@ -91,7 +91,7 @@
       "desc": "[codex-host2 C4] cost/token parsing is type-unsafe: j.total_cost_usd || 0 preserves a string/object (later .toFixed crashes); tokensFromUsage can add non-numbers. FIX: coerce with typeof===number && isFinite guards.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T12:12:35.736Z",
@@ -101,7 +101,11 @@
         "experiments/injection-probes/real-arm.mjs"
       ],
       "signatureTag": "edge|mjs|codex-host2-cost",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: num() coerces total_cost_usd + token fields (typeof number && isFinite), string cost -> 0. Self-check asserts string cost/tokens coerce to numeric 0.",
+      "resolvedAt": "2026-06-23T12:14:10.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
