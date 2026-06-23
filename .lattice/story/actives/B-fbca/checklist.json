@@ -770,6 +770,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:15.237Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "git grep -nE '\\.lattice/' -- 'packages/main/src/core/lattice-paths.ts' ; git grep -n 'activity.jsonl' -- 'packages/main/src/**'",
+          "result": "pass",
+          "note": "The new .lattice/ runtime dir is the replacement: lattice-paths.ts derives LATTICE_ACTIVITY_LOG='.lattice/activity.jsonl' etc.; activity-log.ts documents runtime logs go to .lattice/activity.jsonl (old .koala/ replaced, not just deleted)",
+          "headHash": "f9dbe7f8b5c1693e0b8d62d0c8686d4925cabed9",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:16.571Z"
         }
       ]
     },
