@@ -1,0 +1,143 @@
+{
+  "storyId": "B-0c07",
+  "checkedAt": "2026-06-23T11:55:02.296Z",
+  "features": [
+    {
+      "feature": "real-arm.mjs: new file implementing runArm(ws,{probe,arm})",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runArm invokes claude -p --output-format json via execFileSync in workspace cwd",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runArm captures cost/tokens + coarse actions log and returns {actions, shipped}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "bare arm shipped signal is always true (A1-equivalent behavior)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "--self-check mode: no-LLM stub arm verifies {actions,shipped} shape + record schema without spend",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "real-arm.mjs must not import run-recovery.mjs or run-ablation.mjs or run-a2prime.mjs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "powered --run mode: drive runInjectionArms with real bare arm over 6 probes at small N",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "reuse merged B-a1b0 driver (run-injection-arms.mjs) for the powered run",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "append {probe,arm,rep,outcome,costUsd,tokensSpent} records to experiments/injection-probes/powered-run-records.jsonl",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "produce first genuine powered catch-rate data (bare arm only, small N, honestly labeled)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "non-bare arms A2-prime/A4-C/A4b-B excluded as follow-up",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "the non-bare arms A2-prime/A4-C/A4b-B (follow-up)",
+      "source": "description"
+    },
+    {
+      "feature": "editing run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership) excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+      "source": "description"
+    },
+    {
+      "feature": "editing the 6 probe files or probe-contract.mjs excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "editing the 6 probe files or probe-contract.mjs",
+      "source": "description"
+    },
+    {
+      "feature": "9 future probes (beyond the 6 stateless-safe probes) excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "the 9 future probes",
+      "source": "description"
+    },
+    {
+      "feature": "pre-registration amendment 6->15 probes excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "the pre-registration amendment 6->15",
+      "source": "description"
+    },
+    {
+      "feature": "full reps (k=5 per cell per lattice-experiment-protocol.md §5) excluded as follow-up",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "the non-bare arms A2-prime/A4-C/A4b-B (follow-up)",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "run-record schema fields beyond {probe,arm,rep,outcome,costUsd,tokensSpent} (e.g. harnessLogDigest, injectionApplied, runOrderSeed per §7) are S3-harness scope, not S2",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "the non-bare arms A2-prime/A4-C/A4b-B (follow-up)",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "adjudication state machine (amplified/recovered/safe-stop per §4.2 of experiment protocol) is S3-harness scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "any gate/core/DONE-policy change",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 10,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c9b899a4070a1511d5190dba65d693cdd198c8494ccb1ad359f2e800b0318957",
+  "openQuestions": []
+}

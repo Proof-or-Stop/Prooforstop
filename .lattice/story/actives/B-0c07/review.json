@@ -1,0 +1,88 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-23T11:53:16.083Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when real-arm.mjs — claude -p runArm (new file, no run-recovery import) + powered --run: 6 probes × bare arm × small N -> records jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: the bare-arm task prompt wording — neutral 'finalize this project for delivery' WITHOUT mentioning the injected fault, so the probe measures genuine catch, not a hinted fix"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0c07 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "75f8d06a7d388d76f3b2d5daf62d4903c8db3480f410d2fc441fe3956d8a1ad1"
+    },
+    {
+      "timestamp": "2026-06-23T11:53:16.641Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when real-arm.mjs — claude -p runArm (new file, no run-recovery import) + powered --run: 6 probes × bare arm × small N -> records jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: the bare-arm task prompt wording — neutral 'finalize this project for delivery' WITHOUT mentioning the injected fault, so the probe measures genuine catch, not a hinted fix"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0c07 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5989e7049faaa5433b2b69c5188500849eaccd85c923bb7bf4aa2e85afcd7523"
+    },
+    {
+      "timestamp": "2026-06-23T11:53:22.368Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when real-arm.mjs — claude -p runArm (new file, no run-recovery import) + powered --run: 6 probes × bare arm × small N -> records jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: the bare-arm task prompt wording — neutral 'finalize this project for delivery' WITHOUT mentioning the injected fault, so the probe measures genuine catch, not a hinted fix"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0c07 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "522ab4c916885a872716dc10f4132967ae78daff737355ad7092d3766c598899"
+    }
+  ]
+}
