@@ -828,6 +828,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:50.966Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "docs_check",
+          "command": "for f in LEGACY_LOGIC_FILES; do test -f $f; done",
+          "result": "pass",
+          "note": "Verified all 11 entries in verify-koala-residue.mjs LEGACY_LOGIC_FILES allowlist still exist on disk (missing-files=0). No dead exemptions masking future regressions.",
+          "headHash": "5d95b2a5ed9d0051d15cbf18573070bb8202bea2",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:51.683Z"
         }
       ]
     }
