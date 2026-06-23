@@ -111,6 +111,29 @@
         }
       ],
       "_hash": "95a1e96878d9e7ce25705d80e4b635990e3fe83c48d2557402f9bc379e7cac7b"
+    },
+    {
+      "timestamp": "2026-06-23T04:54:00.462Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when run-injection-arms.mjs powered-run driver (arm + probe agnostic) + hermetic --self-test with a fake arm (no network, no cost) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: DEFERRED to the powered-run follow-up: how the real arm produces a transcript {actions,shipped} without editing run-recovery.mjs (export-in-a-coordinated-story vs minimal duplication)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-a1b0 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9093b7fb7ab9f778e37af38dddae6aad737bbabc12f2453506a603a2af2da91e"
     }
   ]
 }

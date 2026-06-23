@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "run-injection-arms.mjs powered-run driver (arm + probe agnostic)",
       "context": "For each (probe,arm,rep): mkdtemp workspace from a recovery-runner task fixture, probe.inject(workspace), obtain transcript {actions,shipped} from the arm (powered: reuse recovery-runner agentRun; self-test: a fake arm), probe.classify(workspace,transcript), append {probe,arm,rep,outcome,...} to a jsonl. Reuse probe-contract.mjs OUTCOME constants and the existing 6 probe modules unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T04:58:04.186Z",
       "userSees": "✓ runInjectionArms({probes,arms,reps,runArm,makeWorkspace}) records {probe,arm,rep,outcome} per cell by inject->runArm(pluggable)->classify; the driver NEVER imports run-recovery.mjs (arm is a parameter).",
       "files": {
         "modify": [
