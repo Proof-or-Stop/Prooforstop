@@ -419,6 +419,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:57.509Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala -- docs/",
+          "result": "pass",
+          "note": "Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content",
+          "headHash": "a0ae80c1eb0ec541230c6eb1338b28e7a0adc6b2",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:06.919Z"
         }
       ]
     }
