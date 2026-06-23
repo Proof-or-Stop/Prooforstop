@@ -24,6 +24,28 @@
       "resolvedAt": "2026-06-23T12:57:41.923Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d321:F-002",
+      "desc": "F-001 fixture alignment is incomplete: several DONE-ready smoke fixtures still write delivery-check.json without headHash/materialHash and sign without materialHash, so the new fail-closed gate blocks them before their intended assertions. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED reason stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because done closure readiness is false. Static call sites also show five-argument signDeliveryCheck in packages/main/src/tasks/worktree-authority-smoke.ts:560, done-prepare-smoke.ts:136, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh fixtures to record headHash/materialHash and sign with materialHash, leaving only explicit legacy-stale tests unsigned.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T13:06:03.389Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-004",
+      "_hash": "2408293408ec5a215da6c459ee4f6be8784aad20781d1a58f6a35b2d9b88e89a",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+        "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fixture-alignment-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
