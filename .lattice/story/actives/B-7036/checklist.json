@@ -212,9 +212,9 @@
       "id": "CHK-004",
       "title": "Emit tidy CSV plus glmm.R, plus an offline self-check",
       "context": "Write a tidy long-format CSV (one row per kept run with arm/task/scenario/repeat/outcome/cost factors) plus a glmm.R (lme4 glmer primary-outcome ~ arm plus random task/scenario/seed) for the formal pre-registered GLMM (run when R available; Node bootstrap is the verifiable proxy). Add analyze-selfcheck.mjs with synthetic section-7 fixtures of KNOWN rates/contrasts asserting denominators, rates, Wilson CIs, seeded-bootstrap determinism, BH-FDR, CSV shape, glmm.R emission plus a negative control; wire into npm test:experiments.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T18:52:47.069Z",
       "verificationIntent": {
         "happy": [
           {
