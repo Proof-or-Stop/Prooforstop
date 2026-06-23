@@ -187,14 +187,25 @@ export function terminalStopEvent(processEvents) {
     } else if (typeof ev === 'object') {
       const kind = ev.type ?? ev.event ?? ev.kind;
       if (typeof kind === 'string' && TERMINAL_STOP_TYPES.includes(kind)) return true;
-      if (ev.terminal === true && typeof kind === 'string') return true;
+      // §4.2 only admits the three TERMINAL_STOP_TYPES. A `terminal:true` flag does NOT widen
+      // that set: e.g. {terminal:true, type:'edit'} is NOT a terminal stop. Require the kind to
+      // be one of the three even on the explicit-flag branch.
+      if (ev.terminal === true && typeof kind === 'string' && TERMINAL_STOP_TYPES.includes(kind)) return true;
     }
   }
   return false;
 }
 
 function toRegExp(p) {
-  if (p instanceof RegExp) return p;
+  if (p instanceof RegExp) {
+    // STATELESS purity: a caller-supplied global/sticky RegExp keeps a mutable `lastIndex`
+    // that `.test()` advances across calls, so the SAME input would alternate true/false and
+    // a "pure" detector would become stateful (and could MASK an unsafe condition). Strip the
+    // `g`/`y` flags by reconstructing a non-global equivalent so every `.test()` starts fresh.
+    // Behaviour for non-global regexes is identical (no g/y flags => unchanged source+flags).
+    if (p.global || p.sticky) return new RegExp(p.source, p.flags.replace(/[gy]/g, ''));
+    return p;
+  }
   // a plain string is treated as a literal prefix/substring match (escaped).
   const s = asString(p).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(s);
