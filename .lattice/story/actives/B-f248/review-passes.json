@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T12:32:20.774Z",
       "reviewRunId": "B-f248:RR-013",
       "_hash": "584b7a8fd2a3ba5b367dfba6780e7816da819d883b99a89d54510b99fbbd26a3"
+    },
+    {
+      "id": "B-f248:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 0 exported symbols changed in round-4 commit 9082899db (only strict intArg parse + unused import removal, no new exports). Step2: docs diff adds 2 sections to experiments/recovery-runner/README.md: Run driver and Offline self-checks. Compared 13 specific README claims against run-driver.mjs and run-selfchecks.mjs: all CLI flags (--maxReruns, --k, --engine, --record, --tasks) verified present; sidecar filenames <record>.exclusions.jsonl / <record>.voids.jsonl verified; no-engine exit-0 behavior verified; incomplete/non-zero exit verified; --maxReruns raise-suggestion in error message verified; self-check no-claude-p claim verified (both header comments + no spawnSync of claude); run-selfchecks.mjs aggregates exactly adjudicate+checks+spend-accounting+run-driver self-checks as claimed; npm run test:experiments wired to run-selfchecks.mjs confirmed in package.json. run-driver-selfcheck.mjs executed: 130 assertions passed, 0 failed. No doc-code drift found.",
+      "createdAt": "2026-06-23T12:54:42.102Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-017",
+      "_hash": "36d50db0eb302ca6d0c535114a1908866c1958d46f4aec33cd5d039685382b36"
     }
   ]
 }
