@@ -86,7 +86,39 @@
       "context": "A real story-owned-file change (storyFilesHash differs) MUST still stale the floor rounds (the storyFilesHash downgrade-accept only forgives unrelated whole-tree drift). The re-attestation advisory must be surfaced (not silently swallowed) on a storyFilesHash-accepted floor pass, consistent with B-edf1's escalation-row advisory.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Floor pass via storyFilesHash downgrade => report.advisories is a non-empty array containing the re-attestation advisory string matching pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/; WHY: advisory surfacing is the core requirement -- it must not be swallowed",
+            "type": "cli"
+          },
+          {
+            "desc": "Degraded fallback record with storyFilesHash match => fallback.record.advisories contains the materialHash-stale-but-storyFilesHash-matches advisory AND fallback.record.reasons does NOT contain materialHash is stale; WHY: the fallback mirror of escalation 4-arg pattern",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Multiple verdicts downgraded in same evaluation => advisories array has one advisory per downgraded verdict (not deduplicated); WHY: ensures each downgraded verdict is individually surfaced for audit trail",
+            "type": "cli"
+          },
+          {
+            "desc": "Fallback record with storyFilesHash mismatch => fallback.record.reasons contains materialHash is stale and fallback.record.valid is false; WHY: inverse control on the fallback path",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Real story-file change (storyFilesHash differs S->S-prime) with materialHash also drifted => floor reports ok=false, found 0 fresh rounds, reasons include stale material message; WHY: anti-gaming -- a genuine story-owned-file change MUST stale the rounds regardless of how many verdicts exist",
+            "type": "cli"
+          },
+          {
+            "desc": "Advisory must not appear when storyFilesHash mismatch causes stale (no downgrade triggered) => advisories is empty/absent on a stale-round floor failure; WHY: advisory only fires on accepted-drift, never on rejected-drift; silent swallowing would be caught if advisory appeared where it should not",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
