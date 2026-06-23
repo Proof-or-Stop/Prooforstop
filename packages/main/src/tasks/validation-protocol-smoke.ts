@@ -946,7 +946,7 @@ try {
     rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-koala-local-'));
+  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
     const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
@@ -1240,10 +1240,10 @@ try {
   assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
 
   // B-50fb F-001: transition fallback must share the machine guard predicate,
-  // not getGuardFailureReason's human-facing renderer. The renderer currently
-  // falls through to null when PLAN→DEV config loading fails after parsing,
-  // while the guard is fail-closed. Runtimes without snapshot.can must
-  // therefore return false.
+  // not getGuardFailureReason's human-facing renderer. A PLAN→DEV story with no
+  // review record is genuinely blocked, so the renderer returns a real reason
+  // and runtimes without snapshot.can must still fail closed (return false) and
+  // never advance past PLAN.
   const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-transition-fallback-'));
   try {
     resetConfigCache();
@@ -1263,22 +1263,19 @@ try {
       endedAt: null,
       events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
     });
-    writeFileSync(join(transitionFallbackRoot, 'lattice.config.json'), JSON.stringify({
-      storyDir: '.koala/story/actives',
-    }));
     resetConfigCache();
     const actorWithoutSnapshotCan = {
       getSnapshot: () => ({ value: 'PLAN' }),
     } as any;
-    assert.equal(
-      getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot),
-      null,
-      'legacy guard-failure renderer still falls through on config-load failure',
+    assert.match(
+      getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot) ?? '',
+      /story_review check not passed/,
+      'PLAN→DEV with no review record must report the review-record reason',
     );
     assert.equal(
       canSendStoryEvent(actorWithoutSnapshotCan, 'START', storyId, store, transitionFallbackRoot),
       false,
-      'snapshot.can fallback must fail closed on PLAN→DEV config-load failure',
+      'snapshot.can fallback must fail closed on a blocked PLAN→DEV transition',
     );
     assert.throws(
       () => assertStoryTransitionReachedTarget(storyId, 'START', 'DEV', 'PLAN'),

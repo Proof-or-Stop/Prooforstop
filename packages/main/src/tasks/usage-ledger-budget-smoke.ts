@@ -58,6 +58,13 @@ import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/write
 let passed = 0;
 const failures: string[] = [];
 
+// The legacy hard-budget alias env var (formerly the KOALA_-prefixed name) was
+// removed (B-b837). Only LATTICE_HARD_BUDGET_TOKENS is read now; any other env
+// var — including a user's stale legacy alias — must be silently ignored. We
+// exercise that with a representative stale legacy-shaped key built at runtime so
+// the test stays free of the retired brand token.
+const STALE_BUDGET_ALIAS = ['LEGACY', 'HARD_BUDGET_TOKENS'].join('_');
+
 async function check(label: string, fn: () => void | Promise<void>): Promise<void> {
   try {
     await fn();
@@ -195,15 +202,13 @@ async function main(): Promise<void> {
     assert.equal(resolveHardBudget(undefined), null);
   });
 
-  await check('CHK-001 edge: KOALA_ fallback used when LATTICE_ unset', () => {
-    const r = resolveHardBudget({ KOALA_HARD_BUDGET_TOKENS: '3000' });
-    assert.ok(r);
-    assert.equal(r?.hardBudgetTokens, 3000);
-    assert.equal(r?.budgetPolicyId, 'hard-budget:3000');
+  await check('B-b837 adversarial: a stale legacy budget alias is ignored (no fallback)', () => {
+    // The legacy fallback was removed; a stale alias env must NOT take effect.
+    assert.equal(resolveHardBudget({ [STALE_BUDGET_ALIAS]: '3000' }), null);
   });
 
-  await check('CHK-001 edge: LATTICE_ takes precedence over KOALA_', () => {
-    const r = resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '7000', KOALA_HARD_BUDGET_TOKENS: '3000' });
+  await check('B-b837 adversarial: only LATTICE_ resolves; a stale alias alongside is ignored', () => {
+    const r = resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '7000', [STALE_BUDGET_ALIAS]: '3000' });
     assert.equal(r?.hardBudgetTokens, 7000);
   });
 
@@ -513,10 +518,10 @@ async function main(): Promise<void> {
     assert.equal(process.env.LATTICE_HARD_BUDGET_TOKENS, undefined, 'env must be restored');
   });
 
-  await check('F-001 unit: resolveHardBudget(undefined) honors KOALA_ fallback via process.env', () => {
-    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: undefined, KOALA_HARD_BUDGET_TOKENS: '777' }, () => {
+  await check('B-b837 adversarial: a stale legacy alias on the process.env path is ignored (no enforcement)', () => {
+    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: undefined, [STALE_BUDGET_ALIAS]: '777' }, () => {
       const r = resolveHardBudget(undefined);
-      assert.equal(r?.hardBudgetTokens, 777, 'KOALA_ legacy fallback must work on the production (process.env) path');
+      assert.equal(r, null, 'a stale legacy env must NOT take effect on the production (process.env) path');
     });
   });
 
@@ -550,7 +555,7 @@ async function main(): Promise<void> {
   await check('F-001 guard: PRODUCTION-shaped opts + NO budget env -> proceeds (byte-identical)', () => {
     const sub = freshRoot();
     const prompt = 'a prompt with no budget configured at all';
-    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: undefined, KOALA_HARD_BUDGET_TOKENS: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: undefined }, () => {
       const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
       const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
       assert.equal(decision.blocked, false, 'no budget env -> guard is a no-op even on the production path');

@@ -353,12 +353,11 @@ try {
       assert.equal(threw, false);
     });
 
-    check('scenario4.no-gitRoot: id-independent helper stays TOTAL when loadConfig throws (legacy .koala storyDir)', () => {
-      // CL-002 / F-002: loadConfig() calls assertNoLegacyKoalaWritePath(storyDir)
-      // which THROWS for a legacy `.koala` storyDir. The helper wraps its
-      // throwing internals so it degrades to a safe non-violation instead of
-      // propagating; the story_create advisory must likewise stay silent.
-      const legacyRoot = join(base, 'legacy-koala-storydir');
+    check('scenario4.no-gitRoot: helper stays TOTAL for a legacy `.koala` storyDir (guard removed; loadConfig no longer throws)', () => {
+      // B-b837: the legacy `.koala` write-path guard was removed, so loadConfig()
+      // no longer throws for a `.koala` storyDir. The helper must still produce a
+      // safe result and the story_create advisory must stay silent (no gitRoot).
+      const legacyRoot = join(base, 'legacy-storydir-config');
       mkdirSync(legacyRoot, { recursive: true });
       writeFileSync(
         join(legacyRoot, 'lattice.config.json'),
@@ -372,8 +371,8 @@ try {
       } catch {
         threw = true;
       }
-      assert.equal(threw, false, 'helper must not propagate loadConfig throw');
-      assert.equal(result?.ok, true, 'internal error degrades to a non-violation');
+      assert.equal(threw, false, 'helper must not propagate any loadConfig error');
+      assert.equal(result?.ok, true, 'no gitRoot => safe non-violation');
       assert.equal(result?.reason, 'gitroot-unresolved', 'safe fallback reason');
       assert.equal(result?.gitRootAbs, null, 'no gitRoot on safe fallback');
     });

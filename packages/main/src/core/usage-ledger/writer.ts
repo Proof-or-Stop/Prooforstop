@@ -53,16 +53,15 @@ export const GENESIS_PREVIOUS_HASH = null;
 /**
  * Ledger enable flag (CHK-006). Default ON; set LATTICE_USAGE_LEDGER=0 to disable.
  * When the flag is UNSET the ledger is active by default; the explicit escape
- * hatch ('0'/'false'/'off'/'no'/'', and the legacy KOALA_ alias) restores the
- * byte-identical legacy default-off behavior (a strict no-op writer + the
- * original spawn args + an inert budget guard).
+ * hatch ('0'/'false'/'off'/'no'/'') restores the byte-identical legacy
+ * default-off behavior (a strict no-op writer + the original spawn args + an
+ * inert budget guard).
  *
  * Read every call (not memoized) so tests and operators can toggle it without
- * restarting the process. Both the Lattice-branded and legacy Koala env names
- * are honored, matching the repo's dual-brand env convention.
+ * restarting the process.
  */
 export function isUsageLedgerEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  const raw = env.LATTICE_USAGE_LEDGER ?? env.KOALA_USAGE_LEDGER;
+  const raw = env.LATTICE_USAGE_LEDGER;
   if (raw === undefined) return true;
   const normalized = raw.trim().toLowerCase();
   return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
