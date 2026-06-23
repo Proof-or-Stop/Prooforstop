@@ -4,7 +4,7 @@
   "title": "Single-shot fault materialization for B4/B5/B10 live-loop scenarios",
   "description": "Fix the live-loop harness so B4 (context truncation), B5 (process kill), and B10 (no-progress) genuinely exercise their fault when driven by a single-shot claude -p agent: materialize B4/B5 at turn 1 and make B10 disk-grounded instead of shipped-based, keeping the hermetic self-check green, so an honest powered re-run can feed the paper recovery table.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "live-loop,injection,truncate,kill,single-shot"
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-23T23:11:21.246Z",
   "startedAt": "2026-06-23T23:11:21.246Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T23:52:08.888Z",
   "events": [
     {
       "phase": "INIT",
@@ -40,11 +40,52 @@
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:16:22.851Z",
+      "branch": "story/B-8e9f",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:25:13.188Z",
+      "branch": "story/B-8e9f",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:33:37.477Z",
+      "branch": "story/B-8e9f",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:44:48.257Z",
+      "branch": "story/B-8e9f",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:52:08.888Z",
+      "branch": "story/B-8e9f",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8e9f",
-    "branch": "story/B-8e9f",
-    "createdAt": "2026-06-23T23:15:24.685Z"
-  }
+  "currentReviewRound": "2026-06-23T23:33:37.477Z"
 }

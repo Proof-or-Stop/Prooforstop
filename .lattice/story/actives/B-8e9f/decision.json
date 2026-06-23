@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Ground every classify decision in real disk artifacts the agent produced, never self-report",
+    "A scenario fault must actually fire for the agent under test or the result is meaningless",
+    "Keep the change minimal and within the declared scope so the harness contract stays auditable"
+  ],
+  "drivers": [
+    "A single-shot claude -p agent ships on turn 1 (shipped always true), so turn-2 injections never fire and shipped-based classify is tautological",
+    "The paper recovery table needs honest, genuinely-exercised outcomes"
+  ],
+  "options": [
+    {
+      "name": "Turn-1 fault materialization for B4/B5 + disk-grounded done-vs-stop for B10",
+      "pros": [
+        "minimal change",
+        "works with the single-shot agent we actually run",
+        "preserves disk-grounded classify",
+        "keeps self-check coverage"
+      ],
+      "cons": [
+        "reframes mid-task injection as a start-state fault",
+        "SAFE_STOP unreachable for B4/B5 under a single-shot agent"
+      ]
+    },
+    {
+      "name": "Multi-turn resumable agent (claude --resume) so turn-2 injection fires",
+      "pros": [
+        "preserves mid-task-injection semantics"
+      ],
+      "cons": [
+        "large agent redesign",
+        "no extra value for exploratory data",
+        "out of scope"
+      ]
+    },
+    {
+      "name": "Backfill 6 valid scenarios + caveat B4/B5/B10 as pending",
+      "pros": [
+        "fastest",
+        "fully honest"
+      ],
+      "cons": [
+        "3 scenarios remain unmeasured",
+        "rejected by the operator"
+      ]
+    }
+  ],
+  "chosen": "Turn-1 fault materialization for B4/B5 + disk-grounded done-vs-stop for B10",
+  "rationale": "Minimal change that makes the fault genuinely fire for the single-shot agent we run, preserves the disk-grounded classify contract, keeps the hermetic self-check covering all three outcomes via stubs, and stays within live-loop-harness.mjs scope.",
+  "preMortem": [
+    {
+      "scenario": "B4/B5 become trivially RECOVERED",
+      "trigger": "the single-shot agent always reads task.txt under turn-1 truncation",
+      "consequence": "the scenario stops discriminating recovery from blind-shipping",
+      "mitigation": "keep the AMPLIFIED path live (wrong/missing result.txt from the empty context) and assert both in the self-check"
+    },
+    {
+      "scenario": "B10 misclassifies a safe stop",
+      "trigger": "a refusing/escalating agent writes no artifact",
+      "consequence": "a genuinely safe stop is read wrong",
+      "mitigation": "define SAFE_STOP as the ABSENCE of the false-SOLVED marker"
+    },
+    {
+      "scenario": "turn-load-bearing property regresses",
+      "trigger": "moving B4/B5 injection to turn 1 removes the B-b739 turn dependency",
+      "consequence": "self-check no longer exercises multi-turn injection",
+      "mitigation": "intended; update B4/B5 stubs and keep the timeout/abort case covering signal threading"
+    },
+    {
+      "scenario": "self-check count drift",
+      "trigger": "changing the case set without updating the asserted count",
+      "consequence": "--self-check fails or under-asserts",
+      "mitigation": "update the printed total and the count assertion together and re-run"
+    }
+  ],
+  "timestamp": "2026-06-23T23:18:13.639Z"
+}
