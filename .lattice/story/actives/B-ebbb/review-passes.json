@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T10:39:35.759Z",
       "reviewRunId": "B-ebbb:RR-004",
       "_hash": "e0b8e1ff8770f2a8ee5867e925ffa8056ded4eb620314fd1f3d62bb9d043a599"
+    },
+    {
+      "id": "B-ebbb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review clean. Fix commit a9881124c introduces two concepts: (1) fail-closed hiddenRegression — corrupt baseline/post entries now return hiddenRegressionPass:false instead of silently continuing; old `continue` on id=== is gone with zero residue. (2) tamper-proof DEFAULT_JUNK_PATTERNS — Object.freeze on export + private JUNK_PATTERNS_FROZEN internal snapshot; diffHygiene reads the private copy. Runtime verification confirms: frozen=true, all four fail-closed cases return false, diffHygiene .env detection unchanged. Residue grep for old silent-skip semantics in checks.mjs/checks-selfcheck.mjs shows only explanatory comments (describing old behavior being fixed), not code residue. No other callers of hiddenRegression outside the two checks files. JUNK_PATTERNS_FROZEN is unexported/private. No concept deletion/replacement with lingering residue. No blocker.",
+      "createdAt": "2026-06-23T10:41:03.335Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-006",
+      "_hash": "6e0f07788568aa8b71ef4a10edd5485bc3f07ba0c072d8e8fa99e885b968bc8b"
     }
   ]
 }
