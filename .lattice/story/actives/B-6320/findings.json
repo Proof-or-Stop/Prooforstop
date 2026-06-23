@@ -30,7 +30,7 @@
       "desc": "packages/main/src/core/authority-client.ts:1546-1550 only rejects provider === fake after calling normalizeAuthorityRunnerProvider. That normalizer lowercases only known aliases/canonical codex/gemini but preserves unknown raw values (authority-mode.ts:420-426), and the command schema now accepts any non-empty provider string (command-catalog.ts:2227). As a result, authority_job_create --provider Fake or FAKE is treated as a custom non-fake declaration and can be signed/submitted even though the job-create path promises a non-fake provider declaration. Fix by rejecting the reserved fake provider case-insensitively (for example, check raw.trim().toLowerCase().replace(/_/g, -) === fake) before preserving custom provider spelling.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T03:22:10.200Z",
@@ -43,7 +43,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added case-insensitive reserved fake rejection before preserving custom provider spelling in authority_job_create server provider normalization. Added authority-client-smoke coverage for fake/Fake/FAKE rejection plus codex-cli spelling preservation. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js.",
+      "resolvedAt": "2026-06-23T03:28:29.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
