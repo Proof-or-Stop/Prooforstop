@@ -1,0 +1,94 @@
+{
+  "storyId": "B-5bfe",
+  "checkedAt": "2026-06-23T01:37:27.456Z",
+  "features": [
+    {
+      "feature": "tokensSpent field recorded per run (accumulated from claude -p JSON usage.input_tokens + usage.output_tokens); exact pre-reg section 7 field name",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "agentCallCount field recorded per run (incremented at agentRun() and reviewArtifact() call sites, not via reviewRounds); exact pre-reg section 7 field name",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "wallClockMs preserved in output record (existing field, pre-reg section 7)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "spend-budget truncation mode: loop terminates when cumulative tokensSpent >= tokenBudget (token binds first, hard-truncate at upper bound)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "spend-budget truncation mode: wall-clock binds when token budget not exceeded (wallClockMs >= wallBudget also triggers truncation)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "per-run budget pass/fail and truncated flag recorded in the run record",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A4 per-task median tokensSpent + wallClockMs computed in run-ablation.mjs (to derive A2-prime budget)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2-prime arm implemented as a2prime bounded by A4 per-task median ±20% (token binds first, hard-truncate at upper bound)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2-prime arm output written to ablation-A2prime-compute-matched.jsonl with per-run budgetPass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Spend-match semantics documented in code comments citing the pre-reg (token+wall-clock not call count; ±20%; token binds first; hard-truncate)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verification without live LLM: unit checks of median, budget-truncation, and token/wall-clock accumulation on synthetic records; field names match pre-reg section 7",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3f00645b514272ec62b46656852a43859292c8348806c74d3c75ec9585aaafb6",
+  "openQuestions": []
+}

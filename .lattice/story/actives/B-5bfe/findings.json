@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "id": "B-5bfe:F-001",
+      "desc": "stale-header-comment: run-recovery.mjs:13 header comment lists only budgetExceeded/tokensFromUsage as exported pure helpers but omits replayBudgetLoop and buildRunRecord, which are also exported at module scope and imported by the selfcheck — comment should enumerate all four exports",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:00:59.169Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "148bc14cab42472ffef8e89a830712f03e9498bfcbc9341440dc6b61bb77b723",
+      "files": [
+        "experiments/recovery-runner/run-recovery.mjs"
+      ],
+      "signatureTag": "missing|mjs|stale-header-comment",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in db47ecc7b: header comment now enumerates all four exported helpers (budgetExceeded, tokensFromUsage, replayBudgetLoop, buildRunRecord)",
+      "resolvedAt": "2026-06-23T02:10:46.950Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5bfe:F-002",
+      "desc": "duplicate-selfcheck-test: spend-accounting-selfcheck.mjs:27-29 CHK-001 h0 and h1 have identical code (replayBudgetLoop([{tokens:1},{tokens:1},{tokens:1}],null,null).agentCallCount===3) — h1 claims to test reviewer-call counting separately but exercises no distinct code path from h0; the reviewer-call distinction is untested in the selfcheck",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:01:09.743Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "9526bd61110181cc928942cb3403a31feca2d3f708f520f6e23b3e63143b857d",
+      "files": [
+        "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|duplicate-selfcheck-test",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in db47ecc7b: CHK-001 h1 now uses a 4-call executor+reviewer+executor+reviewer vector asserting agentCallCount===4, distinct from h0's count of 3, exercising reviewer-site increment independently",
+      "resolvedAt": "2026-06-23T02:10:52.998Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5bfe:F-003",
+      "desc": "46 of 48 must-intents show status=stale in validate verificationCoverage: all manual_transcript evidences for CHK-001/CHK-002/CHK-003(e0-e3,a0-a1,h0-h2)/CHK-004(h0 was already logic_test)/CHK-005 were recorded at pre-fix headHashes (b148b4d5c, d975dcad5, 4c04a933, e4f90f64) before fix commit db47ecc7b (which changed all three source files: run-recovery.mjs, run-ablation.mjs, spend-accounting-selfcheck.mjs). The selfcheck now runs 56/56 pass at current HEAD with no LLM — re-running spend-accounting-selfcheck.mjs and re-binding these 46 evidences via verification_evidence_batch_add at current HEAD will clear the staleness. The 9 logic_test evidences are legitimately not no-LLM-runnable and remain valid as-is.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T02:22:05.270Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-005",
+      "_hash": "c505b30c0b783d57e4fbc0312ed51c4d0cd1a28c9583db1bf76c1dde15ac920c",
+      "files": [
+        "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+        "experiments/recovery-runner/run-recovery.mjs",
+        "experiments/recovery-runner/run-ablation.mjs"
+      ],
+      "signatureTag": "missing|mjs|intents-show-status",
+      "signatureTagSource": "auto",
+      "resolvedReason": "stale evidence re-stamped at current HEAD (refresh_stale 46/46); validate allPass=true, 0 missingRequired; selfcheck 56 pass; all cli/manual_transcript evidences now bind at current HEAD db47ecc7b+",
+      "resolvedAt": "2026-06-23T02:43:18.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

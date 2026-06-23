@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5bfe",
+  "checkedAt": "2026-06-23T02:53:41.625Z",
+  "reviewRound": "2026-06-23T02:09:17.239Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/run-ablation.mjs#header-comment",
+      "promise": "A2-prime arm is bounded by A4 per-task SPEND (token + wall-clock), NOT call count; budget = 1.2x A4 per-task median (upper bound of ±20% band); token binds first; hard-truncate",
+      "status": "verified",
+      "verifiedBy": "diff/grep + source read",
+      "evidence": "run-ablation.mjs lines 10-19, 49-56, 101-160: a2primeBudget() returns round(1.2*medTokens)/round(1.2*medWall); the arm loop passes --tokenBudget/--wallBudgetMs to run-recovery; comment explicitly says NOT call count"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-ablation.mjs#budgetPass",
+      "promise": "budgetPass requires tokens AND wall-clock EACH within ±20% of A4 per-task median (pre-reg §47); per-axis tokenInBand/wallInBand also recorded; budgetPass is the AND of both",
+      "status": "verified",
+      "verifiedBy": "diff/grep + selfcheck run",
+      "evidence": "run-ablation.mjs lines 57-70: budgetPass() returns tokenInBand && wallInBand; selfcheck CHK-003 a3/a4/a5 pin that token-only or wall-only passes are false; selfcheck exit 0, 56 assertions passed"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-recovery.mjs#buildRunRecord + §7 fields",
+      "promise": "Records written with exact pre-reg §7 field names: tokensSpent, wallClockMs, agentCallCount; agentCallCount incremented at EVERY real LLM call (executor agentRun AND reviewer reviewArtifact); token budget binds first",
+      "status": "verified",
+      "verifiedBy": "diff/grep + selfcheck run",
+      "evidence": "run-recovery.mjs lines 81-83 (buildRunRecord), 124 (agentRun agentCallCount++), 151 (reviewArtifact agentCallCount++), 261 (...buildRunRecord()); selfcheck CHK-001 h0/h1/h2/h4 assert exact camelCase field names and reviewer-site increment; selfcheck exit 0"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-recovery.mjs#budgetExceeded + truncated",
+      "promise": "Spend-budget truncation fires when cumulative tokensSpent >= tokenBudget OR wallClockMs >= wallBudget (token binds first); truncated flag set in run record; budget mode OFF when both budgets null (backward compatible)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + selfcheck run",
+      "evidence": "run-recovery.mjs lines 39-43 (budgetExceeded), 196 and 212 (truncated=true; break); selfcheck CHK-002 a0 pins token-binds-first under asymmetry; CHK-002 e3 pins no-budget=false; all 56 assertions pass"
+    },
+    {
+      "docPath": "experiments/recovery-runner/spend-accounting-selfcheck.mjs#header-comment",
+      "promise": "No-LLM selfcheck (no claude -p subprocess) verifies all pure helpers: budgetExceeded, tokensFromUsage, replayBudgetLoop, buildRunRecord from run-recovery.mjs; median, a2primeBudget, budgetPass from run-ablation.mjs",
+      "status": "verified",
+      "verifiedBy": "source read + direct execution",
+      "evidence": "spend-accounting-selfcheck.mjs imports only pure helpers; node spend-accounting-selfcheck.mjs executed: 56 assertions passed, exit 0, no claude subprocess spawned"
+    },
+    {
+      "docPath": "experiments/recovery-runner/run-ablation.mjs + run-recovery.mjs#comments",
+      "promise": "CHK-004: Comments accurately document spend-match semantics (token+wall-clock, not call count; ±20%; token binds first; hard-truncate at upper bound) citing the pre-reg",
+      "status": "verified",
+      "verifiedBy": "grep + source read",
+      "evidence": "run-ablation.mjs lines 11,32,57-62 and run-recovery.mjs lines 30-43 cite lattice-experiment-protocol.md rev3.1 §1/§7/§8/§47; no false claims; grep for TODO/FIXME/HACK in diff returned no results"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs: 56 assertions passed, exit 0. Covers: h0 (3 executor calls => agentCallCount 3), h1 (reviewer-site increment => 4), h2 (tokensFromUsage input+output=150, accumulated 3x=450), h3 (wallClockMs positive in record), h4 (exact §7 camelCase field names), e0 (zero usage => 0), e1 (missing usage => 0), e2 (R=1 => count 1), a0 (negative tokens finite), a1 (infra-void: count=calls-made not max-R)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs: 56 assertions passed, exit 0. Covers: h0 (tokens reach budget => truncated true), h1 (wall binds when tokens under => truncated true), h2 (both under => truncated false, budgetPass true), h3 (budgetPass is boolean), e0 (exact boundary >= => truncated), e1 (R=1 over budget => 1 call truncated), e2 (zero budget => immediate truncate), e3 (no budgets => truncated false), a0 (token binds first under asymmetry), a1 (negative budget => immediate truncate), a2 (wall elapsed is summed delta, skew-immune)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs: 56 assertions passed, exit 0. Covers: h0/h1 (odd/even median), h2 (a2primeBudget 1.2x rounding), h3 (budgetPass is boolean), h4 (derivation chain median->budget), h5 (both axes in band => true), a3 (tokens in band, wall out high => false — the host-2 blocker bug class), a4 (tokens out low, wall in => false), a5 (tokens in, wall out low => false), a6 (null wall median => false), a7 (non-finite actual wall => false), e0-e3, a0-a2"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "CHK-004 is comment-accuracy (no executable CLI test). Source read of run-ablation.mjs and run-recovery.mjs: comments accurately state spend-match semantics with pre-reg citations. No false claims. No TODO/FIXME/HACK in diff.",
+      "waiverReason": "CHK-004 is a code-comment documentation item; machine execution is not applicable. Verified by independent source read and grep for claim accuracy."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs: 56 assertions passed, exit 0. CHK-005-specific: h0 (median [150,250,200]=200), h1 (budgetExceeded 900<1000=false; 1050>=1000=true), h2 (3-call replay tokensSpent=300), h3 (exact camelCase §7 names, no snake_case tokens_spent), h4 (pure helpers structural — no claude subprocess), e0-e2, a0-a1 (snake_case and missing agentCallCount both flagged)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist items done. No-LLM selfcheck ran 56 assertions covering CHK-001/002/003/005 with happy, edge, and adversarial vectors including the both-bands budgetPass fix (host-2 blocker). CHK-004 comment accuracy verified by source read; no false claims, no TODO/FIXME/HACK in diff. 6 docsPromises all verified. Delivery is complete."
+  },
+  "_hash": "2ca324d8748ef201afe095eba280b41d21c65d14b91907812d1017ae7d1caedb"
+}

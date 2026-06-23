@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-5bfe:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. (1) The three occurrences of call-count in recovery-runner code are all explicit NOT-call-count contrasting statements — no mislabeling. (2) agentCallCount is a secondary §7 accounting field, not the budget-matching variable; budget-matching uses tokensSpent (token binds first) and wall-clock elapsed, consistent with the pre-reg. (3) Pre-reg §7 field names tokensSpent/wallClockMs/agentCallCount/truncated are present verbatim in the record literal with an explicit citation. (4) Token-binds-first implemented correctly in budgetExceeded. (5) Hard-truncate upper bound = 1.2*median correctly in a2primeBudget. (6) All imports are Node built-ins and resolve. (7) B-b8c8/background.md retains old call-count description but B-b8c8 is INIT-phase superseded story (historical metadata, no code shipped). No concept deletion requiring residue check occurred; no blocker found.",
+      "createdAt": "2026-06-23T01:58:01.198Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-003",
+      "_hash": "b305d26ee55f51db547624aa365e4a6aa9579e6efc91959aea0e04ffb1e98c6b"
+    },
+    {
+      "id": "B-5bfe:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Checked: (a) runMain() refactor — all original logic preserved, reviewCost init correct, function hoisting unchanged; (b) tokensFromUsage sums all four token fields correctly; agentCallCount increments at both agentRun (line 121) and reviewArtifact (line 148); pre-reg §7 field names tokensSpent/wallClockMs/agentCallCount are exact via buildRunRecord spread at line 258; (c) token budget binds first, backward-compatible when null; (d) replayBudgetLoop mirrors real loop increment-then-check-then-break ordering exactly and buildRunRecord is spread into the real record (not a divergent copy). Two low findings registered: stale header comment (F-001) and duplicate selfcheck test case (F-002). Selfcheck passes 50/50 assertions.",
+      "createdAt": "2026-06-23T02:01:23.300Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "b5320a94a6fadce3a92c61fb31f14e92a3969a9805679370c14c4cd224a821b5"
+    },
+    {
+      "id": "B-5bfe:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. selfcheck (50 assertions, no live LLM) ran clean. All 39 cli intents have named selfcheck assertions importing real production primitives (budgetExceeded/tokensFromUsage/replayBudgetLoop/buildRunRecord/median/a2primeBudget/budgetPass) from run-recovery.mjs and run-ablation.mjs — not a re-implemented parallel copy. The 9 logic_test intents are legitimately not no-LLM-runnable: 4 cover jsonl file writes and subprocess invocations that require a live ablation run, 5 cover doc-comment presence verified by code review. No must-gap, no waiver needed, no mis-bound intent found.",
+      "createdAt": "2026-06-23T02:02:13.798Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-002",
+      "_hash": "7a573526a8413a540d47247dd15c1333d895e6a4dcc9463e97e81569580e1209"
+    },
+    {
+      "id": "B-5bfe:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Fix commit db47ecc7b correctly migrates budgetPass to the both-band (tokens AND wall-clock) concept per pre-reg §47. All call sites updated to 4-arg form: no stale 2-arg calls remain. agentCallCount is the correct §7 schema field (not a deleted concept). Selfcheck ran clean: 56 assertions passed. Comments accurately describe the fix. No concept deletion/replacement residue found, no blocker.",
+      "createdAt": "2026-06-23T02:11:01.543Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-004",
+      "_hash": "4a479e1b110224fde36ea9cf1a6ba93cf76a1fce3212139891f5fe634348b1c3"
+    },
+    {
+      "id": "B-5bfe:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 pass: F-001 and F-002 confirmed fixed in db47ecc7b. (1) run-recovery.mjs header now lists all 4 exports. (2) CHK-001 h1 uses a distinct 4-call executor+reviewer+executor+reviewer vector asserting agentCallCount===4. (3) budgetPass(actualTokens,actualWallMs,medTokens,medWall) returns true ONLY when BOTH token AND wall-clock axes are within the ±20% band; adversarial vectors a3-a7 pin all rejection paths. Selfcheck: 56/56 assertions passed, no live LLM invoked. No new dead code, type-safety issues, or I/O shell isolation violations found in changed files.",
+      "createdAt": "2026-06-23T02:11:07.824Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-006",
+      "_hash": "d41faa5d5abcd72803b662d85bd0373e9e18efdd7419fec02213eab06bc8dd3a"
+    },
+    {
+      "id": "B-5bfe:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "coverage honest + fresh at HEAD: validate allPass=true, 48 covered, 0 missingRequired; selfcheck 56/56 pass, no LLM; 46 manual_transcript/cli evidences re-stamped at current HEAD; 9 logic intents remain legitimate. F-003 resolved.",
+      "createdAt": "2026-06-23T02:43:31.496Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-007",
+      "_hash": "4656cad4721703fd69b4edadce2416f53597ceb5c307909fcb9efc97dc094467"
+    }
+  ]
+}
