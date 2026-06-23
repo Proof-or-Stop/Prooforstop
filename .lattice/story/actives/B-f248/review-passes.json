@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T11:48:20.312Z",
       "reviewRunId": "B-f248:RR-002",
       "_hash": "e5fa21ca259f5d987cd38d51ae371e867c83cc3793cffbfcd720870d7d568395"
+    },
+    {
+      "id": "B-f248:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/recovery-runner/run-driver.mjs, run-driver-selfcheck.mjs, run-selfchecks.mjs. No blockers found. (1) Dead code: all exports are used internally or by selfcheck; ABLATION_SCENARIO and NUMERIC_RECORD_FIELDS are correctly scoped. (2) Type/coercion safety: all catch blocks log errors (engine-threw: message); no empty catches; no as-any (JS). (3) I/O isolation: experiments/ is not imported by shell/bridge files; no violation. (4) PRNG purity: xmur3+mulberry32 seeded correctly; same seed yields deterministic output; Fisher-Yates is a true permutation. (5) Enumeration/applicability math: cell counts match §3 (A1 gets 13, others 16 per task, total 77 per task k=1); N/A exclusion (B4/B5/B10 for A1) correct; duplicate taskId and unknown arm both throw loudly (fail-closed). (6) Denominator math: correctly excludes contrasts where a scenario does not apply to both arms per §5. (7) buildCanonicalRecord fully delegates to adjudicate.mjs (adjudicate()) and checks.mjs (harnessAcceptance, hiddenRegression, diffHygiene) with no re-implementation of logic; adjudicatedOutcome, unsafeChecks, and pass flags all come from those modules. (8) Negative controls are non-vacuous: missing field, stale enum value (recovered-to-green rejected), incomplete unsafeChecks, missing budget field, negative wallClockMs, and NaN each independently trigger validateRecord failure via distinct code paths. (9) run-selfchecks.mjs aggregates all 4 selfchecks correctly; all 4 pass (104+98+112+56 = 370 total assertions). (10) Minor doc note only: seededShuffle comment says input untouched but with object arrays, caller-side forEach mutation of the returned array modifies shared object references; not a correctness bug given internal-only usage with freshly-created cells; does not rise to a finding.",
+      "createdAt": "2026-06-23T11:55:24.752Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-003",
+      "_hash": "222dc5f1c53bdb0550288921db042038252dae50106aacfa9ac3533667867e18"
     }
   ]
 }
