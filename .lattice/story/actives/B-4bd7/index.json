@@ -4,7 +4,7 @@
   "title": "Register a workflow-efficiency baseline for the six Lattice follow-up fixes",
   "description": "Create the baseline reference that future Lattice workflow optimization stories must compare against before claiming improvement.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "source": "user-approved baseline-first workflow on 2026-06-23",
   "keywords": [
@@ -33,6 +33,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:01:01.423Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -41,5 +50,10 @@
       "reason": "False positive: this story uses source incident to mean a workflow retrospective anchor from 2026-06-23. It does not modify production code, deploy, run emergency changes, touch credentials, or change Authority behavior.",
       "at": "2026-06-23T04:00:08.652Z"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4bd7",
+    "branch": "story/B-4bd7",
+    "createdAt": "2026-06-23T04:01:00.968Z"
+  }
 }
