@@ -4,7 +4,7 @@
   "title": "Send story-scoped Authority job claims from the CLI live runner",
   "description": "The Authority Server now supports signed storyId/jobId selectors so a runner does not lease stale queued jobs from discarded or unrelated stories. The CLI live runner still sends broad signed claims in its live paths, which can reproduce claimed-job-story-mismatch when old queued jobs remain on the server. This story wires the expected story identity into claim payloads and covers the behavior with focused smokes.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "authority",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-23T10:27:16.448Z",
   "startedAt": "2026-06-23T10:27:16.448Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T11:50:36.731Z",
   "events": [
     {
       "phase": "INIT",
@@ -115,12 +115,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-95e126ab0096c3c2",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:50:36.731Z",
+      "branch": "story/B-1e7f",
+      "user": "Harmonygo",
+      "sessionId": "sess-95e126ab0096c3c2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1e7f",
-    "branch": "story/B-1e7f",
-    "createdAt": "2026-06-23T10:35:56.961Z"
-  },
   "currentReviewRound": "2026-06-23T11:38:30.518Z"
 }
