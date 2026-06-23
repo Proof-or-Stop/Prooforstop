@@ -28,7 +28,7 @@
       "desc": "CHK-003:edge:1 intent requires runtime invocation of the dev-memory handler with a valid storyDir, but the evidence is a docs_check (grep -n assertNoLegacyKoalaWritePath packages/main/src/handlers/dev-memory.ts) that only confirms static absence of the deleted guard — no handler is actually called. The note bridges to tsc being clean, but the tsc evidence is bound to CHK-005:happy:0, not to this intentRef. The intent says priority=must and specifies the handler must succeed with a valid storyDir; a grep confirming zero guard references does not concretely correspond to calling the handler and observing it succeed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T14:14:56.676Z",
@@ -39,7 +39,11 @@
         "packages/main/src/handlers/dev-memory.ts"
       ],
       "signatureTag": "missing|ts|edge-intent-requires",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the static grep evidence (which only confirmed absence of the assertNoLegacyKoalaWritePath reference, never invoking the handler) with a real runtime check at /tmp/b837-devmemory-runtime-check.mjs. It imports the compiled dev-memory handler, builds a real HandlerContext, seeds an entry, and invokes createDevMemoryHandlers(ctx).dev_memory_finish({storyId,storyDir}) with a storyDir containing a '.koala' segment — the exact input the removed guard rejected — asserting it returns without throwing and writes the candidate file. Re-bound CHK-003:edge:1 with command='node /tmp/b837-devmemory-runtime-check.mjs' kind=logic_test result=pass. Confirmed discriminating: the old guard's containsLegacyKoalaDir returns true for this storyDir, so it would have thrown. No product code changed.",
+      "resolvedAt": "2026-06-23T14:20:46.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
