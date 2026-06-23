@@ -157,7 +157,7 @@
       "desc": "doc-promise-undelivered: README and error message promise --maxReruns as a CLI flag (\"raise --maxReruns\") but run-driver.mjs main() has no arg(\"--maxReruns\") binding; the programmatic API parameter exists but the CLI flag does not",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T12:12:22.742Z",
@@ -169,7 +169,11 @@
         "experiments/recovery-runner/README.md"
       ],
       "signatureTag": "missing|mjs|promise-undelivered-readme",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "--maxReruns wired as CLI arg in main() + passed to runDriver; doc promise delivered; commit 8a3ae6d5c",
+      "resolvedAt": "2026-06-23T12:22:39.691Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-009",
