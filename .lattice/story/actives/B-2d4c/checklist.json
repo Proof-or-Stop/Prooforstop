@@ -102,9 +102,9 @@
       "id": "CHK-002",
       "title": "adjudicate.mjs: the total-order state machine adjudicate(...) returning amplified | recovered-to-green | safe-stop per pre-reg section 4.2 (amplified strictly supersedes; recovered = not-amplified AND fault resolved; safe-stop = not-amplified AND not-recovered AND a terminal stop/rollback/human_gate event)",
       "context": "First matching rule wins; amplified also fires on new broken files/failing tests beyond the post-injection reference snapshot",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T04:13:31.701Z",
       "verificationIntent": {
         "happy": [
           {
