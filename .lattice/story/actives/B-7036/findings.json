@@ -323,6 +323,24 @@
       ],
       "signatureTag": "missing|mjs|concept-cleanup-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-016",
+      "desc": "dead-code: analyze.mjs:29 imports ARMS from run-driver.mjs but the symbol is never referenced in the file body — it was used in the original commit (260ab1ce9) for iterating completion rates, but was removed from the body in commit a24fe81ce (F-011 completion denominator fix) without cleaning up the import; the dead import was present through all subsequent rounds and was not filed previously",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T20:06:11.088Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-024",
+      "_hash": "d8028933ce40b25c7ef75a18441089355453a544f2882aeb157beb23a99b0c11",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "missing|mjs|dead-code-analyze",
+      "signatureTagSource": "auto"
     }
   ]
 }
