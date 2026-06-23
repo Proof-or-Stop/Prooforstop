@@ -1,0 +1,62 @@
+{
+  "storyId": "B-7036",
+  "checkedAt": "2026-06-23T18:35:20.903Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md and the title use the acronym \"GLMM\" without spelling it out anywhere in the document. Key Insights writes \"GLMM (arm fixed; task/scenario/seed random)\" but never expands it to Generalized Linear Mixed Model, leaving a standalone reader unable to decode the term from this file alone."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md refers to \"infra-(a) piece 5\" without explaining what the \"(a)\" qualifier means (e.g., infra-(a) vs infra-(b) distinction). A new reader cannot determine the scope of the infra sub-program from this file alone."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "CHK-003 context uses hypothesis labels \"H1\" and \"H2\" (e.g., \"H1 section-6 not-amplified; H2 section-5 completion\") without local definition. They refer to pre-reg hypotheses, but a reader of only the checklist would not know what H1/H2 stand for without reading lattice-experiment-protocol.md."
+    },
+    {
+      "id": "INIT-004",
+      "severity": "low",
+      "desc": "Arm names A4, A2prime (A2′), A1, A2, A3 appear throughout the background and checklist with no local definition of what each arm represents (e.g., A4=Lattice loop, A2prime=compute-matched naive). A standalone reader must consult the external pre-reg doc to decode them."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T18:35:15.227Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T18:35:20.903Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md and the title use the acronym \"GLMM\" without spelling it out anywhere in the document. Key Insights writes \"GLMM (arm fixed; task/scenario/seed random)\" but never expands it to Generalized Linear Mixed Model, leaving a standalone reader unable to decode the term from this file alone."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md refers to \"infra-(a) piece 5\" without explaining what the \"(a)\" qualifier means (e.g., infra-(a) vs infra-(b) distinction). A new reader cannot determine the scope of the infra sub-program from this file alone."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "CHK-003 context uses hypothesis labels \"H1\" and \"H2\" (e.g., \"H1 section-6 not-amplified; H2 section-5 completion\") without local definition. They refer to pre-reg hypotheses, but a reader of only the checklist would not know what H1/H2 stand for without reading lattice-experiment-protocol.md."
+        },
+        {
+          "id": "INIT-004",
+          "severity": "low",
+          "desc": "Arm names A4, A2prime (A2′), A1, A2, A3 appear throughout the background and checklist with no local definition of what each arm represents (e.g., A4=Lattice loop, A2prime=compute-matched naive). A standalone reader must consult the external pre-reg doc to decode them."
+        }
+      ]
+    }
+  ],
+  "_hash": "ea587a277a7ed9595209557912fa6d07512f099cdcb6f7909cb39a4024cf924f"
+}
