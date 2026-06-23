@@ -147,6 +147,25 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-readme",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-008",
+      "desc": "doc-promise-undelivered: README and error message promise --maxReruns as a CLI flag (\"raise --maxReruns\") but run-driver.mjs main() has no arg(\"--maxReruns\") binding; the programmatic API parameter exists but the CLI flag does not",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T12:12:22.742Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-005",
+      "_hash": "f67fce1b719f4e9085aabf62ebb1b6edd138c04fb44f10c57c47ca22f3deb2a8",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/README.md"
+      ],
+      "signatureTag": "missing|mjs|promise-undelivered-readme",
+      "signatureTagSource": "auto"
     }
   ]
 }
