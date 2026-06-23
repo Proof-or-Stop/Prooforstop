@@ -1,0 +1,44 @@
+{
+  "storyId": "B-fbca",
+  "name": "koala-zero-product-code",
+  "title": "Achieve zero koala in product runtime code: rename all koala-* salts to lattice-* + remove legacy-koala detection (ship-clean story 3)",
+  "description": "Per the user's total-removal directive (no koala anywhere, accept the collateral), drive product runtime code (packages/*/src) to zero koala: rename all 8 koala-* signature salts to lattice-* (init/review/scope/finding integrity + story-store), delete the legacy-koala DETECTION (the bin/koala*.js denylist and @koala-agent old-global-install handling — dropping old-koala migration support), and clean the remaining koala-codex/koala-agent literals. The residue-gate's own koala-residue identifiers (review-preflight.ts + verify-koala-residue.mjs) and docs are story 4.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "salt",
+    "integrity",
+    "legacy-detection",
+    "ship-clean"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "machine.ts"
+    }
+  ],
+  "createdAt": "2026-06-23T18:57:18.902Z",
+  "startedAt": "2026-06-23T18:57:18.902Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T18:57:18.912Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}
