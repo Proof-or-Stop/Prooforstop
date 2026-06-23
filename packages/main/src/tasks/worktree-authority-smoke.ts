@@ -522,13 +522,17 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
 
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-05-08T10:00:00.000Z';
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'worktree authority smoke fixture must have git HEAD for delivery-check freshness');
+  assert.ok(materialHash, 'worktree authority smoke fixture must have materialHash for delivery-check freshness');
   store.writeTestEvidence(storyId, {
     command: 'worktree authority smoke',
     output: JSON.stringify({ allPass: true, summary: 'nested DONE cleanup smoke passed' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root),
+    headHash,
+    materialHash,
     verificationCoverage: {
       total: 0,
       required: 0,
@@ -552,12 +556,14 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   store.writeDeliveryCheck(storyId, {
     storyId,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
 }
 

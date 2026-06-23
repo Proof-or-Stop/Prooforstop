@@ -404,13 +404,17 @@ function probeDoneClosure(worktreePath: string): DonePrepareClosureSnapshot {
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-22T00:00:00.000Z';
   const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'done readiness benchmark fixture must have git HEAD for delivery-check freshness');
+  assert.ok(materialHash, 'done readiness benchmark fixture must have materialHash for delivery-check freshness');
   store.writeTestEvidence(storyId, {
     command: 'done-readiness-flow-benchmark',
     output: JSON.stringify({ allPass: true, summary: 'done readiness benchmark ready' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root, 'HEAD', root),
+    headHash,
+    materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     verificationCoverage: {
       total: 0,
@@ -435,12 +439,14 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   store.writeDeliveryCheck(storyId, {
     storyId,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
   store.writeSummary(storyId, {
     storyId,
