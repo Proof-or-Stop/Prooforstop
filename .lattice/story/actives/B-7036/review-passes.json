@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-23T20:01:45.155Z",
       "reviewRunId": "B-7036:RR-026",
       "_hash": "61ecca90d737de47114fe2ce5c1456f4485705f1ea69e23d1f7b825e13238e6e"
+    },
+    {
+      "id": "B-7036:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "F-012/F-014 fix verified: (1) emitGlmmR now subsets H1 to matchedPrimaryH1==1 and H2 to matchedPrimaryH2==1 — both are the matched A4-vs-A2prime common-cell corpus, same as headline rates + bootstrap; (2) exploratory per-scenario tests compute scMatched = matchedCellKeys per scenario and pass cellKeys to perArmRate for both arms — no arm-only cell inflates either denominator; (3) tidy CSV carries matchedPrimaryH1/matchedPrimaryH2 flags; (4) selfcheck runs 75 assertions, 0 failed (glmm.R subset assertions + CSV column assertions + exploratory per-scenario matched assertion all pass). No remaining path where one arm is scored over cells the other lacks. One new low finding F-016 filed (ARMS dead import, does not block). Dead-code/type-safety checks otherwise clean.",
+      "createdAt": "2026-06-23T20:06:22.609Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-024",
+      "_hash": "968ee53c0590c77da44ac6e480ad47ab55f90f5da2d5c565d757b4e20dd1e5d3"
     }
   ]
 }
