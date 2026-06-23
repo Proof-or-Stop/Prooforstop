@@ -131,6 +131,23 @@
       "resolvedAt": "2026-06-23T19:06:27.558Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7036:F-007",
+      "desc": "emitGlmmR fits H1 notAmplified ~ arm over ALL tidy rows, so §5 null-ablation completion cells enter the §6 not-amplified H1 GLMM as failures, contaminating the model. Fix: the H1 model must subset to §6 cells (scenario != null) on the A4-vs-A2prime corpus; H2 completion is a separate model on the null cells.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T19:12:24.873Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "_hash": "e16b2beec71e2a89801c68778cf2583a877a8d447949fa37850a6c84ac689fed",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|emitglmmr-fits-notamplified",
+      "signatureTagSource": "auto"
     }
   ]
 }
