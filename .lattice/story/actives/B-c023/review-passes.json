@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T13:17:59.038Z",
       "reviewRunId": "B-c023:RR-012",
       "_hash": "d88285094b57190bbb2ec55a2a7408df708aaffce253e7889ab29bd20f470c3e"
+    },
+    {
+      "id": "B-c023:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "C7 fix verified sound: (1) ac.signal is passed directly into every agent({ signal: ac.signal }) call; (2) ac.abort() is called BEFORE transcript.timedOut + break on timeout; (3) clearTimeout(timer) in finally{} covers both the normal path (prevents dangling handle) and the timeout path (safe no-op since timer already fired); (4) slow agent genuinely proves the abort — it checks signal?.aborted===true at resolve time, and the confirmed-false baseline shows it would record false if abort had not been called; (5) the orphaned slow-agent promise resolves (not rejects) after timeout, so no unhandled rejection; (6) --self-check 6/6 exit 0 confirmed. No dead code, no unnecessary any casts, no empty catch. No new regression found in changed files.",
+      "createdAt": "2026-06-23T13:20:47.158Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-010",
+      "_hash": "eb40bcec32f772a3a2b4a24689e1db546c425568a451529a9d40b0e3b3d0d9b0"
     }
   ]
 }
