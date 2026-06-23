@@ -1,0 +1,41 @@
+{
+  "storyId": "B-5bfe",
+  "name": "ablation-a2prime-spend-matched",
+  "title": "Add the spend-matched A2-prime arm + token/wall-clock + agentCallCount accounting to the recovery runner",
+  "description": "The pre-registered five-arm ablation defines A2-prime as compute-matched on token + wall-clock SPEND (explicitly not call count), with a plus-or-minus 20 percent tolerance band, hard truncation, and per-run budget logging. The recovery runner implements neither this arm nor spend accounting. Add token+wall-clock+agentCallCount recording and the spend-matched A2-prime arm so the powered ablation can fairly isolate structure from raw compute.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "ablation",
+    "recovery-runner",
+    "experiment",
+    "spend-matched",
+    "compute-parity"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "truncate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T01:24:48.434Z",
+  "startedAt": "2026-06-23T01:24:48.434Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T01:24:48.453Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ]
+}

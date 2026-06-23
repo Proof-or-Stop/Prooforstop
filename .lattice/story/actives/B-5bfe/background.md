@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-23, preparing the powered run of the pre-registered five-arm reflection-loop ablation, the scope-plan review caught that the planned A2-prime arm used a call-count budget, but the locked pre-registration docs/requirements/decisions/lattice-experiment-protocol.md (rev3.1, build gate: the S3 harness implements EXACTLY this) defines A2-prime as matched on token + wall-clock SPEND, stating verbatim Compute parity is matched on spend, not call count. The recovery runner implements neither the arm nor spend accounting.
+
+## Key Insights
+The pre-reg A2-prime is a2prime (naive retry, no review gate) bounded by a token + wall-clock budget equal to A4 per-task median (measured in pilot): plus-or-minus 20 percent of A4 median tokens AND plus-or-minus 20 percent wall-clock; if the two conflict the token budget binds first; hard-truncation cap at the upper bound; each run logs pass/fail against the budget. The run-record schema (pre-reg section 7) names the fields tokensSpent, wallClockMs, agentCallCount. The runner currently records costUsd + wallClockMs but not tokensSpent or an accurate agentCallCount (the existing reviewRounds undercounts reviewer calls). Spend-match (not call-count) is the round-2 fix for the compute confound, so A4 vs A2-prime cannot be dismissed as A4 just spent more.
+
+## Solution Tradeoffs
+Capture token spend from the claude -p JSON usage and accumulate per run; record tokensSpent + wallClockMs + an accurate agentCallCount (incremented at the executor and reviewer call sites). Implement the budget/truncation as a spend-budget mode in run-recovery.mjs (token binds first, hard-truncate at the upper bound) so A2-prime is a2prime under that budget, driven from run-ablation.mjs which computes A4 per-task median spend. Match the pre-reg field names exactly so the analysis script does not silently miss fields.
+
+## Conversational Texture
+The operator chose to follow the locked pre-registration (spend-match) rather than amend it to call-count, after the gate surfaced the conflict. This story implements the spend-matched A2-prime + spend accounting; the paper wording (currently agent-call count) will be corrected separately to match the pre-reg.
