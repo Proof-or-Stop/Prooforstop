@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T12:14:05.631Z",
       "reviewRunId": "B-0c07:RR-006",
       "_hash": "55f0e190f7ce1ada01086d64d4b9bd55633cd98a00c5f0714dcf9e9518c80280"
+    },
+    {
+      "id": "B-0c07:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 5 key exported symbols (makeRealBareArm, parseClaudeResult, summarize, stubSafeStop, stubShipNoFix) + auxiliary constants extracted. Step 2: CHANGELOG.md line 7 B-0c07 entry is the sole doc reference (makeRealBareArm + summarize each hit once; parseClaudeResult/stubSafeStop/stubShipNoFix have 0 doc hits → Fallback 2 applied, no finding required). Step 3: All 9 CHANGELOG claims verified against real-arm.mjs diff: makeRealBareArm invocation/return shape, summarize catch=NOT-amplified, deterministic stub arms, --self-check (0 spend, hand-built vectors, discriminating stub runs, B13 safe-stop caveat), --run appends powered-run-records.jsonl (6 probes confirmed), never-import-run-recovery, no probe/probe-contract edits. ### Experiments heading count = 1 (F-001 fix confirmed). parseClaudeResult hardening adds no unmet doc promise. No blockers.",
+      "createdAt": "2026-06-23T12:16:20.634Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-007",
+      "_hash": "15cd125d5a08c80fcac7593198febdd8ffe3843bfa68435acec40601210a6fd3"
     }
   ]
 }
