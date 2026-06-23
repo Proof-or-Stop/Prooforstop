@@ -132,6 +132,19 @@
           "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
           "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
           "timestamp": "2026-06-23T09:57:55.267Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Each outcome class exercised via the probe's own selfTestCases builder mutating the workspace, so classify() runs real logic on a real state (not a stub).",
+          "headHash": "db684d5535d443fd4fc0521a5291d06255f88fc8",
+          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
+          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
+          "timestamp": "2026-06-23T09:57:56.408Z"
         }
       ]
     }
