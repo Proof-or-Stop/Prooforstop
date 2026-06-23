@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-23T13:05:36.975Z",
       "reviewRunId": "B-c023:RR-007",
       "_hash": "6726329c44bd4eb44b27115d5e61060200baa88e87e6604503c308f05bc6aee6"
+    },
+    {
+      "id": "B-c023:RP-009",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel: dispatch events cover both CHK-001 and CHK-002 in process-events.jsonl (lines 3 and 5). CHK-001 dispatched at 2026-06-23T12:49:17Z, CHK-002 dispatched at 2026-06-23T12:50:56Z. Git commit authorship (git log --format=%an) is permanently invalid as a dispatch signal in a local worktree — all agents share the same machine-level git identity. The only reliable dispatch evidence is the process-events.jsonl dispatch records, which confirm both CHKs were dispatched to lattice-implementer. Channel review passed.",
+      "createdAt": "2026-06-23T13:19:57.710Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-013",
+      "_hash": "752b746c8f17f851755a6f9d37b37e9216bec15cc7517a0df93d69246dd21e13"
     }
   ]
 }
