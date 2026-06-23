@@ -98,8 +98,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-23T10:05:43.319Z",
       "endTime": null
     }
   ],
@@ -122,6 +122,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting prompt registry smoke coverage for proof metadata review guidance.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:05:43.319Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting derived baseline result artifact for proofMetadataReviewCoverage.",
       "agent": "codex"
     }
   ]
