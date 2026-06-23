@@ -1,0 +1,73 @@
+{
+  "storyId": "B-ebbb",
+  "checkedAt": "2026-06-23T10:08:20.790Z",
+  "features": [
+    {
+      "feature": "Harness-owned acceptance wrapper: verify acceptance-script content hash equals frozen expected hash, run from harness-owned path (not agent-editable workspace), return {acceptancePass, scriptHash, hashOk}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Anti-gaming: acceptance script NOT visible in agent editable workspace (§2 anti-gaming constraint)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Hash-check enforces frozen independently-authored acceptance script (hash verified BEFORE execution)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Hidden-regression check: hiddenRegressionPass = no NEW failing tests vs frozen baseline snapshot (post-state minus baseline), return {hiddenRegressionPass, newFailures}",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Diff-hygiene check: diffHygienePass = change confined to allowed paths with no junk/forbidden artifacts, return {diffHygienePass, violations}",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Exact §7 field names: acceptancePass, hiddenRegressionPass, diffHygienePass (schema contract for run-record and analysis)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Offline selfcheck (checks-selfcheck.mjs): covers pass+fail cases for each check, section-7 field name assertions, node --check both files, zero live LLM",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Runner wiring / run driver / analysis script / powered run (not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope: Runner wiring; the run driver; the analysis script; the powered run",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0980d55fdc878bbd8da29b00beec08e0a1969e620be1b3d7e7fba68a20fda8c2",
+  "openQuestions": []
+}
