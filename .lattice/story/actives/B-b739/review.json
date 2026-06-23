@@ -55,6 +55,29 @@
         }
       ],
       "_hash": "87e393e250c35e14ec0c3b06a440028c19d8a0f8915237e1ff5ff6e833168e83"
+    },
+    {
+      "timestamp": "2026-06-23T20:22:30.325Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when makeRealLoopAgent: multi-turn claude -p, honors AbortSignal, hardened parsing + --run powered driver + hermetic stub self-check are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: how to kill the claude child on signal.aborted with execFileSync (sync) — likely spawn-based or rely on execFileSync timeout; the stub self-check verifies the signal-honoring contract deterministically"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b739 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "ef2e937f26549e713ab00e8f7851def36b973435740b3c63961c4ee866c2c7e4"
     }
   ]
 }
