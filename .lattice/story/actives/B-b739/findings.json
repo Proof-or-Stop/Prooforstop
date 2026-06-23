@@ -160,7 +160,7 @@
       "desc": "[codex-host2 C9] the stub runPowered self-check assertions are loose (length vs STATEFUL_SCENARIOS.length, no literal 9 / infraFail-boolean / zero-cost assertion). FIX: assert exactly 9 records, infraFail is boolean, costUsd/tokensSpent===0 for the stub.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T20:33:40.588Z",
@@ -170,7 +170,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "edge|mjs|codex-host2-stub",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:39.684Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
