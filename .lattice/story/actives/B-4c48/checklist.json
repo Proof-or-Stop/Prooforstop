@@ -1,0 +1,125 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add earlier main-sync readiness reporting",
+      "context": "Expose branch-behind-main readiness before late DONE closure, preferably through an existing read-only lifecycle/session surface. It must point to the existing done_prepare/main-sync path and must not perform a merge by itself.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Before REVIEW or late TEST, Lattice tells the user when the story branch is behind main and what command should refresh it.",
+      "excludes": [
+        "Do not change story_advance DONE merge authority.",
+        "Do not add a new automatic merge path outside done_prepare/story_advance.",
+        "Do not claim Authority or production proof."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A story branch behind main gets a visible pre-DONE readiness hint with the behind count and existing sync command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story branch already synced with main does not show a false warning.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The new readiness signal is read-only and does not mutate phase, merge main, or bypass DONE closure gates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for the readiness signal",
+      "context": "Add a focused smoke test that creates fixture branches and proves the read-only readiness behavior for behind-main, synced, and no-mutation cases.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "lattice validate --focus=fast can prove the main-sync readiness behavior without running the whole suite.",
+      "excludes": [
+        "Do not add a slow full-suite-only regression.",
+        "Do not require network or remote git access."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused smoke passes and is wired into lattice validate --focus=fast.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full validate still includes the smoke through configured validate.commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves the readiness path is read-only by checking no merge/phase mutation occurs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record baseline result for item 4",
+      "context": "Add a derived baseline result artifact for baseline item 4 without modifying the immutable baseline v1 JSON.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "The baseline comparison has a durable item 4 result entry for future tasks.",
+      "excludes": [
+        "Do not rewrite baseline v1.",
+        "Do not collapse this with delivery-check freshness or DONE summary freshness."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The result artifact references baseline item 4, this story id, and the readiness behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline file remains unchanged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact states this is local lifecycle readiness coverage only, not Authority or production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

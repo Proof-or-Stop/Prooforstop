@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4c48",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge *",
+    "git status *",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice delivery_check_set *",
+    "lattice done_prepare *",
+    "lattice done_required_validate *",
+    "lattice quorum_submit *",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice validate *",
+    "nl *",
+    "node packages/main/dist/tasks/*lifecycle*smoke*.js",
+    "node packages/main/dist/tasks/*main*sync*readiness*.js",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/",
+    "docs/requirements/decisions/",
+    "experiments/baselines/",
+    "lattice.config.json",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Constrained to local Lattice lifecycle readiness and verification; no remote publish or deployment.",
+  "createdAt": "2026-06-23T11:25:46.183Z",
+  "updatedAt": "2026-06-23T11:25:46.183Z",
+  "_hash": "2566acf2e930b4a61da3895a1784af15ed1d1aea9372986eddd06e2e47bc52d4"
+}
