@@ -1,0 +1,105 @@
+{
+  "storyId": "B-fbca",
+  "checkedAt": "2026-06-23T22:05:44.014Z",
+  "reviewRound": "2026-06-23T21:40:55.519Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#reviewer-opt-in-table",
+      "promise": "lattice-residue preflight gate replaces koala-residue: renamed to lattice-residue, standalone test npm run test:lattice-residue, script scripts/verify-lattice-residue.mjs, zero-tolerance scan of packages/*/src",
+      "verifiedBy": "diff/grep + script execution",
+      "evidence": "CLAUDE.md diff shows row replaced koala-residue->lattice-residue; package.json has test:lattice-residue pointing to scripts/verify-lattice-residue.mjs; review-preflight.ts uses LATTICE_RESIDUE_* constants; verify-lattice-residue.mjs exists and PASS"
+    },
+    {
+      "docPath": "scripts/verify-lattice-residue.mjs",
+      "promise": "Zero-tolerance brand-residue gate: any case-insensitive koala hit in SCAN_ROOTS (packages/main/src, packages/lab/src, packages/utils/src) is a FAIL; --self-test mode runs 7 isResidue() unit tests",
+      "verifiedBy": "script execution: node scripts/verify-lattice-residue.mjs + --self-test",
+      "evidence": "PASS lattice-residue: 0 brand residue in product runtime source; PASS lattice-residue self-test: 7/7 isResidue() unit tests"
+    },
+    {
+      "docPath": "scripts/verify-salt-rename.mjs",
+      "promise": "8 signature salts renamed koala-*->lattice-*: git grep confirms old-salt count=0, new-salt count>=1 for each of 8 salts",
+      "verifiedBy": "script execution: node scripts/verify-salt-rename.mjs",
+      "evidence": "All 8 OK: review-integrity-v1, review-pass-integrity-v1, review-run-integrity-v1, review-run-workspace-binding-v1, review-scope-binding-v1, scope-check-integrity-v1, finding-integrity-v1, story-store. PASS exit 0."
+    },
+    {
+      "docPath": "scripts/verify-residue-inject-repro.mjs",
+      "promise": "Inject-repro test: gate catches a tracked koala injection (staged via git add) and returns to clean after revert",
+      "verifiedBy": "script execution: node scripts/verify-residue-inject-repro.mjs",
+      "evidence": "OK step 1: tracked koala inject -> gate exited 1 (FAIL caught it); OK step 2: after git revert -> gate exited 0 (PASS, tree restored clean). PASS inject-check."
+    },
+    {
+      "docPath": "plan.md#goal",
+      "promise": "git grep -i koala -- packages/*/src returns ZERO hits after story completion",
+      "verifiedBy": "direct git grep execution",
+      "evidence": "git grep -i koala -- packages/*/src exit 1 (zero hits) independently verified in this delivery review"
+    },
+    {
+      "docPath": "plan.md#chk-001",
+      "promise": "All 8 signature salts renamed in guard-utils/machine/process-fact-registry/reviewer-status/story-review/canonical-story/finding-verify/review-run/review-scope-binding/scope-check",
+      "verifiedBy": "git diff inspection + salt-rename script",
+      "evidence": "guard-utils.ts diff shows koala-review-integrity-v1->lattice-review-integrity-v1; script confirms all 8 renamed; no old salt present in packages/*/src"
+    },
+    {
+      "docPath": "plan.md#chk-005",
+      "promise": "idleKoala->idleLattice, koala.config.json->lattice.config.json, koalaConfig->latticeConfig renamed in packages/*/src; no koala.config.json read-fallback",
+      "verifiedBy": "git grep + diff inspection",
+      "evidence": "git grep idleKoala/koalaConfig/koala.config.json in packages/*/src: exit 1 zero hits. lattice equivalents present in config.ts and cli-init.ts. tsc clean."
+    },
+    {
+      "docPath": "plan.md#chk-006",
+      "promise": ".koala/ runtime path references renamed to .lattice/ runtime dir; no code writes to .koala/",
+      "verifiedBy": "git grep",
+      "evidence": "git grep -nE .koala/ packages/*/src: exit 1 zero hits. LATTICE_DIR=.lattice in lattice-paths.ts is the single source-of-truth constant."
+    },
+    {
+      "docPath": "plan.md#chk-007",
+      "promise": "verify-koala-residue.mjs renamed to verify-lattice-residue.mjs; KOALA_RESIDUE_*->LATTICE_RESIDUE_* in review-preflight.ts; gate flipped to zero-tolerance",
+      "verifiedBy": "file existence check + grep",
+      "evidence": "scripts/verify-koala-residue.mjs: No such file. scripts/verify-lattice-residue.mjs: exists. LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS present in review-preflight.ts. Gate passes zero-tolerance."
+    },
+    {
+      "docPath": "evidence/transcript-diff.md",
+      "promise": "User-acceptance transcript-diff: git grep -i koala packages/*/src = 0; verify-lattice-residue.mjs PASS; tsc --noEmit exit 0; lattice validate PASS",
+      "verifiedBy": "independent execution of all 4 acceptance checks",
+      "evidence": "All 4 independently reproduced: zero koala hits, PASS lattice-residue, tsc exit 0, validate PASS (allPass:true). Transcript-diff claims match independently observed results."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "8 salt renames: (1) git grep old salts in packages/*/src = 0, (2) git grep new salts >= 1 per predecessor file, (3) node scripts/verify-salt-rename.mjs PASS all 8, (4) canonical-story-export-smoke passes with new salts end-to-end"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Legacy-koala detection deletion: (1) git grep bin/koala.js|koala-codex.js managed-assets.ts = 0, (2) git grep @koala-agent packages/*/src = 0, (3) flow-stability-smoke + worktree-repair-smoke + lattice-only-absence-smoke all pass"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Stray koala literal sweep: (1) git grep -i koala-codex packages/*/src = 0, (2) git grep -i koala-agent packages/*/src = 0, (3) git grep -i koala packages/*/src = 0 (literal zero including comments), (4) tsc clean"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Build/suite/gate green: (1) npx tsc --noEmit exit 0 independently verified, (2) verify-lattice-residue.mjs PASS independently verified, (3) verify-lattice-residue.mjs --self-test 7/7, (4) verify-residue-inject-repro.mjs PASS, (5) lattice validate PASS full suite"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Config field renames: (1) git grep idleKoala packages/*/src = 0, (2) idleLattice in config.ts + stale-detector.ts, (3) git grep koalaConfig packages/*/src = 0, (4) latticeConfig in cli-init.ts, (5) no koala.config.json read-fallback, (6) tsc clean"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": ".koala/ path rename: (1) git grep -nE .koala/ packages/*/src = 0 exit 1, (2) .lattice/ replacements in lattice-paths.ts, (3) runtime-owned-agent-assets-smoke passes, (4) no write to .koala/ paths remains"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Residue gate rename+flip: (1) git grep -i koala packages/*/src exit 1, (2) verify-lattice-residue.mjs PASS, (3) verify-lattice-residue.mjs --self-test 7/7, (4) verify-residue-inject-repro.mjs PASS, (5) KOALA_RESIDUE_* fully renamed to LATTICE_RESIDUE_* in review-preflight.ts, (6) old script missing / new script present"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 docsPromises verified from source. All 7 CHK items (58 bound verification intents) have real machine tests with passing evidence. Zero koala in packages/*/src independently confirmed. Lattice-residue gate PASS + self-test 7/7 + inject-repro PASS independently reproduced. Salt-rename script PASS all 8. tsc exit 0. lattice validate PASS. No TODO/FIXME/HACK in diff. All acceptance criteria met."
+  },
+  "_hash": "2a47e89a074477287399759ebde89d124406a1b3b97f53a6f0c8410e3017de34"
+}
