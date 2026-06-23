@@ -202,7 +202,7 @@
       "desc": "DENOMINATOR BIAS (§8): commonCellKeys/perArmRate count an arm over every structurally-common (task,scenario) cell even when the OTHER arm has NO kept run in that cell, so the two arms get DIFFERENT denominators (codex probe: an A4-only cell makes A4 n=1->n=2 while A2prime stays n=1). The headline common-cell rates must be over the SAME matched cell set = cells where BOTH arms have >=1 kept run. clusterBootstrap has the same flaw (pools clusters where one arm is empty). Fix: restrict per-arm rates + bootstrap clusters to the both-arms-present intersection.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T19:20:54.732Z",
@@ -212,7 +212,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|denominator-bias-commoncellkeys",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "matchedCellKeys restricts headline rates + bootstrap to (task,scenario) cells where BOTH arms have data; perArmRate cellKeys param + clusterBootstrap drops empty-arm clusters. selfcheck asserts the A4-only cell is excluded (matched n=1) with a control showing the unmatched n=2 bias. commit d9253eb5a.",
+      "resolvedAt": "2026-06-23T19:24:44.146Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
