@@ -1,0 +1,73 @@
+{
+  "storyId": "B-7b6e",
+  "checkedAt": "2026-06-23T00:19:31.330Z",
+  "reviewRound": "2026-06-22T23:43:28.613Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "packages/main/src/core/gate-strength.ts is delivered as a new file",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "gate-strength.ts appears as new file (mode 100644, +338 lines) in the diff"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "Three reference reviewers testOnlyReviewer, blockAllReviewer, and oracleReviewer are exported from gate-strength.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "All three exported const visible in gate-strength.ts diff: testOnlyReviewer, blockAllReviewer, oracleReviewer — each with correct semantics as documented"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "runGateStrength, verifyGateStrengthResult, and gateStrengthBundle are exported from gate-strength.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "export function runGateStrength, export function gateStrengthBundle, export function verifyGateStrengthResult all present in the diff"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "Hermetic contract smoke gate-strength-contract-smoke.ts registered in lattice.config.json validate set",
+      "verifiedBy": "diff/grep",
+      "evidence": "lattice.config.json diff adds node packages/main/dist/tasks/gate-strength-contract-smoke.js to validate.commands; compiled dist file present at packages/main/dist/tasks/gate-strength-contract-smoke.js"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "Smoke is hermetic (no network, no agent dispatch, no FS/git reads) with 11 checks and exits 0",
+      "verifiedBy": "node run + source read",
+      "evidence": "Ran node packages/main/dist/tasks/gate-strength-contract-smoke.js: all 11 checks passed, exit 0; source imports only node:assert, node:crypto, and local modules — no network/FS/git dependencies"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "Live claude -p review-lane dispatch and continuous/scheduled running are scoped as explicit follow-ups only — not delivered",
+      "verifiedBy": "diff/grep source",
+      "evidence": "gate-strength.ts JSDoc: A real claude -p review-lane reviewer (a follow-up). Smoke JSDoc line 20: same phrase. CHANGELOG: Scope: hermetic reference reviewers/oracle only — a live claude -p review-lane reviewer and continuous/scheduled running are explicit follow-ups."
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "receipt-bundle.ts is reused not modified; no gate-behavior, DONE-policy, or receipt-bundle.ts semantic change",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "packages/main/src/core/receipt-bundle.ts does not appear in git diff main...HEAD --name-only — confirmed unmodified"
+    },
+    {
+      "docPath": "CHANGELOG.md#Verifiable-autonomy-B-7b6e",
+      "promise": "A genuine host-2 Codex adversarial pass plus Claude quality-lane reviewed the story — 7 findings caught and resolved before DONE",
+      "verifiedBy": "findings.json inspection",
+      "evidence": "findings.json: F-001+F-002 agent=lattice-review-quality; F-003..F-007 agent=codex-host2; all 7 status=resolved evidenceState=verified; findings cover catchRate-gameable, vacuous 0/0=1.0, specAware->oracle mislabel, tamper-evidence overstatement, localeCompare non-determinism, receipts[0]! safety — all fixed at commit 5b06232aa"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/gate-strength-contract-smoke.js: (1) testOnlyReviewer catchRate=0 falseShip=3; (2) blockAllReviewer catchRate=1.0 falseBlock=1; (3) oracleReviewer catchRate=1.0 falseShip=0 falseBlock=0 names each defect; (4) oracle DOMINATES both endpoints on both axes; (5) all-genuine corpus throws no wrong probes; (6) invariant-violated corpus throws corpus invariant violated; (7) bundle offline ACCEPTED assurance local-key-single-host; (8) tampered signed field REJECTED signature_invalid; (9) stale materialHash REJECTED; (10) authentic result MATCHES bound digest; (11) forged result (falseBlock=99) does NOT match. All 11 pass, exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke covers CHK-002: lattice.config.json wiring confirmed by diff; CHANGELOG scope honest (hermetic only, follow-ups deferred); smoke assertions for test-only gap, oracle discrimination, receipt verify accepted, tamper rejected all pass. Exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified directly from the diff and source. The smoke ran 11 assertions covering happy path, edge (invalid corpus, stale materialHash), and adversarial (tamper signed field, forged result after the fact). No unresolved TODOs in non-test code; all 7 review findings resolved. CHANGELOG scope claim (hermetic only, follow-ups deferred) is accurate and receipt-bundle.ts is confirmed unmodified."
+  },
+  "_hash": "946d5fe551914ddd57f642f2014a3511f0fc01c31b4b34ee457f6ca58d24cb98"
+}
