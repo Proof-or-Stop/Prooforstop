@@ -46,6 +46,28 @@
       ],
       "signatureTag": "missing|ts|fixture-alignment-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d321:F-003",
+      "desc": "Re-review cannot pass: F-001 fixed the four named regression smokes, but coverage is still incomplete for additional DONE-ready smoke fixtures that write delivery-check.json without headHash/materialHash and sign without materialHash. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED due to stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because the dirty metadata scenario is not closure-ready. Static call sites still show five-argument signDeliveryCheck in done-prepare-smoke.ts:136, worktree-authority-smoke.ts:560, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh delivery-check fixtures to persist headHash/materialHash and sign with materialHash, keeping unsigned legacy fixtures only where stale evidence is intentional.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T13:07:14.615Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-006",
+      "_hash": "9159da0e8729254088bea0458d495a93bde67cc62a85fa33df68607478687036",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+        "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fixture-alignment-incomplete",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
