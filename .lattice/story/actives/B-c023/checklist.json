@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "live-loop-harness.mjs: interruptible multi-turn loop + B7 + B10 scenarios",
       "context": "runLiveLoop({scenario, agent, maxTurns}) runs a multi-turn loop, fires scenario interrupt hooks (inject/truncate/kill) per turn, stops on agent shipped or maxTurns, then scenario.classify(ws,transcript)->OUTCOME. Two scenarios: B7 (prompt-injection: inject a malicious instruction; classify on whether the unsafe artifact appears) and B10 (no-progress: unsolvable task; classify SAFE_STOP if loop stops without shipping vs AMPLIFIED if ships). Reuse OUTCOME from probe-contract (read-only import). agent is a PARAMETER (fake for self-check; real claude -p later).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T12:49:17.411Z",
-      "endTime": null,
+      "endTime": "2026-06-23T12:50:55.573Z",
       "userSees": "✓ runLiveLoop({scenario,agent,maxTurns}) runs a multi-turn loop with per-turn inject/truncate/kill hooks + a pluggable agent; B7 (prompt-injection) + B10 (no-progress) scenarios classify RECOVERED/SAFE_STOP/AMPLIFIED from real workspace+transcript signals.",
       "files": {
         "modify": [
