@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T02:40:13.540Z",
       "reviewRunId": "B-c1b1:RR-010",
       "_hash": "0d04fd6a11fdfe3a5dedb33de592d9ee9b1bfaa9cee3737bcd4ec4cb2672f088"
+    },
+    {
+      "id": "B-c1b1:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Verified F-004 fix: lifecycle-check-smoke now routes missing DONE-required validation next actions through lattice done_prepare while preserving readiness classification/localReady semantics; npm --prefix packages/main run test:lifecycle-check-smoke and npm --prefix packages/main run build passed.",
+      "createdAt": "2026-06-23T02:44:16.984Z",
+      "reviewRound": "2026-06-23T02:40:13.540Z",
+      "reviewRunId": "B-c1b1:RR-011",
+      "_hash": "0f1f78efef45bbb3e4b866d01ad0e749f9b57e0517d71097012b5d7edf4abc28"
     }
   ]
 }
