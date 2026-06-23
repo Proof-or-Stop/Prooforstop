@@ -96,9 +96,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lattice-authority-live-integration.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T03:15:14.880Z",
-      "endTime": null,
+      "endTime": "2026-06-23T03:15:23.159Z",
       "userSees": "User sees \"event: jobs.available\" followed by a normal signed \"claim_job\" network event; there is no separate SSE-only ownership success path.",
       "files": {
         "modify": [
@@ -140,7 +140,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Runner-client smoke proves custom codex-cli declarations propagate through actor key registration, runner registration, heartbeat, jobs.available diagnostics, and signed claim while the SSE hint remains non-owning.",
+          "headHash": "65b0b51db63600d709599c1251f9ecbf22f5aa8c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:23.633Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Live job-loop smoke proves custom antigravity declarations propagate through live runner registration and signed claim while lease completion/release remains server-claim based.",
+          "headHash": "65b0b51db63600d709599c1251f9ecbf22f5aa8c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:24.055Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+          "result": "pass",
+          "note": "Smokes prove authority_job_create accepts custom provider declarations in signed queue/delegated requests and dry-run diagnostics do not create ownership or bypass server policy.",
+          "headHash": "65b0b51db63600d709599c1251f9ecbf22f5aa8c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:24.459Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
