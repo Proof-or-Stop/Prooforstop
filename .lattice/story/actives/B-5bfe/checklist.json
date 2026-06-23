@@ -54,7 +54,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "No-LLM selfcheck asserts tokensFromUsage accumulation: 3x {in:100,out:50} => 450, cache tokens summed, missing/zero usage => 0 not NaN. Counters tokensSpent/agentCallCount incremented in agentRun() and reviewArtifact().",
+          "headHash": "5acff026aa264c2f340c92d2696286ebcebf721f",
+          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
+          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
+          "timestamp": "2026-06-23T01:46:58.889Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
