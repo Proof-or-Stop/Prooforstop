@@ -6,7 +6,47 @@
       "context": "In review-assurance-floor.ts evaluateHostVerdictRounds (+ the fallback/degraded paths), when a host verdict's materialHash != current materialHash but its stored storyFilesHash == currentStoryFilesHash(gitCwd,'HEAD',projectRoot), count it as a VALID local round (not ignored), attach the whole-tree-drift re-attestation advisory, and surface it as valid-with-advisory (mirroring evidence-freshness.ts ~305). Reuse currentStoryFilesHash; do not invent a new hash. A verdict with no storyFilesHash, or whose storyFilesHash differs, stays stale/ignored.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit host_verdict at materialHash=X with storyFilesHash=S, then drift materialHash to Y while storyFilesHash stays S => evaluateReviewAssuranceFloor reports ok=true, localRounds.validRounds.length >= 1, and advisories[] contains re-attestation advisory string; WHY: covers the core downgrade-accept path that is the entire point of this story",
+            "type": "cli"
+          },
+          {
+            "desc": "Two host verdicts in different runIds at stale materialHash X, both with storyFilesHash=S matching current => both rounds counted valid (validRounds.length >= 2); WHY: verifies multi-round downgrade-accept not just single-round",
+            "type": "cli"
+          },
+          {
+            "desc": "Verdict at current materialHash (no drift) with matching storyFilesHash => ok=true, NO advisory emitted; WHY: ensures the downgrade path is not triggered when material is already fresh",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verdict has storyFilesHash=undefined (old pre-storyFilesHash verdict) and materialHash is stale => verdict stays ignored (found 0), no crash; WHY: backward compat with verdicts recorded before storyFilesHash was stored",
+            "type": "cli"
+          },
+          {
+            "desc": "currentStoryFilesHash returns null (no story files tracked) and materialHash drifted => verdict stays stale (found 0), function does not crash; WHY: guards the null-storyFilesHash-at-floor edge",
+            "type": "cli"
+          },
+          {
+            "desc": "Degraded single-host fallback record materialHash stale but storyFilesHash matches => fallback.record.valid=true with advisory (not a stale reason); WHY: ensures fallbackRecordFromEvent 4-arg path mirrors escalation",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verdict storyFilesHash=sfh-DIFFERENT (different from current sfh-S) and materialHash also stale => verdict stays ignored, floor reports found 0, ok=false; WHY: anti-gaming inverse control -- a real story-file change must not be forgiven by the downgrade",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker submits verdict with storyFilesHash matching current but materialDigest also matches current (not stale) => no advisory emitted, round valid normally; WHY: ensures advisory only fires on actual drift, not on fresh-material submissions",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
