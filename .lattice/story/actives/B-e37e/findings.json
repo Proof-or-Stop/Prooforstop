@@ -108,6 +108,25 @@
       ],
       "signatureTag": "edge-ts-authority-runner-client",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e37e:F-006",
+      "desc": "packages/main/src/core/authority-client.ts:2845-2867 returns unavailable as soon as the first complete SSE block lacks jobs.available and prefix.remainder is empty. With a normal native-fetch text/event-stream that writes a standalone heartbeat/comment block (`: heartbeat\\n\\n`) and then writes `event: jobs.available` 50ms later, streamRunnerJobsAvailable returns kind=unavailable in ~18ms before the job event is read, so the runner misses the push hint and falls back to signed claim/polling early. Repro used in review: node --input-type=module local HTTP SSE probe against AuthorityClient with 1000ms timeout; observed {kind:\"unavailable\", status:200, message:\"first event block did not contain jobs.available\"}. The existing smoke keeps heartbeat and partial jobs.available in the same chunk, so it does not cover heartbeat and jobs.available delivered as separate SSE writes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T00:59:45.706Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-007",
+      "_hash": "073ede5cb06ac2102d45b4896a5fcde3af1392a4eb03016ac58d59d1e02f29a4",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
