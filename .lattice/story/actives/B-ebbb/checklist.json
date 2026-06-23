@@ -50,7 +50,47 @@
       "context": "Pre-reg section 4.1; no-injection ablation uses the task baseline snapshot",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkHiddenRegression({postTestResults, baselineSnapshot}) where postTestResults has no new failures beyond baseline -> returns {hiddenRegressionPass:true, newFailures:[]}; WHY: main path -- agent code introduces no regressions",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where postTestResults has one new failure not in baseline -> returns {hiddenRegressionPass:false, newFailures:[\"c\"]}; WHY: the primary detection path -- a single new regression must trip the check",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkHiddenRegression where baseline has failures and post-state has the SAME failures (no new ones) -> hiddenRegressionPass:true; WHY: pre-existing baseline failures must NOT count as new -- this is the key semantic of delta-only checking",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where post-state is empty (no tests ran) -> hiddenRegressionPass:true with newFailures=[]; WHY: zero tests means zero new failures (edge: nothing ran)",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where baseline is empty (all tests passed before) and post-state has one failure -> hiddenRegressionPass:false; WHY: against a clean baseline any failure is new",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkHiddenRegression where post-state REMOVES a test entirely (test existed in baseline as pass, absent in post) AND adds a new failure -> newFailures must still report the new failure; WHY: removing tests must not mask new regressions",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where the baseline snapshot itself is null/undefined -> function must not silently pass; should treat as empty baseline or throw; WHY: corrupted/missing baseline must not give a free pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where a test name appears in baseline as fail and in post-state as fail BUT with a different error message -> must still be treated as a pre-existing failure (same test name), not new; WHY: regression detection is by test identity not by error text",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
