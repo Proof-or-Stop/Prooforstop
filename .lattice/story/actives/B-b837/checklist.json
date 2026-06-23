@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove the legacy koala activity-log reader and its path constant",
+      "context": "packages/main/src/core/activity-log.ts and lattice-paths.ts LATTICE_LEGACY_KOALA_ACTIVITY_LOG / activity.legacy-koala.jsonl; stop reading the legacy log.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Remove the KOALA_ env-var compat fallbacks",
+      "context": "dispatch-usage.ts KOALA_HARD_BUDGET_TOKENS fallback; writer.ts legacy KOALA_ alias; dispatch-runner.ts KOALA_ entry in the env passlist. Keep LATTICE_ only.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Remove legacy-koala write-path detection and old-artifact cleanup",
+      "context": "isLegacyKoalaWritePath / assertNoLegacyKoalaWritePath / containsLegacyKoalaDir; cli-init.ts cleanupGeneratedLegacyKoalaAgentPrompts / isGeneratedLegacyKoalaAgentPrompt / koala:internal markers / koala-*.md handling.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Collapse remaining koala-or-lattice dual-accept to lattice-only",
+      "context": "claude-md-sync.ts and cli-init.ts dual-read regexes that accept either koala or lattice markers should accept lattice markers only.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Update affected unit and smoke tests and keep the suite green",
+      "context": "Tests asserting legacy-koala compat behavior are removed or retargeted; the verify-koala-residue gate still passes in this story (exemptions go dead, not flipped).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
