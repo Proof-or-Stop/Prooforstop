@@ -122,6 +122,16 @@ function textResponse(status: number, body: string): AuthorityFetchResponse {
   };
 }
 
+function abortingTextResponse(status: number, message: string): AuthorityFetchResponse {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => {
+      throw Object.assign(new Error(message), { name: 'AbortError' });
+    },
+  };
+}
+
 function thrower(error: unknown): AuthorityFetch {
   return async () => {
     throw error;
@@ -551,6 +561,14 @@ for (const scenario of [
     stream: () => {
       throw Object.assign(new Error(`Bearer ${TEST_AUTH.customerApiKey}`), { name: 'AbortError' });
     },
+  },
+  {
+    name: 'body_timeout',
+    stream: () => abortingTextResponse(
+      200,
+      `Authorization: Bearer ${TEST_AUTH.customerApiKey}`,
+    ),
+    assertRedacted: true,
   },
   {
     name: 'malformed',

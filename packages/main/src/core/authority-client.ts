@@ -407,7 +407,8 @@ export class AuthorityClient {
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMS);
-    let response: AuthorityFetchResponse;
+    let response: AuthorityFetchResponse | undefined;
+    let text = '';
     try {
       response = await this.fetchImpl(
         joinURL(this.baseURL, `/v1/runners/${encodeURIComponent(runnerId)}/jobs/stream`),
@@ -420,17 +421,19 @@ export class AuthorityClient {
           signal: controller.signal,
         },
       );
+      text = await response.text();
     } catch (error) {
-      return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), undefined, [customerApiKey]);
+      return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), response?.status, [customerApiKey]);
     } finally {
       clearTimeout(timer);
     }
 
-    let text: string;
-    try {
-      text = await response.text();
-    } catch (error) {
-      return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), response.status, [customerApiKey]);
+    if (!response) {
+      return {
+        kind: 'unavailable',
+        ok: false,
+        message: 'authority runner jobs stream unavailable before response; falling back to signed claim',
+      };
     }
 
     if (!response.ok) {
