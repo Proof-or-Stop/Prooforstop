@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T10:22:36.868Z",
       "reviewRunId": "B-ebbb:RR-002",
       "_hash": "57d3c4a0efcbe02492b4a964c0fcfdb92ae283ee7ace47857e2da987478d757f"
+    },
+    {
+      "id": "B-ebbb:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review: CLEAN. F-A fix correctly fail-closes on id-less baseline entries (early return instead of silent continue), id-less post entries (early return instead of silent skip), and non-array post (explicit guard before toArray). F-B fix correctly freezes DEFAULT_JUNK_PATTERNS with Object.freeze and diffHygiene reads private JUNK_PATTERNS_FROZEN snapshot — external mutation cannot affect scoring. New selfcheck pins exercise all three F-A branches and the mutation-then-rescore F-B scenario. All 112 assertions pass. No dead code, no unused imports, no type-safety issues, no missing I/O shell isolation concerns in the changed files (checks.mjs / checks-selfcheck.mjs are pure logic, no bridge). Zero findings.",
+      "createdAt": "2026-06-23T10:40:58.443Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-004",
+      "_hash": "e0b8e1ff8770f2a8ee5867e925ffa8056ded4eb620314fd1f3d62bb9d043a599"
     }
   ]
 }
