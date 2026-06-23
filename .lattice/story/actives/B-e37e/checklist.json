@@ -212,8 +212,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-23T00:36:49.386Z",
       "endTime": null,
       "userSees": "Docs contain \"runner jobs SSE is a notification hint\" and \"polling/signed claim fallback remains the compatibility path\", and also state canonical work continues under /Users/jek/Documents/Work/proofbound rather than retired Orchestrate.",
       "files": {
@@ -263,6 +263,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Auth, secret redaction, and host-neutral fallback boundaries verified."
+    },
+    {
+      "timestamp": "2026-06-23T00:36:49.386Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record CLI docs contract verification for jobs stream fallback."
     }
   ]
 }
