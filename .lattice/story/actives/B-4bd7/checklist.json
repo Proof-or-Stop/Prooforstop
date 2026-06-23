@@ -43,7 +43,45 @@
           "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "command": "rg -n \"experiments/baselines/lattice-workflow-efficiency-baseline-v1.json|Baseline registration story: B-4bd7\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "result": "pass",
+          "note": "The decision document exists, names the baseline JSON path, and records registration story B-4bd7.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "command": "rg -n \"observedBefore|targetAfter|Machine Baseline Schema\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "result": "pass",
+          "note": "The document separates observed baseline behavior from target follow-up behavior.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "command": "rg -n \"Do not implement the six fixes|Do not change Authority Server|Do not weaken review\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "result": "pass",
+          "note": "Non-goals explicitly block arbitrary optimization, Authority Server changes, and gate weakening.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -88,7 +126,45 @@
           "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "jq . experiments/baselines/lattice-workflow-efficiency-baseline-v1.json >/dev/null",
+          "result": "pass",
+          "note": "The baseline JSON parses successfully.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "node -e <six-dimension invariant check>",
+          "result": "pass",
+          "note": "registrationStory is B-4bd7 and observedBefore/targetAfter contain exactly the six expected dimensions.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "jq -r .futureComparisonRules[] experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "result": "pass",
+          "note": "futureComparisonRules declare the original baseline immutable and require separate result artifacts for future comparisons.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -135,7 +211,43 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "jq parse plus node six-dimension invariant check",
+          "result": "pass",
+          "note": "Both parse and six-dimension invariant checks passed.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD | sort",
+          "result": "pass",
+          "note": "Changed files are limited to B-4bd7 story metadata plus the baseline document and baseline JSON.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git diff --name-only main...HEAD | sort",
+          "result": "pass",
+          "note": "No runtime source files, Authority Server behavior, provider authorization code, delivery-check freshness code, DONE summary code, or validate timeout behavior changed.",
+          "headHash": "412081b1331c389e15e3fcfe22795486cbf4218a",
+          "materialHash": "7ba94c0965a41b9f8a860477c2d96f58883957a7728ce5487c8425bbbb619013",
+          "storyFilesHash": "8d667e5ca0bef4093c9946dcd1a75df90a24d108b577f0f516be8b828cc7107c",
+          "timestamp": "2026-06-23T04:12:42.063Z"
+        }
+      ]
     }
   ]
 }
