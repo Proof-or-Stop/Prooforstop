@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7036",
+  "changes": "Added experiments/recovery-runner/analyze.mjs — the §5/§6 powered-ablation ANALYSIS script (infra-(a) piece 5, final): reads the driver §7 run-records JSONL, applies the §7 validity filter (void→excluded re-run, N/A excluded, task-failures kept), computes per-hypothesis MATCHED common-cell denominators for the 4 §5 contrasts (rates only over cells where both arms have data — no §8 denominator bias), per-arm rates with Wilson 95pct CIs (§4.1 completion / §4.2 not-amplified/recovered/safe-stop), the PRIMARY A4-vs-A2prime risk-difference via a seeded cluster bootstrap (matched (task,scenario) clusters; the in-Node proxy for the GLMM), one Benjamini-Hochberg FDR over the exploratory per-scenario tests (matched per scenario), §8 cost co-metric, §1/§8 A2prime tolerance-band compliance, §4.2 secondary detectors (individual when the record carries terminalStopType/processEvents), H3 EXPLORATORY label; emits a tidy CSV (with matchedPrimaryH1/H2 flags) + a glmm.R (two disjoint H1/H2 lme4::glmer models over the matched corpus). Plus analyze-selfcheck.mjs (75 offline assertions) wired into run-selfchecks (now 5 selfchecks).",
+  "usage": "node experiments/recovery-runner/analyze.mjs <records.jsonl> --seed pre-reg --B 2000 --out analysis-out prints per-arm rates+CIs + the primary contrast + writes <out>.tidy.csv + <out>.glmm.R. Verify offline: node experiments/recovery-runner/analyze-selfcheck.mjs (75 assertions) or npm run test:experiments.",
+  "expectedOutcome": "Operator runs `node experiments/recovery-runner/analyze-selfcheck.mjs` and sees labeled groups (validity-filter / denominators / rates / bootstrap / fdr / reporting / emit / analyze / negative-control) ending in `✓ analyze-selfcheck: 75 assertions passed, 0 failed (no live LLM)` exit 0; `npm run test:experiments` runs all 5 recovery-runner selfchecks green; running analyze.mjs on a records JSONL prints the rate tables with matched-cell denominators + the A4-vs-A2prime bootstrap CI and writes the tidy CSV + glmm.R.",
+  "actualTranscript": "node experiments/recovery-runner/analyze-selfcheck.mjs => 75 assertions passed, 0 failed (no live LLM), exit 0. node experiments/recovery-runner/run-selfchecks.mjs => all 5 selfchecks pass (adjudicate 98 + checks 112 + spend-accounting 56 + run-driver 135 + analyze 75). node analyze.mjs on a mini records JSONL => prints per-arm rate tables with matched-cell denominators + writes analysis-out.tidy.csv (with matchedPrimaryH1/H2 columns) + analysis-out.glmm.R (two H1/H2 glmer models). Full npm test exit 0.",
+  "outcomeDiff": "No difference — expected and actual match (75/0 assertions, 5/5 selfchecks, CSV+glmm.R emitted with matched-corpus flags).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Builds + self-tests the analysis only; does NOT run the live powered campaign or the formal GLMM-in-R (emitted as glmm.R for R; the Node cluster bootstrap is the verifiable proxy). The §4.2 rollback/no-progress/human-gate detectors are reported individually only when the record carries the terminal-event type (else the safe-stop aggregate + an honest note — the bare §7 record does not carry process-events).",
+  "pitfalls": "DENOMINATOR BIAS was the hard-won lesson: codex host-2 caught it progressively (F-010 headline+bootstrap, F-011 completion, F-012/F-014 GLMM+exploratory) across rounds — the fix is that EVERY estimate (rates, completion, bootstrap, exploratory per-scenario, and the formal GLMM via matchedPrimaryH1/H2 CSV flags) must score both arms over the SAME matched (both-arms-have-data) cell set. The GLMM is NOT exempt (estimand consistency with the bootstrap). Cross-vendor review was essential — codex found 5 statistical bugs the same-vendor claude lanes missed. DONE-merge: expect the whole-tree-materialHash vs active-main race (re-bind via host claude CLI lanes + distinct quorum keys during a main-quiet window) as with B-f248.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 203719
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17334
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 502571
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 1660117
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 4036722
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 320795
+    }
+  },
+  "totalDurationMs": 6741268,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T20:25:08.577Z",
+  "updatedAt": "2026-06-23T20:25:08.577Z"
+}
