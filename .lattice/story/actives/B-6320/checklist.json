@@ -64,7 +64,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "authority_enforce_runner --dry-run and live runner diagnostics carry the declared provider through register, heartbeat, jobs stream hint, and signed claim planning; SSE jobs.available is clearly the streaming form of the same availability/claim contract, while POST signed claim remains the authoritative ownership response.",
+      "userSees": "User sees \"event: jobs.available\" followed by a normal signed \"claim_job\" network event; there is no separate SSE-only ownership success path.",
       "files": {
         "modify": [
           "packages/main/src/core/authority-runner.ts",
