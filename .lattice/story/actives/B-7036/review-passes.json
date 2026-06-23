@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-23T19:24:39.177Z",
       "reviewRunId": "B-7036:RR-015",
       "_hash": "e287d46ae652c01ddfa3b9eead7210bd8ef8255c648e4dbd28f79387cb68e3ab"
+    },
+    {
+      "id": "B-7036:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 56 must-intents across CHK-001 through CHK-005 have verificationEvidence with result=pass bound to the correct intentRef. The new F-010 denominator-bias assertions (matchedCellKeys excludes A4-only cell, matched n=1 vs unmatched control n=2) are non-vacuous: the control proves the fix matters (without matching A4 scores n=2; the assertion would fail if matchedCellKeys were vacuous). analyze-selfcheck.mjs runs 68 assertions, 0 failed on the current HEAD. No coverage gaps found.",
+      "createdAt": "2026-06-23T19:36:08.727Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-016",
+      "_hash": "9e9f5f9f47867cc37f3f231b8307cbde12a1579fc2d1a52f4474a54ade0075f6"
     }
   ]
 }
