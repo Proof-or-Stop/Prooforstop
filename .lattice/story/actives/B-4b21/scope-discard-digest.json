@@ -1,0 +1,27 @@
+{
+  "storyId": "B-4b21",
+  "updatedAt": "2026-06-23T01:33:11.733Z",
+  "entries": [
+    {
+      "digest": "d660c6eb866d1ff44658e7f90be07bbb567c8b155458af20392fb3707e347969",
+      "terms": [
+        "## Conversational Texture The user observed a small rename story taking far longer than expected and asked for the real cause. The answer was that this ordering bug created avoidable manual stale refresh cycles during DONE closure.",
+        "## Key Insights The stale detector is doing its safety job and must not be weakened. The correctness issue is the ordering of deterministic DONE sync relative to final evidence binding, which makes the CLI invalidate its own proof.",
+        "## Solution Tradeoffs Prefer moving deterministic version, dist, package, and main sync work before final evidence generation. If a refresh is needed, it must be narrowly bounded to CLI-owned deterministic sync and never mask unrelated source changes.",
+        "## Trigger Event B-3523 on 2026-06-23 exposed a repeated DONE closure loop: final evidence was refreshed, then deterministic CLI-owned DONE work changed HEAD or material hash, making the just-recorded evidence stale again.",
+        "## Trigger Event B-3523 on 2026-06-23 exposed a repeated DONE closure loop: final evidence was refreshed, then deterministic CLI-owned DONE work changed HEAD or material hash, making the just-recorded evidence stale again. ## Key Insights The stale detector is doing its safety job and must not be weakened. The correctness issue is the ordering of deterministic DONE sync relative to final evidence binding, which makes the CLI invalidate its own proof. ## Solution Tradeoffs Prefer moving deterministic version, dist, package, and main sync work before final evidence generation. If a refresh is needed, it must be narrowly bounded to CLI-owned deterministic sync and never mask unrelated source changes. ## Conversational Texture The user observed a small rename story taking far longer than expected and asked for the real cause. The answer was that this ordering bug created avoidable manual stale refresh cycles during DONE closure.",
+        "deterministic-sync",
+        "DONE",
+        "evidence",
+        "Fix the DONE lifecycle ordering bug where internal deterministic sync work such as version, dist, package metadata, or main synchronization can change HEAD or material hash after final DONE evidence has already been recorded, causing the evidence to become stale and forcing repeated manual refresh loops. Preserve stale/hash safety; only reorder or explicitly bound CLI-owned refresh behavior for deterministic internal sync.",
+        "gate",
+        "material-hash",
+        "Run deterministic DONE sync before final evidence binding",
+        "stale"
+      ],
+      "reason": "Discard partial story shell left by failed story_create argument validation before checklist.json was created; recreate the requested DONE evidence ordering story as a complete story.",
+      "discardedAt": "2026-06-23T01:33:11.733Z",
+      "storyId": "B-4b21"
+    }
+  ]
+}

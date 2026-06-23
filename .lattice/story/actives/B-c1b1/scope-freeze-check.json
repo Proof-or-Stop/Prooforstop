@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c1b1",
+  "checkedAt": "2026-06-23T01:34:22.225Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "5b8a9ea1f67543a00e4d62db67725adf582c5f10fe781326bcd3352f512cbfff",
+  "executionBoundaryHash": "6ee3d5ae4d336e03d340931e1011f793f15cec09a273c1b5e3b2d00dedb72dde",
+  "freshnessHash": "8e3b9d1a057268a7cc844d46a5e7489d5d7f67f089fbcac9ac7a376af5f50568",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "broad DONE workflow redesign",
+    "customerKeyRef",
+    "host-specific or agent-specific command aliases",
+    "Layer4",
+    "repair UX",
+    "unrelated active story cleanup",
+    "using the retired Orchestrate root for writes",
+    "weakening material hash or storyFilesHash safety"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "broad DONE workflow redesign",
+      "source": "scopeBoundary.excluded",
+      "text": "broad DONE workflow redesign",
+      "excluded": true
+    },
+    {
+      "keyword": "host-specific or agent-specific command aliases",
+      "source": "scopeBoundary.excluded",
+      "text": "host-specific or agent-specific command aliases",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated active story cleanup",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated active story cleanup",
+      "excluded": true
+    },
+    {
+      "keyword": "using the retired Orchestrate root for writes",
+      "source": "scopeBoundary.excluded",
+      "text": "using the retired Orchestrate root for writes",
+      "excluded": true
+    },
+    {
+      "keyword": "weakening material hash or storyFilesHash safety",
+      "source": "scopeBoundary.excluded",
+      "text": "weakening material hash or storyFilesHash safety",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "d660c6eb866d1ff44658e7f90be07bbb567c8b155458af20392fb3707e347969",
+      "overlapTerms": [
+        "## Conversational Texture The user observed a small rename story taking far longer than expected and asked for the real cause. The answer was that this ordering bug created avoidable manual stale refresh cycles during DONE closure.",
+        "## Key Insights The stale detector is doing its safety job and must not be weakened. The correctness issue is the ordering of deterministic DONE sync relative to final evidence binding, which makes the CLI invalidate its own proof.",
+        "## Solution Tradeoffs Prefer moving deterministic version, dist, package, and main sync work before final evidence generation. If a refresh is needed, it must be narrowly bounded to CLI-owned deterministic sync and never mask unrelated source changes.",
+        "## Trigger Event B-3523 on 2026-06-23 exposed a repeated DONE closure loop: final evidence was refreshed, then deterministic CLI-owned DONE work changed HEAD or material hash, making the just-recorded evidence stale again.",
+        "## Trigger Event B-3523 on 2026-06-23 exposed a repeated DONE closure loop: final evidence was refreshed, then deterministic CLI-owned DONE work changed HEAD or material hash, making the just-recorded evidence stale again. ## Key Insights The stale detector is doing its safety job and must not be weakened. The correctness issue is the ordering of deterministic DONE sync relative to final evidence binding, which makes the CLI invalidate its own proof. ## Solution Tradeoffs Prefer moving deterministic version, dist, package, and main sync work before final evidence generation. If a refresh is needed, it must be narrowly bounded to CLI-owned deterministic sync and never mask unrelated source changes. ## Conversational Texture The user observed a small rename story taking far longer than expected and asked for the real cause. The answer was that this ordering bug created avoidable manual stale refresh cycles during DONE closure.",
+        "Fix the DONE lifecycle ordering bug where internal deterministic sync work such as version, dist, package metadata, or main synchronization can change HEAD or material hash after final DONE evidence has already been recorded, causing the evidence to become stale and forcing repeated manual refresh loops. Preserve stale/hash safety; only reorder or explicitly bound CLI-owned refresh behavior for deterministic internal sync.",
+        "Run deterministic DONE sync before final evidence binding"
+      ],
+      "overlapRatio": 0.5384615384615384,
+      "previousStoryId": "B-4b21",
+      "previousReason": "Discard partial story shell left by failed story_create argument validation before checklist.json was created; recreate the requested DONE evidence ordering story as a complete story.",
+      "previousDiscardedAt": "2026-06-23T01:33:11.733Z",
+      "mitigation": "B-4b21 was discarded because a failed story_create path left a partial shell without checklist.json. B-c1b1 intentionally repeats the same user-approved direction as a complete replacement story with checklist, boundaries, and background present; it is not duplicate active work."
+    }
+  ],
+  "issues": [],
+  "_hash": "5055ce6b5cd7f4ae9a7e5eb00af296e87eacb7e257bbd75eee56c880b5c881df"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6320",
+  "mode": "feature",
+  "allowed": [
+    "Authority runner provider declaration parsing and propagation in Lattice CLI",
+    "Register runner, heartbeat, SSE watch, claim, and takeover/handoff diagnostics that consume the declared provider",
+    "Tests proving arbitrary host-neutral provider declaration is not rejected by CLI before server policy evaluates it"
+  ],
+  "excluded": [
+    "Authority Server policy implementation, because server story B-e9cb already owns that side",
+    "Remote deployment, secret rotation, or staging operator changes",
+    "Scheduler rewrite or automatic host selection beyond declaration propagation"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested opening the CLI story after confirming host declaration/takeover semantics on 2026-06-23.",
+  "createdAt": "2026-06-23T02:39:35.723Z",
+  "updatedAt": "2026-06-23T02:39:35.723Z",
+  "_hash": "a9277d9758dcb553cbf90b1e610f5e459d88ad32994441b06dc3187fc2483ed6"
+}

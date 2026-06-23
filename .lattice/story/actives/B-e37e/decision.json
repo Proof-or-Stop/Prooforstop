@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "jobs.available is a notification hint, never a lease or receipt.",
+    "Use the existing signed claim path as the only execution ownership boundary.",
+    "Prefer server push when available while preserving polling/claim fallback for compatibility.",
+    "Diagnostics must redact Authorization and customer API key material."
+  ],
+  "drivers": [
+    "Server B-24aa provides a long-lived runner jobs SSE stream but older servers may still behave like one-shot snapshots.",
+    "The runner control-plane helper already owns register, heartbeat, claim, and release order.",
+    "Authority CLI must stay host-neutral and provider-configured, not Codex/Claude special-cased."
+  ],
+  "options": [
+    {
+      "name": "sse-before-claim-with-safe-fallback",
+      "pros": [
+        "Smallest behavior change: add optional wait before existing claim.",
+        "Preserves signed claim as the only ownership transfer.",
+        "Supports new long-lived server stream and old snapshot/failure paths."
+      ],
+      "cons": [
+        "Does not build a full long-running runner daemon.",
+        "Still depends on server support for latency improvement."
+      ]
+    },
+    {
+      "name": "replace-claim-loop-with-sse-owned-dispatch",
+      "pros": [
+        "Could reduce polling more aggressively."
+      ],
+      "cons": [
+        "Treats SSE too close to authority and risks executing before claim.",
+        "Larger rewrite than needed for current correctness gap.",
+        "Higher risk of provider-specific behavior."
+      ]
+    },
+    {
+      "name": "leave-cli-polling-only",
+      "pros": [
+        "No CLI code change."
+      ],
+      "cons": [
+        "Does not consume the server job-available stream and leaves the integration gap open.",
+        "Keeps avoidable idle latency."
+      ]
+    }
+  ],
+  "chosen": "sse-before-claim-with-safe-fallback",
+  "rationale": "Add an authenticated runner jobs stream read as a bounded notification wait before the existing signed claim request. If the stream is unsupported, empty, malformed, or fails, the runner proceeds through the existing claim path and records only redacted fallback diagnostics.",
+  "preMortem": [
+    {
+      "scenario": "SSE event is mistaken for a claimed job",
+      "trigger": "Runner dispatches from jobIds in jobs.available without POST /jobs/claim",
+      "consequence": "Execution can occur without server lease ownership",
+      "mitigation": "Implementation must trigger claim only; smoke asserts claim still happens and SSE alone never sets claimedJobId."
+    },
+    {
+      "scenario": "Secret leaks in SSE fallback diagnostics",
+      "trigger": "HTTP error includes Authorization or raw customer key text",
+      "consequence": "Generated evidence/logs expose credentials",
+      "mitigation": "Use existing redaction helpers and tests with a fake secret-bearing error body."
+    },
+    {
+      "scenario": "Old server one-shot snapshot hangs runner",
+      "trigger": "GET /jobs/stream returns one empty event then disconnects or never sends more",
+      "consequence": "Runner never reaches claim fallback",
+      "mitigation": "Bound stream wait and treat empty/disconnect/non-SSE as fallback-to-claim."
+    },
+    {
+      "scenario": "Provider-specific shortcut bypasses runner config",
+      "trigger": "Implementation hard-codes codex/claude paths from SSE data",
+      "consequence": "Host-neutral provider routing drifts",
+      "mitigation": "Claim envelope continues to use options.runnerProvider only."
+    }
+  ],
+  "timestamp": "2026-06-23T00:15:32.284Z"
+}

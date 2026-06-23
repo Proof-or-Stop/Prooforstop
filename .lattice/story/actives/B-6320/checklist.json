@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Parse and preserve Authority runner provider declaration as host-neutral metadata",
+      "context": "Read LATTICE_AUTHORITY_RUNNER_PROVIDER or equivalent runner config without constraining Authority identity to fake/codex/claude only. Known aliases may still map to execution adapters separately. Happy path: codex-cli or claude-code is accepted and emitted as runner/provider metadata. Edge: missing declaration preserves legacy behavior. Adversarial: custom declaration does not bypass API key, actor key, signature, lease, or server policy checks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Propagate provider declaration through register, heartbeat, SSE watch, claim, and takeover diagnostics",
+      "context": "Ensure the same declaration used by the runner is visible to Authority calls and troubleshooting output, while signed claim remains the ownership boundary. Server rejection should be reported as server policy rejection, not as a local enum parse failure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused regression tests for non-enum Authority provider declarations",
+      "context": "Cover arbitrary provider declaration acceptance and propagation for Authority flows without expanding product scope or hardcoding a new exhaustive host list. Existing codex, claude, fake, and Antigravity-related behavior should remain compatible where those adapters are expected.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

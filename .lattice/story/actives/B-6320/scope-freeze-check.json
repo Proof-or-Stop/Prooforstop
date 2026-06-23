@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6320",
+  "checkedAt": "2026-06-23T02:44:07.156Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "a9277d9758dcb553cbf90b1e610f5e459d88ad32994441b06dc3187fc2483ed6",
+  "executionBoundaryHash": "0983fa4ce52415a206132bd23a4f093e179bd9ef7947af9653a31f9bd6f66a66",
+  "freshnessHash": "62f28c468dea43319f65f683299b0c12731c0925ccd215224691547c6cdb5bfa",
+  "effectiveExcludedKeywords": [
+    "Authority Server policy implementation, because server story B-e9cb already owns that side",
+    "Remote deployment, secret rotation, or staging operator changes",
+    "Scheduler rewrite or automatic host selection beyond declaration propagation"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority Server policy implementation, because server story B-e9cb already owns that side",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server policy implementation, because server story B-e9cb already owns that side",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote deployment, secret rotation, or staging operator changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote deployment, secret rotation, or staging operator changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Scheduler rewrite or automatic host selection beyond declaration propagation",
+      "source": "scopeBoundary.excluded",
+      "text": "Scheduler rewrite or automatic host selection beyond declaration propagation",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "0b127cf3361f3f7fea17ea04c7562ca3c3db1f00eb02690349230aaddda9f969"
+}
