@@ -17,6 +17,23 @@
       ],
       "signatureTag": "edge|mjs|dead-code-misleading",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d43f:F-002",
+      "desc": "[codex-host2 #1/#2] B3 countMarkerInWorkspace is a FLAT scan but setup writes SYNTAX_ERR to src/broken.js (subdir) -> a shipped-only agent is RECOVERED while the compile error remains; subdir GARBAGE/SYNTAX_ERR also missed -> false SAFE_STOP. FIX: make the scanner RECURSIVE.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T19:34:35.360Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "_hash": "ec788991e4c8901af70c79abdfcd93f025dc9bec73f7ea064a471433276c9b87",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-countmarkerinworkspace",
+      "signatureTagSource": "auto"
     }
   ]
 }
