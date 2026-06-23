@@ -218,7 +218,35 @@
       "context": "Offline verification only",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node --check experiments/recovery-runner/adjudicate.mjs => exits 0; WHY: confirms the module has no syntax errors",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node --check experiments/recovery-runner/adjudicate-selfcheck.mjs => exits 0; WHY: confirms the test file has no syntax errors",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node experiments/recovery-runner/adjudicate-selfcheck.mjs => exits 0, all assertions pass, no LLM calls; WHY: full end-to-end offline verification",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run both files with NODE_OPTIONS=--no-network-family-autoselection or in a network-isolated context => still passes; WHY: confirms truly offline operation (no hidden network dependency)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify no process.env reads for API keys or LLM endpoints in either file; grep for ANTHROPIC_API_KEY, OPENAI_API_KEY, CLAUDE => zero matches; WHY: ensures no hidden LLM dependency even if keys were set in environment",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
