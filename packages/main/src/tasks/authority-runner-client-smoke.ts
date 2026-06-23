@@ -57,6 +57,7 @@ import {
 import { generateEd25519KeyPair } from '../core/authority-signing.js';
 import { DEFAULT_AUTHORITY_TIMEOUT_MS } from '../core/authority-mode.js';
 import { runLatticeAuthorityControlPlaneOnce } from '../core/authority-runner.js';
+import { runAuthorityEnforceRunner } from '../handlers/lattice-cli.js';
 
 const PASS_LINE =
   '✓ authority runner client smoke passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls';
@@ -610,6 +611,39 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   assert.equal(calls[4].url, `${BASE_URL}/v1/runners/runner-1/jobs/claim`, 'story selector is not sent as a query parameter');
   assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
   assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'SSE available triggers signed claim');
+}
+
+{
+  const { fetch, calls } = controlPlaneFetch(() => textResponse(
+    200,
+    ': heartbeat\n\nevent: jobs.available\ndata: {"count":1,"jobIds":["job-command-hint"]}\n\n',
+  ));
+  const out = await runAuthorityEnforceRunner({
+    live: true,
+    storyId: 'B-command',
+    authorityMode: 'enforce',
+    authorityURL: BASE_URL,
+  }, {
+    LATTICE_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_ACTOR_ID: ACTOR_ID,
+    LATTICE_AUTHORITY_ACTOR_ROLE: 'runner',
+    LATTICE_AUTHORITY_ACTOR_KEY_ID: 'actor-key-1',
+    LATTICE_AUTHORITY_ACTOR_KEY: KP.privateKey,
+    LATTICE_AUTHORITY_ACTOR_KEY_ENCODING: 'base64',
+    LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
+    LATTICE_AUTHORITY_RUNNER_PROVIDER: 'codex-cli',
+    LATTICE_AUTHORITY_PROJECT_ID: 'project-1',
+    LATTICE_AUTHORITY_SESSION_ID: 'session-1',
+    LATTICE_AUTHORITY_CUSTOMER_API_KEY: TEST_AUTH.customerApiKey,
+  }, {
+    fetchImpl: fetch as unknown as typeof globalThis.fetch,
+  });
+  const claimCall = calls.find(call => call.method === 'POST' && call.url.endsWith('/jobs/claim'));
+  assert.equal(out.status, 'pass', 'authority_enforce_runner --live command path reaches the signed claim');
+  assert.equal((claimCall?.body as any)?.claim?.storyId, 'B-command', 'authority_enforce_runner --live forwards args.storyId into signed claim.storyId');
+  assert.equal((claimCall?.body as any)?.claim?.jobId, undefined, 'authority_enforce_runner keeps SSE jobIds advisory');
+  assert.equal(claimCall?.url, `${BASE_URL}/v1/runners/runner-1/jobs/claim`, 'authority_enforce_runner story selector is not sent as URL state');
 }
 
 {
