@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename koala-codex to lattice-codex across product code and tests",
+      "context": "The codex-host dispatch lane / host identifier (~23 hits incl. codex-registry-mode-smoke.ts and dispatch/registry code). Change producers and consumers atomically; verify codex adapter routing still resolves.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rename koala-agent to lattice-agent across product code and tests",
+      "context": "The agent-type identifier token (~19 hits, mostly smokes). Ensure no persisted/config value depends on the old token.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Rename the remaining koala-<role> lane tokens to lattice-<role>",
+      "context": "koala-storydir, koala-story, koala-scope, koala-review-run, koala-review-scope, koala-review-pass (1-2 hits each) in packages/*/src + scripts. Do NOT touch koala-review-integrity-v1 (signature salt, deferred).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep build, suite, and residue gate green; confirm scope boundary",
+      "context": "npx tsc --noEmit clean; packages/main test/smoke suite green; node scripts/verify-koala-residue.mjs still PASS + self-test. Final grep: koala-<role> in packages/*/src is reduced to only koala-review-integrity-v1 (the deferred salt); zero other koala-<role> tokens; docs/experiments and .lattice/story untouched.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
