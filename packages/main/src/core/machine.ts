@@ -12,7 +12,7 @@ import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
 import type { ReviewLoopIteration } from './types.js';
-import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
+import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -612,11 +612,21 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
   if (!hasEvidence || !bugsOk) return false;
 
-  // delivery-check.json must exist and _hash must match
-  const deliveryCheck = context.store.readDeliveryCheck(context.storyId);
+  // delivery-check.json must exist, be untampered, and be bound to current material.
+  const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(
+    context.storyId,
+    context.store,
+    context.gitCwd ?? resolveGitCwd({
+      store: context.store,
+      storyId: context.storyId,
+      metadataRoot: context.projectRoot,
+      projectRoot: context.projectRoot,
+    }),
+    context.projectRoot,
+  );
+  if (!deliveryCheckFreshness.ok) return false;
+  const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) return false;
-  const expectedHash = recomputeDeliveryCheckHash(context.storyId, context.store);
-  if (expectedHash === null || deliveryCheck._hash !== expectedHash) return false;
 
   // every docsPromise must be verified or waived
   const unverified = deliveryCheck.docsPromises.filter(
@@ -1095,14 +1105,27 @@ export function getGuardFailureReason(
       return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
     }
 
-    // delivery-check.json signature verification
-    const deliveryCheck = store.readDeliveryCheck(storyId);
+    // delivery-check.json signature and material freshness verification
+    const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(
+      storyId,
+      store,
+      gitCwd ?? resolveGitCwd({
+        store,
+        storyId,
+        metadataRoot: projectRoot ?? process.cwd(),
+        projectRoot: projectRoot ?? process.cwd(),
+      }),
+      projectRoot ?? process.cwd(),
+    );
+    const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
     if (!deliveryCheck) {
       return `Cannot enter DONE: missing delivery-check.json (requires lattice-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
     }
-    const expectedDeliveryHash = recomputeDeliveryCheckHash(storyId, store);
-    if (expectedDeliveryHash === null || deliveryCheck._hash !== expectedDeliveryHash) {
+    if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
       return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run lattice-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;
+    }
+    if (deliveryCheckFreshness.code === 'stale_delivery_check') {
+      return `Cannot enter DONE: ${deliveryCheckFreshness.reason}; please re-run lattice-review-delivery reviewer. [stale_delivery_check] → Run story_advance DEV to rework and fill in`;
     }
 
     // every docsPromise must be verified or waived

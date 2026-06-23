@@ -1,0 +1,32 @@
+{
+  "schema": "lattice.baseline.item-result.v1",
+  "baseline": "lattice-workflow-efficiency-baseline-v1",
+  "storyId": "B-d321",
+  "baselineItem": 5,
+  "title": "Delivery-check freshness binds reviewed material",
+  "status": "implemented",
+  "result": {
+    "deliveryCheckMaterialBinding": true,
+    "headHashAuditOnly": true,
+    "metadataOnlyHeadDriftAccepted": true,
+    "missingMaterialBindingBlocksDone": true,
+    "mismatchedMaterialBindingBlocksDone": true,
+    "tamperedMaterialBindingHashMismatch": true,
+    "docsPromiseValidationPreserved": true,
+    "processFactContractVerified": true
+  },
+  "verification": [
+    "npm --prefix packages/main run build",
+    "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "lattice validate --focus=fast --json"
+  ],
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "notes": [
+    "This is a story-specific derived result artifact.",
+    "The immutable baseline v1 artifact is unchanged.",
+    "This does not implement baseline item 6."
+  ]
+}

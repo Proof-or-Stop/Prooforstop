@@ -1396,6 +1396,10 @@ export interface DeliveryCheckData {
   storyId: string;
   /** ISO 8601 write timestamp */
   checkedAt: string;
+  /** Git HEAD at delivery review time, retained for audit/debug only. */
+  headHash?: string;
+  /** Material tree hash reviewed by lattice-review-delivery; signed and required for freshness. */
+  materialHash?: string;
   /** Snapshot of story.currentReviewRound at write time */
   reviewRound: string;
   /** Reviewer self-reported agent id, for audit traceability only (not part of signature) */
@@ -1404,7 +1408,9 @@ export interface DeliveryCheckData {
   realMachineTests: RealMachineTest[];
   closingSelfCheck: ClosingSelfCheck;
   /**
-   * Signature: sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:salt)
+   * Signature for new writes:
+   * sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:materialHash:salt)
+   * Legacy records without materialHash may still recompute, but DONE gates reject them as stale.
    */
   _hash: string;
 }
