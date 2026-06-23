@@ -53,6 +53,19 @@
           "materialHash": "d15f89c8c1da1fabf168eb1bb5354d9e675042064a21635134a41291dd158dc6",
           "storyFilesHash": "2bd25d4cacdf7b9c1a0e11d9b69f371522fec2dc155390c10c60be6a33e997c8",
           "timestamp": "2026-06-23T12:07:01.927Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/real-arm.mjs",
+          "command": "node experiments/injection-probes/real-arm.mjs --self-check",
+          "result": "pass",
+          "note": "self-check stub arms no claude call 0 spend; summarize excludes infra-fail; hermetic.",
+          "headHash": "be56ef21624206a34b236d1e68cf7c56ab74556f",
+          "materialHash": "d15f89c8c1da1fabf168eb1bb5354d9e675042064a21635134a41291dd158dc6",
+          "storyFilesHash": "2bd25d4cacdf7b9c1a0e11d9b69f371522fec2dc155390c10c60be6a33e997c8",
+          "timestamp": "2026-06-23T12:07:02.882Z"
         }
       ]
     },
