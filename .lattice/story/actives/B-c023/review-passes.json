@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c023:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff is purely additive: only experiments/injection-probes/live-loop-harness.mjs (new file) + CHANGELOG.md (bullet insert) + .lattice/ metadata (status transitions). No concept words deleted or replaced in source code. The only deleted lines are .lattice/ JSON status fields (pending/null -> populated). No residue grep required. probe-contract.mjs, all 6 probe leaves (b1/b2/b6/b9/b11/b13), run-injection-arms.mjs, real-arm.mjs, run-recovery, run-ablation, run-a2prime are confirmed untouched by git diff --name-only. OUTCOME imported read-only from probe-contract.mjs. Concept residue check: no blocker.",
+      "createdAt": "2026-06-23T12:54:14.103Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-001",
+      "_hash": "d3adfa64461c5e6028b6d5672fc03373ef79e3013dd34550d5c822f1462f2dbe"
+    }
+  ]
+}
