@@ -76,7 +76,7 @@
       "desc": "packages/main/src/core/authority-client.ts:2845-2867 still stops reading a real long-lived SSE stream after a complete non-jobs.available block when prefix.remainder is empty. A normal stream can send a heartbeat/comment block first and jobs.available later; an inline Node probe against packages/main/dist/core/authority-client.js returned kind=unavailable status=200 with the first-event-block fallback in 1ms for chunks [: heartbeat, then jobs.available 25ms later]. That means 86a50393d only returns promptly when heartbeat and jobs.available are already buffered together, not when jobs.available is the first later classifiable event. The signed-claim ownership boundary remains intact, but the F-001/F-003 incremental long-lived stream fix is incomplete.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T00:58:20.073Z",
@@ -88,7 +88,11 @@
         "packages/main/src/tasks/authority-runner-client-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f2a04329e: stream reader now ignores heartbeat/comment/non-jobs blocks and continues reading even when remainder is empty, with reads tied to abort signal. Smoke covers standalone heartbeat chunk followed by later jobs.available on non-closing stream.",
+      "resolvedAt": "2026-06-23T01:08:10.995Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e37e:F-005",
