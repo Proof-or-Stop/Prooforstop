@@ -233,6 +233,15 @@
       "reviewRound": "2026-06-23T18:05:11.357Z",
       "reviewRunId": "B-f248:RR-031",
       "_hash": "8fe6e2d93dbf7e371949d82148331bf627ad9c0e8c07c235ce0f389e9aa6727e"
+    },
+    {
+      "id": "B-f248:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency, commit 44e4a4eab (4 host-2 LOW/INFO defensive guards). Step1 extracted changed symbols incl enumerateCells/validateRecord/ARMS/SEVEN_RECORD_FIELDS; only doc anchor is experiments/recovery-runner/README.md (symbols described by behavior, not name; denominatorSets is the lone name-level ref at README:84). Step2 compared README run-driver section (L68-104), CLI flag examples, and §7 record desc. No drift: (1) dup arms/scenarios guard is additive, README never promised dup handling and default scenarios [null,B1-B15]=16 unique still passes; (2) validateRecord explicit-undefined rejection keeps null valid for §7 nullable fields, consistent with README L92-94 (null on non-A2prime budget fields); (3) dup --tasks exit-2 matches README clean-exit contract, examples use unique tasks; (4) k<3 warning consistent with README examples (--k 5 default verified intArg L404=5, --k 3 in run-ablation), README states no min-k contract. Verified ARMS=5 (L35) matches README \"5 arms\". Closing reverse-scan: commit touched no CLAUDE.md/README, added no lattice cmd/schema/ENV -> no doc-promise-undelivered. selfcheck 135 assertions 0 failed, exit 0. No blockers.",
+      "createdAt": "2026-06-23T18:07:56.530Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-032",
+      "_hash": "0ac52f0c6f9b1768b90768ff71c3feb4c7580ee43ac301fddf336a2700ad74ff"
     }
   ]
 }
