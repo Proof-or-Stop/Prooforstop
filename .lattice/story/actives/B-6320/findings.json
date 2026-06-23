@@ -48,6 +48,25 @@
       "resolvedAt": "2026-06-23T03:28:29.272Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6320:F-003",
+      "desc": "serverProviderFromPlan treats an explicit reserved fake provider override the same as no override. normalizeServerProvider(\"fake\") returns null, then serverProviderFromPlan falls through to jobPlan.providerPolicy.primaryProvider, so a real-provider JobPlan plus authority_job_create --provider fake can still sign and POST a real provider job. This silently turns an explicit test-only provider declaration into a live Authority job instead of failing closed. Fix by distinguishing override presence from normalization result: if override is present and invalid/fake, return an error; only fall back to JobPlan primaryProvider when no override was supplied.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T03:39:52.929Z",
+      "reviewRound": "2026-06-23T03:28:11.885Z",
+      "reviewRunId": "B-6320:RR-006",
+      "_hash": "d807bf4c8173cf1a6ee082601da86999ffe3071528971279f8d75af7532857f3",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-provider-override",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
