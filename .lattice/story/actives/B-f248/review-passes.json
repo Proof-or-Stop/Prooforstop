@@ -260,6 +260,15 @@
       "reviewRound": "2026-06-23T18:19:02.970Z",
       "reviewRunId": "B-f248:RR-034",
       "_hash": "a9681e7b488ce907382352ef9ce91439238297c9f9ce8ad01c0c58b1f1563d92"
+    },
+    {
+      "id": "B-f248:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency re-bind at head ff1c32a after main sync. Story material (experiments/recovery-runner README.md + run-driver*.mjs) is byte-unchanged since prior PASS head 6a09bcd; host-2 hardening commit 44e4a4eab predates that pass and was already covered. README run-driver documented behaviors (full §3 cell matrix w/ B4/B5/B10 N/A-on-A1, N/A cells excluded+logged not failed, seeded run order, pluggable engine, delegation to adjudicate.mjs/checks.mjs, denominatorSets contrasts, §7 validity filter void->rerun, non-zero exit + loud warn on incomplete run, A2prime budget-compliance fields null off-arm) all match code as verified by run-driver-selfcheck.mjs = 135 assertions, 0 failed. The 22 changed files in scope are main-sync .ts packages whose symbols are not referenced by the story docs; no doc-promise-undelivered. No new docs-code drift.",
+      "createdAt": "2026-06-23T18:20:35.352Z",
+      "reviewRound": "2026-06-23T18:19:02.970Z",
+      "reviewRunId": "B-f248:RR-035",
+      "_hash": "62d2063e164ebb5c97243d30180e446a3851fc09062f584ae56ef46d5df98608"
     }
   ]
 }
