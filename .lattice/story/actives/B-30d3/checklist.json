@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement the requested Lattice change",
+      "context": "Implement the smallest verifiable scope for: Tier-C provider-execution receipt verification (claude) run 7880-22418-1782223067: add a one-line code comment so the delegated claude pr...",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "implement-the-requested-lattice-change:happy",
+            "desc": "Verify the requested behavior for \"Implement the requested Lattice change\" succeeds on the normal path.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "implement-the-requested-lattice-change:edge",
+            "desc": "Verify bounded failure or missing-input handling for \"Implement the requested Lattice change\".",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "implement-the-requested-lattice-change:adversarial",
+            "desc": "Verify the implementation does not overclaim DONE or bypass Lattice evidence/receipt gates.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify evidence and DONE boundaries",
+      "context": "Run validation and prove local/authority DONE flags are not overclaimed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md#cross-stage-closure-requirements"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "verify-evidence-and-done-boundaries:happy",
+            "desc": "Verify the requested behavior for \"Verify evidence and DONE boundaries\" succeeds on the normal path.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "verify-evidence-and-done-boundaries:edge",
+            "desc": "Verify bounded failure or missing-input handling for \"Verify evidence and DONE boundaries\".",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "verify-evidence-and-done-boundaries:adversarial",
+            "desc": "Verify the implementation does not overclaim DONE or bypass Lattice evidence/receipt gates.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
