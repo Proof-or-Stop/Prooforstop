@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T01:07:50.675Z",
       "reviewRunId": "B-e37e:RR-009",
       "_hash": "88176cb829ebe31bab7866cb073af93664c7ae89df8bbd224bc5a16b21b49047"
+    },
+    {
+      "id": "B-e37e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 targeted test-coverage pass for f2a04329e. Verified authority-runner-client-smoke covers standalone heartbeat chunk followed by later jobs.available on a non-closing body, with signed claim still required and claimed/released ids remaining null. Existing fallback, redaction, off-mode, and policy overclaim assertions remain covered. Ran node packages/main/dist/tasks/authority-runner-client-smoke.js: pass.",
+      "createdAt": "2026-06-23T01:11:41.465Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-012",
+      "_hash": "8565a9342e47cc9842c38d4676be1efbfc3564043ea604d77cb3ff1d0a626f2b"
     }
   ]
 }
