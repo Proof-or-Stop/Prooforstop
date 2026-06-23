@@ -81,8 +81,10 @@ The current codebase now has the core unattended-development loop in place:
   into this repository;
 - Lattice CLI has a native receipt verifier for Python-shaped
   Lattice Authority receipts;
-- live authority mode can register / heartbeat / claim a real Authority job,
-  execute its typed `plannedSteps[]`, upload evidence, request
+- live authority mode can register / heartbeat, read
+  `/v1/runners/{runnerId}/jobs/stream` as an authenticated `jobs.available`
+  notification hint, claim a real Authority job through the existing signed
+  claim endpoint, execute its typed `plannedSteps[]`, upload evidence, request
   `gate.evaluate`, verify the returned native `gate_decision` receipt, and
   complete-or-release the lease without leaving a dangling claim;
 - the planner can turn a natural-language request or request file into a
@@ -125,10 +127,13 @@ Implemented (current tested surface):
   `packages/main/src/core/authority-runner.ts`);
 - authority client primitives: policy discovery (`authority enforce policy`),
   Ed25519 native signing, native receipt verifier (`authority receipt verify`),
-  and a runner control plane that can register / heartbeat / claim / release
-  without provider execution (`authority-client.ts`, `authority-signing.ts`,
-  `authority-runner.ts`). The evidence-submit primitive exists and is exercised
-  by smoke tests;
+  and a runner control plane that can register / heartbeat / read the optional
+  jobs-available SSE hint / claim / release without provider execution
+  (`authority-client.ts`, `authority-signing.ts`, `authority-runner.ts`). The
+  jobs stream is diagnostic only: empty snapshots, unsupported/old servers,
+  HTTP errors, timeouts, malformed payloads, and non-SSE bodies all fall back to
+  the same signed claim path. The evidence-submit primitive exists and is
+  exercised by smoke tests;
 - `lattice story resolve` read-only worktree/phase resolver
   (`packages/main/src/handlers/story-resolve.ts`);
 - planner surface: `planner draft|review|create-story|create-job|status|run|
@@ -408,8 +413,10 @@ Remaining boundaries that must not be overclaimed:
   `gate_decision` receipt verifies, and the required multi-host final
   certification wave is satisfied;
 - the local live Python smoke proves policy discovery plus runner
-  register/heartbeat/claim/release against a real Lattice Authority server. When
-  the server reports `serverKey.productionInert=true`, that evidence is
+  register/heartbeat/jobs-stream-hint/claim/release against a real Lattice
+  Authority server. The jobs stream is a notification hint before claim, not a
+  lease, receipt, completion event, or Authority approval. When the server
+  reports `serverKey.productionInert=true`, that evidence is
   integration evidence only and must not be treated as production Authority DONE;
 - server-side native `gate_decision` receipt issuance is owned by Lattice
   Authority. The CLI verifies and consumes those receipts; it never mints one.
@@ -786,8 +793,8 @@ Trust rules:
   production-inert and must not satisfy production Authority DONE;
 - `gate_decision` receipts must be verified with Ed25519 over the exact native
   canonical payload;
-- authority status, policy discovery, runner readiness, and live heartbeat are
-  not evidence of approval.
+- authority status, policy discovery, runner readiness, live heartbeat, and
+  jobs-available stream hints are not evidence of approval.
 
 ## Native Signing Contract
 
@@ -4364,6 +4371,8 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | register actor key in development | pass |
 | production registration missing required bootstrap token | fail when server policy requires bootstrap enrollment |
 | live runner no job | pass/no-job |
+| live runner jobs stream available hint | positive `jobs.available` SSE is recorded as `jobs_stream` and the runner still uses signed claim |
+| live runner jobs stream empty/error/timeout/malformed | record diagnostic `jobs_stream` fallback and continue to signed claim |
 | live runner claims no-provider job | release immediately |
 | live runner claims executable job | executor starts bounded loop |
 | stale lease | fail or renew according to policy |

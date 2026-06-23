@@ -174,6 +174,23 @@ export const AuthorityJobCreateResultSchema = z.object({
 
 export type AuthorityJobCreateResult = z.infer<typeof AuthorityJobCreateResultSchema>;
 
+export type RunnerJobsStreamOutcomeKind =
+  | 'available'
+  | 'empty'
+  | 'unavailable'
+  | 'timeout'
+  | 'malformed';
+
+export interface RunnerJobsStreamOutcome {
+  kind: RunnerJobsStreamOutcomeKind;
+  /** True only when the stream reports a positive jobs.available hint. */
+  ok: boolean;
+  status?: number;
+  message?: string;
+  count?: number;
+  jobIds?: string[];
+}
+
 /** Connection-level error codes treated as "server unreachable". */
 const CONNECTION_REFUSED_CODES = new Set([
   'ECONNREFUSED',
@@ -368,6 +385,71 @@ export class AuthorityClient {
       envelope,
       JobSpecOrNullSchema,
     );
+  }
+
+  /**
+   * GET /v1/runners/{runnerId}/jobs/stream — read the Authority job-available
+   * SSE stream as a notification hint only. The caller must still use the
+   * existing signed claim endpoint for authority, lease, and job payload.
+   */
+  async streamRunnerJobsAvailable(
+    runnerId: string,
+  ): Promise<RunnerJobsStreamOutcome> {
+    assertNonEmpty(runnerId, 'runnerId');
+    const customerApiKey = this.auth.customerApiKey?.trim();
+    if (!customerApiKey) {
+      return {
+        kind: 'unavailable',
+        ok: false,
+        message: 'customer_api_key_unconfigured_fails_closed: customer API key is required for protected Authority reads',
+      };
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMS);
+    let response: AuthorityFetchResponse;
+    try {
+      response = await this.fetchImpl(
+        joinURL(this.baseURL, `/v1/runners/${encodeURIComponent(runnerId)}/jobs/stream`),
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'text/event-stream',
+            Authorization: `Bearer ${customerApiKey}`,
+          },
+          signal: controller.signal,
+        },
+      );
+    } catch (error) {
+      return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), undefined, [customerApiKey]);
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let text: string;
+    try {
+      text = await response.text();
+    } catch (error) {
+      return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), response.status, [customerApiKey]);
+    }
+
+    if (!response.ok) {
+      const redactedText = text ? redactAuthorityDiagnosticText(text, [customerApiKey]) : '';
+      return {
+        kind: 'unavailable',
+        ok: false,
+        status: response.status,
+        message: `authority runner jobs stream unavailable (${response.status})${redactedText ? `: ${redactedText}` : ''}`,
+      };
+    }
+
+    return parseRunnerJobsAvailableSse(text, response.status);
+  }
+
+  async waitForRunnerJobsAvailable(
+    runnerId: string,
+  ): Promise<RunnerJobsStreamOutcome> {
+    return this.streamRunnerJobsAvailable(runnerId);
   }
 
   /** POST /v1/jobs/{jobId}/heartbeat — extend a job lease. */
@@ -2663,6 +2745,149 @@ export async function authorityJobVerdictStatus(
 // ─────────────────────────────────────────────────────────────────────────────
 // Internal helpers
 // ─────────────────────────────────────────────────────────────────────────────
+
+function runnerJobsStreamTransportOutcome(
+  outcome: AuthorityClientOutcome<unknown>,
+  status?: number,
+  secrets: readonly (string | undefined)[] = [],
+): RunnerJobsStreamOutcome {
+  if (outcome.kind === 'timeout') {
+    return {
+      kind: 'timeout',
+      ok: false,
+      ...(status !== undefined ? { status } : {}),
+      message: redactAuthorityDiagnosticText(
+        outcome.message ?? 'authority runner jobs stream timed out',
+        secrets,
+      ),
+    };
+  }
+  return {
+    kind: 'unavailable',
+    ok: false,
+    ...(status !== undefined || outcome.status !== undefined
+      ? { status: status ?? outcome.status }
+      : {}),
+    message: redactAuthorityDiagnosticText(
+      outcome.message ?? `authority runner jobs stream unavailable (${outcome.kind})`,
+      secrets,
+    ),
+  };
+}
+
+function redactAuthorityDiagnosticText(
+  text: string,
+  secrets: readonly (string | undefined)[] = [],
+): string {
+  let redacted = redactText(text).text;
+  for (const secret of secrets) {
+    const trimmed = secret?.trim();
+    if (trimmed) redacted = redacted.split(trimmed).join('[REDACTED]');
+  }
+  return redacted
+    .replace(/\bProxy-Authorization\b/gi, '[REDACTED_HEADER]')
+    .replace(/\bAuthorization\b/gi, '[REDACTED_HEADER]')
+    .replace(/\bBearer\b/gi, '[REDACTED_SCHEME]');
+}
+
+function parseRunnerJobsAvailableSse(text: string, status?: number): RunnerJobsStreamOutcome {
+  if (text.trim().length === 0) {
+    return {
+      kind: 'unavailable',
+      ok: false,
+      ...(status !== undefined ? { status } : {}),
+      message: 'authority runner jobs stream returned an empty body; falling back to signed claim',
+    };
+  }
+
+  const blocks = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split(/\n\n+/);
+  let sawJobsAvailable = false;
+  for (const block of blocks) {
+    let eventName = 'message';
+    const dataLines: string[] = [];
+    for (const rawLine of block.split('\n')) {
+      if (rawLine.length === 0 || rawLine.startsWith(':')) continue;
+      const separator = rawLine.indexOf(':');
+      if (separator < 0) continue;
+      const field = rawLine.slice(0, separator);
+      let value = rawLine.slice(separator + 1);
+      if (value.startsWith(' ')) value = value.slice(1);
+      if (field === 'event') eventName = value.trim();
+      if (field === 'data') dataLines.push(value);
+    }
+
+    if (eventName !== 'jobs.available') continue;
+    sawJobsAvailable = true;
+    if (dataLines.length === 0) {
+      return {
+        kind: 'malformed',
+        ok: false,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream jobs.available event has no data; falling back to signed claim',
+      };
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(dataLines.join('\n'));
+    } catch {
+      return {
+        kind: 'malformed',
+        ok: false,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream jobs.available data is not valid JSON; falling back to signed claim',
+      };
+    }
+    if (!isRecord(parsed)) {
+      return {
+        kind: 'malformed',
+        ok: false,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream jobs.available data is not an object; falling back to signed claim',
+      };
+    }
+
+    const count = typeof parsed.count === 'number' && Number.isFinite(parsed.count)
+      ? parsed.count
+      : undefined;
+    const jobIds = Array.isArray(parsed.jobIds)
+      ? parsed.jobIds.filter((value): value is string => typeof value === 'string' && value.length > 0)
+      : undefined;
+    if ((count !== undefined && count > 0) || (jobIds !== undefined && jobIds.length > 0)) {
+      return {
+        kind: 'available',
+        ok: true,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream reported jobs.available',
+        ...(count !== undefined ? { count } : {}),
+        ...(jobIds !== undefined ? { jobIds } : {}),
+      };
+    }
+    if (count === 0) {
+      return {
+        kind: 'empty',
+        ok: false,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream reported no jobs; falling back to signed claim',
+        count,
+        ...(jobIds !== undefined ? { jobIds } : {}),
+      };
+    }
+    return {
+      kind: 'malformed',
+      ok: false,
+      ...(status !== undefined ? { status } : {}),
+      message: 'authority runner jobs stream jobs.available data lacks a usable count or jobIds; falling back to signed claim',
+    };
+  }
+
+  return {
+    kind: sawJobsAvailable ? 'empty' : 'unavailable',
+    ok: false,
+    ...(status !== undefined ? { status } : {}),
+    message: 'authority runner jobs stream did not contain a jobs.available event; falling back to signed claim',
+  };
+}
 
 /**
  * Schema for endpoints that may return either a signed AuthorityReceipt, an
