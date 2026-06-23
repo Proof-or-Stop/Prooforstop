@@ -57,7 +57,65 @@
       "context": "dispatch-usage.ts KOALA_HARD_BUDGET_TOKENS fallback; writer.ts legacy KOALA_ alias; dispatch-runner.ts KOALA_ entry in the env passlist. Keep LATTICE_ only.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -r KOALA_HARD_BUDGET_TOKENS packages/main/src/core/ -> zero hits; WHY: the legacy budget-token fallback is removed from production code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn KOALA_USAGE_LEDGER packages/main/src/core/ -> zero hits; WHY: the legacy KOALA_ usage-ledger alias is removed from writer.ts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch-runner.ts env passlist no longer contains KOALA_ prefix -> confirmed LATTICE_ only; WHY: child processes must not receive stale KOALA_ env vars",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS: \"5000\"}) -> returns {hardBudgetTokens: 5000}; WHY: normal LATTICE_ path still works after KOALA_ fallback removal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER: \"1\"}) -> true; WHY: LATTICE_ env var still controls ledger after KOALA_ alias removal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveHardBudget({}) with no LATTICE_ and no KOALA_ env -> returns null (no budget); WHY: boundary where both are absent must not throw after fallback chain is shortened",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({}) with neither LATTICE_ nor KOALA_ set -> returns default (true, since default-ON); WHY: default-ON behavior must survive KOALA_ alias removal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "set KOALA_HARD_BUDGET_TOKENS=999 in env, call resolveHardBudget() -> KOALA_ value is silently ignored (returns null or LATTICE_ value only); WHY: adversarial test that old env var set by a user habit does NOT accidentally take effect after removal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "set KOALA_USAGE_LEDGER=0 in env, call isUsageLedgerEnabled() -> returns true (default-ON), NOT false; WHY: user with stale KOALA_ env must not accidentally disable the ledger post-removal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn KOALA_ packages/main/src/core/ packages/main/src/handlers/ -> zero hits except review-preflight.ts gate wiring; WHY: no orphan KOALA_ reference in production code that could be a latent fallback",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
