@@ -42,7 +42,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc happy: acceptancePass true / hashOk true / scriptHash === computed good hash': matching SHA-256 + runAcceptance->{pass:true} => acceptancePass true, hashOk true",
+          "headHash": "2584c0402cfb9a682f69cfdd5c6ca2b5d3d50329",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:16:56.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
