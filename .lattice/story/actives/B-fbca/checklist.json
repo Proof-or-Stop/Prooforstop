@@ -803,6 +803,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:19.263Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "git grep -inE '\\.koala' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits across all lines including comments — path references in COMMENTS are also updated, no stale .koala comment misleads future devs",
+          "headHash": "e28639478e57a994c413ccef74b55b53b3091f0a",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:20.607Z"
         }
       ]
     },
