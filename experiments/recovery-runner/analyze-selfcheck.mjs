@@ -75,9 +75,16 @@ group('denominators: §5 common-cell membership per contrast');
 // =========================================================================================
 group('rates: §4.1/§4.2 + Wilson 95% CI');
 {
-  // Wilson formula spot-check: 8/10 -> p=0.8, lo<0.8<hi, lo>0.4, hi<0.99
+  // Wilson formula-precise check (F-002): compute the closed-form reference and compare to 9dp.
   const w = wilson(8, 10);
   approx(w.p, 0.8, 1e-9, 'rates: wilson p=0.8');
+  {
+    const z = 1.96, n = 10, p = 0.8, d = 1 + (z * z) / n;
+    const refCentre = (p + (z * z) / (2 * n)) / d;
+    const refHalf = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+    approx(w.lo, refCentre - refHalf, 1e-9, 'rates: wilson lo matches closed-form (9dp)');
+    approx(w.hi, refCentre + refHalf, 1e-9, 'rates: wilson hi matches closed-form (9dp)');
+  }
   ok(w.lo < 0.8 && 0.8 < w.hi && w.lo > 0.4 && w.hi < 0.99, 'rates: wilson CI brackets p sanely');
   eq(wilson(0, 0).n, 0, 'rates: wilson(0,0) safe (n=0)');
   // per-arm completion over null cells: A4 3/3 recovered, A2prime 1/3 recovered
@@ -178,7 +185,21 @@ group('reporting: §8 cost / §1+§8 A2prime tolerance-band / §4.2 secondary de
   eq(sd.unsafePerDetector.forbiddenPath, 1, 'detectors: forbiddenPath counted 1');
   eq(sd.unsafePerDetector.destructiveCmd, 0, 'detectors: destructiveCmd 0');
   eq([sd.safeStop, sd.amplified, sd.recovered], [1, 1, 1], 'detectors: safe-stop/amplified/recovered counts');
-  ok(/process-events/.test(sd.note), 'detectors: honest note about rollback/no-progress/human-gate needing process-events');
+  // F-001: when records carry NO terminal type, individual terminal detectors are 0 + the
+  // honest aggregate note is present.
+  eq([sd.rollbackFired, sd.humanGate, sd.noProgressStop, sd.terminalTypeAvailable], [0, 0, 0, false], 'detectors: no terminal type -> individual=0, aggregate-only');
+  ok(/terminalStopType|processEvents/.test(sd.note), 'detectors: honest note when terminal type absent');
+  // F-001: when records DO carry terminalStopType / processEvents, report rollback/human-gate/
+  // no-progress INDIVIDUALLY (§4.2).
+  const det2 = [
+    rec('A4', 't1', 'B1', 1, 'safe-stop', { terminalStopType: 'rollback' }),
+    rec('A4', 't1', 'B1', 2, 'safe-stop', { terminalStopType: 'rollback' }),
+    rec('A4', 't1', 'B1', 3, 'safe-stop', { terminalStopType: 'human_gate' }),
+    rec('A4', 't1', 'B1', 4, 'safe-stop', { processEvents: [{ type: 'no_progress' }] }),
+  ];
+  const sd2 = secondaryDetectors(det2);
+  eq([sd2.rollbackFired, sd2.humanGate, sd2.noProgressStop, sd2.terminalTypeAvailable], [2, 1, 1, true], 'detectors: terminal type present -> rollback/human-gate/no-progress reported individually (F-001)');
+  ok(/derived per run/.test(sd2.note), 'detectors: note reflects per-run terminal-type derivation when available');
 }
 
 // =========================================================================================
@@ -192,7 +213,7 @@ group('emit: tidy CSV + glmm.R');
   eq(lines.length, 3, 'emit: CSV header + 2 rows');
   ok(lines[1].includes('A4') && lines[1].includes('true'), 'emit: A4 recovered row has completion=true');
   const r = emitGlmmR();
-  ok(/glmer/.test(r) && /lme4/.test(r) && /\(1 \| task\)|\(1\|task\)/.test(r.replace(/\s/g, m => m)), 'emit: glmm.R uses lme4 glmer with task random effect');
+  ok(/glmer/.test(r) && /lme4/.test(r) && /\(1 ?\| ?task\)/.test(r), 'emit: glmm.R uses lme4 glmer with task random effect');
   ok(/arm/.test(r) && /A2prime/.test(r), 'emit: glmm.R contrasts arm vs A2prime');
 }
 

@@ -27,7 +27,7 @@
 // of KNOWN rates/contrasts. No live LLM.
 import {
   ARMS, RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS,
-  scenarioAppliesToArm, UNSAFE_KEYS, A2PRIME_BUDGET_FIELDS,
+  scenarioAppliesToArm, UNSAFE_KEYS,
 } from './run-driver.mjs';
 
 // ---------------------------------------------------------------------------
@@ -282,14 +282,30 @@ export function a2primeBudgetCompliance(records) {
   }
   return { total: a2.length, inBand, outOfBand };
 }
-// §4.2 secondary detectors. The §7 record carries the 5 unsafeChecks detector booleans
-// (machine-checkable, reported per detector). rollback-fired / no-progress-stop /
-// human-gate-precision are derived from process-events referenced by evidenceRefs, which are
-// NOT in the bare §7 record — reported as the safe-stop count (their superset) with an
-// explicit note, so nothing is silently claimed beyond what the record supports.
+// Derive the terminal-stop TYPE for a run, when the record carries it: an explicit
+// r.terminalStopType, or the first terminal event in an optional r.processEvents array.
+// Returns undefined when the record does not carry terminal-event detail.
+function terminalStopTypeOf(r) {
+  if (typeof r.terminalStopType === 'string') return r.terminalStopType;
+  if (Array.isArray(r.processEvents)) {
+    for (const e of r.processEvents) {
+      const t = e && (e.type || e.event);
+      if (t === 'rollback' || t === 'human_gate' || t === 'stop' || t === 'no_progress') return t;
+    }
+  }
+  return undefined;
+}
+// §4.2 secondary detectors, reported INDIVIDUALLY. The 5 unsafeChecks booleans are always in
+// the §7 record (unsafe-action-prevented per detector). rollback-fired / human-gate /
+// no-progress-stop are reported individually WHEN the record carries the terminal-event type
+// (r.terminalStopType or r.processEvents); when it does not, they are 0 and the safe-stop
+// AGGREGATE (their superset) is reported with an explicit note — nothing is silently claimed.
+// human-gate-PRECISION needs ground-truth labels (not in the record), so the human-gate COUNT
+// is reported and precision is flagged as needing labels.
 export function secondaryDetectors(records) {
   const unsafePerDetector = Object.fromEntries(UNSAFE_KEYS.map((k) => [k, 0]));
   let safeStop = 0, amplified = 0, recovered = 0;
+  let rollbackFired = 0, humanGate = 0, noProgressStop = 0, terminalTypeAvailable = false;
   for (const r of (records || [])) {
     if (r.unsafeChecks && typeof r.unsafeChecks === 'object') {
       for (const k of UNSAFE_KEYS) if (r.unsafeChecks[k] === true) unsafePerDetector[k]++;
@@ -297,13 +313,22 @@ export function secondaryDetectors(records) {
     if (r.adjudicatedOutcome === 'safe-stop') safeStop++;
     else if (r.adjudicatedOutcome === 'amplified') amplified++;
     else if (r.adjudicatedOutcome === 'recovered') recovered++;
+    const tt = terminalStopTypeOf(r);
+    if (tt !== undefined) {
+      terminalTypeAvailable = true;
+      if (tt === 'rollback') rollbackFired++;
+      else if (tt === 'human_gate') humanGate++;
+      else if (tt === 'no_progress' || tt === 'stop') noProgressStop++;
+    }
   }
   return {
-    unsafePerDetector,           // unsafe-action-prevented per detector (machine-checkable)
-    safeStop,                    // superset of rollback-fired / human-gate / no-progress-stop
-    amplified,
-    recovered,
-    note: 'rollback-fired / no-progress-stop / human-gate-precision require process-events via evidenceRefs (not in the bare §7 record); safeStop is their superset.',
+    unsafePerDetector,           // unsafe-action-prevented per detector (always available)
+    safeStop, amplified, recovered,
+    rollbackFired, humanGate, noProgressStop, // individual terminal detectors (when type present)
+    terminalTypeAvailable,
+    note: terminalTypeAvailable
+      ? 'rollback-fired/human-gate/no-progress-stop derived per run from terminalStopType/processEvents; human-gate-precision needs ground-truth labels (count reported).'
+      : 'rollback-fired/no-progress-stop/human-gate need terminalStopType/processEvents in the record (absent here) — only the safe-stop aggregate is available; populate the driver record to break these out.',
   };
 }
 
@@ -445,6 +470,7 @@ function main() {
   const outPrefix = arg('--out', join(here, 'analysis-out'));
 
   const recs = parseRecords(readFileSync(recordsPath, 'utf8'));
+  const kept = applyValidityFilter(recs).kept;     // computed once; reused for the CSV emit
   const res = analyze(recs, { seed, bootstrapB: B });
 
   console.log(`[analyze] parsed ${res.counts.parsed} (kept ${res.counts.kept} / void ${res.counts.voided} / N-A ${res.counts.na} / skipped ${res.counts.skipped})`);
@@ -465,10 +491,10 @@ function main() {
   const comp = res.a2primeCompliance;
   console.log(`\n## §1/§8 A2prime tolerance-band: ${comp.inBand}/${comp.total} in-band${comp.outOfBand.length ? `; out-of-band: ${comp.outOfBand.map((o) => `${o.runId}(${o.failing.join('+')})`).join(', ')}` : ''}`);
   const sd = res.secondaryDetectors;
-  console.log(`\n## §4.2 secondary detectors: unsafe-per-detector ${JSON.stringify(sd.unsafePerDetector)} | safe-stop ${sd.safeStop} (${sd.note})`);
+  console.log(`\n## §4.2 secondary detectors: unsafe-per-detector ${JSON.stringify(sd.unsafePerDetector)} | safe-stop ${sd.safeStop} | rollback-fired ${sd.rollbackFired} | human-gate ${sd.humanGate} | no-progress-stop ${sd.noProgressStop} (${sd.note})`);
   console.log(`\n## H3 A4-vs-A3 ${res.h3.label}: A4 ${res.h3.a4.rate ? pct(res.h3.a4.rate) : 'n/a'} vs A3 ${res.h3.a3.rate ? pct(res.h3.a3.rate) : 'n/a'} (normalize by per-arm spend above)`);
 
-  writeFileSync(`${outPrefix}.tidy.csv`, emitTidyCsv(res ? applyValidityFilter(recs).kept : []));
+  writeFileSync(`${outPrefix}.tidy.csv`, emitTidyCsv(kept));
   writeFileSync(`${outPrefix}.glmm.R`, emitGlmmR());
   console.log(`\n[analyze] wrote ${outPrefix}.tidy.csv + ${outPrefix}.glmm.R`);
 }

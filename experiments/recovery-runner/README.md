@@ -135,7 +135,10 @@ The analysis script turns the driver's §7 run-records JSONL into the pre-regist
   tests (never primary);
 - reports the §8 cost co-metric (tokens + wall-clock per arm), the §1/§8 A2prime
   tolerance-band compliance (flagging out-of-band runs, fail-closed), the §4.2 secondary
-  detectors, and the H3 (A4-vs-A3) contrast labeled **EXPLORATORY / compute-not-matched**;
+  detectors (the 5 unsafe-per-detector counts always; rollback-fired / human-gate /
+  no-progress-stop **individually** when the record carries the terminal-event type via
+  `terminalStopType`/`processEvents`, else the safe-stop aggregate with an explicit note),
+  and the H3 (A4-vs-A3) contrast labeled **EXPLORATORY / compute-not-matched**;
 - emits a tidy long-format CSV (`<out>.tidy.csv`) + a `glmm.R` (`lme4::glmer` arm fixed +
   `(1|task)+(1|scenario)+(1|seed)`) for the formal pre-registered GLMM (run when R available;
   the bootstrap is the Node proxy).
