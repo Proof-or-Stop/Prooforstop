@@ -49,7 +49,7 @@
       "desc": "doc-code-drift: the in-file self-check comment block inside selfCheck() at lines 766-776 still reads \"truncate hook on turn 2 empties context\" (line 766) and \"kill hook on turn 2 replaces context\" (line 772), but the B-8e9f fix moved those hooks from turn 2 to turn 1 (B4.interruptAt returns turn===1?truncate, B5.interruptAt returns turn===1?kill). The stale turn-2 wording is a residue from the prior B-d43f comment that was not updated; it contradicts both the scenario code and the CHANGELOG B-8e9f bullet which explicitly describes the turn-1 fix. A reader of the self-check comments gets the wrong mental model of when the fault fires.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T23:35:50.507Z",
@@ -61,7 +61,11 @@
         "CHANGELOG.md"
       ],
       "signatureTag": "doc-code-drift|mjs|code-drift-file",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4dd83fe3c: updated the self-check case-table comments at lines 766/772 from 'turn 2' to 'turn 1' to match the implementation (B4 truncate + B5 kill fire at turn 1). The remaining 'turn 2' strings (308-309/342-343) are load-bearing comments stating the hook fires at turn 1 AND NOT turn 2. self-check stays 25/25, 0 spend.",
+      "resolvedAt": "2026-06-23T23:39:10.157Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
