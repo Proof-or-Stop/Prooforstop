@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "checks.mjs: harness-owned acceptance wrapper — verify acceptance-script content hash equals the frozen expected hash, run it from a harness-owned path (not the agent-editable workspace) against the artifact; return {acceptancePass, scriptHash, hashOk}",
+      "context": "Pre-reg section 2 anti-gaming: read-only, hash-checked, clean checkout, not in agent ws",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "checks.mjs: hidden-regression check — hiddenRegressionPass = no NEW failing tests vs the frozen baseline test snapshot; return {hiddenRegressionPass, newFailures}",
+      "context": "Pre-reg section 4.1; no-injection ablation uses the task baseline snapshot",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "checks.mjs: diff-hygiene check — diffHygienePass = change confined to allowed paths with no junk/forbidden artifacts; return {diffHygienePass, violations}",
+      "context": "Independent layer not visible to the agent (pre-reg section 4.1/threats)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "checks.mjs returns/uses exact section-7 field names: acceptancePass, hiddenRegressionPass, diffHygienePass",
+      "context": "So the run-record + analysis agree with the locked schema",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "checks-selfcheck.mjs: offline unit test covering each check (pass + fail cases incl. hash-mismatch, a new failing test, an out-of-scope/junk diff) + the section-7 field names; node --check both files; all pass with no live LLM",
+      "context": "Pure deterministic; zero claude subprocess",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
