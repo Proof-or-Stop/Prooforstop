@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Enumerate the full pre-registered cell matrix honouring §3 applicability",
       "context": "For each of the 5 arms x corpus task x {ablation null-scenario + each recovery scenario B1-B15} x k repeats, emit a cell ONLY when the scenario applies to that arm (B4/B5/B10 -> exclude A1; the other 12 -> all arms). N/A cells excluded and logged, never counted as failures. Seeded randomised run order (runOrderSeed) so ordering is deterministic+reproducible.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T11:34:32.912Z",
-      "endTime": null,
+      "endTime": "2026-06-23T11:41:48.935Z",
       "verificationIntent": {
         "happy": [
           {
