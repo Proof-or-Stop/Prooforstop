@@ -81,6 +81,7 @@ interface RecordedCall {
   url: string;
   method: string;
   headers: Record<string, string>;
+  signal?: AbortSignal;
   body?: unknown;
   bodyText?: string;
 }
@@ -99,7 +100,7 @@ function recordingFetch(handler: (call: RecordedCall) => AuthorityFetchResponse)
         body = init.body;
       }
     }
-    const call: RecordedCall = { url, method: init.method, headers: init.headers, body, bodyText: init.body };
+    const call: RecordedCall = { url, method: init.method, headers: init.headers, signal: init.signal, body, bodyText: init.body };
     calls.push(call);
     return handler(call);
   };
@@ -128,6 +129,39 @@ function abortingTextResponse(status: number, message: string): AuthorityFetchRe
     status,
     text: async () => {
       throw Object.assign(new Error(message), { name: 'AbortError' });
+    },
+  };
+}
+
+function longLivedSseResponse(
+  status: number,
+  chunks: string[],
+  signal?: AbortSignal,
+): AuthorityFetchResponse {
+  const encoder = new TextEncoder();
+  let index = 0;
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => new Promise<string>((_resolve, reject) => {
+      const abort = () => reject(Object.assign(new Error('stream text fallback aborted'), { name: 'AbortError' }));
+      if (signal?.aborted) {
+        abort();
+        return;
+      }
+      signal?.addEventListener('abort', abort, { once: true });
+    }),
+    body: {
+      getReader: () => ({
+        read: async () => {
+          if (index < chunks.length) {
+            return { done: false, value: encoder.encode(chunks[index++]) };
+          }
+          return new Promise<{ done: boolean; value?: Uint8Array }>(() => undefined);
+        },
+        cancel: () => undefined,
+        releaseLock: () => undefined,
+      }),
     },
   };
 }
@@ -277,6 +311,31 @@ function eventMessage(events: { step: string; message?: string }[], step: string
     assert.equal(calls[0].body, undefined, 'jobs stream GET sends no body');
     assert.equal(calls[0].headers.Accept, 'text/event-stream');
     assert.equal(calls[0].headers.Authorization, `Bearer ${TEST_AUTH.customerApiKey}`);
+  }
+
+  // 1d.2. streamRunnerJobsAvailable — real stream body returns on jobs.available before close
+  {
+    const { fetch, calls } = recordingFetch((call) => longLivedSseResponse(
+      200,
+      [
+        ': heartbeat\n\nevent: jobs.available\n',
+        'data: {"count":1,"jobIds":["job-stream"]}\n\n',
+      ],
+      call.signal,
+    ));
+    const timeoutMS = 1000;
+    const client = testAuthorityClient(BASE_URL, fetch, timeoutMS);
+    const startedAt = Date.now();
+    const out = await client.streamRunnerJobsAvailable('runner-1');
+    const elapsedMS = Date.now() - startedAt;
+    assert.equal(out.kind, 'available', 'long-lived jobs stream positive hint returns before close');
+    assert.equal(out.ok, true);
+    assert.equal(out.count, 1);
+    assert.deepEqual(out.jobIds, ['job-stream']);
+    assert.ok(elapsedMS < 500, `long-lived stream returned promptly (${elapsedMS}ms)`);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].method, 'GET');
+    assert.equal(calls[0].url, `${BASE_URL}/v1/runners/runner-1/jobs/stream`);
   }
 
   // 1e. claimJob — JobSpec response shape
@@ -527,6 +586,8 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
   const events = out.networkEvents ?? [];
   assert.equal(out.status, 'pass', 'available stream hint still reaches signed claim path');
+  assert.equal(out.claimedJobId, null, 'positive SSE jobIds do not create ownership when signed claim returns {job:null}');
+  assert.equal(out.releasedJobId, null, 'no claimed job means there is no release');
   assert.deepEqual(
     events.map(event => event.step),
     ['register_actor_key', 'register_runner', 'runner_heartbeat', 'jobs_stream', 'claim_job'],

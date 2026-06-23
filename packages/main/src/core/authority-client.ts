@@ -144,10 +144,23 @@ export interface AuthorityClientOutcome<T> {
 }
 
 /** Minimal fetch shape so tests can inject a stub without a real network. */
+export type AuthorityFetchChunk = Uint8Array | ArrayBuffer | string;
+
+export interface AuthorityFetchBodyReader {
+  read: () => Promise<{ done: boolean; value?: AuthorityFetchChunk }>;
+  cancel?: (reason?: unknown) => Promise<void> | void;
+  releaseLock?: () => void;
+}
+
+export interface AuthorityFetchBody {
+  getReader: () => AuthorityFetchBodyReader;
+}
+
 export interface AuthorityFetchResponse {
   ok: boolean;
   status: number;
   text: () => Promise<string>;
+  body?: AuthorityFetchBody | null;
 }
 
 export type AuthorityFetchInit = {
@@ -408,7 +421,6 @@ export class AuthorityClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMS);
     let response: AuthorityFetchResponse | undefined;
-    let text = '';
     try {
       response = await this.fetchImpl(
         joinURL(this.baseURL, `/v1/runners/${encodeURIComponent(runnerId)}/jobs/stream`),
@@ -421,32 +433,37 @@ export class AuthorityClient {
           signal: controller.signal,
         },
       );
-      text = await response.text();
+
+      if (!response) {
+        return {
+          kind: 'unavailable',
+          ok: false,
+          message: 'authority runner jobs stream unavailable before response; falling back to signed claim',
+        };
+      }
+
+      if (!response.ok) {
+        const text = await response.text();
+        const redactedText = text ? redactAuthorityDiagnosticText(text, [customerApiKey]) : '';
+        return {
+          kind: 'unavailable',
+          ok: false,
+          status: response.status,
+          message: `authority runner jobs stream unavailable (${response.status})${redactedText ? `: ${redactedText}` : ''}`,
+        };
+      }
+
+      if (response.body?.getReader) {
+        return await readRunnerJobsAvailableSseStream(response);
+      }
+
+      const text = await response.text();
+      return parseRunnerJobsAvailableSse(text, response.status);
     } catch (error) {
       return runnerJobsStreamTransportOutcome(classifyThrown<unknown>(error), response?.status, [customerApiKey]);
     } finally {
       clearTimeout(timer);
     }
-
-    if (!response) {
-      return {
-        kind: 'unavailable',
-        ok: false,
-        message: 'authority runner jobs stream unavailable before response; falling back to signed claim',
-      };
-    }
-
-    if (!response.ok) {
-      const redactedText = text ? redactAuthorityDiagnosticText(text, [customerApiKey]) : '';
-      return {
-        kind: 'unavailable',
-        ok: false,
-        status: response.status,
-        message: `authority runner jobs stream unavailable (${response.status})${redactedText ? `: ${redactedText}` : ''}`,
-      };
-    }
-
-    return parseRunnerJobsAvailableSse(text, response.status);
   }
 
   async waitForRunnerJobsAvailable(
@@ -2793,6 +2810,110 @@ function redactAuthorityDiagnosticText(
     .replace(/\bBearer\b/gi, '[REDACTED_SCHEME]');
 }
 
+const RUNNER_JOBS_STREAM_PREFIX_BYTE_LIMIT = 64 * 1024;
+const RUNNER_JOBS_STREAM_PREFIX_BLOCK_LIMIT = 16;
+
+async function readRunnerJobsAvailableSseStream(
+  response: AuthorityFetchResponse,
+): Promise<RunnerJobsStreamOutcome> {
+  const reader = response.body?.getReader();
+  if (!reader) {
+    return parseRunnerJobsAvailableSse(await response.text(), response.status);
+  }
+
+  const decoder = new TextDecoder();
+  let text = '';
+  let completeBlocksRead = 0;
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) {
+        text += decoder.decode();
+        return parseRunnerJobsAvailableSse(text, response.status);
+      }
+
+      text += decodeAuthorityFetchChunk(chunk.value, decoder);
+      if (text.length > RUNNER_JOBS_STREAM_PREFIX_BYTE_LIMIT) {
+        return {
+          kind: 'unavailable',
+          ok: false,
+          status: response.status,
+          message: 'authority runner jobs stream prefix exceeded bounded scan; falling back to signed claim',
+        };
+      }
+
+      const prefix = splitCompleteSsePrefix(text);
+      if (prefix.blocks.length === 0) continue;
+
+      completeBlocksRead += prefix.blocks.length;
+      const outcome = parseRunnerJobsAvailableSseBlocks(prefix.blocks, response.status);
+      if (outcome) return outcome;
+
+      if (completeBlocksRead >= RUNNER_JOBS_STREAM_PREFIX_BLOCK_LIMIT) {
+        return {
+          kind: 'unavailable',
+          ok: false,
+          status: response.status,
+          message: 'authority runner jobs stream prefix did not contain jobs.available; falling back to signed claim',
+        };
+      }
+
+      if (prefix.remainder.trim().length === 0) {
+        return {
+          kind: 'unavailable',
+          ok: false,
+          status: response.status,
+          message: 'authority runner jobs stream first event block did not contain jobs.available; falling back to signed claim',
+        };
+      }
+
+      text = prefix.remainder;
+    }
+  } finally {
+    cancelAuthorityFetchReader(reader);
+  }
+}
+
+function decodeAuthorityFetchChunk(value: AuthorityFetchChunk | undefined, decoder: TextDecoder): string {
+  if (value === undefined) return '';
+  if (typeof value === 'string') return value;
+  return decoder.decode(value, { stream: true });
+}
+
+function cancelAuthorityFetchReader(reader: AuthorityFetchBodyReader): void {
+  try {
+    const cancelled = reader.cancel?.('lattice runner jobs stream prefix consumed');
+    if (cancelled && typeof (cancelled as Promise<void>).catch === 'function') {
+      void (cancelled as Promise<void>).catch(() => undefined);
+    }
+  } catch {
+    // Best-effort cleanup only; the stream classification has already completed.
+  }
+  try {
+    reader.releaseLock?.();
+  } catch {
+    // Best-effort cleanup only; some readers release implicitly after cancel.
+  }
+}
+
+function normalizeSseText(text: string): string {
+  return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+function splitCompleteSsePrefix(text: string): { blocks: string[]; remainder: string } {
+  const normalized = normalizeSseText(text);
+  const matches = Array.from(normalized.matchAll(/\n\n+/g));
+  const lastMatch = matches.at(-1);
+  if (!lastMatch || lastMatch.index === undefined) {
+    return { blocks: [], remainder: normalized };
+  }
+  const end = lastMatch.index + lastMatch[0].length;
+  return {
+    blocks: normalized.slice(0, end).split(/\n\n+/).filter(block => block.length > 0),
+    remainder: normalized.slice(end),
+  };
+}
+
 function parseRunnerJobsAvailableSse(text: string, status?: number): RunnerJobsStreamOutcome {
   if (text.trim().length === 0) {
     return {
@@ -2803,7 +2924,22 @@ function parseRunnerJobsAvailableSse(text: string, status?: number): RunnerJobsS
     };
   }
 
-  const blocks = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split(/\n\n+/);
+  const blocks = normalizeSseText(text).split(/\n\n+/);
+  const outcome = parseRunnerJobsAvailableSseBlocks(blocks, status);
+  if (outcome) return outcome;
+
+  return {
+    kind: 'unavailable',
+    ok: false,
+    ...(status !== undefined ? { status } : {}),
+    message: 'authority runner jobs stream did not contain a jobs.available event; falling back to signed claim',
+  };
+}
+
+function parseRunnerJobsAvailableSseBlocks(
+  blocks: readonly string[],
+  status?: number,
+): RunnerJobsStreamOutcome | undefined {
   let sawJobsAvailable = false;
   for (const block of blocks) {
     let eventName = 'message';
@@ -2884,12 +3020,14 @@ function parseRunnerJobsAvailableSse(text: string, status?: number): RunnerJobsS
     };
   }
 
-  return {
-    kind: sawJobsAvailable ? 'empty' : 'unavailable',
-    ok: false,
-    ...(status !== undefined ? { status } : {}),
-    message: 'authority runner jobs stream did not contain a jobs.available event; falling back to signed claim',
-  };
+  return sawJobsAvailable
+    ? {
+        kind: 'empty',
+        ok: false,
+        ...(status !== undefined ? { status } : {}),
+        message: 'authority runner jobs stream did not contain a usable jobs.available event; falling back to signed claim',
+      }
+    : undefined;
 }
 
 /**
