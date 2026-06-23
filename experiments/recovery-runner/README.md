@@ -65,6 +65,51 @@ cp reference-solution.mjs solution.mjs && node acceptance.mjs . && node ground-t
 The end-to-end runners shell out to the host CLI (`claude -p`); the ablation/fixture
 checks above need only Node.
 
+## Run driver (`run-driver.mjs`)
+
+The run driver turns the pre-registered design
+(`docs/requirements/decisions/lattice-experiment-protocol.md` rev3.1 — the authority) into
+a stream of canonical §7 run-records. It:
+
+- enumerates the full cell matrix `5 arms × tasks × {null-ablation + B1-B15} × k`, honouring
+  the §3 applicability table (B4/B5/B10 do **not** apply to A1; the other 12 + the null
+  ablation cell apply to every arm). N/A cells are excluded **and logged**, never counted as
+  failures.
+- assigns a seeded, deterministic, reproducible run order (`runOrderSeed`).
+- invokes a **pluggable per-cell engine** (injected), so the driver core is fully
+  offline-testable; the real campaign plugs a `run-recovery.mjs` adapter as the engine.
+- canonicalises each raw run into the exact §7 record by **delegating** to `adjudicate.mjs`
+  (outcome + 5 unsafe detectors) and `checks.mjs` (the three pass flags) — nothing is
+  re-implemented.
+- stamps `denominatorSets[]` = every pre-registered contrast whose common-cell set contains
+  the run (`A4_vs_A2prime` primary, `A4_vs_A3` exploratory, `A4_vs_A2`, `A4_vs_A1`).
+- applies the §7 validity filter: an engine-reported infra/harness failure is **void →
+  re-run + logged**; task-level failures are real outcomes, kept.
+- for A2prime runs, surfaces the §1 budget-compliance log
+  (`budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs`); `null` on every
+  non-A2prime arm.
+
+```sh
+# enumerate the matrix only (NO LLM): prints applicable + N/A cell counts, writes nothing
+node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5
+
+# run for real: supply an engine module exporting `default async (cell, attempt) => result`.
+# Without --engine the driver refuses to launch a live campaign (that is a separate task).
+node run-driver.mjs --engine ./<engine-adapter>.mjs --record ../<paper-repo>/records.jsonl
+```
+
+## Offline self-checks
+
+Every harness module has a deterministic, no-LLM self-check. The aggregator runs all of
+them and is wired into the root `npm test` via `npm run test:experiments`:
+
+```sh
+node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver selfchecks
+node run-driver-selfcheck.mjs  # the driver alone (enumeration, schema, denominators, validity, …)
+```
+
+These self-checks spawn **no** `claude -p`.
+
 ## Data lives elsewhere
 
 The `.jsonl` run-records, charts, and analysis are **experiment data**, not code, and
