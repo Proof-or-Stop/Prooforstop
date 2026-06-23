@@ -214,7 +214,70 @@
       "context": "Write a tidy long-format CSV (one row per kept run with arm/task/scenario/repeat/outcome/cost factors) plus a glmm.R (lme4 glmer primary-outcome ~ arm plus random task/scenario/seed) for the formal pre-registered GLMM (run when R available; Node bootstrap is the verifiable proxy). Add analyze-selfcheck.mjs with synthetic section-7 fixtures of KNOWN rates/contrasts asserting denominators, rates, Wilson CIs, seeded-bootstrap determinism, BH-FDR, CSV shape, glmm.R emission plus a negative control; wire into npm test:experiments.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run analyze.mjs on a synthetic JSONL fixture -> emits a CSV file with one row per kept run; columns include arm, taskId, scenarioId, repeat, adjudicatedOutcome, tokensSpent, wallClockMs; header row matches the expected column set; WHY: verifies the tidy long-format CSV shape contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run analyze.mjs on the same fixture -> emits a glmm.R file containing lme4::glmer call with formula primary_outcome ~ arm + (1|task) + (1|scenario) + (1|seed); the R script is syntactically valid (no unbalanced parens/quotes); WHY: verifies R artifact emission matches the pre-reg section-5 GLMM specification",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "analyze-selfcheck.mjs passes (exit 0) with all assertions green when run against its bundled synthetic fixtures; WHY: the selfcheck is the master integration test covering denominators, rates, Wilson CIs, bootstrap determinism, BH-FDR, CSV shape, glmm.R emission",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "analyze-selfcheck.mjs includes a NEGATIVE CONTROL: a fixture with a known non-zero contrast deliberately checked against the WRONG expected value -> that specific assertion fails as expected (the selfcheck catches it); WHY: non-vacuous negative control per decision.json driver 3",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test:experiments includes analyze-selfcheck and it passes; WHY: verifies wiring into the project test harness",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty JSONL (zero lines) -> CSV emitted with header only (no data rows); glmm.R still emitted (with a comment noting zero observations); no crash; WHY: degenerate empty-input boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "JSONL with only void/N/A rows (all filtered out) -> CSV has header only; rates section reports no data; WHY: all-filtered boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Very large repeat count (k=100) in a small fixture -> CSV row count equals the number of kept runs (not inflated by metadata); WHY: ensures CSV is one-row-per-run not one-row-per-repeat-per-metric",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run analyze.mjs, then run it AGAIN on the same input -> CSV and glmm.R output are byte-identical (deterministic, no timestamps or random content embedded); WHY: reproducibility -- the paper requires regenerable numbers from committed generators",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Tamper with a synthetic fixture to inject a run with scenarioId not in the pre-registered B1..B15 set -> analyze rejects or warns about the unknown scenario, does not silently include it in rates/denominators; WHY: unknown scenarios must not inflate the analysis",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject a run record missing a required section-7 field (e.g. no adjudicatedOutcome) -> analyze rejects or skips that record with a logged error, does not crash or produce NaN rates; WHY: incomplete records from a partial campaign must not corrupt the analysis",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
