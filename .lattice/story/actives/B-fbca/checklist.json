@@ -337,6 +337,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:21:33.089Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "git grep -in 'koala-agent' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 (zero hits): all koala-agent references cleaned from packages/*/src",
+          "headHash": "3c2eb0c7958385453f996d05194a72eb9151b03d",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:34.440Z"
         }
       ]
     },
