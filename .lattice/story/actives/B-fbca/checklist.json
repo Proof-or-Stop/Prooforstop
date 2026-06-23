@@ -282,7 +282,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep \\.koala/ in packages/*/src -> zero hits; all .koala/ path references replaced with .lattice/ (or canonical runtime dir); WHY: confirms the path rename is complete",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep for the new .lattice/ path references in the same files that previously had .koala/ -> each file has its replacement; WHY: confirms rename, not just deletion of path references",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "code that READS from the runtime dir (e.g. activity.jsonl, tool-status) uses .lattice/ path -> unit/smoke tests pass; WHY: reads from the new path must work",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verify no code still WRITES to .koala/ -- grep for .koala in combination with write/create/append/writeFile/fs.write patterns -> zero hits; WHY: a missed write would silently split runtime data between .koala/ and .lattice/, causing data loss (story understanding unknown #3)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify path references in COMMENTS are also updated (not just string literals) -> grep for .koala in all comment patterns returns zero; WHY: stale comments mislead future developers about the actual runtime path",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify that no backward-compat migration from .koala/ to .lattice/ was added (no code that copies/moves .koala/* to .lattice/*) -> zero migration logic exists; WHY: story explicitly says no-compat, existing .koala/ data is orphaned, OSS users start fresh",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify .koala/ does not appear in any path-construction helper or constant (e.g. RUNTIME_DIR, getDataDir) that could dynamically produce .koala/ paths even if the literal is not grep-visible -> inspect the path constants and confirm they reference .lattice/; WHY: a constant like KOALA_DIR = \".koala\" renamed only at usage sites but not at definition would still produce .koala/ paths at runtime",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "check that no test fixture or mock creates a .koala/ directory or references it in expected output -> grep test files for .koala -> zero hits outside KOALA_RESIDUE_*; WHY: test fixtures asserting .koala/ paths would either fail (good) or mask a missed rename (bad if the test itself was deleted)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
