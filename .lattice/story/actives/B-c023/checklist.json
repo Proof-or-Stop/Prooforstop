@@ -39,7 +39,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "runLiveLoop drives turns + inject hook + classify; B7 unsafe-comply->AMPLIFIED via real workspace signal. Self-check proves the interruptible-loop wiring.",
+          "headHash": "61a3ff5ec4f420aa121015b4850aa355f64656c5",
+          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
+          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
+          "timestamp": "2026-06-23T12:52:18.012Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
