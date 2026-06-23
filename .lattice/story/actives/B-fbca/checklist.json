@@ -228,7 +228,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep idleKoala in packages/*/src -> zero hits; replacement field (idleLattice or equivalent) exists; WHY: config field renamed, not just deleted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep koala.config.json in packages/*/src -> zero hits; replacement filename (lattice.config.json or equivalent) exists in the same code paths; WHY: filename reference renamed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep koalaConfig in packages/*/src -> zero hits; replacement identifier (latticeConfig or equivalent) exists; WHY: identifier renamed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verify NO read-fallback for koala.config.json exists (no code that tries lattice.config.json then falls back to koala.config.json) -> grep for both filenames in same function shows no fallback; WHY: story explicitly says no-compat, old config is not migrated",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify the config schema/type definitions are updated to use the new field names -> TypeScript interfaces reference idleLattice (or equivalent), not idleKoala; WHY: type definitions must match runtime field names",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "search for any koala substring in config-related files (case-insensitive) that might have been missed by the targeted renames -> zero hits outside KOALA_RESIDUE_*; WHY: there may be derivative identifiers (e.g. parseKoalaConfig, KOALA_CONFIG_PATH) not captured by the three named targets",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify that test fixtures and smoke tests that previously referenced idleKoala/koala.config.json/koalaConfig have been updated to use the new names -> tests still pass, no test is asserting the OLD name; WHY: a test asserting the old name would pass vacuously if the feature under test was deleted rather than renamed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
