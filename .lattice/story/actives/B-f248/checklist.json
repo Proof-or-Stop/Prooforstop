@@ -274,7 +274,60 @@
       "userSees": "run-driver-selfcheck.mjs prints budget-log: A2prime record carries budgetPass/tokenInBand/wallInBand/truncated + budget constants; non-A2prime arms carry null ... PASS.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Stub engine returns A2prime arm run -> canonical record carries {budgetPass:true, tokenInBand:true, wallInBand:true, truncated:false, tokenBudget:<number>, wallBudgetMs:<number>} as extra fields alongside the 21 core §7 fields; WHY: proves A2prime budget fields are surfaced",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns A4 arm run -> canonical record has budgetPass=null, tokenInBand=null, wallInBand=null, truncated=null, tokenBudget=null, wallBudgetMs=null; WHY: non-A2prime arms carry null, not missing keys",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All 21 core §7 fields remain present on an A2prime record (budget fields are additional, not replacing); WHY: proves extra fields do not displace the required schema",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A2prime run where token spend is exactly at the +20% boundary -> budgetPass=true and tokenInBand=true (boundary-inclusive); WHY: boundary on the tolerance band",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A2prime run where token spend is 1 token over the +20% upper bound -> truncated=true and budgetPass=false; WHY: hard-truncation boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A2prime run where wall-clock exceeds +20% but tokens are in-band -> tokenInBand=true, wallInBand=false, budgetPass depends on token-budget-binds-first rule (tokens pass so budget may still pass); WHY: verifies token-budget-binds-first precedence per §1 line 47",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A1 arm run -> all 6 budget fields are null (not undefined or absent); same for A2 and A3; WHY: all non-A2prime arms consistently null",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine pre-fills budgetPass=true on a non-A2prime arm -> driver overrides to null, does not trust engine-supplied budget fields; WHY: prevents engine from faking budget compliance on wrong arms",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns A2prime run with tokenBudget=0 (degenerate budget) -> driver either rejects (if budget must be positive) or correctly computes budgetPass=false (any spend exceeds 0 +20%); WHY: degenerate budget input resilience",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
