@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-23T19:15:13.779Z",
       "reviewRunId": "B-7036:RR-012",
       "_hash": "6bb06dac112c9d9bfcca00e4ae99b273af711bad3e73d4b8038c5189b8b40dc5"
+    },
+    {
+      "id": "B-7036:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-residue check complete. Fix commit 8f72d105f addressed F-007 (emitGlmmR single pooled model) and F-008 (terminalStopTypeOf bare-string/kind form). Scanned for residue of: (1) old single-GLMM pattern (one glmer call, pooled completion+notAmplified) — zero hits outside findings.json; (2) old hardcoded `t===rollback||t===human_gate` pattern — zero hits; (3) old `e.type||e.event` (without kind, without bare-string) — zero hits in code; (4) old `typeof r.terminalStopType===string` guard without TERMINAL_STOP_TYPES import — zero hits. TERMINAL_STOP_TYPES imported and used correctly. analyze-selfcheck.mjs: 65 assertions passed, 0 failed. No concept deletion/replacement residue; no doc-promise-undelivered found.",
+      "createdAt": "2026-06-23T19:18:34.850Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-011",
+      "_hash": "bb33f6d9be6ecf3bb653dd3578f0c8bfb3a386f3af071bc7481c7c493d8e3f21"
     }
   ]
 }
