@@ -6,7 +6,55 @@
       "context": "Pre-reg section 7 field names: tokensSpent, wallClockMs, agentCallCount. Fixes the reviewRounds undercount of reviewer calls",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "agentRun call increments agentCallCount by 1 per invocation; after 3 agent calls on synthetic records, agentCallCount === 3; WHY: covers basic counting at the executor call site",
+            "type": "cli"
+          },
+          {
+            "desc": "reviewArtifact call increments agentCallCount by 1; after 2 agent + 1 review calls, agentCallCount === 3; WHY: covers the reviewer call site that was previously undercounted via reviewRounds",
+            "type": "cli"
+          },
+          {
+            "desc": "tokensSpent accumulated from claude JSON usage.input_tokens + usage.output_tokens across all calls; 3 calls with usage {in:100,out:50} each => tokensSpent === 450; WHY: covers token extraction and accumulation",
+            "type": "cli"
+          },
+          {
+            "desc": "wallClockMs is present in output record and is a positive number; WHY: confirms existing field preserved per pre-reg",
+            "type": "cli"
+          },
+          {
+            "desc": "output record contains exact pre-reg section 7 field names: tokensSpent, wallClockMs, agentCallCount; WHY: field-name compliance with locked pre-registration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "zero-token response (usage.input_tokens=0, usage.output_tokens=0) => tokensSpent accumulates 0, not NaN or undefined; WHY: edge where model returns empty usage",
+            "type": "cli"
+          },
+          {
+            "desc": "missing usage field in claude JSON output => tokensSpent defaults to 0 for that call, not NaN/throw; WHY: defensive against malformed claude output",
+            "type": "cli"
+          },
+          {
+            "desc": "single attempt R=1 succeeds => agentCallCount=1 not 0 or 2; WHY: boundary on minimum call count",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "claude JSON contains negative token counts => tokensSpent accumulates correctly or implementation-defined; WHY: adversarial malformed data from model API",
+            "type": "cli"
+          },
+          {
+            "desc": "infra void on first call => agentCallCount reflects only calls actually made not max R; WHY: ensures count is actual not planned",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

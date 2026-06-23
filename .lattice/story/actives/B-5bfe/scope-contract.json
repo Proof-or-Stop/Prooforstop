@@ -1,0 +1,21 @@
+{
+  "storyId": "B-5bfe",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/run-ablation.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/ablation-A2prime-compute-matched.jsonl"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "core/**",
+    "packages/**"
+  ],
+  "scopeChangeReason": "spend-matched A2-prime + token/wall-clock/agentCallCount accounting.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T01:29:40.593Z",
+  "updatedAt": "2026-06-23T01:29:40.593Z"
+}

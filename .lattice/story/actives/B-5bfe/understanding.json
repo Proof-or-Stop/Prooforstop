@@ -1,0 +1,24 @@
+{
+  "task": "Add token+wall-clock+agentCallCount accounting to the recovery runner and implement the spend-matched A2-prime arm (a2prime bounded by A4 per-task median token+wall-clock budget, plus-or-minus 20 percent, token binds first, hard-truncate) per the locked pre-registration.",
+  "outcome": "Each run record carries tokensSpent, wallClockMs and agentCallCount (pre-reg section 7 names). run-ablation.mjs computes A4 per-task median token+wall-clock spend and runs an A2-prime arm = a2prime bounded by that budget, hard-truncating when cumulative tokens or wall-clock reaches the upper bound (token binds first), printing the per-task budget and writing ablation-A2prime-compute-matched.jsonl with per-run budgetPass + truncated flags.",
+  "facts": [
+    "Pre-reg lattice-experiment-protocol.md rev3.1 defines A2-prime as token+wall-clock SPEND match (not call count), plus-or-minus 20 percent, token binds first, hard-truncate, per-run budget logging.",
+    "run-recovery.mjs records costUsd + wallClockMs but not tokensSpent or an accurate agentCallCount; reviewRounds undercounts reviewer calls.",
+    "The claude -p JSON output carries usage token counts and total_cost_usd.",
+    "a2prime stops at first acceptance pass, so the budget is a cap; spend match is on the budget envelope."
+  ],
+  "constraints": [
+    "Only modify run-recovery.mjs and run-ablation.mjs.",
+    "Verification must not invoke the live LLM loop.",
+    "Match pre-reg section 7 field names exactly (tokensSpent, wallClockMs, agentCallCount).",
+    "Do not change a2prime/a4/a4b semantics or existing fields."
+  ],
+  "unknowns": [
+    "None blocking."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/run-ablation.mjs"
+  ],
+  "timestamp": "2026-06-23T01:29:38.053Z"
+}
