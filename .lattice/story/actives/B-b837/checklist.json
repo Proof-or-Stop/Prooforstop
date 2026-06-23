@@ -116,6 +116,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:08.026Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "grep -n legacy-koala packages/main/src/core/runtime-artifact-registry.ts",
+          "result": "pass",
+          "note": "Ran the literal grep on runtime-artifact-registry.ts; zero hits (exit 1). No stale ignorePattern/exact-match for activity.legacy-koala.jsonl remains.",
+          "headHash": "11ccc123b199cc8f3b2f6782b9af1577aef63bdd",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:08.774Z"
         }
       ]
     },
