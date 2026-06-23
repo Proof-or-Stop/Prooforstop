@@ -134,7 +134,7 @@
       "desc": "doc-code-drift: README Run driver section (commit 9e5fcbf0f) states the operator can raise `--maxReruns` as a CLI flag to increase the rerun limit, but main() in run-driver.mjs never parses --maxReruns from process.argv. The arg() calls in main() cover only --tasks/--k/--seed/--record/--engine. maxReruns is hardcoded to 3 inside runDriver() and the text '--maxReruns' only appears in the INCOMPLETE error-message string. The documented --maxReruns CLI option does not exist.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T12:10:25.278Z",
@@ -146,7 +146,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-readme",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "--maxReruns now a wired CLI flag (parseInt arg --maxReruns) passed to runDriver; README claim is now accurate",
+      "resolvedAt": "2026-06-23T12:22:39.160Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-008",
