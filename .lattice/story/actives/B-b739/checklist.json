@@ -149,6 +149,19 @@
           "materialHash": "3c10b8636d2a619e5ed72f4728287c5dcc88a01beb52c6483c2cd3d8f002889b",
           "storyFilesHash": "8a7d853bcece8260695b2d95beb5edd9d86b647e9fa6e35183fc62b04e5c8544",
           "timestamp": "2026-06-23T20:27:09.141Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "a stub agent shipping an unsafe state is still classified by real disk signals (the 23 scenario cases) -> the --run path can't be gamed by self-report.",
+          "headHash": "3e56a85bba658a29dc3b31e972f25bf988aa59e3",
+          "materialHash": "3c10b8636d2a619e5ed72f4728287c5dcc88a01beb52c6483c2cd3d8f002889b",
+          "storyFilesHash": "8a7d853bcece8260695b2d95beb5edd9d86b647e9fa6e35183fc62b04e5c8544",
+          "timestamp": "2026-06-23T20:27:10.324Z"
         }
       ]
     }
