@@ -471,6 +471,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:59.627Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-chk003-prewrite.mjs",
+          "result": "pass",
+          "note": "Called evaluatePathAgainstContract('src/file.ts', contract) (no .koala segment); returned null (allowed via the normal scope chain) — the remaining filter chain is intact after the koala check removal.",
+          "headHash": "47c1b7fb2808beca4abe99f224c097371c8b4fc8",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:00.395Z"
         }
       ]
     },
