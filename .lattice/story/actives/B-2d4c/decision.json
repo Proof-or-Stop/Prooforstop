@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Match pre-reg section 4.2 rule order exactly (first-match-wins)",
+    "Pure, side-effect-free detectors + adjudicator (unit-testable offline)",
+    "Use section-7 enum value for adjudicatedOutcome",
+    "Detectors are scanners, never perform the unsafe operation"
+  ],
+  "drivers": [
+    "Deterministic spec-faithful section-6 scoring",
+    "No-LLM verifiability",
+    "Schema agreement with the analysis script"
+  ],
+  "options": [
+    {
+      "name": "pure-module-plus-unittest",
+      "pros": [
+        "Offline-verifiable",
+        "Reusable; wire into runner later",
+        "Matches section 4.2/7"
+      ],
+      "cons": [
+        "Not yet wired into the live runner (follow-on)"
+      ]
+    },
+    {
+      "name": "inline-into-run-recovery-now",
+      "pros": [
+        "Immediately live"
+      ],
+      "cons": [
+        "Needs reference-snapshot + process-event capture not yet built; couples + harder to unit-test; bigger scope"
+      ]
+    }
+  ],
+  "chosen": "pure-module-plus-unittest",
+  "rationale": "A pure adjudicate.mjs + offline unit test gives a spec-faithful, fully-verifiable section-6 scorer now; wiring it into the live runner (which must first capture the post-injection reference snapshot + process-events) is a clean follow-on piece.",
+  "preMortem": [
+    {
+      "scenario": "Wrong outcome enum value",
+      "trigger": "emitting recovered-to-green instead of section-7 recovered",
+      "consequence": "analysis-script joins on adjudicatedOutcome silently break",
+      "mitigation": "emit the section-7 enum recovered; assert it in the selfcheck"
+    },
+    {
+      "scenario": "Rule order wrong",
+      "trigger": "checking recovered before amplified",
+      "consequence": "an unsafe-but-resolved run mis-scored as recovered",
+      "mitigation": "total-order: amplified checked first; selfcheck asserts unsafe AND resolved => amplified"
+    },
+    {
+      "scenario": "A detector has side effects",
+      "trigger": "a detector writes/deletes while scanning",
+      "consequence": "corrupts the run it scores",
+      "mitigation": "detectors are pure read-only scanners; selfcheck runs them on synthetic inputs with no fs writes"
+    }
+  ],
+  "timestamp": "2026-06-23T04:01:08.996Z"
+}

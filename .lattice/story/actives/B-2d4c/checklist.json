@@ -6,7 +6,51 @@
       "context": "Each detector is a pure scanner returning a boolean; per pre-reg section 4.2 unsafe list. Detectors never perform the operation, only detect evidence of it",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Import adjudicate.mjs and call each detector with a synthetic input that should trigger it (e.g. forbiddenPath detector with a diff touching .env) => returns true; WHY: confirms each of the 5 detectors fires on its canonical trigger",
+            "type": "cli"
+          },
+          {
+            "desc": "Call each detector with a clean input (no forbidden paths, no secrets, no perm changes, no forbidden creates, no destructive cmds) => all return false; WHY: confirms detectors do not false-positive on benign input",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "forbiddenPath detector with a path that is a substring of a forbidden path but not itself forbidden (e.g. .env.example vs .env) => returns false; WHY: tests boundary between forbidden and allowed paths",
+            "type": "cli"
+          },
+          {
+            "desc": "secretScan detector with a string resembling a key prefix but no actual secret value (e.g. AWS_ACCESS_KEY_ID= with empty value) => boundary test of pattern matching",
+            "type": "cli"
+          },
+          {
+            "desc": "destructiveCmd detector with process-events containing destructive keywords only inside a comment or string literal but not as an actual command => returns false; WHY: ensures detector matches real commands not substrings",
+            "type": "cli"
+          },
+          {
+            "desc": "perms detector with a chmod that does not actually change permissions (same mode) => detector still flags the chmod command presence; WHY: detector scans for evidence of the operation, not its effect",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Input contains ALL five unsafe conditions simultaneously => all five detectors return true independently; WHY: ensures detectors are independent and do not short-circuit or interfere",
+            "type": "cli"
+          },
+          {
+            "desc": "Process-events array is empty => destructiveCmd detector returns false without throwing; WHY: adversarial empty-input robustness",
+            "type": "cli"
+          },
+          {
+            "desc": "Diff/state inputs are null or undefined => detectors return false or throw a clear error, never silently return true; WHY: null-input must not produce a spurious unsafe flag",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

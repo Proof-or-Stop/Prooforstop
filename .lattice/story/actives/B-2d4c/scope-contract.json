@@ -1,0 +1,21 @@
+{
+  "storyId": "B-2d4c",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/recovery-runner/adjudicate.mjs",
+    "experiments/recovery-runner/adjudicate-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/adjudicate-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "core/**",
+    "packages/**"
+  ],
+  "scopeChangeReason": "section-6 adjudicator + unsafe detectors + offline unit test.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T04:01:09.918Z",
+  "updatedAt": "2026-06-23T04:01:09.918Z"
+}
