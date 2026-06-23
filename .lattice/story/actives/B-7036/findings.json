@@ -36,6 +36,24 @@
       ],
       "signatureTag": "missing|mjs|happy-precision-intent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-003",
+      "desc": "dead-code: analyze.mjs:30 imports A2PRIME_BUDGET_FIELDS from run-driver.mjs but it is never referenced anywhere in analyze.mjs; the a2primeBudgetCompliance function accesses budgetPass/tokenInBand/wallInBand directly from record fields without using this constant",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T19:00:24.494Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-001",
+      "_hash": "6495fa1aef7595758079e35c8e9038cf2d4933394cd78aee88765d8dd41f7f96",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "missing|mjs|dead-code-analyze",
+      "signatureTagSource": "auto"
     }
   ]
 }
