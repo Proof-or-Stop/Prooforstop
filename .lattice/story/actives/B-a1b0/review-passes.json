@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T10:04:54.815Z",
       "reviewRunId": "B-a1b0:RR-006",
       "_hash": "a4edd5dc0c17fed820c793ae4ef3adfd249a23e94a053e4d8aad2362f2fd0515"
+    },
+    {
+      "id": "B-a1b0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All 3 round-1 fixes are sound. F-001: selfTest().catch() at line 154 correctly intercepts unhandled rejections, prints stack, exits 1. F-002: console.error save/restore added to importProbe finally block at lines 37/51 — symmetric with console.log, no leakage. F-003: classifyCase() helper wraps each adversarial workspace in makeWorkspace()/finally{cleanup(ws)} at lines 123-129 — no temp-dir leaks on classifier throw. All 6 probe selfTestCases return plain sync objects; probe.classify() is also synchronous; the sync classifyCase wrapper is correct. No dead code (all 5 imports used: pathToFileURL line 151, appendFileSync line 86, OUTCOME line 100, makeWorkspace lines 79/123, cleanup lines 88/128). No unnecessary as-any or empty catch. No bridge/shell-isolation concern (this is a pure experiments/ script, not a shell importing fn.ts). Self-test run: 18/18 + adversarial, exit 0. CHANGELOG entry matches delivered code. No findings.",
+      "createdAt": "2026-06-23T10:08:59.926Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-005",
+      "_hash": "a3332dcadea5e1d8f130c9fa5638bb3234bc1621e633921da039b0f6a9c9ed95"
     }
   ]
 }
