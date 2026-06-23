@@ -687,6 +687,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:23:44.471Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "git grep -nE 'idleKoala|koalaConfig|koala\\.config\\.json' -- 'packages/*/src/**' ; node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "No test/fixture asserts the OLD names (grep exit 1) and the config-touching thin-init-assets-smoke passes — fixtures updated to new names; no vacuous test asserting a deleted old name",
+          "headHash": "723faae39c5b65d05568447409e30cac60e24042",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:46.039Z"
         }
       ]
     },
