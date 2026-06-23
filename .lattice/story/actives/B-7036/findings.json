@@ -238,6 +238,25 @@
       "resolvedAt": "2026-06-23T19:40:17.048Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7036:F-012",
+      "desc": "Formal GLMM and exploratory per-scenario A4-vs-A2prime tests still use unmatched cells. analyze.mjs emits glmm.R with d6 <- subset(d, scenario != \"null\") and d5 <- subset(d, scenario == \"null\") over the full tidy CSV, with no A4/A2prime matched-cell filter, so a row for a task/scenario where only one arm has kept data still enters the formal authority model. The same leakage exists in exploratory.perScenario: lines 484-485 call perArmRate without cellKeys; synthetic probe showed headline recovery n=1/1 while exploratory B1 scored A4/A2prime as n=2/1. This violates the protocol requirement that analysis rates use common-cell denominators and leaves a remaining path where one arm is scored over cells the other lacks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T19:42:03.597Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-020",
+      "_hash": "863b3019d5b3f709f2b243242004be63db4db09790cb57bd6e2c5cb9c9350daf",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs",
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "signatureTag": "missing|mjs|formal-glmm-exploratory",
+      "signatureTagSource": "auto"
     }
   ]
 }
