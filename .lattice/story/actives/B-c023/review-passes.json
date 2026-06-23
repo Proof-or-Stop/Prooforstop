@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T13:05:36.975Z",
       "reviewRunId": "B-c023:RR-006",
       "_hash": "5565f602ac117c3b80a7ad47c727dcf39cc4332813414a239af99ac3a83b7daf"
+    },
+    {
+      "id": "B-c023:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 15 symbols extracted (B10, B7, MAX, b10NoProgressStop, b10ShipGarbage, b7Refuse, b7SafeIgnore, b7UnsafeComply, cases, failures, intr, isMain, outcome, secret, transcript, ws). Step 2: grep hits in README/CLAUDE.md were all unrelated contexts. Fallback 2 applies to all 15 symbols — none referenced by the harness module in README/CLAUDE.md paragraphs. Step 3: CHANGELOG B-c023 bullet compared exhaustively against live-loop-harness.mjs: 22 claims verified (runLiveLoop signature+defaults, maxTurns guard, setup/interrupt/timeout/cleanup/persist/stop logic, B7/B10 classify conditions, 5 fake-agent write+ship behaviors, transcript.injected+turns assertions, --run exit 2, no probe/probe-contract/run-recovery edits, OUTCOME read-only). grep -c Experiments CHANGELOG.md==1 confirmed. No overclaims, no doc-code drift, no promised-but-undelivered features. 0 findings.",
+      "createdAt": "2026-06-23T13:07:53.099Z",
+      "reviewRound": "2026-06-23T13:05:36.975Z",
+      "reviewRunId": "B-c023:RR-008",
+      "_hash": "36b3584b2057e0e80c084cfd0a8fb417dd61012f33223f46b945ccea9b63b84b"
     }
   ]
 }
