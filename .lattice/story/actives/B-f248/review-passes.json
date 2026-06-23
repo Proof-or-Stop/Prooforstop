@@ -179,6 +179,15 @@
       "reviewRound": "2026-06-23T14:19:52.339Z",
       "reviewRunId": "B-f248:RR-025",
       "_hash": "8f76b6d9af3ff7a2fb320e1b074a091edbc313ee2af981ef5f92b647935c993a"
+    },
+    {
+      "id": "B-f248:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-bind at current material (head 097d51a) after main auto-sync drifted materialHash; deliverable .mjs files byte-identical, deps unchanged. Reviewed run-driver.mjs/run-driver-selfcheck.mjs/run-selfchecks.mjs + package.json: pure exported helpers, deterministic xmur3/mulberry32 PRNG, fail-closed enumerateCells (unknown-arm/dup-task/bad-k rejected), runDriver catch converts engine exception to logged infra-void (not swallowed), no dead code, no unsafe casts; experiments/ sits outside the core/shells bridge architecture so no fn.ts-isolation concern. All 4 recovery-runner selfchecks pass offline (run-driver: 130 assertions, 0 failed) and aggregator-referenced files all exist. No new blocking quality issue.",
+      "createdAt": "2026-06-23T17:49:07.338Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-027",
+      "_hash": "f898ec42700f201309d9207aa7a3d5dbffef3a2d0a06909f950dbc76bddc2e62"
     }
   ]
 }
