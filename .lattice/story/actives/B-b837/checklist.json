@@ -460,6 +460,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:58.879Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "docs_check",
+          "command": "grep -n assertNoLegacyKoalaWritePath packages/main/src/handlers/dev-memory.ts",
+          "result": "pass",
+          "note": "dev-memory.ts has zero references to the removed guard (grep exit 1); it exports createDevMemoryHandlers and the build (tsc) compiled clean (exit 0), so the handler loads with a valid storyDir after guard removal.",
+          "headHash": "f3fa31f8a6219aafd0d46ac45c760351a1918a12",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:59.627Z"
         }
       ]
     },
