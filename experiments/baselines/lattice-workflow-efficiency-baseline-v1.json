@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "lattice.workflow_efficiency_baseline.v1",
+  "baselineId": "lattice-workflow-efficiency-baseline-v1",
+  "createdAt": "2026-06-23T03:53:28Z",
+  "sourceIncident": {
+    "sourceStory": "B-e9cb",
+    "sourceRepo": "Lattice_Authority",
+    "sourceDate": "2026-06-23",
+    "localMainMergeCommit": "ea470b4",
+    "proofboundReferenceCommits": {
+      "codexAdapterGateFix": "c58ecb522",
+      "cliVersionBump": "3c0c73561"
+    },
+    "summary": "Authority/provider-host story exposed six Lattice workflow-efficiency issues that need measured follow-up rather than arbitrary optimization."
+  },
+  "observedBefore": {
+    "validateCostAndTimeoutRisk": {
+      "fullValidateCommand": "uv run pytest -q",
+      "finalFullValidate": {
+        "passedCount": 699,
+        "durationApproxSeconds": 171,
+        "timedOut": false
+      },
+      "timeoutPressure": {
+        "timeoutMsAtIncident": 240000,
+        "timeoutRunObserved": true,
+        "risk": "A normal full validation envelope could be misclassified as failure when the timeout is too close to observed runtime."
+      },
+      "focusedBeforeFullStrategyObserved": "manual and inconsistent"
+    },
+    "proofMetadataReviewCoverage": {
+      "lateCorrectnessFindingsObserved": true,
+      "requiredProofKeySurfaces": [
+        "job.metadata",
+        "linked run.metadata"
+      ],
+      "lateFindings": [
+        "job.metadata could be pre-seeded with providerAuthorization",
+        "linked run.metadata could expose stale or forged providerAuthorization"
+      ],
+      "firstRoundChecklistRequiredBothSurfaces": false
+    },
+    "codexAdapterGateScope": {
+      "providerOnlyCodexTextTriggeredGateBeforeFix": true,
+      "adapterSurfaceGateStillRequired": true,
+      "referenceFixCommit": "c58ecb522"
+    },
+    "mainMergeReadiness": {
+      "lateMainMergeConflictObserved": true,
+      "conflictDiscoveryPhase": "late story closure",
+      "preReviewMainSyncCheckObserved": false
+    },
+    "deliveryCheckFreshness": {
+      "staleDeliveryCheckCouldRemainVisibleAsPass": true,
+      "manualRefreshRequired": true,
+      "headHashMaterialHashStalenessMustBlock": true
+    },
+    "doneSummaryFreshness": {
+      "staleCountsObserved": true,
+      "staleCountsExample": {
+        "focusedPassedCount": 55,
+        "fullPassedCount": 687
+      },
+      "latestKnownFullPassedCount": 699,
+      "latestEvidenceAutoRefreshObserved": false
+    }
+  },
+  "targetAfter": {
+    "validateCostAndTimeoutRisk": {
+      "falseTimeoutsAllowed": false,
+      "focusedSuitesBeforeFinalValidate": true,
+      "fullValidateStillRequiredWhenPolicyRequiresIt": true,
+      "timeoutMustCoverNormalFullValidateEnvelope": true
+    },
+    "proofMetadataReviewCoverage": {
+      "firstRoundChecklistRequiresJobAndLinkedRunMetadata": true,
+      "serverAuthoredProofKeysMustRejectClientControlledMetadata": true,
+      "regressionTestsCoverBothSurfaces": true
+    },
+    "codexAdapterGateScope": {
+      "providerOnlyCodexTextTriggersGate": false,
+      "actualCodexAdapterSurfaceTriggersGate": true
+    },
+    "mainMergeReadiness": {
+      "preReviewMainSyncCheckRequiredForLongStories": true,
+      "lateConflictDiscoveryAllowed": false
+    },
+    "deliveryCheckFreshness": {
+      "staleDeliveryCheckAccepted": false,
+      "headHashMaterialHashMismatchBlocksDone": true
+    },
+    "doneSummaryFreshness": {
+      "summaryUsesLatestCurrentHeadTestEvidence": true,
+      "staleCountsAccepted": false
+    }
+  },
+  "futureComparisonRules": [
+    "Each follow-up story must name exactly which baseline dimension it changes.",
+    "A follow-up cannot claim improvement from wall-clock time alone if it weakens evidence, review, delivery-check, validate, or DONE semantics.",
+    "A follow-up must preserve the four principles: do not optimize for the sake of optimization, do not optimize arbitrarily, only fix real correctness issues, and preserve consistency of logic.",
+    "The original baseline file is immutable after registration; future runs should write separate result artifacts that reference this baselineId."
+  ]
+}
