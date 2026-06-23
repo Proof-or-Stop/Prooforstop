@@ -45,9 +45,9 @@
       "id": "CHK-002",
       "title": "powered --run: 6 probes × bare arm × small N -> records jsonl",
       "context": "Drive runInjectionArms (from the merged B-a1b0 driver) with the real bare arm over the 6 probes at small N; append {probe,arm,rep,outcome,costUsd,tokensSpent} to experiments/injection-probes/powered-run-records.jsonl. This produces the first REAL catch-rate numbers; report them honestly (small N, bare arm only).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T12:05:14.955Z",
       "userSees": "✓ node real-arm.mjs --run --reps 1 runs 6 REAL claude -p calls on injected workspaces, appends powered-run-records.jsonl, and prints per-probe outcomes + the bare-arm catch-rate + total cost (first genuine small-N data).",
       "files": {
         "modify": [
