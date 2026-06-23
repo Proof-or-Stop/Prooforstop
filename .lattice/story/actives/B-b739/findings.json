@@ -97,7 +97,7 @@
       "desc": "[codex-host2 C3/C4] signal honoring inadequate: makeRealLoopAgent uses blocking execFileSync, so the harness Promise.race timer + ac.abort() can't fire mid-call; the child is bounded only by execFileSync's 700s timeout, NOT the AbortSignal (the entry-check only catches already-aborted). FIX: make the agent async via execFile with {signal} so AbortController.abort() actually kills the child + the event loop isn't blocked -> the harness watchdog/turnTimeoutMs become real. (Corroborates quality F-002.)",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T20:33:34.481Z",
@@ -107,7 +107,11 @@
         "experiments/injection-probes/real-loop-agent.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-signal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:36.175Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-006",
