@@ -113,7 +113,50 @@
       "context": "The ~7 files with koala-codex/koala-agent references not covered above, plus any other stray koala comment/string in packages/*/src, except the residue-gate self-identifiers (KOALA_RESIDUE_* in handlers/review-preflight.ts) which are story 4.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala-codex in packages/*/src -> zero hits; WHY: all koala-codex references cleaned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala-agent in packages/*/src -> zero hits (after CHK-002 also removes its portion); WHY: all koala-agent references cleaned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala -- packages/*/src -> only review-preflight.ts KOALA_RESIDUE_* lines remain; WHY: comprehensive stray-literal sweep is done, only story-4 deferred identifiers survive",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for koala in string literals AND comments (not just identifiers) across packages/*/src -> only KOALA_RESIDUE_* in review-preflight.ts; WHY: comments containing koala are also in-scope for this story (they leak brand name)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "check that renamed references (koala->lattice) in comments/strings still make semantic sense after mechanical replacement -- no broken URLs, no nonsensical text; WHY: blind find-replace can produce gibberish (e.g. lattice-codex where it was a proper noun reference)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify docs/experiments/ and .lattice/story/ directories have zero changes from this item -> git diff shows no modifications there; WHY: story description explicitly says docs/experiments and .lattice/story are untouched; cleaning stray literals must not leak into documentation or story metadata",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify that no functional logic was removed alongside stray koala literals -- diff each changed file and confirm only string/comment tokens changed, not control flow; WHY: a stray literal cleanup must be cosmetic, not behavioral",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
