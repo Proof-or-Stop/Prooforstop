@@ -157,6 +157,34 @@
         }
       ],
       "_hash": "7c7e40c109f4ff4728d8a54b3ed789957b093ff598c2258d90db333de204a219"
+    },
+    {
+      "timestamp": "2026-06-23T04:08:09.106Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Register the human-readable baseline protocol + Register the machine-readable baseline JSON are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4bd7 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "bffbfd951fd6f84dac021b91da5e0ea39cd21927dd5caccec8793d13c81db3f7"
     }
   ]
 }
