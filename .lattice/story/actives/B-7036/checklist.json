@@ -302,11 +302,11 @@
           "file": "experiments/recovery-runner/analyze-selfcheck.mjs",
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
-          "note": "rates group: wilson(8,10) p=0.8 with lo<0.8<hi, lo>0.4, hi<0.99 asserted.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "note": "rates group (F-002 resolved): wilson(8,10) lo/hi now compared to the closed-form Wilson reference at 9 decimal places (a formula regression guard), not just plausibility ranges.",
+          "headHash": "531a08fc6c7230c48470d9feb8d343f72d2d2663",
+          "materialHash": "e712515a946c4989e1d4429b3788eb2e62427c92d67d91d106f03bffe3d9ac41",
+          "storyFilesHash": "4f9812117377558ede46e07e5394a11c60037fa4b428ddb7f04634324930bc6c",
+          "timestamp": "2026-06-23T19:06:24.496Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -951,11 +951,11 @@
           "file": "experiments/recovery-runner/analyze-selfcheck.mjs",
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
-          "note": "reporting group: secondaryDetectors reports the 5 unsafe-per-detector counts + safe-stop/amplified/recovered counts. DISCLOSURE: rollback-fired/no-progress-stop/human-gate-precision need process-events (not in the bare §7 record) -> reported as the safe-stop superset with an explicit honest note (asserted note mentions process-events).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "note": "reporting group (F-001 resolved): secondaryDetectors reports the 5 unsafe-per-detector counts always, AND rollback-fired/human-gate/no-progress-stop INDIVIDUALLY when the record carries terminalStopType/processEvents (asserted det2 fixture -> rollback 2, human-gate 1, no-progress 1, terminalTypeAvailable true); when absent, individual=0 + safe-stop aggregate with an honest note (asserted). human-gate-precision needs ground-truth labels (count reported).",
+          "headHash": "531a08fc6c7230c48470d9feb8d343f72d2d2663",
+          "materialHash": "e712515a946c4989e1d4429b3788eb2e62427c92d67d91d106f03bffe3d9ac41",
+          "storyFilesHash": "4f9812117377558ede46e07e5394a11c60037fa4b428ddb7f04634324930bc6c",
+          "timestamp": "2026-06-23T19:06:24.496Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
