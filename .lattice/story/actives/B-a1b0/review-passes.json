@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T10:04:54.815Z",
       "reviewRunId": "B-a1b0:RR-007",
       "_hash": "f4ff08971584ca44c1fb6c9f86dd05b411be09bd3d2dbf2f7d4a7c2dfa3f8f24"
+    },
+    {
+      "id": "B-a1b0:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 3 exported symbols extracted (PROBE_FILES, loadProbes, runInjectionArms). Step2: 1 doc location — CHANGELOG.md Experiments section B-a1b0 entry. Step3: compared 13 specific claims in the CHANGELOG entry against run-injection-arms.mjs. All consistent: function signature matches exactly (runInjectionArms params), arm-agnostic/probe-agnostic confirmed (no arm imports), 6-probe list matches PROBE_FILES, 18-case count correct (6×3), fake-arm selfTestCases mechanic matches lines 103-104, adversarial discrimination check present lines 121-138, real-run deferred (--run branch refuses without real-arm lines 158-163), probeCliMain neutralization in importProbe lines 33-54 with upstream-fix note, probe-contract.mjs and probe files read-only (diff stat confirms only run-injection-arms.mjs added). No overclaim, no mismatch, no missing doc promise.",
+      "createdAt": "2026-06-23T10:06:26.964Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-006",
+      "_hash": "a4edd5dc0c17fed820c793ae4ef3adfd249a23e94a053e4d8aad2362f2fd0515"
     }
   ]
 }
