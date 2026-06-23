@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T04:41:14.042Z",
       "reviewRunId": "B-2d4c:RR-006",
       "_hash": "e59338efa4e955a8a2bece76948d3078ac9298eef228bd271cef20c90ed67a71"
+    },
+    {
+      "id": "B-2d4c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 clean. F-001 (terminalStopEvent kind widening) resolved in d784885e3: now requires TERMINAL_STOP_TYPES.includes(kind) even on terminal:true branch. F-A (regex lastIndex leak) resolved: toRegExp strips g/y flags on global/sticky regexes, confirmed stateless. Selfcheck pins confirm both regression pins pass (98/98). Changed files adjudicate.mjs + adjudicate-selfcheck.mjs: no dead code, no type safety issues, no I/O isolation violations. No new findings.",
+      "createdAt": "2026-06-23T04:42:54.658Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-004",
+      "_hash": "b2690ba7b0fcd66cc173046707f34d7f2cd4d1ac217e0fab150bba5cdf29a821"
     }
   ]
 }
