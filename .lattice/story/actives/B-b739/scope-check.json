@@ -1,0 +1,129 @@
+{
+  "storyId": "B-b739",
+  "checkedAt": "2026-06-23T20:21:49.037Z",
+  "features": [
+    {
+      "feature": "makeRealLoopAgent({model}) factory — new file real-loop-agent.mjs with per-turn claude -p --output-format json on {ws,context}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "per-turn result parsed via reused parseClaudeResult (B-0c07 import); non-JSON/API-error -> infra-fail, never crashes batch",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "agent returns {actions, shipped, output, costUsd, tokensSpent} per turn",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/understanding.json"
+    },
+    {
+      "feature": "AbortSignal / signal.aborted contract honored (B-c023): kill child process on signal.aborted",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "makeStubLoopAgent(script) — no-LLM stub multi-turn agent in real-loop-agent.mjs for hermetic self-check (0 spend)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/plan.md"
+    },
+    {
+      "feature": "live-loop-harness.mjs --run path drives the 9 stateful scenarios (B3/B4/B5/B7/B8/B10/B12/B14/B15) via runLiveLoop with the real agent",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "--run appends per-scenario {scenario,outcome,turns,costUsd,tokensSpent} to live-loop-powered-records.jsonl",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/understanding.json"
+    },
+    {
+      "feature": "--run prints per-scenario outcomes + summary + honest small-N/exploratory caveat",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/plan.md"
+    },
+    {
+      "feature": "--self-check extended: stub multi-turn agent drives --run path deterministically (0 spend), asserts per-scenario outcomes + {signal} received + slow-stub timeout/abort case",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/plan.md"
+    },
+    {
+      "feature": "--self-check keeps existing 23 hermetic cases passing",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story/actives/B-b739/plan.md"
+    },
+    {
+      "feature": "actual powered run is operator-triggered / cost-gated (not part of automated gate)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json confirmationNote: real run operator-triggered; plan.md Out of scope: The actual powered run is operator-triggered (cost)",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    },
+    {
+      "feature": "probe-contract.mjs and the 6 stateless probes NOT edited",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: editing probe-contract.mjs or the 6 stateless probes",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    },
+    {
+      "feature": "real-arm.mjs (B-0c07) NOT edited — reuse parseClaudeResult by import only",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: real-arm.mjs B-0c07 single-shot arm (reuse its parseClaudeResult by re-import or re-impl, do not edit)",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    },
+    {
+      "feature": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs NOT touched",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    },
+    {
+      "feature": "pre-registration amendment (scenario count 6->15) deferred to next story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: the pre-registration amendment (next); plan.md Out of scope",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    },
+    {
+      "feature": "paper backfill deferred to next story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: the paper backfill (next); plan.md Out of scope",
+      "source": "decisions:story/actives/B-b739/scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 10,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b1d345f2e597297e970ca05d76315794ff824ba01627cda2b7389907873e5c09",
+  "openQuestions": []
+}

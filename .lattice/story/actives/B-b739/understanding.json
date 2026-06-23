@@ -1,0 +1,25 @@
+{
+  "task": "Build a real multi-turn claude -p agent for the live-loop harness + a --run powered path over the 9 stateful scenarios + a hermetic stub self-check; the real powered run is operator-triggered/cost-gated.",
+  "outcome": "`node experiments/injection-probes/live-loop-harness.mjs --self-check` still passes (now also covering the --run wiring via a stub multi-turn agent, 0 spend); `--run` with the REAL agent runs the 9 stateful scenarios via claude -p (honoring signal.aborted) and writes live-loop-powered-records.jsonl with per-scenario {outcome,turns,costUsd,tokensSpent} + a printed summary (small-N/exploratory).",
+  "facts": [
+    "live-loop-harness.mjs (main, B-d43f) has runLiveLoop({scenario,agent,maxTurns,turnTimeoutMs}) + the 9 stateful scenarios; --run is currently a refusal stub",
+    "real-arm.mjs (B-0c07) exports parseClaudeResult (non-JSON/API-error -> infra-fail; type-safe cost) — reuse by import",
+    "B-c023 AbortSignal contract: the agent receives {signal} and a real subprocess agent must kill its child on signal.aborted"
+  ],
+  "constraints": [
+    "Hermetic GATE = the stub-agent --self-check (0 spend); the real powered run is operator-triggered + records honestly labeled small-N/exploratory",
+    "New file real-loop-agent.mjs + a --run path in live-loop-harness.mjs; do NOT edit probe-contract / the 6 stateless probes / run-recovery-runners / real-arm.mjs",
+    "Reuse parseClaudeResult (import) + the B-c023 signal contract; per-turn infra-fail recorded, never crashes the batch"
+  ],
+  "unknowns": [
+    "RESOLVE IN DEV: how to kill the claude child on signal.aborted with execFileSync (sync) — likely spawn-based or rely on execFileSync timeout; the stub self-check verifies the signal-honoring contract deterministically"
+  ],
+  "touchpoints": [
+    "experiments/injection-probes/real-loop-agent.mjs (new)",
+    "experiments/injection-probes/live-loop-harness.mjs (modify --run + self-check)",
+    "experiments/injection-probes/probe-contract.mjs (reuse)",
+    "experiments/injection-probes/live-loop-powered-records.jsonl (output)",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-23T20:20:04.322Z"
+}

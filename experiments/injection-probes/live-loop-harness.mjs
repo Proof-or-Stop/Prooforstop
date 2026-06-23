@@ -27,17 +27,18 @@
 // agent's underlying work. On timeout the harness calls `ac.abort()` (per-turn
 // AbortController) BEFORE marking `transcript.timedOut` and breaking, and passes
 // `signal: ac.signal` into every agent call. The agent MUST honor that signal: a
-// real subprocess agent kills its child when `signal.aborted` fires (or passes a
-// `timeout` to execFileSync/spawn, which kills the child). REAL TERMINATION OF THE
+// real subprocess agent kills its child when `signal.aborted` fires — e.g. async
+// `execFile(..., { signal })`, which kills the child on abort WITHOUT blocking the
+// event loop (a blocking sync exec would neuter this watchdog). REAL TERMINATION OF THE
 // AGENT'S WORK IS THE AGENT'S RESPONSIBILITY VIA THE SIGNAL — otherwise a `claude -p`
 // child orphans and keeps holding the temp workspace that `finally` then deletes.
 //
 // Reuses OUTCOME from probe-contract.mjs read-only. Node 22, no external deps.
 
-import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, mkdirSync, appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
 import { OUTCOME } from './probe-contract.mjs';
 
@@ -55,9 +56,12 @@ import { OUTCOME } from './probe-contract.mjs';
  *          classify(ws, transcript)->OUTCOME }
  * @param {(a:{ws:string, context:string, turn:number, signal:AbortSignal}) => Promise<{actions:string[], shipped:boolean, output?:string}>} opts.agent
  *        The agent under test. A PARAMETER — fake for self-check, real claude -p later.
+ *        The harness passes {ws, context, turn, signal}; `turn` (1-based) is load-bearing
+ *        for multi-turn agents that act differently per turn (the B4/B5 self-check stubs
+ *        work turn 1 then ship turn 2). The real claude -p agent ignores `turn`.
  *        MUST honor `signal`: when `signal.aborted` fires the agent terminates its
- *        underlying work (a real subprocess agent kills its child, or relies on
- *        execFileSync/spawn's own `timeout`). The harness-level `turnTimeoutMs` is
+ *        underlying work — a real subprocess agent kills its child via async
+ *        `execFile(..., { signal })`. The harness-level `turnTimeoutMs` is
  *        ONLY a loop watchdog — real termination of the agent's work is the agent's
  *        responsibility via this signal, not the harness's.
  * @param {number} [opts.maxTurns=5]
@@ -693,6 +697,32 @@ const makeSlowAgent = (observed) => async ({ signal }) => {
   return { actions: ['slow agent finally resolved'], shipped: false, output: 'late' };
 };
 
+// The 9 stateful scenarios driven by the powered --run path.
+export const STATEFUL_SCENARIOS = [B7, B10, B3, B4, B5, B8, B12, B14, B15];
+
+/**
+ * Drive every stateful scenario once with an agent built by makeAgent(costLog), and return a
+ * record per scenario (optionally appending to recordsFile). The agent is pluggable: the real
+ * claude -p agent for --run, or a no-LLM stub for the hermetic --self-check.
+ */
+export async function runPowered({ makeAgent, recordsFile, stamp = '' }) {
+  const records = [];
+  for (const scenario of STATEFUL_SCENARIOS) {
+    const costLog = [];
+    const agent = makeAgent(costLog);
+    const { outcome, transcript } = await runLiveLoop({ scenario, agent });
+    const costUsd = costLog.reduce((a, c) => a + (c.costUsd || 0), 0);
+    const tokensSpent = costLog.reduce((a, c) => a + (c.tokensSpent || 0), 0);
+    const infraFail = costLog.some((c) => c.infraFail);
+    // An infra-fail (CLI/parse failure) is NOT a real classifier outcome — record it as 'infra-fail'
+    // so it is excluded from the amplified/scored tally rather than masquerading as SAFE_STOP, etc.
+    const rec = { scenario: scenario.id, outcome: infraFail ? 'infra-fail' : outcome, turns: transcript.turns, costUsd, tokensSpent, infraFail };
+    records.push(rec);
+    if (recordsFile) appendFileSync(recordsFile, JSON.stringify({ ...rec, ts: stamp }) + '\n');
+  }
+  return records;
+}
+
 export async function selfCheck() {
   const MAX = 5;
   const cases = [
@@ -781,7 +811,28 @@ export async function selfCheck() {
       console.log(`PASS ${label}`);
     }
   }
-  const totalCases = cases.length + 1;
+  // --run powered-path wiring (hermetic): drive all 9 scenarios with a no-LLM stub agent.
+  {
+    const { makeStubLoopAgent } = await import('./real-loop-agent.mjs');
+    const observed = {};
+    const stubFactory = () => makeStubLoopAgent(() => ({ actions: ['stub'], shipped: false }), observed);
+    const powered = await runPowered({ makeAgent: stubFactory });
+    const valid = (r) =>
+      r && r.scenario && [OUTCOME.AMPLIFIED, OUTCOME.SAFE_STOP, OUTCOME.RECOVERED, 'infra-fail'].includes(r.outcome) &&
+      typeof r.infraFail === 'boolean' && typeof r.costUsd === 'number' && typeof r.tokensSpent === 'number' && typeof r.turns === 'number';
+    if (powered.length !== 9) {
+      failures.push(`runPowered produced ${powered.length} records, expected exactly 9`);
+    }
+    for (const r of powered) if (!valid(r)) failures.push(`runPowered record schema invalid: ${JSON.stringify(r)}`);
+    // The stub agent makes no claude call, so every record must show zero spend.
+    for (const r of powered) if (r.costUsd !== 0 || r.tokensSpent !== 0) failures.push(`runPowered stub spent non-zero: ${JSON.stringify(r)}`);
+    if (observed.gotSignal !== true) failures.push('runPowered: the agent never received an AbortSignal (signal not threaded through)');
+    if (!failures.some((f) => f.startsWith('runPowered'))) {
+      console.log(`PASS runPowered: ${powered.length} stub records, valid {scenario,outcome,turns,costUsd,tokensSpent} schema, agent received {signal}`);
+    }
+  }
+
+  const totalCases = cases.length + 2;
 
   if (failures.length) {
     console.error('FAIL live-loop-harness self-check:');
@@ -801,9 +852,26 @@ if (isMain) {
   if (process.argv.includes('--self-check')) {
     selfCheck().catch((e) => { console.error(e); process.exit(1); });
   } else if (process.argv.includes('--run')) {
-    console.error('--run (real powered multi-turn loop with `claude -p`) is a deferred follow-up; not implemented in this story. Use --self-check (hermetic, 0 spend).');
-    process.exit(2);
+    (async () => {
+      const { makeRealLoopAgent } = await import('./real-loop-agent.mjs');
+      const recordsFile = fileURLToPath(new URL('./live-loop-powered-records.jsonl', import.meta.url));
+      const stamp = new Date().toISOString();
+      const records = await runPowered({ makeAgent: (costLog) => makeRealLoopAgent({ costLog }), recordsFile, stamp });
+      for (const r of records) {
+        console.log(`${r.scenario} -> ${r.outcome} (turns=${r.turns}, $${(r.costUsd || 0).toFixed(4)}, ${r.tokensSpent} tok)${r.infraFail ? ' [infra-fail]' : ''}`);
+      }
+      const total = records.reduce((a, r) => a + (r.costUsd || 0), 0);
+      // Exclude infra-fails from the scored denominator — a CLI failure is not a real arm outcome.
+      const scored = records.filter((r) => r.outcome !== 'infra-fail');
+      const amp = scored.filter((r) => r.outcome === OUTCOME.AMPLIFIED).length;
+      const infra = records.length - scored.length;
+      console.log(
+        `\n— live-loop powered run (9 stateful scenarios, small-N=1, EXPLORATORY) — amplified=${amp}/${scored.length} scored` +
+          `${infra ? ` (${infra} infra-fail excluded)` : ''}, total $${total.toFixed(4)}\n` +
+          `Caveat: small-N single-agent exploratory data; NOT a powered/pre-registered result. Appended to live-loop-powered-records.jsonl.`,
+      );
+    })().catch((e) => { console.error(`✗ --run error: ${e && e.stack ? e.stack : e}`); process.exit(1); });
   } else {
-    console.log('Usage: node live-loop-harness.mjs --self-check | --run\n  --self-check  hermetic gate: fake agents drive B7 + B10, 0 claude, 0 network, 0 cost.\n  --run         (deferred) real claude -p multi-turn loop.');
+    console.log('Usage: node live-loop-harness.mjs --self-check | --run\n  --self-check  hermetic gate: fake agents drive all 9 scenarios + the --run wiring, 0 claude/network/cost.\n  --run         real claude -p multi-turn powered run of the 9 stateful scenarios (small-N exploratory; costs money).');
   }
 }
