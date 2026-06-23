@@ -1,0 +1,111 @@
+{
+  "findings": [
+    {
+      "id": "B-0c07:F-001",
+      "desc": "doc-code-drift: CHANGELOG.md now has two duplicate ### Experiments headings under ## Unreleased — the B-0c07 entry was prepended with a fresh ### Experiments heading above the existing one rather than inserted beneath it. This creates a malformed changelog structure (two sibling headings of the same name in the same section) that will confuse changelog parsers and readers. No code inconsistency; the content of the entry is accurate.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T12:09:54.875Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-003",
+      "_hash": "a3f70bfcd6c5e0cbf7a9e5401ece3ad7a105a00ea9e74e44edc0c6ceafe3142e",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "edge|md|code-drift-changelog",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: removed the duplicate ### Experiments heading; B-0c07 + B-a1b0 bullets now share one heading.",
+      "resolvedAt": "2026-06-23T12:14:07.279Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0c07:F-002",
+      "desc": "quality-cleanup: CHANGELOG.md:9 duplicate `### Experiments` heading — the B-0c07 patch prepended `### Experiments` before the B-0c07 bullet but the section heading already existed at line 5, producing two consecutive `### Experiments` headings in the Unreleased block",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:10:32.667Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-002",
+      "_hash": "ebe0202ed947674945a1b32d324539ae8c348f0b613d72871d736f9eb11b644e",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "missing|md|quality-cleanup-changelog",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: same duplicate-heading dedup.",
+      "resolvedAt": "2026-06-23T12:14:07.996Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0c07:F-003",
+      "desc": "[codex-host2 C2] makeRealBareArm: non-JSON / malformed claude -p output is scored as a SUCCESSFUL shipped arm (infraFail:false, shipped:true) instead of infra-fail -> a broken response corrupts the catch-rate. FIX: JSON.parse failure -> infra-fail (shipped:false).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:33.219Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "7cf2464a6c97c48f666376c98acc91338724b0b479f31a9d35537b16bc3e108c",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: parseClaudeResult returns infra-fail on JSON.parse failure (non-JSON output no longer scored as shipped). Self-check asserts it.",
+      "resolvedAt": "2026-06-23T12:14:08.689Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0c07:F-004",
+      "desc": "[codex-host2 C3] makeRealBareArm: a JSON API-error at exit 0 (is_error / Overloaded / 529 / API Error) is scored as a real outcome. recovery-runner guards /Overloaded|API Error|529/; this arm does not. FIX: detect is_error / error-text -> infra-fail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:34.490Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "7d51051266d5608dff5bdf6ece8255ccc06d6fb66f3fe7abb3e143965e4e9d7e",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: parseClaudeResult flags is_error / non-success subtype / Overloaded|API Error|429|529 result text as infra-fail. Self-check asserts all 3.",
+      "resolvedAt": "2026-06-23T12:14:09.645Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0c07:F-005",
+      "desc": "[codex-host2 C4] cost/token parsing is type-unsafe: j.total_cost_usd || 0 preserves a string/object (later .toFixed crashes); tokensFromUsage can add non-numbers. FIX: coerce with typeof===number && isFinite guards.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:35.736Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "b7e6f01e84fee2e706334e7da83bc9c02844f20967ce7a5ec125a0661628508c",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-cost",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: num() coerces total_cost_usd + token fields (typeof number && isFinite), string cost -> 0. Self-check asserts string cost/tokens coerce to numeric 0.",
+      "resolvedAt": "2026-06-23T12:14:10.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

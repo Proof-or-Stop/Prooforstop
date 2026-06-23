@@ -1,0 +1,31 @@
+{
+  "storyId": "B-4c48",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/session.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+  ],
+  "protectedFiles": [
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+    "packages/main/src/core/done-oracle.ts"
+  ],
+  "explicitExcludes": [
+    "Authority Server runtime or receipt contract changes",
+    "remote git push or deployment",
+    "DONE merge implementation rewrite",
+    "delivery-check freshness changes",
+    "DONE summary freshness changes"
+  ],
+  "scopeChangeReason": "B-4c48 scope contract from PLAN: early read-only main-sync readiness only, no DONE oracle rewrite or Authority/production changes.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T11:39:35.700Z",
+  "updatedAt": "2026-06-23T11:39:35.700Z"
+}

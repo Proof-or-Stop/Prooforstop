@@ -1,0 +1,69 @@
+{
+  "storyId": "B-0c07",
+  "checkedAt": "2026-06-23T12:23:35.680Z",
+  "reviewRound": "2026-06-23T12:14:05.631Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "makeRealBareArm() added: runs claude -p --output-format json in workspace cwd, returns {actions, shipped, costUsd, tokensSpent}, new file, never imports run-recovery.mjs",
+      "verifiedBy": "diff/grep",
+      "evidence": "real-arm.mjs lines 68-93: export function makeRealBareArm uses execFileSync(claude, [-p, --output-format, json]); grep confirms zero import of run-recovery.mjs in the file"
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "Deterministic stub arms exported: stubShipNoFix and stubSafeStop (no claude) for hermetic self-check",
+      "verifiedBy": "diff",
+      "evidence": "real-arm.mjs lines 96-97: export const stubShipNoFix and stubSafeStop with no LLM calls; used in selfCheck() assertions"
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "summarize() exported: aggregates {RECOVERED/SAFE_STOP/AMPLIFIED} records into catchRate where catch = NOT amplified",
+      "verifiedBy": "diff",
+      "evidence": "real-arm.mjs lines 104-113: export function summarize computes catchRate = (recovered + safeStop) / scored, scored excludes infraFail"
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "Hardened parseClaudeResult: handles non-JSON, is_error, non-success subtype, API error text (Overloaded/429/529/rate-limit) as infraFail; numeric coercion for string cost/tokens",
+      "verifiedBy": "diff",
+      "evidence": "real-arm.mjs lines 49-61: catches JSON.parse exception, checks is_error===true, subtype!==success, regex /Overloaded|API Error|rate.?limit|429|529/; num() coerces non-finite to 0"
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "Hermetic --self-check: no claude, 0 spend; verifies summarize() on hand-built vectors + drives merged driver with stub arms giving discriminating catch-rates; parseClaudeResult edge cases tested",
+      "verifiedBy": "real-machine run",
+      "evidence": "node real-arm.mjs --self-check executed: exit 0. Output: stub ship-no-fix 5/6 AMPLIFIED catchRate 0.167, stub safe-stop 6/6 SAFE_STOP catchRate 1.0, catch-rate discriminates, summarize() correct, 0 spend."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "--run writes powered-run-records.jsonl with real claude -p per-probe outcome and costUsd>0",
+      "verifiedBy": "file-read",
+      "evidence": "powered-run-records.jsonl: 6 lines (B1/B2/B6/B9/B11/B13), all costUsd>0 (range 0.1246-0.1742), tokensSpent>0, arm=bare, rep=1; outcomes: 3 recovered-to-green, 2 amplified, 1 safe-stop"
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07",
+      "promise": "Powered run is honestly labeled small-N / bare-arm / EXPLORATORY / NOT a powered pre-registered result in both --run output code and CHANGELOG",
+      "verifiedBy": "grep",
+      "evidence": "CHANGELOG grep matches: small-N, bare-arm, EXPLORATORY, NOT a powered pre-registered result. run() in real-arm.mjs line 187 prints same caveat text at runtime."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-0c07 + git diff --name-only",
+      "promise": "No probe/probe-contract/run-recovery edits: diff shows only real-arm.mjs + powered-run-records.jsonl + CHANGELOG among code files",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "git diff main...HEAD --name-only: .lattice/** metadata, CHANGELOG.md, experiments/injection-probes/powered-run-records.jsonl, experiments/injection-probes/real-arm.mjs only — no probe*.mjs, probe-contract.mjs, or run-recovery.mjs"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node real-arm.mjs --self-check: exit 0. Covers: (1) parseClaudeResult edge cases — non-JSON->infraFail, is_error JSON->infraFail, Overloaded text->infraFail, non-success subtype->infraFail, valid JSON->shipped+costUsd+tokensSpent correct, string cost coerced to 0; (2) summarize() — all-amplified catchRate=0, all-caught catchRate=1, mixed+infra-fail catchRate=0.5; (3) stub ship-no-fix arm through real driver — >=1 amplified, catchRate<1, counts consistent; (4) stub safe-stop arm — all 6 SAFE_STOP, catchRate=1, 0 amplified; (5) record schema; (6) catch-rate discrimination between stub arm types. 0 spend confirmed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified by code diff or direct execution. The --self-check runs hermetically (exit 0, 0 spend, no LLM) and covers happy path, error edge cases (non-JSON/is_error/API-error/string-cost), and arm-discrimination. powered-run-records.jsonl has 6 real records with costUsd>0. Powered run is honestly labeled EXPLORATORY/small-N/not-pre-registered in both code output and CHANGELOG. File scope is clean: only real-arm.mjs + powered-run-records.jsonl + CHANGELOG changed in code."
+  },
+  "_hash": "c261f2fd2ce1d060d262c54c23e43d01d5e88e977577d5f437719e12f0819df2"
+}

@@ -15,6 +15,8 @@
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/validate-command-timeout-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/validate-focused-full-layering-smoke.js"], "focus": ["fast"] },
+      { "command": "node", "args": ["packages/main/dist/tasks/main-sync-readiness-smoke.js"], "focus": ["fast"] },
+      { "command": "node", "args": ["packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"], "focus": ["fast"] },
       "node packages/main/dist/tasks/done-required-validation-smoke.js",
       "node packages/main/dist/tasks/done-required-freshness-smoke.js",
       "node packages/main/dist/tasks/done-required-head-drift-proof.js",

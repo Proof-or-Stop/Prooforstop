@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b837",
+  "allowedCommands": [
+    "git",
+    "grep",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/lab/src",
+    "packages/main/src",
+    "packages/main/tests",
+    "packages/utils/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    "docs",
+    "experiments"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 2 edits product runtime code under packages/*/src + its tests only. The residue gate scripts/verify-koala-residue.mjs is RUN read-only to confirm it still passes; its flip is story 4.",
+  "createdAt": "2026-06-23T12:15:36.053Z",
+  "updatedAt": "2026-06-23T12:15:36.053Z",
+  "_hash": "f42061b2cdcd0b654e1bc35ee888698ef8f8182362fa5956e46d0b848a059a93"
+}

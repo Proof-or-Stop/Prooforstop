@@ -235,7 +235,22 @@ function checkRoundtrip<T extends RunnerEnvelopeHeader | PythonSignedEnvelopeHea
     capabilities: ['verify'],
   };
   checkRoundtrip(env, 'JobClaim');
-  parseJobClaim(signRunnerEnvelope(env, keypair.privateKey).signed);
+  const broad = parseJobClaim(signRunnerEnvelope(env, keypair.privateKey).signed);
+  assert.equal(Object.prototype.hasOwnProperty.call(broad, 'storyId'), false, 'broad JobClaim stays compatible without story selector');
+  assert.equal(Object.prototype.hasOwnProperty.call(broad, 'jobId'), false, 'broad JobClaim stays compatible without job selector');
+
+  const selected: JobClaim = {
+    ...header(),
+    runnerId: 'runner-1',
+    leaseDurationSeconds: 120,
+    capabilities: ['verify'],
+    storyId: 'B-3157',
+    jobId: 'job-3157',
+  };
+  checkRoundtrip(selected, 'JobClaim with selectors');
+  const parsed = parseJobClaim(signRunnerEnvelope(selected, keypair.privateKey).signed);
+  assert.equal(parsed.storyId, 'B-3157', 'JobClaim accepts signed story selector');
+  assert.equal(parsed.jobId, 'job-3157', 'JobClaim accepts signed explicit job selector');
 }
 
 // 5e. JobLeaseHeartbeat

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0c07",
+  "mode": "maintenance",
+  "allowed": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/powered-run-records.jsonl (output)",
+    "experiments/injection-probes/probe-contract.mjs (reuse, read-only)",
+    "experiments/injection-probes/real-arm.mjs (NEW: claude -p runArm + no-LLM self-check)",
+    "experiments/injection-probes/run-injection-arms.mjs (reuse merged driver; small --run/powered glue allowed)"
+  ],
+  "excluded": [
+    "any gate/core/DONE-policy change",
+    "editing the 6 probe files or probe-contract.mjs",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+    "the 9 future probes",
+    "the non-bare arms A2-prime/A4-C/A4b-B (follow-up)",
+    "the pre-registration amendment 6->15"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "real bare-arm + small powered batch, new files, no probe/runner edits",
+  "createdAt": "2026-06-23T11:45:43.866Z",
+  "updatedAt": "2026-06-23T11:45:43.866Z",
+  "_hash": "fd2e9aed9c65298d822b119933270670460a0b04a112535e64b10eb6e0035eb6"
+}

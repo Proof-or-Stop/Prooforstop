@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1e7f",
+  "changes": "Added signed story/job claim selector support in the Authority runner contract, threaded storyId through autopilot live claims and authority_enforce_runner live claims, added public CLI catalog support for --live and --storyId, and covered stale other-story queues plus SSE advisory behavior in focused smokes.",
+  "usage": "Use lattice authority enforce runner --live --storyId=B-current with the senior Authority runner env; the signed /jobs/claim payload now carries claim.storyId while SSE jobIds remain advisory.",
+  "expectedOutcome": "A story-scoped live runner sends claim.storyId for the requested story and does not lease stale queued jobs from discarded or unrelated stories.",
+  "actualTranscript": "node packages/main/dist/tasks/authority-enforce-runner-smoke.js exited 0 with: authority enforce runner smoke passed; dry-run planned register/heartbeat/claim without provider execution; claimed-job plannedSteps consumed through the bounded executor with authority DONE gated by a verified receipt.",
+  "outcomeDiff": "No functional difference from expected; the initial handler-only fix missed command-catalog parsing, and the final implementation now covers the real CLI alias/parser path.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Staging must run a server build with storyId/jobId claim selector support; this local story proves CLI behavior and focused fake-server stale queue handling, not a fresh deployed staging live run.",
+  "pitfalls": "Concept review found the main pitfall: command-catalog validation stripped --live and --storyId before handler dispatch. Future Authority CLI flags need catalog/parser smoke coverage, not only direct handler tests.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 520808
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27191
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 514250
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1240200
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1071608
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 364566
+    }
+  },
+  "totalDurationMs": 3738741,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T11:29:35.189Z",
+  "updatedAt": "2026-06-23T11:29:35.189Z"
+}

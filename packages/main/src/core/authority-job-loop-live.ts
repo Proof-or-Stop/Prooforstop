@@ -97,7 +97,7 @@ export function authorityLiveRunnerConfigured(
 export function buildLiveRunnerOptionsFromEnv(
   env: Record<string, string | undefined>,
   settings: AuthorityConfig,
-  options: { once?: boolean; fetchImpl?: typeof fetch } & AuthorityConfigLoadOptions = {},
+  options: { once?: boolean; fetchImpl?: typeof fetch; storyId?: string } & AuthorityConfigLoadOptions = {},
 ): LatticeAuthorityLiveRunnerOptions & { jobCreateMode?: AuthorityJobCreateMode } {
   if (!settings.baseURL) throw new Error('LATTICE_AUTHORITY_URL is required for the live authority job loop');
   const actorKeyPath = liveEnv(env, 'ACTOR_KEY_PATH');
@@ -133,6 +133,7 @@ export function buildLiveRunnerOptionsFromEnv(
     projectId,
     customerApiKey,
     bootstrapToken: liveEnv(env, 'BOOTSTRAP_TOKEN'),
+    ...(options.storyId ? { storyId: options.storyId } : {}),
     jobCreateMode: settings.jobCreateMode,
     once: options.once !== false,
     ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
@@ -194,7 +195,7 @@ export async function claimAuthorityJobForLoop(
   options: LiveRunnerOptionsWithDelegatedCreate,
   expected: AuthorityJobLoopExpectation,
 ): Promise<AuthorityJobLoopClaim> {
-  const phase = await registerHeartbeatAndClaim(options);
+  const phase = await registerHeartbeatAndClaim(options, expected.storyId);
   if (!phase.ok) {
     return { status: 'runner-failed', networkEvents: phase.events, claimedJobId: null, job: null, lease: null, reason: phase.failureNote ?? 'live authority runner control plane failed' };
   }
@@ -212,7 +213,7 @@ export async function claimAuthorityJobForLoop(
           reason: delegated.message ?? 'delegated-job-create failed before a queued job could be claimed',
         };
       }
-      const secondClaim = await claimNextAuthorityJob(options);
+      const secondClaim = await claimNextAuthorityJob(options, expected.storyId);
       phase.events.push(event('claim_job', secondClaim));
       if (!secondClaim.ok) {
         return {
@@ -526,7 +527,7 @@ interface ClaimPhaseResult {
   failureNote?: string;
 }
 
-async function registerHeartbeatAndClaim(options: LatticeAuthorityLiveRunnerOptions): Promise<ClaimPhaseResult> {
+async function registerHeartbeatAndClaim(options: LatticeAuthorityLiveRunnerOptions, storyId?: string): Promise<ClaimPhaseResult> {
   const events: LiveJobLoopNetworkEvent[] = [];
   const publicKeyHex = derivePublicKeyHexFromPrivateKey(options.actorPrivateKey, options.actorPrivateKeyEncoding ?? 'auto');
   const registrationHeaders: Record<string, string> = options.bootstrapToken
@@ -584,21 +585,26 @@ async function registerHeartbeatAndClaim(options: LatticeAuthorityLiveRunnerOpti
   events.push(event('runner_heartbeat', heartbeat));
   if (!heartbeat.ok) return { events, ok: false, claimedJobId: null, claimBody: null, failureNote: 'Live job loop stopped at runner heartbeat.' };
 
-  const claim = await claimNextAuthorityJob(options);
+  const claim = await claimNextAuthorityJob(options, storyId);
   events.push(event('claim_job', claim));
   if (!claim.ok) return { events, ok: false, claimedJobId: null, claimBody: null, failureNote: 'Live job loop stopped at job claim.' };
 
   return { events, ok: true, claimedJobId: extractJobId(claim.body), claimBody: claim.body };
 }
 
-async function claimNextAuthorityJob(options: LatticeAuthorityLiveRunnerOptions): Promise<PostJsonResult> {
+async function claimNextAuthorityJob(options: LatticeAuthorityLiveRunnerOptions, storyId = options.storyId): Promise<PostJsonResult> {
   return postJson(options, `/v1/runners/${encodeURIComponent(options.runnerId)}/jobs/claim`, signedEnvelope(options, {
     actorId: options.actorId,
     role: options.role,
     nonce: nonce(`${options.runnerId}:claim`),
     timestamp: pythonCanonicalTimestamp(),
     runnerId: options.runnerId,
-    claim: { sessionId: options.sessionId, provider: options.runnerProvider, leaseTtlSeconds: 3600 },
+    claim: {
+      sessionId: options.sessionId,
+      provider: options.runnerProvider,
+      leaseTtlSeconds: 3600,
+      ...(storyId ? { storyId } : {}),
+    },
   }));
 }
 
@@ -896,6 +902,7 @@ export async function executeAutopilotLive(options: ExecuteAutopilotOptions): Pr
     liveOptions = buildLiveRunnerOptionsFromEnv(env, loadAuthorityConfig(env, {}, { cwd: options.root }), {
       once: true,
       cwd: options.root,
+      storyId: expected.storyId,
       ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
     });
   } catch (error: any) {

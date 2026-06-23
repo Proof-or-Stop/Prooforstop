@@ -50,6 +50,20 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
+type AuthorityEnforceRunnerArgs = {
+  once?: boolean;
+  dryRun?: boolean;
+  live?: boolean;
+  authorityMode?: string;
+  authorityURL?: string;
+  authorityTimeoutMS?: number;
+  storyId?: string;
+};
+
+type AuthorityEnforceRunnerOptions = AuthorityConfigLoadOptions & {
+  fetchImpl?: typeof fetch;
+};
+
 const AUTHORITY_DISCLAIMER =
   'Receipt-aware status only: existing receipt refs may be reported, no new receipt is verified, no evidence is submitted, and productionDone remains false.';
 
@@ -889,7 +903,7 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
 }
 
 export function buildAuthorityEnforceRunnerPlan(
-  args: { once?: boolean; dryRun?: boolean; live?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {},
+  args: AuthorityEnforceRunnerArgs = {},
   env: Record<string, string | undefined> = process.env,
   options: AuthorityConfigLoadOptions = {},
 ): AuthorityRunnerPlan {
@@ -948,9 +962,9 @@ export function buildAuthorityEnforceRunnerPlan(
 
 function readLiveRunnerOptions(
   settings: AuthorityConfig,
-  args: { once?: boolean },
+  args: Pick<AuthorityEnforceRunnerArgs, 'once' | 'storyId'>,
   env: Record<string, string | undefined>,
-  options: AuthorityConfigLoadOptions = {},
+  options: AuthorityEnforceRunnerOptions = {},
 ) {
   const actorKeyPath = envValue(env, 'ACTOR_KEY_PATH');
   const actorPrivateKey = envValue(env, 'ACTOR_KEY') ??
@@ -984,16 +998,18 @@ function readLiveRunnerOptions(
     sessionId,
     runnerProvider,
     projectId,
+    ...(args.storyId ? { storyId: args.storyId } : {}),
     customerApiKey,
     bootstrapToken: envValue(env, 'BOOTSTRAP_TOKEN'),
     once: args.once !== false,
+    ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
   };
 }
 
 export async function runAuthorityEnforceRunner(
-  args: { once?: boolean; dryRun?: boolean; live?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {},
+  args: AuthorityEnforceRunnerArgs = {},
   env: Record<string, string | undefined> = process.env,
-  options: AuthorityConfigLoadOptions = {},
+  options: AuthorityEnforceRunnerOptions = {},
 ): Promise<AuthorityRunnerPlan> {
   const plan = buildAuthorityEnforceRunnerPlan(args, env, options);
   if (args.live !== true || args.dryRun === true) return plan;
@@ -1309,7 +1325,7 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
       const result = buildAuthorityStatus(args, process.env, { cwd: ctx.root, root: ctx.root, store: ctx.store });
       return wantsJson(args) ? result : renderAuthorityStatusText(result);
     },
-    async authority_enforce_runner(args: { format?: LatticeFormat; json?: boolean; once?: boolean; dryRun?: boolean; live?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {}) {
+    async authority_enforce_runner(args: AuthorityEnforceRunnerArgs & { format?: LatticeFormat; json?: boolean } = {}) {
       const result = await runAuthorityEnforceRunner(args, process.env, { cwd: ctx.root });
       return wantsJson(args) ? result : renderAuthorityEnforceRunnerText(result);
     },

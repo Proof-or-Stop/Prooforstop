@@ -1,0 +1,85 @@
+{
+  "storyId": "B-4c48",
+  "name": "main-sync-readiness-before-review",
+  "title": "Surface main-sync readiness before late DONE closure",
+  "description": "Long-running stories can lose time when main has moved and the branch only discovers merge readiness issues during DONE preparation. This story adds an earlier, read-only readiness signal so reviewers and implementers can sync main before REVIEW or late TEST without changing DONE merge ownership or lifecycle merge boundaries.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "source": "baseline-item-4",
+  "keywords": [
+    "baseline",
+    "main-sync",
+    "done-prepare",
+    "lifecycle-readiness"
+  ],
+  "createdAt": "2026-06-23T11:25:46.183Z",
+  "startedAt": "2026-06-23T11:25:46.183Z",
+  "endedAt": "2026-06-23T12:19:57.565Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T11:25:46.202Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:37:46.538Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:37:57.606Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:43:21.241Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:55:12.391Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T12:00:41.205Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T12:19:57.565Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-23T11:55:12.391Z"
+}

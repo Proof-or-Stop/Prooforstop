@@ -31,9 +31,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:52:58.323Z",
+      "endTime": "2026-06-23T10:56:53.636Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts provider-only Codex prose returns false from storyRequiresCodexEvidence.",
+          "headHash": "e28d6d292e5a2697297e3cea9dd497fd1ec63320",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T10:59:47.798Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts concrete adapter surfaces including .lattice-codex, verify_codex, bin/lattice-codex.js, .codex/hooks.json, lattice codex verify, and lattice codex doctor return true.",
+          "headHash": "b52ac8f26f006df59e36033ebdb6b8f70ca550a4",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:02.635Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Post-build dist task passed, so the regression covers rebuilt runtime behavior rather than source-only behavior.",
+          "headHash": "28041f890a97f0877e40ee14459be4b11614def0",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:03.487Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -65,9 +103,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:56:57.072Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "lattice validate --focus=fast --json",
+          "result": "pass",
+          "note": "Focused fast validate ran configured validate.commands[7], node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js, and passed.",
+          "headHash": "adbc5d6a2a1b44d747c6eeb7cf68d17da9b9ee18",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:15.239Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "lattice validate --story=B-d43b --json",
+          "result": "pass",
+          "note": "Full story validate ran 28 configured commands including configured validate.commands[7], node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js, and passed.",
+          "headHash": "92d70fc926606cf0bc5c27365469fcd77a958b17",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:02:23.434Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke keeps adapter surfaces required and provider-only text ignored; it does not make Codex workflow namespace commands succeed or weaken verify_codex requirements.",
+          "headHash": "0dca0d0b1ef39e23020870813ff9aa70b683d8b4",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:16.389Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -102,9 +178,44 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:57:00.128Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+          "result": "pass",
+          "note": "Result artifact references baselineId lattice-workflow-efficiency-baseline-v1, story B-d43b, and baselineDimension codexAdapterGateScope.",
+          "headHash": "f3776d0cebb0625e5e37e8603010dcc51c42cf73",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:27.468Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+          "result": "pass",
+          "note": "Only a derived B-d43b result artifact was added; the immutable baseline JSON file was not modified.",
+          "headHash": "983209a1618a5d75855f7ea9b4cf23a29ed3c91b",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:28.125Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+          "result": "pass",
+          "note": "Result artifact records localAdapterGateScopeEvidenceOnly=true and authorityChanged/receiptVerified/productionDone false.",
+          "headHash": "4d13b609c64cc0a28dc0374734748c6398776541",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:28.834Z"
+        }
+      ]
     }
   ]
 }

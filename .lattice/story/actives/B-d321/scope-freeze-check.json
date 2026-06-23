@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d321",
+  "checkedAt": "2026-06-23T12:26:33.563Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "c7a09b6054ccf92ca865039872e5ab324655ca13135206afbd14d7e413cc6215",
+  "executionBoundaryHash": "859c291504ce2dbad635dbb170aa30eba08b4b5a21fe1803acd4df6e88f3f416",
+  "freshnessHash": "122047462743ebf6c73937f25a23d32feee83c579b0afd90c5e4b0968857497f",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Authority Server changes",
+    "customerKeyRef",
+    "dashboard work",
+    "delivery reviewer role relaxation",
+    "DONE summary freshness item 6",
+    "Layer4",
+    "production receipt claims",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "checklist.excludes",
+      "text": "Do not treat local evidence as Authority or production proof.",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority Server changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server changes",
+      "excluded": true
+    },
+    {
+      "keyword": "dashboard work",
+      "source": "scopeBoundary.excluded",
+      "text": "dashboard work",
+      "excluded": true
+    },
+    {
+      "keyword": "delivery reviewer role relaxation",
+      "source": "scopeBoundary.excluded",
+      "text": "delivery reviewer role relaxation",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE summary freshness item 6",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE summary freshness item 6",
+      "excluded": true
+    },
+    {
+      "keyword": "production receipt claims",
+      "source": "scopeBoundary.excluded",
+      "text": "production receipt claims",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "731df58defeebdf785f125850d9583b9d434d01a9915161bd1221b80217ee4cf"
+}

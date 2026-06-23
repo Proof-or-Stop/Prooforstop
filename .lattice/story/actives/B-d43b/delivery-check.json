@@ -1,0 +1,43 @@
+{
+  "storyId": "B-d43b",
+  "checkedAt": "2026-06-23T11:19:32.074Z",
+  "reviewRound": "2026-06-23T11:02:50.393Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+      "promise": "Derived B-d43b baseline result records the codexAdapterGateScope outcome and keeps the proof boundary local-only.",
+      "status": "verified",
+      "verifiedBy": "manual JSON inspection plus git diff and stored TEST transcript",
+      "evidence": "Artifact has baselineId lattice-workflow-efficiency-baseline-v1, story B-d43b, baselineDimension codexAdapterGateScope, providerOnlyCodexTextIgnored=true, adapterSurfaceEvidenceRequired=true, localAdapterGateScopeEvidenceOnly=true, authorityChanged=false, receiptVerified=false, productionDone=false, claimsAuthorityOrProductionProof=false. git diff name-status shows only the derived B-d43b result artifact added, not the immutable baseline file."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d43b/evidence/transcript-diff.md",
+      "promise": "Transcript diff records expected vs actual TEST behavior for the validate run, including smoke execution and no Authority or production proof claim.",
+      "status": "verified",
+      "verifiedBy": "manual transcript inspection plus parsed test-evidence JSON",
+      "evidence": "Stored TEST evidence for lattice validate --story=B-d43b --json is PASS at 2026-06-23T11:15:46.124Z with 28 configured commands, command[7] node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js passing, coverage 9/9, and transcript-diff states no behavioral diff and local-only proof boundary."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Observed stored TEST transcript from lattice validate --story=B-d43b --json: allPass=true after npm --prefix packages/main run build; configured validate.commands[7] ran node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js with output: codex adapter gate scope smoke passed: provider-only Codex text ignored; adapter surfaces required. Verification coverage includes CHK-001 happy, edge, and adversarial as covered; source smoke asserts provider-only Codex prose returns false and .lattice-codex, verify_codex, bin/lattice-codex.js, .codex/hooks.json, lattice codex verify, and lattice codex doctor return true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Observed stored TEST transcript from lattice validate --story=B-d43b --json: status=pass, allPass=true, commandCount=28, configured validate.commands[0] build passed, configured validate.commands[7] ran the Codex adapter gate scope smoke and passed. Checklist evidence also records lattice validate --focus=fast --json passed with configured validate.commands[7], matching the lattice.config.json entry with focus fast, so full and focused validate wiring include the smoke."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Observed stored TEST transcript reports verification coverage 9/9 and CHK-003 happy, edge, and adversarial covered via docs_check. Manual JSON inspection confirms the result artifact references baselineId lattice-workflow-efficiency-baseline-v1, story B-d43b, baselineDimension codexAdapterGateScope, immutableBaselineFileModified=false, and local-only proof fields true or false as intended: localAdapterGateScopeEvidenceOnly=true, authorityChanged=false, receiptVerified=false, productionDone=false, claimsAuthorityOrProductionProof=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review inspected the material diff, smoke behavior, validate wiring, baseline result artifact, transcript-diff evidence, checklist evidence, and stored TEST transcript. Edge cases for provider-only prose versus concrete adapter surfaces are covered, and no unresolved TODOs or delivery blockers were found for this artifact."
+  },
+  "_hash": "ab6f40bc3686a6e95d13fd949048164839c55ede36f14b2beb4529ec5b60ab7d"
+}

@@ -1,0 +1,59 @@
+{
+  "storyId": "B-d43b",
+  "checkedAt": "2026-06-23T10:51:06.525Z",
+  "features": [
+    {
+      "feature": "Codex adapter gate scope smoke for provider-only Codex prose versus real adapter surfaces",
+      "covered_by": "CHK-001; plan.md CHK-001; verificationIntent happy/edge/adversarial; lattice-workflow-efficiency-baseline.md Codex Adapter Evidence Gate Scope; lattice-codex-command-boundary-execution-plan.md Command Boundary Rule",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts and referenced decision docs"
+    },
+    {
+      "feature": "Validation wiring for the smoke without broadening Codex adapter behavior",
+      "covered_by": "CHK-002; plan.md CHK-002; lattice.config.json validation command focus fast intent; verificationIntent happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Derived baseline result artifact for codexAdapterGateScope",
+      "covered_by": "CHK-003; plan.md CHK-003; experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json; lattice-workflow-efficiency-baseline.md Follow-Up Use",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts and baseline decision doc"
+    },
+    {
+      "feature": "Runtime matcher rewrites or broad Codex adapter semantic changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Decision chose smoke-and-validation-wiring rather than change-runtime-matcher; requested scope is coverage/wiring/result artifact only; PLAN says coverage only and must not alter adapter verification requirements",
+      "source": "decision_get and plan_get"
+    },
+    {
+      "feature": "Unsupported Codex-prefixed workflow command aliases or namespace broadening",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "lattice-codex-command-boundary execution plan forbids making mistaken workflow commands succeed; CHK-002 adversarial intent requires unsupported Codex workflow namespace commands remain unsupported",
+      "source": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md and checklist CHK-002"
+    },
+    {
+      "feature": "Authority/production proof claims or immutable baseline rewrite",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Baseline decision requires derived result files only; CHK-003 excludes rewriting experiments/baselines/lattice-workflow-efficiency-baseline-v1.json; non-goal: do not treat local/non-authority evidence as Authority proof",
+      "source": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md and checklist CHK-003"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "87f8e4273fe848506b209143d8b15ecf36966d4e43ebe3b637276653b86f5801",
+  "openQuestions": []
+}

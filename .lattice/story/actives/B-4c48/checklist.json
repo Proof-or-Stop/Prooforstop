@@ -1,0 +1,278 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add earlier main-sync readiness reporting",
+      "context": "Expose branch-behind-main readiness before late DONE closure through an existing read-only lifecycle/session surface that is visible before REVIEW or at REVIEW entry. The signal must be advisory/non-blocking, include the behind-main count when available, point to the existing done_prepare/main-sync path, and must not perform a merge by itself. A DONE-only branch-synced-main row is not sufficient for this item.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Session/lifecycle output includes: \"main-sync readiness: story/B-xxxx is behind main by N commits; advisory/read-only; run lattice done_prepare ...\" before DONE closure.",
+      "excludes": [
+        "Do not change story_advance DONE merge authority.",
+        "Do not add a new automatic merge path outside done_prepare/story_advance.",
+        "Do not claim Authority or production proof.",
+        "Do not satisfy this item only with the existing DONE closure branch-synced-main row.",
+        "Do not add a new hard REVIEW or TEST blocker solely because main has moved."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A pre-REVIEW or REVIEW-entry read-only lifecycle/session surface shows a story branch behind main with the behind count and existing done_prepare sync command before DONE closure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story branch that already contains main does not show a false behind-main warning on the same pre-REVIEW/read-only surface.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The main-sync readiness signal is advisory/read-only: it does not mutate phase, merge main, or make REVIEW/TEST entry fail solely because the branch is behind main.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-06-23T11:44:24.643Z",
+      "endTime": "2026-06-23T11:50:50.120Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke output main-sync-readiness smoke passed; it exercises session_brief and lifecycle REVIEW readiness for a local branch behind main, including behind count and done_prepare guidance.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a story branch that already contains main and asserts no main-sync readiness warning appears in session_brief or lifecycle REVIEW readiness.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke snapshots phase, story metadata, git HEAD, git status, merge-base, and main-only files before and after readiness checks; REVIEW and TEST reports remain localReady with the advisory row non-blocking.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for the readiness signal",
+      "context": "Add a focused smoke test that creates fixture branches and proves the pre-REVIEW/read-only main-sync readiness behavior for behind-main, synced, and no-mutation/non-blocking cases. The smoke must exercise the same surface added for CHK-001, not only the existing DONE closure branch-synced-main row.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "Focused validation prints: \"main-sync-readiness smoke passed\" and lattice validate --focus=fast includes the new smoke command.",
+      "excludes": [
+        "Do not add a slow full-suite-only regression.",
+        "Do not require network or remote git access.",
+        "Do not verify only the existing DONE closure branch-synced-main behavior.",
+        "Do not accept a hard REVIEW or TEST blocker as proof of readiness."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused smoke passes and proves the pre-REVIEW/read-only main-sync readiness warning appears for a branch behind main.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The focused smoke proves the synced branch case has no false warning, and full validate still includes the smoke through configured validate.commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves the readiness path is read-only and non-blocking by checking no merge, phase mutation, or REVIEW/TEST gate failure occurs solely from behind-main state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-23T11:50:57.276Z",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke passes and proves the behind-main advisory appears through the same session/lifecycle readiness surface added for CHK-001.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "command": "lattice validate --focus=fast --json",
+          "result": "pass",
+          "note": "Focused validate passed and included configured validate.commands[7]: node packages/main/dist/tasks/main-sync-readiness-smoke.js; the smoke proves synced branches have no false warning.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves the readiness path is read-only and non-blocking: no merge, no phase mutation, unchanged git state, and REVIEW/TEST readiness does not fail solely because the branch is behind main.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record baseline result for item 4",
+      "context": "Add a derived baseline result artifact for baseline item 4 without modifying the immutable baseline v1 JSON.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "Baseline result file contains: \"baselineItem\": 4 and \"authorityChanged\": false / \"productionDone\": false for this local readiness fix.",
+      "excludes": [
+        "Do not rewrite baseline v1.",
+        "Do not collapse this with delivery-check freshness or DONE summary freshness."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The result artifact references baseline item 4, this story id, and the readiness behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline file remains unchanged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact states this is local lifecycle readiness coverage only, not Authority or production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-23T11:51:01.376Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "command": "node -e \"const fs=require(\\\"node:fs\\\"); JSON.parse(fs.readFileSync(process.argv[1],\\\"utf8\\\")); console.log(\\\"json parse ok\\\")\" experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "result": "pass",
+          "note": "Result artifact references baselineItem 4, story B-4c48, mainMergeReadiness, and the readiness behavior covered by the smoke.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "git diff --name-only -- experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "result": "pass",
+          "note": "Command produced no output, confirming the immutable baseline v1 file remains unchanged while the story writes a separate derived result artifact.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "command": "node -e \"const fs=require(\\\"node:fs\\\"); JSON.parse(fs.readFileSync(process.argv[1],\\\"utf8\\\")); console.log(\\\"json parse ok\\\")\" experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "result": "pass",
+          "note": "Result artifact explicitly states localLifecycleReadinessCoverageOnly=true, authorityChanged=false, receiptVerified=false, productionDone=false, and claimsAuthorityOrProductionProof=false.",
+          "headHash": "0922d2da3ae508256d0524c2db1bd61623b7f04b",
+          "materialHash": "f66f404b5364989b28dba1bbb36dea29169958bf1fe222011e4fb7d726932e88",
+          "storyFilesHash": "96dd64a8e9b5613d735a495ce9b23d7126bd065a332202e686d10bf4ff14deef",
+          "timestamp": "2026-06-23T11:53:00.078Z"
+        }
+      ]
+    }
+  ]
+}

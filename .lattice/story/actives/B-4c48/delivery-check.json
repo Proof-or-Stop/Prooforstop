@@ -1,0 +1,50 @@
+{
+  "storyId": "B-4c48",
+  "checkedAt": "2026-06-23T12:15:12.518Z",
+  "reviewRound": "2026-06-23T11:55:12.391Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-4c48/checklist.json#CHK-001.userSees",
+      "promise": "Session/lifecycle output includes a main-sync readiness advisory before DONE closure with behind count and done_prepare guidance.",
+      "status": "verified",
+      "verifiedBy": "implementation diff plus main-sync-readiness smoke",
+      "evidence": "Diff adds buildMainSyncReadiness and renderMainSyncReadinessAdvisory, surfaces the advisory in session_brief/lifecycle readiness, and node packages/main/dist/tasks/main-sync-readiness-smoke.js passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-4c48/checklist.json#CHK-002.userSees",
+      "promise": "Focused validation prints main-sync-readiness smoke passed and lattice validate --focus=fast includes the new smoke command.",
+      "status": "verified",
+      "verifiedBy": "test evidence plus direct smoke rerun",
+      "evidence": "test-evidence.json records PASS with configured validate.commands[7] node packages/main/dist/tasks/main-sync-readiness-smoke.js; delivery review reran the smoke and observed main-sync-readiness smoke passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-4c48/checklist.json#CHK-003.userSees",
+      "promise": "Baseline result file contains baselineItem 4 and authorityChanged false / productionDone false for this local readiness fix.",
+      "status": "verified",
+      "verifiedBy": "artifact diff and JSON parse evidence",
+      "evidence": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json contains baselineItem 4, authorityChanged false, productionDone false, and claimsAuthorityOrProductionProof false; verification evidence records JSON parse success."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/main-sync-readiness-smoke.js -> main-sync-readiness smoke passed. The smoke asserts behind-main advisory text with count and done_prepare guidance, REVIEW/TEST readiness rows are non-blocking, and phase/git/story metadata are unchanged."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Recorded validation evidence shows lattice validate --story=B-4c48 --json PASS with configured validate.commands[7] node packages/main/dist/tasks/main-sync-readiness-smoke.js. Delivery review also reran the smoke and observed main-sync-readiness smoke passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Baseline result artifact was reviewed in the diff and prior verification evidence records JSON parse success; it preserves the immutable baseline and states local lifecycle readiness only, with authorityChanged=false and productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against the implementation diff, focused smoke, validation evidence, and baseline result artifact. This delivery check does not claim Authority, production, or DONE completion."
+  },
+  "_hash": "7d4482744720609aaf15525ec2b9c4bbeb8283e0446838a09c37f4fd769b4a91"
+}

@@ -1,0 +1,27 @@
+{
+  "task": "Add durable regression coverage proving Codex adapter evidence is required only for adapter surfaces, not ordinary provider prose that mentions Codex.",
+  "outcome": "After completion, running node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js prints a PASS line showing provider-only Codex text is not required while .lattice-codex / verify_codex / lattice codex verify surfaces are required.",
+  "facts": [
+    "Baseline B-4bd7 item 3 records that provider-only Codex text previously triggered the adapter evidence gate.",
+    "Current storyRequiresCodexEvidence source and dist appear to match adapter-surface-only matching.",
+    "dist output is ignored, so a regression smoke must run after npm --prefix packages/main run build rather than committing dist.",
+    "lattice.config.json validate.commands is the durable route for routine regression coverage."
+  ],
+  "constraints": [
+    "Do not change Authority Server logic or receipt semantics.",
+    "Do not make unsupported Codex-prefixed workflow commands succeed.",
+    "Do not rewrite experiments/baselines/lattice-workflow-efficiency-baseline-v1.json.",
+    "Preserve the four baseline principles: no arbitrary optimization, only correctness, and logic consistency."
+  ],
+  "unknowns": [
+    "Whether the smoke can use a minimal fake store or should instantiate StoryStore.",
+    "Whether focused validate will include the new smoke once it is wired with focus fast."
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+    "lattice.config.json",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+    "packages/main/src/core/codex-adapter-checks.ts only if the smoke exposes source/dist drift"
+  ],
+  "timestamp": "2026-06-23T10:49:01.357Z"
+}

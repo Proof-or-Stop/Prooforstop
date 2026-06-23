@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { z } from 'zod';
+import { MAIN_TOOLS, parseFlags } from '../cli-engine.js';
 import { buildAuthorityEnforceRunnerPlan, buildAuthorityStatus } from '../handlers/lattice-cli.js';
 import { consumeClaimedAuthorityJob, parseClaimedAuthorityJob } from '../core/authority-runner.js';
 import type { ClaimedAuthorityJob } from '../core/authority-runner.js';
@@ -60,6 +62,26 @@ const configuredEnv = {
   LATTICE_AUTHORITY_ACTOR_KEY: 'test-actor-key',
   LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
 };
+
+{
+  const tool = MAIN_TOOLS.find(candidate => candidate.name === 'authority_enforce_runner');
+  assert.ok(tool, 'MAIN_TOOLS exposes authority_enforce_runner');
+  const parsed = parseFlags(
+    ['--live', '--storyId=B-current', '--once', '--dry-run', '--json'],
+    tool.schema,
+  );
+  const validated = z.object({
+    ...tool.schema,
+    takeover: z.boolean().optional(),
+    forceTakeover: z.boolean().optional(),
+  }).parse(parsed) as Record<string, unknown>;
+
+  assert.equal(validated.live, true, 'CLI catalog/validator must preserve --live before handler dispatch');
+  assert.equal(validated.storyId, 'B-current', 'CLI catalog/validator must preserve --storyId before handler dispatch');
+  assert.equal(validated.once, true);
+  assert.equal(validated.dryRun, true);
+  assert.equal(validated.json, true);
+}
 
 {
   const plan = buildAuthorityEnforceRunnerPlan({ once: true, dryRun: true }, configuredEnv);
@@ -134,17 +156,18 @@ const configuredEnv = {
   const repoRoot = join(taskDir, '..', '..', '..', '..');
   const out = execFileSync(
     process.execPath,
-    [cliPath, '--root', '.', 'lattice', 'authority', 'enforce', 'runner', '--once', '--dry-run', '--json'],
+    [cliPath, '--root', '.', 'lattice', 'authority', 'enforce', 'runner', '--once', '--dry-run', '--live', '--storyId=B-current', '--json'],
     {
       cwd: repoRoot,
       encoding: 'utf8',
       env: { ...process.env, ...configuredEnv },
     },
   );
-  const parsed = JSON.parse(out) as { plannedSteps?: string[]; spawned?: boolean; providerEvents?: unknown[] };
+  const parsed = JSON.parse(out) as { plannedSteps?: string[]; spawned?: boolean; providerEvents?: unknown[]; live?: boolean };
   assert.deepEqual(parsed.plannedSteps, ['register_runner', 'runner_heartbeat', 'claim_job']);
   assert.equal(parsed.spawned, false);
   assert.deepEqual(parsed.providerEvents, []);
+  assert.equal(parsed.live, true, 'real CLI alias path preserves --live through validation');
 }
 
 // --- Claimed authority job consumption -------------------------------------
