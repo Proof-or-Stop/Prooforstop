@@ -137,7 +137,7 @@
       "desc": "emitGlmmR fits H1 notAmplified ~ arm over ALL tidy rows, so §5 null-ablation completion cells enter the §6 not-amplified H1 GLMM as failures, contaminating the model. Fix: the H1 model must subset to §6 cells (scenario != null) on the A4-vs-A2prime corpus; H2 completion is a separate model on the null cells.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T19:12:24.873Z",
@@ -147,7 +147,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|emitglmmr-fits-notamplified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "emitGlmmR now fits H1 not-amplified over §6 rows only (subset scenario!=null) + H2 completion over null rows only (subset scenario==null); null cells no longer contaminate the §6 model. selfcheck asserts both subsets. commit 8f72d105f.",
+      "resolvedAt": "2026-06-23T19:15:18.330Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-008",
