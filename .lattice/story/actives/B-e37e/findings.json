@@ -122,7 +122,7 @@
       "desc": "packages/main/src/core/authority-client.ts:2845-2867 returns unavailable as soon as the first complete SSE block lacks jobs.available and prefix.remainder is empty. With a normal native-fetch text/event-stream that writes a standalone heartbeat/comment block (`: heartbeat\\n\\n`) and then writes `event: jobs.available` 50ms later, streamRunnerJobsAvailable returns kind=unavailable in ~18ms before the job event is read, so the runner misses the push hint and falls back to signed claim/polling early. Repro used in review: node --input-type=module local HTTP SSE probe against AuthorityClient with 1000ms timeout; observed {kind:\"unavailable\", status:200, message:\"first event block did not contain jobs.available\"}. The existing smoke keeps heartbeat and partial jobs.available in the same chunk, so it does not cover heartbeat and jobs.available delivered as separate SSE writes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T00:59:45.706Z",
@@ -134,7 +134,11 @@
         "packages/main/src/tasks/authority-runner-client-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f2a04329e: readRunnerJobsAvailableSseStream no longer returns unavailable after standalone heartbeat; it continues until jobs.available, stream close, timeout, malformed jobs.available, or configured limits. Verified with npm build and authority-runner-client-smoke.",
+      "resolvedAt": "2026-06-23T01:08:12.838Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
