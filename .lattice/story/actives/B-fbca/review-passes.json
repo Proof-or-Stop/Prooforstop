@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T21:25:10.665Z",
       "reviewRunId": "B-fbca:RR-003",
       "_hash": "ec76681c6686bc9ffea5ae7ee78a3d93365316df403e9ccb5861b0d93dbb310a"
+    },
+    {
+      "id": "B-fbca:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness check PASSED (Round 2). Core criterion: git grep -i koala -- packages/*/src/** returned ZERO results. Full grep across packages/main/src, packages/utils/src, packages/lab/src (all .ts files, excluding tests/fixtures and dist) also returned ZERO. All replaced concepts verified complete: (1) koala-residue gate renamed to lattice-residue with implementation in review-preflight.ts; (2) all salt constants (FINDING_SALT, REVIEW_PASS_SALT, REVIEW_SALT, REVIEW_RUN_SALT, REVIEW_RUN_WORKSPACE_BINDING_SALT, REVIEW_SCOPE_BINDING_SALT) replaced from koala-*-integrity-v1 to lattice-*-integrity-v1; (3) idleKoala field replaced with idleLattice in stale-detector.ts and config.ts; (4) verify-koala-residue.mjs deleted and replaced by verify-lattice-residue.mjs. Remaining koala in scripts/ (verify-residue-inject-repro.mjs scanner, verify-process-fact-contract.mjs compat alias detection, verify-done-merge-preflight.mjs temp dir) is in permitted tooling files. No doc-promise-undelivered patterns found. Zero findings registered; this review pass closes the lane.",
+      "createdAt": "2026-06-23T21:43:36.033Z",
+      "reviewRound": "2026-06-23T21:40:55.519Z",
+      "reviewRunId": "B-fbca:RR-004",
+      "_hash": "639627deacc7cb7f57f21c80a7aa10466b0ec749c8bb55eba472fe9cc68c73b2"
     }
   ]
 }
