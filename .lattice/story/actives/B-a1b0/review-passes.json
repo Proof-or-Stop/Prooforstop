@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T10:04:54.815Z",
       "reviewRunId": "B-a1b0:RR-005",
       "_hash": "a3332dcadea5e1d8f130c9fa5638bb3234bc1621e633921da039b0f6a9c9ed95"
+    },
+    {
+      "id": "B-a1b0:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): verified all 6 verificationIntents against post-fix code. Self-test runs 18/18 (6 probes x 3 outcomes) + adversarial discrimination, exit 0. CHK-001:happy:0 covered (runInjectionArms records RECOVERED for the fake recovered arm). CHK-001:edge:0 covered (all 6 probes B1/B2/B6/B9/B11/B13 loop with no per-probe special-casing). CHK-001:adversarial:0 covered (no import of run-recovery/run-ablation/run-a2prime; runArm is the injected fake only). CHK-002:happy:0 covered (18/18 PASS, exit 0). CHK-002:edge:0 covered (selfTestCases builder mutates real workspace before classify runs real logic). CHK-002:adversarial:0 covered (amplified != recovered-to-green, no rubber-stamping). Round-1 fixes confirmed in code: await/catch on selfTest(), console.error suppression in importProbe, classifyCase helper with try/finally cleanup. Evidence stale status is hash-freshness only (fix commit landed after evidence was recorded); not a coverage gap.",
+      "createdAt": "2026-06-23T10:09:10.759Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-008",
+      "_hash": "8dc9c9241c13bba21bc861a643a6af95df42b1c34aded730331f747e07e821ec"
     }
   ]
 }
