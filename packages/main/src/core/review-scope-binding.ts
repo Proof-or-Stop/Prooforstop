@@ -21,7 +21,7 @@
  *   different scopeContractHash / diffPackHash / hunk-digest set.
  *
  *   Metadata-exclusion note: buildScopeDiffPack() reports EVERY changed file,
- *   including committed `.koala/story/` / `docs/story/` metadata. Every
+ *   including committed `.lattice/story/` / `docs/story/` metadata. Every
  *   finding_add / review_pass_set auto-commits story metadata, so a raw
  *   diffPackHash would churn on every reviewer write and make the binding stale
  *   immediately. We therefore exclude the same material-excluded paths that
@@ -60,7 +60,7 @@ function uniqSorted(values: readonly string[]): string[] {
  * Pass projectRoot so that a custom storyDir from lattice.config.json is honoured
  * when deciding which paths are story-metadata (and therefore excluded from the
  * digest). Without projectRoot the function falls back to the built-in default
- * prefixes (docs/story/, .koala/story/, …), which is still correct for the
+ * prefixes (docs/story/, .lattice/story/, …), which is still correct for the
  * common case but misses custom storyDir configurations.
  */
 export function materialDiffPackDigest(diffPack: ScopeDiffPack, projectRoot?: string): {
