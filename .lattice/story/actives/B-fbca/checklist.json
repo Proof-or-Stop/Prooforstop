@@ -521,6 +521,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:23:03.569Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "git grep -in koala -- docs/ experiments/",
+          "result": "pass",
+          "note": "Hits exist in docs/ and experiments/ (historical brand prose) — confirming the gate's scope boundary is correctly drawn at packages/*/src only; docs/experiments koala is out of scope and intentionally unaffected",
+          "headHash": "583e8093cf249c4e58a270f344bf35f68bab6c11",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:04.928Z"
         }
       ]
     },
