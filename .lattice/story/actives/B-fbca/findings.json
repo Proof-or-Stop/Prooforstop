@@ -36,6 +36,21 @@
       ],
       "signatureTag": "missing|ts|adversarial-evidence-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbca:F-003",
+      "desc": "quality-cleanup: packages/main/src/handlers/story-dispatch.ts:44 normalizeAgentType() is now a no-op pass-through (returns agentType unchanged) after the koala- guard removal — the function wrapper adds no value and can be removed by inlining",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T21:33:10.801Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-003",
+      "_hash": "484c68fa2953340fcdbdce9d2f7d4c0511dab76862b9b98c5f2ad4fa303a6591",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
