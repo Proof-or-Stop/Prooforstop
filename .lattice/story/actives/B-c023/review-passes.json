@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T12:52:23.053Z",
       "reviewRunId": "B-c023:RR-004",
       "_hash": "bdd079703f5b42478ab5e1792efcf022fa25588848592c4af5b25c526fed64e8"
+    },
+    {
+      "id": "B-c023:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 1 symbol extracted (runLiveLoop; B7/B10/selfCheck also exported). Step 2: 1 paragraph compared — CHANGELOG.md ### Experiments B-c023 bullet. Checked all 23 claims: runLiveLoop signature (opts.scenario,agent,maxTurns=5), setup/interruptAt/classify hooks, inject/truncate/kill branch behavior, pluggable agent param, shipped-or-maxTurns stop, B7 AMPLIFIED/RECOVERED/SAFE_STOP trifecta, B10 AMPLIFIED/SAFE_STOP bifecta, 5 fake agents in selfCheck, requireInjected+requireMaxTurns assertions, --run exit-2 deferral, no probe-contract/run-recovery/run-ablation/run-a2prime edits (confirmed by diff --stat empty grep), OUTCOME imported read-only, duplicate heading count == 1. No overclaims, no drift. No blockers.",
+      "createdAt": "2026-06-23T12:54:42.073Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-003",
+      "_hash": "de6e8813d49a4643034d74555062fb5dbb80a06c3f1659dd5499689034f4a79e"
     }
   ]
 }
