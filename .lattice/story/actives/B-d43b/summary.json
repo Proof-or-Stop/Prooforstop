@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d43b",
+  "changes": "Added Codex adapter evidence gate scope regression coverage: a built-runtime smoke test and validate wiring now prove provider-only Codex prose is ignored while real Codex adapter surfaces remain gated. Added a baseline result artifact for item 3.",
+  "usage": "Run lattice validate --focus=fast for focused coverage or lattice validate --story=B-d43b --json/full validate for the full configured command list; the new smoke runs as configured validate.commands[7].",
+  "expectedOutcome": "Provider-only text that merely mentions Codex should not require Codex adapter verification, while .lattice-codex, verify_codex, .codex/hooks.json, lattice codex verify, and lattice codex doctor still require adapter evidence.",
+  "actualTranscript": "TEST ran lattice validate --story=B-d43b --json successfully in about 87 seconds. It ran 28 configured commands, including npm --prefix packages/main run build and node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js. Verification intent coverage was 9/9.",
+  "outcomeDiff": "No observed diff from expected behavior. The smoke passed with provider-only Codex text ignored and adapter surfaces required. Result artifact remains local-only with authorityChanged=false, receiptVerified=false, and productionDone=false.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No Authority Server or production receipt proof is claimed by this story; it is intentionally local adapter-gate regression coverage only.",
+  "pitfalls": "Do not treat provider names or host prose mentioning Codex as adapter evidence. Adapter evidence remains required only for actual Codex adapter surfaces and commands.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 121531
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19562
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 247136
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 629775
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 522124
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 543124
+    }
+  },
+  "totalDurationMs": 2083265,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T11:20:35.641Z",
+  "updatedAt": "2026-06-23T11:20:35.641Z"
+}

@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-d43b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/scope review passed: non-story changes are limited to Codex adapter evidence gate scope smoke coverage, validation wiring, and a derived baseline result artifact. No matcher logic, Authority/server receipt logic, production proof claim, arbitrary optimization, or forbidden Codex workflow namespace broadening observed. Smoke and baseline result parse checks passed.",
+      "createdAt": "2026-06-23T11:05:48.245Z",
+      "reviewRound": "2026-06-23T11:02:50.393Z",
+      "reviewRunId": "B-d43b:RR-002",
+      "_hash": "e9fcd67981144864841f28a77e1c9cbffb38240279816381ae4f2adb4570849c"
+    },
+    {
+      "id": "B-d43b:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed codex-adapter-gate-scope-smoke.ts, lattice.config.json, and the B-d43b codexAdapterGateScope baseline result. Fake store supplies the exact readStory/readChecklist fields consumed by storyRequiresCodexEvidence; provider-only Codex host/prose cases stay false and adapter surface cases stay true. No matcher source, Codex handler, alias normalizer, or unsupported namespace dispatch changes were in the story diff. Local smoke passed; codex session_brief and codex aux_doc_list still fail as unsupported.",
+      "createdAt": "2026-06-23T11:06:21.672Z",
+      "reviewRound": "2026-06-23T11:02:50.393Z",
+      "reviewRunId": "B-d43b:RR-004",
+      "_hash": "0ace505797220de9ea92062e1dc5e8242f455cd53fd05c1a4767eb39c002d9e2"
+    },
+    {
+      "id": "B-d43b:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS: smoke covers provider-only Codex prose false and adapter surfaces true; evidence includes post-build dist smoke, focused fast validate, full story validate, and baseline result marked local-only with no Authority/production proof claims.",
+      "createdAt": "2026-06-23T11:07:11.542Z",
+      "reviewRound": "2026-06-23T11:02:50.393Z",
+      "reviewRunId": "B-d43b:RR-003",
+      "_hash": "2696e44ce35b28d93263206bf757c0bb06663beea65413a0f0b07bc04c35d720"
+    }
+  ]
+}
