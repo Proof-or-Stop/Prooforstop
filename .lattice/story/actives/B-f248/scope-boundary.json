@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f248",
+  "mode": "feature",
+  "allowed": [
+    "experiments/recovery-runner/README.md (document the driver)",
+    "experiments/recovery-runner/run-driver-selfcheck.mjs (new: offline assertions)",
+    "experiments/recovery-runner/run-driver.mjs (new: cell-matrix enumeration, applicability filter, engine injection, §7 record canonicalization, denominator-set assignment, validity filter, seeded order)",
+    "package.json test script wiring for the new selfcheck (if needed)"
+  ],
+  "excluded": [
+    "Building new corpus tasks (separate program item)",
+    "Modifying adjudicate.mjs / checks.mjs / run-recovery.mjs behavior (reuse only)",
+    "Running the powered live-model campaign (separate multi-day task)",
+    "The analysis/GLMM script (separate story, infra-(a) piece 5)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Continuation of the powered-ablation program per pre-reg rev3.1 §7; operator directed finishing all of infra-(a).",
+  "createdAt": "2026-06-23T11:13:04.875Z",
+  "updatedAt": "2026-06-23T11:13:04.875Z",
+  "_hash": "12b94f4eb755edf4a015011d7c538a8e74b37dc23f6cf6b7a8114c54bdffc26b"
+}
