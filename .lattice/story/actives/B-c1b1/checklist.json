@@ -252,9 +252,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T01:58:32.371Z",
       "userSees": "Any updated diagnostic or runbook text stays host-neutral and says done_prepare is the pre-DONE recovery assistant; it does not move version bump, package sync, or dist sync into pre-DONE evidence creation.",
       "files": {
         "modify": [
@@ -285,7 +285,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"lattice done_prepare|host-neutral|local lifecycle assistant\" docs/requirements/decisions/done-prepare-automation-execution-plan.md docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "result": "pass",
+          "note": "No docs edit was needed: the existing decision docs describe done_prepare as a Lattice workflow/local lifecycle assistant, not a Codex or Claude namespace command.",
+          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:32.712Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"post-DONE|Do not update version files in `done_prepare`|must not modify runtime version files before DONE|It must remain separate from pre-DONE readiness\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "The docs already preserve the boundary that version/package/dist finalization remains post-DONE and done_prepare must not mutate runtime version files before DONE.",
+          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:33.021Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "The user-facing recovery guidance for branch sync and DONE-required blockers now points to done_prepare instead of raw git merge plus separate refresh/validate loops.",
+          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:33.272Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -315,6 +350,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implementation was committed in 29c959848 and verification completed."
+    },
+    {
+      "timestamp": "2026-06-23T01:58:32.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Existing docs already match the corrected behavior; implementation was committed in 29c959848 and verification completed."
     }
   ]
 }
