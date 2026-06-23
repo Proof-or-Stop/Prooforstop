@@ -173,9 +173,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T01:58:19.811Z",
       "userSees": "The regression smoke test demonstrates that a story branch behind main and missing DONE-required evidence receives done_prepare guidance, and that raw git merge main is not emitted as the primary recovery command.",
       "files": {
         "modify": [],
@@ -206,7 +206,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "The new smoke scenario asserts branch-synced-main and done-required-validation blockers both route to the exact done_prepare command.",
+          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:20.841Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "The smoke starts with missing DONE-required evidence and verifies the blocker remains fail/blocking before done_prepare; it is not silently waived.",
+          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:21.405Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js && git diff --check",
+          "result": "pass",
+          "note": "The regression asserts branch sync guidance does not regress to raw git merge main and the broader smoke preserves stale, command-backed evidence, wrong cwd/branch, and version-bump rejection safety cases.",
+          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:21.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -267,6 +302,15 @@
       "timestamp": "2026-06-23T01:58:11.079Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation was committed in 29c959848 and verification completed."
+    },
+    {
+      "timestamp": "2026-06-23T01:58:19.811Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "done",
