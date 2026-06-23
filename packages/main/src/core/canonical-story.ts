@@ -172,7 +172,7 @@ function missingReceiptDegradation(verifiedReceiptRefs: string[]): CanonicalStor
 function missingArtifactDegradations(warnings: string[]): CanonicalStory['degradations'][number][] {
   return warnings.map((warning) => ({
     id: `missing-${basename(warning.split(':').pop()?.trim() || 'story-artifact')}`.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase(),
-    host: 'koala-cli',
+    host: 'lattice-cli',
     capability: 'story-projection',
     severity: 'info',
     visible: true,

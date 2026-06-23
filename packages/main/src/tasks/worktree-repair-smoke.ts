@@ -87,7 +87,7 @@ function addStoryWorktree(root: string, storyId: string): void {
   git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 }
 
-async function runKoala(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -106,9 +106,9 @@ async function runKoala(root: string, command: string, args: Record<string, unkn
   });
 }
 
-async function runKoalaExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   try {
-    await runKoala(root, command, args);
+    await runLattice(root, command, args);
   } catch (e: any) {
     return e?.message || String(e);
   }
@@ -116,8 +116,8 @@ async function runKoalaExpectFail(root: string, command: string, args: Record<st
 }
 
 async function assertDoctorRepairCleansAndProtects(): Promise<void> {
-  const root = initRepo('koala-worktree-repair-');
-  const outsideUserDir = mkdtempSync(join(tmpdir(), 'koala-user-dir-'));
+  const root = initRepo('lattice-worktree-repair-');
+  const outsideUserDir = mkdtempSync(join(tmpdir(), 'lattice-user-dir-'));
   try {
     const store = new StoryStore(root);
     store.writeStory('B-termreg', story('B-termreg', 'DONE', true));
@@ -139,13 +139,13 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     writeFileSync(join(outsideUserDir, 'B-orphan'), 'outside worktreeDir must never be touched\n');
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
-    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(before.worktrees.needsRepair, true);
     assert.equal(before.partialDone.needsRecovery, false, 'terminal/active worktree residue is not partial-DONE');
     assert(before.worktrees.terminalRegistered.some((p: string) => p.includes('B-termreg')));
     assert(before.worktrees.orphanDirs.some((p: string) => p.includes('B-orphan')));
 
-    const repaired = JSON.parse(await runKoala(root, 'doctor', { format: 'json', repair: true }));
+    const repaired = JSON.parse(await runLattice(root, 'doctor', { format: 'json', repair: true }));
     assert.equal(repaired.worktrees.needsRepair, false, 'doctor --repair should clear reported terminal/orphan targets');
     assert.deepEqual(repaired.worktrees.terminalRegistered, []);
     assert.deepEqual(repaired.worktrees.orphanDirs, []);
@@ -161,7 +161,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     assert.equal(git(root, ['branch', '--list', 'story/B-termreg']), '', 'terminal story branch should be deleted');
     assert.equal(git(root, ['branch', '--list', 'story/B-prune']), '', 'prunable terminal story branch should be deleted');
 
-    const storyList = await runKoala(root, 'story_list', {});
+    const storyList = await runLattice(root, 'story_list', {});
     assert.doesNotMatch(storyList, /Terminal worktrees/, 'ignored terminal dirs should not show in story_list bug summary');
     assert.doesNotMatch(storyList, /\[terminal-worktree\]/, 'ignored terminal dirs should not label stories');
   } finally {
@@ -180,7 +180,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 // intent is unchanged — repair must not touch a canonical install it does not
 // own, and must never rewrite a package outside its single-source canonical name.
 function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-mixed-global-link-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-mixed-global-link-'));
   try {
     const globalRoot = join(root, 'global-node-modules');
     const canonicalPath = join(globalRoot, '@lattice', 'core');
@@ -213,7 +213,7 @@ function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
 }
 
 async function assertStoryDiscardRepairsMissingRegistry(): Promise<void> {
-  const root = initRepo('koala-discard-registry-repair-');
+  const root = initRepo('lattice-discard-registry-repair-');
   try {
     const store = new StoryStore(root);
     store.writeStory('B-discard', story('B-discard', 'INIT_CHECK', true));
@@ -221,7 +221,7 @@ async function assertStoryDiscardRepairsMissingRegistry(): Promise<void> {
     addStoryWorktree(root, 'B-discard');
     rmSync(join(root, '.worktrees', 'B-discard'), { recursive: true, force: true });
 
-    const output = await runKoala(root, 'story_discard', {
+    const output = await runLattice(root, 'story_discard', {
       storyId: 'B-discard',
       force: true,
       reason: 'smoke registry repair',
@@ -250,28 +250,28 @@ function buildPartialDone(root: string, storyId: string): string {
 }
 
 async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> {
-  const root = initRepo('koala-partial-done-recover-');
+  const root = initRepo('lattice-partial-done-recover-');
   try {
     const storyId = 'B-partial';
     const worktreePath = buildPartialDone(root, storyId);
 
-    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, true);
     assert.equal(before.partialDone.stories.length, 1);
     assert.equal(before.partialDone.stories[0].storyId, storyId);
     assert.equal(before.partialDone.stories[0].mergeTreeClean, true);
 
-    const text = await runKoala(root, 'doctor', {});
+    const text = await runLattice(root, 'doctor', {});
     assert.match(text, /Partial-DONE scan:/);
     assert.match(text, new RegExp(`lattice done_recover --storyId=${storyId}`));
 
-    const recovered = await runKoala(root, 'done_recover', { storyId });
+    const recovered = await runLattice(root, 'done_recover', { storyId });
     assert.match(recovered, new RegExp(`partial-DONE recovered: ${storyId}`));
     assert.match(recovered, new RegExp(`story/${storyId} merged into main`));
     assert.match(recovered, new RegExp(`Worktree .*${storyId}.*removed`), 'operator transcript must report worktree removal');
     assert.match(recovered, new RegExp(`story/${storyId} deleted`), 'operator transcript must report branch deletion');
 
-    const after = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const after = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(after.partialDone.needsRecovery, false);
     assert.equal(after.worktrees.needsRepair, false);
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE');
@@ -284,16 +284,16 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
 }
 
 async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
-  const root = initRepo('koala-partial-done-dirty-main-');
+  const root = initRepo('lattice-partial-done-dirty-main-');
   try {
     const storyId = 'B-partial-dirty';
     buildPartialDone(root, storyId);
     writeFileSync(join(root, 'dirty.txt'), 'dirty main must block done_recover\n');
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /main worktree is not clean/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
-    const stillPartial = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const stillPartial = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(stillPartial.partialDone.needsRecovery, true);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -301,16 +301,16 @@ async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
 }
 
 async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
-  const root = initRepo('koala-partial-done-live-lock-');
+  const root = initRepo('lattice-partial-done-live-lock-');
   try {
     const storyId = 'B-partial-lock';
     buildPartialDone(root, storyId);
     mkdirSync(join(root, '.lattice', 'locks', 'main-write.lock'), { recursive: true });
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
-    const stillPartial = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const stillPartial = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(stillPartial.partialDone.needsRecovery, true);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -318,13 +318,13 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
-  const root = initRepo('koala-partial-done-dirty-worktree-');
+  const root = initRepo('lattice-partial-done-dirty-worktree-');
   try {
     const storyId = 'B-partial-worktree-dirty';
     const worktreePath = buildPartialDone(root, storyId);
     writeFileSync(join(worktreePath, 'local-draft.txt'), 'draft that recovery must not delete\n');
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /story worktree is not clean/);
     assert.equal(existsSync(join(worktreePath, 'local-draft.txt')), true, 'dirty worktree file must survive refused recovery');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
@@ -334,7 +334,7 @@ async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
-  const root = initRepo('koala-partial-done-conflict-');
+  const root = initRepo('lattice-partial-done-conflict-');
   try {
     const storyId = 'B-partial-conflict';
     const store = new StoryStore(root);
@@ -353,11 +353,11 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
     git(root, ['add', 'conflict.txt']);
     git(root, ['commit', '-m', 'main edits conflict']);
 
-    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, true);
     assert.equal(before.partialDone.stories[0].mergeTreeClean, false);
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /cannot merge cleanly into main/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
@@ -367,7 +367,7 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): Promise<void> {
-  const root = initRepo('koala-partial-done-missing-branch-');
+  const root = initRepo('lattice-partial-done-missing-branch-');
   try {
     const storyId = 'B-missing-branch';
     const store = new StoryStore(root);
@@ -375,7 +375,7 @@ async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): 
     commitStories(root);
     git(root, ['branch', 'story/B-unrelated']);
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /not a recoverable partial-DONE story/);
     assert.notEqual(git(root, ['branch', '--list', 'story/B-unrelated']), '', 'unrelated story branch must not be deleted');
   } finally {
@@ -384,7 +384,7 @@ async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): 
 }
 
 async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
-  const root = initRepo('koala-partial-done-branch-not-done-');
+  const root = initRepo('lattice-partial-done-branch-not-done-');
   try {
     const storyId = 'B-branch-test';
     const store = new StoryStore(root);
@@ -399,11 +399,11 @@ async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['commit', '-m', `story branch remains TEST`]);
 
-    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, false);
     assert.deepEqual(before.partialDone.stories, []);
 
-    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /not a recoverable partial-DONE story/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'non-DONE story branch must not be deleted');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));

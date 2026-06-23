@@ -422,7 +422,7 @@ function isMaterialExcludedPath(path: string): boolean {
   const normalized = path.replace(/\\/g, '/').toLowerCase();
   return normalized.startsWith('docs/story/')
     || normalized.startsWith('.lattice/story/')
-    || normalized.startsWith('docs/koala/framework-audit/')
+    || normalized.startsWith('docs/framework-audit/')
     || normalized.startsWith('.lattice/artifacts/baseline/');
 }
 

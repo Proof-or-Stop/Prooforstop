@@ -77,7 +77,7 @@ function writeStoryIndex(metadataRoot: string): void {
   writeFileSync(join(storyDir, 'index.json'), JSON.stringify(story, null, 2));
 }
 
-const base = mkdtempSync(join(tmpdir(), 'koala-storydir-gitroot-smoke-'));
+const base = mkdtempSync(join(tmpdir(), 'lattice-storydir-gitroot-smoke-'));
 
 try {
   // ── ok: storyDir inside gitRoot (metadataRoot == gitRoot) ───────────────────

@@ -123,7 +123,7 @@ const metadataOnly = [
   'Docs/story/actives/B-smoke/checklist.json',
   'Docs/story/actives/B-smoke/process-events.jsonl',
   'Docs/story/actives/B-smoke/test-evidence.json',
-  'docs/koala/framework-audit/round.json',
+  'docs/framework-audit/round.json',
 ];
 
 const runtimeMetadata = [

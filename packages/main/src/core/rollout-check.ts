@@ -381,12 +381,12 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
-  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
+  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
   const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story'));
   const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
-    `LATTICE/KOALA/CLAUDE guide=${hasLatticeGuide}`,
+    `LATTICE/CLAUDE guide=${hasLatticeGuide}`,
     `.lattice/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];
