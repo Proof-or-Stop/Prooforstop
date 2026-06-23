@@ -1,0 +1,136 @@
+{
+  "storyId": "B-7b6e",
+  "checkedAt": "2026-06-22T23:34:20.601Z",
+  "features": [
+    {
+      "feature": "New core/gate-strength.ts: hermetic, reviewer-agnostic gate-strength harness module",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "STANDING_CORPUS of passes-visible-test-but-wrong probes (overfit lookup-table, subtle falsy-guard, buried-needle) + genuine-solution control",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Probe type: { id, artifact, visibleAcceptancePass, groundTruthPass, defectKind }",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reviewer interface: (probe) => { ship: boolean, reason: string }",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "testOnlyReviewer reference reviewer (ships iff visibleAcceptancePass, catch-rate = 0)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "specAwareReviewer reference reviewer (ships iff groundTruthPass with per-probe reason, catch-rate = 1.0)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runGateStrength(reviewer, corpus): scores catch-rate and per-probe reasons against hidden ground-truth; returns caught/falseShip/falseBlock/catchRate/perProbe[]",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "gateStrengthBundle(result, privateKey): emits a B-4c65 ReceiptBundle (reuse buildReceiptBundle, assurance=local-key-single-host) offline-verifiable via verifyReceiptBundleOffline",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "receipt-bundle.ts reuse (no semantic change): only reused, not altered",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic contract smoke tasks/gate-strength-contract-smoke.ts: assert test-only catches 0/N, spec-aware catches N/N with correct per-probe reason",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke asserts two reviewer endpoints DIFFER (0 vs 1.0) proving non-vacuous metric",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke asserts verifyReceiptBundleOffline(bundle) is accepted; tamper check verifies tamper-evidence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register gate-strength-contract-smoke in lattice.config.json validate.commands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG entry: honest single-host/hermetic scope, live review-lane deferred",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Live claude -p review-lane dispatch as a reviewer (follow-up, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded + CHK-001 context: No live agent dispatch",
+      "source": "description"
+    },
+    {
+      "feature": "Continuous/scheduled running of the gate-strength meter (follow-up, not this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded + plan.md Out of scope (deferred)",
+      "source": "description"
+    },
+    {
+      "feature": "Any change to gate behavior / DONE policy / receipt-bundle.ts semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded + understanding.json constraints",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 14,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5acb96fb68c16607a3e0f9b072ae6798d42f37ce589bb0093e32ff6b8503b8a1",
+  "openQuestions": []
+}

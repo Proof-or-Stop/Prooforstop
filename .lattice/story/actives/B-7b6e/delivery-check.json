@@ -1,0 +1,63 @@
+{
+  "storyId": "B-7b6e",
+  "checkedAt": "2026-06-23T00:36:17.610Z",
+  "reviewRound": "2026-06-23T00:27:47.705Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "THREE reference reviewers (testOnlyReviewer, blockAllReviewer, oracleReviewer) bound the discrimination space",
+      "verifiedBy": "diff/grep",
+      "evidence": "testOnlyReviewer (line 128), blockAllReviewer (line 138), oracleReviewer (line 149) all exported from packages/main/src/core/gate-strength.ts"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "runGateStrength, verifyGateStrengthResult, gateStrengthBundle exported from gate-strength.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "runGateStrength at line 203, gateStrengthBundle at line 290, verifyGateStrengthResult at line 336 -- all exported"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "Hermetic smoke gate-strength-contract-smoke.ts registered in lattice.config.json validate set",
+      "verifiedBy": "diff",
+      "evidence": "lattice.config.json diff adds node packages/main/dist/tasks/gate-strength-contract-smoke.js to validateCommands array"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "F-008 reason is now bound into the digest so the full result is attested",
+      "verifiedBy": "diff/grep",
+      "evidence": "canonicalResult in gate-strength.ts includes reason: o.reason in per-probe projection with inline comment; smoke check 12 asserts a mutated per-probe reason yields matches:false"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "receipt-bundle.ts is reused not modified",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/receipt-bundle.ts produces no output -- file unchanged"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "Live review-lane dispatch and continuous/scheduled running are explicit follow-ups not delivered here",
+      "verifiedBy": "diff/grep",
+      "evidence": "CHANGELOG scope statement + gate-strength.ts module header documents HERMETIC: no network, no agent/review-lane dispatch; no live agent dispatch code in diff"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-7b6e",
+      "promise": "All 8 findings fixed before DONE",
+      "verifiedBy": "findings.json inspection",
+      "evidence": "findings.json contains exactly 8 findings F-001..F-008, all status:resolved resolutionType:fixed. F-001/F-002 quality lane, F-003..F-008 codex-host2. F-008 per-probe reason fix at 43027257a."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/gate-strength-contract-smoke.js run live -- 12/12 checks pass: (1) test-only catchRate 0 falseShip=wrongTotal; (2) block-all catchRate 1.0 falseBlock=genuineTotal; (3) oracle catchRate 1.0 falseShip 0 falseBlock 0 names each defect; (4) oracle dominates both endpoints; (5) all-genuine corpus throws; (6) invariant-violated corpus throws; (7) receipt verifies offline ACCEPTED; (8) tampered signed field REJECTED signature_invalid; (9) stale materialHash REJECTED; (10) authentic result MATCHES bound digest; (11) forged result (falseBlock=99) does NOT match; (12) mutated per-probe reason does NOT match (F-008). Exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 CHANGELOG promises verified in code and diff. The smoke runs hermetically with 12 assertions covering happy-path discrimination, the block-all gameability proof, oracle dominance, corpus-invariant rejection, offline receipt verification, tampered-signature rejection, stale-materialHash rejection, authentic result match, forged-result mismatch, and F-008 per-probe reason tampering detection. findings.json shows exactly 8 findings all resolved/fixed. receipt-bundle.ts is unmodified. Live review-lane dispatch is honestly scoped as a follow-up."
+  },
+  "_hash": "8c1b5c5d03cbd1218b40340c7a68ae117e04f9426026192cf1e88d30c009f50e"
+}

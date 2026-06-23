@@ -1,0 +1,175 @@
+{
+  "findings": [
+    {
+      "id": "B-7b6e:F-001",
+      "desc": "specAwareReviewer reads defectKind from ReviewerView which is a harness-authored label co-designed to be 1-to-1 with groundTruthPass (defectKind=none iff groundTruthPass=true in STANDING_CORPUS). The reviewer trivially achieves catchRate=1.0 by proxy-reading the hidden ground truth through the label — it does not analyze the artifact. Comments claim it detects the defect; it actually reads a harness-invariant tag. The non-vacuous claim in the smoke holds for testOnlyReviewer but not specAwareReviewer: the upper bound is tautological. The corpus invariant (defectKind=none ↔ groundTruthPass=true) must be enforced or documented, and the JSDoc on ReviewerView.defectKind and the specAwareReviewer comment must be corrected to say this is a harness-invariant label, not independent artifact analysis.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T23:47:54.716Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-002",
+      "_hash": "77d71c92deae9f206fcd9bc054fc58ba9d99021f07f283897421ff5717c42954",
+      "files": [
+        "packages/main/src/core/gate-strength.ts:40",
+        "packages/main/src/core/gate-strength.ts:113"
+      ],
+      "signatureTag": "edge|ts:40|specawarereviewer-reads-defectkind",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: renamed specAwareReviewer->oracleReviewer, JSDoc now states it reads the harness-provided defectKind LABEL not the artifact; ReviewerView.defectKind documented as a label a real reviewer would ignore. Smoke uses oracleReviewer.",
+      "resolvedAt": "2026-06-22T23:55:13.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-002",
+      "desc": "tampered.receipts[0]! non-null assertion in smoke line 116: bundle.receipts is typed as ReceiptBundleReceipt[] (not a tuple), so TypeScript cannot prove receipts[0] is non-null. The assertion is runtime-safe only because gateStrengthBundle always emits exactly one receipt — a structural invariant not enforced at the type level. If that invariant ever breaks, the ! silently makes the assignment target undefined and the tamper-check produces a misleading false-negative or downstream TypeError rather than a clear assertion failure. Should be guarded with assert.equal(tampered.receipts.length, 1) before the index access, or use const [receipt] = tampered.receipts; assert.ok(receipt);.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T23:48:01.748Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-002",
+      "_hash": "6aee74e2394828707e15bf5e9ca16b336a15de485aa79b976db444c22be83e46",
+      "files": [
+        "packages/main/src/tasks/gate-strength-contract-smoke.ts:116"
+      ],
+      "signatureTag": "edge|ts:116|tampered-receipts-assertion",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: smoke now asserts tampered.receipts.length===1 before the [0]! index, so the runtime invariant (gateStrengthBundle emits exactly one receipt) is checked explicitly.",
+      "resolvedAt": "2026-06-22T23:55:14.403Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-003",
+      "desc": "[codex-host2 #1] catchRate=caught/wrongTotal does NOT capture over-blocking: a block-everything reviewer scores caught=wrongTotal, catchRate=1.0 (with falseBlock>0), indistinguishable from the oracle if a consumer reads catchRate alone. The smoke's 'not a block-everything constant' claim is not actually proven by catchRate. FIX: add a blockAll reference reviewer and prove the oracle DOMINATES both endpoints (beats test-only on catchRate AND beats block-all on falseBlock).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:20.096Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "390c62304611f2a1a076f257d55f3cceda8de181f10272e09f121191221a21c3",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-catchrate",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: added blockAllReviewer (catchRate 1.0, falseBlock=genuineTotal) + a dominance assertion proving oracle beats test-only on catchRate AND beats block-all on falseBlock; catchRate is now documented as gameable and always read with falseBlock. The 'not a block-everything constant' claim is now actually proven.",
+      "resolvedAt": "2026-06-22T23:55:15.222Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-004",
+      "desc": "[codex-host2 #2] wrongTotal===0 ? 1 avoids NaN but yields a vacuous perfect score: an empty / all-genuine corpus returns caught=0/0 catchRate=1 and can be bundled as 'perfect'. FIX: runGateStrength must reject a corpus with no wrong probes (you cannot measure catch-rate with nothing to catch).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:20.897Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "053d0e8917b2419f3e50552f311cda6595dff35322ea72e8c99ff3d2404756ea",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-wrongtotal",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: runGateStrength throws 'no wrong probes' on an all-genuine/empty corpus (catchRate is undefined with nothing to catch); smoke asserts the throw. No vacuous 0/0=1.0.",
+      "resolvedAt": "2026-06-22T23:55:16.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-005",
+      "desc": "[codex-host2 #3] ReviewerView leaks defectKind and specAwareReviewer uses it as the answer key (ship = defectKind==='none'), scoring 1.0 without reading the artifact. Labeling it an honest 'spec-aware' reviewer is overstated. FIX: rename to oracleReviewer, document it reads the harness-provided label (not the artifact) as an upper-bound oracle, and enforce the corpus invariant defectKind==='none' <-> groundTruthPass===true. (Corroborates Claude quality F-001.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:21.630Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "78553eefb7e4843aab550762730139ffb7f8879fb9ad4f5e4e653bb4cba32acc",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-reviewerview",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa (corroborated F-001): oracleReviewer rename + oracle labeling + enforced corpus invariant defectKind==='none' <-> groundTruthPass===true (assertCorpusInvariant, smoke asserts the throw on violation).",
+      "resolvedAt": "2026-06-22T23:55:17.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-006",
+      "desc": "[codex-host2 #4] tamper-evidence overstated: verifyReceiptBundleOffline never receives/re-derives the GateStrengthResult, so an external result JSON can be altered while the unchanged bundle still verifies. The smoke only proves mutating a SIGNED field breaks the signature. FIX: add verifyGateStrengthResult(result, bundle) that recomputes gateStrengthDigest(result) and compares to the bound receipt digest, demonstrate authentic-accept + tampered-result-reject, and correct the prose to 'the bundle's bound result-digest is tamper-evident; verifyGateStrengthResult closes the result<->receipt loop'.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:22.489Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "0c2a7ee4ff060481fcbcd532066924cf8cbc3947c0b6137320c528408350a536",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-tamper",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: added verifyGateStrengthResult(result,bundle) recomputing gateStrengthDigest and comparing to the bound receipt digest, closing the result<->receipt loop; prose corrected to 'bundle digest is tamper-evident + result verifiable against it'. Smoke proves authentic-result MATCHES and a forged result (falseBlock=99) does NOT.",
+      "resolvedAt": "2026-06-22T23:55:17.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-007",
+      "desc": "[codex-host2 #5] canonicalResult sorts perProbe with localeCompare, which is locale/ICU-dependent for arbitrary IDs and can produce a different digest order on another runtime. FIX: use a deterministic code-point sort.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T23:50:38.659Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "_hash": "86ae7c597fb6b29f81fc049d7717dedd2888e943cf9872dbb5b475bf01b1e562",
+      "files": [
+        "packages/main/src/core/gate-strength.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host2-canonicalresult",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 5b06232aa: canonicalResult now sorts perProbe by a deterministic code-point comparison (byCodePoint) instead of locale/ICU-dependent localeCompare, so the digest is reproducible across runtimes.",
+      "resolvedAt": "2026-06-22T23:55:18.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-008",
+      "desc": "[codex-host2 round-3 #8] verifyGateStrengthResult over-claimed: canonicalResult omitted ProbeOutcome.reason from the digest, so editing a per-probe reason after bundling still returned matches:true (Codex proved it via a runtime probe mutating overfit-lookup's reason). The doc claims it attests 'this result is the one it attests' (full result). FIX: bind reason into canonicalResult so the full result is attested; add a smoke check that a mutated reason is detected.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T00:28:09.158Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "_hash": "be1d6929a25ac0ad6da74eacbfd57a355b2d4c807c5b34d1c5d0ba281405e216",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-round",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 43027257a: canonicalResult now binds o.reason into the per-probe projection, so verifyGateStrengthResult attests the FULL result. Smoke check 12 asserts a mutated per-probe reason yields matches:false (the exact mutation Codex used). 12/12 checks green.",
+      "resolvedAt": "2026-06-23T00:28:10.676Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

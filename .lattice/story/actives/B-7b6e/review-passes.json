@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-7b6e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit (0560975d2): 4 files changed, 393 insertions, 1 deletion (comma). New symbols gate-strength.ts + gate-strength-contract-smoke.ts: all 15 exported identifiers (runGateStrength, gateStrengthBundle, gateStrengthDigest, testOnlyReviewer, specAwareReviewer, STANDING_CORPUS, Probe, ReviewerView, ReviewerDecision, Reviewer, ProbeDefectKind, ProbeClassification, ProbeOutcome, GateStrengthResult, toView internal) exist only in the new files and B-7b6e story metadata — zero dangling references elsewhere in the repo. ReceiptBundleBinding reuse confirmed: exported at receipt-bundle.ts:51, properly imported. lattice.config.json change is additive only (trailing comma + new validate entry). No concept deletion, no renamed concept, no partial migration, no residual orphan, no doc-promise-undelivered: CHANGELOG description matches the code delivery 1-for-1. Concept residue check complete — no blocker.",
+      "createdAt": "2026-06-22T23:45:22.476Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-001",
+      "_hash": "27597e964e764cb8c3143f24a61cda2d0d7800f1725675df1fd9a93cb8e275fd"
+    },
+    {
+      "id": "B-7b6e:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 symbols extracted (runGateStrength, testOnlyReviewer, specAwareReviewer, gateStrengthBundle). Step 2: 1 paragraph compared — CHANGELOG.md Verifiable autonomy / B-7b6e entry. Step 3: All 11 CHANGELOG claims verified against gate-strength.ts and gate-strength-contract-smoke.ts in commit 0560975d2: (1) all 4 symbols exist and are exported; (2) testOnlyReviewer ships visibleAcceptancePass and catches 0, smoke asserts catchRate===0; (3) specAwareReviewer blocks defectKind!==none and catches all, smoke asserts catchRate===1; (4) gateStrengthBundle calls buildReceiptBundle from receipt-bundle.ts, assurance hardwired to local-key-single-host confirmed; (5) smoke asserts test-only=0, spec-aware=1.0, endpoints differ, receipt ACCEPTED, tampered digest signature_invalid, stale rejected — all present and accurate; (6) receipt-bundle.ts is NOT in the commit stat (4 files: CHANGELOG.md, lattice.config.json, gate-strength.ts, gate-strength-contract-smoke.ts) — reused-not-modified claim verified; (7) HERMETIC claim accurate — smoke header explicitly states no network/agent/FS/git; live reviewer and scheduling described as follow-ups, not implemented in this commit. No blockers.",
+      "createdAt": "2026-06-22T23:46:03.132Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-003",
+      "_hash": "16ded5f1058d2b2053117906dd9b29b76c56a0b4bfef24bc24b0980ea5d3ec15"
+    },
+    {
+      "id": "B-7b6e:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) are bound to gate-strength-contract-smoke.js, which was independently executed and produced 7 concrete assertions matching each intent exactly. Smoke is hermetic and non-vacuous: catchRate endpoints differ (0 vs 1.0), per-probe reasons name defect kinds, receipt verifies offline, tampered digest rejected (signature_invalid), stale materialHash rejected. Evidence command concretely exercises each stated intent — no broad-description fallback detected.",
+      "createdAt": "2026-06-22T23:47:14.197Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-004",
+      "_hash": "e9f0499a2227dd9c6b118f2521c5557020137eccb67779c1edb9a7709e50cf4c"
+    },
+    {
+      "id": "B-7b6e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Scope: rename specAwareReviewer->oracleReviewer (commit 5b06232aa). Grep of all *.ts, *.md, *.json excluding node_modules/dist/.git/.lattice: zero occurrences of specAwareReviewer in source or non-story docs. oracleReviewer present in gate-strength.ts:149 (exported), gate-strength-contract-smoke.ts (imported+used 4x), CHANGELOG.md (narrative). Remaining specAwareReviewer strings are solely inside .lattice/story/actives/B-7b6e/ audit-trail files (findings.json resolvedReason, plan.md, checklist.json, review-passes.json, test-evidence.json, scope-check.json) — these are historical audit records, not active concept references, and do not count as residue. receipt-bundle.ts: git show 5b06232aa -- packages/main/src/core/receipt-bundle.ts returned empty diff — file unmodified. Change is purely additive: blockAllReviewer + verifyGateStrengthResult + GATE_STRENGTH_RECEIPT_LABEL added, no existing concept deleted. No doc-promise-undelivered found. No blocker.",
+      "createdAt": "2026-06-22T23:56:42.329Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-005",
+      "_hash": "5242f668a01f993612071e3cf78a24bd264a3166351f6e1a76dc4c21a7896746"
+    },
+    {
+      "id": "B-7b6e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs-code consistency check: 0 findings. Symbols checked (Step 1): testOnlyReviewer, blockAllReviewer, oracleReviewer, runGateStrength, gateStrengthBundle, verifyGateStrengthResult, gateStrengthDigest, GATE_STRENGTH_RECEIPT_LABEL, STANDING_CORPUS, Probe, ReviewerView, GateStrengthResult, GateStrengthResultMatch, ProbeDefectKind, ProbeClassification, ProbeOutcome, Reviewer (17 exported symbols). Paragraphs compared (Step 2-3): the full B-7b6e CHANGELOG entry (gate-strength.ts file header + smoke file header also read end-to-end). All six CHANGELOG claims verified against code: (1) THREE reference reviewers exist with the documented behaviors (testOnlyReviewer catchRate=0 falseBlock=0; blockAllReviewer catchRate=1.0 falseBlock=genuineTotal; oracleReviewer catchRate=1.0 falseBlock=0 DOMINATES both). (2) oracleReviewer reads v.defectKind label NOT the artifact (confirmed in code: ship = defectKind===none), and runGateStrength enforces defectKind===none <-> genuine (assertCorpusInvariant) and rejects no-wrong-probe corpus. (3) verifyGateStrengthResult recomputes gateStrengthDigest and compares to receipt.outputDigest, closing the result<->receipt loop; tamper-evidence prose is precise and not overclaimed. (4) Smoke asserts all 11 checks covering the three endpoints, dominance, all-genuine rejection, invariant-violated rejection, receipt ACCEPTED, tampered REJECTED (signature_invalid), stale REJECTED, authentic-match, forged-mismatch. (5) receipt-bundle.ts confirmed untouched in commit 5b06232aa (only CHANGELOG.md + gate-strength.ts + gate-strength-contract-smoke.ts changed). (6) Hardening parenthetical is accurate: findings.json shows F-003 through F-007 attributed to agent=codex-host2 (host-2 Codex adversarial pass) and F-001 F-002 to agent=lattice-review-quality (Claude quality lane); no overclaim. Residual specAware wording in CHANGELOG is a rename-narrative historical reference, not a code-symbol claim. No blockers.",
+      "createdAt": "2026-06-22T23:57:40.574Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-008",
+      "_hash": "16d9162ad94ed1ef855f748988aaa8c04598f386126232b1a2d6aae4c0881b60"
+    },
+    {
+      "id": "B-7b6e:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality audit: all 7 round-1 fixes verified sound. (1) oracleReviewer correctly reads defectKind label not artifact — JSDoc + ReviewerView.defectKind comment precise. (2) assertCorpusInvariant: defectKind===none IFF groundTruthPass, both directions enforced, empty corpus caught before invariant check. (3) runGateStrength throws on no wrong probes (wrongTotal===0) after invariant check. (4) blockAllReviewer exported and used; dominance assertion in smoke verifies oracle beats test-only on catchRate AND beats block-all on falseBlock. (5) verifyGateStrengthResult finds receipt by GATE_STRENGTH_RECEIPT_LABEL constant (same label gateStrengthBundle binds), returns matches=false with boundDigest=undefined when label absent. (6) byCodePoint: a<b/-1/a>b/1/else 0, locale-independent; digest stable. (7) receipts.length===1 asserted before [0]! index in smoke. Smoke 11/11 green. No dead code, no as any, no empty catch, no shell/bridge violations.",
+      "createdAt": "2026-06-22T23:58:40.614Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-006",
+      "_hash": "fdd19588ca099cfb2ce4c2bc03ae633d805f349afcafe794871f030c00e80612"
+    },
+    {
+      "id": "B-7b6e:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 6 must-intents verified against smoke assertions in gate-strength-contract-smoke.ts (11 checks, exit 0 confirmed). CHK-001:happy:0 -> oracle catchRate 1.0+falseShip 0+falseBlock 0+per-probe reason names defect (lines 80-91). CHK-001:edge:0 -> gateStrengthBundle ACCEPTED offline (lines 125-128). CHK-001:adversarial:0 -> testOnly catchRate 0+falseShip=wrongTotal (lines 63-69). CHK-002:happy:0 -> oracle ships genuine probe (classification=shipped-genuine, lines 90-92). CHK-002:edge:0 -> oracle.catchRate > testOnly.catchRate proves non-vacuous metric (line 95); blockAll==oracle on catchRate proves axis separation (line 97). CHK-002:adversarial:0 -> ACCEPTED offline + tampered=signature_invalid + stale=stale (lines 125-141). Evidence staleness (headHash pre-5b06232aa) is a DONE-gate freshness concern, not a coverage gap; the command and assertions are unchanged post-refactor. No intent is bound to a command that no longer tests it.",
+      "createdAt": "2026-06-23T00:01:44.900Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-007",
+      "_hash": "3dbba654ecc79f66ad2abe8f391c7f311f7c733af163c678b3f346065302d641"
+    },
+    {
+      "id": "B-7b6e:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-bind: rename specAwareReviewer->oracleReviewer left no residual (grep clean outside .lattice audit trail); change purely additive; receipt-bundle.ts unmodified.",
+      "createdAt": "2026-06-23T00:07:37.222Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-009",
+      "_hash": "143d15b9617d5d8ecba72e79a6757b14d0adf11666c0e9c13b231a1ffac5201b"
+    },
+    {
+      "id": "B-7b6e:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-bind: all 7 findings' fixes verified sound, no new regression; smoke 11/11 green; type-safety/IO-isolation/logic all clean.",
+      "createdAt": "2026-06-23T00:07:40.718Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-010",
+      "_hash": "69d4685d93f2db27ed7ec48364f00f627ca227b5de296f5f869f871491b83136"
+    },
+    {
+      "id": "B-7b6e:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-bind: all 6 verificationIntents exercised by the 11-check smoke (exit 0); evidence command unchanged + refreshed.",
+      "createdAt": "2026-06-23T00:07:44.526Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-011",
+      "_hash": "e1782881eab37b24cca29fb43a69033aa471417670f70e5a64c9676767a5f0c0"
+    },
+    {
+      "id": "B-7b6e:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 re-bind: CHANGELOG matches hardened code (3 reviewers/oracle/dominance/verifyGateStrengthResult/precise tamper-evidence); no overclaim; receipt-bundle.ts untouched.",
+      "createdAt": "2026-06-23T00:07:48.400Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-012",
+      "_hash": "d89182fdfcb06ec5f63dda95fbd163ad8520674014fa490734d797a7c5c8d833"
+    },
+    {
+      "id": "B-7b6e:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete (RR-013, head f3e13e3). specAwareReviewer grep across all .ts/.md/.json excluding .lattice/ story metadata, node_modules, dist, .git: zero hits. All occurrences are confined to .lattice/ audit trail (historical findings, prior review-passes, plan.md, checklist.json, test-evidence.json) — not live source. The rename specAwareReviewer->oracleReviewer is complete in packages/. receipt-bundle.ts: git diff main...HEAD produces empty output — file unmodified. No concept deletion or replacement requiring residue cleanup this round. No doc-promise-undelivered: F-008 fix (canonicalResult binds reason into per-probe digest) is purely additive/tightening with no new doc promises. No blocker.",
+      "createdAt": "2026-06-23T00:29:06.514Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-013",
+      "_hash": "ccbf2042b397849a5754d6d4c07511d5a35497f127d95fd718f8e8b573ded62a"
+    },
+    {
+      "id": "B-7b6e:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "F-008 fix verified: canonicalResult in gate-strength.ts now includes reason:o.reason in the per-probe projection (line 268). Fix is correct and deterministic — reason strings come from reviewer functions whose outputs are stable given a fixed corpus (all three built-in reviewers are pure functions with no randomness). verifyGateStrengthResult doc claim now accurate: together with verifyReceiptBundleOffline it proves both authenticity and that the full result including per-probe justifications is the one attested. Smoke: 12/12 checks pass, exit 0, including the new check-12 (mutated per-probe reason rejected). No dead code, no as-any, no empty catch, all imports used. No quality regressions found.",
+      "createdAt": "2026-06-23T00:29:40.263Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-014",
+      "_hash": "6f252d4033d4498728ce5a21bb2a49202cabf7f7c2c9a9d7ae9ea1a936d5bc52"
+    },
+    {
+      "id": "B-7b6e:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Step-1: 0 new exported symbols in diff (only canonicalResult projection change, non-exported helper). Step-2/3: checked the CHANGELOG.md B-7b6e entry paragraph (~100 lines) against gate-strength.ts. All 4 claims verified: (1) canonicalResult binds reason at line 268, comment at 266-267 accurate; (2) findings.json has exactly 8 findings F-001..F-008 all resolved+verified, F-008 agent=codex-host2 at 2026-06-23T00:28; (3) no overclaim — verifyGateStrengthResult JSDoc says full result is attested (reason now bound, so wording is accurate); (4) receipt-bundle.ts has zero commits on this branch. No inconsistencies found.",
+      "createdAt": "2026-06-23T00:29:54.850Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-016",
+      "_hash": "a96e3ddedb8414025252164eb500ddc5b55608b52a6326f5e557e87e11081c0a"
+    },
+    {
+      "id": "B-7b6e:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 verificationIntents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) have valid must-priority logic_test evidence bound to node packages/main/dist/tasks/gate-strength-contract-smoke.js; smoke ran 12/12 checks exit 0; F-008 (per-probe reason tamper check) strengthens CHK-002:adversarial:0 coverage without weakening any other intent.",
+      "createdAt": "2026-06-23T00:32:45.859Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-015",
+      "_hash": "48109652ed9b485f964726c305923fd31d454d92a22b7620006ad31ac0b3ca6c"
+    }
+  ]
+}
