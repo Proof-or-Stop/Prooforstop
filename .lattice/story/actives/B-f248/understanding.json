@@ -1,0 +1,29 @@
+{
+  "task": "Build the deterministic, offline-testable powered-ablation run driver that enumerates the full pre-registered cell matrix and emits canonical §7 run-records via the existing adjudicator + scoring-checks.",
+  "outcome": "Running `node experiments/recovery-runner/run-driver-selfcheck.mjs` prints labeled assertion groups all ending in PASS — e.g. `enumeration: 5 arms x N tasks x {null + applicable scenarios} x k = <count> cells (B4/B5/B10 excluded from A1) ... PASS`, `schema: every emitted record has all 21 §7 fields, adjudicatedOutcome in {amplified,recovered,safe-stop,null} ... PASS`, `denominator-sets: A4-vs-A2prime common-cell membership correct ... PASS`, `validity-filter: infra-void run re-run and logged, task-failure kept ... PASS`, `seeded-order: identical seed -> identical run order ... PASS` — and exits 0; `npm test` includes this selfcheck and stays green. Running the driver against the deterministic stub engine writes a JSONL whose every line validates against the §7 schema.",
+  "facts": [
+    "adjudicate.mjs (B-2d4c, v0.3.70) exports adjudicate() emitting §7 enum amplified|recovered|safe-stop|null + 5 unsafe detectors.",
+    "checks.mjs (B-ebbb, v0.3.72) exports harnessAcceptance/hiddenRegression/diffHygiene returning acceptancePass/hiddenRegressionPass/diffHygienePass + violations, fail-closed on corrupt input.",
+    "run-recovery.mjs exports buildRunRecord and runs the real per-cell engine (claude -p); it already records scenarioId/tokensSpent/wallClockMs/agentCallCount/truncated.",
+    "Pre-reg rev3.1 §1 defines 5 arms (A1,A2,A2prime,A3,A4); §3 the 15 scenarios B1-B15 with applicability (B4,B5,B10 exclude A1; other 12 apply to all arms); §7 the exact 21-field run-record schema + validity filter; §5 common-cell denominators.",
+    "run-ablation.mjs already maps arms to runner invocations (a2prime/a4/a4b with R-tuning) and computes A4 per-task spend medians for the A2prime budget."
+  ],
+  "constraints": [
+    "Match pre-reg rev3.1 EXACTLY; any deviation amends the pre-reg first (it is the authority).",
+    "Driver core must be fully deterministic and offline-testable by injecting the per-cell engine; the selfcheck must NOT spawn claude -p.",
+    "Reuse adjudicate.mjs + checks.mjs + run-recovery.mjs for outcome/scoring/record; do NOT re-implement or modify their behavior.",
+    "Do NOT run the powered live-model campaign in this story (separate multi-day task).",
+    "All code via this Lattice story; genuine 2-host review."
+  ],
+  "unknowns": [
+    "Exact denominator-set identifiers to pre-register (at least the A4-vs-A2prime common-cell set; whether to also emit A1-vs-A4 etc.) — resolve in decision.",
+    "Whether to wire the selfcheck into the root npm test script or a recovery-runner-local test target."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/run-driver.mjs (new)",
+    "experiments/recovery-runner/run-driver-selfcheck.mjs (new)",
+    "experiments/recovery-runner/README.md",
+    "package.json (test wiring, if needed)"
+  ],
+  "timestamp": "2026-06-23T11:17:31.952Z"
+}
