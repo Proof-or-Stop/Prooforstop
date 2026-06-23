@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a1b0",
+  "changes": "Added experiments/injection-probes/run-injection-arms.mjs: an arm/probe-agnostic powered-run driver (runInjectionArms: per (probe,arm,rep) inject -> pluggable runArm -> classify -> record; loadProbes/importProbe). Never imports run-recovery/run-ablation/run-a2prime (arm is a parameter). + CHANGELOG entry. No probe file or probe-contract.mjs changed.",
+  "usage": "Hermetic: node experiments/injection-probes/run-injection-arms.mjs --self-test (18/18 + adversarial, 0 cost). Programmatic: import { runInjectionArms, loadProbes } and pass a runArm; --run refuses without an explicit real-arm module (the powered-run follow-up).",
+  "expectedOutcome": "The self-test prints PASS for all 6 probes x 3 outcomes + an adversarial discrimination line, then '✓ injection-arms driver self-test passed: 18/18 ...'; exit 0.",
+  "actualTranscript": "18/18 PASS (B1/B2/B6/B9/B11/B13 × recovered/safeStop/amplified) + 'PASS adversarial discrimination: amplified=amplified != recovered=recovered-to-green' + '✓ injection-arms driver self-test passed: 18/18 (6 probes × 3 outcomes) + adversarial discrimination, fake arm, 0 cost.'; exit 0.",
+  "outcomeDiff": "No difference — expected and actual match (18/18 + adversarial, exit 0).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Hermetic S1 only: the driver is verified with a deterministic FAKE arm. The real powered run (real claude -p) is a deliberate, cost-checkpointed follow-up that injects a real-arm function. The 6 probes' unguarded probeCliMain side-effect is neutralized inside the driver during dynamic import; the proper upstream fix is a main-guard on the probe harness (e8aca935 infra). The other 9 probes + the pre-reg amendment (6->15) are later program steps.",
+  "pitfalls": "INIT caught that agentRun is a LOCAL closure in run-recovery.mjs (not exported) and that file is out of scope -> the arm had to be a pluggable parameter, not an import. The probe files call probeCliMain() with no import.meta.url main-guard, so a plain import would run their CLI and process.exit() -> the driver neutralizes process.exit/argv/console during dynamic import. Review (4 Claude lanes + host-2 Codex) found 3 real fixes (unawaited selfTest, console.error not suppressed, adversarial temp-dir leak), all fixed + re-verified.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 211443
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 60966
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 298036
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 18290073
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 802803
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 40175
+    }
+  },
+  "totalDurationMs": 19703497,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T10:12:54.124Z",
+  "updatedAt": "2026-06-23T10:12:54.124Z"
+}
