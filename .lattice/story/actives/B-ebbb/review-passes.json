@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T10:39:35.759Z",
       "reviewRunId": "B-ebbb:RR-006",
       "_hash": "6e0f07788568aa8b71ef4a10edd5485bc3f07ba0c072d8e8fa99e885b968bc8b"
+    },
+    {
+      "id": "B-ebbb:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 39 intents CLI-bound, 0 must-gaps, 0 waivers. Selfcheck 112/112 pass (no LLM). Two new pins verified non-vacuous: CHK-002:adversarial:1 (id-less baseline entry -> fail-closed, real assertions at lines 199-217) and CHK-003:adversarial:0 (DEFAULT_JUNK_PATTERNS mutation -> scoring unchanged, real assertions at lines 271-293). validate allPass true, missingRequired 0.",
+      "createdAt": "2026-06-23T10:52:26.149Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-005",
+      "_hash": "8613f7ad64696e61b1691714a95d5d40667dd6b06b8d3faedfcd08e9099197d9"
     }
   ]
 }
