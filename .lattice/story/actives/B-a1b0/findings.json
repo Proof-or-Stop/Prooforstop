@@ -5,7 +5,7 @@
       "desc": "run-injection-arms.mjs:147 selfTest() called without await — if selfTest() throws unexpectedly (distinct from its own process.exit(1) failure path), the rejection is unhandled and produces a cryptic UnhandledPromiseRejection trace rather than selfTest()'s clear FAIL summary. Fix: await selfTest() (top-level await is valid in .mjs) or selfTest().catch(e => { console.error(e); process.exit(1); }).",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T10:03:16.892Z",
@@ -16,7 +16,11 @@
         "experiments/injection-probes/run-injection-arms.mjs"
       ],
       "signatureTag": "edge|mjs|injection-arms-selftest",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: selfTest() is now .catch()'d -> a throw prints a clear error and exits 1 instead of an unhandled rejection. Self-test 18/18.",
+      "resolvedAt": "2026-06-23T10:05:15.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a1b0:F-002",
