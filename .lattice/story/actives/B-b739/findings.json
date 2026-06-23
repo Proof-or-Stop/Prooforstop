@@ -37,6 +37,25 @@
       ],
       "signatureTag": "edge|mjs|signal-honoring-real",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-003",
+      "desc": "doc-code-drift: CHANGELOG B-b739 bullet describes makeRealLoopAgent as returning agent({ws, context, turn, signal}) but the actual function signature in real-loop-agent.mjs line 27 is agent({ ws, context, signal }) — turn is passed by the harness call site (live-loop-harness.mjs:114) but is NOT destructured by the real agent. The doc overstates the accepted parameter set for makeRealLoopAgent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T20:30:09.255Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-003",
+      "_hash": "aeb57d281c91588ab9f8a4e36beb4824f028a9aa26e2f6d1599d9fba9dab4358",
+      "files": [
+        "CHANGELOG.md",
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-changelog",
+      "signatureTagSource": "auto"
     }
   ]
 }
