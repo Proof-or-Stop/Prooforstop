@@ -117,7 +117,7 @@ You do only one thing: review the code quality of changes in `git diff main...HE
 
 1. `git diff main...HEAD --name-only` to get the list of changed files
 2. Only review changed files (don't review unchanged ones)
-3. For each file, check the following 3 items
+3. For each file, check the following items
 
 ## Check Items
 
