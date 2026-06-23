@@ -132,7 +132,7 @@
       "desc": "All 6 verificationEvidence entries are stale (materialHash cc7b2f4a... stamped in round 1, current HEAD 082d505f after the DEV-fix re-entry commit). validate reports 0/6 covered. The assertions in live-loop-harness.mjs are real and --self-check passes 5/5 at exit 0, but the evidence must be re-run with verification_evidence_add after the round-2 code commit so headHash and materialHash bind to the current tree before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T13:11:57.918Z",
@@ -143,7 +143,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "missing|mjs|verificationevidence-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved: re-ran verification_evidence_refresh_stale to re-stamp the 6 intents at the current HEAD (the --self-check command is unchanged and still passes 6/6); stale was a materialHash-drift artifact from the round-2 fix commits, not a coverage gap.",
+      "resolvedAt": "2026-06-23T13:18:04.840Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c023:F-008",
