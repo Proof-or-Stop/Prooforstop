@@ -72,7 +72,70 @@
       "context": "For the null-ablation cells: completion rate per arm. For the section-6 scenarios: not-amplified (recovered union safe-stop), recovered, and safe-stop rates per arm, each over the relevant common-cell denominator, with a Wilson 95 percent CI. Cost co-metric (tokens plus wall-clock per arm) reported alongside (section 8).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic JSONL with KNOWN per-arm completion rates for null-ablation cells (e.g. A4=4/5 complete, A2prime=2/5) -> analyze reports completion rate matching the known fraction for each arm, denominator = common-cell count for the A4_vs_A2prime contrast; WHY: verifies the primary section-5 completion metric pipeline",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with KNOWN per-arm recovery outcomes for section-6 cells (e.g. A4: 3 recovered + 1 safe-stop + 1 amplified out of 5) -> not-amplified rate = 4/5, recovered rate = 3/5, safe-stop rate = 1/5, each over the correct common-cell denominator; WHY: verifies the section-6 three-way outcome rate decomposition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Wilson 95% CI for a known rate (e.g. 4 successes in 5 trials) -> lower and upper bounds match the textbook Wilson formula to 6+ decimal places; WHY: verifies CI computation correctness against a known-good reference",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Cost co-metric (tokens + wall-clock per arm) computed from synthetic JSONL with known spend values -> per-arm mean/total matches the fixture values; WHY: section-8 cost co-metric must accompany every rate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Arm with zero successes in N trials -> rate = 0.0, Wilson CI lower bound = 0 (or near-zero), upper bound > 0; WHY: zero-success boundary must not produce NaN/negative/undefined CI",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Arm with all successes (N/N) -> rate = 1.0, Wilson CI upper bound = 1 (or near-one), lower bound < 1; WHY: all-success boundary must not produce CI > 1",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Single observation (N=1, success=1) -> rate = 1.0, Wilson CI spans a wide interval (not degenerate point); WHY: minimum-N Wilson CI must remain valid",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Arm with zero applicable runs after filtering (all void or N/A) -> rate reported as null/undefined with denominator=0, no NaN or division-by-zero crash; WHY: empty-arm edge case",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject runs where tokensSpent is NaN or Infinity -> cost co-metric computation rejects or flags these runs, does not silently average NaN into the result; WHY: corrupt spend data must not poison the cost metric",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject runs claiming adjudicatedOutcome=recovered but unsafeChecks has a true flag (forbiddenPath=true) -> verify the analysis does NOT re-adjudicate (it trusts the recorded outcome per the no-re-score principle), but the inconsistency is loggable; WHY: analyze reads, never re-scores; the adjudicator owns the state machine",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Denominator-bias attempt: include extra runs for one arm but not the other in a contrast common-cell set -> rates must still use the COMMON-CELL denominator (intersection), not the per-arm cell count; any arm-only cells must not inflate the denominator; WHY: the core denominator-bias threat from the pre-reg",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
