@@ -56,7 +56,7 @@
       "desc": "packages/main/src/core/lifecycle-readiness.ts:509 still maps DONE evidence-freshness to lattice validate, done-required-validation to done_required_validate, and branch-synced-main to git merge main. The local branch CLI verifies this public runbook mismatch: node packages/main/dist/cli.js lifecycle_check --storyId=B-c1b1 --target=DONE --format=json emits those old nextCommand values, while node packages/main/dist/cli.js done_closure --storyId=B-c1b1 --format=json emits lattice done_prepare for the same blocker ids. This leaves lifecycle_check users on the ordering-sensitive recovery path that this story is meant to replace and can reintroduce stale evidence after main sync. Update lifecycle-readiness and coverage so exact DONE recovery blocker mapping is consistent across diagnostics.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T02:05:31.945Z",
@@ -69,7 +69,11 @@
         "packages/main/src/tasks/done-prepare-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 42929151: lifecycle-readiness DONE nextCommand mapping now routes evidence-freshness, done-required-validation, and branch-synced-main to the same done_prepare command as done_closure, while unrelated blockers keep existing commands. Verified by done-prepare-smoke lifecycle_check maps stale DONE evidence freshness to done_prepare and DONE recovery hints route ordering-sensitive blockers through done_prepare.",
+      "resolvedAt": "2026-06-23T02:21:46.498Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
