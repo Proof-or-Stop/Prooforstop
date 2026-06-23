@@ -89,6 +89,25 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e37e:F-005",
+      "desc": "Round 2 test-coverage gap: the new long-lived stream smoke covers a non-closing body stream only when the first chunk already contains both a complete heartbeat block and the following event: jobs.available line. A normal long-lived SSE stream can flush a standalone heartbeat/comment block first and emit jobs.available later; current readRunnerJobsAvailableSseStream returns unavailable at packages/main/src/core/authority-client.ts:2845-2867 when prefix.remainder is empty after that first block, and the smoke at packages/main/src/tasks/authority-runner-client-smoke.ts:316-339 would not catch it. F-002 no-overclaim is covered by the claimedJobId/releasedJobId null assertions, but stream parsing coverage is still incomplete for heartbeat-first long-lived streams.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T00:59:19.556Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-005",
+      "_hash": "10743a2329b7325af2a9428a7d74b56f891e2cbe9ca3a3714d3ceaaf9592c8fd",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge-ts-authority-runner-client",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
