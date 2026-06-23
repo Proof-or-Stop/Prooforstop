@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c1b1",
+  "changes": "DONE readiness now routes ordering-sensitive recovery through the host-neutral lattice done_prepare path. done_prepare runs the existing DONE-required validator when required, lifecycle readiness no longer points users at raw git merge or separate done_required_validate loops, and smoke coverage proves missing/failing DONE-required evidence, branch sync, stale evidence, and lifecycle guidance behavior.",
+  "usage": "When DONE is blocked by evidence freshness, DONE-required validation, or branch sync, run lattice done_prepare with mergeMain, refreshStale, and validate enabled, then continue with lattice story_advance to DONE.",
+  "expectedOutcome": "A user should see one ordered host-neutral recovery command for DONE readiness blockers, with final evidence generated only after deterministic pre-DONE sync work has completed.",
+  "actualTranscript": "Fresh validate PASS at 2026-06-23T03:17Z across 26 configured commands, DONE-required PASS at material hash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25, delivery reviewer signed four docs promises, and review escalation passed via explicit degraded-single-host fallback.",
+  "outcomeDiff": "No user-visible mismatch remains; scope warnings for delivery evidence attachments are explicitly acknowledged and reviewer-visible.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Full 3x2 host quorum was not available in this Codex desktop environment; Lattice recorded degraded-single-host assurance instead of pretending authority/fullAuthority/production readiness.",
+  "pitfalls": "REVIEW found F-001/F-002/F-003 and then F-004, requiring real fixes. Main advanced during the story, so DONE-required and validate evidence had to be refreshed after merge. A delivery reviewer ran validate concurrently and hit a transient dist import race; serialize full validate runs in one worktree.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 333304
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35506
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 605462
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 2030538
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 2003604
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1389863
+    }
+  },
+  "totalDurationMs": 6398398,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T03:20:08.918Z",
+  "updatedAt": "2026-06-23T03:20:08.918Z"
+}
