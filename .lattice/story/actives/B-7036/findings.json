@@ -72,7 +72,7 @@
       "desc": "dead-code: analyze-selfcheck.mjs:195 uses no-op .replace(/\\\\s/g, m => m) before the regex test for the glmm.R random-effect syntax — the identity transform changes nothing (every whitespace char replaced with itself), making it dead code; the regex already covers both spaced and compact forms via alternation so the replace is not needed",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T19:00:32.588Z",
@@ -83,7 +83,11 @@
         "experiments/recovery-runner/analyze-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-analyze",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "removed dead .replace no-op in glmm.R regex test; commit 4de4ce33a",
+      "resolvedAt": "2026-06-23T19:06:26.527Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-005",
