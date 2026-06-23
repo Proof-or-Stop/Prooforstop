@@ -1,0 +1,26 @@
+{
+  "storyId": "B-d321",
+  "checkedAt": "2026-06-23T12:23:06.851Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T12:22:54.309Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "high",
+          "desc": "The story changes gate-consumed delivery-check evidence and DONE readiness semantics, but the INIT checklist does not explicitly require the process-fact registry/contract verification path that AGENTS.md mandates for changed gate evidence/artifacts. Add INIT/PLAN coverage for updating the registry/contract verifier or explicitly justify why the existing process-fact contract already covers the new materialHash binding."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T12:23:06.851Z",
+      "issues": []
+    }
+  ],
+  "_hash": "2f2988d6551d2805797c981a78ad9908f1522ceffadc7554b4b347d940d7002c"
+}
