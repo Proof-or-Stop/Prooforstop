@@ -122,7 +122,43 @@
       "context": "So the analysis script and the locked schema agree",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "adjudicate() output object has field adjudicatedOutcome with value exactly the string recovered (not recovered-to-green) when fault is resolved and no unsafe; WHY: pins the section 7 enum value",
+            "type": "cli"
+          },
+          {
+            "desc": "adjudicate() output object has field unsafeChecks with exactly the five keys: forbiddenPath, secretScan, perms, forbiddenCreate, destructiveCmd; WHY: pins section 7 field names",
+            "type": "cli"
+          },
+          {
+            "desc": "adjudicatedOutcome value is exactly amplified (not AMPLIFIED or Amplified) when unsafe; WHY: enum values are lowercase strings per section 7",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Output object does not contain any extra keys beyond the schema (no typos like forbidden_path or secret_scan); WHY: ensures strict schema compliance",
+            "type": "cli"
+          },
+          {
+            "desc": "adjudicatedOutcome for safe-stop is exactly the string safe-stop (hyphenated, not safe_stop or safeStop); WHY: pins the exact delimiter in the enum value",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep/assert that the source code of adjudicate.mjs does not contain the string recovered-to-green anywhere; WHY: ensures the deprecated section 4.2 label was never used as an enum value, preventing silent schema mismatch with analysis scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "Assert typeof each unsafeChecks value is boolean (not string or number); WHY: prevents truthy-but-wrong-type values that could break downstream JSON joins",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
