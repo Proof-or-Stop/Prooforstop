@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T01:07:50.675Z",
       "reviewRunId": "B-e37e:RR-013",
       "_hash": "898daf9d84850166cce91d48e2728a88faf37b5f55245a7ebb58fe90029c6697"
+    },
+    {
+      "id": "B-e37e:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review of f2a04329e/current HEAD: heartbeat/comment/non-jobs SSE blocks no longer trigger early fallback; stream reading is bounded by jobs.available, timeout, prefix byte/block limits, close, or malformed jobs.available. Runner still treats SSE as readiness hint only and derives ownership solely from the signed claim response; no overclaim found. Verification: npm --prefix packages/main run build -- --noEmit; temp outDir compile + node authority-runner-client-smoke passed.",
+      "createdAt": "2026-06-23T01:13:46.817Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-014",
+      "_hash": "783adf7b00cb0951f0ff312d122b45578e302575bc13f5f0423cc9b4ee9511b6"
     }
   ]
 }
