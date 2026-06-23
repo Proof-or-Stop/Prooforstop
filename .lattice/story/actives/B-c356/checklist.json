@@ -30,8 +30,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-23T10:05:35.945Z",
       "endTime": null
     },
     {
@@ -101,6 +101,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T10:05:35.945Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting proof metadata reviewer prompt guidance implementation.",
+      "agent": "codex"
     }
   ]
 }
