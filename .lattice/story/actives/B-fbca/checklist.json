@@ -218,6 +218,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:46.841Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/worktree-repair-smoke.js && node packages/main/dist/tasks/lattice-only-absence-smoke.js",
+          "result": "pass",
+          "note": "All three smokes pass after removing the @koala-agent absence assertions — deletion of moot assertions did not break the surviving smoke coverage",
+          "headHash": "20f493d1ddc2701b0d9138afcea8c7021020adec",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:48.206Z"
         }
       ]
     },
