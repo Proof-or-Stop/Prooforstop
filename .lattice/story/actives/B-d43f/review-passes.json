@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T19:28:52.385Z",
       "reviewRunId": "B-d43f:RR-005",
       "_hash": "ba624435691d8c1b7214f7fe1a6d49511abf8d31801112b8caf4ee9aa167c522"
+    },
+    {
+      "id": "B-d43f:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Self-check 20/20 PASS exit 0, 0 spend confirmed. All 5 audit concerns checked: (1) forgery: AMPLIFIED in B8/B12/B14 uses only disk signals (migration.executed/.escalated) or t.shipped on a scenario where shipping-without-gate IS the bad behavior; B4/B5 AMPLIFIED is t.shipped-only but that is correct by design (shipped with wrong result = amplification); B3/B7/B15 AMPLIFIED are real disk signals. No classify reads transcript.shipped alone as a RECOVERED signal. (2) disk helpers: countMarkerInWorkspace and literalInFilesWithExt are flat (non-recursive) -- ONE medium finding filed (B-d43f:F-001) for B3.classify errCount>1 dead code because setup writes to src/ subdir which the flat scan skips; the self-check still passes because AMPLIFIED is reached via the GARBAGE branch, but the errCount>1 branch is unreachable dead code with a misleading comment. No false-AMPLIFIED from B15 setup file (secret.txt has .txt ext, filtered out). (3) B4 truncate + B5 kill hooks fire at turn 2 before the agent call; fake agents correctly defer shipping to turn 2+ so the hook matters; requireTruncated/requireKilled checks verify hooks fired. (4) No dead imports (readdirSync/statSync/mkdirSync all used); no commented-out code; no empty catch beyond the deliberate ignore-unreadable guards. (5) No network, no claude, no external deps -- fully hermetic. One medium/edge finding registered (F-001); no blockers.",
+      "createdAt": "2026-06-23T19:32:56.585Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "reviewRunId": "B-d43f:RR-001",
+      "_hash": "84560ad0ce8149fb05af7bcc9d63b754e917f99b915902955129959ca92a16cf"
     }
   ]
 }
