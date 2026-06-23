@@ -94,6 +94,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:06.491Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-stale-check.mjs",
+          "result": "pass",
+          "note": "Exercised the stale-detector's last-activity derivation (readActivityLogTail(root,1) + String(entry.endTime||entry.startTime)) on a runtime-only .lattice/activity.jsonl; returned the correct runtime timestamp 2026-05-15T08:30:00Z, parseable.",
+          "headHash": "99e19562891fd04e1c2ccc5f610bba31bc8a46e2",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:07.281Z"
         }
       ]
     },
