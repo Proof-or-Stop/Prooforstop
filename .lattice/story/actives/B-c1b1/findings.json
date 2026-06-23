@@ -20,6 +20,28 @@
       ],
       "signatureTag": "spec-boundary|ts|closure-classifies-required",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1b1:F-002",
+      "desc": "Test coverage does not prove the new done_prepare recovery path actually resolves missing DONE-required evidence. The new smoke scenario only builds the DONE checklist/runbook and asserts branch-synced-main plus done-required-validation nextCommand values point at lattice done_prepare; it never executes done_prepare for that missing evidence case. Existing DONE-required smoke pre-runs done_required_validate before done_prepare, so it only covers already-present evidence. Meanwhile done_closure maps done-required-validation to done_prepare, but done_prepare only runs ordinary lattice validate before rebuilding done_closure and does not invoke done_required_validate. A missing DONE-required blocker can therefore be routed to a command that rechecks and blocks again, and the current regression coverage would not catch the stale/DONE recovery loop.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T02:03:48.522Z",
+      "reviewRound": "2026-06-23T01:58:59.962Z",
+      "reviewRunId": "B-c1b1:RR-003",
+      "_hash": "272a35f1dca8f59a7099620f0ae5205f06603e1c4163a8ce4c238f0adce67631",
+      "files": [
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "coverage|done-prepare|done-required-recovery-loop",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
