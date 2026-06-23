@@ -3,36 +3,38 @@
     {
       "id": "CHK-001",
       "title": "Add earlier main-sync readiness reporting",
-      "context": "Expose branch-behind-main readiness before late DONE closure, preferably through an existing read-only lifecycle/session surface. It must point to the existing done_prepare/main-sync path and must not perform a merge by itself.",
+      "context": "Expose branch-behind-main readiness before late DONE closure through an existing read-only lifecycle/session surface that is visible before REVIEW or at REVIEW entry. The signal must be advisory/non-blocking, include the behind-main count when available, point to the existing done_prepare/main-sync path, and must not perform a merge by itself. A DONE-only branch-synced-main row is not sufficient for this item.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Before REVIEW or late TEST, Lattice tells the user when the story branch is behind main and what command should refresh it.",
+      "userSees": "Before REVIEW or late TEST, Lattice tells the user when the story branch is behind main, that the signal is advisory/read-only, and what command should refresh it.",
       "excludes": [
         "Do not change story_advance DONE merge authority.",
         "Do not add a new automatic merge path outside done_prepare/story_advance.",
-        "Do not claim Authority or production proof."
+        "Do not claim Authority or production proof.",
+        "Do not satisfy this item only with the existing DONE closure branch-synced-main row.",
+        "Do not add a new hard REVIEW or TEST blocker solely because main has moved."
       ],
       "verificationIntent": {
         "happy": [
           {
-            "desc": "A story branch behind main gets a visible pre-DONE readiness hint with the behind count and existing sync command.",
+            "desc": "A pre-REVIEW or REVIEW-entry read-only lifecycle/session surface shows a story branch behind main with the behind count and existing done_prepare sync command before DONE closure.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "A story branch already synced with main does not show a false warning.",
+            "desc": "A story branch that already contains main does not show a false behind-main warning on the same pre-REVIEW/read-only surface.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The new readiness signal is read-only and does not mutate phase, merge main, or bypass DONE closure gates.",
+            "desc": "The main-sync readiness signal is advisory/read-only: it does not mutate phase, merge main, or make REVIEW/TEST entry fail solely because the branch is behind main.",
             "type": "logic",
             "priority": "must"
           }
@@ -45,7 +47,7 @@
     {
       "id": "CHK-002",
       "title": "Add regression coverage for the readiness signal",
-      "context": "Add a focused smoke test that creates fixture branches and proves the read-only readiness behavior for behind-main, synced, and no-mutation cases.",
+      "context": "Add a focused smoke test that creates fixture branches and proves the pre-REVIEW/read-only main-sync readiness behavior for behind-main, synced, and no-mutation/non-blocking cases. The smoke must exercise the same surface added for CHK-001, not only the existing DONE closure branch-synced-main row.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
@@ -53,26 +55,28 @@
       "userSees": "lattice validate --focus=fast can prove the main-sync readiness behavior without running the whole suite.",
       "excludes": [
         "Do not add a slow full-suite-only regression.",
-        "Do not require network or remote git access."
+        "Do not require network or remote git access.",
+        "Do not verify only the existing DONE closure branch-synced-main behavior.",
+        "Do not accept a hard REVIEW or TEST blocker as proof of readiness."
       ],
       "verificationIntent": {
         "happy": [
           {
-            "desc": "The focused smoke passes and is wired into lattice validate --focus=fast.",
+            "desc": "The focused smoke passes and proves the pre-REVIEW/read-only main-sync readiness warning appears for a branch behind main.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Full validate still includes the smoke through configured validate.commands.",
+            "desc": "The focused smoke proves the synced branch case has no false warning, and full validate still includes the smoke through configured validate.commands.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The smoke proves the readiness path is read-only by checking no merge/phase mutation occurs.",
+            "desc": "The smoke proves the readiness path is read-only and non-blocking by checking no merge, phase mutation, or REVIEW/TEST gate failure occurs solely from behind-main state.",
             "type": "logic",
             "priority": "must"
           }
