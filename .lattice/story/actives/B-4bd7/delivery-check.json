@@ -1,0 +1,50 @@
+{
+  "storyId": "B-4bd7",
+  "checkedAt": "2026-06-23T04:44:00.720Z",
+  "reviewRound": "2026-06-23T04:23:15.916Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#lattice-workflow-efficiency-baseline",
+      "promise": "The workflow-efficiency baseline decision document is registered to story B-4bd7.",
+      "status": "verified",
+      "verifiedBy": "git diff and rg",
+      "evidence": "git diff adds Baseline registration story: B-4bd7 to the decision doc; rg confirms the baseline doc contains registrationStory schema text and the baseline JSON has registrationStory=B-4bd7."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#machine-baseline-schema",
+      "promise": "The machine baseline schema documents the createdAt top-level field.",
+      "status": "verified",
+      "verifiedBy": "rg and JSON parse",
+      "evidence": "rg confirms the createdAt bullet in the Machine Baseline Schema section; JSON parse confirms experiments/baselines/lattice-workflow-efficiency-baseline-v1.json contains createdAt."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md#machine-baseline-schema",
+      "promise": "The machine baseline schema documents the registrationStory top-level field.",
+      "status": "verified",
+      "verifiedBy": "rg and JSON parse",
+      "evidence": "rg confirms the registrationStory bullet in the Machine Baseline Schema section; JSON parse confirms registrationStory is B-4bd7."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Verified the baseline decision doc registration with git diff and rg: Baseline registration story is B-4bd7, and the Machine Baseline Schema documents createdAt and registrationStory."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran node JSON parse against experiments/baselines/lattice-workflow-efficiency-baseline-v1.json: registrationStory=B-4bd7; observedBefore and targetAfter each have 6 dimensions with matching keys."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran git diff main...HEAD --name-only for runtime/source/package paths and it returned no files; live transcript evidence files are present; parsed claims show authorityDone=false and productionDone=false; no fullAuthorityDone true claim found; fresh lattice validate passed all 26 configured commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Baseline registration is delivery-ready: the decision doc and JSON are present and synchronized, F-001 is resolved, live transcript evidence exists, fresh validate passed, and the story makes no runtime optimization or Authority/production completion claim."
+  },
+  "_hash": "97b274f9afa53f1504692fc14944b8db3ae7765910f76ed477ffd06b79473be2"
+}
