@@ -1,0 +1,50 @@
+{
+  "storyId": "B-6320",
+  "checkedAt": "2026-06-23T04:15:08.835Z",
+  "reviewRound": "2026-06-23T03:56:19.682Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "promise": "Host-neutral Authority runner provider declarations such as codex-cli and antigravity are accepted locally as metadata and passed to server policy evaluation.",
+      "status": "verified",
+      "verifiedBy": "code review + smoke evidence",
+      "evidence": "authority-mode.ts treats any non-empty runner provider as valid metadata while preserving legacy aliases; command-catalog.ts uses z.string().min(1) for authority_job_create.provider; authority-client-smoke asserts antigravity and codex-cli are preserved in signed job-create requests."
+    },
+    {
+      "docPath": "packages/main/src/core/authority-client.ts",
+      "promise": "Reserved fake and fake-provider Authority job-create overrides fail closed and never POST or fall back to a real JobPlan primary provider.",
+      "status": "verified",
+      "verifiedBy": "code review + authority-client-smoke",
+      "evidence": "serverProviderFromPlan distinguishes supplied overrides from absent overrides; isReservedServerFakeProvider rejects fake/fake-provider with case and underscore normalization; authority-client-smoke asserts fake/Fake/FAKE/fake-provider/FAKE_PROVIDER/empty overrides reject and postCount remains 0 before valid provider submission."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "jobs.available SSE remains advisory and ownership stays aligned with the signed POST claim/status contract; no SSE-only ownership path exists.",
+      "status": "verified",
+      "verifiedBy": "docs review + runner-client smoke",
+      "evidence": "Docs describe jobs.available as a streaming hint before signed POST claim/status. authority-runner-client-smoke records GET jobs_stream followed by POST claim_job, keeps claimedJobId null when signed claim returns job:null, and asserts custom provider metadata is carried only through signed claim/registration payloads."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate PASS at 2026-06-23T04:08:36.194Z on HEAD ee6bca5c80c1c7b9d30e276686347ff4ee9be27d; coverage 9/9. Evidence covers codex-cli/antigravity local validity, codex default, claude alias, and no productionDone/receiptVerified overclaim."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "live-smoke-transcript.json captured authority-runner-client-smoke exit 0 at 2026-06-23T04:11:51.053Z; transcript-diff reports no user-visible difference and confirms jobs stream hint plus signed claim path with no SSE ownership."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "DONE-required evidence PASS at 2026-06-23T04:09:13.382Z with npm --prefix packages/main run build and npm test both PASS; focused smokes cover authority-client, authority-runner-client, authority-job-loop-live, authority-status, authority-enforce-runner, and command-catalog provider schema."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review found the user promises satisfied: custom provider declarations are host-neutral metadata, reserved fake/fake-provider job-create overrides fail closed without POST/fallback, SSE jobs.available is advisory only, and validation plus live transcript evidence passed on current HEAD."
+  },
+  "_hash": "82dc8a2a361d489936f78ff453a196372d25fee3e5f6669aa31ab20aeb6c2ece"
+}
