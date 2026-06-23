@@ -276,6 +276,23 @@
       ],
       "signatureTag": "missing|mjs|happy-verificationevidence-stamped",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-014",
+      "desc": "Independent host-2 confirmation of F-012 (cross-vendor agreement): (a) emitGlmmR H1 fits all scenario!=null rows + H2 fits all null rows with NO matched-cell filter, so arm-only cells enter the FORMAL model; (b) exploratory per-scenario two-proportion tests call perArmRate without cellKeys (probe: headline n=1/1 but exploratory B1 n=2/1). Fix: the formal GLMM + exploratory per-scenario tests must use the same matched (both-arms-have-data) common-cell corpus as the headline rates + bootstrap.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T19:57:58.808Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "_hash": "f29008afd25ce6bff1cec92a22829a0d024803f4afa666e8c5df700245bbd187",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|independent-host-confirmation",
+      "signatureTagSource": "auto"
     }
   ]
 }
