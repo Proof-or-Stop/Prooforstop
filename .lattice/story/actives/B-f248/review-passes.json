@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T11:48:20.312Z",
       "reviewRunId": "B-f248:RR-003",
       "_hash": "222dc5f1c53bdb0550288921db042038252dae50106aacfa9ac3533667867e18"
+    },
+    {
+      "id": "B-f248:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review of commit 9e5fcbf0f hardening. Checked the 3 focus areas: (1) validateRecord budgetLogOk branch — logic is correct and complete: A2prime requires typeof boolean for bool fields and Number.isFinite >= 0 for numeric fields; non-A2prime requires strict === null for all six. Correctly factored into the ok predicate. (2) enumerateCells unknown-arm + duplicate-taskId guards — both correct and fail-closed. Minor: scenarios list is not guarded for duplicates but the default has no duplicates so this is not a practical risk. (3) CLI main() rewrite — durable exclusion log written unconditionally (even in enumerate-only mode, correct), onVoid wired and fires for each per-attempt infra-void, per-record validation via validateRecord, non-zero exit when unresolved > 0 || invalidRecords > 0 (correct). No dead imports, no unsafe type coercions, no empty catch blocks. All 117 selfcheck assertions pass (verified by running node experiments/recovery-runner/run-driver-selfcheck.mjs). CLI integration assertions and F-005 neg-control are non-vacuous. Two low-severity findings registered (F-009: misleading void count in console log; F-010: stale JSDoc on validateRecord return shape). Neither is a blocker.",
+      "createdAt": "2026-06-23T12:15:40.258Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-008",
+      "_hash": "fc21a4a26cc52cc42a55a810dd37b877f1312e0fc194cc049d3051bf05e17d77"
     }
   ]
 }
