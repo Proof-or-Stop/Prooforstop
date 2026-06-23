@@ -148,6 +148,23 @@
       ],
       "signatureTag": "spec-boundary|mjs|emitglmmr-fits-notamplified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-008",
+      "desc": "terminalStopTypeOf only reads e.type||e.event on processEvents objects; it misses the bare-string terminal events and the {kind} form that adjudicate.mjs terminalStopEvent accepts, so real terminal events are reported as absent (under-counts rollback/human-gate/no-progress). Fix: align terminalStopTypeOf with the adjudicator accepted forms (bare string token + type/event/kind).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T19:12:25.459Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "_hash": "f7d20d69845b43639923ff0037b3c911b9ec0de218fdda597bc12e571a4cabb3",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|terminalstoptypeof-reads-type",
+      "signatureTagSource": "auto"
     }
   ]
 }
