@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T12:22:34.323Z",
       "reviewRunId": "B-f248:RR-010",
       "_hash": "2e2725a3eff11c43c1820d56e1a2bf5b9f18f0e24cd3d10331bc9968c531f0bf"
+    },
+    {
+      "id": "B-f248:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check complete. F-008 fix confirmed: --maxReruns is now wired in main() (line 378 of run-driver.mjs) and passed to runDriver; selfcheck 123/0 passed. F-011 fix confirmed: exhausted-reruns void routes through onVoid (line 354). F-010 fix confirmed: validateRecord JSDoc now correctly lists budgetPresent/numericOk/budgetLogOk. Residue scans: budgetOk has zero live-code residue (only in archived finding desc in findings.json); no other deleted/replaced concept words found with live residue. All README doc-promises (--tasks, --k, --engine, --record, --maxReruns, no-engine refusal) are backed by wired implementation. No doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-06-23T12:27:47.579Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-009",
+      "_hash": "74a6b7c34d0934fa66a7582da6c4dcd88a9cdaaa4b60e719e950737e6b050b3d"
     }
   ]
 }
