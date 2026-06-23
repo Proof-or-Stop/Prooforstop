@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Match pre-reg section 4.1/2/7 exactly",
+    "Pure deterministic checks (offline-unit-testable)",
+    "Hash-check enforces the frozen, independently-authored acceptance script",
+    "Use section-7 field names verbatim"
+  ],
+  "drivers": [
+    "Anti-gaming completion scoring",
+    "No-LLM verifiability",
+    "Schema agreement with the run driver + analysis"
+  ],
+  "options": [
+    {
+      "name": "pure-checks-module-plus-unittest",
+      "pros": [
+        "Offline-verifiable now",
+        "Reusable; wire into the run driver next",
+        "Matches the adjudicator pattern"
+      ],
+      "cons": [
+        "Not yet wired into the live runner (next piece)"
+      ]
+    },
+    {
+      "name": "inline-into-run-ablation-now",
+      "pros": [
+        "Immediately live"
+      ],
+      "cons": [
+        "Needs clean-checkout + baseline-snapshot capture not built yet; couples + harder to unit-test"
+      ]
+    }
+  ],
+  "chosen": "pure-checks-module-plus-unittest",
+  "rationale": "A pure checks.mjs + offline unit test gives spec-faithful, fully-verifiable completion scoring now; wiring into the live run driver (clean checkout + baseline snapshot capture) is the next infra piece.",
+  "preMortem": [
+    {
+      "scenario": "Hash check bypassable",
+      "trigger": "hashing the agent-ws copy instead of the harness-owned frozen script",
+      "consequence": "agent could tamper acceptance",
+      "mitigation": "hash + run the harness-owned script path, compare to the frozen expected hash; selfcheck asserts a tampered/hash-mismatch script => hashOk false"
+    },
+    {
+      "scenario": "hidden-regression false-negative",
+      "trigger": "counting total failures instead of NEW failures vs baseline",
+      "consequence": "a pre-existing failure masks a new regression or vice-versa",
+      "mitigation": "compare post-state failing set MINUS baseline failing set; selfcheck pins a new-failure case => false"
+    },
+    {
+      "scenario": "Field-name mismatch",
+      "trigger": "acceptance_pass vs acceptancePass",
+      "consequence": "analysis silently misses the field",
+      "mitigation": "use exact section-7 names; selfcheck asserts the keys"
+    }
+  ],
+  "timestamp": "2026-06-23T10:03:31.381Z"
+}

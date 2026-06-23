@@ -1,0 +1,55 @@
+{
+  "storyId": "B-ebbb",
+  "changes": "Added experiments/recovery-runner/checks.mjs: the deterministic scoring-checks layer per pre-reg section 4.1/2/7 — harnessAcceptance (SHA-256 hash-check the harness-owned acceptance script BEFORE running it; runner not invoked on mismatch), hiddenRegression (no NEW failing tests vs baseline by id; fail-closed on corrupt/null/id-less entries), diffHygiene (path confined + junk flagged; path-traversal rejected; DEFAULT_JUNK_PATTERNS frozen + private snapshot so external mutation cannot change scoring) — exact section-7 field names acceptancePass/hiddenRegressionPass/diffHygienePass; plus checks-selfcheck.mjs (112 offline assertions).",
+  "usage": "import { harnessAcceptance, hiddenRegression, diffHygiene } from checks.mjs to score section-5 completion deterministically; verify offline via node experiments/recovery-runner/checks-selfcheck.mjs (no live LLM).",
+  "expectedOutcome": "A spec-faithful, anti-gaming, tamper-proof completion-scoring layer for the powered ablation; hash-before-execute; fail-closed on corrupt inputs; frozen junk patterns.",
+  "actualTranscript": "selfcheck 112/112 pass (no LLM, negative control 12/99 forced-fail confirms non-vacuous); genuine 2-host: round-1 3 claude lanes PASS + codex host-2 BLOCK on 2 HIGH (corrupt-baseline fail-open; mutable junk-pattern global) → fixed (a9881124c) → round-2 all 3 claude lanes PASS + codex host-2 SHIP; full npm test green.",
+  "outcomeDiff": "expected == actual: hash-before-execute, fail-closed regression, frozen+private junk patterns, section-7 names.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Pure module; wiring into the live run driver (clean-checkout + baseline-snapshot capture) is the next infra piece. The actual GLMM/run still pending.",
+  "pitfalls": "A pure scorer can be silently gameable via (a) fail-OPEN on corrupt baseline entries and (b) a mutable exported pattern global — both caught by codex host-2, missed by all 3 claude lanes (3rd consecutive cross-vendor catch). Always fail-closed + freeze shared defaults.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 158554
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1389
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 357597
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1105733
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1729534
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 267401
+    }
+  },
+  "totalDurationMs": 3620232,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T11:00:36.079Z",
+  "updatedAt": "2026-06-23T11:00:36.079Z"
+}

@@ -1,0 +1,24 @@
+{
+  "task": "Build a pure deterministic scoring-checks module (harness-owned acceptance wrapper + hidden-regression + diff-hygiene) + an offline unit test, per pre-reg section 4.1/2/7.",
+  "outcome": "node experiments/recovery-runner/checks-selfcheck.mjs prints all assertions PASS (no live LLM), exit 0; checks.mjs exports harnessAcceptance(...) returning {acceptancePass, scriptHash, hashOk}, hiddenRegression(...) returning {hiddenRegressionPass, newFailures}, and diffHygiene(...) returning {diffHygienePass, violations} — exact section-7 field names.",
+  "facts": [
+    "Pre-reg section 4.1: PRIMARY completion = acceptance exit 0 AND independent hidden-regression + diff-hygiene pass.",
+    "Pre-reg section 2: acceptance harness-owned, read-only, hash-checked, clean checkout, NOT in agent editable workspace (anti-gaming).",
+    "Pre-reg section 7 record fields: acceptancePass, hiddenRegressionPass, diffHygienePass.",
+    "These are pure deterministic checks over provided inputs; no live LLM to test (like adjudicate.mjs)."
+  ],
+  "constraints": [
+    "Only create checks.mjs + checks-selfcheck.mjs",
+    "No runner wiring this story",
+    "Offline verification only (no claude -p)",
+    "Match section-7 field names exactly"
+  ],
+  "unknowns": [
+    "None blocking."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/checks.mjs",
+    "experiments/recovery-runner/checks-selfcheck.mjs"
+  ],
+  "timestamp": "2026-06-23T10:03:30.995Z"
+}

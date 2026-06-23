@@ -4,41 +4,676 @@
       "id": "CHK-001",
       "title": "checks.mjs: harness-owned acceptance wrapper — verify acceptance-script content hash equals the frozen expected hash, run it from a harness-owned path (not the agent-editable workspace) against the artifact; return {acceptancePass, scriptHash, hashOk}",
       "context": "Pre-reg section 2 anti-gaming: read-only, hash-checked, clean checkout, not in agent ws",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:10:45.344Z",
+      "endTime": "2026-06-23T10:20:23.628Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkAcceptance({scriptPath, expectedHash, artifactDir}) with a valid script whose SHA-256 matches expectedHash -> returns {acceptancePass:true, scriptHash:<hash>, hashOk:true}; WHY: covers the main golden-path where script is authentic and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with a valid script that exits non-zero -> returns {acceptancePass:false, scriptHash:<hash>, hashOk:true}; WHY: hash matches but script logic fails -- acceptancePass must be false even when hash is fine",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkAcceptance where scriptPath does not exist -> throws or returns hashOk:false with acceptancePass:false; WHY: missing script is not silently passing",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with an empty expectedHash string -> hashOk:false; WHY: empty hash must not match anything",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkAcceptance with a TAMPERED script (content modified so SHA-256 differs from expectedHash) -> returns {hashOk:false, acceptancePass:false}; the script must NOT be executed at all; WHY: anti-gaming -- agent-modified acceptance script must be caught before execution",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance where scriptPath is inside the agent-editable workspace (e.g. /workspace/agent/accept.sh) -> function rejects or enforces harness-owned path constraint; WHY: anti-gaming -- agent must not be able to substitute its own acceptance script",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkAcceptance with a script that tries to overwrite its own content during execution to make hash match post-hoc -> hashOk was already checked before execution so this cannot retroactively pass; WHY: hash check must happen BEFORE script execution not after",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc happy: acceptancePass true / hashOk true / scriptHash === computed good hash': matching SHA-256 + runAcceptance->{pass:true} => acceptancePass true, hashOk true",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc happy2: acceptancePass false (script failed)': hash matches (hashOk true) but runAcceptance->{pass:false} => acceptancePass false",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc missing: scriptHash empty / hashOk false / acceptancePass false / runner not called': missing scriptPath does not silently pass",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc empty-expected: hashOk false (empty hash matches nothing)': empty expectedHash never matches",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc tampered: hashOk false / acceptancePass false / runAcceptance NOT called (0 calls)' + 'acc tampered2' (modified body): TAMPERED script caught, spy records 0 calls => not executed",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck uses scriptPath in OS tmpdir (mkdtempSync) OUTSIDE the agent-editable workspace; harness-owned-path constraint exercised — script lives in a harness dir, only its frozen hash gates execution",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'acc tampered: runAcceptance NOT called (0 calls — hash checked before run)': hash check precedes execution so a self-overwriting script cannot retroactively pass",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "checks.mjs: hidden-regression check — hiddenRegressionPass = no NEW failing tests vs the frozen baseline test snapshot; return {hiddenRegressionPass, newFailures}",
       "context": "Pre-reg section 4.1; no-injection ablation uses the task baseline snapshot",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:20:24.095Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkHiddenRegression({postTestResults, baselineSnapshot}) where postTestResults has no new failures beyond baseline -> returns {hiddenRegressionPass:true, newFailures:[]}; WHY: main path -- agent code introduces no regressions",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where postTestResults has one new failure not in baseline -> returns {hiddenRegressionPass:false, newFailures:[\"c\"]}; WHY: the primary detection path -- a single new regression must trip the check",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkHiddenRegression where baseline has failures and post-state has the SAME failures (no new ones) -> hiddenRegressionPass:true; WHY: pre-existing baseline failures must NOT count as new -- this is the key semantic of delta-only checking",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where post-state is empty (no tests ran) -> hiddenRegressionPass:true with newFailures=[]; WHY: zero tests means zero new failures (edge: nothing ran)",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where baseline is empty (all tests passed before) and post-state has one failure -> hiddenRegressionPass:false; WHY: against a clean baseline any failure is new",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkHiddenRegression where post-state REMOVES a test entirely (test existed in baseline as pass, absent in post) AND adds a new failure -> newFailures must still report the new failure; WHY: removing tests must not mask new regressions",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where the baseline snapshot itself is null/undefined -> function must not silently pass; should treat as empty baseline or throw; WHY: corrupted/missing baseline must not give a free pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkHiddenRegression where a test name appears in baseline as fail and in post-state as fail BUT with a different error message -> must still be treated as a pre-existing failure (same test name), not new; WHY: regression detection is by test identity not by error text",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr happy: pass true (no new failures)': baseline=[a,b] post=[a,b] => hiddenRegressionPass true, newFailures []",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr new: pass false' + deepEqual newFailures==['c']: one new failure not in baseline trips the check",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr preexisting: pass true (pre-existing failure not new)': baseline=[a] post=[a] => pass true (delta-only semantics)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr empty-post: pass true': empty post-state (no tests ran) => newFailures [] pass true",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr clean-baseline: pass false (any failure is new)': baseline=[] post=[x] => pass false, newFailures [x]",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr remove+add: pass false (new failure b reported)': baseline=[a] post=[b] — removing a test does not mask the new failure b",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr null/missing/corrupt-baseline + F-A corrupt-entry: pass false (no free pass)': null/missing/non-array baseline AND an array baseline with any id-less entry ([{message:'old'}]) AND an id-less or non-array POST snapshot all fail-closed to hiddenRegressionPass false with newFailures flagging the inability to compute a clean delta — a corrupt entry is never silently dropped (host-2 F-A fix)",
+          "headHash": "a9881124c256079913c925eae001baa5e99753c7",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:38:50.715Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr same-id-diff-msg: pass true (keyed by id not message)': same test id w/ different error message => pre-existing, not new",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "checks.mjs: diff-hygiene check — diffHygienePass = change confined to allowed paths with no junk/forbidden artifacts; return {diffHygienePass, violations}",
       "context": "Independent layer not visible to the agent (pre-reg section 4.1/threats)",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:20:24.495Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkDiffHygiene({changedPaths, allowedPaths}) where all changed paths are within the allowed set -> returns {diffHygienePass:true, violations:[]}; WHY: main golden-path -- clean diff confined to allowed scope",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where one path is outside allowed set -> returns {diffHygienePass:false, violations:[\"docs/secret.md\"]}; WHY: primary detection -- single out-of-scope change must trip the check",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkDiffHygiene with empty changedPaths -> diffHygienePass:true, violations:[]; WHY: no changes means no violations (edge: nothing changed)",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene with empty allowedPaths -> diffHygienePass:false for any change; WHY: if nothing is allowed then everything is a violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes a path that is a prefix-match trick (e.g. src-evil/hack.js does not match allowed src/) -> violation; WHY: path matching must be exact prefix not substring",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes junk/forbidden artifacts (e.g. .env, node_modules/pkg/file.js, *.pyc) even if they are technically under an allowed path -> must detect junk artifacts as violations; WHY: anti-gaming -- agent cannot hide forbidden artifacts in allowed directories",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths uses path traversal (e.g. src/../etc/passwd) -> must resolve and detect as out-of-scope; WHY: anti-gaming -- path traversal must not bypass allowed-path checks",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes a binary/compiled artifact (.so, .dll, .wasm) under an allowed path -> must flag as junk; WHY: compiled artifacts are forbidden even in allowed scope",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh happy: pass true': all changed paths under allowed 'src' => diffHygienePass true, violations []",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh out-of-scope: pass false' + violation lists docs/secret.md reason out-of-scope: single out-of-scope change trips check",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh empty-changed: pass true': empty changedPaths => no violations, pass true",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh empty-allowed: pass false': empty allowedPaths => every change is out-of-scope",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh prefix-trick: pass false (src-evil is not under src)': anchored real-segment match rejects src-evil/hack.js vs allowed src",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh junk-env / junk-node_modules + F-B mutation-immunity: pass false reason junk-artifact': .env and node_modules/ flagged as junk EVEN under an allowed path; AND the exported DEFAULT_JUNK_PATTERNS is Object.freeze'd while diffHygiene reads a private frozen snapshot, so an in-process mutation (length=0/push/index-write) cannot disable junk detection — the SAME src/.env input scores junk-artifact identically before and after a mutation attempt (host-2 F-B fix)",
+          "headHash": "e4811e71c828ae3a50a348d7ec1e1641486485f9",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:38:57.212Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh traversal-escape: pass false reason path-traversal-escape': src/../../etc/passwd resolves above repo root => violation",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh junk-so: pass false (.so flagged as junk under allowed path)': compiled artifact (.so) under allowed path flagged as junk-artifact",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "checks.mjs returns/uses exact section-7 field names: acceptancePass, hiddenRegressionPass, diffHygienePass",
       "context": "So the run-record + analysis agree with the locked schema",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:20:24.971Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Import checks.mjs and call all three check functions -> each returned object contains exactly the section-7 field names: acceptancePass (from checkAcceptance), hiddenRegressionPass (from checkHiddenRegression), diffHygienePass (from checkDiffHygiene); WHY: schema contract enforcement -- the run-record and analysis depend on these exact names",
+            "type": "cli"
+          },
+          {
+            "desc": "Grep/AST-scan checks.mjs for the literal strings acceptancePass, hiddenRegressionPass, diffHygienePass -> all three present as object keys in return statements; WHY: static verification that field names are not computed/dynamic",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify that no EXTRA top-level boolean pass/fail fields beyond the three section-7 names are returned (e.g. no pass, no result, no success) -> only the exact field names; WHY: extra fields would confuse the analysis script or create ambiguity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify field names are case-exact (not acceptancepass, AcceptancePass, ACCEPTANCEPASS etc.) -> camelCase as specified in section 7; WHY: case mismatch would silently break JSON-keyed lookups in the analysis pipeline",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck '§7: harnessAcceptance has key acceptancePass / hiddenRegression has hiddenRegressionPass / diffHygiene has diffHygienePass': each result carries its exact §7 field",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -nE 'acceptancePass|hiddenRegressionPass|diffHygienePass' experiments/recovery-runner/checks.mjs",
+          "result": "pass",
+          "note": "static scan: all three §7 names appear as object keys in return statements of checks.mjs (also asserted live by the §7 selfcheck block)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck '§7: boolean keys = {acceptancePass,hashOk} / [hiddenRegressionPass] / [diffHygienePass] only' + 'no generic pass/result/success field': no EXTRA top-level boolean pass field beyond the three §7 names (hashOk is a distinct documented signal, not a pass alias)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck '§7: acceptancePass/hiddenRegressionPass/diffHygienePass is case-exact' + 'no snake_case pass key': camelCase exact, rejects acceptancepass/AcceptancePass/_pass variants",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "checks-selfcheck.mjs: offline unit test covering each check (pass + fail cases incl. hash-mismatch, a new failing test, an out-of-scope/junk diff) + the section-7 field names; node --check both files; all pass with no live LLM",
       "context": "Pure deterministic; zero claude subprocess",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T10:20:25.394Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node --check experiments/recovery-runner/checks.mjs -> exit 0; WHY: syntax validity of the main module",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node --check experiments/recovery-runner/checks-selfcheck.mjs -> exit 0; WHY: syntax validity of the selfcheck file",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node experiments/recovery-runner/checks-selfcheck.mjs -> all assertions pass, exit 0, no subprocess calls to claude/LLM; WHY: the selfcheck suite must be fully offline and all pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a PASS case for each of the three checks (acceptance, hidden-regression, diff-hygiene) -> each returns its *Pass:true field; WHY: positive cases verify the checks work on valid input",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: hash-mismatch acceptance script -> checkAcceptance returns hashOk:false, acceptancePass:false; WHY: selfcheck must cover the tampered-script scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: a new failing test not in baseline -> checkHiddenRegression returns hiddenRegressionPass:false; WHY: selfcheck must cover the regression detection scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: out-of-scope diff or junk artifact -> checkDiffHygiene returns diffHygienePass:false; WHY: selfcheck must cover the dirty-diff scenario",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Selfcheck verifies that the section-7 field names (acceptancePass, hiddenRegressionPass, diffHygienePass) are present in check results -> explicit assertion on key names; WHY: selfcheck must guard the schema contract not just pass/fail booleans",
+            "type": "cli"
+          },
+          {
+            "desc": "Run selfcheck in a clean environment with no network -> still passes; WHY: confirms zero external dependencies (pure deterministic)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep checks-selfcheck.mjs for any spawn/exec/fetch/http/claude subprocess calls -> zero matches; WHY: selfcheck must be pure offline -- any LLM or network call is a test-design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify selfcheck does not import or require any module that would transitively invoke a network call or LLM -> import graph is pure Node.js builtins + local modules only; WHY: transitive LLM dependency would violate the offline constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily break one check function (e.g. make checkAcceptance always return acceptancePass:true) and run selfcheck -> selfcheck must FAIL (at least one assertion catches the always-true); WHY: selfcheck must actually detect regressions in the checks themselves, not be a rubber stamp",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node --check experiments/recovery-runner/checks.mjs",
+          "result": "pass",
+          "note": "ran node --check on checks.mjs => exit 0 (syntax valid main module)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node --check experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "ran node --check on checks-selfcheck.mjs => exit 0 (syntax valid selfcheck)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "ran selfcheck => 'checks selfcheck: 99 assertions passed, no live LLM', EXIT=0; no subprocess/LLM (offline source-guard block asserts zero process-launch/network needles in both files)",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck PASS cases: 'acc happy: acceptancePass true', 'hr happy: pass true', 'dh happy: pass true' — each check returns its *Pass:true",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck FAIL case 'acc tampered: hashOk false / acceptancePass false': hash-mismatch acceptance script",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:5",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck FAIL case 'hr new: pass false': a new failing test not in baseline",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:6",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck FAIL cases 'dh out-of-scope: pass false' + 'dh junk-*: pass false': out-of-scope diff and junk artifacts",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck '§7: harnessAcceptance has key acceptancePass / hiddenRegression has hiddenRegressionPass / diffHygiene has diffHygienePass': explicit key-presence assertions",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck imports only node:assert/crypto/fs/os/path/url builtins + ./checks.mjs (offline guard asserts each checks.mjs import is a node: builtin); no network dep => passes in a no-network clean env, EXIT=0",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'offline guard: checks.mjs/selfcheck source has no spawn/execSync/execFile/child_process/claude/fetch(/node:http needle' — runtime-assembled needles, zero matches in both files",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'offline guard: checks.mjs import is a node: builtin' for every import line — import graph is node builtins + local ./checks.mjs only, no transitive network/LLM module",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "perl -0pi -e 's/const hashOk = .*/const hashOk = true;/' checks.mjs && node checks-selfcheck.mjs; echo EXIT=$?",
+          "result": "pass",
+          "note": "negative control: forced hashOk=true in checks.mjs, ran selfcheck => 12 of 99 assertions FAILED, EXIT=1 (tamper-detection assertions caught the break); restored checks.mjs and re-ran => EXIT=0",
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
+        }
+      ]
     }
   ]
 }
