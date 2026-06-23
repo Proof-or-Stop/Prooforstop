@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-23T04:53:10.160Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when run-injection-arms.mjs powered-run driver (arm + probe agnostic) + hermetic --self-test with a fake arm (no network, no cost) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: DEFERRED to the powered-run follow-up: how the real arm produces a transcript {actions,shipped} without editing run-recovery.mjs (export-in-a-coordinated-story vs minimal duplication)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/injection-probes/probe-contract.mjs (reuse) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-a1b0 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "860275b08fb7598f3cdf3e351359ef56f4e8f0687a166313b9cf2c0ded3241f3"
+    },
+    {
+      "timestamp": "2026-06-23T04:53:18.002Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when run-injection-arms.mjs powered-run driver (arm + probe agnostic) + hermetic --self-test with a fake arm (no network, no cost) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: DEFERRED to the powered-run follow-up: how the real arm produces a transcript {actions,shipped} without editing run-recovery.mjs (export-in-a-coordinated-story vs minimal duplication)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/injection-probes/probe-contract.mjs (reuse) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-a1b0 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "58c85a46cf7ac757141c0be09f01c4e6de9fdfa2d205aaa39b5260a875b44eef"
+    }
+  ]
+}
