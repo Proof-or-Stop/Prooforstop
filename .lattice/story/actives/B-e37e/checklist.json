@@ -212,9 +212,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T00:36:49.386Z",
-      "endTime": null,
+      "endTime": "2026-06-23T00:37:11.715Z",
       "userSees": "Docs contain \"runner jobs SSE is a notification hint\" and \"polling/signed claim fallback remains the compatibility path\", and also state canonical work continues under /Users/jek/Documents/Work/proofbound rather than retired Orchestrate.",
       "files": {
         "modify": [
@@ -224,7 +224,48 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
+          "command": "rg -n \"jobs_stream|jobs.available|notification hint|signed claim|fallback\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+          "result": "pass",
+          "note": "Docs state the CLI reads runner jobs SSE as a notification hint when the server supports it, and that signed claim remains the compatibility/authority path.",
+          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
+          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
+          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
+          "timestamp": "2026-06-23T00:37:12.196Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/orchestrate-retirement.md",
+          "command": "rg -n \"proofbound|retired Orchestrate|jobs_stream\" docs/requirements/decisions/orchestrate-retirement.md",
+          "result": "pass",
+          "note": "Docs clarify canonical mutating work is under proofbound and new jobs_stream diagnostics must not write under retired Orchestrate.",
+          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
+          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
+          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
+          "timestamp": "2026-06-23T00:37:12.588Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
+          "command": "rg -n \"not evidence of approval|not production authority|notification hint before claim|must not claim\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+          "result": "pass",
+          "note": "Docs avoid overclaim: jobs_stream/heartbeat/claim are not receipt verification, productionDone, or fullAuthorityDone.",
+          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
+          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
+          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
+          "timestamp": "2026-06-23T00:37:12.995Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -272,6 +313,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Record CLI docs contract verification for jobs stream fallback."
+    },
+    {
+      "timestamp": "2026-06-23T00:37:11.715Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CLI-facing server dependency and fallback docs verified."
     }
   ]
 }
