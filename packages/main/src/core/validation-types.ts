@@ -9,6 +9,7 @@ export interface ValidationCommand {
   env?: Record<string, string>;
   timeoutMs?: number;
   optional?: boolean;
+  focus?: string[];
 }
 
 export interface ValidationCommandResult {
@@ -41,6 +42,7 @@ export interface ValidationPlan {
   provider: string;
   commands: ValidationCommand[];
   warnings?: string[];
+  focus?: string;
 }
 
 export interface ValidationResult {
@@ -53,6 +55,12 @@ export interface ValidationResult {
   timestamp: string;
   headSha?: string;
   commands: ValidationCommandResult[];
+  focus?: {
+    name: string;
+    mode: 'focused';
+    finalFullValidation: false;
+    doneRequiredProof: false;
+  };
 }
 
 export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';

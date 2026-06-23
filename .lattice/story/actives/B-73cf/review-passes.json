@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-73cf:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review checked focused/full validate layering: no-focus remains full, focused output is explicitly non-final/non-DONE proof, missing focus fails closed, timeout remains bounded; no blocking concept issue found.",
+      "createdAt": "2026-06-23T05:19:00.796Z",
+      "reviewRound": "2026-06-23T05:15:05.508Z",
+      "reviewRunId": "B-73cf:RR-001",
+      "_hash": "46a38261aca4ee72db3d71b531f10d04e92ee624472bdd1195140b38aa183fed"
+    },
+    {
+      "id": "B-73cf:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage proves no-focus full validation, focused tagged-only execution, fail-closed missing focus, non-DONE focused JSON/summary, and timeout attribution exit 124.",
+      "createdAt": "2026-06-23T05:20:50.023Z",
+      "reviewRound": "2026-06-23T05:15:05.508Z",
+      "reviewRunId": "B-73cf:RR-004",
+      "_hash": "fd646cf8904a3be63d5033b928033b04e7036d2cb29d80d504fdc2358e0bd47e"
+    },
+    {
+      "id": "B-73cf:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed on current HEAD. Checked CLI --focus parsing/error paths, configured validate.commands focus filtering, default no-focus full validate behavior, focused non-final proof markings, timeout default/override behavior, and baseline result scope. npm build, focused smokes, focused CLI JSON, missing/invalid focus errors, and full local validate all passed.",
+      "createdAt": "2026-06-23T05:21:21.324Z",
+      "reviewRound": "2026-06-23T05:15:05.508Z",
+      "reviewRunId": "B-73cf:RR-005",
+      "_hash": "adb4d42af0a05a05e78e8a827ef605cfca806634ead9d8ebc79dcd1f5654e3b0"
+    }
+  ]
+}

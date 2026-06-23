@@ -80,6 +80,7 @@ export interface LatticeConfig {
       env?: Record<string, string>;
       timeoutMs?: number;
       optional?: boolean;
+      focus?: string[] | string;
     }>;
   };
   /**

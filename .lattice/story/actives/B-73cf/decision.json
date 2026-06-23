@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Focused validation is an explicit development aid, not a replacement for full validation.",
+    "Timeout changes must preserve bounded execution and failure attribution.",
+    "Baseline result artifacts are derived records; the immutable baseline is not rewritten.",
+    "Do not optimize arbitrary paths outside validateCostAndTimeoutRisk."
+  ],
+  "drivers": [
+    "B-4bd7 baseline requires a measurable after comparison for item 1.",
+    "Full validation and DONE-required validation must remain strong gates.",
+    "The change should reduce false timeout pressure without hiding hung commands."
+  ],
+  "options": [
+    {
+      "name": "Make default validate focused",
+      "pros": [
+        "Fast by default"
+      ],
+      "cons": [
+        "Weakens existing full validation expectation",
+        "Risks treating focused output as final proof"
+      ]
+    },
+    {
+      "name": "Add explicit focus profile and keep full default",
+      "pros": [
+        "Preserves current full validate behavior",
+        "Gives development and review a clear fast path",
+        "Keeps DONE proof semantics stable"
+      ],
+      "cons": [
+        "Requires a new CLI/config surface and smoke coverage"
+      ]
+    },
+    {
+      "name": "Only raise timeout",
+      "pros": [
+        "Smallest code change"
+      ],
+      "cons": [
+        "Does not fix the missing focused/full workflow distinction from the baseline"
+      ]
+    }
+  ],
+  "chosen": "Add explicit focus profile and keep full default",
+  "rationale": "This is the narrowest correction that addresses the real workflow issue without weakening full validation or DONE-required gates.",
+  "preMortem": [
+    {
+      "scenario": "Focused mode is later mistaken for DONE proof",
+      "trigger": "Output does not clearly identify focused validation",
+      "consequence": "A story may stop after a subset and overclaim completion",
+      "mitigation": "Focused result provider/summary must say focused and the smoke must assert default validate remains full."
+    },
+    {
+      "scenario": "Timeout is raised into effectively unbounded execution",
+      "trigger": "Default exceeds the global watchdog or removes per-command timeout attribution",
+      "consequence": "Hung validation blocks the CLI and no test evidence is written",
+      "mitigation": "Keep the default bounded below a known ceiling or explicitly assert bounded behavior and explicit timeout override."
+    },
+    {
+      "scenario": "Scope creep into unrelated efficiency items",
+      "trigger": "Touching delivery, summary, proof metadata, or Codex adapter files in this story",
+      "consequence": "Baseline item attribution becomes muddy and review becomes harder",
+      "mitigation": "Scope contract excludes those areas; later items get their own stories."
+    }
+  ],
+  "timestamp": "2026-06-23T05:03:35.791Z"
+}

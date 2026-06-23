@@ -143,6 +143,68 @@ function commandFromString(label: string, value: string): ValidationCommand | nu
   return { label, command: parts[0], args: parts.slice(1) };
 }
 
+function normalizeValidateFocus(value: unknown): string[] | undefined {
+  const raw = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  const focus = [...new Set(raw.map((v) => String(v).trim()).filter(Boolean))];
+  return focus.length > 0 ? focus : undefined;
+}
+
+function normalizeFocusArg(value: unknown): string | undefined {
+  if (value === undefined) return undefined;
+  const focus = String(value).trim();
+  if (!focus) {
+    throw new Error('validate --focus requires a non-empty focus name');
+  }
+  if (!/^[A-Za-z0-9._-]+$/.test(focus)) {
+    throw new Error('validate --focus accepts only letters, numbers, dot, underscore, or hyphen');
+  }
+  return focus;
+}
+
+function focusedModeNotice(focus: string): string {
+  return `FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`;
+}
+
+function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: string): ValidationCommand[] {
+  const selected = commands.filter((cmd) => cmd.focus?.includes(focus));
+  if (selected.length === 0) {
+    throw new Error(
+      `validate --focus=${focus}: no configured validate.commands are tagged with focus "${focus}"; ` +
+      `tag one or more commands with focus: ["${focus}"] or run lattice validate --json for full validation.`,
+    );
+  }
+  return selected;
+}
+
+function markFocusedResult(result: any, focus: string): any {
+  if (!focus) return result;
+  const provider = String(result.provider ?? 'lattice-verifier');
+  const focusedProvider = provider.endsWith('-focused') ? provider : `${provider}-focused`;
+  const summary = String(result.summary ?? 'Validation completed');
+  const details = Array.isArray(result.details) ? result.details : [];
+  return {
+    ...result,
+    provider: focusedProvider,
+    summary: summary.startsWith(`Focused validation (${focus}):`)
+      ? summary
+      : `Focused validation (${focus}): ${summary}; not final full validation or DONE-required proof`,
+    details: details[0] === focusedModeNotice(focus)
+      ? details
+      : [focusedModeNotice(focus), ...details],
+    focus: {
+      name: focus,
+      mode: 'focused',
+      finalFullValidation: false,
+      doneRequiredProof: false,
+    },
+  };
+}
+
+function maybePrefixFocusedText(output: string, focus: string | undefined): string {
+  if (!focus) return output;
+  return `${focusedModeNotice(focus)}\n${output}`;
+}
+
 export function configuredValidationCommands(projectRoot: string): ValidationCommand[] {
   const cfg = loadConfig(projectRoot) as any;
   const validate = cfg.validate || cfg.validation;
@@ -161,6 +223,7 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
         if (cmd) commands.push(cmd);
       } else if (entry && typeof entry === 'object' && typeof entry.command === 'string') {
         const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
+        const focus = normalizeValidateFocus(entry.focus);
         commands.push({
           label: typeof entry.label === 'string' ? entry.label : `configured validate.commands[${i}]`,
           command: entry.command,
@@ -170,6 +233,7 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
           ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
           ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
+          ...(focus ? { focus } : {}),
         });
       }
     }
@@ -564,6 +628,7 @@ function externalResult(args: {
   warnings?: string[];
   headSha?: string;
   commands?: any[];
+  focus?: any;
 }) {
   return {
     provider: args.provider ?? 'lattice-verifier',
@@ -575,6 +640,7 @@ function externalResult(args: {
     timestamp: new Date().toISOString(),
     ...(args.headSha ? { headSha: args.headSha } : {}),
     commands: args.commands ?? [],
+    ...(args.focus ? { focus: args.focus } : {}),
   };
 }
 
@@ -596,6 +662,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
      */
     async validate(args: {
       full?: string | boolean;
+      focus?: string;
       story?: string;
       storyId?: string;
       json?: boolean;
@@ -615,6 +682,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         args.story = sid;
       }
+      const focus = normalizeFocusArg(args.focus);
       const projectRoot = ctx.root;
       // B-75f0 CHK-002: resolve the git working dir once at handler entry so every
       // headSha read below (currentHead / `git rev-parse --short HEAD`) runs from
@@ -705,6 +773,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ? discoverFallbackValidationCommands(projectRoot)
           : [];
 
+        if (focus && configuredCommands.length === 0) {
+          throw new Error(
+            `validate --focus=${focus}: no validate.ts/js/mts file or configured validate.commands were found; ` +
+            'fallback validation discovery is full-only and cannot satisfy a focused validate profile.',
+          );
+        }
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
           const base = externalResult({
             provider: 'lattice-verifier-no-validation-entry',
@@ -727,16 +801,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           return renderExternalResult(decorated);
         }
 
-        const commands = configuredCommands.length > 0 ? configuredCommands : fallbackCommands;
+        const commands = configuredCommands.length > 0
+          ? (focus ? filterFocusedConfiguredCommands(configuredCommands, focus) : configuredCommands)
+          : fallbackCommands;
         const usingConfigured = configuredCommands.length > 0;
         const fallbackDiscoveryDetail = 'validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery';
         ctx.log?.(usingConfigured
-          ? `running ${commands.length} configured validate.command(s)`
+          ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
           : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const base = await executeValidationPlan({
           provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
           commands,
           warnings: [],
+          ...(focus ? { focus } : {}),
         }, projectRoot, currentHead(handlerGitCwd), args.story);
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
@@ -755,9 +832,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: base.warnings,
           headSha: base.headSha,
           commands: base.commands,
+          ...(base.focus ? { focus: base.focus } : {}),
         });
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, result) : result;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
       }
@@ -770,6 +848,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         } else {
           tsArgs.push('--full');
         }
+      }
+      if (focus) {
+        tsArgs.push(`--focus=${focus}`);
       }
       if (args.story) {
         tsArgs.push(`--story=${args.story}`);
@@ -824,8 +905,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           headSha: currentHead(handlerGitCwd),
           commands: [commandResult],
         });
-        const decorated = args.story ? decorateStoryVerification(ctx, args.story, polluted) : polluted;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+        const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
+        const decorated = args.story ? decorateStoryVerification(ctx, args.story, focusedPolluted) : focusedPolluted;
+        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
       }
@@ -837,8 +919,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          const decorated = args.story ? decorateStoryVerification(ctx, args.story, parsed) : parsed;
-          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+          const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
+          const decorated = args.story ? decorateStoryVerification(ctx, args.story, focusedParsed) : focusedParsed;
+          if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
           return JSON.stringify(decorated);
         }
         // If validate.ts doesn't support --json yet, wrap the output
@@ -847,7 +930,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           headSha = execSync('git rev-parse --short HEAD', { cwd: handlerGitCwd, encoding: 'utf-8' }).trim();
         } catch { /* not git — graceful: headSha stays undefined */ }
 
-        const wrapped = {
+        const wrapped = markFocusedResult({
           provider: 'lattice-verifier',
           status: code === 0 ? 'pass' : 'fail',
           allPass: code === 0,
@@ -857,9 +940,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           timestamp: new Date().toISOString(),
           headSha,
           commands: [commandResult],
-        };
+        }, focus ?? '');
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, wrapped) : wrapped;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         return JSON.stringify(decorated);
       }
 
@@ -877,12 +960,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
           const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
           const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
-          return output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
+          return maybePrefixFocusedText(output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
         } catch {
           // If story metadata cannot be read, fall back to raw verifier output.
         }
       }
-      return output + (code !== 0 ? `\n(exit code: ${code})` : '');
+      return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
     },
 
     /**

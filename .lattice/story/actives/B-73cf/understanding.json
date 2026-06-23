@@ -1,0 +1,27 @@
+{
+  "task": "Fix the validateCostAndTimeoutRisk baseline dimension by making focused validation explicit and raising timeout margin without weakening full validation.",
+  "outcome": "After completion, running lattice validate --focus=fast --json reports focused validation with only the configured fast subset, running lattice validate --json still runs the full configured command set, and the baseline result file records B-73cf as the after-proof for validateCostAndTimeoutRisk.",
+  "facts": [
+    "B-4bd7 registered immutable baseline lattice-workflow-efficiency-baseline-v1.",
+    "Current validate command schema has no general focus flag; command-catalog.ts must expose it.",
+    "packages/main/src/core/validation-executor.ts has DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=240000 and per-command timeout attribution.",
+    "package scripts do not currently include a validate-focused/full layering smoke; this story should add one."
+  ],
+  "constraints": [
+    "Do not weaken full validation or DONE-required validation.",
+    "Do not touch Authority Server, delivery-check, DONE summary, proof metadata review, or Codex adapter behavior in this story.",
+    "Do not rewrite experiments/baselines/lattice-workflow-efficiency-baseline-v1.json.",
+    "Keep changes scoped to validate handler/config/smoke and derived baseline result artifact."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+    "lattice.config.json",
+    "experiments/baselines/"
+  ],
+  "timestamp": "2026-06-23T05:03:24.375Z"
+}
