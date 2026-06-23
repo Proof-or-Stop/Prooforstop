@@ -197,6 +197,15 @@
       "reviewRound": "2026-06-23T20:10:51.518Z",
       "reviewRunId": "B-7036:RR-029",
       "_hash": "f9ff0bed44a69ab2bdcd77c7d3892a7bdd0931f534b4e444bec53f4635257321"
+    },
+    {
+      "id": "B-7036:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 2 symbols changed (ARMS removed from import; emitGlmmR comment updated). Step2: README Analysis section (lines 118-156) references emitGlmmR behavior + matchedPrimaryH1/H2 flags + H1/H2 model corpus descriptions. Step3: README lines 145-151 describe the two disjoint glmer models over the matched A4-vs-A2prime common-cell corpus with matchedPrimaryH1/matchedPrimaryH2 flags — exactly matches the updated comment in emitGlmmR (lines 402-406 of analyze.mjs) and the code that emits matchedPrimaryH1/H2 columns (lines 394-395). ARMS was unused in analyze.mjs and is absent from both the README and the code post-cleanup. No drift detected. 0 blockers.",
+      "createdAt": "2026-06-23T20:12:50.799Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-030",
+      "_hash": "60a409005a60b1c3d4957e1c46a9a84aa28aaf0d517917aeeb00d7a4e4e27e41"
     }
   ]
 }
