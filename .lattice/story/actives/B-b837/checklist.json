@@ -438,6 +438,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:57.387Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "docs_check",
+          "command": "grep -r koala:internal packages/main/src/",
+          "result": "pass",
+          "note": "Ran the literal grep; zero hits (exit 1). The legacy koala:internal HTML-comment markers are removed from managed-assets.ts and cli-init.ts.",
+          "headHash": "02c17502d2e75b7549df99c241fb0e9f7d3bb42b",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:58.135Z"
         }
       ]
     },
