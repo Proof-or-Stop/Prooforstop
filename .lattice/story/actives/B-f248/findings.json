@@ -49,7 +49,7 @@
       "desc": "CHK-001:edge:0 intent specifies k=1, 3 tasks -> total=231 cells (formula: 1×13×3 + 4×16×3 = 231). The selfcheck only asserts a 1-task k=1 count of 77 (line 90). Neither the 3-task scenario nor the 231-cell total is ever asserted. The evidence note acknowledges \"the per-(arm,scenario)×k repeat logic is exercised at the k=1 minimum\" but the 3-task boundary required by the intent is absent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T11:57:16.231Z",
@@ -60,7 +60,11 @@
         "experiments/recovery-runner/run-driver-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|edge-intent-specifies",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "selfcheck asserts 3-task k=1=231; commit 9e5fcbf0f",
+      "resolvedAt": "2026-06-23T12:07:18.419Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-004",
