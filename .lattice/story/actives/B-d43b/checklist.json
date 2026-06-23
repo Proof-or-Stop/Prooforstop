@@ -180,7 +180,20 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-23T10:57:00.128Z"
+      "endTime": "2026-06-23T10:57:00.128Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json",
+          "result": "pass",
+          "note": "Result artifact references baselineId lattice-workflow-efficiency-baseline-v1, story B-d43b, and baselineDimension codexAdapterGateScope.",
+          "headHash": "f3776d0cebb0625e5e37e8603010dcc51c42cf73",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:27.468Z"
+        }
+      ]
     }
   ]
 }
