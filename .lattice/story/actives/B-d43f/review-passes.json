@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-23T19:41:45.531Z",
       "reviewRunId": "B-d43f:RR-008",
       "_hash": "1a6a9cece94777e238455651f26ab219edd82e65d081b393c784cb782076a9d3"
+    },
+    {
+      "id": "B-d43f:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 31 symbols (B3/B4/B4_TASK_TOKEN/B5/B8/B12/B14/B15 exports + walkFiles/countMarkerInWorkspace/literalInFilesWithExt + fake agent consts). Step 2 grep found zero hits in README.md/CLAUDE.md for these symbols; Fallback 2 applied: no package-level README for experiments/injection-probes/. Only CHANGELOG.md carries the B-d43f bullet. Step 3: (1) grep -c '^### Experiments' CHANGELOG.md == 1 confirmed. (2) CHANGELOG bullet accurately states recursive scanners, B8 applied.txt-first classify, B12/B14 positive-refusal artifacts, B4/B5 context-driven outcomes, 21/21 self-check verified live exit 0. (3) --run deferred not overclaimed. (4) diff stat shows only live-loop-harness.mjs + CHANGELOG.md changed, no probe/probe-contract/run-recovery edits. No doc-code-drift found.",
+      "createdAt": "2026-06-23T19:44:02.481Z",
+      "reviewRound": "2026-06-23T19:41:45.531Z",
+      "reviewRunId": "B-d43f:RR-009",
+      "_hash": "65da2c5ad9a550ab37e29995eb1d964da977bdfec34cb2f742c6cb2d2d5daba4"
     }
   ]
 }
