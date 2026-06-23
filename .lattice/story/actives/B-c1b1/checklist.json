@@ -99,12 +99,44 @@
       "title": "Add regression coverage for DONE evidence freshness after internal sync",
       "context": "Create focused tests or smoke coverage that simulates or executes a DONE path with deterministic sync and proves final DONE evidence remains fresh without repeated manual stale refresh. Keep the test scoped to the observed correctness failure.",
       "relatedDocs": [
-        "docs/dev/test-coverage.md",
-        "docs/requirements/decisions/testing-completeness.md"
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The regression smoke test demonstrates that a story branch behind main and missing DONE-required evidence receives done_prepare guidance, and that raw git merge main is not emitted as the primary recovery command.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A done-prepare smoke scenario asserts branch-synced-main and done-required-validation blockers route to the same done_prepare command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke scenario starts with missing DONE-required evidence and verifies the blocker remains visible instead of being silently waived.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The test asserts branch sync guidance does not regress to raw git merge main and does not imply evidence freshness predicates were bypassed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
