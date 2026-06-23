@@ -9,9 +9,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T01:57:50.455Z",
       "userSees": "Agent can point to the concrete DONE ordering: pre-DONE readiness checks and user-triggered done_prepare happen before final DONE evidence consumption, while version bump, dist build, and experience cache refresh remain post-DONE merge effects.",
       "files": {
         "modify": [
@@ -45,7 +45,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline HEAD && rg -n \"done_prepare|post-DONE|pre-DONE|version files\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Mapped the DONE boundary: code change is limited to DONE oracle/runbook recovery hints, while the existing decision doc states done_prepare is pre-DONE and version/dist/package finalization remains post-DONE.",
+          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:57:50.784Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not update version files in `done_prepare`|post-DONE|must not modify runtime version files before DONE\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Existing requirements explicitly keep version mutation and post-DONE finalization out of done_prepare, so this story did not move those material-changing writes before final evidence.",
+          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:57:51.102Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke preserve evidence freshness, storyFilesHash, dirty-worktree, wrong-cwd, wrong-branch, stale-review, and version-bump rejection safety cases while adding the recovery-hint path.",
+          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:57:51.372Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -181,6 +216,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T01:57:50.455Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation was committed in 29c959848 and verification completed."
     }
   ]
 }
