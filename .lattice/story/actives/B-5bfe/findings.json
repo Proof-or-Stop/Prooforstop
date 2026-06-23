@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|mjs|stale-header-comment",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5bfe:F-002",
+      "desc": "duplicate-selfcheck-test: spend-accounting-selfcheck.mjs:27-29 CHK-001 h0 and h1 have identical code (replayBudgetLoop([{tokens:1},{tokens:1},{tokens:1}],null,null).agentCallCount===3) — h1 claims to test reviewer-call counting separately but exercises no distinct code path from h0; the reviewer-call distinction is untested in the selfcheck",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:01:09.743Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "9526bd61110181cc928942cb3403a31feca2d3f708f520f6e23b3e63143b857d",
+      "files": [
+        "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|duplicate-selfcheck-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
