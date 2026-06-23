@@ -302,6 +302,24 @@
       ],
       "signatureTag": "missing|mjs|quality-cleanup-driver",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-015",
+      "desc": "CHK-004:happy:0 evidence note claims \"104 assertions pass\" but the selfcheck now runs 128 assertions (round-3 fix raised 104->123, round-4 fix raised 123->128 with 5 F-013 assertions for NaN/negative --maxReruns validation). The note is materially stale: it understates coverage by 24 assertions. The selfcheck itself is correct and passes (128 assertions, 0 failed, confirmed live); only the note text is wrong. Requires note correction to \"128 assertions pass\" to avoid misleading future reviewers about the scope of coverage.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T12:46:50.445Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-016",
+      "_hash": "a3f2428a94887896beaac42a3a3cc94d332eeb268b2a48b49f3f285545adcb6c",
+      "files": [
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
