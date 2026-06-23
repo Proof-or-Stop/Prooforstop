@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-23T01:50:53.069Z",
       "reviewRunId": "B-e37e:RR-016",
       "_hash": "8171f8b435e4d2a5c9e00a31bd05441d71addcf37141dd1c88981f40eca0be58"
+    },
+    {
+      "id": "B-e37e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge quality re-review found no blocker: bounded SSE reader is prefix-limited and abortable, stream failures fall back to signed claim with redacted diagnostics, and SSE jobIds remain hint-only while signed claim owns job state.",
+      "createdAt": "2026-06-23T01:52:07.791Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-017",
+      "_hash": "f74f3f3f3f30777934b7e636de3c463691cb4b0c31331ffde2f16d529797e5dd"
     }
   ]
 }
