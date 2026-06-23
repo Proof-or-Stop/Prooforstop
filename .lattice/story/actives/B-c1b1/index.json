@@ -4,7 +4,7 @@
   "title": "Run deterministic DONE sync before final evidence binding",
   "description": "Fix the DONE lifecycle ordering bug where internal deterministic sync work such as version, dist, package metadata, or main synchronization can change HEAD or material hash after final DONE evidence has already been recorded, causing the evidence to become stale and forcing repeated manual refresh loops. Preserve stale/hash safety; only reorder or explicitly bound CLI-owned refresh behavior for deterministic internal sync.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "DONE",
@@ -103,6 +103,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-06-23T02:51:20.773Z",
+      "branch": "story/B-c1b1",
+      "user": "Harmonygo",
+      "sessionId": "sess-269cb468b34c5c70",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:14:05.816Z",
       "branch": "story/B-c1b1",
       "user": "Harmonygo",
       "sessionId": "sess-269cb468b34c5c70",

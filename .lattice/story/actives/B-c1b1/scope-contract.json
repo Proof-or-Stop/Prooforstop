@@ -16,7 +16,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Verified REVIEW finding B-c1b1:F-004 requires updating stale lifecycle_check smoke expectations for DONE-required recovery now routed through done_prepare.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Delivery gate required these two story-owned evidence attachments: the context pack for independent delivery review and the live smoke transcript for expected-vs-actual proof.",
+      "timestamp": "2026-06-23T03:14:11.692Z",
+      "paths": [
+        ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-c1b1/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-c1b1/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0438383aa437827814acf653044742b0c2fd4f49",
+      "materialHash": "677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25"
+    }
+  ],
   "createdAt": "2026-06-23T01:58:44.855Z",
-  "updatedAt": "2026-06-23T02:31:16.152Z"
+  "updatedAt": "2026-06-23T03:14:11.692Z"
 }
