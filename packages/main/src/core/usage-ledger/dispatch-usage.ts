@@ -646,8 +646,7 @@ function parsePositiveIntegerBudget(raw: string | undefined): number | null {
 /**
  * Resolve the configured hard budget from the environment, or null.
  *
- * Reads `LATTICE_HARD_BUDGET_TOKENS` first; when absent, falls back to the legacy
- * `KOALA_HARD_BUDGET_TOKENS` (LATTICE_ always takes precedence). Returns:
+ * Reads `LATTICE_HARD_BUDGET_TOKENS` only. Returns:
  *   - { hardBudgetTokens, budgetPolicyId } when a valid positive-integer ceiling
  *     is configured;
  *   - null when unset / empty / non-numeric / float / <=0 / NaN / Infinity /
@@ -664,11 +663,7 @@ function parsePositiveIntegerBudget(raw: string | undefined): number | null {
  */
 export function resolveHardBudget(env: NodeJS.ProcessEnv | undefined): ResolvedHardBudget | null {
   const source = env ?? process.env;
-  // LATTICE_ takes precedence; KOALA_ is the legacy-compat fallback. The fallback
-  // is only consulted when LATTICE_ does not resolve to a usable ceiling.
-  const primary = parsePositiveIntegerBudget(source.LATTICE_HARD_BUDGET_TOKENS);
-  const hardBudgetTokens =
-    primary !== null ? primary : parsePositiveIntegerBudget(source.KOALA_HARD_BUDGET_TOKENS);
+  const hardBudgetTokens = parsePositiveIntegerBudget(source.LATTICE_HARD_BUDGET_TOKENS);
   if (hardBudgetTokens === null) return null;
   return {
     hardBudgetTokens,
