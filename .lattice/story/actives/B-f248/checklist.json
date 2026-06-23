@@ -138,7 +138,60 @@
       "context": "Each run records which pre-registered common-cell sets (the cells applicable to BOTH arms in a comparison, e.g. the A4-vs-A2prime set) it belongs to, so downstream rate computation has published denominators per §5/§3.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run with A4 arm, scenario B1 (universal) -> record.denominatorSets includes A4_vs_A2prime, A4_vs_A3, A4_vs_A2, A4_vs_A1 (all 4 contrasts, since B1 applies to all arms); WHY: proves a universal-scenario A4 cell lands in all 4 denominator sets",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A2prime arm, scenario B1 -> record.denominatorSets includes A4_vs_A2prime (the primary contrast); WHY: proves the non-A4 side of the primary contrast is also stamped",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A1 arm, scenario B1 (universal) -> record.denominatorSets includes A4_vs_A1; WHY: proves reference contrast membership for A1",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run with A4 arm, scenario B4 (loop-dependent, excludes A1) -> denominatorSets includes A4_vs_A2prime, A4_vs_A3, A4_vs_A2 but NOT A4_vs_A1 (because B4 is N/A for A1, so that cell is not in the common set); WHY: critical edge where applicability reduces denominator membership",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A1 arm, scenario B4 -> cell is N/A (not emitted); confirms no denominator assignment attempted for excluded cells; WHY: N/A cells cannot pollute denominator sets",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A3 arm, null scenario (ablation) -> denominatorSets includes A4_vs_A3; WHY: ablation (null scenario) cells are included in common-cell sets since null applies to all arms",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "denominatorSets is always an array (never null/undefined), even if empty for an arm that appears in no contrast (hypothetical); WHY: schema stability",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Engine result has a pre-filled denominatorSets field -> driver ignores it and computes membership from scratch based on arm+scenario applicability; WHY: prevents engine from injecting false denominator membership",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A run for arm A2 with scenario B5 (loop-dependent) -> denominatorSets includes A4_vs_A2 but NOT A4_vs_A1 (B5 excludes A1); verifies that the common-cell logic correctly checks applicability on BOTH arms of each contrast, not just the current run arm; WHY: adversarial check on the bidirectional applicability requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
