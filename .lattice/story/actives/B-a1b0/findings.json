@@ -17,6 +17,24 @@
       ],
       "signatureTag": "edge|mjs|injection-arms-selftest",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a1b0:F-002",
+      "desc": "run-injection-arms.mjs:39 importProbe neutralizes console.log but not console.error — the comment claims to neutralize stdout for the duration of the dynamic import. console.error is not suppressed. The current execution path (else-branch runs synchronously before finally restores) does not leak in practice, but any top-level console.error call in a probe file's module scope would escape. The suppression is incomplete relative to what the comment promises.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T10:03:23.145Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-002",
+      "_hash": "d40e91b2d250d384add6c8659e3d2a5a5882476cc750976b5a49c6f06eb22298",
+      "files": [
+        "experiments/injection-probes/run-injection-arms.mjs"
+      ],
+      "signatureTag": "edge|mjs|injection-arms-importprobe",
+      "signatureTagSource": "auto"
     }
   ]
 }
