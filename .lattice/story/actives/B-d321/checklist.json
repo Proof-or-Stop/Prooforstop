@@ -120,6 +120,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify process-fact registry and artifact contract coverage for delivery-check binding",
+      "context": "Because this story changes gate-consumed delivery-check evidence, PLAN/DEV must either update the process-fact registry/artifact contract to describe the new material binding or prove the existing delivery-check contract already covers it; focused tests must include the contract path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "Process-fact contract validation still passes with delivery-check material binding represented.",
+      "excludes": [
+        "Do not add unrelated process-fact registry entries.",
+        "Do not weaken artifact or gate-evidence levels."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Process-fact/artifact contract validation passes after delivery-check material binding changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The delivery-check artifact remains L4 gate evidence and delivery_check_set remains the producer command.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation cannot silently add a gate-consumed delivery-check field without either contract coverage or an explicit proof that existing coverage applies.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
