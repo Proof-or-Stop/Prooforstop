@@ -4,7 +4,7 @@
   "title": "Add the §5/§6 powered-ablation run driver that enumerates the full cell matrix and emits canonical §7 run-records",
   "description": "infra-(a) piece 4 of the powered-ablation program. The deterministic adjudicator (B-2d4c) and the scoring-checks layer (B-ebbb) exist; what is missing is the orchestration layer that enumerates the full pre-registered cell matrix (5 arms x corpus x {ablation no-injection + recovery scenarios} x k repeats), honours the per-arm applicability matrix, invokes a pluggable engine per cell, and canonicalises each raw run into the exact §7 run-record schema (deriving the adjudicated outcome, the scoring-check pass flags + unsafe detectors, head/material hashes, common-cell denominator-set membership, validity filter with infra-void re-run, and seeded randomised run order). The engine is injected so the driver itself is fully testable offline with no live model calls.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "ablation",
@@ -125,6 +125,15 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T12:52:11.307Z",
+      "branch": "story/B-f248",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -132,5 +141,5 @@
     "branch": "story/B-f248",
     "createdAt": "2026-06-23T11:16:20.828Z"
   },
-  "currentReviewRound": "2026-06-23T12:32:20.774Z"
+  "currentReviewRound": "2026-06-23T12:52:11.307Z"
 }
