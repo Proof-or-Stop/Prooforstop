@@ -27,7 +27,7 @@
       "desc": "[codex-host2 C7] await agent() has no timeout/abort -> a hung agent defeats maxTurns, blocks the finally cleanup, and leaks the temp dir until process death (matters for the real claude -p agent). FIX: per-turn timeout (Promise.race) -> on timeout break/abort so finally runs.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T13:00:27.607Z",
@@ -37,7 +37,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-await",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: per-turn turnTimeoutMs=700000 Promise.race wraps the agent call; on timeout sets transcript.timedOut + breaks so finally cleanup runs (no hang/leak). Timer cleared on normal path.",
+      "resolvedAt": "2026-06-23T13:05:43.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c023:F-003",
