@@ -35,6 +35,23 @@
       ],
       "signatureTag": "edge|mjs|injection-arms-importprobe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a1b0:F-003",
+      "desc": "[codex-host2] adversarial discrimination block (run-injection-arms.mjs ~119-126) allocates wsA/wsR via makeWorkspace() WITHOUT a finally: if inject/selfTestCases/classify throws, the temp workspaces leak. FIX: wrap each in try/finally cleanup (or a helper) like runInjectionArms does.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T10:04:10.953Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "_hash": "8a4ddb47ccb4641d1373565c2bd5a06444941fb7be37934a90177e9fada904e2",
+      "files": [
+        "experiments/injection-probes/run-injection-arms.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
