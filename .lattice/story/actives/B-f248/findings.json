@@ -87,6 +87,23 @@
       ],
       "signatureTag": "spec-boundary|mjs|a2prime-record-budget",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-006",
+      "desc": "CLI does not durably log N/A exclusions + infra void reasons (only stdout counts); onVoid not wired. §7 requires excluded N/A cells and infra voids logged with reason. Fix: main() writes excluded list + void events (with reason) to a durable sidecar log and wires onVoid.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T12:02:08.988Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "_hash": "11e06cd5ed28391e6695b9b1cea67abc185848f38da1c582efbff3cccbcaada9",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|durably-exclusions-infra",
+      "signatureTagSource": "auto"
     }
   ]
 }
