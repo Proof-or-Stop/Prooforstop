@@ -126,7 +126,51 @@
       "context": "Add a smoke (packages/main, in the existing review-assurance / done-* smoke style) asserting: (a) quorum at material X, then an unrelated whole-tree change (materialHash drifts, storyFilesHash unchanged) => floor still counts the rounds valid with the advisory; (b) a re-bind after such drift does not produce duplicate-identity-invalid rounds; (c) inverse control: a real story-file change (storyFilesHash differs) DOES stale the rounds (found 0). Wire into the root npm test chain.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the new smoke script (node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js) => exits 0, prints PASS or completion message; WHY: proves the smoke itself passes end-to-end from built dist",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm test from repo root => exits 0 and output includes the new storyfileshash smoke (grep for the filename or its assertion output); WHY: proves the smoke is wired into the CI test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (a): quorum at material X, unrelated whole-tree drift (materialHash drifts, storyFilesHash unchanged) => floor ok=true with re-attestation advisory present in output; WHY: the primary acceptance scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (b): re-bind after drift with accumulated prior verdicts stale by both hashes alongside fresh storyFilesHash-matching verdicts => no duplicate-identity-invalid round in output; WHY: locks the by-construction claim from CHK-002",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (c): real story-file change (storyFilesHash differs) => found 0 fresh rounds, ok=false in output; WHY: inverse control anti-gaming assertion",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (d): degraded single-host fallback with storyFilesHash match => fallback valid with advisory, and with storyFilesHash mismatch => fallback invalid with materialHash-stale reason; WHY: the fallback path coverage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing floor smoke (review-assurance-floor-smoke.js) still passes after changes => exits 0; WHY: regression guard -- the storyFilesHash change must not break the pre-existing floor smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing escalation smoke (review-escalation-smoke.js) still passes after the one-word export change => exits 0; WHY: regression guard -- adding export to eventsWithStoryFilesHashDowngrade must not alter escalation behavior",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Build packages/main (npm --prefix packages/main run build) succeeds with zero TypeScript errors before running any smoke => exits 0; WHY: compilation gate -- if the types are wrong (e.g. advisories field not on ReviewAssuranceFloorReport) the build fails before any test",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
