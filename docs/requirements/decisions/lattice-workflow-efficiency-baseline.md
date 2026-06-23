@@ -144,6 +144,7 @@ The baseline JSON is intentionally small and stable:
 
 - `schemaVersion`: schema identifier for this baseline family.
 - `baselineId`: immutable baseline name.
+- `createdAt`: timestamp when this baseline record was created.
 - `registrationStory`: story that registered this immutable baseline.
 - `sourceIncident`: human and commit anchors for the observed run.
 - `observedBefore`: the measured pre-fix or pre-policy behavior.
