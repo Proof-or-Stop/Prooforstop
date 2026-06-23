@@ -1,0 +1,166 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind delivery-check artifacts to reviewed material",
+      "context": "delivery_check_set records the current materialHash/headHash in delivery-check.json and includes the material binding in the integrity hash; missing or tampered bindings fail closed instead of silently passing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "userSees": "delivery-check evidence contains the material binding it reviewed.",
+      "excludes": [
+        "Do not change delivery reviewer role ownership or allow the main agent to self-sign delivery-check evidence.",
+        "Do not treat local evidence as Authority or production proof."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fresh delivery-check written over the current material remains accepted by DONE readiness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A metadata-only head change with unchanged material does not force a delivery reviewer rerun.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A delivery-check with missing or tampered material binding is rejected as stale/tampered, not accepted as delivery_check_passed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fail closed when material changes after delivery-check",
+      "context": "DONE oracle, machine guard, and lifecycle readiness classify material drift after delivery-check as stale_delivery_check and block DONE until lattice-review-delivery reruns.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "userSees": "DONE pre-check shows stale delivery-check instead of PASS when source material changed after delivery review.",
+      "excludes": [
+        "Do not weaken validation, review, summary, or done_prepare gates.",
+        "Do not add a dashboard or external server dependency."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After source material changes, DONE readiness reports stale delivery-check and blocks DONE.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing docsPromise validation semantics still fail unverified promises independently of material freshness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing delivery-check binding fields without resigning produces a hash/tamper failure.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused regression smoke and baseline result artifact",
+      "context": "Add a focused smoke for delivery-check freshness and a derived baseline item 5 result JSON without modifying the immutable baseline v1 file.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "A focused validate command proves baseline item 5 is fixed and documents the before/after result.",
+      "excludes": [
+        "Do not edit the immutable baseline v1 artifact.",
+        "Do not broaden this into DONE summary freshness; that remains baseline item 6."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke passes and is wired into validate.commands with fast focus.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline v1 file remains unchanged; only a story-specific result artifact is added.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact explicitly states authorityChanged=false, receiptVerified=false, and productionDone=false.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify process-fact registry and artifact contract coverage for delivery-check binding",
+      "context": "Because this story changes gate-consumed delivery-check evidence, PLAN/DEV must either update the process-fact registry/artifact contract to describe the new material binding or prove the existing delivery-check contract already covers it; focused tests must include the contract path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "Process-fact contract validation still passes with delivery-check material binding represented.",
+      "excludes": [
+        "Do not add unrelated process-fact registry entries.",
+        "Do not weaken artifact or gate-evidence levels."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Process-fact/artifact contract validation passes after delivery-check material binding changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The delivery-check artifact remains L4 gate evidence and delivery_check_set remains the producer command.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation cannot silently add a gate-consumed delivery-check field without either contract coverage or an explicit proof that existing coverage applies.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

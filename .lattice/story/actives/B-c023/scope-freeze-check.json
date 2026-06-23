@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c023",
+  "checkedAt": "2026-06-23T12:40:58.819Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "429e98caf8866bed6fad9ee68b10e6d1ba71de771c93cfa372d5973add634d26",
+  "executionBoundaryHash": "7300550b91e82bab3975fdb52492009f39a4c7da8714cc21cda7994d50accd1b",
+  "freshnessHash": "928a0e42f463e23af862fa914c23445002aa6977978aebfff1ad6ff94adb717b",
+  "effectiveExcludedKeywords": [
+    "any gate/core/DONE-policy change",
+    "editing probe-contract.mjs or the 6 existing probe files",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+    "the other 7 stateful scenarios (B4/B5/B8/B12/B14/B15 + variants)",
+    "the pre-registration amendment",
+    "the real powered multi-turn claude -p run (follow-up)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any gate/core/DONE-policy change",
+      "source": "scopeBoundary.excluded",
+      "text": "any gate/core/DONE-policy change",
+      "excluded": true
+    },
+    {
+      "keyword": "editing probe-contract.mjs or the 6 existing probe files",
+      "source": "scopeBoundary.excluded",
+      "text": "editing probe-contract.mjs or the 6 existing probe files",
+      "excluded": true
+    },
+    {
+      "keyword": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+      "source": "scopeBoundary.excluded",
+      "text": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+      "excluded": true
+    },
+    {
+      "keyword": "the other 7 stateful scenarios (B4/B5/B8/B12/B14/B15 + variants)",
+      "source": "scopeBoundary.excluded",
+      "text": "the other 7 stateful scenarios (B4/B5/B8/B12/B14/B15 + variants)",
+      "excluded": true
+    },
+    {
+      "keyword": "the pre-registration amendment",
+      "source": "scopeBoundary.excluded",
+      "text": "the pre-registration amendment",
+      "excluded": true
+    },
+    {
+      "keyword": "the real powered multi-turn claude -p run (follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "the real powered multi-turn claude -p run (follow-up)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ffb05e01d5934b85bab6fc5fcabd7563907361006e87e0cd39b752f06f2d181a"
+}

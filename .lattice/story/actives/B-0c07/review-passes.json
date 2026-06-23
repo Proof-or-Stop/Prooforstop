@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-0c07:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff is purely additive (13 files, 1126 insertions, 0 deletions of concept-bearing lines). New files: experiments/injection-probes/real-arm.mjs + powered-run-records.jsonl + CHANGELOG.md entry. No concept deleted or renamed. Forbidden imports (run-recovery.mjs, run-ablation.mjs, run-a2prime.mjs) appear only in a comment in real-arm.mjs, not as actual imports. Reused files (run-injection-arms.mjs, probe-contract.mjs) show zero diff against main. No files outside stated scope (.lattice metadata + CHANGELOG + experiments/injection-probes). Concept residue check: no deletion/replacement identified, nothing to grep for. No blocker.",
+      "createdAt": "2026-06-23T12:08:37.057Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-001",
+      "_hash": "20adcac7bd0236ea5108c5025c28c17c9ed7a0d2aafcbcc70409d0d88e9500f3"
+    },
+    {
+      "id": "B-0c07:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "real-arm.mjs: (1) cost-zip alignment is guaranteed — driver loop is fully sequential, costLog.push runs synchronously inside runArm before it returns, records.push follows after await; no parallel dispatch exists; (2) makeRealBareArm: execFileSync blocking invocation sound, nested try/catch keeps zeros on non-JSON, infra-fail catch assigns result before costLog.push — no path skips the push; (3) summarize(): division-by-zero guard present (scored===0?0), count invariant check covers all 4 categories; (4) --self-check is hermetic (stub arms, 0 spend), B13 safe-stop behavior is correctly NOT hardcoded — robust >=1 / <1 invariants used, self-check passed live with exit 0; (5) isMain guard handles undefined argv[1] via ||, --reps parseInt(undefined)=NaN falls through NaN||1=1 with Math.max(1,...) clamp. One low/missing finding recorded for duplicate ### Experiments heading in CHANGELOG.md.",
+      "createdAt": "2026-06-23T12:10:42.793Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-002",
+      "_hash": "65f606b03b5b67f9a7a1cc270dbf61a9add9c75ef81b8359325fbcc72f050f02"
+    },
+    {
+      "id": "B-0c07:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents covered (CHK-001:happy/edge/adversarial via logic_test --self-check; CHK-002:happy via manual_transcript powered-run-records.jsonl; CHK-002:edge via logic_test --self-check infra-fail+count invariant; CHK-002:adversarial via docs_check CHANGELOG+caveat). --self-check exit 0 confirmed live. Deliberate split verified: deterministic gate = --self-check; powered data = committed artifact not re-run.",
+      "createdAt": "2026-06-23T12:11:27.810Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-004",
+      "_hash": "a627fbbe17bc1a775fa9b378745a338fda0e3547af606c01eeec372bb3d8aba7"
+    },
+    {
+      "id": "B-0c07:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. Diff is purely additive: new real-arm.mjs, new powered-run-records.jsonl, 2 CHANGELOG insertion lines only. No concept words deleted or replaced. The only removals in .lattice/ metadata are structural JSON field value transitions (status/phase), not concept terms. No grep needed. Zero residue, no blocker.",
+      "createdAt": "2026-06-23T12:15:08.571Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-005",
+      "_hash": "5575d7e4e369d24b32b5ea48b0df81d1216ae254df5854713402431cb0ba74aa"
+    },
+    {
+      "id": "B-0c07:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: all round-1 fixes verified sound. (1) F-001/F-002 CHANGELOG duplicate ### Experiments heading confirmed removed (grep -c gives 1). (2) C2/F-003 parseClaudeResult() returns infraFail:true + reason:non-json-output on JSON.parse failure (catch block, line 53-54). (3) C3/F-004 infra-fail correctly triggered by is_error===true, non-success subtype, and Overloaded/API Error/rate-limit/429/529 regex on result text (line 57). (4) C4/F-005 num() coerces total_cost_usd and all token fields to 0 when not (typeof number && isFinite); string cost->0, string tokens->0 (lines 34, 38-40). makeRealBareArm delegates fully to parseClaudeResult (line 77). --self-check runs deterministically with 0 spend, all assertions pass (confirmed by live run). No dead code, no unused imports, no as-any or swallowed errors found. Only changed files reviewed: experiments/injection-probes/real-arm.mjs and CHANGELOG.md.",
+      "createdAt": "2026-06-23T12:15:45.082Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-006",
+      "_hash": "55f0e190f7ce1ada01086d64d4b9bd55633cd98a00c5f0714dcf9e9518c80280"
+    },
+    {
+      "id": "B-0c07:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 5 key exported symbols (makeRealBareArm, parseClaudeResult, summarize, stubSafeStop, stubShipNoFix) + auxiliary constants extracted. Step 2: CHANGELOG.md line 7 B-0c07 entry is the sole doc reference (makeRealBareArm + summarize each hit once; parseClaudeResult/stubSafeStop/stubShipNoFix have 0 doc hits → Fallback 2 applied, no finding required). Step 3: All 9 CHANGELOG claims verified against real-arm.mjs diff: makeRealBareArm invocation/return shape, summarize catch=NOT-amplified, deterministic stub arms, --self-check (0 spend, hand-built vectors, discriminating stub runs, B13 safe-stop caveat), --run appends powered-run-records.jsonl (6 probes confirmed), never-import-run-recovery, no probe/probe-contract edits. ### Experiments heading count = 1 (F-001 fix confirmed). parseClaudeResult hardening adds no unmet doc promise. No blockers.",
+      "createdAt": "2026-06-23T12:16:20.634Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-007",
+      "_hash": "15cd125d5a08c80fcac7593198febdd8ffe3843bfa68435acec40601210a6fd3"
+    },
+    {
+      "id": "B-0c07:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: round-2 re-verification confirms all 6 verificationIntents remain genuinely covered. (1) CHK-001:happy/edge/adversarial — all bound to `node experiments/injection-probes/real-arm.mjs --self-check`; self-check run live this round returned PASS, 0 spend, covering: schema correctness, 0-cost stub, infra-fail non-crash (edge), and catch-rate discrimination (adversarial). (2) CHK-002:happy — evidence is committed powered-run-records.jsonl (commit 9d8f5308d, 6 records with real costUsd>0 + tokensSpent>0); not re-run per spec, file integrity confirmed in-tree. (3) CHK-002:edge/adversarial — both covered by --self-check: summarize() tracks infra-fail separately (edge), and CHANGELOG+run output print EXPLORATORY caveat (adversarial/docs). Evidence staleness is metadata-only HEAD drift from 5 finding_resolve + 3 review_pass_set commits containing zero code changes to the evidence files. The 6 parseClaudeResult unit tests added in commit 3bbecc202 strengthen CHK-001/CHK-002 adversarial coverage (C2 non-JSON, C3 api-error, C4 type-safe cost) and do not weaken any prior assertion. No coverage gap found.",
+      "createdAt": "2026-06-23T12:18:33.909Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-008",
+      "_hash": "e31fabc6721fe1dd18228e453dba0bc1073a239486c95124f9117a33bb963b64"
+    }
+  ]
+}

@@ -33,6 +33,7 @@ import { gitProbe, isGitRepository } from '../core/git-probe.js';
 import { loadConfig } from '../core/config.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
+import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
@@ -1042,6 +1043,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const l of renderScopeAntiExpansionSummary(storyId, ctx.store, ctx.root)) lines.push(l);
         } catch { /* probe — anti-expansion summary must never block session_brief */ }
       }
+
+      try {
+        const advisory = renderMainSyncReadinessAdvisory(
+          buildMainSyncReadiness({ storyId, gitCwd: ctx.root }),
+        );
+        if (advisory) {
+          lines.push('');
+          lines.push('## Main-sync readiness');
+          lines.push(`  ${advisory}`);
+        }
+      } catch { /* probe — main-sync readiness is advisory only */ }
 
       // B-6bfd CHK-006: aggregate "Scope protection summary" — path gate,
       // semantic gate, guard mode, review hash freshness, and a derived next

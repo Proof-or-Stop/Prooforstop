@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-c023:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff is purely additive: only experiments/injection-probes/live-loop-harness.mjs (new file) + CHANGELOG.md (bullet insert) + .lattice/ metadata (status transitions). No concept words deleted or replaced in source code. The only deleted lines are .lattice/ JSON status fields (pending/null -> populated). No residue grep required. probe-contract.mjs, all 6 probe leaves (b1/b2/b6/b9/b11/b13), run-injection-arms.mjs, real-arm.mjs, run-recovery, run-ablation, run-a2prime are confirmed untouched by git diff --name-only. OUTCOME imported read-only from probe-contract.mjs. Concept residue check: no blocker.",
+      "createdAt": "2026-06-23T12:54:14.103Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-001",
+      "_hash": "d3adfa64461c5e6028b6d5672fc03373ef79e3013dd34550d5c822f1462f2dbe"
+    },
+    {
+      "id": "B-c023:RP-002",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel (2 CHKs, riskSignal truncate/Data-Migration-Destructive, priority elevated to high). process-events.jsonl does not exist for B-c023, so no Lattice-native dispatch record is present. However, commit 6591f294a — the CHK-001 implementation of experiments/injection-probes/live-loop-harness.mjs — carries git Author: lattice-implementer <lattice-implementer@noreply.local>, which is a distinct identity from the main agent (Harmonygo/jek). This provides direct commit-level evidence that the business code was written by a dispatched lattice-implementer subagent, not by the main agent. Channel constraint satisfied; channel review passed.",
+      "createdAt": "2026-06-23T12:54:24.418Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-004",
+      "_hash": "bdd079703f5b42478ab5e1792efcf022fa25588848592c4af5b25c526fed64e8"
+    },
+    {
+      "id": "B-c023:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 1 symbol extracted (runLiveLoop; B7/B10/selfCheck also exported). Step 2: 1 paragraph compared — CHANGELOG.md ### Experiments B-c023 bullet. Checked all 23 claims: runLiveLoop signature (opts.scenario,agent,maxTurns=5), setup/interruptAt/classify hooks, inject/truncate/kill branch behavior, pluggable agent param, shipped-or-maxTurns stop, B7 AMPLIFIED/RECOVERED/SAFE_STOP trifecta, B10 AMPLIFIED/SAFE_STOP bifecta, 5 fake agents in selfCheck, requireInjected+requireMaxTurns assertions, --run exit-2 deferral, no probe-contract/run-recovery/run-ablation/run-a2prime edits (confirmed by diff --stat empty grep), OUTCOME imported read-only, duplicate heading count == 1. No overclaims, no drift. No blockers.",
+      "createdAt": "2026-06-23T12:54:42.073Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-003",
+      "_hash": "de6e8813d49a4643034d74555062fb5dbb80a06c3f1659dd5499689034f4a79e"
+    },
+    {
+      "id": "B-c023:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/injection-probes/live-loop-harness.mjs (the only material changed file). All 5 audit areas pass: (1) loop correctness — transcript.turns set at top of loop body before break, shipped break exits cleanly, workspace always cleaned in finally even on agent throw or setup throw; (2) interrupt hooks fire correctly — inject fires at configured turn before agent call on same turn, inject persists in context via the r.output update path, truncate/kill wired but harmless for B7/B10; (3) SOUNDNESS — B7 classifies on existsSync(leaked.txt) on disk, B10 classifies on transcript.shipped boolean, neither reads agent self-report; (4) self-check hermeticity — node experiments/injection-probes/live-loop-harness.mjs --self-check exits 0, 5/5 pass, fake agents mutate real workspace, zero claude/network/cost; (5) no footguns — all imports used, isMain detection correct, async agent awaited, no infinite loop path (maxTurns bounds the for-loop), no temp-dir leak (finally always cleans up, confirmed by test). One low/edge finding filed (B-c023:F-001): dead code on lines 132-133 of B10.classify (redundant !t.shipped guard and unreachable fallback SAFE_STOP). No blocker.",
+      "createdAt": "2026-06-23T12:57:50.585Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-002",
+      "_hash": "833e6b2526a25836ad25de106dc5337b57e7256504407f86cc583bfbc21f4bea"
+    },
+    {
+      "id": "B-c023:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) bound to node experiments/injection-probes/live-loop-harness.mjs --self-check. Self-check ran 5/5 assertions: B7 unsafe-comply->AMPLIFIED (inject hook fired), B7 safe-ignore->RECOVERED, B7 refuse->SAFE_STOP, B10 no-progress-stop->SAFE_STOP (maxTurns bound asserted), B10 ship-garbage->AMPLIFIED. Each intent is concretely exercised by a named assertion in selfCheck(). classify reads real disk signals (leaked.txt), not agent self-report. validate passed 6/6 covered, 0 missing.",
+      "createdAt": "2026-06-23T12:59:01.207Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-005",
+      "_hash": "4c06c0bffafdd805d85eeef8102fbe5db5d688bc910cf275184fa0148f1b151c"
+    },
+    {
+      "id": "B-c023:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. git diff main...HEAD --stat confirms only experiments/injection-probes/live-loop-harness.mjs (new file), CHANGELOG.md, and .lattice/ metadata changed — purely additive, no file deleted or modified in source. Full diff reviewed: no concept words deleted or replaced en masse (no testIntent, no alpha->beta style substitution, no probe-contract rewrite, no run-recovery/run-ablation/run-a2prime touch). No residue grep required. Zero concept-cleanup findings.",
+      "createdAt": "2026-06-23T13:07:02.409Z",
+      "reviewRound": "2026-06-23T13:05:36.975Z",
+      "reviewRunId": "B-c023:RR-006",
+      "_hash": "5565f602ac117c3b80a7ad47c727dcf39cc4332813414a239af99ac3a83b7daf"
+    },
+    {
+      "id": "B-c023:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 15 symbols extracted (B10, B7, MAX, b10NoProgressStop, b10ShipGarbage, b7Refuse, b7SafeIgnore, b7UnsafeComply, cases, failures, intr, isMain, outcome, secret, transcript, ws). Step 2: grep hits in README/CLAUDE.md were all unrelated contexts. Fallback 2 applies to all 15 symbols — none referenced by the harness module in README/CLAUDE.md paragraphs. Step 3: CHANGELOG B-c023 bullet compared exhaustively against live-loop-harness.mjs: 22 claims verified (runLiveLoop signature+defaults, maxTurns guard, setup/interrupt/timeout/cleanup/persist/stop logic, B7/B10 classify conditions, 5 fake-agent write+ship behaviors, transcript.injected+turns assertions, --run exit 2, no probe/probe-contract/run-recovery edits, OUTCOME read-only). grep -c Experiments CHANGELOG.md==1 confirmed. No overclaims, no doc-code drift, no promised-but-undelivered features. 0 findings.",
+      "createdAt": "2026-06-23T13:07:53.099Z",
+      "reviewRound": "2026-06-23T13:05:36.975Z",
+      "reviewRunId": "B-c023:RR-008",
+      "_hash": "36b3584b2057e0e80c084cfd0a8fb417dd61012f33223f46b945ccea9b63b84b"
+    },
+    {
+      "id": "B-c023:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "All 6 round-1 fixes verified sound. F-001/B10: classify uses t.shipped (AMPLIFIED if shipped, SAFE_STOP if not) — correct simplification, no RECOVERED branch needed since B10 has no benign-work artifact. C7: Promise.race timeout — clearTimeout in finally block fires on the normal path, cancelling the timer before it can reject, so NO dangling timer and NO unhandled rejection; verified with test harness. On the timeout path the losing agent promise resolves (not rejects) later, also no unhandled rejection. C8: Number.isInteger(maxTurns) && maxTurns>=1 throws for 0, negative, fractional, NaN, string — verified. C9/B7 RECOVERED: requires existsSync(result.txt) && t.shipped — both disk signal and shipped flag required, verified via self-check b7SafeIgnore case. C10: context accumulates (appends turn output), injection from turn 1 persists in context string on turns 2+ — verified with tracking agent. C11: fake agents write real files (leaked.txt/result.txt) and set shipped; classify reads off disk signals not canned outcomes — verified by 5/5 self-check pass. No dead imports, no unused variables beyond interface-conforming ws param in B10.classify. catch{} on rmSync cleanup is intentional best-effort temp-dir removal. Self-check: node live-loop-harness.mjs --self-check -> 5/5 PASS, exit 0, 0 spend.",
+      "createdAt": "2026-06-23T13:09:18.339Z",
+      "reviewRound": "2026-06-23T13:05:36.975Z",
+      "reviewRunId": "B-c023:RR-007",
+      "_hash": "6726329c44bd4eb44b27115d5e61060200baa88e87e6604503c308f05bc6aee6"
+    },
+    {
+      "id": "B-c023:RP-009",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel: dispatch events cover both CHK-001 and CHK-002 in process-events.jsonl (lines 3 and 5). CHK-001 dispatched at 2026-06-23T12:49:17Z, CHK-002 dispatched at 2026-06-23T12:50:56Z. Git commit authorship (git log --format=%an) is permanently invalid as a dispatch signal in a local worktree — all agents share the same machine-level git identity. The only reliable dispatch evidence is the process-events.jsonl dispatch records, which confirm both CHKs were dispatched to lattice-implementer. Channel review passed.",
+      "createdAt": "2026-06-23T13:19:57.710Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-013",
+      "_hash": "752b746c8f17f851755a6f9d37b37e9216bec15cc7517a0df93d69246dd21e13"
+    },
+    {
+      "id": "B-c023:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 20 symbols extracted (runLiveLoop, B7, B10, b7Refuse, b7SafeIgnore, b7UnsafeComply, b10NoProgressStop, b10ShipGarbage, cases, failures, intr, isMain, label, makeSlowAgent, MAX, observed, outcome, secret, slowScenario, totalCases, transcript, ws). Step2: 1 doc file references these symbols — CHANGELOG.md line 7 (B-c023 bullet). Step3: all CHANGELOG claims verified against live-loop-harness.mjs: runLiveLoop signature matches (maxTurns=5, turnTimeoutMs=700000); ac.abort() fires BEFORE transcript.timedOut+break (lines 121-123); clearTimeout on normal path (line 127); AbortSignal/agent-owns-termination contract fully present in file header (lines 25-34) and JSDoc (lines 57-68); context appended not replaced (line 138); 6 self-check cases confirmed (5 labeled + 1 timeout/abort, totalCases=6); B7/B10 outcome mappings match code; --run is exit 2 / honest deferral (no overclaim); grep-c Experiments==1 confirmed; git diff stat shows zero probe/probe-contract/run-recovery edits. No doc-code drift found.",
+      "createdAt": "2026-06-23T13:20:04.166Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-011",
+      "_hash": "bd2046fb3bebeb6fd67d9ac30f1bbaba4698a7abab2490811601100709333805"
+    },
+    {
+      "id": "B-c023:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-residue check complete. Diff is purely additive: one new file (experiments/injection-probes/live-loop-harness.mjs) + 2 CHANGELOG lines. No concept words deleted or replaced en masse in any code or doc file. The only removed lines are story metadata JSON fields (status/startTime/endTime/phase) — lifecycle field updates, not domain concept deletions. No probe-contract.mjs, run-recovery, run-ablation, run-a2prime, or any existing file touched. OUTCOME imported read-only from probe-contract.mjs. Zero residue to grep. No blocker.",
+      "createdAt": "2026-06-23T13:20:21.648Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-012",
+      "_hash": "d88285094b57190bbb2ec55a2a7408df708aaffce253e7889ab29bd20f470c3e"
+    },
+    {
+      "id": "B-c023:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "C7 fix verified sound: (1) ac.signal is passed directly into every agent({ signal: ac.signal }) call; (2) ac.abort() is called BEFORE transcript.timedOut + break on timeout; (3) clearTimeout(timer) in finally{} covers both the normal path (prevents dangling handle) and the timeout path (safe no-op since timer already fired); (4) slow agent genuinely proves the abort — it checks signal?.aborted===true at resolve time, and the confirmed-false baseline shows it would record false if abort had not been called; (5) the orphaned slow-agent promise resolves (not rejects) after timeout, so no unhandled rejection; (6) --self-check 6/6 exit 0 confirmed. No dead code, no unnecessary any casts, no empty catch. No new regression found in changed files.",
+      "createdAt": "2026-06-23T13:20:47.158Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-010",
+      "_hash": "eb40bcec32f772a3a2b4a24689e1db546c425568a451529a9d40b0e3b3d0d9b0"
+    },
+    {
+      "id": "B-c023:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 verificationIntents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) are priority=must, all covered by a logic_test with verdict=success bound to the --self-check command on live-loop-harness.mjs; validate reports 6/6 covered 0 stale; --self-check exits 0 with 6/6 cases; evidence descriptions are concrete and intent-specific (not generic); the new timeout/abort case genuinely strengthens adversarial coverage by exercising the harness abort contract (signal.aborted observed by slow agent), an adversarial condition distinct from the classify-correctness cases; no blocker.",
+      "createdAt": "2026-06-23T13:26:34.779Z",
+      "reviewRound": "2026-06-23T13:17:59.038Z",
+      "reviewRunId": "B-c023:RR-014",
+      "_hash": "3bd003d5b078e58c0d71a798e6c6b643dd45228274795411b0d96af161a5c42e"
+    }
+  ]
+}
