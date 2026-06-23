@@ -6,7 +6,40 @@
       "context": "Per turn: execFileSync claude -p --output-format json on {ws,context} (cwd=ws), parse via parseClaudeResult (non-JSON/API-error -> infra-fail; type-safe cost); on signal.aborted kill the child / stop; return {actions,shipped,output,costUsd,tokensSpent}. Reuse B-0c07 parsing + B-c023 signal contract; no run-recovery import. + a no-LLM stub multi-turn agent for the hermetic self-check.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ makeRealLoopAgent({model}) -> agent({ws,context,turn,signal}) runs claude -p per turn (parseClaudeResult-hardened), honors signal.aborted (kills its child), returns {actions,shipped,output,costUsd,tokensSpent}; + a no-LLM stub multi-turn agent for the hermetic self-check.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "experiments/injection-probes/real-loop-agent.mjs"
+        ],
+        "test": [
+          "experiments/injection-probes/real-loop-agent.mjs",
+          "experiments/injection-probes/real-arm.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the stub multi-turn agent drives runLiveLoop turns + mutates the ws per scenario; classify yields the expected OUTCOME; WHY: proves the real-agent contract shape + the --run wiring deterministically.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseClaudeResult is reused so a non-JSON/API-error turn -> infra-fail (recorded, batch continues); WHY: robust + data not corrupted.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the agent receives {signal}; a slow stub agent under a tiny timeout aborts (signal.aborted observed) so the real agent can kill its child; WHY: honors the B-c023 termination contract.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
