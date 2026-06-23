@@ -30,9 +30,46 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:05:35.945Z",
+      "endTime": "2026-06-23T10:15:31.755Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the quality reviewer prompt contains both job.metadata and linked run.metadata proof metadata review phrases.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/templates/agents/lattice-review-quality.md",
+          "result": "pass",
+          "note": "Guidance is narrowly scoped to proof/receipt/provider/run/job metadata semantics and framed as correctness review guidance, not broad optimization or product behavior.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the phrase checking only one location is insufficient, rejecting job-only or run-only review coverage.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -64,9 +101,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:05:39.989Z",
+      "endTime": "2026-06-23T10:15:42.264Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if lattice-review-quality.md omits job.metadata from the proof metadata phrase set.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if lattice-review-quality.md omits linked run.metadata from the proof metadata phrase set.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if the prompt no longer says checking only one location is insufficient.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -98,9 +173,106 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:05:43.319Z",
+      "endTime": "2026-06-23T10:16:01.460Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Result artifact names the baselineId, B-c356 story id, and proofMetadataReviewCoverage dimension; post-commit JSON parse returned pass.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Only a derived B-c356 result artifact was added; the immutable baseline JSON file was not modified.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Result artifact records claimsReceiptBackedProductionProof=false and says this is not receipt-backed production evidence.",
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T10:05:35.945Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting proof metadata reviewer prompt guidance implementation.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:05:39.989Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting prompt registry smoke coverage for proof metadata review guidance.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:05:43.319Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting derived baseline result artifact for proofMetadataReviewCoverage.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:15:31.755Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed quality reviewer guidance and post-commit prompt smoke evidence for both job.metadata and linked run.metadata coverage.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:15:42.264Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed prompt registry smoke coverage and post-commit evidence for all proof metadata phrases.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:16:01.460Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed derived baseline comparison result and post-commit JSON parse evidence.",
+      "agent": "codex"
     }
   ]
 }

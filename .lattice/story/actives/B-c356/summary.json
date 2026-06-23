@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c356",
+  "changes": "Added narrow quality reviewer guidance requiring proof metadata review across both job.metadata and linked run.metadata, added prompt-registry smoke coverage for that rule, synchronized Claude/Codex managed reviewer prompt mirrors, and wrote the B-c356 derived baseline result artifact.",
+  "usage": "Run node packages/main/dist/tasks/prompt-registry-smoke.js or lattice validate --story=B-c356 --json to verify the reviewer prompt still includes the job-plus-linked-run proof metadata rule.",
+  "expectedOutcome": "The quality reviewer prompt names both job.metadata and linked run.metadata, rejects one-location-only proof metadata checks, and does not claim receipt-backed production proof from reviewer guidance alone.",
+  "actualTranscript": "lattice validate --story=B-c356 --json passed 27/27 configured commands with verification intent coverage 9/9. prompt-registry-smoke passed with 16 agents rendered for claude and codex. DONE-required validation passed for build and npm test. Delivery review passed and local quorum emitted 3 rounds x 2 host verdicts with authorityDone=false.",
+  "outcomeDiff": "No user-visible difference between expected and actual; the only review finding was fixed by changing the prompt wording from following 3 items to following items.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local non-authority assurance only; this story intentionally does not modify Authority Server receipt logic or claim production/Authority DONE.",
+  "pitfalls": "Main merge changed the material hash before DONE, so validation evidence was refreshed and a fresh local quorum had to be submitted over materialHash e744eb7baf0c91fe63f26965dc723686d6118041ca0c7dc8e9a6ad71cdd7e521. Quality review found one real prompt-count wording issue and it was fixed in commit 905c9f167.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 264677
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7548
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 210488
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 806554
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 870803
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 636487
+    }
+  },
+  "totalDurationMs": 2796571,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T10:43:07.143Z",
+  "updatedAt": "2026-06-23T10:43:07.143Z"
+}

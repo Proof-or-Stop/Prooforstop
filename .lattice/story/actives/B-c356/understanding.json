@@ -1,0 +1,24 @@
+{
+  "task": "Add review guidance and regression coverage so proof metadata spoofing review checks both job.metadata and linked run.metadata.",
+  "outcome": "After this story, a quality reviewer reading the standard prompt will see an explicit rule: server-authored proof keys must be checked in both job.metadata and linked run.metadata, and checking only one location is insufficient. The prompt smoke will fail if either phrase or the insufficient-one-location warning is removed.",
+  "facts": [
+    "Baseline item 2 is proofMetadataReviewCoverage.",
+    "The fix is workflow guidance and smoke coverage only.",
+    "The quality reviewer template source is packages/main/templates/agents/lattice-review-quality.md.",
+    "Prompt registry smoke already verifies load-bearing prompt files and can assert quality prompt content."
+  ],
+  "constraints": [
+    "Do not change server business logic.",
+    "Do not change provider execution behavior.",
+    "Do not change receipt verification semantics.",
+    "Do not rewrite the immutable baseline JSON.",
+    "Keep the change scoped to a real correctness issue, not arbitrary optimization."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json"
+  ],
+  "timestamp": "2026-06-23T10:01:36.874Z"
+}
