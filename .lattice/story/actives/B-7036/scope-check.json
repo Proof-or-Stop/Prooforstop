@@ -187,8 +187,11 @@
       "q": "Section 5 says the primary contrast is A4 vs A2prime, but the build gate note in the spec footer says the S3 harness implements the GLMM + FDR. Does the analysis script (this story) also need to compute bootstrap CIs for the three non-primary contrasts (A4_vs_A3, A4_vs_A2, A4_vs_A1), or only per-arm rates for those?",
       "evidence": "Section 5: Primary analysis: report the A4-vs-A2prime contrast with 95% CI. Run counts: core A4 vs A2prime on the full common-cell corpus; A1/A2/A3 as smaller pre-declared reference cells.",
       "sourcePointers": [
-        "decisions/lattice-experiment-protocol.md §5"
-      ]
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "CHK-003"
+      ],
+      "resolution": "Per pre-reg §5, ONLY A4-vs-A2prime is the PRIMARY contrast carrying a 95pct CI (the seeded cluster bootstrap); A1/A2/A3 are explicitly smaller pre-declared REFERENCE cells. Resolution: the analysis computes the bootstrap risk-difference + 95pct CI ONLY for A4-vs-A2prime; the other 3 contrasts (A4_vs_A3, A4_vs_A2, A4_vs_A1) get per-arm rates + Wilson 95pct CIs over their common-cell denominators (no bootstrap contrast CI). The formal glmm.R covers all contrasts via the model. This matches §5 (primary A4-vs-A2prime; references smaller) and avoids over-claiming CIs on underpowered reference cells.",
+      "resolvedAt": "2026-06-23T18:41:53.223Z"
     }
   ]
 }
