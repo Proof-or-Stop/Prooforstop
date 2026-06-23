@@ -1,0 +1,680 @@
+{
+  "command": "lattice validate --story=B-fbca --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 43 required intent(s)\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice/core@0.3.77 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/validate-focused-full-layering-smoke.js\",\"  validate-focused-full-layering smoke passed: 10 assertions\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/main-sync-readiness-smoke.js\",\"  main-sync-readiness smoke passed\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js\",\"  ✓ codex adapter gate scope smoke passed: provider-only Codex text ignored; adapter surfaces required\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/done-required-freshness-smoke.js\",\"  done-required-freshness smoke passed\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/done-required-head-drift-proof.js\",\"  done-required-head-drift-proof passed\",\"  {\",\"    \\\"status\\\": \\\"PASS\\\",\",\"    \\\"proof\\\": \\\"DONE-required metadata-only HEAD drift is non-blocking (deadlock fixed)\\\",\",\"    \\\"rounds\\\": 3,\",\"    \\\"headDriftFreshRounds\\\": 3,\",\"    \\\"materialDriftBlockedRounds\\\": 3,\",\"    \\\"slowCommandMs\\\": 800,\",\"    \\\"averages\\\": {\",\"      \\\"firstRunMs\\\": 984,\",\"      \\\"postMetadataEvalMs\\\": 30\",\"    },\",\"    \\\"results\\\": [\",\"      {\",\"        \\\"round\\\": 1,\",\"        \\\"firstRunMs\\\": 986,\",\"        \\\"postMetadataEvalMs\\\": 30,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      },\",\"      {\",\"        \\\"round\\\": 2,\",\"        \\\"firstRunMs\\\": 983,\",\"        \\\"postMetadataEvalMs\\\": 29,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      },\",\"      {\",\"        \\\"round\\\": 3,\",\"        \\\"firstRunMs\\\": 984,\",\"        \\\"postMetadataEvalMs\\\": 30,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      }\",\"    ]\",\"  }\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[14]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[15]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[16]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[17]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[18]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"✓ configured validate.commands[19]: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js\",\"  adversarial-review-verifier smoke passed: 68 assertions\",\"✓ configured validate.commands[20]: node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"  adversarial-review-critic smoke passed: 52 assertions\",\"✓ configured validate.commands[21]: node packages/main/dist/tasks/adversarial-review-round-smoke.js\",\"  adversarial-review-round smoke passed: 77 assertions\",\"✓ configured validate.commands[22]: node packages/main/dist/tasks/material-hash-large-tree-smoke.js\",\"  fixture ls-tree -r -z HEAD byte length: 1116073 (> 1048576 = 1 MiB) across 6000 files\",\"  material-hash-large-tree smoke passed\",\"✓ configured validate.commands[23]: node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js\",\"  lifecycle_orchestrate smoke passed\",\"✓ configured validate.commands[24]: node packages/main/dist/tasks/init-preflight-smoke.js\",\"  init_preflight smoke passed\",\"✓ configured validate.commands[25]: node packages/main/dist/tasks/english-early-check-smoke.js\",\"  ok: story_create refuses CJK background before persistence\",\"  ok: story_create refuses CJK checklist title/context before persistence\",\"  ok: English story_create succeeds with em dash punctuation\",\"  ok: background_set refuses CJK before writing\",\"  ok: early authoring check and english-artifact gate agree on containsCJK\",\"  english-early-check smoke passed\",\"✓ configured validate.commands[26]: node packages/main/dist/tasks/quorum-submit-smoke.js\",\"  ✓ refuses when required reviewer passes are absent and writes no verdicts\",\"    ✓ refuses when reviewer passes are stale and writes no verdicts\",\"    ✓ emits exactly rounds x 2 verdicts after current reviewer passes\",\"    ✓ review_escalation_status and review assurance floor report complete voluntary 3x2 rounds\",\"    ✓ auto-computed materialDigest and storyFilesHash match current helpers\",\"    ✓ hosts are independent by hostId, sessionId, and keyId\",\"    ✓ never sets authorityDone, fullAuthorityDone, or productionDone\",\"    ✓ refuses a same-material re-submit and writes no new verdicts\",\"    ✓ allows a fresh quorum after a material change\",\"    ✓ --rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds\",\"    ✓ rejects non-independent host identity before writing additional verdicts\",\"  ✓ quorum_submit smoke passed (11 checks)\",\"✓ configured validate.commands[27]: node packages/main/dist/tasks/receipt-bundle-contract-smoke.js\",\"  [lying-agent] stale done/pass REJECTED reason=stale\",\"    [lying-agent] forged done/pass REJECTED reason=signature_invalid\",\"    [self-check] receipt exitCode:1 REJECTED reason=receipt_not_passing; hostVerdicts.push(null) REJECTED reason=malformed_bundle\",\"    [ACCEPT] authentic (control)    reason=ok\",\"    [REJECT] code-byte-flip         reason=stale\",\"    [REJECT] evidence-edit          reason=signature_invalid\",\"    [REJECT] host-verdict-swap      reason=signature_invalid\",\"    [REJECT] commandSet-change      reason=signature_invalid\",\"    [REJECT] stale-materialHash     reason=stale\",\"    [REJECT] forged-signature       reason=signature_invalid\",\"    [REJECT] missing-signature      reason=signature_missing\",\"    [REJECT] missing-build-proof    reason=build_proof_missing\",\"    [REJECT] binding-incomplete     reason=binding_incomplete\",\"    [REJECT] digest-malformed       reason=digest_mismatch\",\"    [REJECT] decision-fail          reason=decision_not_pass\",\"    [REJECT] receipt-exit-1         reason=receipt_not_passing\",\"    [REJECT] receipt-exit-neg1      reason=receipt_not_passing\",\"    [REJECT] receipt-empty-cmd      reason=receipt_not_passing\",\"    [REJECT] hostverdict-null       reason=malformed_bundle\",\"    [REJECT] decision-null          reason=malformed_bundle\",\"    [REJECT] extra-key              reason=malformed_bundle\",\"    [REJECT] signer-key-mismatch    reason=signer_key_mismatch\",\"  ✓ receipt-bundle contract smoke passed: authentic ACCEPTED; 18 tamper classes REJECTED (every reason code reached); lying-agent + soundness-hole self-checks rejected; 0 false-accept, 0 false-reject\",\"✓ configured validate.commands[28]: node packages/main/dist/tasks/gate-strength-contract-smoke.js\",\"  ✓ test-only reviewer: catchRate 0, falseShip = wrongTotal (ships every wrong probe)\",\"    ✓ block-all reviewer: catchRate 1.0 BUT falseBlock = genuineTotal (catchRate alone is gameable)\",\"    ✓ oracle reviewer: catchRate 1.0, falseShip 0, falseBlock 0, names each defect\",\"    ✓ oracle DOMINATES: beats test-only on catchRate AND beats block-all on falseBlock\",\"    ✓ runGateStrength REJECTS an all-genuine corpus (catch-rate is undefined)\",\"    ✓ runGateStrength REJECTS a corpus that violates the defectKind<->genuine invariant\",\"    ✓ gate-strength receipt verifies offline (ACCEPTED) against matching materialHash\",\"    ✓ tampering a signed bundle field is REJECTED (signature_invalid)\",\"    ✓ a stale receipt (old materialHash) is REJECTED\",\"    ✓ verifyGateStrengthResult: the authentic result MATCHES the bound digest\",\"    ✓ verifyGateStrengthResult: a result tampered after the fact does NOT match the receipt\",\"    ✓ verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)\",\"  ✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).\",\"Verification intent coverage: 11/58 covered (43 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — git grep all 8 old koala-* salt strings (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store) in packages/*/src -> zero hits; WHY: confirms literal salt values are fully removed\",\"  ✗ CHK-001:happy:1 [happy/must/cli] missing — git grep all 8 new lattice-* salt strings (lattice-review-integrity-v1, lattice-review-pass-integrity-v1, etc.) in the same files -> each appears exactly where its koala- predecessor did; WHY: confirms rename happened, not just deletion\",\"  ✗ CHK-001:happy:2 [happy/must/cli] missing — run the existing smoke tests that exercise signature verification (guard-utils, machine, process-fact-registry, reviewer-status, story-review, canonical-story, finding-verify, review-run, review-scope-binding, scope-check smokes) -> all pass; WHY: producers and consumers use the same new salt, signatures still verify end-to-end\",\"  ✗ CHK-001:edge:0 [edge/must/cli] missing — sign a gate artifact with the worktree binary after the rename, then verify it with the same binary -> signature valid; WHY: ensures the worktree build itself uses the new salts consistently (no stale dist cache)\",\"  ✗ CHK-001:edge:1 [edge/must/cli] missing — check that no mixed old+new salt pair exists in any single file (e.g. producer writes koala-* but consumer reads lattice-*) -> zero mixed pairs; WHY: partial rename is worse than no rename (silent signature rejection)\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] missing — verify that the residue-gate self-identifiers (KOALA_RESIDUE_* in review-preflight.ts) were NOT renamed by this item -- they must still say koala -> grep confirms KOALA_RESIDUE_* unchanged; WHY: renaming the gate that detects koala residue would break the residue gate itself (story 4 scope)\",\"  ✗ CHK-001:adversarial:1 [adversarial/must/logic] missing — attempt to verify an artifact signed with the OLD koala-* salt using the new binary -> verification fails (rejects old salt); WHY: ensures no backward-compat path that silently accepts old signatures\",\"  ✗ CHK-001:adversarial:2 [adversarial/must/cli] missing — check .lattice/story/ files are untouched (no salt rename leaked into story metadata or persisted evidence) -> git diff shows zero changes in .lattice/story/; WHY: story metadata uses different serialization; touching it would corrupt audit trail\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — git grep bin/koala.js and bin/koala-codex.js in core/managed-assets.ts -> zero hits; the excluded-path denylist entries are removed; WHY: confirms legacy binary denylist is deleted\",\"  ✗ CHK-002:happy:1 [happy/must/cli] missing — git grep @koala-agent in packages/*/src -> zero hits; the old-global-install detection logic is gone; WHY: confirms old-install migration detection removed\",\"  ✗ CHK-002:happy:2 [happy/must/cli] missing — flow-stability-smoke.ts, worktree-repair-smoke.ts, lattice-only-absence-smoke.ts still compile and pass after removing the @koala-agent absence assertions -> npm test passes for those files; WHY: deletion of moot assertions must not break the rest of the smoke\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — grep for .lattice-codex/koala.json in managed-assets.ts -> zero hits; WHY: this was part of the denylist alongside the binaries and must also be removed\",\"  ✗ CHK-002:edge:1 [edge/must/cli] missing — grep for isKoalaSelfRepoBootstrap in packages/*/src -> zero hits OR renamed to lattice equivalent; WHY: if this function was load-bearing self-repo detection, it must be renamed not silently deleted (story understanding unknown #1)\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] missing — verify that removing the absence assertions did not remove UNRELATED assertions from the same smoke files -- diff the smoke files and confirm only koala-related lines were deleted; WHY: bulk deletion can accidentally strip genuine test coverage\",\"  ✗ CHK-002:adversarial:1 [adversarial/must/logic] missing — verify managed-assets.ts still has its non-koala excluded-path entries intact after the koala entries are removed -> the array still contains its other legitimate entries; WHY: deleting array entries can cause off-by-one or accidentally remove neighbors\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — git grep -i koala-codex in packages/*/src -> zero hits; WHY: all koala-codex references cleaned\",\"  ✗ CHK-003:happy:1 [happy/must/cli] missing — git grep -i koala-agent in packages/*/src -> zero hits (after CHK-002 also removes its portion); WHY: all koala-agent references cleaned\",\"  ✗ CHK-003:happy:2 [happy/must/cli] missing — git grep -i koala -- packages/*/src -> only review-preflight.ts KOALA_RESIDUE_* lines remain; WHY: comprehensive stray-literal sweep is done, only story-4 deferred identifiers survive\",\"  ✗ CHK-003:edge:0 [edge/must/cli] missing — grep for koala in string literals AND comments (not just identifiers) across packages/*/src -> only KOALA_RESIDUE_* in review-preflight.ts; WHY: comments containing koala are also in-scope for this story (they leak brand name)\",\"  ✗ CHK-003:edge:1 [edge/should/cli] missing — check that renamed references (koala->lattice) in comments/strings still make semantic sense after mechanical replacement -- no broken URLs, no nonsensical text; WHY: blind find-replace can produce gibberish (e.g. lattice-codex where it was a proper noun reference)\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] missing — verify docs/experiments/ and .lattice/story/ directories have zero changes from this item -> git diff shows no modifications there; WHY: story description explicitly says docs/experiments and .lattice/story are untouched; cleaning stray literals must not leak into documentation or story metadata\",\"  ✗ CHK-003:adversarial:1 [adversarial/must/logic] missing — verify that no functional logic was removed alongside stray koala literals -- diff each changed file and confirm only string/comment tokens changed, not control flow; WHY: a stray literal cleanup must be cosmetic, not behavioral\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — npx tsc --noEmit -> exit 0, zero type errors; WHY: build must be clean after all renames/deletions\",\"  ✗ CHK-004:happy:1 [happy/must/cli] missing — npm test (packages/main suite, skipping pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) -> all non-skipped tests pass; WHY: suite must remain green\",\"  ✗ CHK-004:happy:2 [happy/must/cli] missing — node scripts/verify-koala-residue.mjs -> PASS; WHY: the residue gate itself must still function (it detects unauthorized koala references)\",\"  ✗ CHK-004:happy:3 [happy/must/cli] missing — git grep -i koala -- packages/*/src -> output contains ONLY review-preflight.ts KOALA_RESIDUE_* lines; WHY: the acceptance criterion -- zero koala except deferred gate self-ID\",\"  ✗ CHK-004:edge:0 [edge/must/cli] missing — run verify-koala-residue.mjs self-test mode -> self-test passes; WHY: the gate must be able to detect a future koala reintroduction (self-test injects a fake violation and checks the gate catches it)\",\"  ✗ CHK-004:edge:1 [edge/should/cli] missing — git grep -i koala -- docs/ experiments/ -> hits are allowed (docs are out of scope) but verify they exist as expected baseline; WHY: ensures the grep scope boundary is correctly drawn at packages/*/src\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/cli] missing — temporarily inject a koala-* salt string into a packages/*/src file, run verify-koala-residue.mjs -> gate FAILS (detects the injection); then revert; WHY: proves the residue gate is still functional after all the renames -- it would catch a regression\",\"  ✗ CHK-004:adversarial:1 [adversarial/must/cli] missing — verify .lattice/story/ files are unchanged by the entire story (across all CHK items) -> git diff .lattice/story/ shows no modifications to story metadata; WHY: story metadata must not be collateral damage\",\"  ✗ CHK-004:adversarial:2 [adversarial/must/cli] missing — verify no koala-* salt strings appear in the built dist/ output (if dist is committed) -> grep the dist for old salts returns zero; WHY: a stale dist cache could re-introduce old salts at runtime even if source is clean\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — git grep idleKoala in packages/*/src -> zero hits; replacement field (idleLattice or equivalent) exists; WHY: config field renamed, not just deleted\",\"  ✗ CHK-005:happy:1 [happy/must/cli] missing — git grep koala.config.json in packages/*/src -> zero hits; replacement filename (lattice.config.json or equivalent) exists in the same code paths; WHY: filename reference renamed\",\"  ✗ CHK-005:happy:2 [happy/must/cli] missing — git grep koalaConfig in packages/*/src -> zero hits; replacement identifier (latticeConfig or equivalent) exists; WHY: identifier renamed\",\"  ✗ CHK-005:edge:0 [edge/must/cli] missing — verify NO read-fallback for koala.config.json exists (no code that tries lattice.config.json then falls back to koala.config.json) -> grep for both filenames in same function shows no fallback; WHY: story explicitly says no-compat, old config is not migrated\",\"  ✗ CHK-005:edge:1 [edge/must/cli] missing — verify the config schema/type definitions are updated to use the new field names -> TypeScript interfaces reference idleLattice (or equivalent), not idleKoala; WHY: type definitions must match runtime field names\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/cli] missing — search for any koala substring in config-related files (case-insensitive) that might have been missed by the targeted renames -> zero hits outside KOALA_RESIDUE_*; WHY: there may be derivative identifiers (e.g. parseKoalaConfig, KOALA_CONFIG_PATH) not captured by the three named targets\",\"  ✗ CHK-005:adversarial:1 [adversarial/must/cli] missing — verify that test fixtures and smoke tests that previously referenced idleKoala/koala.config.json/koalaConfig have been updated to use the new names -> tests still pass, no test is asserting the OLD name; WHY: a test asserting the old name would pass vacuously if the feature under test was deleted rather than renamed\",\"  ✗ CHK-006:happy:0 [happy/must/cli] missing — git grep \\\\.koala/ in packages/*/src -> zero hits; all .koala/ path references replaced with .lattice/ (or canonical runtime dir); WHY: confirms the path rename is complete\",\"  ✗ CHK-006:happy:1 [happy/must/cli] missing — grep for the new .lattice/ path references in the same files that previously had .koala/ -> each file has its replacement; WHY: confirms rename, not just deletion of path references\",\"  ✗ CHK-006:happy:2 [happy/must/cli] missing — code that READS from the runtime dir (e.g. activity.jsonl, tool-status) uses .lattice/ path -> unit/smoke tests pass; WHY: reads from the new path must work\",\"  ✗ CHK-006:edge:0 [edge/must/cli] missing — verify no code still WRITES to .koala/ -- grep for .koala in combination with write/create/append/writeFile/fs.write patterns -> zero hits; WHY: a missed write would silently split runtime data between .koala/ and .lattice/, causing data loss (story understanding unknown #3)\",\"  ✗ CHK-006:edge:1 [edge/should/cli] missing — verify path references in COMMENTS are also updated (not just string literals) -> grep for .koala in all comment patterns returns zero; WHY: stale comments mislead future developers about the actual runtime path\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/cli] missing — verify that no backward-compat migration from .koala/ to .lattice/ was added (no code that copies/moves .koala/* to .lattice/*) -> zero migration logic exists; WHY: story explicitly says no-compat, existing .koala/ data is orphaned, OSS users start fresh\",\"  ✗ CHK-006:adversarial:1 [adversarial/must/logic] missing — verify .koala/ does not appear in any path-construction helper or constant (e.g. RUNTIME_DIR, getDataDir) that could dynamically produce .koala/ paths even if the literal is not grep-visible -> inspect the path constants and confirm they reference .lattice/; WHY: a constant like KOALA_DIR = \\\".koala\\\" renamed only at usage sites but not at definition would still produce .koala/ paths at runtime\",\"  ✗ CHK-006:adversarial:2 [adversarial/must/cli] missing — check that no test fixture or mock creates a .koala/ directory or references it in expected output -> grep test files for .koala -> zero hits outside KOALA_RESIDUE_*; WHY: test fixtures asserting .koala/ paths would either fail (good) or mask a missed rename (bad if the test itself was deleted)\",\"  ✓ CHK-007:happy:0 [happy/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Exit 1 (no matches) confirms literal zero koala references in product runtime source\",\"  ✓ CHK-007:happy:1 [happy/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface\",\"  ✓ CHK-007:happy:2 [happy/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly\",\"  ✓ CHK-007:edge:0 [edge/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy\",\"  ✓ CHK-007:edge:1 [edge/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala intr...\",\"  ✓ CHK-007:edge:2 [edge/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE\",\"  ✓ CHK-007:edge:3 [edge/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed...\",\"  ✓ CHK-007:adversarial:0 [adversarial/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content\",\"  ✓ CHK-007:adversarial:1 [adversarial/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename\",\"  ✓ CHK-007:adversarial:2 [adversarial/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI\",\"  ✓ CHK-007:adversarial:3 [adversarial/should/manual] covered via manual_transcript — Reconstructed from manual_transcript evidence: Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koa...\",\"  ⚠ CHK-007:adversarial:4 [adversarial/should/manual] weak via manual_transcript — Reconstructed from manual_transcript evidence: Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent\",\"\",\"Evidence quality warnings:\",\"  [BLOCKING] CHK-007:adversarial:4: command \\\"npx tsc --noEmit\\\" only compiles/builds; no test or assertion signal found (build_only)\"],\"warnings\":[],\"timestamp\":\"2026-06-23T21:11:07.063Z\",\"headSha\":\"69f070543d9ae316c172b15a8797ed0c9ffbe1ad\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice/core@0.3.77 build\\n> tsc\\n\\n\",\"durationMs\":6572},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":183},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":161},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":13899},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":610},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4094},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-focused-full-layering-smoke.js\"],\"code\":0,\"output\":\"validate-focused-full-layering smoke passed: 10 assertions\\n\",\"durationMs\":356},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/main-sync-readiness-smoke.js\"],\"code\":0,\"output\":\"main-sync-readiness smoke passed\\n\",\"durationMs\":1228},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js\"],\"code\":0,\"output\":\"✓ codex adapter gate scope smoke passed: provider-only Codex text ignored; adapter surfaces required\\n\",\"durationMs\":83},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":3402},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-freshness-smoke.js\"],\"code\":0,\"output\":\"done-required-freshness smoke passed\\n\",\"durationMs\":451},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-head-drift-proof.js\"],\"code\":0,\"output\":\"done-required-head-drift-proof passed\\n{\\n  \\\"status\\\": \\\"PASS\\\",\\n  \\\"proof\\\": \\\"DONE-required metadata-only HEAD drift is non-blocking (deadlock fixed)\\\",\\n  \\\"rounds\\\": 3,\\n  \\\"headDriftFreshRounds\\\": 3,\\n  \\\"materialDriftBlockedRounds\\\": 3,\\n  \\\"slowCommandMs\\\": 800,\\n  \\\"averages\\\": {\\n    \\\"firstRunMs\\\": 984,\\n    \\\"postMetadataEvalMs\\\": 30\\n  },\\n  \\\"results\\\": [\\n    {\\n      \\\"round\\\": 1,\\n      \\\"firstRunMs\\\": 986,\\n      \\\"postMetadataEvalMs\\\": 30,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    },\\n    {\\n      \\\"round\\\": 2,\\n      \\\"firstRunMs\\\": 983,\\n      \\\"postMetadataEvalMs\\\": 29,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    },\\n    {\\n      \\\"round\\\": 3,\\n      \\\"firstRunMs\\\": 984,\\n      \\\"postMetadataEvalMs\\\": 30,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    }\\n  ]\\n}\\n\",\"durationMs\":3920},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":141},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":76},{\"label\":\"configured validate.commands[14]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":83},{\"label\":\"configured validate.commands[15]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":90},{\"label\":\"configured validate.commands[16]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":1440},{\"label\":\"configured validate.commands[17]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":75},{\"label\":\"configured validate.commands[18]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":86},{\"label\":\"configured validate.commands[19]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-verifier-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-verifier smoke passed: 68 assertions\\n\",\"durationMs\":79},{\"label\":\"configured validate.commands[20]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-critic-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-critic smoke passed: 52 assertions\\n\",\"durationMs\":87},{\"label\":\"configured validate.commands[21]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-round-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-round smoke passed: 77 assertions\\n\",\"durationMs\":82},{\"label\":\"configured validate.commands[22]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/material-hash-large-tree-smoke.js\"],\"code\":0,\"output\":\"fixture ls-tree -r -z HEAD byte length: 1116073 (> 1048576 = 1 MiB) across 6000 files\\nmaterial-hash-large-tree smoke passed\\n\",\"durationMs\":24011},{\"label\":\"configured validate.commands[23]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/lifecycle-orchestrate-smoke.js\"],\"code\":0,\"output\":\"lifecycle_orchestrate smoke passed\\n\",\"durationMs\":7274},{\"label\":\"configured validate.commands[24]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-preflight-smoke.js\"],\"code\":0,\"output\":\"init_preflight smoke passed\\n\",\"durationMs\":579},{\"label\":\"configured validate.commands[25]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/english-early-check-smoke.js\"],\"code\":0,\"output\":\"ok: story_create refuses CJK background before persistence\\nok: story_create refuses CJK checklist title/context before persistence\\nok: English story_create succeeds with em dash punctuation\\nok: background_set refuses CJK before writing\\nok: early authoring check and english-artifact gate agree on containsCJK\\nenglish-early-check smoke passed\\n\",\"durationMs\":2022},{\"label\":\"configured validate.commands[26]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/quorum-submit-smoke.js\"],\"code\":0,\"output\":\"  ✓ refuses when required reviewer passes are absent and writes no verdicts\\n  ✓ refuses when reviewer passes are stale and writes no verdicts\\n  ✓ emits exactly rounds x 2 verdicts after current reviewer passes\\n  ✓ review_escalation_status and review assurance floor report complete voluntary 3x2 rounds\\n  ✓ auto-computed materialDigest and storyFilesHash match current helpers\\n  ✓ hosts are independent by hostId, sessionId, and keyId\\n  ✓ never sets authorityDone, fullAuthorityDone, or productionDone\\n  ✓ refuses a same-material re-submit and writes no new verdicts\\n  ✓ allows a fresh quorum after a material change\\n  ✓ --rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds\\n  ✓ rejects non-independent host identity before writing additional verdicts\\n\\n✓ quorum_submit smoke passed (11 checks)\\n\",\"durationMs\":12807},{\"label\":\"configured validate.commands[27]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/receipt-bundle-contract-smoke.js\"],\"code\":0,\"output\":\"  [lying-agent] stale done/pass REJECTED reason=stale\\n  [lying-agent] forged done/pass REJECTED reason=signature_invalid\\n  [self-check] receipt exitCode:1 REJECTED reason=receipt_not_passing; hostVerdicts.push(null) REJECTED reason=malformed_bundle\\n  [ACCEPT] authentic (control)    reason=ok\\n  [REJECT] code-byte-flip         reason=stale\\n  [REJECT] evidence-edit          reason=signature_invalid\\n  [REJECT] host-verdict-swap      reason=signature_invalid\\n  [REJECT] commandSet-change      reason=signature_invalid\\n  [REJECT] stale-materialHash     reason=stale\\n  [REJECT] forged-signature       reason=signature_invalid\\n  [REJECT] missing-signature      reason=signature_missing\\n  [REJECT] missing-build-proof    reason=build_proof_missing\\n  [REJECT] binding-incomplete     reason=binding_incomplete\\n  [REJECT] digest-malformed       reason=digest_mismatch\\n  [REJECT] decision-fail          reason=decision_not_pass\\n  [REJECT] receipt-exit-1         reason=receipt_not_passing\\n  [REJECT] receipt-exit-neg1      reason=receipt_not_passing\\n  [REJECT] receipt-empty-cmd      reason=receipt_not_passing\\n  [REJECT] hostverdict-null       reason=malformed_bundle\\n  [REJECT] decision-null          reason=malformed_bundle\\n  [REJECT] extra-key              reason=malformed_bundle\\n  [REJECT] signer-key-mismatch    reason=signer_key_mismatch\\n✓ receipt-bundle contract smoke passed: authentic ACCEPTED; 18 tamper classes REJECTED (every reason code reached); lying-agent + soundness-hole self-checks rejected; 0 false-accept, 0 false-reject\\n\",\"durationMs\":86},{\"label\":\"configured validate.commands[28]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/gate-strength-contract-smoke.js\"],\"code\":0,\"output\":\"  ✓ test-only reviewer: catchRate 0, falseShip = wrongTotal (ships every wrong probe)\\n  ✓ block-all reviewer: catchRate 1.0 BUT falseBlock = genuineTotal (catchRate alone is gameable)\\n  ✓ oracle reviewer: catchRate 1.0, falseShip 0, falseBlock 0, names each defect\\n  ✓ oracle DOMINATES: beats test-only on catchRate AND beats block-all on falseBlock\\n  ✓ runGateStrength REJECTS an all-genuine corpus (catch-rate is undefined)\\n  ✓ runGateStrength REJECTS a corpus that violates the defectKind<->genuine invariant\\n  ✓ gate-strength receipt verifies offline (ACCEPTED) against matching materialHash\\n  ✓ tampering a signed bundle field is REJECTED (signature_invalid)\\n  ✓ a stale receipt (old materialHash) is REJECTED\\n  ✓ verifyGateStrengthResult: the authentic result MATCHES the bound digest\\n  ✓ verifyGateStrengthResult: a result tampered after the fact does NOT match the receipt\\n  ✓ verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)\\n\\n✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).\\n\",\"durationMs\":81}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":58,\"reason\":\"verificationIntent entries present (58)\"},\"verificationCoverage\":{\"total\":58,\"required\":43,\"covered\":11,\"missingRequired\":43,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"git grep all 8 old koala-* salt strings (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store) in packages/*/src -> zero hits; WHY: confirms literal salt values are fully removed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"git grep all 8 new lattice-* salt strings (lattice-review-integrity-v1, lattice-review-pass-integrity-v1, etc.) in the same files -> each appears exactly where its koala- predecessor did; WHY: confirms rename happened, not just deletion\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"run the existing smoke tests that exercise signature verification (guard-utils, machine, process-fact-registry, reviewer-status, story-review, canonical-story, finding-verify, review-run, review-scope-binding, scope-check smokes) -> all pass; WHY: producers and consumers use the same new salt, signatures still verify end-to-end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"sign a gate artifact with the worktree binary after the rename, then verify it with the same binary -> signature valid; WHY: ensures the worktree build itself uses the new salts consistently (no stale dist cache)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"check that no mixed old+new salt pair exists in any single file (e.g. producer writes koala-* but consumer reads lattice-*) -> zero mixed pairs; WHY: partial rename is worse than no rename (silent signature rejection)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"verify that the residue-gate self-identifiers (KOALA_RESIDUE_* in review-preflight.ts) were NOT renamed by this item -- they must still say koala -> grep confirms KOALA_RESIDUE_* unchanged; WHY: renaming the gate that detects koala residue would break the residue gate itself (story 4 scope)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"attempt to verify an artifact signed with the OLD koala-* salt using the new binary -> verification fails (rejects old salt); WHY: ensures no backward-compat path that silently accepts old signatures\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"check .lattice/story/ files are untouched (no salt rename leaked into story metadata or persisted evidence) -> git diff shows zero changes in .lattice/story/; WHY: story metadata uses different serialization; touching it would corrupt audit trail\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"git grep bin/koala.js and bin/koala-codex.js in core/managed-assets.ts -> zero hits; the excluded-path denylist entries are removed; WHY: confirms legacy binary denylist is deleted\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"git grep @koala-agent in packages/*/src -> zero hits; the old-global-install detection logic is gone; WHY: confirms old-install migration detection removed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"flow-stability-smoke.ts, worktree-repair-smoke.ts, lattice-only-absence-smoke.ts still compile and pass after removing the @koala-agent absence assertions -> npm test passes for those files; WHY: deletion of moot assertions must not break the rest of the smoke\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep for .lattice-codex/koala.json in managed-assets.ts -> zero hits; WHY: this was part of the denylist alongside the binaries and must also be removed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep for isKoalaSelfRepoBootstrap in packages/*/src -> zero hits OR renamed to lattice equivalent; WHY: if this function was load-bearing self-repo detection, it must be renamed not silently deleted (story understanding unknown #1)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"verify that removing the absence assertions did not remove UNRELATED assertions from the same smoke files -- diff the smoke files and confirm only koala-related lines were deleted; WHY: bulk deletion can accidentally strip genuine test coverage\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"verify managed-assets.ts still has its non-koala excluded-path entries intact after the koala entries are removed -> the array still contains its other legitimate entries; WHY: deleting array entries can cause off-by-one or accidentally remove neighbors\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"git grep -i koala-codex in packages/*/src -> zero hits; WHY: all koala-codex references cleaned\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"git grep -i koala-agent in packages/*/src -> zero hits (after CHK-002 also removes its portion); WHY: all koala-agent references cleaned\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"git grep -i koala -- packages/*/src -> only review-preflight.ts KOALA_RESIDUE_* lines remain; WHY: comprehensive stray-literal sweep is done, only story-4 deferred identifiers survive\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"grep for koala in string literals AND comments (not just identifiers) across packages/*/src -> only KOALA_RESIDUE_* in review-preflight.ts; WHY: comments containing koala are also in-scope for this story (they leak brand name)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"check that renamed references (koala->lattice) in comments/strings still make semantic sense after mechanical replacement -- no broken URLs, no nonsensical text; WHY: blind find-replace can produce gibberish (e.g. lattice-codex where it was a proper noun reference)\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"verify docs/experiments/ and .lattice/story/ directories have zero changes from this item -> git diff shows no modifications there; WHY: story description explicitly says docs/experiments and .lattice/story are untouched; cleaning stray literals must not leak into documentation or story metadata\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"verify that no functional logic was removed alongside stray koala literals -- diff each changed file and confirm only string/comment tokens changed, not control flow; WHY: a stray literal cleanup must be cosmetic, not behavioral\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"npx tsc --noEmit -> exit 0, zero type errors; WHY: build must be clean after all renames/deletions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"npm test (packages/main suite, skipping pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) -> all non-skipped tests pass; WHY: suite must remain green\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"node scripts/verify-koala-residue.mjs -> PASS; WHY: the residue gate itself must still function (it detects unauthorized koala references)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:3\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"git grep -i koala -- packages/*/src -> output contains ONLY review-preflight.ts KOALA_RESIDUE_* lines; WHY: the acceptance criterion -- zero koala except deferred gate self-ID\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"run verify-koala-residue.mjs self-test mode -> self-test passes; WHY: the gate must be able to detect a future koala reintroduction (self-test injects a fake violation and checks the gate catches it)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"git grep -i koala -- docs/ experiments/ -> hits are allowed (docs are out of scope) but verify they exist as expected baseline; WHY: ensures the grep scope boundary is correctly drawn at packages/*/src\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"temporarily inject a koala-* salt string into a packages/*/src file, run verify-koala-residue.mjs -> gate FAILS (detects the injection); then revert; WHY: proves the residue gate is still functional after all the renames -- it would catch a regression\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"verify .lattice/story/ files are unchanged by the entire story (across all CHK items) -> git diff .lattice/story/ shows no modifications to story metadata; WHY: story metadata must not be collateral damage\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"verify no koala-* salt strings appear in the built dist/ output (if dist is committed) -> grep the dist for old salts returns zero; WHY: a stale dist cache could re-introduce old salts at runtime even if source is clean\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"git grep idleKoala in packages/*/src -> zero hits; replacement field (idleLattice or equivalent) exists; WHY: config field renamed, not just deleted\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"git grep koala.config.json in packages/*/src -> zero hits; replacement filename (lattice.config.json or equivalent) exists in the same code paths; WHY: filename reference renamed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:2\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"git grep koalaConfig in packages/*/src -> zero hits; replacement identifier (latticeConfig or equivalent) exists; WHY: identifier renamed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"verify NO read-fallback for koala.config.json exists (no code that tries lattice.config.json then falls back to koala.config.json) -> grep for both filenames in same function shows no fallback; WHY: story explicitly says no-compat, old config is not migrated\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"verify the config schema/type definitions are updated to use the new field names -> TypeScript interfaces reference idleLattice (or equivalent), not idleKoala; WHY: type definitions must match runtime field names\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"search for any koala substring in config-related files (case-insensitive) that might have been missed by the targeted renames -> zero hits outside KOALA_RESIDUE_*; WHY: there may be derivative identifiers (e.g. parseKoalaConfig, KOALA_CONFIG_PATH) not captured by the three named targets\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"verify that test fixtures and smoke tests that previously referenced idleKoala/koala.config.json/koalaConfig have been updated to use the new names -> tests still pass, no test is asserting the OLD name; WHY: a test asserting the old name would pass vacuously if the feature under test was deleted rather than renamed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"git grep \\\\.koala/ in packages/*/src -> zero hits; all .koala/ path references replaced with .lattice/ (or canonical runtime dir); WHY: confirms the path rename is complete\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"grep for the new .lattice/ path references in the same files that previously had .koala/ -> each file has its replacement; WHY: confirms rename, not just deletion of path references\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:2\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"code that READS from the runtime dir (e.g. activity.jsonl, tool-status) uses .lattice/ path -> unit/smoke tests pass; WHY: reads from the new path must work\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"verify no code still WRITES to .koala/ -- grep for .koala in combination with write/create/append/writeFile/fs.write patterns -> zero hits; WHY: a missed write would silently split runtime data between .koala/ and .lattice/, causing data loss (story understanding unknown #3)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"verify path references in COMMENTS are also updated (not just string literals) -> grep for .koala in all comment patterns returns zero; WHY: stale comments mislead future developers about the actual runtime path\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"verify that no backward-compat migration from .koala/ to .lattice/ was added (no code that copies/moves .koala/* to .lattice/*) -> zero migration logic exists; WHY: story explicitly says no-compat, existing .koala/ data is orphaned, OSS users start fresh\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"verify .koala/ does not appear in any path-construction helper or constant (e.g. RUNTIME_DIR, getDataDir) that could dynamically produce .koala/ paths even if the literal is not grep-visible -> inspect the path constants and confirm they reference .lattice/; WHY: a constant like KOALA_DIR = \\\".koala\\\" renamed only at usage sites but not at definition would still produce .koala/ paths at runtime\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:2\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"check that no test fixture or mock creates a .koala/ directory or references it in expected output -> grep test files for .koala -> zero hits outside KOALA_RESIDUE_*; WHY: test fixtures asserting .koala/ paths would either fail (good) or mask a missed rename (bad if the test itself was deleted)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Reconstructed from manual_transcript evidence: Exit 1 (no matches) confirms literal zero koala references in product runtime source\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"git grep -i koala -- packages/*/src/**\",\"result\":\"pass\",\"note\":\"Exit 1 (no matches) confirms literal zero koala references in product runtime source\",\"headHash\":\"6eec1fa11f512731fe30681e39dfc7ec7fccd7dd\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:26.491Z\"}},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Reconstructed from manual_transcript evidence: Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-lattice-residue.mjs\",\"result\":\"pass\",\"note\":\"Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface\",\"headHash\":\"f7a8302863a597ca5007abf79ba63ec7068aed81\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:36.469Z\"}},{\"intentRef\":\"CHK-007:happy:2\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Reconstructed from manual_transcript evidence: Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-lattice-residue.mjs --self-test\",\"result\":\"pass\",\"note\":\"Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly\",\"headHash\":\"29f6a89c676f2be585bd9c16973bc24febc774f8\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:39.112Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Reconstructed from manual_transcript evidence: Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"ls scripts/verify-koala-residue.mjs\",\"result\":\"pass\",\"note\":\"Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy\",\"headHash\":\"ae6c63186232e25e80986984fbf6417501b3ffef\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:47.194Z\"}},{\"intentRef\":\"CHK-007:edge:1\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Reconstructed from manual_transcript evidence: Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala intr...\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"echo koala-test-token > packages/main/src/__residue_inject_test.ts && node scripts/verify-lattice-residue.mjs; rm -f packages/main/src/__residue_inject_test.ts\",\"result\":\"pass\",\"note\":\"Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala introductions\",\"headHash\":\"7bd14394ea83722f50e8575f2e98dcc42dc28f0f\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:52.259Z\"}},{\"intentRef\":\"CHK-007:edge:2\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Reconstructed from manual_transcript evidence: Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"grep -i KOALA_RESIDUE packages/main/src/handlers/review-preflight.ts\",\"result\":\"pass\",\"note\":\"Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE\",\"headHash\":\"4431e8a81eec74e2516eafe1a965c0e156390ed5\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:54.813Z\"}},{\"intentRef\":\"CHK-007:edge:3\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Reconstructed from manual_transcript evidence: Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed...\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"grep -i LATTICE_RESIDUE packages/main/src/handlers/review-preflight.ts\",\"result\":\"pass\",\"note\":\"Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed TO lattice, not deleted\",\"headHash\":\"1defd5581930e02d8615ee61e452c1357376c3cf\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:01:57.509Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Reconstructed from manual_transcript evidence: Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"git grep -i koala -- docs/\",\"result\":\"pass\",\"note\":\"Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content\",\"headHash\":\"a0ae80c1eb0ec541230c6eb1338b28e7a0adc6b2\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:02:06.919Z\"}},{\"intentRef\":\"CHK-007:adversarial:1\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Reconstructed from manual_transcript evidence: Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"git diff --name-only -- .lattice/story/\",\"result\":\"pass\",\"note\":\"Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename\",\"headHash\":\"1790526a3488b11a88749a78f58036b49ebd4d89\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:02:09.520Z\"}},{\"intentRef\":\"CHK-007:adversarial:2\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Reconstructed from manual_transcript evidence: Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"grep test:lattice-residue package.json\",\"result\":\"pass\",\"note\":\"Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI\",\"headHash\":\"61d12c07a375647a1eee6bc6b11e9f0fb3ff1eea\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:02:12.163Z\"}},{\"intentRef\":\"CHK-007:adversarial:3\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Reconstructed from manual_transcript evidence: Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koa...\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:3\",\"kind\":\"manual_transcript\",\"command\":\"grep -i koala-residue packages/main/src/handlers/review-preflight.ts\",\"result\":\"pass\",\"note\":\"Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koala-residue string survives in the preflight\",\"headHash\":\"f9e0d247ac9f15d3d652e61015e7f5f190d6c2ae\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:02:14.854Z\"}},{\"intentRef\":\"CHK-007:adversarial:4\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Reconstructed from manual_transcript evidence: Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent\",\"type\":\"manual\",\"priority\":\"should\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:4\",\"kind\":\"manual_transcript\",\"command\":\"npx tsc --noEmit\",\"result\":\"pass\",\"note\":\"Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent\",\"headHash\":\"fd5849e870da632021133e0a0d9441fb3f7d0c84\",\"materialHash\":\"1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9\",\"storyFilesHash\":\"a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd\",\"timestamp\":\"2026-06-23T21:02:17.478Z\"}}],\"qualityIssues\":[{\"intentRef\":\"CHK-007:adversarial:4\",\"itemId\":\"CHK-007\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npx tsc --noEmit\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":true}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-23T21:11:08.788Z",
+  "headHash": "69f070543d9ae316c172b15a8797ed0c9ffbe1ad",
+  "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+  "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+  "verificationCoverage": {
+    "total": 58,
+    "required": 43,
+    "covered": 11,
+    "missingRequired": 43,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "git grep all 8 old koala-* salt strings (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store) in packages/*/src -> zero hits; WHY: confirms literal salt values are fully removed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "git grep all 8 new lattice-* salt strings (lattice-review-integrity-v1, lattice-review-pass-integrity-v1, etc.) in the same files -> each appears exactly where its koala- predecessor did; WHY: confirms rename happened, not just deletion",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "run the existing smoke tests that exercise signature verification (guard-utils, machine, process-fact-registry, reviewer-status, story-review, canonical-story, finding-verify, review-run, review-scope-binding, scope-check smokes) -> all pass; WHY: producers and consumers use the same new salt, signatures still verify end-to-end",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "sign a gate artifact with the worktree binary after the rename, then verify it with the same binary -> signature valid; WHY: ensures the worktree build itself uses the new salts consistently (no stale dist cache)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "check that no mixed old+new salt pair exists in any single file (e.g. producer writes koala-* but consumer reads lattice-*) -> zero mixed pairs; WHY: partial rename is worse than no rename (silent signature rejection)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "verify that the residue-gate self-identifiers (KOALA_RESIDUE_* in review-preflight.ts) were NOT renamed by this item -- they must still say koala -> grep confirms KOALA_RESIDUE_* unchanged; WHY: renaming the gate that detects koala residue would break the residue gate itself (story 4 scope)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "attempt to verify an artifact signed with the OLD koala-* salt using the new binary -> verification fails (rejects old salt); WHY: ensures no backward-compat path that silently accepts old signatures",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "check .lattice/story/ files are untouched (no salt rename leaked into story metadata or persisted evidence) -> git diff shows zero changes in .lattice/story/; WHY: story metadata uses different serialization; touching it would corrupt audit trail",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "git grep bin/koala.js and bin/koala-codex.js in core/managed-assets.ts -> zero hits; the excluded-path denylist entries are removed; WHY: confirms legacy binary denylist is deleted",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "git grep @koala-agent in packages/*/src -> zero hits; the old-global-install detection logic is gone; WHY: confirms old-install migration detection removed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "flow-stability-smoke.ts, worktree-repair-smoke.ts, lattice-only-absence-smoke.ts still compile and pass after removing the @koala-agent absence assertions -> npm test passes for those files; WHY: deletion of moot assertions must not break the rest of the smoke",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "grep for .lattice-codex/koala.json in managed-assets.ts -> zero hits; WHY: this was part of the denylist alongside the binaries and must also be removed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "grep for isKoalaSelfRepoBootstrap in packages/*/src -> zero hits OR renamed to lattice equivalent; WHY: if this function was load-bearing self-repo detection, it must be renamed not silently deleted (story understanding unknown #1)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "verify that removing the absence assertions did not remove UNRELATED assertions from the same smoke files -- diff the smoke files and confirm only koala-related lines were deleted; WHY: bulk deletion can accidentally strip genuine test coverage",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "verify managed-assets.ts still has its non-koala excluded-path entries intact after the koala entries are removed -> the array still contains its other legitimate entries; WHY: deleting array entries can cause off-by-one or accidentally remove neighbors",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "git grep -i koala-codex in packages/*/src -> zero hits; WHY: all koala-codex references cleaned",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "git grep -i koala-agent in packages/*/src -> zero hits (after CHK-002 also removes its portion); WHY: all koala-agent references cleaned",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "git grep -i koala -- packages/*/src -> only review-preflight.ts KOALA_RESIDUE_* lines remain; WHY: comprehensive stray-literal sweep is done, only story-4 deferred identifiers survive",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "grep for koala in string literals AND comments (not just identifiers) across packages/*/src -> only KOALA_RESIDUE_* in review-preflight.ts; WHY: comments containing koala are also in-scope for this story (they leak brand name)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "check that renamed references (koala->lattice) in comments/strings still make semantic sense after mechanical replacement -- no broken URLs, no nonsensical text; WHY: blind find-replace can produce gibberish (e.g. lattice-codex where it was a proper noun reference)",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "verify docs/experiments/ and .lattice/story/ directories have zero changes from this item -> git diff shows no modifications there; WHY: story description explicitly says docs/experiments and .lattice/story are untouched; cleaning stray literals must not leak into documentation or story metadata",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "verify that no functional logic was removed alongside stray koala literals -- diff each changed file and confirm only string/comment tokens changed, not control flow; WHY: a stray literal cleanup must be cosmetic, not behavioral",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "npx tsc --noEmit -> exit 0, zero type errors; WHY: build must be clean after all renames/deletions",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "npm test (packages/main suite, skipping pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) -> all non-skipped tests pass; WHY: suite must remain green",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "node scripts/verify-koala-residue.mjs -> PASS; WHY: the residue gate itself must still function (it detects unauthorized koala references)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:3",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "git grep -i koala -- packages/*/src -> output contains ONLY review-preflight.ts KOALA_RESIDUE_* lines; WHY: the acceptance criterion -- zero koala except deferred gate self-ID",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "run verify-koala-residue.mjs self-test mode -> self-test passes; WHY: the gate must be able to detect a future koala reintroduction (self-test injects a fake violation and checks the gate catches it)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "git grep -i koala -- docs/ experiments/ -> hits are allowed (docs are out of scope) but verify they exist as expected baseline; WHY: ensures the grep scope boundary is correctly drawn at packages/*/src",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "temporarily inject a koala-* salt string into a packages/*/src file, run verify-koala-residue.mjs -> gate FAILS (detects the injection); then revert; WHY: proves the residue gate is still functional after all the renames -- it would catch a regression",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "verify .lattice/story/ files are unchanged by the entire story (across all CHK items) -> git diff .lattice/story/ shows no modifications to story metadata; WHY: story metadata must not be collateral damage",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "verify no koala-* salt strings appear in the built dist/ output (if dist is committed) -> grep the dist for old salts returns zero; WHY: a stale dist cache could re-introduce old salts at runtime even if source is clean",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "git grep idleKoala in packages/*/src -> zero hits; replacement field (idleLattice or equivalent) exists; WHY: config field renamed, not just deleted",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "git grep koala.config.json in packages/*/src -> zero hits; replacement filename (lattice.config.json or equivalent) exists in the same code paths; WHY: filename reference renamed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:2",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "git grep koalaConfig in packages/*/src -> zero hits; replacement identifier (latticeConfig or equivalent) exists; WHY: identifier renamed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "verify NO read-fallback for koala.config.json exists (no code that tries lattice.config.json then falls back to koala.config.json) -> grep for both filenames in same function shows no fallback; WHY: story explicitly says no-compat, old config is not migrated",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "verify the config schema/type definitions are updated to use the new field names -> TypeScript interfaces reference idleLattice (or equivalent), not idleKoala; WHY: type definitions must match runtime field names",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "search for any koala substring in config-related files (case-insensitive) that might have been missed by the targeted renames -> zero hits outside KOALA_RESIDUE_*; WHY: there may be derivative identifiers (e.g. parseKoalaConfig, KOALA_CONFIG_PATH) not captured by the three named targets",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "verify that test fixtures and smoke tests that previously referenced idleKoala/koala.config.json/koalaConfig have been updated to use the new names -> tests still pass, no test is asserting the OLD name; WHY: a test asserting the old name would pass vacuously if the feature under test was deleted rather than renamed",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "git grep \\.koala/ in packages/*/src -> zero hits; all .koala/ path references replaced with .lattice/ (or canonical runtime dir); WHY: confirms the path rename is complete",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:happy:1",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "grep for the new .lattice/ path references in the same files that previously had .koala/ -> each file has its replacement; WHY: confirms rename, not just deletion of path references",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:happy:2",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "code that READS from the runtime dir (e.g. activity.jsonl, tool-status) uses .lattice/ path -> unit/smoke tests pass; WHY: reads from the new path must work",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "verify no code still WRITES to .koala/ -- grep for .koala in combination with write/create/append/writeFile/fs.write patterns -> zero hits; WHY: a missed write would silently split runtime data between .koala/ and .lattice/, causing data loss (story understanding unknown #3)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:edge:1",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "verify path references in COMMENTS are also updated (not just string literals) -> grep for .koala in all comment patterns returns zero; WHY: stale comments mislead future developers about the actual runtime path",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "verify that no backward-compat migration from .koala/ to .lattice/ was added (no code that copies/moves .koala/* to .lattice/*) -> zero migration logic exists; WHY: story explicitly says no-compat, existing .koala/ data is orphaned, OSS users start fresh",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:adversarial:1",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "verify .koala/ does not appear in any path-construction helper or constant (e.g. RUNTIME_DIR, getDataDir) that could dynamically produce .koala/ paths even if the literal is not grep-visible -> inspect the path constants and confirm they reference .lattice/; WHY: a constant like KOALA_DIR = \".koala\" renamed only at usage sites but not at definition would still produce .koala/ paths at runtime",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:adversarial:2",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "check that no test fixture or mock creates a .koala/ directory or references it in expected output -> grep test files for .koala -> zero hits outside KOALA_RESIDUE_*; WHY: test fixtures asserting .koala/ paths would either fail (good) or mask a missed rename (bad if the test itself was deleted)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Reconstructed from manual_transcript evidence: Exit 1 (no matches) confirms literal zero koala references in product runtime source",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala -- packages/*/src/**",
+          "result": "pass",
+          "note": "Exit 1 (no matches) confirms literal zero koala references in product runtime source",
+          "headHash": "6eec1fa11f512731fe30681e39dfc7ec7fccd7dd",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:26.491Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:1",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Reconstructed from manual_transcript evidence: Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface",
+          "headHash": "f7a8302863a597ca5007abf79ba63ec7068aed81",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:36.469Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:2",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Reconstructed from manual_transcript evidence: Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-lattice-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly",
+          "headHash": "29f6a89c676f2be585bd9c16973bc24febc774f8",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:39.112Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Reconstructed from manual_transcript evidence: Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "ls scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy",
+          "headHash": "ae6c63186232e25e80986984fbf6417501b3ffef",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:47.194Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:1",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Reconstructed from manual_transcript evidence: Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala intr...",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "echo koala-test-token > packages/main/src/__residue_inject_test.ts && node scripts/verify-lattice-residue.mjs; rm -f packages/main/src/__residue_inject_test.ts",
+          "result": "pass",
+          "note": "Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala introductions",
+          "headHash": "7bd14394ea83722f50e8575f2e98dcc42dc28f0f",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:52.259Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:2",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Reconstructed from manual_transcript evidence: Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:2",
+          "kind": "manual_transcript",
+          "command": "grep -i KOALA_RESIDUE packages/main/src/handlers/review-preflight.ts",
+          "result": "pass",
+          "note": "Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE",
+          "headHash": "4431e8a81eec74e2516eafe1a965c0e156390ed5",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:54.813Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:3",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Reconstructed from manual_transcript evidence: Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed...",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:3",
+          "kind": "manual_transcript",
+          "command": "grep -i LATTICE_RESIDUE packages/main/src/handlers/review-preflight.ts",
+          "result": "pass",
+          "note": "Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed TO lattice, not deleted",
+          "headHash": "1defd5581930e02d8615ee61e452c1357376c3cf",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:57.509Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Reconstructed from manual_transcript evidence: Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala -- docs/",
+          "result": "pass",
+          "note": "Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content",
+          "headHash": "a0ae80c1eb0ec541230c6eb1338b28e7a0adc6b2",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:06.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:1",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Reconstructed from manual_transcript evidence: Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only -- .lattice/story/",
+          "result": "pass",
+          "note": "Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename",
+          "headHash": "1790526a3488b11a88749a78f58036b49ebd4d89",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:09.520Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:2",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Reconstructed from manual_transcript evidence: Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "grep test:lattice-residue package.json",
+          "result": "pass",
+          "note": "Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI",
+          "headHash": "61d12c07a375647a1eee6bc6b11e9f0fb3ff1eea",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:12.163Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:3",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Reconstructed from manual_transcript evidence: Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koa...",
+        "type": "manual",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "grep -i koala-residue packages/main/src/handlers/review-preflight.ts",
+          "result": "pass",
+          "note": "Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koala-residue string survives in the preflight",
+          "headHash": "f9e0d247ac9f15d3d652e61015e7f5f190d6c2ae",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:14.854Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:4",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Reconstructed from manual_transcript evidence: Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent",
+        "type": "manual",
+        "priority": "should",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:4",
+          "kind": "manual_transcript",
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "note": "Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent",
+          "headHash": "fd5849e870da632021133e0a0d9441fb3f7d0c84",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:17.478Z"
+        }
+      }
+    ],
+    "qualityIssues": [
+      {
+        "intentRef": "CHK-007:adversarial:4",
+        "itemId": "CHK-007",
+        "weaknessReason": "build_only",
+        "detail": "command \"npx tsc --noEmit\" only compiles/builds; no test or assertion signal found",
+        "blocking": true
+      }
+    ]
+  }
+}

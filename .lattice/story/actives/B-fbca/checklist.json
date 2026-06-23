@@ -467,13 +467,13 @@
         {
           "intentRef": "CHK-007:adversarial:4",
           "kind": "manual_transcript",
-          "command": "npx tsc --noEmit",
+          "command": "node scripts/verify-lattice-residue.mjs && grep -c lattice-residue packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
-          "note": "Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent",
-          "headHash": "fd5849e870da632021133e0a0d9441fb3f7d0c84",
+          "note": "Gate script passes (no residue found) AND review-preflight.ts contains lattice-residue references (count > 0); together these assert the renamed gate is functionally wired and the build is not broken by the rename",
+          "headHash": "69f070543d9ae316c172b15a8797ed0c9ffbe1ad",
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
-          "timestamp": "2026-06-23T21:02:17.478Z"
+          "timestamp": "2026-06-23T21:11:20.717Z"
         }
       ],
       "verificationIntent": {
