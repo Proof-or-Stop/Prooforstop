@@ -792,6 +792,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:17.913Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nE '\\.koala' -- 'packages/*/src/**' | grep -iE 'write|append|create|mkdir|writeFile|fs\\.write'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: no code WRITES to .koala/ — no missed write would silently split runtime data between .koala/ and .lattice/ (no data-loss path)",
+          "headHash": "83fd22ed1b3f905ff22617b6f077da8b25eafab3",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:19.263Z"
         }
       ]
     },
