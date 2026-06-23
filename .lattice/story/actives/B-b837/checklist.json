@@ -817,6 +817,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:50.242Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "docs_check",
+          "command": "grep -rn KOALA_ packages/main/src/",
+          "result": "pass",
+          "note": "Ran the literal grep; the only hits are KOALA_RESIDUE_* in handlers/review-preflight.ts (gate wiring) and retargeted smoke-test comments in usage-ledger-*-smoke.ts that state KOALA_ 'was removed' (not asserting it as valid) — exactly the documented exemptions. No latent KOALA_ token survives.",
+          "headHash": "1e71238e9ecf40ecda0981b9e13bf159911dabb1",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:50.966Z"
         }
       ]
     }
