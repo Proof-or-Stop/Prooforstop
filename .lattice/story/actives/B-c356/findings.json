@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-c356:F-001",
+      "desc": "prompt-consistency: packages/main/templates/agents/lattice-review-quality.md:120 still says reviewers check the following 3 items, but this diff adds item 4 (Proof Metadata Review Coverage); mirrors .claude/agents/lattice-review-quality.md:120 and .lattice-codex/agents/lattice-review-quality.md:120 carry the same contradiction, so agents may treat the new proof metadata rule as outside the required checklist.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T10:19:53.509Z",
+      "reviewRound": "2026-06-23T10:16:12.002Z",
+      "reviewRunId": "B-c356:RR-002",
+      "_hash": "5411012d1f7de0d0e0e5ab14e31d632613f6e5f26e4ed9332ed3e20fa5b029d7",
+      "signatureTag": "missing|unknown|prompt-consistency-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
