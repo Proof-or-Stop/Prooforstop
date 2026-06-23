@@ -139,7 +139,7 @@
       "desc": "[codex-host2 C6] infra-fail scenarios are still counted as real outcomes: runPowered sets infraFail boolean but leaves outcome=classifier output, and the --run amplified denominator includes infra-fail records -> a repeated CLI failure can report e.g. 'SAFE_STOP [infra-fail]' and stay in the tally. FIX: when infraFail, set outcome='infra-fail' and exclude infra-fails from the amplified/scored denominator.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T20:33:38.533Z",
@@ -149,7 +149,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-infra",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:38.507Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-008",
