@@ -49,10 +49,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Self-test: a fake arm that resolves the fault yields OUTCOME.RECOVERED for that (probe,arm,rep) — proves inject->runArm->classify->record wiring (18/18 incl recovered cases).",
-          "headHash": "d07410867fb8158613becb172f1fec65eef80e02",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:51.348Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Self-test loops all 6 probes (B1/B2/B6/B9/B11/B13) with no per-probe special-casing; each yields one outcome per arm — probe-agnostic, reusable for the future 9.",
-          "headHash": "6b6249d32fab5d5e17915aaa0d4213f9b0e5fa47",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:52.587Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Driver makes NO real agent call in --self-test (arm is the injected fake); grep shows run-injection-arms.mjs imports no run-recovery/run-ablation/run-a2prime — hermetic + scope-respecting.",
-          "headHash": "23ef88928418db10bb4712874e34c07c515cc861",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:53.900Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Self-test prints 18/18 PASS (6 probes × {RECOVERED,SAFE_STOP,AMPLIFIED}) + visible pass line, exit 0 — end-to-end wiring proven hermetically, 0 cost.",
-          "headHash": "0d556291b05ba4371048fc9bab0e88e13e02f700",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:55.267Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,10 +141,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Each outcome class exercised via the probe's own selfTestCases builder mutating the workspace, so classify() runs real logic on a real state (not a stub).",
-          "headHash": "db684d5535d443fd4fc0521a5291d06255f88fc8",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:56.408Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,10 +154,10 @@
           "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
           "result": "pass",
           "note": "Adversarial check: feeding b1 the amplified-builder vs recovered-builder yields different classified outcomes (amplified != recovered-to-green) — no rubber-stamping.",
-          "headHash": "1ad8fbcab92c45b5513abd6dfa2ad0903c220ead",
-          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
-          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
-          "timestamp": "2026-06-23T09:57:57.347Z"
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
         }
       ]
     }
