@@ -1,0 +1,35 @@
+{
+  "storyId": "B-d321",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+  ],
+  "protectedFiles": [
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "explicitExcludes": [
+    "Authority Server files",
+    "deployment files",
+    "DONE summary freshness code for baseline item 6",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "PLAN scope for baseline item 5 only: bind delivery-check freshness to materialHash and prove fail-closed stale classification.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T12:28:49.239Z",
+  "updatedAt": "2026-06-23T12:28:49.239Z"
+}
