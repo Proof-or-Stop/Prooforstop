@@ -257,7 +257,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/recovery-runner/run-recovery.mjs",
+          "note": "Both run-recovery.mjs and run-ablation.mjs document spend-match: token+wall-clock NOT call count, ±20% band, token binds first, hard-truncate at upper bound, citing lattice-experiment-protocol.md rev3.1 §1 A2-prime row + §7. Verified via grep of doc terms in both files.",
+          "headHash": "a70d28810e3ba33d2ba73fcb962d2efa7541c2f1",
+          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
+          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
+          "timestamp": "2026-06-23T01:47:25.920Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
