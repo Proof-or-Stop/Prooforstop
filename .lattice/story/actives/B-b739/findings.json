@@ -126,6 +126,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-infra",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-008",
+      "desc": "[codex-host2 C9] the stub runPowered self-check assertions are loose (length vs STATEFUL_SCENARIOS.length, no literal 9 / infraFail-boolean / zero-cost assertion). FIX: assert exactly 9 records, infraFail is boolean, costUsd/tokensSpent===0 for the stub.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T20:33:40.588Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "_hash": "b71b5328ee8b840b1024856ca4522884ad8a0415327dbdff7db785a03d65d997",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-stub",
+      "signatureTagSource": "auto"
     }
   ]
 }
