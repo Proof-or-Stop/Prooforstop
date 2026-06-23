@@ -143,7 +143,70 @@
       "context": "Risk-difference of the primary outcome (H1 section-6 not-amplified; H2 section-5 completion) between A4 and A2prime, with a 95 percent CI from a seeded (deterministic) cluster bootstrap resampling task/scenario clusters to respect within-cell repeat dependence (the in-Node proxy for the section-5 GLMM). Benjamini-Hochberg FDR over the EXPLORATORY per-scenario two-proportion tests; per-scenario tests never primary.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic JSONL with KNOWN A4-vs-A2prime not-amplified rates (e.g. A4=0.80, A2prime=0.40 over 20 common cells, k=5) -> cluster bootstrap risk-difference point estimate approximately 0.40, 95% CI excludes zero; run twice with same seed -> byte-identical CI bounds; WHY: verifies the primary H1 contrast pipeline and seeded determinism",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "BH-FDR over 3+ exploratory per-scenario two-proportion tests with KNOWN p-values (e.g. 0.01, 0.04, 0.20) -> adjusted q-values match the textbook Benjamini-Hochberg step-up procedure; WHY: verifies the FDR correction is correctly implemented",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Cluster bootstrap resamples (task,scenario) clusters WITH all their k repeats, not individual runs -> for a fixture where cluster-resampling gives a WIDER CI than naive run-resampling (designed with high within-cluster correlation), assert the output CI width exceeds the naive width; WHY: the core anti-pseudo-replication property from the pre-reg and decision.json pre-mortem",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Single cluster (1 task, 1 scenario, k=5) -> bootstrap CI degenerates to a point or very narrow interval (all resamples pick the same cluster); no crash; WHY: minimum-cluster boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Contrast where both arms have identical rates (risk-difference = 0) -> CI includes zero; WHY: null-effect boundary must not produce a spuriously significant result",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All exploratory p-values are 1.0 (no signal) -> all BH-adjusted q-values are 1.0, none rejected; WHY: degenerate no-signal FDR case",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Single exploratory test (only 1 scenario) -> BH-FDR with m=1 returns the raw p-value unchanged; WHY: single-test FDR boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the same analysis with two DIFFERENT seeds -> CI bounds differ (the PRNG seed matters); WHY: confirms the bootstrap is actually seeded and not using Math.random or a hardcoded constant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Tamper with the PRNG seed mid-bootstrap (e.g. supply a seed that collides to a constant) -> output still deterministic for that seed; WHY: seed collision must not break reproducibility",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject a fixture where resampling individual runs (pseudo-replication) would make the CI exclude zero, but cluster resampling correctly includes zero -> assert CI includes zero; WHY: the decisive pseudo-replication detection test from decision.json pre-mortem scenario 2",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject NaN p-values into the BH-FDR input -> FDR computation rejects or flags rather than silently sorting NaN into the step-up; WHY: corrupt p-values must not produce silent garbage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
