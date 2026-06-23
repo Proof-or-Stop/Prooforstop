@@ -1,0 +1,56 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-d43f",
+  "status": "PASS",
+  "startedAt": "2026-06-23T20:11:13.031Z",
+  "endedAt": "2026-06-23T20:12:07.656Z",
+  "durationMs": 54625,
+  "headHash": "9c8ce0b076432a0703c7d193844c5e5e63d81c9f",
+  "materialHash": "9d77494e81e2fe028d28f357945f150c4a485a283b88d34f847444e6bb3f64ca",
+  "storyFilesHash": "3490e625a76371f51812f56e9c82bbaf55bc46bd8eea904a9d58131ea5289b5b",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d43f",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 10381,
+      "outputDigest": "b871bcf83f05c580f37c8517603a0d2d8d35a0fe8de3e8159fd601c41e93da37",
+      "outputTail": "\n> @lattice/core@0.3.77 build\n> tsc\n\n",
+      "startedAt": "2026-06-23T20:11:13.031Z",
+      "endedAt": "2026-06-23T20:11:23.413Z",
+      "headHash": "64ab91c5bb60478568c7ce112af6ea186e7a357a",
+      "materialHash": "9d77494e81e2fe028d28f357945f150c4a485a283b88d34f847444e6bb3f64ca",
+      "storyFilesHash": "3490e625a76371f51812f56e9c82bbaf55bc46bd8eea904a9d58131ea5289b5b"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d43f",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 43957,
+      "outputDigest": "44e062bbad3d931c743bc0e040eb0dd493071f812f15c6a7c66e4ab7fc4732f8",
+      "outputTail": "docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\n\n✓ gitroot-cwd-contract smoke passed\n\n> lattice@0.3.77 test:process-fact-contract\n> node scripts/verify-process-fact-contract.mjs\n\nProcess Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 305 (252 CLI, 12 runtime, 10 reviewer lanes, 24 artifacts)\n- levels: L0=121, L1=38, L2=47, L3=4, L4=95\n- kinds: artifact=12, command=205, execution-status=5, finding=3, flow-policy=7, gate-evidence=33, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=12, signed-artifact=12, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\n- registry entries:\n- agent_prompt [L0/command] producer=handlers/agent-prompt\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\n- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\n- artifact:done-required-evidence.json [L4/artifact] producer=handlers/done-required-validation gate=story_advance DONE done-required-validation gate artifact=done-required-evidence.json\n- artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed\n- artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json\n- artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed\n- artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed\n- artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards\n...[truncated 38639 chars]",
+      "startedAt": "2026-06-23T20:11:23.570Z",
+      "endedAt": "2026-06-23T20:12:07.527Z",
+      "headHash": "9c8ce0b076432a0703c7d193844c5e5e63d81c9f",
+      "materialHash": "9d77494e81e2fe028d28f357945f150c4a485a283b88d34f847444e6bb3f64ca",
+      "storyFilesHash": "3490e625a76371f51812f56e9c82bbaf55bc46bd8eea904a9d58131ea5289b5b"
+    }
+  ],
+  "reasons": []
+}
