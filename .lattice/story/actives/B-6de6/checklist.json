@@ -54,7 +54,31 @@
       "context": "So an accumulated prior-submit verdict (stale by both materialHash AND storyFilesHash) cannot create a 'duplicate host/session/key identity' invalid round that forces a brand-new-material re-bind. Only freshness-valid verdicts (current materialHash OR storyFilesHash-matching) participate in a round's identity/validity evaluation; stale ones are filtered out before the duplicate check.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After CHK-001 downgrade: submit two verdicts in same runId -- one fresh (storyFilesHash-matching, materialHash stale, gets downgraded to current) and one truly-stale (both materialHash AND storyFilesHash differ) => the truly-stale verdict is in ignoredVerdicts and the round has exactly 1 passing host (no duplicate-identity error); WHY: the core by-construction claim -- truly-stale verdicts must be filtered before duplicate-identity check",
+            "type": "cli"
+          },
+          {
+            "desc": "Re-bind scenario: prior round verdicts accumulated at materialHash-OLD + storyFilesHash-OLD (truly stale), new round verdicts at materialHash-X + storyFilesHash-S (downgraded to current) => validRounds contains the new round, old verdicts ignored, no duplicate-identity invalid round created; WHY: real-world re-bind after genuine story change followed by whole-tree drift",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Three accumulated verdicts from three different eras: (1) truly-stale (both hashes differ), (2) storyFilesHash-matching (downgraded), (3) current materialHash -- all share same hostId/sessionId/keyId but different runIds => 2 valid rounds from (2)+(3), verdict (1) ignored, no duplicate-identity; WHY: stresses the filter-before-identity-check across three freshness states",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two truly-stale verdicts with SAME hostId/sessionId/keyId in SAME runId (both materialHash and storyFilesHash differ) => both ignored, round does NOT appear as invalid with duplicate-identity reason; WHY: ensures that even multiple stale duplicates in same round cannot poison the identity check",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
