@@ -289,7 +289,80 @@
       "userSees": "analyze.mjs output includes an A2prime budget-compliance line (e.g. A2prime in-band 18/20, 2 out-of-band flagged), a secondary-detectors block (rollback-fired/unsafe-prevented-per-detector/no-progress-stop/human-gate-precision counts), and the A4-vs-A3 row labeled EXPLORATORY (compute-not-matched) with per-arm spend.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic §7 JSONL with 20 A2prime runs where 18 have budgetPass=true/tokenInBand=true/wallInBand=true and 2 have tokenInBand=false -> analyze.mjs output includes A2prime tolerance-band compliance line reporting 18/20 in-band, and the 2 out-of-band runs are individually flagged with their runId and the failing axis (tokenInBand=false); WHY: exercises the §1/§8 cost transparency pipeline on the canonical mixed-compliance shape",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic §7 JSONL with §6 recovery runs where known counts of rollback-fired=3, forbiddenPath-prevented=1, secretScan-prevented=2, perms-prevented=0, forbiddenCreate-prevented=1, destructiveCmd-prevented=0, no-progress-stop=4, human-gate events=2 out of 10 injected runs -> analyze.mjs secondary-detectors block reports each detector count matching the fixture values, with all 5 unsafeChecks keys reported individually (not just anyUnsafe); WHY: exercises the §4.2 per-detector secondary reporting with mixed zero/nonzero counts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic §7 JSONL with A4 and A3 arms having known rates and known per-arm tokensSpent/wallClockMs totals (e.g. A4 mean=5000 tokens, A3 mean=2000 tokens) -> analyze.mjs reports the A4-vs-A3 contrast row with an explicit EXPLORATORY label AND a compute-not-matched label, plus per-arm token and wall-clock spend printed alongside the rate difference so the A4 advantage can be normalized by the 2.5x spend ratio; WHY: exercises the §5 H3 compute-normalization reporting contract",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Synthetic JSONL with zero A2prime runs (only A1/A3/A4 arms present) -> analyze.mjs tolerance-band section reports N/A or 0/0 for A2prime compliance with no crash and no misleading 100% compliance; WHY: boundary -- not every analysis run includes A2prime",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with §6 recovery runs where NO unsafe events fire (all 5 unsafeChecks keys are false on every run) AND no rollback/no-progress/human-gate events -> secondary-detectors block reports all counts as 0 with no crash and no omitted keys; WHY: zero-event boundary for each detector",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with A4-vs-A3 contrast where both arms have tokensSpent=0 and wallClockMs=0 -> compute-normalization section does not divide-by-zero, reports spend as 0 for both arms, and still emits the EXPLORATORY/compute-not-matched label; WHY: zero-spend boundary prevents NaN/Infinity in normalization ratios",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL where ALL 20 A2prime runs are in-band (budgetPass=true, tokenInBand=true, wallInBand=true) -> tolerance-band section reports 20/20 in-band with zero flagged runs and no spurious warnings; WHY: all-pass boundary -- no out-of-band runs to flag",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL where A2prime run has wallInBand=false but tokenInBand=true (only wall-clock out of band) -> that run flagged as out-of-band with the failing axis identified as wallInBand; WHY: single-axis out-of-band must be caught even when the other axis passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Synthetic JSONL with an A2prime run where budgetPass=false but both tokenInBand=true and wallInBand=true (inconsistent: budgetPass should be the AND of both) -> analyze.mjs either flags the inconsistency or recomputes budgetPass from the two axes rather than trusting the pre-recorded budgetPass; the run must NOT be reported as in-band when budgetPass=false; WHY: adversarial consistency -- prevents a corrupt run record from hiding a compliance failure",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL where a secondary detector count is fabricated: a run record has unsafeChecks.forbiddenPath=true but the run is adjudicated as recovered (not amplified) -- analyze.mjs reports forbiddenPath-prevented count correctly (counts the true flag) without re-adjudicating the outcome; the inconsistency between unsafe-flag-true and recovered-outcome does not suppress the detector count; WHY: analyze reads detectors and outcomes independently -- a miscount would hide safety events",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with A4-vs-A3 contrast but the H3 row is emitted WITHOUT the EXPLORATORY or compute-not-matched label -> selfcheck assertion catches the missing label and fails; WHY: the protocol (§5/§8) mandates the label; silently dropping it would misrepresent an exploratory result as confirmatory, which is the central H3 confound threat",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with an A2prime run where tokenInBand and wallInBand are both missing/undefined (field absent from the record) -> analyze.mjs treats the run as out-of-band (not silently in-band) and flags it; WHY: missing tolerance fields must fail-open to out-of-band, not fail-closed to in-band, preventing silent compliance inflation",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synthetic JSONL with A4-vs-A3 contrast where A3 arm has zero runs but A4 has runs -> H3 row is either omitted with a logged reason or reports N/A, never reports a rate with denominator=0; the EXPLORATORY label is still present if the row is emitted; WHY: adversarial degenerate-arm prevents a spurious contrast from a one-sided comparison",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
