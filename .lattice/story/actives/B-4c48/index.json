@@ -2,7 +2,7 @@
   "storyId": "B-4c48",
   "name": "main-sync-readiness-before-review",
   "title": "Surface main-sync readiness before late DONE closure",
-  "description": "Long-running stories can lose time when main has moved and the branch only discovers merge readiness issues during DONE preparation. This story adds an earlier, read-only readiness signal so reviewers and implementers can sync main before REVIEW or late TEST without changing DONE merge authority.",
+  "description": "Long-running stories can lose time when main has moved and the branch only discovers merge readiness issues during DONE preparation. This story adds an earlier, read-only readiness signal so reviewers and implementers can sync main before REVIEW or late TEST without changing DONE merge ownership or lifecycle merge boundaries.",
   "type": "chore",
   "phase": "INIT",
   "priority": "medium",
