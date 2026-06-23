@@ -124,7 +124,7 @@
       },
       "status": "done",
       "startTime": "2026-06-23T00:36:22.609Z",
-      "endTime": "2026-06-23T00:36:36.705Z",
+      "endTime": "2026-06-23T00:53:37.585Z",
       "userSees": "Failure diagnostics say \"runner jobs stream unavailable; falling back to signed claim\" and do not contain \"Authorization\", \"Bearer\", or the configured customer API key value.",
       "files": {
         "modify": [
@@ -145,11 +145,11 @@
           "file": "packages/main/src/core/authority-client.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Jobs stream GET uses the same configured customer API key source as protected Authority reads and keeps provider selection in runnerProvider; smoke verifies codex path without provider-specific shortcut.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:37.137Z"
+          "note": "SSE request still uses configured customer API key source; bounded stream reader returns jobs.available without provider-specific shortcuts.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:38.014Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -158,11 +158,11 @@
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "401, fetch timeout, body-read timeout, malformed data, non-SSE body, and empty snapshots produce jobs_stream fallback diagnostics; redaction assertions prove Authorization, Bearer, and raw customer API key are absent.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:37.516Z"
+          "note": "Fallback diagnostics cover 401, timeouts before/after headers, malformed and non-SSE bodies; redaction assertions keep Authorization, Bearer, and raw customer key out.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:38.321Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,11 +171,11 @@
           "file": "packages/main/src/core/authority-runner.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Runner registration, heartbeat, and signed claim remain required; provider/session/claim ownership boundaries are not bypassed by jobs_stream hints.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:37.912Z"
+          "note": "Runner registration, heartbeat, and signed claim remain required; jobs_stream is only a network event and cannot bypass session/claim ownership.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:38.606Z"
         }
       ]
     },
