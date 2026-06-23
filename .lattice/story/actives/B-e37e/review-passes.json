@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T00:39:56.221Z",
       "reviewRunId": "B-e37e:RR-003",
       "_hash": "6672faf40f0ce97b882fbc160100a99c0d5a30e92a35fca666372a2642170dc9"
+    },
+    {
+      "id": "B-e37e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round 2 test-coverage review verified F-002 and stream parsing coverage. authority-runner-client-smoke covers a long-lived body stream that emits jobs.available and never closes, positive SSE jobIds followed by signed claim {job:null} leaving claimedJobId/releasedJobId null, fallback/redaction cases, and off-mode zero-network behavior. Verified with npm exec -- tsc -p packages/main/tsconfig.json --noEmit and node packages/main/dist/tasks/authority-runner-client-smoke.js.",
+      "createdAt": "2026-06-23T00:58:16.372Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-005",
+      "_hash": "9e3a6eaf5cb0c85aee3cce3c6f6c1a0b2af1ff026ee696a5a90bb4000f51a09d"
     }
   ]
 }
