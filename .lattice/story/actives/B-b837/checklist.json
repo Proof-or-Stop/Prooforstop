@@ -217,6 +217,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:27.113Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "docs_check",
+          "command": "grep -n KOALA packages/main/src/core/dispatch-runner.ts",
+          "result": "pass",
+          "note": "Ran the literal grep on dispatch-runner.ts; zero hits (exit 1). The env passlist contains no KOALA_ prefix — LATTICE_ only.",
+          "headHash": "17eb6a45078a28cafddb5d176b13bcc541d4a404",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:27.830Z"
         }
       ]
     },
