@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T11:48:20.312Z",
       "reviewRunId": "B-f248:RR-001",
       "_hash": "79e0b23f276cb4f857d3bcb070d66724fa613c438946892b3bba9e1cc8e3abbe"
+    },
+    {
+      "id": "B-f248:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Additive-only change (3 new files + README update + package.json). Concept residue checks completed: (1) recovered-to-green: appears in run-driver-selfcheck.mjs only as a NEGATIVE CONTROL (a deliberately invalid enum value passed to validateRecord, which must REJECT it) — that is correct usage and not residue; all other occurrences are in pre-existing files not touched by this story (run-recovery.mjs, injection-probes/probe-contract.mjs, .lattice story metadata); (2) No concept deleted or replaced; (3) ADJUDICATED_OUTCOMES = [amplified, recovered, safe-stop, null] matches §7 exactly; run-driver.mjs correctly delegates to adjudicate.mjs and checks.mjs with zero re-implementation; (4) No duplicate PRNG/shuffle, no duplicate scenario constants, no duplicate arm constants outside run-driver.mjs; (5) A2prime naming is consistent across new files and matches the pre-reg arm label; (6) README promises (pluggable engine, delegation to adjudicate.mjs/checks.mjs, seeded shuffle, denominatorSets, budget-compliance log) are all implemented in run-driver.mjs; (7) run-selfchecks.mjs correctly wires adjudicate-selfcheck, checks-selfcheck, spend-accounting-selfcheck, run-driver-selfcheck — all files exist; (8) selfcheck executed offline: 104 assertions passed, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T11:53:55.479Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-002",
+      "_hash": "e5fa21ca259f5d987cd38d51ae371e867c83cc3793cffbfcd720870d7d568395"
     }
   ]
 }
