@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T12:14:05.631Z",
       "reviewRunId": "B-0c07:RR-005",
       "_hash": "5575d7e4e369d24b32b5ea48b0df81d1216ae254df5854713402431cb0ba74aa"
+    },
+    {
+      "id": "B-0c07:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: all round-1 fixes verified sound. (1) F-001/F-002 CHANGELOG duplicate ### Experiments heading confirmed removed (grep -c gives 1). (2) C2/F-003 parseClaudeResult() returns infraFail:true + reason:non-json-output on JSON.parse failure (catch block, line 53-54). (3) C3/F-004 infra-fail correctly triggered by is_error===true, non-success subtype, and Overloaded/API Error/rate-limit/429/529 regex on result text (line 57). (4) C4/F-005 num() coerces total_cost_usd and all token fields to 0 when not (typeof number && isFinite); string cost->0, string tokens->0 (lines 34, 38-40). makeRealBareArm delegates fully to parseClaudeResult (line 77). --self-check runs deterministically with 0 spend, all assertions pass (confirmed by live run). No dead code, no unused imports, no as-any or swallowed errors found. Only changed files reviewed: experiments/injection-probes/real-arm.mjs and CHANGELOG.md.",
+      "createdAt": "2026-06-23T12:15:45.082Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-006",
+      "_hash": "55f0e190f7ce1ada01086d64d4b9bd55633cd98a00c5f0714dcf9e9518c80280"
     }
   ]
 }
