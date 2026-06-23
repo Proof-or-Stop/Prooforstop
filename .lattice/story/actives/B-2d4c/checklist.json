@@ -359,7 +359,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck runs end-to-end: 70 assertions, exits 0.",
+          "headHash": "05ec3f8b536ede8123ee02b78489e4dcc2bd323e",
+          "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:13:14.006Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
