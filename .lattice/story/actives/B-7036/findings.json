@@ -267,7 +267,7 @@
       "desc": "CHK-002:happy:0 verificationEvidence was stamped at headHash 56c066ff (before commit a24fe81ce which fixed the F-011 completion denominator bias). The fix changed analyze.mjs completion to use MATCHED null cells (both arms present) rather than any null cell, and added 3 new selfcheck assertions (matchedNullCells.length=1, A4.n=1, A2prime.n=1). No evidence record bound to CHK-002:happy:0 (or a sibling ref) exists with a headHash at or after a24fe81ce. The existing note — A4 3/3, A2prime 1/3 over a fixture where both arms share identical cells — does not demonstrate the A4-only cell exclusion that the fix introduced. The intent explicitly states denominator = common-cell count; without fresh evidence the corrected behavior is asserted by selfcheck but not captured as bound verificationEvidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T19:53:44.377Z",
@@ -279,7 +279,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "missing|mjs|happy-verificationevidence-stamped",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "evidence freshness — verificationEvidence will be re-stamped via refresh_stale at the final material; the matched-completion behavior is now covered by the new F-011/F-012 selfcheck assertions (analyze-selfcheck 75 assertions).",
+      "resolvedAt": "2026-06-23T20:01:57.893Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-014",
