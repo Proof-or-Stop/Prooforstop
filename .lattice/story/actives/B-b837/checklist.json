@@ -493,6 +493,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:01.157Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-chk003-prewrite.mjs",
+          "result": "pass",
+          "note": "Called evaluatePathAgainstContract('.koala/file.ts', contract): a .koala path is handled by the SAME generic scope classifier as a clean path (identical verdict under the same contract), proving no isLegacyKoalaWritePath block survives — it does not silently allow nor specially filter.",
+          "headHash": "1078cffc7d0f7a85539545fc514db88f87be2a3a",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:01.945Z"
         }
       ]
     },
