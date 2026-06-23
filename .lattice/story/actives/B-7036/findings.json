@@ -173,6 +173,25 @@
       "resolvedAt": "2026-06-23T19:15:18.823Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7036:F-009",
+      "desc": "doc-code-drift: README Analysis bullet (line 142-144) describes a single glmm.R formula lme4::glmer arm fixed + (1|task)+(1|scenario)+(1|seed), but commit 8f72d105f changed emitGlmmR to emit TWO disjoint models -- H1 (section-6 rows only) with random effects (1|task)+(1|scenario)+(1|seed) and H2 (section-5 null-ablation rows only) with (1|task)+(1|seed) only (no scenario random effect). The README neither mentions the two-model structure nor that H2 omits the scenario random effect. The single-formula claim is now factually wrong for H2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T19:17:43.195Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-010",
+      "_hash": "037f9892c53d095f04de3ccbf5c0115b03b71fcce9b665e2b9d9efa6fae1d161",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-readme",
+      "signatureTagSource": "auto"
     }
   ]
 }
