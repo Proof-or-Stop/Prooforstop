@@ -166,7 +166,51 @@
       "context": "Pure, deterministic, zero claude subprocess",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node experiments/recovery-runner/adjudicate-selfcheck.mjs => exits 0 with all assertions passing; WHY: confirms the selfcheck itself works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck covers each of the 5 detectors individually (at least one positive and one negative test per detector); WHY: ensures detector coverage is not partial",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck covers each of the 3 adjudication rules (amplified, recovered, safe-stop) with at least one test case each; WHY: ensures all outcome paths are exercised",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Selfcheck includes a total-order precedence test: unsafe AND resolved => amplified wins over recovered; WHY: the most critical edge case in the state machine",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a test for new-broken-beyond-reference triggering amplified even with no detector tripped; WHY: this is a non-obvious amplified trigger",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes an enum-value assertion that the output string is exactly recovered (not recovered-to-green); WHY: pins the section 7 vs section 4.2 discrepancy",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Selfcheck does NOT spawn any subprocess (no child_process, no exec, no claude -p); grep the file for child_process/exec/spawn/claude => zero matches; WHY: must be pure offline, no LLM",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck does NOT import node:http, node:https, or fetch => zero matches; WHY: ensures truly offline, no network calls",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a test where all three rules could match (unsafe+resolved+terminal) and asserts amplified wins; WHY: adversarial total-order stress test",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
