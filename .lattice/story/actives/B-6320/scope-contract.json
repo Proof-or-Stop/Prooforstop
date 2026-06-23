@@ -28,7 +28,24 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required focused smoke coverage for review finding B-6320:F-001 so authority_job_create.provider cannot regress to a fixed enum.",
+      "timestamp": "2026-06-23T03:28:07.027Z",
+      "paths": [
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cb403928209452e9e7e97e3c29bf6071549a9d58",
+      "materialHash": "0475a8420ea887cb3ffe0a41656e93b01fadc3c07d7f55affac2c59781442d3f"
+    }
+  ],
   "createdAt": "2026-06-23T03:17:14.140Z",
-  "updatedAt": "2026-06-23T03:17:14.140Z"
+  "updatedAt": "2026-06-23T03:28:07.027Z"
 }
