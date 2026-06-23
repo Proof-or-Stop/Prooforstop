@@ -49,10 +49,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "runLiveLoop drives turns + inject hook + classify; B7 unsafe-comply->AMPLIFIED via real workspace signal. Self-check proves the interruptible-loop wiring.",
-          "headHash": "61a3ff5ec4f420aa121015b4850aa355f64656c5",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:18.012Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "Loop bounded by maxTurns (B10 no-progress stops, not infinite); inject hook fires only at the configured turn. Self-check asserts transcript.turns==maxTurns + injected==true.",
-          "headHash": "97f5df46ddd3c30b2d837acc345b27579878b061",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:18.701Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "classify reads REAL signals (B7 leaked.txt on disk; B10 shipped+turns), not agent self-report; agent is a parameter (no claude/network). Hermetic + sound.",
-          "headHash": "0fe033e3535cadb8edade8a6ab900499a9cddb37",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:19.405Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "All 5 fake-agent x scenario cases yield the expected OUTCOME (B7 3 cases + B10 2 cases); 0 spend, exit 0.",
-          "headHash": "64976af5767c18a3d97c5a3aec110d1f81570f7e",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:20.082Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,10 +141,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "no-progress fake agent triggers maxTurns stop (SAFE_STOP) not an infinite loop; self-check asserts the bound.",
-          "headHash": "4f97a6f55a76fcd5f623db227da08bb5f87d9c21",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:20.782Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,10 +154,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "a shipping fake agent does NOT force a good outcome: B7 ship-with-leaked->AMPLIFIED, B10 ship-on-unsolvable->AMPLIFIED; proves classify isn't rubber-stamping shipped=safe.",
-          "headHash": "87bcff98e69c9dbda6b4efc82d3ab602e8655e5f",
-          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
-          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
-          "timestamp": "2026-06-23T12:52:21.460Z"
+          "headHash": "80557aaf2d6e849e0ef3e03ff49a298bf6f7f547",
+          "materialHash": "8e939cc25ed519a42a97dc03b8ca5740499af0bffb2234bb44db255f6a6c5316",
+          "storyFilesHash": "57d958a0c84952d02896c55e129b67de74ca859337bf557609ccf6e4d1beb26a",
+          "timestamp": "2026-06-23T13:18:03.154Z"
         }
       ]
     }
