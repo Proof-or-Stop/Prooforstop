@@ -143,10 +143,12 @@ The analysis script turns the driver's §7 run-records JSONL into the pre-regist
   and the H3 (A4-vs-A3) contrast labeled **EXPLORATORY / compute-not-matched**;
 - emits a tidy long-format CSV (`<out>.tidy.csv`) + a `glmm.R` for the formal pre-registered
   GLMM (run when R available; the bootstrap is the Node proxy). The `glmm.R` fits **two
-  disjoint `lme4::glmer` models** on separate corpora: **H1** `notAmplified ~ arm +
-  (1|task)+(1|scenario)+(1|seed)` over the §6 scenario rows only, and **H2** `completion ~ arm
-  + (1|task)+(1|seed)` over the §5 null-ablation rows only (the null completion cells are never
-  pooled into the §6 not-amplified model).
+  disjoint `lme4::glmer` models** over the **same matched A4-vs-A2prime common-cell corpus** as
+  the headline rates + bootstrap (the CSV carries `matchedPrimaryH1`/`matchedPrimaryH2` flags):
+  **H1** `notAmplified ~ arm + (1|task)+(1|scenario)+(1|seed)` over the matched §6 cells, and
+  **H2** `completion ~ arm + (1|task)+(1|seed)` over the matched §5 null-ablation cells (null
+  completion cells are never pooled into the §6 model, and arm-only cells are excluded from
+  both). The exploratory per-scenario tests are likewise matched per scenario.
 
 ```sh
 node analyze.mjs <records.jsonl> --seed pre-reg --B 2000 --out analysis-out

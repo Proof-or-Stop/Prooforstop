@@ -238,11 +238,25 @@ group('emit: tidy CSV + glmm.R');
   const r = emitGlmmR();
   ok(/glmer/.test(r) && /lme4/.test(r) && /\(1 ?\| ?task\)/.test(r), 'emit: glmm.R uses lme4 glmer with task random effect');
   ok(/arm/.test(r) && /A2prime/.test(r), 'emit: glmm.R contrasts arm vs A2prime');
-  // F-007: H1 (not-amplified) fits §6 rows ONLY (scenario != null); H2 (completion) fits null
-  // rows ONLY — null completion cells must NOT pool into the §6 not-amplified model.
-  ok(/subset\(d,\s*scenario\s*!=\s*"null"\)/.test(r), 'emit: glmm.R H1 subsets to §6 cells (scenario != null) (F-007)');
-  ok(/subset\(d,\s*scenario\s*==\s*"null"\)/.test(r), 'emit: glmm.R H2 subsets to §5 null-ablation cells (F-007)');
+  // F-007 + F-012/F-014: H1 (not-amplified) and H2 (completion) each fit a DISJOINT corpus, and
+  // (F-012) over the MATCHED A4-vs-A2prime cells (matchedPrimaryH1/H2==1), not all rows.
+  ok(/subset\(d,\s*matchedPrimaryH1\s*==\s*1\)/.test(r), 'emit: glmm.R H1 subsets to matched §6 corpus (matchedPrimaryH1==1) (F-012)');
+  ok(/subset\(d,\s*matchedPrimaryH2\s*==\s*1\)/.test(r), 'emit: glmm.R H2 subsets to matched null corpus (matchedPrimaryH2==1) (F-012)');
   ok(/notAmplified ~ arm/.test(r) && /completion ~ arm/.test(r), 'emit: glmm.R has both H1 not-amplified and H2 completion models');
+  // F-012: the tidy CSV carries the matched-primary flags; a matched cell row is 1, an
+  // arm-only / non-primary-arm row is 0.
+  ok(lines[0].includes('matchedPrimaryH1') && lines[0].includes('matchedPrimaryH2'), 'emit: CSV has matchedPrimaryH1/H2 columns (F-012)');
+  {
+    const recsM = [
+      rec('A4', 't1', 'B1', 1, 'recovered'), rec('A2prime', 't1', 'B1', 1, 'amplified'), // matched §6 cell
+      rec('A4', 't2', 'B1', 1, 'recovered'),                                              // A4-only §6 cell
+    ];
+    const c = emitTidyCsv(recsM).trim().split('\n');
+    const h = c[0].split(','); const iH1 = h.indexOf('matchedPrimaryH1');
+    const row = (rid) => c.find((l) => l.startsWith(rid)).split(',');
+    eq(row('A4-B1-t1-r1')[iH1], '1', 'emit: matched §6 cell row flagged matchedPrimaryH1=1');
+    eq(row('A4-B1-t2-r1')[iH1], '0', 'emit: A4-only §6 cell row flagged matchedPrimaryH1=0 (excluded from GLMM)');
+  }
 }
 
 // =========================================================================================
@@ -270,6 +284,15 @@ group('analyze: end-to-end on a known fixture');
   eq(cres.completionRates.A4_vs_A2prime.matchedNullCells.length, 1, 'analyze: completion matched null cells = 1 (A4-only null cell excluded) (F-011)');
   eq(cres.completionRates.A4_vs_A2prime.A4.n, 1, 'analyze: A4 completion denominator n=1 over matched null cells, NOT 2 (F-011)');
   eq(cres.completionRates.A4_vs_A2prime.A2prime.n, 1, 'analyze: A2prime completion denominator n=1 (matched)');
+  // F-012/F-014: exploratory per-scenario two-proportion tests also use matched cells — an
+  // A4-only task in scenario B1 must NOT inflate A4's per-scenario denominator.
+  const exRecs = [
+    rec('A4', 't1', 'B1', 1, 'recovered'), rec('A2prime', 't1', 'B1', 1, 'amplified'), // matched task t1
+    rec('A4', 't2', 'B1', 1, 'recovered'),                                              // A4-only task t2
+  ];
+  const exres = analyze(exRecs, { seed: 'pre-reg', bootstrapB: 100 });
+  const b1 = exres.exploratory.perScenario.find((e) => e.id === 'B1');
+  eq([b1.a4.n, b1.a2.n], [1, 1], 'analyze: exploratory per-scenario B1 matched (A4 n=1 not 2, A2prime n=1) (F-012)');
   ok(res.h3.label.includes('EXPLORATORY') && res.h3.label.includes('compute-not-matched'), 'analyze: H3 labeled EXPLORATORY/compute-not-matched');
 }
 

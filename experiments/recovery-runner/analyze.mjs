@@ -368,6 +368,11 @@ const CSV_COLUMNS = Object.freeze([
   'runId', 'arm', 'taskId', 'scenarioId', 'repeat', 'modelId', 'adjudicatedOutcome',
   'acceptancePass', 'hiddenRegressionPass', 'diffHygienePass', 'completion', 'notAmplified',
   'tokensSpent', 'wallClockMs', 'agentCallCount', 'budgetPass', 'runOrderSeed',
+  // matched-primary-corpus flags so the formal GLMM (glmm.R) estimates the A4-vs-A2prime
+  // contrast over the SAME matched (both-arms-have-data) cells as the headline rates +
+  // bootstrap (F-012/F-014): matchedPrimaryH1 = §6 not-amplified corpus; matchedPrimaryH2 =
+  // §5 null-ablation completion corpus.
+  'matchedPrimaryH1', 'matchedPrimaryH2',
 ]);
 const csvCell = (v) => {
   if (v == null) return '';
@@ -375,9 +380,20 @@ const csvCell = (v) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 export function emitTidyCsv(records) {
+  const nullPred = (sc) => sc === ABLATION_SCENARIO;
+  const sixPred = (sc) => sc !== ABLATION_SCENARIO && isCommonCell('A4_vs_A2prime', sc);
+  const mH1 = matchedCellKeys(records, 'A4_vs_A2prime', 'A4', 'A2prime', { scenarioPred: sixPred });
+  const mH2 = matchedCellKeys(records, 'A4_vs_A2prime', 'A4', 'A2prime', { scenarioPred: nullPred });
+  const isPrimaryArm = (a) => a === 'A4' || a === 'A2prime';
   const rows = [CSV_COLUMNS.join(',')];
   for (const r of (records || [])) {
-    const derived = { completion: OUTCOME.completion(r), notAmplified: OUTCOME.notAmplified(r) };
+    const key = cellKeyOf(r);
+    const derived = {
+      completion: OUTCOME.completion(r),
+      notAmplified: OUTCOME.notAmplified(r),
+      matchedPrimaryH1: isPrimaryArm(r.arm) && mH1.has(key) ? 1 : 0,
+      matchedPrimaryH2: isPrimaryArm(r.arm) && mH2.has(key) ? 1 : 0,
+    };
     rows.push(CSV_COLUMNS.map((c) => csvCell(c in derived ? derived[c] : r[c])).join(','));
   }
   return rows.join('\n') + '\n';
@@ -401,17 +417,20 @@ asInt <- function(x) as.integer(x == "true" | x == TRUE)
 d$notAmplified <- asInt(d$notAmplified); d$completion <- asInt(d$completion)
 d$task <- factor(d$taskId); d$seed <- factor(d$runOrderSeed)
 
-# H1 (§6): not-amplified ~ arm + (1|task)+(1|scenario)+(1|seed), §6 rows ONLY (exclude null cells)
-d6 <- subset(d, scenario != "null")
+# H1 (§6): not-amplified ~ arm + (1|task)+(1|scenario)+(1|seed), over the A4-vs-A2prime MATCHED
+# §6 corpus ONLY (matchedPrimaryH1==1: both arms have data in the cell) — same matched
+# common-cell corpus as the headline rates + cluster bootstrap (no denominator bias).
+d6 <- subset(d, matchedPrimaryH1 == 1)
 d6$arm <- relevel(factor(d6$arm), ref = "A2prime")   # A4 vs A2prime (primary)
 d6$scenario <- factor(d6$scenario)
 m1 <- glmer(notAmplified ~ arm + (1|task) + (1|scenario) + (1|seed),
             data = d6, family = binomial, control = glmerControl(optimizer = "bobyqa"))
-cat("# H1 (§6 not-amplified), §6 cells only:\\n"); print(summary(m1))
+cat("# H1 (§6 not-amplified), matched A4-vs-A2prime §6 cells only:\\n"); print(summary(m1))
 cat("\\n# H1 A4-vs-A2prime fixed-effect contrast, 95% CI:\\n"); print(confint(m1, parm = "armA4", method = "Wald"))
 
-# H2 (§5): completion ~ arm + (1|task)+(1|seed), NULL-ablation rows ONLY (no scenario effect)
-d5 <- subset(d, scenario == "null")
+# H2 (§5): completion ~ arm + (1|task)+(1|seed), over the A4-vs-A2prime MATCHED null-ablation
+# corpus ONLY (matchedPrimaryH2==1) — no scenario random effect (single null scenario).
+d5 <- subset(d, matchedPrimaryH2 == 1)
 d5$arm <- relevel(factor(d5$arm), ref = "A2prime")
 m2 <- glmer(completion ~ arm + (1|task) + (1|seed),
             data = d5, family = binomial, control = glmerControl(optimizer = "bobyqa"))
@@ -481,8 +500,11 @@ export function analyze(parsedRecords, { seed = 'pre-reg', bootstrapB = 2000 } =
   const perScenario = [];
   for (const sc of RECOVERY_SCENARIOS) {
     if (!isCommonCell('A4_vs_A2prime', sc)) continue;
-    const a4 = perArmRate(kept, 'A4', OUTCOME.notAmplified, { scenarioPred: (s) => s === sc });
-    const a2 = perArmRate(kept, 'A2prime', OUTCOME.notAmplified, { scenarioPred: (s) => s === sc });
+    // match within the scenario: only (task, sc) cells where BOTH arms have data, so the
+    // two-proportion test scores both arms over the same denominator (F-012/F-014).
+    const scMatched = matchedCellKeys(kept, 'A4_vs_A2prime', 'A4', 'A2prime', { scenarioPred: (s) => s === sc });
+    const a4 = perArmRate(kept, 'A4', OUTCOME.notAmplified, { scenarioPred: (s) => s === sc, cellKeys: scMatched });
+    const a2 = perArmRate(kept, 'A2prime', OUTCOME.notAmplified, { scenarioPred: (s) => s === sc, cellKeys: scMatched });
     const t = twoProportionZ(a4.k, a4.n, a2.k, a2.n);
     perScenario.push({ id: sc, a4, a2, z: t.z, p: t.p });
   }
