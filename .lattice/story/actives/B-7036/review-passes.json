@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T18:54:32.461Z",
       "reviewRunId": "B-7036:RR-001",
       "_hash": "c6c5bcb29293cd4599d8ee175e5091573abb8c69682ac5184dec1f05cbbfb405"
+    },
+    {
+      "id": "B-7036:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 1 symbol set extracted (secondaryDetectors + terminalStopTypeOf). Step 2: 1 paragraph found in experiments/recovery-runner/README.md (Analysis section, secondary detectors bullet). Step 3: README claims (a) 5 unsafe-per-detector counts always — confirmed, UNSAFE_KEYS has exactly 5 entries and unsafePerDetector is always computed and returned; (b) rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present — confirmed, terminalStopTypeOf reads those two fields and increments individual counters only when a type is returned; (c) else safe-stop aggregate with explicit note — confirmed, note field always present and explicitly names the aggregate when terminalTypeAvailable=false. No doc-code drift. No blockers.",
+      "createdAt": "2026-06-23T19:08:50.547Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-007",
+      "_hash": "bef3fb4d16d3eec388e5d82e2699b543740b00d262f054e338f2fe3ed8e350cf"
     }
   ]
 }
