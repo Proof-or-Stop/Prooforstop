@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9137",
+  "mode": "feature",
+  "allowed": [
+    "Add an early-check smoke and register it in validate.commands; export the shared predicate if not already exported",
+    "Call the existing CJK predicate (core/cjk-detect.ts, reused by english-artifact-gate.ts) inside story_create (story-create.ts) and background_set/background_append (background.ts) to refuse non-English author artifacts before persisting"
+  ],
+  "excluded": [
+    "Adding a second/duplicate CJK regex",
+    "Changing the REVIEW->TEST english-artifacts gate behavior",
+    "Scanning code or runtime files (only author-controlled artifacts)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Workflow-friction fix #4: shift the CJK check left to story_create/background_set, reusing the existing predicate.",
+  "createdAt": "2026-06-22T16:33:00.112Z",
+  "updatedAt": "2026-06-22T16:33:00.112Z",
+  "_hash": "93aa4235c786ef02263ff6da3cefb7987629d8ff6246219ffd72d930b831af41"
+}

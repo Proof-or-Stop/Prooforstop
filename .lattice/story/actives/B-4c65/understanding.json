@@ -1,0 +1,27 @@
+{
+  "task": "Build a portable, offline-verifiable receipt bundle + verifier for a DONE story, plus an adversarial tamper-class contract test that demonstrates the freshness + anti-forgery binding (C2), with NO Authority-server dependency.",
+  "outcome": "Running the new smoke prints: '✓ receipt-bundle contract smoke passed: authentic bundle ACCEPTED; every tamper class REJECTED (code byte-flip / evidence edit / host-verdict swap / commandSet change / stale materialHash / forged signature / missing signature / missing build-proof); lying-agent (stale + forged 'done' claim) REJECTED with reason; 0 false-accept, 0 false-reject (N/N).' — the user sees a green contract-test matrix proving the binding cannot be lied to.",
+  "facts": [
+    "Existing verify primitives: verifyAuthorityGateReceiptProof + gateDecisionDigest/gateDecisionInputDigest (core/authority-gate-receipt-verifier.ts); signCanonical/verifyCanonical/signLatticeAuthorityEnvelope (core/authority-signing.ts, lattice-authority-native.ts)",
+    "Local DONE evidence already carries the binding: test-evidence.json + done-required-evidence.json hold materialHash/headHash/storyFilesHash + policyHash/commandSetHash + per-command exit code + output digest",
+    "Authority-server SIGNED gate-decision proofs do NOT exist for normal DONE stories (that path is the Tier-C blocker); so slice 1 builds the bundle from LOCAL evidence and signs it with a LOCAL key",
+    "materialHash is computed over git ls-tree excluding .lattice/story metadata (core/evidence-freshness.ts)",
+    "A bundle is a NEW self-contained artifact; the offline verifier takes the bundle + the current materialHash/storyFilesHash + a public key, and re-checks binding/freshness/signature/digests without any network/server"
+  ],
+  "constraints": [
+    "NO Authority-server dependency; local-key signing only (clearly labeled single-host, not the Tier-C strong proof)",
+    "Build on the existing verifier; do not change gate behavior, DONE policy, or unrelated code",
+    "No new user-facing CLI verb in this slice (follow-up); deliver core lib + contract-test smoke",
+    "tsc must stay green; the smoke must be hermetic (no real network, no server)"
+  ],
+  "unknowns": [
+    "RESOLVE IN DEV: the exact field set of done-required-evidence.json / test-evidence.json to fold into the bundle (read a real DONE story's files at implementation time)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/receipt-bundle.ts (new: buildReceiptBundle + verifyReceiptBundleOffline)",
+    "packages/main/src/core/authority-gate-receipt-verifier.ts (reuse digest/verify helpers)",
+    "packages/main/src/tasks/receipt-bundle-contract-smoke.ts (new: adversarial contract test)",
+    "lattice.config.json (register the smoke); CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-22T17:19:57.447Z"
+}

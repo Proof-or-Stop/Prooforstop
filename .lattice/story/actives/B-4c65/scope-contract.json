@@ -1,0 +1,21 @@
+{
+  "storyId": "B-4c65",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-gate-receipt-verifier.ts",
+    "lattice.config.json",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/receipt-bundle.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "CHANGELOG.md is the required docs deliverable for this story (declared in the execution boundary); add it to allowedModify so the scope gate recognizes it.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T17:29:07.511Z",
+  "updatedAt": "2026-06-22T17:29:22.612Z"
+}

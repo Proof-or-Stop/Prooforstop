@@ -1,0 +1,19 @@
+{
+  "storyId": "B-add9",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/recovery-runner/**"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "experiments/recovery-runner/*.jsonl"
+  ],
+  "scopeChangeReason": "Onboard recovery-runner code (not the .jsonl data).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T18:33:37.856Z",
+  "updatedAt": "2026-06-22T18:33:37.856Z"
+}

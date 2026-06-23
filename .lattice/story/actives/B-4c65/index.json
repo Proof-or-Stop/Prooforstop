@@ -1,0 +1,103 @@
+{
+  "storyId": "B-4c65",
+  "name": "proofbound-offline-receipt-verifier",
+  "title": "Offline portable receipt verifier + tamper-evident bundle + adversarial contract test",
+  "description": "Build a portable, offline-verifiable receipt bundle + verifier for a DONE story, plus an adversarial tamper-class contract test that demonstrates the freshness/anti-forgery binding (C2): every tamper rejected, authentic accepted, 0 false-accept. Authority cross-host signing deferred to a follow-up.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-22T17:11:06.961Z",
+  "startedAt": "2026-06-22T17:11:06.961Z",
+  "endedAt": "2026-06-22T18:11:17.812Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T17:11:06.961Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:18:13.678Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:19:07.903Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:24:09.678Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:30:11.273Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:38:06.502Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:49:22.575Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:57:59.069Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:11:17.812Z",
+      "branch": "story/B-4c65",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-22T17:49:22.575Z"
+}

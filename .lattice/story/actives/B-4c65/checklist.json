@@ -1,0 +1,165 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Portable receipt-bundle exporter + offline verifier (no server)",
+      "context": "Export a DONE story's gate evidence into one self-contained bundle, and add an offline verify that recomputes materialHash/headHash/storyFilesHash from the referenced git tree, re-checks the receipt-identity digests + local-key signatures + the binding chain, with NO Authority-server dependency. Build on core/authority-gate-receipt-verifier.ts + verifyAuthorityReceipt.",
+      "status": "done",
+      "startTime": "2026-06-22T17:25:35.068Z",
+      "endTime": "2026-06-22T17:29:06.370Z",
+      "userSees": "✓ buildReceiptBundle exports a self-contained bundle (binding hashes + receipt identities + local-key signature); verifyReceiptBundleOffline returns {accepted:true} for an authentic bundle with the matching current materialHash — no Authority server contacted.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-gate-receipt-verifier.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/core/receipt-bundle.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildReceiptBundle() over a fixture DONE story's local evidence → a self-contained bundle; sign with a local ed25519 key; verifyReceiptBundleOffline(bundle, currentMaterialHash=bundle.materialHash, pubKey) → ACCEPTED, no network/server; WHY: proves the offline accept path end-to-end.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verifyReceiptBundleOffline labels the result single-host/local-key (not Authority strong proof) and tolerates a bundle whose optional Authority fields are absent; WHY: honest scope + no crash on local-only bundles.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a bundle whose materialHash != the supplied currentMaterialHash → REJECTED with reason 'stale' (freshness conjunct), without the tree; WHY: the freshness binding is enforced offline.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/receipt-bundle.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke builds an authentic bundle + verifyReceiptBundleOffline returns accepted (no server).",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/receipt-bundle.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Result labeled local-key-single-host; local-only bundle tolerated.",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/receipt-bundle.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Mismatched currentMaterialHash → REJECT reason=stale (freshness enforced offline).",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Adversarial tamper-class contract test + lying-agent negative case",
+      "context": "A smoke enumerating every tamper class (code byte-flip, evidence JSON edit, host-verdict swap, commandSet change, stale materialHash, forged/missing signature, missing build proof): each MUST be REJECTED by the offline verifier; an authentic bundle MUST be ACCEPTED; assert 0 false-accept and 0 false-reject. Plus a lying-agent case: a done/pass claim whose evidence is stale or forged is rejected with the precise reason. This contract-test table is the paper's C2 data proof.",
+      "status": "done",
+      "startTime": "2026-06-22T17:26:46.602Z",
+      "endTime": "2026-06-22T17:29:07.000Z",
+      "userSees": "✓ receipt-bundle contract smoke passed: authentic ACCEPTED; every tamper class REJECTED (code/evidence/host-verdict/commandSet/materialHash/forged-sig/missing-sig/missing-build-proof); lying-agent stale+forged claim REJECTED with reason; 0 false-accept, 0 false-reject (N/N).",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the authentic bundle is ACCEPTED (control against a block-everything verifier); WHY: proves the test is not vacuous.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "each tamper class (code byte-flip, evidence JSON edit, host-verdict swap, commandSet change, stale materialHash, forged signature, missing signature, missing build-proof) flips ACCEPT→REJECT with the correct reason code; assert 0 false-accept; WHY: enumerates the tamper surface = the paper C2 data proof.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lying-agent: a done/pass claim whose evidence is stale (old materialHash) OR forged (re-signed with a wrong key) is REJECTED naming the precise reason; assert 0 false-reject on authentic; WHY: 'agent says done but it lied' is mechanically caught.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Authentic bundle ACCEPTED — control against a block-everything verifier (non-vacuous).",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "8 tamper classes each flip ACCEPT→REJECT with the correct reason code; 0 false-accept.",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Lying-agent stale+forged claim REJECTED with reason; 0 false-reject on authentic.",
+          "headHash": "c3145f0a1636b5a70d5b338294ce5112da5ac13c",
+          "materialHash": "c95575682f6f417608b282169e098d8dd68c463920b5441d94bf51b443d8d43b",
+          "storyFilesHash": "dff14b2f95929419e245ff0abd892f0ed921535860c7708d0c8574b2661b6900",
+          "timestamp": "2026-06-22T18:07:59.290Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-add9",
+  "checkedAt": "2026-06-22T18:32:47.782Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "1cf4b1d9d6f498608d8191cc95b100a8004bb0c7685af3cc20e5d4abe441c2a8",
+  "executionBoundaryHash": "086b7c50193e2cde9e90f8be506f8d264765f3b14fad918ebd33905bb3b95478",
+  "freshnessHash": "6a73ff9d077ae23d5b524190dd2dfa0f065e834451cbf4e611b7b8d671905e8e",
+  "effectiveExcludedKeywords": [
+    "Do not run the live LLM loop during verification",
+    "Do not track the .jsonl run-record data (lives in the paper repo)",
+    "No changes to product code (core/, bin/, packages/) or other experiments/ subdirs"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not run the live LLM loop during verification",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run the live LLM loop during verification",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not track the .jsonl run-record data (lives in the paper repo)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not track the .jsonl run-record data (lives in the paper repo)",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to product code (core/, bin/, packages/) or other experiments/ subdirs",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to product code (core/, bin/, packages/) or other experiments/ subdirs",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5365020181641277e62b53947c999e0551471972d31d8dbcc6c52d997c5613da"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-add9",
+  "allowedCommands": [
+    "cp",
+    "git add",
+    "node"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "node",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin/",
+    "core/",
+    "packages/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Onboard the recovery-runner code; verify via fixture self-consistency (reference-solution vs acceptance + ground-truth), no live LLM loop.",
+  "createdAt": "2026-06-22T18:32:47.283Z",
+  "updatedAt": "2026-06-22T18:32:47.283Z",
+  "_hash": "086b7c50193e2cde9e90f8be506f8d264765f3b14fad918ebd33905bb3b95478"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9137",
+  "changes": "story_create and background_set/background_append now reject non-English (CJK) author artifacts at AUTHORING time, reusing the canonical detectCjk (core/cjk-detect.ts) via a new assertEnglishAuthoringText helper in english-artifact-gate.ts (which also feeds the REVIEW->TEST gate). story_create scans title/description/background/checklist title+context+userSees (+ the from-draft materialization); background_set/append scan the provided content; on CJK they refuse with a field-named message [english_artifact_cjk_authoring] before any persistence. Smoke wired into validate.commands.",
+  "usage": "Author stories in English. If you put non-English (CJK) text in a story_create background/checklist/title/description or a background_set, the command now refuses immediately with the field+line and a snippet, instead of letting you discover it later at the REVIEW->TEST english-artifacts gate. Normal English (incl. em-dash/smart-quotes/accented Latin) is unaffected.",
+  "expectedOutcome": "story_create / background_set with CJK in an author artifact is REFUSED at authoring with 'non-English (CJK) text in <field> (<section>):<line> ... [english_artifact_cjk_authoring]' and nothing is persisted (no story dir / background.md byte-identical); an all-English author (incl. U+2014 em-dash) succeeds. The early check and the REVIEW->TEST gate use the same detectCjk so they never disagree.",
+  "actualTranscript": "Confirmed: smoke (english-early-check-smoke.js) proves refuse-background (no story dir), refuse-checklist title/context (no dir), all-English+em-dash success (em-dash persisted, containsCJK false), background_set CJK refusal (background.md byte-identical), and the early-check==gate agreement across ascii/em-dash/cjk-core/cjk-ext-A. codex host-B adversarially confirmed no false positive (live em-dash/smart-quotes/é/ñ/ellipsis success), no duplicate regex, refuse paths write nothing, and from-draft CJK materialization is also refused. validate --story=B-9137 all-green 7/7; lifecycle-registry-contract 0 divergences.",
+  "outcomeDiff": "No difference — the CJK check now fires at story_create/background_set exactly as the REVIEW->TEST gate would, shifting the failure to the moment of authoring.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Scope is limited to author-controlled artifacts (background, checklist text, title, description); code/runtime content is not scanned, by design. One minor non-blocking note from review: backgroundFieldForLine is duplicated verbatim in background.ts and story-create.ts (acknowledged with a comment).",
+  "pitfalls": "The integrity-critical property is that the early check and the REVIEW->TEST gate NEVER DISAGREE: both must use the SAME detectCjk (core/cjk-detect.ts), not a duplicate regex — otherwise a story could pass story_create yet fail the gate (or legitimate English be wrongly refused). The fix routes the new authoring helpers (containsCJK/findFirstEnglishAuthoringViolation/assertEnglishAuthoringText) through the same scanText->detectCjk the gate uses; the smoke asserts agreement across ascii/em-dash/cjk-core/cjk-ext-A. Lesson: a shift-left of an existing gate must REUSE the gate's exact predicate and prove agreement, never re-implement it. The code was first authored host-B-only (codex) in a scratch worktree during a sustained Anthropic API outage; re-authored in-workflow reusing core/cjk-detect.ts (cleaner than the scratch's gate-local containsCJK). This was the last of the 4 workflow-friction fixes (#1 init_preflight, #2 quorum_submit, #3 done-required materialHash freshness, #4 this).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 167324
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19027
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 179278
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1859069
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 856037
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 24772
+    }
+  },
+  "totalDurationMs": 3105517,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T17:22:00.478Z",
+  "updatedAt": "2026-06-22T17:22:00.478Z"
+}

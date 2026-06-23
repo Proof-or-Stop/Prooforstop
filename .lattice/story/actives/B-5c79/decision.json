@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Refuse true duplicates explicitly rather than silently piling on verdicts.",
+    "Do not regress the first legitimate quorum submission.",
+    "Key the guard on observable state (runId + materialDigest), not wall-clock or call count.",
+    "Match the handler's existing refusal style and write nothing on refusal."
+  ],
+  "drivers": [
+    "Prevent duplicate verdicts under an already-populated runId.",
+    "Still allow a fresh quorum after a genuine material change + re-review.",
+    "Keep the change small and well-tested."
+  ],
+  "options": [
+    {
+      "name": "material-aware-refuse",
+      "pros": [
+        "Blocks true no-op duplicates",
+        "Allows legitimate re-quorum after material change",
+        "Precise (runId+materialDigest)"
+      ],
+      "cons": [
+        "Slightly more logic than a blanket check"
+      ]
+    },
+    {
+      "name": "blanket-refuse-any-existing-runId",
+      "pros": [
+        "Simplest"
+      ],
+      "cons": [
+        "False-blocks a legitimate re-quorum after a real material change and re-review"
+      ]
+    },
+    {
+      "name": "idempotent-silent-skip",
+      "pros": [
+        "Never errors"
+      ],
+      "cons": [
+        "Hides double-submission; operator wanted an explicit refusal; inconsistent with existing REFUSAL style"
+      ]
+    }
+  ],
+  "chosen": "material-aware-refuse",
+  "rationale": "Refusing only on the same (runId, materialDigest) blocks the real duplicate the operator flagged while not false-blocking a legitimate fresh quorum after a material change; an explicit refusal (vs silent skip) surfaces the mistake consistent with the existing REFUSAL constant.",
+  "preMortem": [
+    {
+      "scenario": "Legitimate re-quorum blocked",
+      "trigger": "Guard keys on runId only, ignoring materialDigest",
+      "consequence": "After a real material change the operator cannot re-submit",
+      "mitigation": "Key the guard on (runId, materialDigest) so a new material does not collide"
+    },
+    {
+      "scenario": "Existing smoke test breaks silently",
+      "trigger": "rounds-knob case re-submits overlapping runIds at same material",
+      "consequence": "Suite goes red or, worse, is loosened to hide the guard",
+      "mitigation": "Restructure that case (fresh story / material change) and add explicit refuse + allow cases"
+    },
+    {
+      "scenario": "Guard reads wrong store",
+      "trigger": "Reading verdicts from a different root than submitLocalVerdict writes",
+      "consequence": "Guard never fires or always fires",
+      "mitigation": "Read via listVerdicts(ctx.root,'local',storyId) — the same root submitLocalVerdict writes to"
+    }
+  ],
+  "timestamp": "2026-06-22T17:55:04.784Z"
+}

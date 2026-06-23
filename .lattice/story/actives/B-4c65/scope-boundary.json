@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4c65",
+  "mode": "maintenance",
+  "allowed": [
+    "Adversarial tamper-class contract-test smoke (every tamper class rejected, authentic accepted, 0 false-accept) + lying-agent negative case",
+    "New core module for a self-contained receipt bundle exporter + an offline verifier that recomputes code-identity hashes from the referenced git tree and re-checks receipt identity + local-key signatures + binding chain (no Authority server)",
+    "Reuse/extend the existing receipt verify primitives (authority-gate-receipt-verifier, verifyAuthorityReceipt); register the new smoke; CHANGELOG"
+  ],
+  "excluded": [
+    "A new user-facing CLI verb (follow-up; slice 1 delivers the core lib + contract test only)",
+    "Any change to gate behavior, DONE policy, or unrelated code",
+    "Authority cross-host signed verdicts / server signing (Tier-C follow-up, out of scope)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directed 2026-06-22: build slice 1 of the tamper-evident verifiable-autonomy capability (offline portable receipt verifier + adversarial contract test = paper C2 data proof); maintenance mode because the code legitimately touches Authority-named modules but does NOT add the future Authority cross-host signing capability.",
+  "createdAt": "2026-06-22T17:12:14.903Z",
+  "updatedAt": "2026-06-22T17:12:14.903Z",
+  "_hash": "7d1e0bc8a777b2e30e2652fc01ce75b8b634279885d3f7fbd72bf52606c5578d"
+}

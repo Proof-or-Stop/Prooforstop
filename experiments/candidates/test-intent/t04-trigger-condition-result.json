@@ -1,0 +1,26 @@
+{
+  "happy": [
+    {
+      "trigger": "用户运行 lab create",
+      "condition": "target/profile 合法",
+      "result": "config 写入 experiments/configs 并输出 Next step",
+      "type": "cli_blackbox"
+    }
+  ],
+  "edge": [
+    {
+      "trigger": "用户运行 lab create",
+      "condition": "profile 缺失",
+      "result": "参数校验失败且不写文件",
+      "type": "cli_blackbox"
+    }
+  ],
+  "adversarial": [
+    {
+      "trigger": "用户运行 lab create",
+      "condition": "target 越权或未知",
+      "result": "拒绝并提示 unknown target",
+      "type": "cli_blackbox"
+    }
+  ]
+}

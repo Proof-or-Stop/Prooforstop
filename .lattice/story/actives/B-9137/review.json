@@ -1,0 +1,22 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-22T16:36:10.078Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-9137\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-9137 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "c0efa3723f9e1a3fd4dcc179f729ba7a0aa228f30ccc5fa09163a09493b04f10"
+    }
+  ]
+}

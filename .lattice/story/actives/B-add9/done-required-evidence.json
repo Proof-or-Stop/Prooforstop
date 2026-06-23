@@ -1,0 +1,56 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-add9",
+  "status": "PASS",
+  "startedAt": "2026-06-22T19:02:41.355Z",
+  "endedAt": "2026-06-22T19:03:12.213Z",
+  "durationMs": 30858,
+  "headHash": "6c45638e6823271646a6927da3486e311ef4c20c",
+  "materialHash": "629553a6f604a47114c99317ac7882e3825c83ac5f8b87b5cab089f3a26c8d4c",
+  "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-add9",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 6492,
+      "outputDigest": "5b0d8f29c6734f18ee7b89bdb54679fa37f18294be3ded48b237339414d373fb",
+      "outputTail": "\n> @lattice-agent/core@0.3.63 build\n> tsc\n\n",
+      "startedAt": "2026-06-22T19:02:41.355Z",
+      "endedAt": "2026-06-22T19:02:47.848Z",
+      "headHash": "6c45638e6823271646a6927da3486e311ef4c20c",
+      "materialHash": "629553a6f604a47114c99317ac7882e3825c83ac5f8b87b5cab089f3a26c8d4c",
+      "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-add9",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 23623,
+      "outputDigest": "1abecad709f9badb1eeac8f955f1d6f999e6af2b65c50ebb2dbb552dd186c78f",
+      "outputTail": "act:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- audit [L2/command] producer=handlers/audit\n- authority_enforce_policy [L0/command] producer=handlers/authority-enforce\n- authority_enforce_runner [L0/command] producer=handlers/lattice-cli\n- authority_job_create [L2/command] producer=handlers/verdict\n- authority_job_status [L0/command] producer=handlers/verdict\n- authority_receipt_fetch [L1/command] producer=handlers/verdict\n- authority_receipt_verify [L4/gate-evidence] producer=handlers/authority-enforce gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\n- authority_status [L0/command] producer=handlers/lattice-cli\n- authority_verdict_list [L0/command] producer=handlers/verdict\n- authority_verdict_submit [L2/command] producer=handlers/verdict\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] producer=handlers/lattice-autopilot\n- autopilot_policy_create [L1/command] producer=handlers/lattice-autopilot\n- autopilot_policy_get [L0/command] producer=handlers/lattice-autopilot\n- autopilot_resume [L1/command] producer=handlers/lattice-autopilot\n- autopilot_review [L0/command] producer=handlers/lattice-autopilot\n- autopilot_review_status [L0/command] producer=handlers/verdict\n- autopilot_review_submit [L4/host-verdict] producer=handlers/verdict gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate artifact=process-events.jsonl\n- autopilot_run [L1/command] producer=handlers/lattice-autopilot\n- autopilot_status [L0/command] producer=handlers/lattice-autopilot\n- autopilot_watch [L0/command] producer=handlers/lattice-autopilot\n- aux_doc_list [L0/command] producer=handlers/aux-doc-list\n- background_append [L1/command] producer=handlers/background\n- background_get [L0/command] producer=handlers/background\n- background_set [L1/command] producer=handlers/background\n- baseline_run [L2/command] producer=handlers/baseline\n- baseline_suite [L2/command] producer=handlers/baseline\n- baseline_suite_report [L0/command] producer=handlers/baseline-suite\n- bug_analyze [L0/command] producer=handlers/bug\n- bug_list [L0/command] producer=handlers/bug\n- bug_report [L2/command] producer=handlers/bug\n- bug_update [L2/command] producer=handlers/bug\n- capability_claim_evaluate [L0/command] producer=handlers/lattice-baseline\n- capability_claim_formal_evaluate [L3/command] producer=handlers/lattice-baseline\n- capability_list [L0/command] producer=handlers/capability-list\n- capability_probe [L0/command] producer=handlers/capability-list\n- capsule_handoff [L2/command] producer=handlers/capsule\n- capsule_run_add [L2/command] producer=handlers/capsule\n- capsule_show [L0/command] producer=handlers/capsule\n- capsule_update [L2/command] producer=handlers/capsule\n- check [L2/command] producer=handlers/check\n- checklist_add [L2\n...[truncated 32906 chars]",
+      "startedAt": "2026-06-22T19:02:48.261Z",
+      "endedAt": "2026-06-22T19:03:11.884Z",
+      "headHash": "6c45638e6823271646a6927da3486e311ef4c20c",
+      "materialHash": "629553a6f604a47114c99317ac7882e3825c83ac5f8b87b5cab089f3a26c8d4c",
+      "storyFilesHash": "2041efcbe1ca567b65ca647c81ebe8fada18c1ea44e4f78e906f09b0b995608b"
+    }
+  ],
+  "reasons": []
+}

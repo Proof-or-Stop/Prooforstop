@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-add9",
+  "mode": "feature",
+  "allowed": [
+    "Add experiments/recovery-runner/README.md",
+    "Track the recovery-runner code (runners, per-task fixtures, injections) under experiments/recovery-runner/"
+  ],
+  "excluded": [
+    "Do not run the live LLM loop during verification",
+    "Do not track the .jsonl run-record data (lives in the paper repo)",
+    "No changes to product code (core/, bin/, packages/) or other experiments/ subdirs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-confirmed: onboard the recovery-runner experiment CODE (not the .jsonl data) via a Lattice story.",
+  "createdAt": "2026-06-22T18:32:46.883Z",
+  "updatedAt": "2026-06-22T18:32:46.883Z",
+  "_hash": "1cf4b1d9d6f498608d8191cc95b100a8004bb0c7685af3cc20e5d4abe441c2a8"
+}

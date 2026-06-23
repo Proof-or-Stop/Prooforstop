@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "lattice.hn2-handoff-demo.v1",
+  "steps": [
+    {
+      "name": "machineA",
+      "detail": "story B-hn2demo at DEV; HEAD=f30b3bf4933b tree=26691d1e87aa"
+    },
+    {
+      "name": "handoff_create",
+      "detail": "pack=9684B vs machineA worktree=2010182B (pack is the small unit transferred)"
+    },
+    {
+      "name": "push",
+      "detail": "machineA pushed branch to bare remote /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/hn2-handoff-LD7s4Z/remote.git"
+    },
+    {
+      "name": "machineB",
+      "detail": "fresh clone from bare remote; HEAD=f30b3bf4933b tree=26691d1e87aa"
+    },
+    {
+      "name": "handoff_resume",
+      "detail": "machine B projected resume plan for B-hn2demo (host=codex)"
+    },
+    {
+      "name": "resume+continue",
+      "detail": "machine B continued work: f30b3bf4933b -> 1d86fd403bf3"
+    }
+  ],
+  "assertions": [
+    {
+      "msg": "handoff pack JSON created on machine A",
+      "pass": true
+    },
+    {
+      "msg": "machine B HEAD == machine A HEAD (reconstructed from git, not copied)",
+      "pass": true
+    },
+    {
+      "msg": "machine B tree content-hash == machine A tree (byte-identical worktree)",
+      "pass": true
+    },
+    {
+      "msg": "story metadata reconstructed on machine B from git",
+      "pass": true
+    },
+    {
+      "msg": "partial code work reconstructed on machine B",
+      "pass": true
+    },
+    {
+      "msg": "gitignored bulk (2MB) did NOT transfer — only git-tracked deltas + pack moved",
+      "pass": true
+    },
+    {
+      "msg": "resume projection recovers the correct story on machine B",
+      "pass": true
+    },
+    {
+      "msg": "machine B advanced the story by exactly one commit on top of machine A HEAD",
+      "pass": true
+    }
+  ],
+  "measurements": {
+    "headA": "f30b3bf4933b77e9ed28b21967700954ef95fffd",
+    "treeA": "26691d1e87aa7d5e4181e4c26677a338dbd1768d",
+    "headB": "f30b3bf4933b77e9ed28b21967700954ef95fffd",
+    "treeB": "26691d1e87aa7d5e4181e4c26677a338dbd1768d",
+    "headB2": "1d86fd403bf3c9dd4f1c29bce48e5690975f326f",
+    "packBytes": 9684,
+    "worktreeBytes": 2010182,
+    "packFractionOfWorktree": 0.0048,
+    "reconstructedFromGitOnly": true
+  },
+  "verdict": "PASS"
+}
