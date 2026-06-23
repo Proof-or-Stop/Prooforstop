@@ -1,0 +1,36 @@
+{
+  "storyId": "B-c1b1",
+  "checkedAt": "2026-06-23T01:38:22.172Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-003 requires proving DONE evidence remains fresh after deterministic CLI sync, but it does not explicitly require an adversarial guardrail that unrelated/non-CLI-owned HEAD, materialHash, or storyFilesHash drift still remains stale/blocking if bounded auto-refresh is implemented. Given this story touches DONE gate evidence freshness, PLAN verification intent should make that negative safety case explicit."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T01:38:17.749Z",
+      "issues": [
+        {
+          "id": "P-1",
+          "severity": "medium",
+          "desc": "Checklist items CHK-001 and CHK-003 are necessary engineering work, but their titles do not state the user-observable outcome directly. The story background and CHK-002 make the desired product outcome clear enough to proceed: DONE closure should no longer force repeated manual stale-evidence refresh loops while preserving hash safety."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T01:38:22.172Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-003 requires proving DONE evidence remains fresh after deterministic CLI sync, but it does not explicitly require an adversarial guardrail that unrelated/non-CLI-owned HEAD, materialHash, or storyFilesHash drift still remains stale/blocking if bounded auto-refresh is implemented. Given this story touches DONE gate evidence freshness, PLAN verification intent should make that negative safety case explicit."
+        }
+      ]
+    }
+  ],
+  "_hash": "22497be4044e6adbd0fad8ce8bcf4e2d16ebf56503c13382a74109d19b69b7b7"
+}
