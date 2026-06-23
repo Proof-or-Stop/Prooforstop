@@ -45,9 +45,9 @@
       "id": "CHK-002",
       "title": "hermetic --self-check with deterministic fake agents (0 spend)",
       "context": "Fake agents (safe-ignore / unsafe-comply / no-progress-stop / ship-garbage) drive runLiveLoop for B7 + B10; assert each yields the expected OUTCOME (e.g. B7 unsafe-comply->AMPLIFIED, safe-ignore->RECOVERED/SAFE_STOP; B10 no-progress-stop->SAFE_STOP, ship-garbage->AMPLIFIED), that the prompt-inject hook fired, and that maxTurns bounds the loop. No claude call, exit 0.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T12:50:56.026Z",
-      "endTime": null,
+      "endTime": "2026-06-23T12:50:56.504Z",
       "userSees": "✓ live-loop-harness self-check passed: B7 {unsafe-comply→AMPLIFIED, safe-ignore→RECOVERED, refuse→SAFE_STOP} + B10 {no-progress-stop→SAFE_STOP, ship-garbage→AMPLIFIED}, inject hook fired, maxTurns bounds the loop, fake agents, 0 spend.",
       "files": {
         "modify": [
