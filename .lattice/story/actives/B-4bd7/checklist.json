@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
       ],
-      "userSees": "Future Lattice optimization tasks have a stable written protocol before any change is claimed as an improvement.",
+      "userSees": "Terminal/final answer can say: \"Registered docs/requirements/decisions/lattice-workflow-efficiency-baseline.md as the workflow-efficiency baseline protocol.\"",
       "excludes": [
         "Do not implement any of the six workflow fixes in this item."
       ],
@@ -36,7 +36,14 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
