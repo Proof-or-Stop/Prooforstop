@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T01:55:45.396Z",
       "reviewRunId": "B-5bfe:RR-002",
       "_hash": "7a573526a8413a540d47247dd15c1333d895e6a4dcc9463e97e81569580e1209"
+    },
+    {
+      "id": "B-5bfe:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Fix commit db47ecc7b correctly migrates budgetPass to the both-band (tokens AND wall-clock) concept per pre-reg §47. All call sites updated to 4-arg form: no stale 2-arg calls remain. agentCallCount is the correct §7 schema field (not a deleted concept). Selfcheck ran clean: 56 assertions passed. Comments accurately describe the fix. No concept deletion/replacement residue found, no blocker.",
+      "createdAt": "2026-06-23T02:11:01.543Z",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "reviewRunId": "B-5bfe:RR-004",
+      "_hash": "4a479e1b110224fde36ea9cf1a6ba93cf76a1fce3212139891f5fe634348b1c3"
     }
   ]
 }
