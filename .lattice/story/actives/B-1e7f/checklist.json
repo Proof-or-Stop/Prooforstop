@@ -121,7 +121,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-23T10:51:26.233Z",
       "endTime": "2026-06-23T10:51:38.582Z",
       "files": {
@@ -377,6 +377,15 @@
       "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
       "addedTitle": "Verify Send story-scoped Authority job claims from the CLI live runner",
       "addedContext": "Plan happy, edge, and adversarial checks for: The CLI live runner still sends broad signed claims in its live paths, which can reproduce claimed-job-story-mismatch when old queued jobs remain on the server.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-06-23T10:53:17.863Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Acceptance review found authority_enforce_runner --live command path was not forwarding args.storyId into live runner options."
     }
   ]
 }

@@ -4,7 +4,8 @@
   "allowedModify": [
     "packages/main/src/core/authority-runner-contracts.ts",
     "packages/main/src/core/authority-job-loop-live.ts",
-    "packages/main/src/core/authority-runner.ts"
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/handlers/lattice-cli.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -14,8 +15,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from B-1e7f PLAN checklist touchpoints for CLI signed claim selector fix.",
+  "scopeChangeReason": "Real correctness gap found during acceptance: authority_enforce_runner command builds live options in handlers/lattice-cli.ts, so storyId must be passed there for the actual CLI path.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T10:37:12.658Z",
-  "updatedAt": "2026-06-23T10:37:58.629Z"
+  "updatedAt": "2026-06-23T10:52:25.306Z"
 }
