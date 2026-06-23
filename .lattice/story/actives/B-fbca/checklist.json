@@ -66,6 +66,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:19:58.731Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "git grep -cE 'lattice-review-integrity-v1|lattice-review-pass-integrity-v1|lattice-review-run-integrity-v1|lattice-review-run-workspace-binding-v1|lattice-review-scope-binding-v1|lattice-scope-check-integrity-v1|lattice-finding-integrity-v1|lattice-story-store' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "New lattice-* salts present in exactly the predecessor files (guard-utils/machine/process-fact-registry/reviewer-status/story-review/canonical-story/finding-verify/review-run/review-scope-binding/scope-check) — rename, not deletion",
+          "headHash": "c3f71fa8ac35ef4d895463ae16b84444a1754a78",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:18.674Z"
         }
       ]
     },
