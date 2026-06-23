@@ -101,9 +101,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:05:39.989Z",
-      "endTime": null
+      "endTime": "2026-06-23T10:15:42.264Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if lattice-review-quality.md omits job.metadata from the proof metadata phrase set.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:42.453Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if lattice-review-quality.md omits linked run.metadata from the proof metadata phrase set.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:42.609Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke fails if the prompt no longer says checking only one location is insufficient.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:42.796Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -179,6 +217,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Committed quality reviewer guidance and post-commit prompt smoke evidence for both job.metadata and linked run.metadata coverage.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:15:42.264Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed prompt registry smoke coverage and post-commit evidence for all proof metadata phrases.",
       "agent": "codex"
     }
   ]
