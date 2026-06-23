@@ -84,6 +84,17 @@
           "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-23T04:12:24.641Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
+          "result": "pass",
+          "note": "null changedPaths/undefined newContent/empty processEvents asserted to return false without throwing (no spurious unsafe flag); empty input => anyUnsafe false.",
+          "headHash": "1aefae468e8b9d54c66f00539782159a1ea84015",
+          "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:12:25.121Z"
         }
       ]
     },
