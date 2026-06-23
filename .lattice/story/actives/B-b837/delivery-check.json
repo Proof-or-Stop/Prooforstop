@@ -1,0 +1,67 @@
+{
+  "storyId": "B-b837",
+  "checkedAt": "2026-06-23T14:29:52.161Z",
+  "reviewRound": "2026-06-23T14:08:20.639Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-b837/plan.md#CHK-001",
+      "promise": "Remove getMigratedLegacyKoalaActivityLogPath() and LATTICE_LEGACY_KOALA_ACTIVITY_LOG from core/activity-log.ts and core/lattice-paths.ts; stop merging legacy archive into activity tail; remove activity.legacy-koala.jsonl from runtime-artifact-registry.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "LATTICE_LEGACY_KOALA_ACTIVITY_LOG removed from lattice-paths.ts (diff confirmed). getMigratedLegacyKoalaActivityLogPath removed from activity-log.ts (diff confirmed). grep -r LATTICE_LEGACY_KOALA_ACTIVITY_LOG packages/main/src/ -> exit 1 (independently run). grep -r getMigratedLegacyKoalaActivityLogPath packages/main/src/ -> exit 1 (independently run). activity.legacy-koala.jsonl removed from runtime-artifact-registry.ts matchers and ignorePatterns (diff confirmed)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-b837/plan.md#CHK-002",
+      "promise": "Remove KOALA_HARD_BUDGET_TOKENS fallback from dispatch-usage.ts; remove KOALA_USAGE_LEDGER alias from writer.ts; remove KOALA_ from dispatch-runner.ts env passlist",
+      "verifiedBy": "diff/grep",
+      "evidence": "dispatch-usage.ts diff: resolveHardBudget() reads LATTICE_HARD_BUDGET_TOKENS only. writer.ts diff: isUsageLedgerEnabled() reads LATTICE_USAGE_LEDGER only. dispatch-runner.ts diff: KOALA_ removed from SAFE_ENV_PREFIXES. grep -r KOALA_HARD_BUDGET_TOKENS packages/main/src/core/ -> exit 1; grep -rn KOALA_USAGE_LEDGER packages/main/src/core/ -> exit 1; grep -n KOALA packages/main/src/core/dispatch-runner.ts -> exit 1 (all independently run)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-b837/plan.md#CHK-003",
+      "promise": "Remove containsLegacyKoalaDir, assertNoLegacyKoalaWritePath, isLegacyKoalaWritePath; remove legacy-koala-extra asset, isGeneratedLegacyKoalaAgentPrompt, koala:internal markers; remove assert calls from config.ts and dev-memory.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "All symbols independently confirmed removed: isLegacyKoalaWritePath, assertNoLegacyKoalaWritePath, containsLegacyKoalaDir, cleanupGeneratedLegacyKoalaAgentPrompts, isGeneratedLegacyKoalaAgentPrompt, koala:internal all return exit 1 on grep. config.ts and dev-memory.ts assert calls removed (diff confirmed). legacy_koala_write removed from PrewriteViolation.rule union (diff confirmed)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-b837/plan.md#CHK-004",
+      "promise": "Collapse (?:koala|lattice) dual-accept regex to lattice-only in managed-assets.ts and cli-init.ts INIT_DOC_SECTION_RE; remove LEGACY_INTERNAL_SECTION_RE; sweep claude-md-sync.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "managed-assets.ts diff: INIT_DOC_SECTION_RE is now lattice-only; LEGACY_INTERNAL_SECTION_RE removed. cli-init.ts diff: INIT_DOC_SECTION_RE at line 61 is lattice-only (independently confirmed grep). grep -rn (?:koala|lattice) packages/main/src/ -> exit 1 (independently run). grep -n koala packages/main/src/claude-md-sync.ts -> exit 1."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-b837/plan.md#CHK-005",
+      "promise": "Delete/retarget legacy compat tests; tsc clean; npm test suite green; verify-koala-residue.mjs PASS; git grep for LegacyKoala|KOALA_[A-Z_]+|legacy-koala in packages/*/src minus review-preflight.ts gate wiring -> zero",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "tsc --noEmit exit 0 (independently run). verify-koala-residue.mjs PASS 0 unclassified (independently run). --self-test PASS 5/5 (independently run). usage-ledger-default-on-smoke.js 30 checks passed (independently run). usage-ledger-budget-smoke.js 41 checks passed (independently run). storydir-inside-gitroot-suite.js 20 checks passed (independently run). grep -rn LegacyKoala, legacy-koala -> exit 1. KOALA_ only in review-preflight.ts gate wiring and comment-only in retargeted smoke files. lattice validate: 47/47 intents covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "logic_test b837-activity-check.mjs: readActivityLogTail with runtime-only .lattice/activity.jsonl returns sorted entries; empty root returns [] without error. logic_test b837-stale-check.mjs: stale-detector reads correct timestamp from runtime-only log. docs_check greps: LATTICE_LEGACY_KOALA_ACTIVITY_LOG zero hits, getMigratedLegacyKoalaActivityLogPath zero hits, activity.legacy-koala zero hits, runtime-artifact-registry.ts legacy-koala zero hits. 7 intents (3 happy+2 edge+2 adversarial) all passing."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "logic_test b837-env-check.mjs: LATTICE_HARD_BUDGET_TOKENS resolves correctly; LATTICE_USAGE_LEDGER=1 true; no-env null/true(default-ON); KOALA_HARD_BUDGET_TOKENS=999 returns null (ignored); KOALA_USAGE_LEDGER=0 returns true (default-ON, not disabled). docs_check greps: KOALA_HARD_BUDGET_TOKENS, KOALA_USAGE_LEDGER, KOALA in dispatch-runner all exit 1. 10 intents (5 happy+2 edge+3 adversarial) all passing."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "logic_test b837-chk003-check.mjs: loadConfig() non-koala storyDir succeeds; loadConfig() with .koala/ storyDir does NOT throw (guard gone). logic_test b837-devmemory-runtime-check.mjs: real handler invocation with .koala storyDir completes without throw (finding F-002 fixed with real runtime test). logic_test b837-chk003-prewrite.mjs: non-koala path returns null; .koala path handled by generic classifier. 12 intents (6 happy+3 edge+3 adversarial) all passing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "logic_test b837-chk004-regex.mjs: lattice:start marker extracted correctly; koala:start marker NOT matched; CLAUDE.md with koala:start content not extracted/injected/lost (no data loss). docs_check: cli-init.ts INIT_DOC_SECTION_RE is lattice-only at line 61. grep (?:koala|lattice) exit 1; grep koala claude-md-sync.ts exit 1. 7 intents (3 happy+2 edge+2 adversarial) all passing."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "logic_test b837-tsc-assert.mjs: tsc --noEmit exit 0 (independently confirmed). npm test exit 0 all pass. verify-koala-residue.mjs PASS 0 unclassified + self-test PASS 5/5 (both independently confirmed). usage-ledger-default-on-smoke.js 30 checks (independently confirmed). usage-ledger-budget-smoke.js 41 checks (independently confirmed). storydir-inside-gitroot-suite.js 20 checks (independently confirmed). logic_test b837-deadexempt-check.mjs: 11 LEGACY_LOGIC_FILES entries verified on-disk and live, negative-tested (finding F-001 fixed). 11 intents (4 happy+3 edge+4 adversarial) all passing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 plan.md promises independently verified from source diff and re-run greps. 47/47 verification intents bound and passing per lattice validate. Two review findings (F-001 high: non-runnable placeholder command; F-002 medium: static grep instead of handler invocation) were raised and resolved with real runtime checks before TEST entry. tsc clean, residue gate PASS 0 unclassified, 3 smoke suites independently re-run green. review-preflight.ts KOALA_RESIDUE_* gate wiring is the only intentional remaining koala reference (story 4 scope, documented in plan.md). No unresolved TODOs in product code changes."
+  },
+  "_hash": "002233ccb1834239a34ccad01bd9d1840b336243c3b1b5141b4010bd376c7be0"
+}
