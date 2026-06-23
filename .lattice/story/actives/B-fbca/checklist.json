@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Rename all 8 koala-* signature salts to lattice-* via the worktree binary",
       "context": "koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store in core/guard-utils.ts, machine.ts, process-fact-registry.ts, reviewer-status.ts, handlers/story-review.ts, canonical-story.ts, finding-verify.ts, review-run.ts, review-scope-binding.ts, handlers/scope-check.ts (+ their smokes). Change the literal salt VALUE; producers and consumers move together; sign this story's gates with the worktree binary.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-23T19:20:45.222Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [

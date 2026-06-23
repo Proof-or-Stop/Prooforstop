@@ -4,7 +4,7 @@
   "title": "Achieve zero koala in product runtime code: rename all koala-* salts to lattice-* + remove legacy-koala detection (ship-clean story 3)",
   "description": "Per the user's total-removal directive (no koala anywhere, accept the collateral), drive product runtime code (packages/*/src) to zero koala: rename all 8 koala-* signature salts to lattice-* (init/review/scope/finding integrity + story-store), delete the legacy-koala DETECTION (the bin/koala*.js denylist and @koala-agent old-global-install handling — dropping old-koala migration support), and clean the remaining koala-codex/koala-agent literals. The residue-gate's own koala-residue identifiers (review-preflight.ts + verify-koala-residue.mjs) and docs are story 4.",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala",
@@ -53,6 +53,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-23T19:09:48.993Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T19:16:51.269Z",
       "branch": "story/B-fbca",
       "user": "Harmonygo",
       "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
