@@ -270,14 +270,18 @@
       "desc": "live-loop-harness.mjs agent-contract docs (lines 31/60) recommend execFileSync/spawn blocking timeout to bound the child (the blocking anti-pattern flagged round-1); JSDoc line 56 + agent call line 114 pass a turn param no agent consumes, inconsistent with the real {ws,context,signal}. Fix: narrow contract to {ws,context,signal}, document async execFile(...,{signal}) as the termination mechanism.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T20:55:03.771Z",
       "reviewRound": "2026-06-23T20:43:24.607Z",
       "_hash": "a20e0b173ee2dd128418cc05de416c331c532513391f1c433f8a3557b0ba2580",
       "signatureTag": "doc-code-drift|unknown|live-loop-harness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the real defect: rewrote the contract docs (lines 31/60) to recommend async execFile(...,{signal}) instead of execFileSync/spawn's blocking timeout (the watchdog-neutering anti-pattern). The 'turn-param-unused' part is DISPROVEN: removing turn from the agent call makes the B4/B5 self-check fail (context-reliant stubs work turn-1-no-ship gated on turn; without it they ship turn 1 before the truncate/kill -> token present -> RECOVERED not the expected AMPLIFIED). turn is load-bearing; retained and documented. self-check 24/24, 0 spend.",
+      "resolvedAt": "2026-06-23T20:56:55.297Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
