@@ -30,7 +30,7 @@
       "desc": "F-001 fixture alignment is incomplete: several DONE-ready smoke fixtures still write delivery-check.json without headHash/materialHash and sign without materialHash, so the new fail-closed gate blocks them before their intended assertions. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED reason stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because done closure readiness is false. Static call sites also show five-argument signDeliveryCheck in packages/main/src/tasks/worktree-authority-smoke.ts:560, done-prepare-smoke.ts:136, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh fixtures to record headHash/materialHash and sign with materialHash, leaving only explicit legacy-stale tests unsigned.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T13:06:03.389Z",
@@ -45,7 +45,11 @@
         "packages/main/src/tasks/field-regression-cli-smoke.ts"
       ],
       "signatureTag": "missing|ts|fixture-alignment-incomplete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fresh synthetic delivery-check fixtures now persist headHash/materialHash and sign with the same materialHash in worktree-authority-smoke, done-prepare-smoke, done-premerge-mainsha-recheck-smoke, done-readiness-flow-benchmark, and field-regression-cli-smoke. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/done-readiness-flow-benchmark.js; node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321 --json.",
+      "resolvedAt": "2026-06-23T13:25:13.643Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d321:F-003",
