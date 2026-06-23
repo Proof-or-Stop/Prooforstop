@@ -825,6 +825,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:21.957Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "command": "git grep -nE 'LATTICE_DIR|RUNTIME_DIR|getDataDir' -- 'packages/main/src/core/lattice-paths.ts' (LATTICE_DIR='.lattice'); git grep -nic koala -- packages/main/src/core/lattice-paths.ts (=0)",
+          "result": "pass",
+          "note": "The single path-construction constant LATTICE_DIR='.lattice' is the source of truth for all derived runtime paths (LATTICE_ACTIVITY_LOG, LATTICE_STORY_DIR, etc.) and contains zero koala — no constant can dynamically produce a .koala/ path at runtime",
+          "headHash": "bdf3d36d2d78b2ef89ff15a705227dd29c4f7154",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:23.314Z"
         }
       ]
     },
