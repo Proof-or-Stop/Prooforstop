@@ -1,0 +1,143 @@
+{
+  "storyId": "B-a1b0",
+  "checkedAt": "2026-06-23T04:52:49.382Z",
+  "features": [
+    {
+      "feature": "runInjectionArms({probes,arms,reps,runArm,makeWorkspace}) function API — arm-agnostic, probe-agnostic powered-run driver",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Per (probe,arm,rep) loop: inject -> pluggable runArm -> classify -> record wiring",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Driver NEVER imports run-recovery.mjs; arm is a function parameter",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse OUTCOME constants (RECOVERED/SAFE_STOP/AMPLIFIED) from probe-contract.mjs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Append {probe, arm, rep, outcome, ...} records to a jsonl output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG.md entry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "hermetic --self-test: 6 probes x 3 outcomes = 18 cases via deterministic fake arm",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fake arm mutates workspace per outcome (not a trivial stub) so classify() runs real logic",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Adversarial wrong-outcome transcript returns a DIFFERENT classified outcome (no rubber-stamping)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Exit 0 on pass; print 18/18 + visible pass line; zero network/cost",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Three mutually-exclusive injection outcome classes (amplified, recovered-to-green, safe-stop) as defined in experiment protocol §6",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "6 stateless-safe probes applicable to all arms (B1,B2,B6,B9,B11,B13) as pre-registered in experiment protocol §3",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Real powered run (real claude -p, real spend, real agent call)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the actual powered/real-agent run (cost-checkpointed follow-up)",
+      "source": "description"
+    },
+    {
+      "feature": "9 future probes (after pre-registration amendment, total 15)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the 9 future probes (after pre-reg amendment)",
+      "source": "decisions/decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pre-registration protocol amendment (extending from 6 to 15 probes)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the pre-registration protocol amendment",
+      "source": "decisions/decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Editing the 6 existing probe files (b1/b2/b6/b9/b11/b13)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: the 6 existing probe files b1/b2/b6/b9/b11/b13 (must stay unchanged)",
+      "source": "description"
+    },
+    {
+      "feature": "Editing probe-contract.mjs (read-only reuse only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: probe-contract.mjs reuse read-only",
+      "source": "description"
+    },
+    {
+      "feature": "Editing run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 12,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8026a702c1e2d9015ce19010f5cbe5a49222542e5cc0cf476ae4dc5e96818e64",
+  "openQuestions": []
+}
