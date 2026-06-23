@@ -325,7 +325,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -in 'koala-codex' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 (zero hits): all koala-codex references cleaned from packages/*/src",
+          "headHash": "1446f6f867e648ea428fbe9589e2d8e3609ab33f",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:33.089Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
