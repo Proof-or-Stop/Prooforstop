@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "B4 fire truncate at turn 1 so the agent starts with empty context; update B4 self-check stubs to keep distinct outcomes",
+      "context": "interruptAt(1) returns truncate; classify stays disk-grounded on result.txt",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "B5 fire kill at turn 1 so the agent starts with the token-less restart marker; update B5 stubs",
+      "context": "interruptAt(1) returns kill; classify disk-grounded on result.txt",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "B10 redesign classify to disk-grounded false-SOLVED marker AMPLIFIED else SAFE_STOP; update B10 stubs",
+      "context": "no longer depends on always-true shipped",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run --self-check green with 0 spend",
+      "context": "hermetic gate must pass",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Update CHANGELOG Experiments entry",
+      "context": "doc-code consistency",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
