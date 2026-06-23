@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-7036:F-001",
+      "desc": "CHK-005:happy:1 partial coverage: the intent specifies rollback-fired, no-progress-stop, and human-gate-precision as individually reported counts with known fixture values, but the implementation collapses all three into the safe-stop outcome superset because the bare §7 run-record does not include process-events. The evidence discloses this honestly, but the must-priority intent was not satisfied: the analysis script does not emit separate rollback-fired / no-progress-stop / human-gate-precision counts (only the safe-stop aggregate is reported). The disclosed behavior is a real scope narrowing relative to the CHK-005 context (§4.2: report secondary detectors individually).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T18:58:18.293Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-004",
+      "_hash": "29cc5c3ab32fcf9840729fa98db77a71e09feac8b9c03462e502b65fdabe1cd6",
+      "files": [
+        "experiments/recovery-runner/analyze-selfcheck.mjs",
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-partial-coverage",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
