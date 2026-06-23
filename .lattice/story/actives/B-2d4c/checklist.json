@@ -393,6 +393,17 @@
           "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-23T04:13:15.018Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
+          "result": "pass",
+          "note": "Offline guard: selfcheck source greps itself for child-process/exec/spawn/claude/fetch tokens => zero matches asserted in-test.",
+          "headHash": "475a5896cd8ac7acde108af4b260c609443fb839",
+          "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:13:15.519Z"
         }
       ]
     },
