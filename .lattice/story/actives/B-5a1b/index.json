@@ -1,0 +1,29 @@
+{
+  "storyId": "B-5a1b",
+  "name": "koala-removal-product-runtime",
+  "title": "Remove koala from product runtime code and rename KOALA_ env vars to LATTICE_ (ship-clean story 2)",
+  "description": "The public proofbound repo still ships the retired internal codename koala in product runtime code; story 2 strips it from packages/*/src and renames every KOALA_ environment variable to LATTICE_, with no backward-compat, before the open-source launch.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "koala",
+    "ship-clean",
+    "rename",
+    "env-vars"
+  ],
+  "createdAt": "2026-06-23T12:03:37.029Z",
+  "startedAt": "2026-06-23T12:03:37.029Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T12:03:37.039Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}
