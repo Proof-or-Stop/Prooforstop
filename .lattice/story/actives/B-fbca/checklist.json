@@ -262,6 +262,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:52.292Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "git grep -nE 'bin/koala\\.js|bin/koala-codex\\.js|koala\\.json' -- 'packages/main/src/core/managed-assets.ts' (zero) + manual read confirms remaining excluded-path entries intact",
+          "result": "pass",
+          "note": "Only koala entries removed (zero koala hits in managed-assets.ts); managed-assets.ts still compiles (tsc clean) and its non-koala excluded-path entries remain — no off-by-one / neighbor removal",
+          "headHash": "6c4807851ac42136cc61638725beba9231727de1",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:53.622Z"
         }
       ]
     },
