@@ -117,7 +117,7 @@ You do only one thing: review the code quality of changes in `git diff main...HE
 
 1. `git diff main...HEAD --name-only` to get the list of changed files
 2. Only review changed files (don't review unchanged ones)
-3. For each file, check the following 3 items
+3. For each file, check the following items
 
 ## Check Items
 
@@ -133,6 +133,17 @@ You do only one thing: review the code quality of changes in `git diff main...HE
 ### 3. I/O Shell Isolation (if the project has bridge.ts)
 - Whether shell files (shells/ or ui.ts / main.ts) directly import fn.ts
 - Should interact via bridge
+
+### 4. Proof Metadata Review Coverage (narrow correctness rule)
+When the diff touches proof/receipt/provider/run/job metadata semantics, check
+that any server-authored proof keys are authored and validated across both
+job.metadata and linked run.metadata (`job.metadata` and the linked
+`run.metadata` object). In this narrow review case, checking only one location is insufficient:
+a proof key present only in job.metadata or only in linked run.metadata does not
+prove the other surface is fresh, server-authored, or bound to the same event;
+client-controlled or stale metadata cannot satisfy a server-authored proof
+requirement. This is correctness review guidance only; it is not receipt-backed production proof,
+and the reviewer must not describe it as receipt-backed production evidence.
 
 ## Output
 

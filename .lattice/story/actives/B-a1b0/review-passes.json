@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-a1b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit d07410867: only experiments/injection-probes/run-injection-arms.mjs (new file) + CHANGELOG.md (section heading rename Test-infrastructure -> Experiments, self-contained to that hunk). No domain concept deleted or renamed en masse. The CHANGELOG heading change has zero residue elsewhere in the repo (grepped *.ts/*.md/*.json/*.mjs, excluding node_modules/dist/.git). New exports (runInjectionArms, loadProbes, PROBE_FILES, importProbe) referenced only in the new file; probeCliMain/selfTestCases references outside the new file are all pre-existing legitimate definitions in probe-contract.mjs and the 6 probe files. No orphan/residual concept found; no blocker.",
+      "createdAt": "2026-06-23T09:59:19.375Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-001",
+      "_hash": "fdb61f8e53254f0a66a9071a923fbe576ccdabfd110af94107e753884767efd3"
+    },
+    {
+      "id": "B-a1b0:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 3 exported symbols: PROBE_FILES, loadProbes, runInjectionArms. Step 2 found 1 doc paragraph: CHANGELOG.md B-a1b0 Experiments entry. Compared 10 specific claims in that paragraph against experiments/injection-probes/run-injection-arms.mjs — all consistent. (1) runInjectionArms signature matches exactly (line 70). (2) No import of run-recovery/run-ablation/run-a2prime anywhere in file. (3) PROBE_FILES has 6 entries x 3 arms = 18 cases. (4) selfTest drives fake arm zero-cost, adversarial check present (lines 101-131). (5) fake arm = probe.selfTestCases[arm](ws) (line 101). (6) importProbe neutralizes process.exit/argv/console.log during dynamic import (lines 33-50). (7) git stat confirms only CHANGELOG.md and run-injection-arms.mjs changed — no probe files or probe-contract.mjs touched. (8) --run branch defers real powered run with a refusal message (lines 148-153). No overclaims, no mismatches, no blockers.",
+      "createdAt": "2026-06-23T09:59:38.725Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-003",
+      "_hash": "8d94b5e7dfbbafd7be36104fbf29e92cd11aa1257b4e80d9dbbc29dc5f4b7db0"
+    },
+    {
+      "id": "B-a1b0:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6/6 intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) have concrete assertions in run-injection-arms.mjs --self-test: fake arm records RECOVERED for resolved fault; all 6 probes loop without per-probe branching; no run-recovery/ablation/a2prime imports; 18/18 pass + visible line + exit 0; classify driven by probe selfTestCases builders on real workspace state (not stubs); adversarial discrimination confirmed (amplified != recovered-to-green). Self-test run independently confirmed exit 0.",
+      "createdAt": "2026-06-23T10:01:58.526Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-004",
+      "_hash": "9388d65fa350f1ce989cda39c1574ffb35cb4a8570718f5cd70d0350823feccc"
+    },
+    {
+      "id": "B-a1b0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check: diff is purely additive (new file experiments/injection-probes/run-injection-arms.mjs + one CHANGELOG.md entry). No concept word deleted or replaced. probe-contract.mjs and all probe files (b1/b2/b6/b9/b11/b13) confirmed untouched (zero diff). No residue scan needed — zero deletions/replacements to chase. No blocker.",
+      "createdAt": "2026-06-23T10:06:15.459Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-007",
+      "_hash": "f4ff08971584ca44c1fb6c9f86dd05b411be09bd3d2dbf2f7d4a7c2dfa3f8f24"
+    },
+    {
+      "id": "B-a1b0:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 3 exported symbols extracted (PROBE_FILES, loadProbes, runInjectionArms). Step2: 1 doc location — CHANGELOG.md Experiments section B-a1b0 entry. Step3: compared 13 specific claims in the CHANGELOG entry against run-injection-arms.mjs. All consistent: function signature matches exactly (runInjectionArms params), arm-agnostic/probe-agnostic confirmed (no arm imports), 6-probe list matches PROBE_FILES, 18-case count correct (6×3), fake-arm selfTestCases mechanic matches lines 103-104, adversarial discrimination check present lines 121-138, real-run deferred (--run branch refuses without real-arm lines 158-163), probeCliMain neutralization in importProbe lines 33-54 with upstream-fix note, probe-contract.mjs and probe files read-only (diff stat confirms only run-injection-arms.mjs added). No overclaim, no mismatch, no missing doc promise.",
+      "createdAt": "2026-06-23T10:06:26.964Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-006",
+      "_hash": "a4edd5dc0c17fed820c793ae4ef3adfd249a23e94a053e4d8aad2362f2fd0515"
+    },
+    {
+      "id": "B-a1b0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All 3 round-1 fixes are sound. F-001: selfTest().catch() at line 154 correctly intercepts unhandled rejections, prints stack, exits 1. F-002: console.error save/restore added to importProbe finally block at lines 37/51 — symmetric with console.log, no leakage. F-003: classifyCase() helper wraps each adversarial workspace in makeWorkspace()/finally{cleanup(ws)} at lines 123-129 — no temp-dir leaks on classifier throw. All 6 probe selfTestCases return plain sync objects; probe.classify() is also synchronous; the sync classifyCase wrapper is correct. No dead code (all 5 imports used: pathToFileURL line 151, appendFileSync line 86, OUTCOME line 100, makeWorkspace lines 79/123, cleanup lines 88/128). No unnecessary as-any or empty catch. No bridge/shell-isolation concern (this is a pure experiments/ script, not a shell importing fn.ts). Self-test run: 18/18 + adversarial, exit 0. CHANGELOG entry matches delivered code. No findings.",
+      "createdAt": "2026-06-23T10:08:59.926Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-005",
+      "_hash": "a3332dcadea5e1d8f130c9fa5638bb3234bc1621e633921da039b0f6a9c9ed95"
+    },
+    {
+      "id": "B-a1b0:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): verified all 6 verificationIntents against post-fix code. Self-test runs 18/18 (6 probes x 3 outcomes) + adversarial discrimination, exit 0. CHK-001:happy:0 covered (runInjectionArms records RECOVERED for the fake recovered arm). CHK-001:edge:0 covered (all 6 probes B1/B2/B6/B9/B11/B13 loop with no per-probe special-casing). CHK-001:adversarial:0 covered (no import of run-recovery/run-ablation/run-a2prime; runArm is the injected fake only). CHK-002:happy:0 covered (18/18 PASS, exit 0). CHK-002:edge:0 covered (selfTestCases builder mutates real workspace before classify runs real logic). CHK-002:adversarial:0 covered (amplified != recovered-to-green, no rubber-stamping). Round-1 fixes confirmed in code: await/catch on selfTest(), console.error suppression in importProbe, classifyCase helper with try/finally cleanup. Evidence stale status is hash-freshness only (fix commit landed after evidence was recorded); not a coverage gap.",
+      "createdAt": "2026-06-23T10:09:10.759Z",
+      "reviewRound": "2026-06-23T10:04:54.815Z",
+      "reviewRunId": "B-a1b0:RR-008",
+      "_hash": "8dc9c9241c13bba21bc861a643a6af95df42b1c34aded730331f747e07e821ec"
+    }
+  ]
+}

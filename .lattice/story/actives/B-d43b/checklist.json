@@ -1,0 +1,110 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add Codex adapter gate scope smoke",
+      "context": "Add a smoke that proves provider-only text containing Codex does not require Codex adapter evidence, while .lattice-codex / verify_codex / lattice codex verify surfaces still do.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Provider-only story/checklist text mentioning Codex does not trigger storyRequiresCodexEvidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Actual adapter surfaces such as .lattice-codex or verify_codex still trigger storyRequiresCodexEvidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke imports built dist after build so source-only fixes without rebuild/install coverage are caught.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire the smoke into validation without broadening behavior",
+      "context": "Add the smoke to lattice.config.json validation, preferably fast focus, so future validate runs catch provider-only Codex false positives without changing adapter runtime semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate --focus=fast includes the new Codex adapter gate scope smoke.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full validate still runs the smoke through the configured command list.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The change does not make forbidden Codex workflow namespace commands succeed or weaken verify_codex requirements for adapter surfaces.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write baseline comparison result for item 3",
+      "context": "Create a derived result artifact under experiments/baselines for the codexAdapterGateScope baseline dimension.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "excludes": [
+        "Do not rewrite experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The result artifact references baselineId, story id, and codexAdapterGateScope.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline file remains unchanged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact states this is local adapter gate scope coverage only, not Authority or production proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

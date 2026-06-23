@@ -4,17 +4,162 @@
       "id": "CHK-001",
       "title": "run-injection-arms.mjs powered-run driver (arm + probe agnostic)",
       "context": "For each (probe,arm,rep): mkdtemp workspace from a recovery-runner task fixture, probe.inject(workspace), obtain transcript {actions,shipped} from the arm (powered: reuse recovery-runner agentRun; self-test: a fake arm), probe.classify(workspace,transcript), append {probe,arm,rep,outcome,...} to a jsonl. Reuse probe-contract.mjs OUTCOME constants and the existing 6 probe modules unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T04:58:04.186Z",
+      "userSees": "✓ runInjectionArms({probes,arms,reps,runArm,makeWorkspace}) records {probe,arm,rep,outcome} per cell by inject->runArm(pluggable)->classify; the driver NEVER imports run-recovery.mjs (arm is a parameter).",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "experiments/injection-probes/run-injection-arms.mjs"
+        ],
+        "test": [
+          "experiments/injection-probes/run-injection-arms.mjs",
+          "experiments/injection-probes/probe-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runInjectionArms with a fake arm that resolves the fault records OUTCOME.RECOVERED for that (probe,arm,rep); WHY: proves inject->run->classify->record wiring.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the driver is probe-agnostic: looping all 6 probes (B1/B2/B6/B9/B11/B13) records one outcome per probe with no per-probe special-casing; WHY: it must serve the future 9 unchanged.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "in --self-test the driver makes NO real agent call / no network (arm is the injected fake); grep the file shows no import of run-recovery/run-ablation/run-a2prime; WHY: hermetic + respects the scope boundary.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test: a fake arm that resolves the fault yields OUTCOME.RECOVERED for that (probe,arm,rep) — proves inject->runArm->classify->record wiring (18/18 incl recovered cases).",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test loops all 6 probes (B1/B2/B6/B9/B11/B13) with no per-probe special-casing; each yields one outcome per arm — probe-agnostic, reusable for the future 9.",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Driver makes NO real agent call in --self-test (arm is the injected fake); grep shows run-injection-arms.mjs imports no run-recovery/run-ablation/run-a2prime — hermetic + scope-respecting.",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "hermetic --self-test with a fake arm (no network, no cost)",
       "context": "A self-test mode drives all 6 probes through a deterministic fake arm that simulates RECOVERED/SAFE_STOP/AMPLIFIED; assert the driver classifies+records the matching outcome for each (18 cases), proving the inject->run->classify->record wiring with zero spend. Exit 0 on pass. Does NOT make any real agent call.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T04:58:05.093Z",
+      "userSees": "✓ injection-arms driver self-test passed: 18/18 (6 probes × 3 outcomes), fake arm, 0 cost, exit 0.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/run-injection-arms.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 18 cases (6 probes × {RECOVERED,SAFE_STOP,AMPLIFIED}) pass: the driver records the expected outcome for each; WHY: end-to-end wiring proven hermetically.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "each outcome class is exercised via the probe's own selfTestCases builder mutating the workspace (recover/safeStop/amplify), so classify runs real logic on a real workspace state, not a stub; WHY: guards against a trivial fake arm.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "feeding a probe the WRONG-outcome transcript makes classify return a DIFFERENT outcome than recorded for the right one (no rubber-stamping); WHY: proves the driver+classify actually discriminate.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test prints 18/18 PASS (6 probes × {RECOVERED,SAFE_STOP,AMPLIFIED}) + visible pass line, exit 0 — end-to-end wiring proven hermetically, 0 cost.",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Each outcome class exercised via the probe's own selfTestCases builder mutating the workspace, so classify() runs real logic on a real state (not a stub).",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Adversarial check: feeding b1 the amplified-builder vs recovered-builder yields different classified outcomes (amplified != recovered-to-green) — no rubber-stamping.",
+          "headHash": "adf1e881dbca94a781ca15bac1fe404693dccae2",
+          "materialHash": "941d0ac82a009c20d43390f16a58ca964dc0789a9856c0d656a901285801fd69",
+          "storyFilesHash": "e93af015ff4d75ccc2acb560ae750a51ff129ecdd122b3481abf5dab8f41e47c",
+          "timestamp": "2026-06-23T10:10:05.555Z"
+        }
+      ]
     }
   ]
 }

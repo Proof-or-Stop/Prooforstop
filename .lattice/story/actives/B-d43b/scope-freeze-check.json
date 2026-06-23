@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d43b",
+  "checkedAt": "2026-06-23T10:47:49.814Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "e42a31926d0f9cec965dd53c0898f3cc2cec480592ba88d2e65b540b7f632d38",
+  "executionBoundaryHash": "2e0439d4e4c8d08d1f3ce63a56f7ca9c1a130f90ddc9d3ae733bb5046bcae99c",
+  "freshnessHash": "d18b519aaa1723284c0098153516778b52a5a97e940370788948320a3ea02f4d",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not change Authority Server logic",
+    "Do not deploy or push",
+    "Do not make Codex-prefixed workflow commands succeed",
+    "Do not rewrite the immutable baseline JSON",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority Server logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change Authority Server logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority Server logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not deploy or push",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not deploy or push",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not make Codex-prefixed workflow commands succeed",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not make Codex-prefixed workflow commands succeed",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite the immutable baseline JSON",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite the immutable baseline JSON",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "bf12a17f1c7d94b2645053379269b33a40bb77697fcfa659b5eef1fa8196e3f1"
+}

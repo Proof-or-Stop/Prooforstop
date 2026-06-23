@@ -1,0 +1,49 @@
+{
+  "principles": [
+    "Only fix the observed correctness gap",
+    "Keep reviewer guidance separate from receipt-backed proof",
+    "Preserve existing quality reviewer role and prompt shape",
+    "Make regression coverage fail closed if key language is removed"
+  ],
+  "drivers": [
+    "Baseline item 2 requires job metadata and linked run metadata coverage",
+    "Scope excludes server business logic and receipt verification changes",
+    "The immutable baseline must remain unchanged"
+  ],
+  "options": [
+    {
+      "name": "prompt-and-smoke-only",
+      "pros": [
+        "Directly fixes the workflow guidance gap",
+        "Small scoped diff",
+        "Regression catches accidental removal"
+      ],
+      "cons": [
+        "Does not by itself prove production receipt correctness"
+      ]
+    },
+    {
+      "name": "server-logic-change",
+      "pros": [
+        "Could enforce proof metadata at runtime"
+      ],
+      "cons": [
+        "Out of scope for this story",
+        "Would mix workflow baseline item with server behavior"
+      ]
+    },
+    {
+      "name": "broad-reviewer-refactor",
+      "pros": [
+        "Could reorganize reviewer prompts"
+      ],
+      "cons": [
+        "Arbitrary optimization risk",
+        "Larger review surface without need"
+      ]
+    }
+  ],
+  "chosen": "prompt-and-smoke-only",
+  "rationale": "The target is a real reviewer guidance correctness gap, so a narrow prompt plus smoke regression is sufficient and avoids changing unrelated runtime behavior.",
+  "timestamp": "2026-06-23T10:01:36.896Z"
+}

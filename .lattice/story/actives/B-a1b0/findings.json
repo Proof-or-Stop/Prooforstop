@@ -1,0 +1,69 @@
+{
+  "findings": [
+    {
+      "id": "B-a1b0:F-001",
+      "desc": "run-injection-arms.mjs:147 selfTest() called without await — if selfTest() throws unexpectedly (distinct from its own process.exit(1) failure path), the rejection is unhandled and produces a cryptic UnhandledPromiseRejection trace rather than selfTest()'s clear FAIL summary. Fix: await selfTest() (top-level await is valid in .mjs) or selfTest().catch(e => { console.error(e); process.exit(1); }).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T10:03:16.892Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-002",
+      "_hash": "27ae7d4bfc0d9abfa2bfc28af1341ce0b418613d37817f13cc5da5e80b8f3fc4",
+      "files": [
+        "experiments/injection-probes/run-injection-arms.mjs"
+      ],
+      "signatureTag": "edge|mjs|injection-arms-selftest",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: selfTest() is now .catch()'d -> a throw prints a clear error and exits 1 instead of an unhandled rejection. Self-test 18/18.",
+      "resolvedAt": "2026-06-23T10:05:15.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a1b0:F-002",
+      "desc": "run-injection-arms.mjs:39 importProbe neutralizes console.log but not console.error — the comment claims to neutralize stdout for the duration of the dynamic import. console.error is not suppressed. The current execution path (else-branch runs synchronously before finally restores) does not leak in practice, but any top-level console.error call in a probe file's module scope would escape. The suppression is incomplete relative to what the comment promises.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T10:03:23.145Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-002",
+      "_hash": "d40e91b2d250d384add6c8659e3d2a5a5882476cc750976b5a49c6f06eb22298",
+      "files": [
+        "experiments/injection-probes/run-injection-arms.mjs"
+      ],
+      "signatureTag": "edge|mjs|injection-arms-importprobe",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: importProbe now saves/restores console.error too (suppressed during the side-effect window), matching the stated intent.",
+      "resolvedAt": "2026-06-23T10:05:15.983Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a1b0:F-003",
+      "desc": "[codex-host2] adversarial discrimination block (run-injection-arms.mjs ~119-126) allocates wsA/wsR via makeWorkspace() WITHOUT a finally: if inject/selfTestCases/classify throws, the temp workspaces leak. FIX: wrap each in try/finally cleanup (or a helper) like runInjectionArms does.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T10:04:10.953Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "_hash": "8a4ddb47ccb4641d1373565c2bd5a06444941fb7be37934a90177e9fada904e2",
+      "files": [
+        "experiments/injection-probes/run-injection-arms.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: classifyCase() helper wraps makeWorkspace/inject/classify in try/finally cleanup, so a classifier throw cannot leak the adversarial temp workspaces.",
+      "resolvedAt": "2026-06-23T10:05:16.540Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

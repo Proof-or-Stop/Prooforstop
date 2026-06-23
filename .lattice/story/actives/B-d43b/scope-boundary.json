@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d43b",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a derived baseline result artifact for baseline dimension 3",
+    "Add regression coverage for Codex adapter evidence gate scope",
+    "Update validation configuration to run the new smoke"
+  ],
+  "excluded": [
+    "Do not change Authority Server logic",
+    "Do not deploy or push",
+    "Do not make Codex-prefixed workflow commands succeed",
+    "Do not rewrite the immutable baseline JSON"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved completing the six measured workflow-efficiency fixes; this story handles baseline dimension 3 only.",
+  "createdAt": "2026-06-23T10:45:52.376Z",
+  "updatedAt": "2026-06-23T10:45:52.376Z",
+  "_hash": "e42a31926d0f9cec965dd53c0898f3cc2cec480592ba88d2e65b540b7f632d38"
+}
