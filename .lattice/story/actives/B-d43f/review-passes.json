@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T19:28:52.385Z",
       "reviewRunId": "B-d43f:RR-003",
       "_hash": "af050d7cca4570b9a56a1005eaf63482a687d79c008cbd35128bdf8c2269359c"
+    },
+    {
+      "id": "B-d43f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step-1 symbols: countMarkerInWorkspace, literalInFilesWithExt, selfCheck (exported from live-loop-harness.mjs); B3/B4/B5/B8/B12/B14/B15 scenario objects. Step-2 paragraphs: the single B-d43f CHANGELOG bullet under ### Experiments (only 1 heading, confirmed grep-c==1). Comparison: (1) All 7 scenarios B3/B4/B5/B8/B12/B14/B15 are present in code with the exact hook types and classify logic described (inject on turn 1 for B3/B8/B12/B14/B15; truncate-turn-2 for B4; kill-turn-2 for B5; AMPLIFIED/RECOVERED/SAFE_STOP conditions match the CHANGELOG prose). (2) Self-check case count: 19 labeled cases + 1 timeout/abort = 20 total; CHANGELOG claims 14 new + existing 6 = 20/20. Code self-check ran live and confirmed exit 0, 20/20. (3) --run still exits 2 (honestly deferred); no powered results claimed in CHANGELOG. (4) git diff --name-only shows only live-loop-harness.mjs + CHANGELOG.md changed (no probe/probe-contract/run-recovery/run-ablation/run-a2prime edits). (5) grep-c == 1 for ### Experiments. No overclaims, no doc-code drift, no missing descriptions found.",
+      "createdAt": "2026-06-23T19:30:31.256Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "reviewRunId": "B-d43f:RR-002",
+      "_hash": "eafa326be83ed14d396321769c895a459b27665a7b0d85726a4a5c15c09b4a0d"
     }
   ]
 }
