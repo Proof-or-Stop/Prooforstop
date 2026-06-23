@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-f248:F-001",
+      "desc": "CHK-001:happy:0 evidence command/note does not genuinely exercise the intent premise. The intent specifies k=2, 3 tasks, total=462 cells. The selfcheck (run-driver-selfcheck.mjs line 58-61) runs enumerateCells({tasks:[\"t1\",\"t2\"], k:5}) and asserts 770 cells. Parameters k and task-count both differ from the intent; the cited note does not disclose this divergence. The 462-cell and the exact 3-task shape are never asserted anywhere in the selfcheck. This is a parameter-mismatch honesty violation, not a disclosed deviation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T11:57:00.383Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-004",
+      "_hash": "c1dd14240376b0e9183c6ff16077f36455002cdd6f642341df5e291c8edc072f",
+      "files": [
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-evidence-command",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
