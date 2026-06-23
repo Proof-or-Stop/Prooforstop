@@ -48,7 +48,7 @@
       "desc": "[codex-host2 C8] maxTurns is unvalidated: Infinity/huge runs indefinitely; 0/negative yields B10 SAFE_STOP with zero turns. FIX: require Number.isInteger(maxTurns) && maxTurns>=1 (throw otherwise).",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T13:00:31.781Z",
@@ -58,7 +58,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "edge|mjs|codex-host2-maxturns",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: maxTurns validated at entry — throws 'maxTurns must be a positive integer' unless Number.isInteger && >=1.",
+      "resolvedAt": "2026-06-23T13:05:45.729Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c023:F-004",
