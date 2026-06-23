@@ -66,6 +66,19 @@
           "materialHash": "d15f89c8c1da1fabf168eb1bb5354d9e675042064a21635134a41291dd158dc6",
           "storyFilesHash": "2bd25d4cacdf7b9c1a0e11d9b69f371522fec2dc155390c10c60be6a33e997c8",
           "timestamp": "2026-06-23T12:07:02.882Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/real-arm.mjs",
+          "command": "node experiments/injection-probes/real-arm.mjs --self-check",
+          "result": "pass",
+          "note": "self-check: ship-no-fix catchRate 0.167 vs safe-stop catchRate 1.0 DIFFER; the catch-rate metric discriminates, not hardcoded.",
+          "headHash": "5922ae7015a0c4bb2ada268ba0c973da1a7d9139",
+          "materialHash": "d15f89c8c1da1fabf168eb1bb5354d9e675042064a21635134a41291dd158dc6",
+          "storyFilesHash": "2bd25d4cacdf7b9c1a0e11d9b69f371522fec2dc155390c10c60be6a33e997c8",
+          "timestamp": "2026-06-23T12:07:22.356Z"
         }
       ]
     },
