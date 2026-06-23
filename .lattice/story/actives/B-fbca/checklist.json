@@ -353,6 +353,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:26.491Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface",
+          "headHash": "f7a8302863a597ca5007abf79ba63ec7068aed81",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:36.469Z"
         }
       ]
     }
