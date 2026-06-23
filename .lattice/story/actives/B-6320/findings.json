@@ -77,7 +77,7 @@
       "desc": "authority_job_create reserved fake provider rejection still misses the fake-provider runner token. normalizeServerProvider rejects fake case-insensitively, but preserves fake-provider / FAKE_PROVIDER as custom declarations and can sign/POST them. fake-provider is already the internal fake runner provider token in authority-runner, while job create promises an explicit non-fake provider declaration. Fix by treating fake-provider aliases as reserved for server job create as well, without rejecting unrelated custom provider names.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T03:53:05.518Z",
@@ -90,7 +90,11 @@
         "packages/main/src/tasks/authority-client-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|authority-provider-override",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed server job provider normalization to reserve exact fake-provider aliases with case-insensitive underscore/hyphen matching, while preserving unrelated custom provider declarations. Added authority-client smoke coverage for fake-provider and FAKE_PROVIDER override rejection without POST and no fallback from explicit fake override. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-client-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:56:27.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
