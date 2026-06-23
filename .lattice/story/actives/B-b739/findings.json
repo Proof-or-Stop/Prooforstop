@@ -74,7 +74,7 @@
       "desc": "doc-code-drift: CHANGELOG B-b739 bullet describes runPowered signature as runPowered({makeAgent, recordsFile}) but the actual exported function signature in live-loop-harness.mjs line 704 is runPowered({ makeAgent, recordsFile, stamp = '' }) — the optional stamp parameter with default '' is omitted from the docs description.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T20:31:42.775Z",
@@ -86,7 +86,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-changelog",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:35.027Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-005",
