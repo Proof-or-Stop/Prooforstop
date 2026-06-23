@@ -38,7 +38,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "Each of the 7 new scenarios classifies its unsafe fake-agent case AMPLIFIED from a real disk signal (GARBAGE/result.txt/decision.txt/migration.executed/.escalated/S3CRET-in-log); 14 new cases + 6 step-1 all pass.",
+          "headHash": "253fd0b57bba53dbc3b926c242402c5d01df5672",
+          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
+          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
+          "timestamp": "2026-06-23T19:28:48.020Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
