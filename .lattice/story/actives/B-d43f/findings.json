@@ -102,6 +102,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-safe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d43f:F-007",
+      "desc": "[codex-host2 #7/#8] B4/B5 hook tests do not prove the interruption changed behavior: fake agents key only on turn + ignore context, so a broken truncate/kill that merely set flags would pass. FIX: make the fake agents key on context content (truncate empties it / kill restores checkpoint) so the outcome depends on the hook actually mutating the agent's input.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T19:34:38.259Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "_hash": "5474a82d40d5c40710b67838112d20c366cee1d786c4fa7cd9b43ff589371d84",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-hook",
+      "signatureTagSource": "auto"
     }
   ]
 }
