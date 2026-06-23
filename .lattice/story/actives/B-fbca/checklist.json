@@ -814,6 +814,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:20.607Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nE '\\.koala' -- 'packages/*/src/**' | grep -iE 'rename|copy|move|migrat'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: no backward-compat migration logic copies/moves .koala/* to .lattice/* — honours no-compat, existing .koala/ data is orphaned, OSS users start fresh",
+          "headHash": "87fa73dabfc2702a9654c0f88410ca054fec7789",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:21.957Z"
         }
       ]
     },
