@@ -359,6 +359,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:21:35.807Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -in koala -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Case-insensitive grep across identifiers, string literals AND comments: exit 1 / zero hits. Koala in comments/strings is fully swept (the residue self-IDs that the intent allowed were later renamed by CHK-007)",
+          "headHash": "0f39dc0fa9f6619031c12c10ea57a01370fe873b",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:37.205Z"
         }
       ]
     },
