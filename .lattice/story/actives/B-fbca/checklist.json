@@ -532,6 +532,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:23:04.928Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "printf 'export const X=\"koala-finding-integrity-v1\";' > packages/main/src/__chk004_residue_inject.ts && git add packages/main/src/__chk004_residue_inject.ts && node scripts/verify-lattice-residue.mjs; git rm -f packages/main/src/__chk004_residue_inject.ts",
+          "result": "pass",
+          "note": "Injected a koala salt into a TRACKED packages/main/src file (the gate scans via git ls-files, so the inject must be staged): gate exited 1 FAIL and printed the exact residue line; after git rm, gate PASS again. Proves the residue gate is functional and would catch a regression",
+          "headHash": "6b66059567b7231c58f786f0d9a2dbac3c135c37",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:06.324Z"
         }
       ]
     },
