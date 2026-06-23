@@ -451,11 +451,11 @@
           "intentRef": "CHK-003:happy:3",
           "kind": "logic_test",
           "result": "pass",
-          "note": "run-ablation.mjs lines 134-140 build the enriched record with budgetPass and append it to ablation-A2prime-compute-matched.jsonl (A2P_FILE, line 96). The budgetPass() function is unit-tested (selfcheck CHK-003 h3). File-write at runtime needs a live ablation run, so the integration is code-review (logic).",
-          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
-          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
-          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
-          "timestamp": "2026-06-23T01:53:57.669Z"
+          "note": "run-ablation.mjs lines 149-155 build the enriched record with tokenInBand, wallInBand, and budgetPass = budgetPass(run.tokensSpent, run.wallClockMs, medTokens, medWall) and append it to ablation-A2prime-compute-matched.jsonl (A2P_FILE). budgetPass now requires BOTH the token AND wall-clock axes within +/-20pct of A4's per-task median (pre-reg section 47); it is unit-tested across both axes (selfcheck CHK-003 h3/h5/a3/a4/a5/a6/a7). File-write at runtime needs a live ablation run, so the integration is code-review (logic).",
+          "headHash": "db47ecc7b55b38bb826b513ab649787700e70972",
+          "materialHash": "fe8f60767b7d89ffe45c3de10f2ea90614f0c3e6beaad1a523cffbcb621496da",
+          "storyFilesHash": "c6690196b461b90a5b1d05abbe7efffd39a2c35278fcc4a6d7544d1323f378a9",
+          "timestamp": "2026-06-23T02:08:30.395Z"
         },
         {
           "intentRef": "CHK-003:happy:4",
