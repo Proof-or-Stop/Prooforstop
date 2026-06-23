@@ -5,7 +5,7 @@
       "desc": "done_closure now classifies done-required-validation as a done_prepare recovery blocker and returns only lattice done_prepare as the nextCommand, but done_prepare never invokes the separate done_required_validate writer. Its validate step calls ordinary lattice validate, then rebuilds done_closure; missing or stale done-required-evidence.json is produced only by done_required_validate. For opted-in doneRequiredCommands this routes the operator into a loop instead of creating post-merge material/storyFilesHash-bound DONE-required evidence, so the ordering-sensitive blocker is not actually recovered by the host-neutral command.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T02:02:39.217Z",
@@ -19,7 +19,11 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "spec-boundary|ts|closure-classifies-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 42929151: done_prepare now invokes the existing done_required_validate handler whenever validate=true and doneRequiredCommands are configured, then fails closed on FAIL output. Verified by npm --prefix packages/main run build and node packages/main/dist/tasks/done-prepare-smoke.js, including missing DONE-required evidence is produced by done_prepare validation.",
+      "resolvedAt": "2026-06-23T02:21:29.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1b1:F-002",
