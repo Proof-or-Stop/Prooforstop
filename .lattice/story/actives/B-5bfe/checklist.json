@@ -587,13 +587,53 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "docs_check",
-          "file": "experiments/recovery-runner/run-recovery.mjs",
-          "note": "Both run-recovery.mjs and run-ablation.mjs document spend-match: token+wall-clock NOT call count, ±20% band, token binds first, hard-truncate at upper bound, citing lattice-experiment-protocol.md rev3.1 §1 A2-prime row + §7. Verified via grep of doc terms in both files.",
-          "headHash": "a70d28810e3ba33d2ba73fcb962d2efa7541c2f1",
-          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
-          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
-          "timestamp": "2026-06-23T01:47:25.920Z"
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-recovery.mjs header comment (the spend budget + accounting helpers block) and run-ablation.mjs header comment (the A2-prime compute-matched arm block) both document: spend-match on token+wall-clock NOT call count, +/-20pct band, token binds first, hard-truncate at upper bound.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Both files name the EXACT source: \"lattice-experiment-protocol.md rev3.1 §1 (the A2-prime row)\" and cite +/-20pct of A4 per-task median, token binds first, hard-truncate at the upper bound (run-recovery.mjs budgetExceeded comment + truncated-flag comment; run-ablation.mjs header + a2primeBudget comment).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "The semantics appear in BOTH files: run-recovery.mjs near budgetExceeded() and the in-loop truncation checks (the \"Spend-budget hard-truncation cap (A2-prime)\" comments), and run-ablation.mjs near the A2-prime arm setup (header + the \"A2-prime compute-matched arm\" section comment). Each is independently traceable to the pre-reg.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Comments explicitly say \"matched on SPEND (total tokens + wall-clock), NOT on call count\" (run-recovery.mjs) and \"spend-matched ... NOT by call count\" (run-ablation.mjs); they describe a budget/cap, never per-run spend-parity, so the prior compute-confound wording is not reintroduced.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Comments cite the CURRENT revision \"rev3.1\" and \"§1 (the A2-prime row)\" + \"§7\" in both files; no stale revision or wrong section number. Verified against the authority doc header (Status rev3.1) and §1 A2-prime row / §7 schema.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
         }
       ]
     },
@@ -658,11 +698,110 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
-          "note": "34 assertions pass with NO live LLM invoked (entry guards make both runners import-only; selfcheck confirms no claude -p subprocess). Field names verified exactly tokensSpent/wallClockMs/agentCallCount, snake_case rejected.",
-          "headHash": "cc91f3374833b1722bfbecee4c9046e591d29cf2",
-          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
-          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
-          "timestamp": "2026-06-23T01:47:15.611Z"
+          "note": "selfcheck \"CHK-005 h4\": all imported helpers (budgetExceeded/tokensFromUsage/replayBudgetLoop/buildRunRecord/median/a2primeBudget/budgetPass) are pure; the selfcheck spawns zero child processes (no claude -p), confirmed by its final line and by entry-guards making both runners import-only.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h0\": median([150,250,200])=200.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h1\": budgetExceeded(900,...,1000)=false; budgetExceeded(1050,...,1000)=true.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h2\": replayBudgetLoop over 3 synthetic calls => tokensSpent 300 (sum of per-call tokens); per-call ms summed for wallclock.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h3\": buildRunRecord has tokensSpent/wallClockMs/agentCallCount and NOT tokens_spent (no snake_case variant).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e0\": single call => tokensSpent=that call (250), agentCallCount=1.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e1\": median([100,200])=150 (even-count average).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e2\": budgetExceeded at exact boundary cumTokens===tokenBudget => true (>= semantics).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 a0\": a record using tokens_spent is flagged (missing the canonical tokensSpent field) — naming violation detected against pre-reg §7.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 a1\": a record missing agentCallCount is flagged (hasOwnProperty false) — incomplete schema detected.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
         }
       ]
     }
