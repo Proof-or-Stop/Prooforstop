@@ -441,6 +441,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:02:09.520Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "grep test:lattice-residue package.json",
+          "result": "pass",
+          "note": "Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI",
+          "headHash": "61d12c07a375647a1eee6bc6b11e9f0fb3ff1eea",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:12.163Z"
         }
       ]
     }
