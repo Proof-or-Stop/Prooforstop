@@ -740,6 +740,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:44.937Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "command": "node scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Ran the residue gate; exit 0, 'PASS koala-residue: 0 unclassified'. No new unclassified residue introduced.",
+          "headHash": "d73d8571c3d779633f7c3502a99478418b7a651d",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:45.679Z"
         }
       ]
     }
