@@ -49,10 +49,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertion 'spec-aware reviewer: catchRate 1.0, falseShip 0, falseBlock 0' + 'each caught probe names its defect kind' — directly proves runGateStrength(specAwareReviewer) scores discrimination correctly.",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertion 'gate-strength receipt verifies offline (ACCEPTED) against matching materialHash' — proves gateStrengthBundle emits a B-4c65 bundle verifyReceiptBundleOffline accepts (assurance local-key-single-host).",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertion 'test-only reviewer: catchRate 0 (ships every wrong-but-test-passing probe)' (falseShip==wrongTotal) — proves test-green != correct and the metric is not a block-everything constant.",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertion 'spec-aware reviewer: catchRate 1.0' incl. genuine probe shipped (shipped-genuine) — control showing perfect discrimination is achievable and the genuine artifact is not over-blocked.",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,10 +142,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertion 'endpoints differ (0 vs 1.0) -> metric measures real discrimination' (assert.notEqual testOnly.catchRate, specAware.catchRate) — guards against a tautological/constant metric.",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
           "result": "pass",
           "note": "Smoke assertions 'gate-strength receipt verifies offline (ACCEPTED)' + 'tampering the bound metric digest is REJECTED (signature_invalid)' + 'stale materialHash REJECTED' — the published strength metric is itself tamper-evident.",
-          "headHash": "3191f3deead78cbe444e987edcbc427ad56b52aa",
-          "materialHash": "5e7c4cc2dc59025673b6e0fb053f72438bd8caf9109fe9bafc92c0a80403b0ba",
-          "storyFilesHash": "221e1935f4b7bd458e87d05d3b692de7c2d53676f82b27c805b3a4eb87ae442d",
-          "timestamp": "2026-06-23T00:06:54.614Z"
+          "headHash": "fad2d001fde80d7a3810c371b947dfe32cf0dac5",
+          "materialHash": "691d2c0e37ca8ee1ace44551ef98c27aeabcbf57cdbb78adfec35a0cdffa2d0a",
+          "storyFilesHash": "9d26e14910b14c524a5a56a5c126475cdd2ce168969204433ef0f39225ff1822",
+          "timestamp": "2026-06-23T00:41:25.050Z"
         }
       ]
     }
