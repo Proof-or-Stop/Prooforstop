@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f248:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed in git diff that have grep hits in README/CLAUDE.md (no new TS exports, only README.md + package.json added). Step 2/3: reviewed all 10 specific claims in the diff-added sections against run-driver.mjs (lines 351-381) and run-selfchecks.mjs. Checked: --tasks/--k/--engine/--record CLI flags (all parsed by arg() as documented); no-engine exit behavior (process.exit(0), correctly described as refusal); run-selfchecks.mjs spawns only spawnSync(process.execPath) nodes (no claude -p, matches claim); denominatorSets contrast names (A4_vs_A2prime/A4_vs_A3/A4_vs_A2/A4_vs_A1 exact match with CONTRASTS array); B4/B5/B10 exclude A1 applicability (A1_EXCLUDED_SCENARIOS exact match); selfcheck list adjudicate+checks+spend-accounting+run-driver (exact match with SELFCHECKS array in run-selfchecks.mjs); enumerate-only path writes nothing (no appendFileSync called before engine-guard). No blockers found.",
+      "createdAt": "2026-06-23T11:51:35.071Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-001",
+      "_hash": "79e0b23f276cb4f857d3bcb070d66724fa613c438946892b3bba9e1cc8e3abbe"
+    }
+  ]
+}
