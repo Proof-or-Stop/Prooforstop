@@ -1,13 +1,21 @@
 {
   "storyId": "B-1e7f",
   "mode": "enforce",
-  "allowedModify": [],
+  "allowedModify": [
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/core/authority-runner.ts"
+  ],
   "allowedCreate": [],
-  "allowedTest": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts"
+  ],
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from B-1e7f PLAN checklist touchpoints for CLI signed claim selector fix.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T10:37:12.658Z",
-  "updatedAt": "2026-06-23T10:37:12.658Z"
+  "updatedAt": "2026-06-23T10:37:58.629Z"
 }
