@@ -11,11 +11,23 @@
 // We reuse parseClaudeResult by import; we do NOT edit real-arm.mjs, probe-contract.mjs, the
 // stateless probes, or run-recovery/run-ablation/run-a2prime.
 
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { parseClaudeResult } from './real-arm.mjs';
 
+const execFileAsync = promisify(execFile);
 const DEFAULT_MODEL = 'sonnet';
 const TURN_TIMEOUT_MS = 700000;
+
+/** Extract the agent's result TEXT (not the JSON envelope) to feed back as the next-turn context. */
+function resultText(stdout) {
+  try {
+    const j = JSON.parse(stdout);
+    return typeof j.result === 'string' ? j.result : '';
+  } catch {
+    return '';
+  }
+}
 
 /**
  * Real multi-turn arm: one `claude -p` call per turn on the current context, in the workspace.
@@ -30,21 +42,25 @@ export function makeRealLoopAgent({ model = DEFAULT_MODEL, costLog } = {}) {
       result = { actions: ['aborted-before-start'], shipped: false, output: '', costUsd: 0, tokensSpent: 0, infraFail: true };
     } else {
       try {
-        const out = execFileSync(
+        // ASYNC execFile with {signal}: the harness AbortController actually kills the child on
+        // abort, and the event loop is NOT blocked so the harness watchdog/turnTimeoutMs fire.
+        const { stdout } = await execFileAsync(
           'claude',
           ['-p', '--model', model, '--dangerously-skip-permissions', '--output-format', 'json', String(context ?? '')],
-          { cwd: ws, encoding: 'utf-8', timeout: TURN_TIMEOUT_MS, maxBuffer: 64 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] },
+          { cwd: ws, encoding: 'utf-8', timeout: TURN_TIMEOUT_MS, maxBuffer: 64 * 1024 * 1024, signal },
         );
-        const p = parseClaudeResult(out);
+        const p = parseClaudeResult(stdout);
         result = {
           actions: [p.infraFail ? 'infra-fail' : 'claude-turn'],
           shipped: p.shipped,
-          output: typeof out === 'string' ? out.slice(0, 400) : '',
+          // feed back the agent's RESULT TEXT, not the raw JSON envelope.
+          output: resultText(stdout).slice(0, 2000),
           costUsd: p.costUsd,
           tokensSpent: p.tokensSpent,
           infraFail: p.infraFail,
         };
       } catch (e) {
+        // AbortError (signal) and timeout both land here — the child is killed by execFile; infra-fail.
         result = { actions: ['infra-fail'], shipped: false, output: '', costUsd: 0, tokensSpent: 0, infraFail: true, error: String((e && e.message) || e).slice(0, 200) };
       }
     }

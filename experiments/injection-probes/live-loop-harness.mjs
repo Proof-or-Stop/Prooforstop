@@ -710,7 +710,9 @@ export async function runPowered({ makeAgent, recordsFile, stamp = '' }) {
     const costUsd = costLog.reduce((a, c) => a + (c.costUsd || 0), 0);
     const tokensSpent = costLog.reduce((a, c) => a + (c.tokensSpent || 0), 0);
     const infraFail = costLog.some((c) => c.infraFail);
-    const rec = { scenario: scenario.id, outcome, turns: transcript.turns, costUsd, tokensSpent, infraFail };
+    // An infra-fail (CLI/parse failure) is NOT a real classifier outcome — record it as 'infra-fail'
+    // so it is excluded from the amplified/scored tally rather than masquerading as SAFE_STOP, etc.
+    const rec = { scenario: scenario.id, outcome: infraFail ? 'infra-fail' : outcome, turns: transcript.turns, costUsd, tokensSpent, infraFail };
     records.push(rec);
     if (recordsFile) appendFileSync(recordsFile, JSON.stringify({ ...rec, ts: stamp }) + '\n');
   }
@@ -812,12 +814,14 @@ export async function selfCheck() {
     const stubFactory = () => makeStubLoopAgent(() => ({ actions: ['stub'], shipped: false }), observed);
     const powered = await runPowered({ makeAgent: stubFactory });
     const valid = (r) =>
-      r && r.scenario && [OUTCOME.AMPLIFIED, OUTCOME.SAFE_STOP, OUTCOME.RECOVERED].includes(r.outcome) &&
-      typeof r.costUsd === 'number' && typeof r.tokensSpent === 'number' && typeof r.turns === 'number';
-    if (powered.length !== STATEFUL_SCENARIOS.length) {
-      failures.push(`runPowered produced ${powered.length} records, expected ${STATEFUL_SCENARIOS.length}`);
+      r && r.scenario && [OUTCOME.AMPLIFIED, OUTCOME.SAFE_STOP, OUTCOME.RECOVERED, 'infra-fail'].includes(r.outcome) &&
+      typeof r.infraFail === 'boolean' && typeof r.costUsd === 'number' && typeof r.tokensSpent === 'number' && typeof r.turns === 'number';
+    if (powered.length !== 9) {
+      failures.push(`runPowered produced ${powered.length} records, expected exactly 9`);
     }
     for (const r of powered) if (!valid(r)) failures.push(`runPowered record schema invalid: ${JSON.stringify(r)}`);
+    // The stub agent makes no claude call, so every record must show zero spend.
+    for (const r of powered) if (r.costUsd !== 0 || r.tokensSpent !== 0) failures.push(`runPowered stub spent non-zero: ${JSON.stringify(r)}`);
     if (observed.gotSignal !== true) failures.push('runPowered: the agent never received an AbortSignal (signal not threaded through)');
     if (!failures.some((f) => f.startsWith('runPowered'))) {
       console.log(`PASS runPowered: ${powered.length} stub records, valid {scenario,outcome,turns,costUsd,tokensSpent} schema, agent received {signal}`);
@@ -853,9 +857,13 @@ if (isMain) {
         console.log(`${r.scenario} -> ${r.outcome} (turns=${r.turns}, $${(r.costUsd || 0).toFixed(4)}, ${r.tokensSpent} tok)${r.infraFail ? ' [infra-fail]' : ''}`);
       }
       const total = records.reduce((a, r) => a + (r.costUsd || 0), 0);
-      const amp = records.filter((r) => r.outcome === OUTCOME.AMPLIFIED).length;
+      // Exclude infra-fails from the scored denominator — a CLI failure is not a real arm outcome.
+      const scored = records.filter((r) => r.outcome !== 'infra-fail');
+      const amp = scored.filter((r) => r.outcome === OUTCOME.AMPLIFIED).length;
+      const infra = records.length - scored.length;
       console.log(
-        `\n— live-loop powered run (9 stateful scenarios, small-N=1, EXPLORATORY) — amplified=${amp}/${records.length}, total $${total.toFixed(4)}\n` +
+        `\n— live-loop powered run (9 stateful scenarios, small-N=1, EXPLORATORY) — amplified=${amp}/${scored.length} scored` +
+          `${infra ? ` (${infra} infra-fail excluded)` : ''}, total $${total.toFixed(4)}\n` +
           `Caveat: small-N single-agent exploratory data; NOT a powered/pre-registered result. Appended to live-loop-powered-records.jsonl.`,
       );
     })().catch((e) => { console.error(`✗ --run error: ${e && e.stack ? e.stack : e}`); process.exit(1); });
