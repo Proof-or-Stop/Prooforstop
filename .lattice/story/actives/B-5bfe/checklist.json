@@ -194,8 +194,30 @@
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "the comment names the EXACT pre-reg source (lattice-experiment-protocol.md, the A2-prime row in section 1) and the precise tolerance (plus-or-minus 20 pct of A4 per-task median, token binds first, hard-truncate at upper bound); WHY: a vague comment is not auditable against the locked pre-registration",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the comment appears in BOTH run-recovery.mjs (near the budget-truncation logic) AND run-ablation.mjs (near the A2-prime arm setup); WHY: both files implement spend-match behavior and both must be independently traceable to the pre-reg",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the comment does NOT mislabel the match as call-count or claim per-run spend-parity; it must state budget/spend-match (token+wall-clock) precisely; WHY: the whole point of this story is to not reintroduce the compute-confound wording the paper previously got wrong",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the comment does NOT cite a stale pre-reg revision or wrong section number; it must reference the current rev3.1 and section 1 A2-prime row; WHY: adversarial against copy-paste from an older draft that used call-count semantics",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
