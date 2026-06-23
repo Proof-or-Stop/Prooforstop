@@ -245,6 +245,47 @@
         "bindingHash": "942b947f683cffbfe02b11b2da8e17799778968529001b0e58f88c6842e79438"
       },
       "_hash": "8f909020fe0d4c03d9c6ca7336b9cfcecfabf2ddc1f9ac88cab8e9839dea493f"
+    },
+    {
+      "reviewRunId": "B-5bfe:RR-007",
+      "storyId": "B-5bfe",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-23T02:09:17.239Z",
+      "startedAt": "2026-06-23T02:30:30.016Z",
+      "headHash": "15346e1da339d155e587da66e42f8b5e47628bf4",
+      "materialHash": "fe8f60767b7d89ffe45c3de10f2ea90614f0c3e6beaad1a523cffbcb621496da",
+      "storyFilesHash": "c6690196b461b90a5b1d05abbe7efffd39a2c35278fcc4a6d7544d1323f378a9",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "8fb4d01db5b0ba679df9f76d97017cd6d4453947b223181798d151c87c7dacc8",
+        "diffPackHash": "c372e25f5d6860202affb30ccf5b6e42b8a66e0529872826cafeea108e53e555",
+        "reviewedChangedFiles": [
+          "experiments/recovery-runner/run-ablation.mjs",
+          "experiments/recovery-runner/run-recovery.mjs",
+          "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "b107587d49d2b04362383ff41382fc39fb437472f94e8d9357be60525a922793",
+          "bf567e0265ea48b84a87f33b4ffd19f59b16bb5253ebb8156593a312ce83846e",
+          "d902c8b32ffd557b64cf10a83e5dad9dad634f7fbb407cb595af3cf541ab2b94"
+        ],
+        "bindingHash": "7b69b5fdebf18fb3e0cac6b5bf0832e20ed7dfa4d2dfe0859ff3dd91d9f2681d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5bfe",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5bfe",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5bfe",
+        "workspaceMode": "story-worktree",
+        "headHash": "15346e1da339d155e587da66e42f8b5e47628bf4",
+        "materialHash": "fe8f60767b7d89ffe45c3de10f2ea90614f0c3e6beaad1a523cffbcb621496da",
+        "storyFilesHash": "c6690196b461b90a5b1d05abbe7efffd39a2c35278fcc4a6d7544d1323f378a9",
+        "bindingHash": "be68ba953f89429a71f7178297f297104046919afaeddabee5de0a915cb47b82"
+      },
+      "_hash": "ea2df31c45d1a7d0ffebee316046a0038be9b72df6db487bc75b19188f724aad"
     }
   ]
 }

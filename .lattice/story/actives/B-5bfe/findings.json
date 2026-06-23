@@ -49,7 +49,7 @@
       "desc": "46 of 48 must-intents show status=stale in validate verificationCoverage: all manual_transcript evidences for CHK-001/CHK-002/CHK-003(e0-e3,a0-a1,h0-h2)/CHK-004(h0 was already logic_test)/CHK-005 were recorded at pre-fix headHashes (b148b4d5c, d975dcad5, 4c04a933, e4f90f64) before fix commit db47ecc7b (which changed all three source files: run-recovery.mjs, run-ablation.mjs, spend-accounting-selfcheck.mjs). The selfcheck now runs 56/56 pass at current HEAD with no LLM — re-running spend-accounting-selfcheck.mjs and re-binding these 46 evidences via verification_evidence_batch_add at current HEAD will clear the staleness. The 9 logic_test evidences are legitimately not no-LLM-runnable and remain valid as-is.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T02:22:05.270Z",
@@ -62,7 +62,11 @@
         "experiments/recovery-runner/run-ablation.mjs"
       ],
       "signatureTag": "missing|mjs|intents-show-status",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "stale evidence re-stamped at current HEAD (refresh_stale 46/46); validate allPass=true, 0 missingRequired; selfcheck 56 pass; all cli/manual_transcript evidences now bind at current HEAD db47ecc7b+",
+      "resolvedAt": "2026-06-23T02:43:18.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
