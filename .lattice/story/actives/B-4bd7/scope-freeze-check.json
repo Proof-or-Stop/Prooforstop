@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4bd7",
+  "checkedAt": "2026-06-23T04:00:48.548Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "8ccc83cefbb856afa44facaf9712ef87f372e66eb923e95676e37f380e544c4c",
+  "executionBoundaryHash": "87d7417efc306d4adc9ce700198965fe4d01e47022885d8b5d4c1988965f3427",
+  "freshnessHash": "2e5cd6469451e70334c5ff5eb7a88038dff257c6c09acd07260fe94cbc7cfad8",
+  "effectiveExcludedKeywords": [
+    "Do not deploy, push, or publish remote branches.",
+    "Do not implement Codex adapter gate behavior changes.",
+    "Do not implement delivery-check or DONE summary behavior changes.",
+    "Do not implement main merge readiness behavior changes.",
+    "Do not implement reviewer checklist or proof metadata behavior changes.",
+    "Do not implement validate timeout changes."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not deploy, push, or publish remote branches.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not deploy, push, or publish remote branches.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement Codex adapter gate behavior changes.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement Codex adapter gate behavior changes.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement delivery-check or DONE summary behavior changes.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement delivery-check or DONE summary behavior changes.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement main merge readiness behavior changes.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement main merge readiness behavior changes.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement reviewer checklist or proof metadata behavior changes.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement reviewer checklist or proof metadata behavior changes.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement validate timeout changes.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement validate timeout changes.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4977617f264bb4da8c36bbe692252b937fa6822182aa5fc142aef38623d23963"
+}
