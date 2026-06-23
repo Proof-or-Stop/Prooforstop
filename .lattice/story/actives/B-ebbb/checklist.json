@@ -539,7 +539,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node --check experiments/recovery-runner/checks.mjs",
+          "result": "pass",
+          "note": "ran node --check on checks.mjs => exit 0 (syntax valid main module)",
+          "headHash": "fb4e3d9033dccc40eac8635ebc41ed2a362a94d8",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:19:48.228Z"
+        }
+      ]
     }
   ]
 }
