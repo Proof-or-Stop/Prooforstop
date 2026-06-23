@@ -39,12 +39,12 @@
     {
       "id": "CHK-002",
       "title": "Send storyId from live runner claim paths",
-      "context": "Update autopilot authority job-loop and authority_enforce_runner live claim paths so expected story-bound flows include storyId in the signed claim payload.",
+      "context": "Update autopilot authority job-loop and authority_enforce_runner live claim paths so expected story-bound flows include storyId in the signed claim payload, then prove the original stale queued job mismatch is eliminated by a smoke/regression with other-story queued work present.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-authority-live-integration.md",
         "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
       ],
-      "userSees": "A live runner for story B-current sends claim.storyId=B-current, so stale queued jobs from other stories are skipped by the server.",
+      "userSees": "A live runner for story B-current sends claim.storyId=B-current and the stale queued job mismatch scenario is covered by regression evidence.",
       "verificationIntent": {
         "happy": [
           {
@@ -55,6 +55,11 @@
         ],
         "edge": [
           {
+            "desc": "A smoke/regression with a stale queued job from another story proves the current-story live claim sends storyId and does not accept a mismatched claimed job as success.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
             "desc": "authority_enforce_runner live claim includes storyId when the command is story-scoped.",
             "type": "logic",
             "priority": "must"
@@ -62,7 +67,7 @@
         ],
         "adversarial": [
           {
-            "desc": "SSE jobs.available remains advisory; claim ownership still requires signed POST with storyId.",
+            "desc": "SSE jobs.available remains advisory; claim ownership still requires signed POST with storyId and stale hinted jobs from other stories are not treated as current-story ownership.",
             "type": "logic",
             "priority": "must"
           }
