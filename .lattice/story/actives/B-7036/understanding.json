@@ -1,0 +1,28 @@
+{
+  "task": "Build the deterministic, offline analysis script that turns the driver's section-7 run-records JSONL into the pre-registered readouts (common-cell denominators, per-arm rates+Wilson CIs, A4-vs-A2prime cluster-bootstrap contrast, BH-FDR, cost co-metric, tidy CSV + glmm.R).",
+  "outcome": "Running `node experiments/recovery-runner/analyze-selfcheck.mjs` prints labeled assertion groups all ending in PASS -- denominators (common-cell per contrast), rates (per-arm completion / not-amplified / recovered / safe-stop with Wilson 95pct CIs), contrast (A4-vs-A2prime risk-difference + seeded-bootstrap 95pct CI, deterministic), fdr (Benjamini-Hochberg ordering), emit (tidy CSV columns + glmm.R content), and a negative control -- exiting 0 with no live LLM; `npm run test:experiments` includes it and stays green. Running `node experiments/recovery-runner/analyze.mjs <records.jsonl>` prints a per-arm rate table with denominators + the primary contrast CI + cost co-metric and writes <out>.tidy.csv + glmm.R.",
+  "facts": [
+    "run-driver.mjs (B-f248, lattice 0.3.77) exports ARMS, RECOVERY_SCENARIOS, CONTRASTS (4: A4_vs_A2prime/A4_vs_A3/A4_vs_A2/A4_vs_A1), scenarioAppliesToArm, denominatorSetsFor, and emits the section-7 record (arm, taskId, scenarioId, repeat, adjudicatedOutcome in {amplified,recovered,safe-stop,null}, acceptancePass, denominatorSets, tokensSpent, wallClockMs, applicable, injectionApplied, ...).",
+    "Pre-reg rev3.1 section 4.1 = completion (section-5 null cells); section 4.2 = amplified/recovered/safe-stop with not-amplified = recovered union safe-stop (primary safety metric); section 5 = GLMM (arm fixed; task/scenario/seed random) + common-cell denominators + ONE Benjamini-Hochberg FDR, per-scenario tests EXPLORATORY only; section 7 validity filter (void re-run not dropped, task-failures kept, N/A excluded); section 8 cost co-metric + denominator-bias mitigation.",
+    "A pure-JS GLMM is unreliable; the seeded cluster bootstrap (resample clusters with replacement) is the standard in-Node way to get a contrast CI that respects within-cell repeat dependence; the formal GLMM is emitted as glmm.R for lme4.",
+    "checks.mjs/adjudicate.mjs already exist for scoring/outcome; the analysis only READS recorded outcomes, it does not re-score."
+  ],
+  "constraints": [
+    "Match pre-reg rev3.1 EXACTLY (outcomes, common-cell denominators, single FDR, per-scenario exploratory-only).",
+    "Fully deterministic + offline-testable with synthetic section-7 fixtures; the selfcheck must NOT spawn claude -p; the seeded bootstrap must be reproducible (no Date.now/Math.random without a seed).",
+    "Reuse run-driver.mjs exported contrast/applicability defs so analysis denominators match what the driver stamped; do NOT re-implement or modify them.",
+    "Do NOT run the live campaign, fabricate records, or run the formal GLMM in Node (emit glmm.R).",
+    "All code via this Lattice story; genuine 2-host review."
+  ],
+  "unknowns": [
+    "Cluster-bootstrap resampling unit: resample task clusters, or task-scenario cells, or both nested -- resolve in decision (default: resample the common-cell clusters, i.e. (task,scenario) pairs, with all their repeats, to respect within-cell dependence).",
+    "Whether per-scenario exploratory tests use Fisher exact or two-proportion z -- resolve in decision (two-proportion with BH-FDR; Fisher noted for small cells)."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/analyze.mjs (new)",
+    "experiments/recovery-runner/analyze-selfcheck.mjs (new)",
+    "experiments/recovery-runner/run-selfchecks.mjs",
+    "experiments/recovery-runner/README.md"
+  ],
+  "timestamp": "2026-06-23T18:37:37.548Z"
+}
