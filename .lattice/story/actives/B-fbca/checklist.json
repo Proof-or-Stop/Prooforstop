@@ -6,7 +6,55 @@
       "context": "koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store in core/guard-utils.ts, machine.ts, process-fact-registry.ts, reviewer-status.ts, handlers/story-review.ts, canonical-story.ts, finding-verify.ts, review-run.ts, review-scope-binding.ts, handlers/scope-check.ts (+ their smokes). Change the literal salt VALUE; producers and consumers move together; sign this story's gates with the worktree binary.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep all 8 old koala-* salt strings (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store) in packages/*/src -> zero hits; WHY: confirms literal salt values are fully removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep all 8 new lattice-* salt strings (lattice-review-integrity-v1, lattice-review-pass-integrity-v1, etc.) in the same files -> each appears exactly where its koala- predecessor did; WHY: confirms rename happened, not just deletion",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run the existing smoke tests that exercise signature verification (guard-utils, machine, process-fact-registry, reviewer-status, story-review, canonical-story, finding-verify, review-run, review-scope-binding, scope-check smokes) -> all pass; WHY: producers and consumers use the same new salt, signatures still verify end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "sign a gate artifact with the worktree binary after the rename, then verify it with the same binary -> signature valid; WHY: ensures the worktree build itself uses the new salts consistently (no stale dist cache)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "check that no mixed old+new salt pair exists in any single file (e.g. producer writes koala-* but consumer reads lattice-*) -> zero mixed pairs; WHY: partial rename is worse than no rename (silent signature rejection)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify that the residue-gate self-identifiers (KOALA_RESIDUE_* in review-preflight.ts) were NOT renamed by this item -- they must still say koala -> grep confirms KOALA_RESIDUE_* unchanged; WHY: renaming the gate that detects koala residue would break the residue gate itself (story 4 scope)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "attempt to verify an artifact signed with the OLD koala-* salt using the new binary -> verification fails (rejects old salt); WHY: ensures no backward-compat path that silently accepts old signatures",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "check .lattice/story/ files are untouched (no salt rename leaked into story metadata or persisted evidence) -> git diff shows zero changes in .lattice/story/; WHY: story metadata uses different serialization; touching it would corrupt audit trail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
