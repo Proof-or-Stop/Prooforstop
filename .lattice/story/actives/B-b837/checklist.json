@@ -751,6 +751,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:45.679Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "logic_test",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Ran the gate self-test; exit 0, 'PASS koala-residue self-test: 5/5 classify() unit tests'. Self-test still passes after exemption-list changes.",
+          "headHash": "701442b95383a4168dac552bb487f7489255c337",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:46.468Z"
         }
       ]
     }
