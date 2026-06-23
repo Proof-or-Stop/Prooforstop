@@ -52,7 +52,7 @@
       "desc": "packages/main/src/core/authority-client.ts:413-424 awaits response.text() before parsing SSE. With a real long-lived text/event-stream response that writes event: jobs.available/data {\"count\":1,\"jobIds\":[\"job-1\"]} and keeps the connection open, streamRunnerJobsAvailable returns kind=timeout/status=200 instead of available, so runLatticeAuthorityControlPlaneOnce waits for the timeout before signed claim rather than immediately attempting claim as CHK-001 requires. Repro command used in review: npm --prefix packages/main run build -- --pretty false, then a local node --input-type=module HTTP SSE probe returned {\"kind\":\"timeout\",\"ok\":false,\"status\":200} after the event was sent.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T00:44:26.343Z",
@@ -65,7 +65,11 @@
         "packages/main/src/tasks/authority-runner-client-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 86a50393d: real body-stream SSE is parsed incrementally and returns available promptly; fallback remains for text-only stubs and malformed/timeout cases. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-runner-client-smoke.js.",
+      "resolvedAt": "2026-06-23T00:54:28.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
