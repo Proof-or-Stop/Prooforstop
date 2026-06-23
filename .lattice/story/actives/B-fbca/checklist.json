@@ -121,6 +121,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:24.271Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node -e '...HMAC sign(old koala-finding-integrity-v1) vs verify(new lattice-finding-integrity-v1); assert accepted===false'",
+          "result": "pass",
+          "note": "ASSERT-OK: a signature produced with the OLD koala salt does not match verification under the NEW lattice salt — no backward-compat path silently accepts old signatures",
+          "headHash": "8cb34acdf4e4e92d2087d76b471d3452b129a3be",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:25.638Z"
         }
       ]
     },
