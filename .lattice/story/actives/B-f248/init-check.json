@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f248",
+  "checkedAt": "2026-06-23T11:15:23.397Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights says \"B4/B5/B10 exclude A1\" but A1 is never defined or named anywhere in background.md. A standalone reader cannot determine that A1 is the prompt-only arm without already knowing §1 of the spec. The 5 arms are mentioned by count but none are named."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Key Insights mentions \"§5 the GLMM + common-cell denominators\" but GLMM is not expanded anywhere in background.md; a reader without statistics background has no context."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Trigger Event says the program \"reached infra-(a) piece 4\" but infra-(a) is not explained. A standalone reader cannot determine what the (a) category means or how many infra pieces exist in total."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T11:15:17.705Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T11:15:23.397Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights says \"B4/B5/B10 exclude A1\" but A1 is never defined or named anywhere in background.md. A standalone reader cannot determine that A1 is the prompt-only arm without already knowing §1 of the spec. The 5 arms are mentioned by count but none are named."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Key Insights mentions \"§5 the GLMM + common-cell denominators\" but GLMM is not expanded anywhere in background.md; a reader without statistics background has no context."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Trigger Event says the program \"reached infra-(a) piece 4\" but infra-(a) is not explained. A standalone reader cannot determine what the (a) category means or how many infra pieces exist in total."
+        }
+      ]
+    }
+  ],
+  "_hash": "80b630cb70eeb068b19d6f79763a347d3084d24bf68aa152a1c3e48a9940fdcb"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f248",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node --check experiments/recovery-runner/*.mjs",
+    "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Offline driver build + self-check only; no live model calls (claude -p blocked — the powered campaign is a separate task). Reuse adjudicate/checks/run-recovery without modifying them.",
+  "createdAt": "2026-06-23T11:13:23.950Z",
+  "updatedAt": "2026-06-23T11:13:23.950Z",
+  "_hash": "532f0b2a01833e4571fc67030f6512dce54cc83f7232e5717d0e43fd2daa487f"
+}
