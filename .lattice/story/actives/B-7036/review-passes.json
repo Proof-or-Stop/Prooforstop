@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T19:24:39.177Z",
       "reviewRunId": "B-7036:RR-013",
       "_hash": "47f6b10a058a4c1be6f31f7ecc2908535c2af41d8ea0fb14f90bf39cfcea85b9"
+    },
+    {
+      "id": "B-7036:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "F-010 denominator-bias fix verified correct and complete. matchedCellKeys() correctly computes the intersection of cells where BOTH armA and armB have >=1 kept run. perArmRate now accepts cellKeys param and excludes runs outside the matched set. clusterBootstrap filters to clusters where both A and B arrays are non-empty — dropping arm-only clusters so bootstrap resamples always draw from the same cells. The analyze() function builds matchedFor per contrast using scenarioPredFor (excludes null/ablation scenario) and passes it to all three recoveryRates metrics. No remaining path where one arm is scored over cells the other lacks. selfcheck: 68 assertions passed, 0 failed — including 4 new F-010 assertions that prove matchedCellKeys excludes arm-only cells and that A4 matched n=1 while unmatched (biased) would be n=2. Statistical correctness of the fix is confirmed.",
+      "createdAt": "2026-06-23T19:26:16.010Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-014",
+      "_hash": "7e3d2d743b75698dfc786f2866cc51d9f6a873f9d8813a894fbd88001f51d537"
     }
   ]
 }
