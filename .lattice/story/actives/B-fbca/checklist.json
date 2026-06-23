@@ -452,6 +452,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:02:12.163Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "grep -i koala-residue packages/main/src/handlers/review-preflight.ts",
+          "result": "pass",
+          "note": "Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koala-residue string survives in the preflight",
+          "headHash": "f9e0d247ac9f15d3d652e61015e7f5f190d6c2ae",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:14.854Z"
         }
       ]
     }
