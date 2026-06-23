@@ -34,10 +34,10 @@
 //
 // Reuses OUTCOME from probe-contract.mjs read-only. Node 22, no external deps.
 
-import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, readdirSync, mkdirSync, appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
 import { OUTCOME } from './probe-contract.mjs';
 
@@ -693,6 +693,30 @@ const makeSlowAgent = (observed) => async ({ signal }) => {
   return { actions: ['slow agent finally resolved'], shipped: false, output: 'late' };
 };
 
+// The 9 stateful scenarios driven by the powered --run path.
+export const STATEFUL_SCENARIOS = [B7, B10, B3, B4, B5, B8, B12, B14, B15];
+
+/**
+ * Drive every stateful scenario once with an agent built by makeAgent(costLog), and return a
+ * record per scenario (optionally appending to recordsFile). The agent is pluggable: the real
+ * claude -p agent for --run, or a no-LLM stub for the hermetic --self-check.
+ */
+export async function runPowered({ makeAgent, recordsFile, stamp = '' }) {
+  const records = [];
+  for (const scenario of STATEFUL_SCENARIOS) {
+    const costLog = [];
+    const agent = makeAgent(costLog);
+    const { outcome, transcript } = await runLiveLoop({ scenario, agent });
+    const costUsd = costLog.reduce((a, c) => a + (c.costUsd || 0), 0);
+    const tokensSpent = costLog.reduce((a, c) => a + (c.tokensSpent || 0), 0);
+    const infraFail = costLog.some((c) => c.infraFail);
+    const rec = { scenario: scenario.id, outcome, turns: transcript.turns, costUsd, tokensSpent, infraFail };
+    records.push(rec);
+    if (recordsFile) appendFileSync(recordsFile, JSON.stringify({ ...rec, ts: stamp }) + '\n');
+  }
+  return records;
+}
+
 export async function selfCheck() {
   const MAX = 5;
   const cases = [
@@ -781,7 +805,26 @@ export async function selfCheck() {
       console.log(`PASS ${label}`);
     }
   }
-  const totalCases = cases.length + 1;
+  // --run powered-path wiring (hermetic): drive all 9 scenarios with a no-LLM stub agent.
+  {
+    const { makeStubLoopAgent } = await import('./real-loop-agent.mjs');
+    const observed = {};
+    const stubFactory = () => makeStubLoopAgent(() => ({ actions: ['stub'], shipped: false }), observed);
+    const powered = await runPowered({ makeAgent: stubFactory });
+    const valid = (r) =>
+      r && r.scenario && [OUTCOME.AMPLIFIED, OUTCOME.SAFE_STOP, OUTCOME.RECOVERED].includes(r.outcome) &&
+      typeof r.costUsd === 'number' && typeof r.tokensSpent === 'number' && typeof r.turns === 'number';
+    if (powered.length !== STATEFUL_SCENARIOS.length) {
+      failures.push(`runPowered produced ${powered.length} records, expected ${STATEFUL_SCENARIOS.length}`);
+    }
+    for (const r of powered) if (!valid(r)) failures.push(`runPowered record schema invalid: ${JSON.stringify(r)}`);
+    if (observed.gotSignal !== true) failures.push('runPowered: the agent never received an AbortSignal (signal not threaded through)');
+    if (!failures.some((f) => f.startsWith('runPowered'))) {
+      console.log(`PASS runPowered: ${powered.length} stub records, valid {scenario,outcome,turns,costUsd,tokensSpent} schema, agent received {signal}`);
+    }
+  }
+
+  const totalCases = cases.length + 2;
 
   if (failures.length) {
     console.error('FAIL live-loop-harness self-check:');
@@ -801,9 +844,22 @@ if (isMain) {
   if (process.argv.includes('--self-check')) {
     selfCheck().catch((e) => { console.error(e); process.exit(1); });
   } else if (process.argv.includes('--run')) {
-    console.error('--run (real powered multi-turn loop with `claude -p`) is a deferred follow-up; not implemented in this story. Use --self-check (hermetic, 0 spend).');
-    process.exit(2);
+    (async () => {
+      const { makeRealLoopAgent } = await import('./real-loop-agent.mjs');
+      const recordsFile = fileURLToPath(new URL('./live-loop-powered-records.jsonl', import.meta.url));
+      const stamp = new Date().toISOString();
+      const records = await runPowered({ makeAgent: (costLog) => makeRealLoopAgent({ costLog }), recordsFile, stamp });
+      for (const r of records) {
+        console.log(`${r.scenario} -> ${r.outcome} (turns=${r.turns}, $${(r.costUsd || 0).toFixed(4)}, ${r.tokensSpent} tok)${r.infraFail ? ' [infra-fail]' : ''}`);
+      }
+      const total = records.reduce((a, r) => a + (r.costUsd || 0), 0);
+      const amp = records.filter((r) => r.outcome === OUTCOME.AMPLIFIED).length;
+      console.log(
+        `\n— live-loop powered run (9 stateful scenarios, small-N=1, EXPLORATORY) — amplified=${amp}/${records.length}, total $${total.toFixed(4)}\n` +
+          `Caveat: small-N single-agent exploratory data; NOT a powered/pre-registered result. Appended to live-loop-powered-records.jsonl.`,
+      );
+    })().catch((e) => { console.error(`✗ --run error: ${e && e.stack ? e.stack : e}`); process.exit(1); });
   } else {
-    console.log('Usage: node live-loop-harness.mjs --self-check | --run\n  --self-check  hermetic gate: fake agents drive B7 + B10, 0 claude, 0 network, 0 cost.\n  --run         (deferred) real claude -p multi-turn loop.');
+    console.log('Usage: node live-loop-harness.mjs --self-check | --run\n  --self-check  hermetic gate: fake agents drive all 9 scenarios + the --run wiring, 0 claude/network/cost.\n  --run         real claude -p multi-turn powered run of the 9 stateful scenarios (small-N exploratory; costs money).');
   }
 }
