@@ -53,10 +53,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
           "result": "pass",
           "note": "JobClaim roundtrip now accepts signed storyId and jobId selectors.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,10 +65,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
           "result": "pass",
           "note": "Broad JobClaim without storyId/jobId remains schema-valid and roundtrips.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,10 +77,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
           "note": "Story selector is asserted under the signed claim body and not as a jobs/claim query parameter; SSE jobIds are not copied into claim.jobId.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         }
       ]
     },
@@ -143,10 +143,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-enforce-runner-smoke.js && node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
           "note": "Parser/catalog smoke now proves authority_enforce_runner preserves --live and --storyId=B-current through the real CLI validation boundary; runner client smoke proves the resulting live command args place storyId inside signed claim.storyId with no URL query selector.",
-          "headHash": "81ed264d4427ea8e0a0ffd216df545135a51ffb2",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T11:11:20.432Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
           "note": "The command-level smoke keeps jobs.available jobIds advisory while ownership still requires signed POST /jobs/claim.",
-          "headHash": "6686817e03661f2cc78fb7bfe1b05281510cd1ec",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:07.293Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -167,10 +167,10 @@
           "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Autopilot authority live job loop smoke asserts signed claim.storyId=B-auto for the requested story in the jobs/claim payload.",
-          "headHash": "f4580b99608cb02e6f579e05c7dc86acaa8477c8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:58:04.546Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -179,10 +179,10 @@
           "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Regression models a stale B-other queued job and proves signed claim.storyId filters to the current B-auto job instead of accepting mismatched work.",
-          "headHash": "bc68888015818021cdf6281d7c2e92d7dea1af36",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:58:14.952Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         }
       ]
     },
@@ -241,10 +241,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Implementation sends storyId inside signed live claim payloads for story-scoped autopilot authority flows, including delegated follow-up claims.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -253,10 +253,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
           "result": "pass",
           "note": "Generic broad JobClaim construction remains valid when no story selector is available.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -265,10 +265,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Fix uses signed claim.storyId; tests assert no selector query params, no SSE jobId authority, and no queue purge/cancel/retry workaround.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         }
       ]
     },
@@ -323,10 +323,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/authority-runner-contracts-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js; node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Build plus all three focused authority runner smokes passed after the selector change.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -335,10 +335,10 @@
           "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
           "result": "pass",
           "note": "Regression models stale B-other queued work and proves the signed B-auto claim receives and completes the current-story job.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -347,10 +347,10 @@
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
           "note": "SSE jobs.available remains advisory: signed POST /jobs/claim is still required, and hinted jobIds are not treated as ownership.",
-          "headHash": "219a45d598d2bd5647749c86ce2f07ea345006f8",
-          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
-          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
-          "timestamp": "2026-06-23T10:56:33.826Z"
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
         }
       ]
     }
