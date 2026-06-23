@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T23:33:37.477Z",
       "reviewRunId": "B-8e9f:RR-009",
       "_hash": "d7a1af8fa280a0228799acf683c77e73198bc1c76d7926a04141260df04eee2c"
+    },
+    {
+      "id": "B-8e9f:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. grep -nE \"turn 2|turn === 2\" live-loop-harness.mjs returns exactly 2 lines (308, 342), both load-bearing \"not turn 2\" clarification comments — no stale \"fires on turn 2\" claim. Self-check case-table comments near lines 766-778 say turn 1 throughout for B4/B5. B4 interruptAt (line 317) and B5 interruptAt (line 353) both use turn===1. B10 classify(ws) takes no t parameter and its body explicitly states \"Deliberately does NOT read t.shipped\" — no t.shipped reference. Changed files outside .lattice/ metadata are only live-loop-harness.mjs and CHANGELOG.md, consistent with scope. No stale concept residue found.",
+      "createdAt": "2026-06-23T23:40:41.333Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-006",
+      "_hash": "12042583c88a32ea2acef9f8a1434be9ff6378f9fa8b4e0145d136dd7baec5a5"
     }
   ]
 }
