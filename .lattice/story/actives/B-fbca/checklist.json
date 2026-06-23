@@ -99,6 +99,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:21.481Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "git grep -lE 'koala-(review|scope|finding|story)' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 (no file contains any koala-* salt) — therefore no single file can hold a mixed old+new salt pair; no partial-rename silent-rejection risk",
+          "headHash": "2050dcf397f086f034a8149ede98f027bd4d1561",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:22.874Z"
         }
       ]
     },
