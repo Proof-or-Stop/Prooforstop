@@ -28,7 +28,7 @@
       "desc": "signal-honoring: real-loop-agent.mjs:33 uses execFileSync which is synchronous and blocks the Node.js event loop for the entire duration of the claude invocation. This makes the harness Promise.race watchdog in live-loop-harness.mjs:113-118 unable to fire while execFileSync runs (timers cannot execute on a blocked event loop). Consequently: (a) transcript.timedOut can never be set by the harness-level watchdog for real claude turns; (b) ac.abort() from the harness never fires during a live turn. The child IS killed — by execFileSync own timeout param — but the harness-level abort-signal contract is broken. A hung or very slow claude call will block the entire process, not just the current turn. The entry-check signal.aborted (line 29) only helps if abort was signaled before the turn starts. Fix: use spawnSync or spawn+stream instead, or a Worker thread, so the event loop remains unblocked and the Promise.race can actually preempt.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T20:30:06.477Z",
@@ -40,7 +40,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "edge|mjs|signal-honoring-real",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:32.792Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-003",
