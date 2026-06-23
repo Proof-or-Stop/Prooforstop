@@ -1,0 +1,54 @@
+{
+  "storyId": "B-73cf",
+  "checkedAt": "2026-06-23T09:54:16.509Z",
+  "reviewRound": "2026-06-23T05:15:05.508Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "promise": "Follow-up stories must compare against experiments/baselines/lattice-workflow-efficiency-baseline-v1.json by writing a separate derived result artifact and not rewriting the original baseline.",
+      "status": "verified",
+      "verifiedBy": "git diff plus jq artifact inspection",
+      "evidence": "git diff --name-only main...HEAD -- experiments/baselines/lattice-workflow-efficiency-baseline-v1.json produced no output; experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-73cf-validate-cost-timeout-result.json parses and references baselineId lattice-workflow-efficiency-baseline-v1 and story B-73cf."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "promise": "Validate Cost And Timeout Risk target requires no false timeout failure for the normal full validation envelope, focused suites before final full validate, and full validate before completion when required.",
+      "status": "verified",
+      "verifiedBy": "checklist/test evidence/done-required evidence/current smoke rerun",
+      "evidence": "test-evidence.json is PASS for lattice validate --story=B-73cf --json with provider lattice-verifier-configured-commands, focus null, 27 commands, and 9/9 coverage; done-required-evidence.json PASS includes packages/main build and root npm test; current reruns of validate-focused-full-layering and validate-command-timeout smokes passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "promise": "Follow-up changes must not weaken review, delivery-check, validate, or DONE gates to improve time.",
+      "status": "verified",
+      "verifiedBy": "diff review and done_closure",
+      "evidence": "Focused validate is explicitly marked not final full validation and not DONE-required proof, focused story runs do not persist test-evidence, done_closure showed every DONE oracle row passing except the intentionally missing delivery-check before this signature, and finding_list returned no findings."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current machine rerun: node packages/main/dist/tasks/validate-focused-full-layering-smoke.js -> validate-focused-full-layering smoke passed: 10 assertions. Checked test-evidence.json full validate provider lattice-verifier-configured-commands, focus null, commandCount 27, coverage 9/9."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Current machine rerun: node packages/main/dist/tasks/validate-command-timeout-smoke.js -> validate-command-timeout smoke passed: 18 assertions. Diff review confirms DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS is 270000 and explicit timeoutMs override/process-group kill behavior remains covered."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Checked baseline result artifact with jq: schema lattice.workflow_efficiency_baseline_result.v1, baselineId lattice-workflow-efficiency-baseline-v1, story B-73cf, immutableBaselineFileModified false; git diff for the original baseline file was empty."
+    },
+    {
+      "featureId": "DONE-required-validation",
+      "transcript": "Checked done-required-evidence.json: status PASS at 2026-06-23T05:27:54.566Z with 2 receipts: packages/main build PASS and root full test suite npm test PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer lattice-review-delivery inspected git diff, checklist evidence, test-evidence, done-required-evidence, summary.json, transcript-diff.md, baseline result artifact, docs promises, findings, and DONE closure. Full validation evidence is PASS and non-focused; focused validation is clearly non-final/non-DONE proof; DONE-required build and root npm test passed; no unresolved implementation TODOs were found in changed files."
+  },
+  "_hash": "97fa7f3abc5f3a1abc45d169f05970a9a75bf4a3a7c742517f42417f7f2da8fe"
+}
