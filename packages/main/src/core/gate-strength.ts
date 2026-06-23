@@ -263,6 +263,9 @@ function canonicalResult(r: GateStrengthResult): unknown {
         defectKind: o.defectKind,
         groundTruthPass: o.groundTruthPass,
         id: o.id,
+        // `reason` IS bound: verifyGateStrengthResult attests the FULL result (incl. the
+        // reviewer's per-probe justification), so tampering any reason string is detected.
+        reason: o.reason,
         shipped: o.shipped,
       })),
     total: r.total,

@@ -13,7 +13,8 @@
  *   5. gateStrengthBundle(result) → a B-4c65 ReceiptBundle that verifyReceiptBundleOffline ACCEPTS;
  *      a stale materialHash or a tampered signed field is REJECTED (the bundle is tamper-evident).
  *   6. verifyGateStrengthResult closes the result↔receipt loop: the authentic result MATCHES the
- *      bound digest; a result tampered after the fact (inflated catchRate) does NOT match.
+ *      bound digest; a result tampered after the fact (inflated catchRate, OR an edited per-probe
+ *      reason) does NOT match — the FULL result, incl. reasons, is bound (F-008).
  *
  * assurance is always 'local-key-single-host' (inherited from B-4c65) — NOT an Authority Tier-C
  * strong proof. The reviewers here are REFERENCE endpoints/oracle; a live claude -p review lane
@@ -151,6 +152,17 @@ check('verifyGateStrengthResult: a result tampered after the fact does NOT match
   const m = verifyGateStrengthResult(forged, bundle);
   assert.equal(m.matches, false, 'a forged result must not match the bound digest');
 });
+check('verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)', () => {
+  // F-008: reason must be in the digest, else editing a justification string slips through.
+  const reasonForged = {
+    ...oracle,
+    perProbe: oracle.perProbe.map((p) =>
+      p.id === 'overfit-lookup' ? { ...p, reason: 'tampered reason not bound by receipt' } : p,
+    ),
+  };
+  const m = verifyGateStrengthResult(reasonForged, bundle);
+  assert.equal(m.matches, false, 'a mutated per-probe reason must not match the bound digest');
+});
 
 if (failures.length > 0) {
   console.error(`\n✗ gate-strength contract smoke FAILED (${failures.length}):`);
@@ -161,5 +173,5 @@ console.log(
   `\n✓ gate-strength contract smoke passed: test-only caught 0/${wrongTotal} (visible-test gap), ` +
     `block-all catchRate 1.0 but falseBlock ${genuineTotal} (catchRate gameable), ` +
     `oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, ` +
-    `receipt verifies offline + tamper-evident, result↔receipt loop closed.`,
+    `receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).`,
 );
