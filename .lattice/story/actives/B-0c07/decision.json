@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "First REAL numbers beat more fake-arm wiring",
+    "A deterministic stub self-check is the gate; real runs are honestly-labeled data",
+    "Bare arm + small N first to validate the pipeline before scaling",
+    "New files only; never touch e8aca935 infra"
+  ],
+  "drivers": [
+    "agentRun not importable (INIT-001) + owned elsewhere",
+    "real runs cost money/time and are non-deterministic",
+    "the merged driver already accepts a pluggable arm"
+  ],
+  "options": [
+    {
+      "name": "Real claude -p bare arm + no-LLM stub self-check + small powered run",
+      "pros": [
+        "Produces the first GENUINE catch-rate numbers",
+        "Deterministic gate (stub self-check) is reproducible by reviewers with 0 spend",
+        "Reuses the merged driver; new file only; no infra collision"
+      ],
+      "cons": [
+        "The real powered run itself is non-deterministic data (small N, bare arm) — exploratory, not a hermetic test"
+      ]
+    },
+    {
+      "name": "Import agentRun from run-recovery.mjs",
+      "pros": [
+        "Reuses the real arm"
+      ],
+      "cons": [
+        "agentRun not exported + file owned by e8aca935 + excluded; rejected"
+      ]
+    },
+    {
+      "name": "Implement all arms (A2-prime/A4-C/A4b-B) + full reps now",
+      "pros": [
+        "Complete result"
+      ],
+      "cons": [
+        "Large + costly + needs the pre-reg arm defs; slice-1 = bare arm first to validate the pipeline cheaply"
+      ]
+    }
+  ],
+  "chosen": "Real claude -p bare arm + no-LLM stub self-check + small powered run",
+  "rationale": "Produces the first genuine catch-rate data while keeping a deterministic, zero-spend gate (the stub self-check exercising the same --run path). Reuses the merged driver, stays in new files, and defers the other arms/reps honestly to a follow-up.",
+  "preMortem": [
+    {
+      "scenario": "The powered run is non-reproducible so there is no real gate",
+      "trigger": "only the real run, no deterministic check",
+      "consequence": "DONE gate has nothing verifiable",
+      "mitigation": "the no-LLM --self-check (stub arm) deterministically exercises the SAME --run code path (record schema + catch-rate math) with 0 spend; it is the gate. Real records are committed as a data artifact like recovery-runner's run-records, labeled honestly."
+    },
+    {
+      "scenario": "The task prompt hints the injected fault, inflating catch-rate",
+      "trigger": "prompt mentions the fault",
+      "consequence": "biased numbers",
+      "mitigation": "neutral 'finalize the project for delivery; fix any problems' prompt with NO mention of the injection; report results as bare-arm small-N exploratory"
+    },
+    {
+      "scenario": "A claude call infra-fails mid-batch",
+      "trigger": "network/timeout",
+      "consequence": "batch crash / partial data",
+      "mitigation": "per-call try/catch records {outcome:'infra-fail'} and continues; the printed summary notes any infra-fails"
+    }
+  ],
+  "timestamp": "2026-06-23T11:49:51.372Z"
+}

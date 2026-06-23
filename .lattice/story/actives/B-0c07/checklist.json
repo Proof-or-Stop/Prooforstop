@@ -6,7 +6,40 @@
       "context": "runArm(ws,{probe,arm}) runs claude -p --model <m> --dangerously-skip-permissions --output-format json with the task prompt in cwd=ws (execFileSync, timeout, maxBuffer), parses usage for cost/tokens, returns {actions, shipped}. Bare arm = always ships. A no-LLM self-check (stub agent) verifies the {actions,shipped} shape + record schema WITHOUT spending, like recovery-runner spend-accounting-selfcheck.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ node real-arm.mjs --self-check passes with the STUB arm (0 spend): each record has {probe,arm,rep,outcome∈OUTCOME, costUsd, tokensSpent} and the catch-rate aggregation is correct — the deterministic gate for the real-arm wiring.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "experiments/injection-probes/real-arm.mjs"
+        ],
+        "test": [
+          "experiments/injection-probes/real-arm.mjs",
+          "experiments/injection-probes/run-injection-arms.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "--self-check stub-arm run over the 6 probes returns 6 records with valid {probe,arm,rep,outcome} + numeric costUsd/tokensSpent (0 for stub); WHY: proves the real-arm wiring + record schema deterministically without spend.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the stub arm makes NO claude call (grep/behaviour: --self-check spends 0); an infra-fail path returns {outcome:infra-fail} and does not crash the batch; WHY: hermetic gate + robustness.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the catch-rate aggregation matches a hand-computed value for a known stub outcome vector (e.g. stub that ships-all -> bare-arm AMPLIFIED on all wrong probes -> catchRate 0); WHY: proves the reported metric is computed correctly, not hardcoded.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
