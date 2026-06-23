@@ -1,0 +1,194 @@
+{
+  "storyId": "B-7036",
+  "checkedAt": "2026-06-23T18:40:56.387Z",
+  "features": [
+    {
+      "feature": "Section-7 validity filter: void runs excluded as re-run (not dropped), task-level failures kept as real outcomes, N/A cells excluded and logged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-hypothesis common-cell denominators: rates computed only over cells applicable to BOTH arms in each contrast",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "4 pre-registered contrasts for common-cell computation (A4_vs_A2prime PRIMARY, A4_vs_A3 EXPLORATORY, A4_vs_A2, A4_vs_A1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm completion rate (primary outcome for section-4.1 null-ablation cells) with Wilson 95% CI",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm not-amplified rate (= recovered union safe-stop, primary safety metric for section-4.2 recovery scenarios) with Wilson 95% CI",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm recovered-to-green rate reported separately (not merged into not-amplified only) with Wilson 95% CI",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm safe-stop rate reported separately with Wilson 95% CI",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Cost co-metric (total tokens plus wall-clock per arm) reported alongside completion and safety rates (section 4.1 PRIMARY co-metric, section 8)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A4-vs-A2prime PRIMARY contrast risk-difference with 95% CI from seeded (deterministic) cluster bootstrap resampling task/scenario clusters to respect within-cell repeat dependence",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Cluster bootstrap is the in-Node verifiable proxy for the pre-registered GLMM",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Single Benjamini-Hochberg FDR covering all per-scenario exploratory two-proportion tests; per-scenario tests are exploratory only, never primary",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Tidy long-format CSV emitted (one row per kept run, with arm/task/scenario/repeat/outcome/cost factors)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "glmm.R emitted (lme4 glmer primary-outcome ~ arm + random task/scenario/seed) for the formal pre-registered GLMM",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Offline self-check (analyze-selfcheck.mjs) with synthetic section-7 fixtures of KNOWN rates/contrasts asserting denominators, rates, Wilson CIs, seeded-bootstrap determinism, BH-FDR, CSV shape, glmm.R emission",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Negative control in self-check (scenario where rates/contrasts differ from primary, confirming analysis is not vacuously passing)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Self-check wired into npm test:experiments",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "GLMM primary model structure: arm fixed effect, task/scenario/seed/run random effects (section 5 pre-registered model)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Section-7 run-record schema parsing: fields runId/arm/taskId/scenarioId/repeat/tokensSpent/wallClockMs/adjudicatedOutcome/denominatorSets/applicable/injectionApplied must be parseable by the analysis script",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Denominator-bias mitigation: every reported percentage states its denominator and uses only the common-cell set (section 8)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Analysis reads only recorded outcomes from section-7 JSONL; does not re-score or re-adjudicate outcomes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Seeded bootstrap determinism: same seed yields identical CI bounds across runs (no Math.random without seed)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2-prime tolerance-band logging visibility in the analysis output (section 1, section 8): analysis must surface whether each A2prime run satisfied the +/-20% token/wall-clock tolerance band",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "H3 (A4-vs-A3) exploratory contrast normalized by compute (section 5): compute normalization for H3 specifically required, distinct from general per-arm rate reporting",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Secondary detectors reported individually for section-4.2: rollback-fired, unsafe-action-prevented (per detector), no-progress-stop, human-gate-precision",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 20,
+    "excluded": 0,
+    "gaps": 3,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fefb1deef1430b845c3ab2a8c2fd82af46791c9538d03bbaaedc5f7abec7e52a",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Section 5 says the primary contrast is A4 vs A2prime, but the build gate note in the spec footer says the S3 harness implements the GLMM + FDR. Does the analysis script (this story) also need to compute bootstrap CIs for the three non-primary contrasts (A4_vs_A3, A4_vs_A2, A4_vs_A1), or only per-arm rates for those?",
+      "evidence": "Section 5: Primary analysis: report the A4-vs-A2prime contrast with 95% CI. Run counts: core A4 vs A2prime on the full common-cell corpus; A1/A2/A3 as smaller pre-declared reference cells.",
+      "sourcePointers": [
+        "decisions/lattice-experiment-protocol.md §5"
+      ]
+    }
+  ]
+}
