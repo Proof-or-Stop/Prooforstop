@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Do not optimize for its own sake; fix only the late-discovery correctness gap from the baseline.",
+    "Keep DONE merge authority unchanged and reuse existing done_prepare/main-sync recovery.",
+    "Make the signal read-only, advisory, and host-neutral.",
+    "Make behavior mechanically testable with focused local smoke coverage."
+  ],
+  "drivers": [
+    "The warning must be visible before REVIEW or at REVIEW entry, not only during DONE closure.",
+    "Behind-main state must not by itself block REVIEW/TEST or mutate phase.",
+    "The smoke must distinguish behind-main, synced, and no-mutation cases."
+  ],
+  "options": [
+    {
+      "name": "shared-readiness-helper",
+      "pros": [
+        "Keeps main-sync calculation consistent across session/lifecycle surfaces.",
+        "Allows a small focused smoke to call the helper directly and verify no mutation.",
+        "Avoids changing DONE oracle or merge behavior."
+      ],
+      "cons": [
+        "Requires modest refactor or export of existing branch divergence logic."
+      ]
+    },
+    {
+      "name": "session-brief-only-warning",
+      "pros": [
+        "Smallest visible UI change.",
+        "Likely fastest to implement."
+      ],
+      "cons": [
+        "Could miss lifecycle_check users and may be harder to prove as a general pre-REVIEW readiness boundary."
+      ]
+    },
+    {
+      "name": "hard-review-gate",
+      "pros": [
+        "Would force users to sync before REVIEW."
+      ],
+      "cons": [
+        "Violates the story scope by turning an advisory readiness signal into a blocker.",
+        "Could create churn for harmless main metadata changes and arbitrarily optimize process flow."
+      ]
+    }
+  ],
+  "chosen": "shared-readiness-helper",
+  "rationale": "Use a shared read-only helper or equivalent shared code path so the same branch-behind-main signal can be surfaced before REVIEW and covered by focused tests, while preserving DONE merge behavior and non-blocking semantics.",
+  "preMortem": [
+    {
+      "scenario": "The implementation only reuses the existing DONE closure row.",
+      "trigger": "The warning is visible only in done_closure/session TEST DONE pre-check.",
+      "consequence": "Baseline item 4 remains unfixed because late discovery still happens.",
+      "mitigation": "Smoke must exercise a pre-REVIEW or REVIEW-entry read-only surface and fail if only DONE closure has the row."
+    },
+    {
+      "scenario": "The implementation adds a hard REVIEW/TEST blocker.",
+      "trigger": "story_advance REVIEW or TEST fails solely because main moved.",
+      "consequence": "The story violates the non-blocking advisory scope and creates arbitrary process friction.",
+      "mitigation": "Smoke asserts no phase mutation or gate failure solely from behind-main readiness."
+    },
+    {
+      "scenario": "The helper mutates git state while checking readiness.",
+      "trigger": "The readiness surface runs merge or writes metadata.",
+      "consequence": "A read-only command becomes unsafe and can invalidate evidence.",
+      "mitigation": "Smoke snapshots HEAD/phase before and after readiness checks."
+    }
+  ],
+  "timestamp": "2026-06-23T11:38:28.852Z"
+}
