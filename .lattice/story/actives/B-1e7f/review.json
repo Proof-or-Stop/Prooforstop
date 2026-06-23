@@ -139,6 +139,60 @@
         }
       ],
       "_hash": "f8499ec7340513beee5b1e632bdc643045490fd8944a5745a6e3169066c8809a"
+    },
+    {
+      "timestamp": "2026-06-23T10:44:53.982Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"Implement Send story-scoped Authority job claims from the CLI live runner\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Verify Send story-scoped Authority job claims from the CLI live runner\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Add story/job selector fields to runner claim contracts + Send storyId from live runner claim paths are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact test edits needed in existing smokes to model stale queued other-story jobs without live staging dependency."
+        }
+      ],
+      "_hash": "dd273c50de096ce522a40aac1c390f7ef5686f7036c9a81131bfafb434a7339f"
     }
   ]
 }
