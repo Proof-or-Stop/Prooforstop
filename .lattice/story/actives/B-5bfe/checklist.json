@@ -62,7 +62,59 @@
       "context": "Hard-truncation cap at the upper bound; used by A2-prime",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "when cumulative tokensSpent >= tokenBudget, loop terminates and record.truncated === true; WHY: covers the primary token-binds-first truncation rule",
+            "type": "cli"
+          },
+          {
+            "desc": "when cumulative wallClockMs >= wallBudget and tokens still under budget, loop terminates with truncated=true; WHY: covers wall-clock binding when token is not the constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "when both budgets are NOT exceeded across all R iterations, truncated === false and budgetPass === true; WHY: covers the non-truncation normal completion path",
+            "type": "cli"
+          },
+          {
+            "desc": "record contains budgetPass field (boolean) reflecting whether the run stayed within budget; WHY: pre-reg requires per-run budget pass/fail logging",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tokenBudget exactly equals cumulative tokens after final call => truncated should be true (>= not >); WHY: boundary at exact budget match",
+            "type": "cli"
+          },
+          {
+            "desc": "budget mode with R=1 and first call exceeds token budget => single call runs but truncated=true on that call; WHY: minimum-iteration boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "zero tokenBudget => first call immediately triggers truncation; WHY: degenerate budget boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "no budget args provided => budget mode is OFF, no truncation, budgetPass/truncated fields absent or null; WHY: backward compatibility with non-budget runs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "token budget is very small (1 token) but wall budget is very large => token binds first, loop stops after first call regardless of wall budget; WHY: verifies token-binds-first precedence under extreme asymmetry",
+            "type": "cli"
+          },
+          {
+            "desc": "negative tokenBudget value => implementation should reject or treat as immediate truncation, not loop forever; WHY: adversarial invalid input",
+            "type": "cli"
+          },
+          {
+            "desc": "wall clock jumps due to system clock skew mid-run => wallClockMs still computed correctly via monotonic timing or Date.now delta; WHY: adversarial timing scenario",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
