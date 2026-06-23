@@ -10,9 +10,9 @@
         "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T03:00:47.623Z",
-      "endTime": null,
+      "endTime": "2026-06-23T03:15:05.079Z",
       "userSees": "User sees \"runnerProvider: codex-cli\" and \"runnerProviderValid: true\" instead of \"LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid\".",
       "files": {
         "modify": [
@@ -48,7 +48,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after replacing closed Authority runner provider enum behavior with host-neutral declaration normalization.",
+          "headHash": "1e7c79dbe8ec891aed1516c5fcc42c2cdb29372c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:05.578Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves default codex, claude/CLAUDE_CODE alias compatibility, and custom declarations such as codex-cli are valid locally.",
+          "headHash": "1e7c79dbe8ec891aed1516c5fcc42c2cdb29372c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:06.048Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+          "result": "pass",
+          "note": "Status/enforce-runner smokes prove custom declarations do not set productionDone, receiptVerified, or provider ownership locally.",
+          "headHash": "1e7c79dbe8ec891aed1516c5fcc42c2cdb29372c",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:06.471Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
