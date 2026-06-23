@@ -488,6 +488,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:22:59.489Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "The residue gate (renamed verify-koala-residue.mjs -> verify-lattice-residue.mjs by CHK-007) still functions: PASS, 0 brand residue in product runtime source",
+          "headHash": "cf202fd5eef52e8da238af5ddaef0bbccb89d5db",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:00.834Z"
         }
       ]
     },
