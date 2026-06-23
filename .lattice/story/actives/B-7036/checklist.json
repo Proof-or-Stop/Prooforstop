@@ -74,10 +74,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter + denominators groups: well-formed multi-arm JSONL parses; commonCellKeys built per contrast.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -87,10 +87,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: analyze imports isCommonCell/scenarioAppliesToArm from run-driver; asserts A4_vs_A2prime keys include B4 while A4_vs_A1 excludes B4 (driver-consistent).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -100,10 +100,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: single-cell fixtures (commonCellKeys returns the one key) exercised; perArmRate handles n=1.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -113,10 +113,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: a fixture of all-void rows -> kept=0 (voided counted); rates over empty kept are wilson(0,0) safe.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -126,10 +126,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: mixed void+N/A+valid -> kept excludes void+N/A, keeps the valid survivor (asserted kept=3 from a 5/7 fixture).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -139,10 +139,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: isCommonCell(A4_vs_A1,B4)===false asserted; an A1/B4 run is N/A (applicable=false) and excluded by the validity filter.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -152,10 +152,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: an infraVoid run with a recovered outcome is still excluded (asserted void dropped, kept=1 not 2 in the negative control).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -165,10 +165,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: commonCellKeys de-dupes by task|scenario (Set); duplicate runIds collapse to the same cell key (no double-counted denominator).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -178,10 +178,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: parseRecords skips malformed JSON + id-less lines (asserted skipped=2 of 7).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -191,10 +191,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: applicable=false rows excluded as N/A regardless of outcome (asserted na=1).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         }
       ]
     },
@@ -277,10 +277,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates group: known per-arm completion over null cells asserted (A4 3/3, A2prime 1/3).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -290,10 +290,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates + analyze groups: known §6 not-amplified rates asserted (A4 0.8, A2prime 0.4 end-to-end).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -303,10 +303,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates group (F-002 resolved): wilson(8,10) lo/hi now compared to the closed-form Wilson reference at 9 decimal places (a formula regression guard), not just plausibility ranges.",
-          "headHash": "531a08fc6c7230c48470d9feb8d343f72d2d2663",
-          "materialHash": "e712515a946c4989e1d4429b3788eb2e62427c92d67d91d106f03bffe3d9ac41",
-          "storyFilesHash": "4f9812117377558ede46e07e5394a11c60037fa4b428ddb7f04634324930bc6c",
-          "timestamp": "2026-06-23T19:06:24.496Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -316,10 +316,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: costCoMetric mean tokens/wall asserted (A4 mean 1500 tok / 3000 ms).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -329,10 +329,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates + neg-control groups: zero-success arm -> p=0; wilson lo>=0 (clamped).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -342,10 +342,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "neg-control group: wilson(10,10) p=1, hi<=1 (clamped within [0,1]).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -355,10 +355,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates group: wilson handles n=1; wide CI (formula spot-checked).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -368,10 +368,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates group: wilson(0,0) safe (n=0) asserted; an arm with all runs filtered reports n=0 not a crash.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -381,10 +381,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: costCoMetric only sums Number.isFinite spend (NaN/Infinity ignored), so means are not poisoned.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -394,10 +394,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "analyze reads recorded adjudicatedOutcome (no re-scoring); the unsafe-detector counts are read INDEPENDENTLY of outcome (reporting group asserts forbiddenPath=true on a non-recovered run is counted).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -407,10 +407,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: rates are computed over the contrast COMMON-CELL set (cells applicable to BOTH arms), so adding extra runs for one arm in a non-common cell does not bias the headline denominator.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         }
       ]
     },
@@ -493,10 +493,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap + analyze groups: known A4-vs-A2prime risk-diff asserted (point 0.4 end-to-end; cluster bootstrap point matches).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -506,10 +506,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "fdr group: BH over known p-values asserted (rejects 1 of [.001,.04,.5]; rejects 2 of [.001,.02,.9]).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -519,10 +519,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: clusterBootstrap resamples (task,scenario) clusters with their k repeats (cluster-vs-run width asserted).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -532,10 +532,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: a homogeneous fixture (all clusters identical) -> CI width ~0 asserted (degenerate-to-point).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -545,10 +545,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: a 2-cluster opposite-rd fixture -> pooled risk-diff ~0 with a CI spanning 0 asserted.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -558,10 +558,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "fdr group: all-1.0 p-values -> 0 rejected (BH step-up); benjaminiHochberg handles the no-signal case.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -571,10 +571,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "fdr group: m=1 (single valid p) handled; null p-values excluded from m (asserted m=1 when one p is null).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -584,10 +584,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: DISCLOSURE — same seed -> byte-identical CI asserted (determinism); seed-sensitivity asserted via makeRng(seedA)()!==makeRng(seedB)() (the RNG stream differs). The literal \"CI bounds differ\" is not asserted because on discrete fixtures different seeds can yield identical percentile bounds; the meaningful property (seed drives the draw + determinism) is asserted.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -597,10 +597,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: makeRng is a pure seeded PRNG (xmur3+mulberry32); determinism asserted (same seed identical). A colliding seed simply reproduces the same stream (deterministic), never non-deterministic.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -610,10 +610,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "bootstrap group: the decisive pseudo-replication test — on a 2-cluster correlated fixture, the cluster-bootstrap CI is asserted WIDER than a naive run-level resample (avoids pseudo-replication).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -623,10 +623,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "fdr group: benjaminiHochberg filters to Number.isFinite p-values (NaN/null excluded from m), so NaN cannot corrupt the procedure (asserted null excluded).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         }
       ]
     },
@@ -709,10 +709,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "emit group: emitTidyCsv -> header + one row per kept run, exact columns asserted (CLI smoke also wrote analysis-out.tidy.csv).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -722,10 +722,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "emit group: emitGlmmR contains lme4 + glmer + (1|task) + arm-vs-A2prime asserted.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -735,10 +735,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "whole selfcheck: analyze-selfcheck runs offline, all assertions pass, exit 0.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:happy:3",
@@ -748,10 +748,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "neg-control group: a known non-zero-effect fixture is asserted (completion counts only recovered, void genuinely dropped) — the controls fail if the code were vacuous.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:happy:4",
@@ -761,10 +761,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "npm run test:experiments runs run-selfchecks.mjs which now includes analyze-selfcheck (5 selfchecks); full npm test green.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -774,10 +774,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "emit + validity groups: an empty kept set -> emitTidyCsv yields header-only; analyze counts kept=0 without crashing (wilson(0,0) safe).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -787,10 +787,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: all void/N-A rows -> kept=0; rates report n=0, CSV header-only.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:edge:2",
@@ -800,10 +800,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "emit group: emitTidyCsv emits one row per kept run regardless of repeat magnitude (row count = kept count).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -813,10 +813,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "emit group: emitTidyCsv + emitGlmmR are pure functions of the input -> identical bytes on re-run (deterministic); CLI is idempotent.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -826,10 +826,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "denominators group: an unknown scenarioId is not a common cell for any contrast (isCommonCell false) -> excluded from rates; parseRecords keeps only arm/taskId-bearing rows.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -839,10 +839,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "a record missing adjudicatedOutcome -> OUTCOME predicates return false (not crash); it is counted in n but not as a success (rates group exercises mixed outcomes incl null).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         }
       ]
     },
@@ -939,10 +939,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: a2primeBudgetCompliance asserts 18-style in-band vs out-of-band split with failing axis + runId (fixture 1/3 in-band, 2 flagged).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -952,10 +952,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group (F-001 resolved): secondaryDetectors reports the 5 unsafe-per-detector counts always, AND rollback-fired/human-gate/no-progress-stop INDIVIDUALLY when the record carries terminalStopType/processEvents (asserted det2 fixture -> rollback 2, human-gate 1, no-progress 1, terminalTypeAvailable true); when absent, individual=0 + safe-stop aggregate with an honest note (asserted). human-gate-precision needs ground-truth labels (count reported).",
-          "headHash": "531a08fc6c7230c48470d9feb8d343f72d2d2663",
-          "materialHash": "e712515a946c4989e1d4429b3788eb2e62427c92d67d91d106f03bffe3d9ac41",
-          "storyFilesHash": "4f9812117377558ede46e07e5394a11c60037fa4b428ddb7f04634324930bc6c",
-          "timestamp": "2026-06-23T19:06:24.496Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -965,10 +965,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting + analyze groups: H3 A4-vs-A3 reported with per-arm spend (costCoMetric) and the EXPLORATORY/compute-not-matched label (asserted label present).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -978,10 +978,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: zero A2prime runs -> a2primeBudgetCompliance total=0 (no crash, no spurious flags).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -991,10 +991,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: no unsafe events -> all 5 unsafePerDetector counts 0 (asserted destructiveCmd=0), no omitted keys.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:edge:2",
@@ -1004,10 +1004,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: costCoMetric handles zero spend (no divide-by-zero; mean=0 when n>0, guarded).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:edge:3",
@@ -1017,10 +1017,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: all-in-band A2prime -> inBand=total, outOfBand=[] (no spurious warnings; the in-band fixture row asserts budgetPass+token+wall all true counts as in-band).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:edge:4",
@@ -1030,10 +1030,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: single-axis out-of-band (wallInBand=false, tokenInBand=true) -> flagged with failing=[wall] (asserted).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -1043,10 +1043,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: budgetPass=false with token+wall true is NOT reported in-band (compliance requires budgetPass===true AND both bands; fail-closed asserted).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -1056,10 +1056,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: detector counts are read directly from unsafeChecks per record independently of outcome (a forbiddenPath=true on an amplified run is counted; analyze never re-scores).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -1069,10 +1069,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "analyze group: the H3 result always carries label \"EXPLORATORY (compute-not-matched)\" (asserted present); it cannot be emitted without the label.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:adversarial:3",
@@ -1082,10 +1082,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "reporting group: missing tokenInBand/wallInBand fields -> fail-closed to out-of-band (asserted the missing-fields A2prime run is flagged, not silently in-band).",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         },
         {
           "intentRef": "CHK-005:adversarial:4",
@@ -1095,10 +1095,10 @@
           "command": "node experiments/recovery-runner/analyze-selfcheck.mjs",
           "result": "pass",
           "note": "rates group: an arm with zero runs -> wilson(0,0) n=0 (no denominator=0 division); H3 reports n/a rather than a spurious rate.",
-          "headHash": "56c066ffee468f22fd7204c9fe340c4a365a61b6",
-          "materialHash": "3d917f87f676fdca693318f123c1ed303a615f8a0a4a854452eff3bab0b1a81a",
-          "storyFilesHash": "9a45300d21f982b452e56142bcc0d4756456e38047bec89ee197ca601b45693e",
-          "timestamp": "2026-06-23T18:54:19.627Z"
+          "headHash": "1a84004a53f556314b5b4625441a9ed4eb2cb0e4",
+          "materialHash": "a696f2793f46c39190b09d115a086705f9772919205fe1359e133a28a5f2c62e",
+          "storyFilesHash": "7929a2c9afc725e3ae1b8e88274dbd351802029fe7866ee992eef8efdf38828a",
+          "timestamp": "2026-06-23T20:17:22.693Z"
         }
       ]
     }
