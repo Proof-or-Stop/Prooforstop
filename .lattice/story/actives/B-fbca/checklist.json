@@ -386,6 +386,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:47.194Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "echo koala-test-token > packages/main/src/__residue_inject_test.ts && node scripts/verify-lattice-residue.mjs; rm -f packages/main/src/__residue_inject_test.ts",
+          "result": "pass",
+          "note": "Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala introductions",
+          "headHash": "7bd14394ea83722f50e8575f2e98dcc42dc28f0f",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:52.259Z"
         }
       ]
     }
