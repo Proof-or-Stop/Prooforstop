@@ -1,0 +1,32 @@
+{
+  "storyId": "B-ac07",
+  "checkedAt": "2026-06-23T17:49:03.352Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights states koala-review-integrity-v1 has 11 hits in core/guard-utils.ts, core/machine.ts, core/process-fact-registry.ts, but grep shows only 4 hits across those 3 files (guard-utils.ts:1, machine.ts:2, process-fact-registry.ts:1). Additionally, a 4th file packages/main/src/core/reviewer-status.ts also contains the salt (1 hit) and is not mentioned. The 11-hit count is inaccurate; the deferred-salt conclusion is correct but the count could mislead implementers on search scope."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T17:48:22.605Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T17:49:03.352Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights states koala-review-integrity-v1 has 11 hits in core/guard-utils.ts, core/machine.ts, core/process-fact-registry.ts, but grep shows only 4 hits across those 3 files (guard-utils.ts:1, machine.ts:2, process-fact-registry.ts:1). Additionally, a 4th file packages/main/src/core/reviewer-status.ts also contains the salt (1 hit) and is not mentioned. The 11-hit count is inaccurate; the deferred-salt conclusion is correct but the count could mislead implementers on search scope."
+        }
+      ]
+    }
+  ],
+  "_hash": "6ebd552a9226c04c65b4f923815f2eda341fe606598cf8060a55e577409f948e"
+}
