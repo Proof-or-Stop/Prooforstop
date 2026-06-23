@@ -27,7 +27,7 @@
       "desc": "quality-cleanup: CHANGELOG.md:9 duplicate `### Experiments` heading — the B-0c07 patch prepended `### Experiments` before the B-0c07 bullet but the section heading already existed at line 5, producing two consecutive `### Experiments` headings in the Unreleased block",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T12:10:32.667Z",
@@ -38,7 +38,11 @@
         "CHANGELOG.md"
       ],
       "signatureTag": "missing|md|quality-cleanup-changelog",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: same duplicate-heading dedup.",
+      "resolvedAt": "2026-06-23T12:14:07.996Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0c07:F-003",
