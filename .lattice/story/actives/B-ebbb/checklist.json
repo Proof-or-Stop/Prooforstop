@@ -441,6 +441,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:19:16.758Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -nE 'acceptancePass|hiddenRegressionPass|diffHygienePass' experiments/recovery-runner/checks.mjs",
+          "result": "pass",
+          "note": "static scan: all three §7 names appear as object keys in return statements of checks.mjs (also asserted live by the §7 selfcheck block)",
+          "headHash": "e968dc7d3a8d5ffdcdf69a277f9c17fdca4c08c7",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:19:17.259Z"
         }
       ]
     },
