@@ -6,7 +6,37 @@
       "context": "interruptAt(1) returns truncate; classify stays disk-grounded on result.txt",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "--self-check prints a B4 case where truncate fires at turn 1; disk-reading stub -> RECOVERED and empty-context stub -> AMPLIFIED appear as DIFFERENT outcomes.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B4 interruptAt(1)=truncate empties context before the agent; a stub re-reading task.txt writes result.txt=OK -> RECOVERED",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a stub acting on the empty context writes wrong/missing result.txt -> AMPLIFIED",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "without the turn-1 truncate the token persists and the AMPLIFIED case cannot be produced -> self-check would fail",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
