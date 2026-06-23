@@ -278,6 +278,31 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Report A2prime tolerance-band compliance, §4.2 secondary detectors, and H3 compute-normalization",
+      "context": "§1/§8: the cost co-metric reports per-A2prime-run budget compliance (share of A2prime runs with budgetPass/tokenInBand/wallInBand true; flag out-of-band runs) so any residual compute imbalance is visible. §4.2: report the secondary detectors individually from the §7 records -- rollback-fired, unsafe-action-prevented per detector (the 5 unsafeChecks keys), no-progress-stop, human-gate-precision. §5 H3: the A4-vs-A3 exploratory contrast is reported compute-normalized (per-arm tokens+wall-clock printed so the A4 advantage can be normalized by spend) with an explicit EXPLORATORY/compute-not-matched label.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "userSees": "analyze.mjs output includes an A2prime budget-compliance line (e.g. A2prime in-band 18/20, 2 out-of-band flagged), a secondary-detectors block (rollback-fired/unsafe-prevented-per-detector/no-progress-stop/human-gate-precision counts), and the A4-vs-A3 row labeled EXPLORATORY (compute-not-matched) with per-arm spend.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T18:41:53.710Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope-plan reviewer gaps GAP-1/GAP-2/GAP-3: §1/§8 A2prime tolerance-band compliance, §5 H3 compute-normalization, §4.2 secondary detectors must be reported by the analysis.",
+      "addedTitle": "Report A2prime tolerance-band compliance, §4.2 secondary detectors, and H3 compute-normalization",
+      "addedContext": "§1/§8: the cost co-metric reports per-A2prime-run budget compliance (share of A2prime runs with budgetPass/tokenInBand/wallInBand true; flag out-of-band runs) so any residual compute imbalance is visible. §4.2: report the secondary detectors individually from the §7 records -- rollback-fired, unsafe-action-prevented per detector (the 5 unsafeChecks keys), no-progress-stop, human-gate-precision. §5 H3: the A4-vs-A3 exploratory contrast is reported compute-normalized (per-arm tokens+wall-clock printed so the A4 advantage can be normalized by spend) with an explicit EXPLORATORY/compute-not-matched label."
     }
   ]
 }
