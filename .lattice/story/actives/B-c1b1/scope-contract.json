@@ -4,6 +4,8 @@
   "allowedModify": [
     "packages/main/src/core/done-oracle.ts",
     "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
   ],
   "allowedCreate": [],
@@ -12,8 +14,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Verified REVIEW findings B-c1b1:F-001/F-002 require done_prepare to execute DONE-required validation, and B-c1b1:F-003 requires lifecycle_check DONE recovery mapping to match done_closure.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T01:58:44.855Z",
-  "updatedAt": "2026-06-23T01:58:44.855Z"
+  "updatedAt": "2026-06-23T02:06:28.940Z"
 }

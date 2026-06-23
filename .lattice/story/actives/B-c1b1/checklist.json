@@ -50,35 +50,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "git show --stat --oneline HEAD && rg -n \"done_prepare|post-DONE|pre-DONE|version files\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "command": "git show --stat --oneline HEAD",
           "result": "pass",
-          "note": "Mapped the DONE boundary: code change is limited to DONE oracle/runbook recovery hints, while the existing decision doc states done_prepare is pre-DONE and version/dist/package finalization remains post-DONE.",
-          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:57:50.784Z"
+          "note": "At commit 42929151 the DONE boundary is mapped: done_prepare performs pre-DONE validation recovery, while version package dist finalization remains outside pre-DONE readiness.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "rg -n \"Do not update version files in `done_prepare`|post-DONE|must not modify runtime version files before DONE\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "command": "rg -n \"post-DONE|done_prepare|version files\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
           "result": "pass",
-          "note": "Existing requirements explicitly keep version mutation and post-DONE finalization out of done_prepare, so this story did not move those material-changing writes before final evidence.",
-          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:57:51.102Z"
+          "note": "Decision docs continue to keep runtime version and finalization writes post-DONE and out of done_prepare.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
-          "note": "Build and smoke preserve evidence freshness, storyFilesHash, dirty-worktree, wrong-cwd, wrong-branch, stale-review, and version-bump rejection safety cases while adding the recovery-hint path.",
-          "headHash": "29c959848e7a09a3950a4b4063a8feaed94c2992",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:57:51.372Z"
+          "note": "Build and smoke preserve stale, wrong cwd, wrong branch, stale review, command-backed evidence, and version-bump rejection safety while adding DONE-required recovery.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         }
       ]
     },
@@ -134,33 +134,33 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
-          "note": "The smoke test includes DONE recovery hints route ordering-sensitive blockers through done_prepare, proving evidence-freshness, done-required-validation, and branch-synced-main converge on the ordered recovery command.",
-          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:11.647Z"
+          "note": "Smoke proves evidence-freshness, DONE-required validation, branch-synced-main, and lifecycle_check recovery guidance converge on done_prepare.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "rg -n \"donePrepareRecoveryHint|done-required-validation|doneRequired.hint\" packages/main/src/core/done-oracle.ts",
+          "command": "rg -n \"done_required_validate|resolveDoneRequiredPolicy|DONE-required validation passed\" packages/main/src/handlers/done-prepare.ts",
           "result": "pass",
-          "note": "Blocking DONE-required validation now prefixes done_prepare while preserving the original doneRequired.hint detail, so the reason text is not lost.",
-          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:12.116Z"
+          "note": "done_prepare now invokes the existing done_required_validate path when policy is required and fails closed on failed DONE-required output.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "rg -n \"test-evidence|verification-intent-coverage|evidence-freshness|done-required-validation|branch-synced-main\" packages/main/src/handlers/done-closure.ts",
+          "command": "rg -n \"test-evidence|verification-intent-coverage|evidence-freshness|done-required-validation|branch-synced-main\" packages/main/src/handlers/done-closure.ts packages/main/src/core/lifecycle-readiness.ts",
           "result": "pass",
-          "note": "Runbook mapping keeps test-evidence and verification-intent-coverage on validate, while only evidence-freshness, done-required-validation, and branch-synced-main route to done_prepare.",
-          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:12.442Z"
+          "note": "Only ordering-sensitive DONE blockers route to done_prepare; ordinary test evidence and verification-intent coverage still route to validation.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         }
       ]
     },
@@ -213,33 +213,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
-          "note": "The new smoke scenario asserts branch-synced-main and done-required-validation blockers both route to the exact done_prepare command.",
-          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:20.841Z"
+          "note": "Smoke executes missing DONE-required evidence through done_prepare and proves PASS done-required evidence is written by the existing validator.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
-          "note": "The smoke starts with missing DONE-required evidence and verifies the blocker remains fail/blocking before done_prepare; it is not silently waived.",
-          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:21.405Z"
+          "note": "Smoke covers failing DONE-required validation and proves done_prepare blocks at validate while writing FAIL evidence for inspection.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js && git diff --check",
           "result": "pass",
-          "note": "The regression asserts branch sync guidance does not regress to raw git merge main and the broader smoke preserves stale, command-backed evidence, wrong cwd/branch, and version-bump rejection safety cases.",
-          "headHash": "e9e77cf7482b914f54e849ff75cac82e7e7d2a16",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:21.925Z"
+          "note": "Regression covers lifecycle_check mapping, avoids raw git merge main recovery guidance, and passes whitespace checks.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.264Z"
         }
       ]
     },
@@ -290,35 +290,35 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "docs_check",
-          "command": "rg -n \"lattice done_prepare|host-neutral|local lifecycle assistant\" docs/requirements/decisions/done-prepare-automation-execution-plan.md docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "command": "rg -n \"lattice done_prepare|local lifecycle assistant\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
           "result": "pass",
-          "note": "No docs edit was needed: the existing decision docs describe done_prepare as a Lattice workflow/local lifecycle assistant, not a Codex or Claude namespace command.",
-          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:32.712Z"
+          "note": "Existing docs remain host-neutral and describe done_prepare as a Lattice lifecycle assistant, not a host-specific command.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.265Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
-          "command": "rg -n \"post-DONE|Do not update version files in `done_prepare`|must not modify runtime version files before DONE|It must remain separate from pre-DONE readiness\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "command": "rg -n \"post-DONE|version files|pre-DONE readiness\" docs/requirements/decisions/done-prepare-automation-execution-plan.md",
           "result": "pass",
-          "note": "The docs already preserve the boundary that version/package/dist finalization remains post-DONE and done_prepare must not mutate runtime version files before DONE.",
-          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:33.021Z"
+          "note": "Docs preserve the pre-DONE done_prepare versus post-DONE finalization boundary after the implementation change.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.265Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
-          "note": "The user-facing recovery guidance for branch sync and DONE-required blockers now points to done_prepare instead of raw git merge plus separate refresh/validate loops.",
-          "headHash": "343137ea155bd6999ab7289a529cbf2ea3450ddb",
-          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
-          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
-          "timestamp": "2026-06-23T01:58:33.272Z"
+          "note": "User-facing DONE recovery no longer relies on raw git merge plus separate stale refresh loops for the ordering-sensitive blockers.",
+          "headHash": "42929151cb3772ee86ef9377a2da58fade49c3d8",
+          "materialHash": "0248271c6ba5e7d30c5243b804dd87170ae7092e79fab525c3644e0d86448079",
+          "storyFilesHash": "84568313de67c82671782ef3115b0f5eb241e0e1aba48b8734c8096b149e67f5",
+          "timestamp": "2026-06-23T02:21:01.265Z"
         }
       ]
     }
