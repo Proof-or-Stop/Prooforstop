@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T04:24:55.641Z",
       "reviewRunId": "B-2d4c:RR-003",
       "_hash": "b8a861b449e9483f6da27efb4ce8ef687aa231a44629594ff09b4ff5e7aa60fd"
+    },
+    {
+      "id": "B-2d4c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 fix d784885e3 verified clean. (1) TERMINAL_STOP_TYPES=[stop,rollback,human_gate] exactly matches §4.2; terminal:true branch now also requires TERMINAL_STOP_TYPES.includes(kind) so the three-kind boundary is consistently enforced on all paths. (2) toRegExp strips g/y flags via new RegExp(p.source, p.flags.replace(/[gy]/g,\"\")) — restores stateless purity, no lastIndex leak. (3) Selfcheck pins F-A and F-B added for both fixes; all imported symbols (forbiddenPathEdit, secretScanHit, permChange, forbiddenCreate, destructiveCmd, terminalStopEvent, detectUnsafe, adjudicate) resolve in adjudicate.mjs. (4) No call-count, no old enum residue, no doc-promise-undelivered findings. 0 findings registered this round.",
+      "createdAt": "2026-06-23T04:42:38.977Z",
+      "reviewRound": "2026-06-23T04:41:14.042Z",
+      "reviewRunId": "B-2d4c:RR-006",
+      "_hash": "e59338efa4e955a8a2bece76948d3078ac9298eef228bd271cef20c90ed67a71"
     }
   ]
 }
