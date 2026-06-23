@@ -34,6 +34,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-await",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c023:F-003",
+      "desc": "[codex-host2 C8] maxTurns is unvalidated: Infinity/huge runs indefinitely; 0/negative yields B10 SAFE_STOP with zero turns. FIX: require Number.isInteger(maxTurns) && maxTurns>=1 (throw otherwise).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T13:00:31.781Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "_hash": "eacf20f70772c35bdcbefa496594ba8be543d046c63e5bca957b035978605b45",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-maxturns",
+      "signatureTagSource": "auto"
     }
   ]
 }
