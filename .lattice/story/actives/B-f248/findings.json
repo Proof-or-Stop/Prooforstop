@@ -92,7 +92,7 @@
       "desc": "A2prime record with all-null budget fields passes validateRecord (§1 budget log not enforced). validateRecord only checks presence; an A2prime run with budgetPass=null still validates. §1 line 47 requires EACH A2prime run to log pass/fail. Fix: validateRecord requires A2prime to carry a populated, correctly-typed budget log; non-A2prime stays all-null.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T12:02:08.294Z",
@@ -102,7 +102,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|a2prime-record-budget",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "validateRecord.budgetLogOk requires populated A2prime budget log (null rejected); neg-control asserts; commit 9e5fcbf0f",
+      "resolvedAt": "2026-06-23T12:07:19.648Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-006",
