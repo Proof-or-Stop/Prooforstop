@@ -363,6 +363,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:19:02.076Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh junk-env / junk-node_modules: pass false reason junk-artifact': .env and node_modules/ flagged as junk EVEN under an allowed path",
+          "headHash": "278a60f04060e0d4d32b51fd9e0fed872d67d892",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:19:02.618Z"
         }
       ]
     },
