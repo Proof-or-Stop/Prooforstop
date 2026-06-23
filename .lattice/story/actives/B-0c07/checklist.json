@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "real-arm.mjs — claude -p runArm (new file, no run-recovery import)",
+      "context": "runArm(ws,{probe,arm}) runs claude -p --model <m> --dangerously-skip-permissions --output-format json with the task prompt in cwd=ws (execFileSync, timeout, maxBuffer), parses usage for cost/tokens, returns {actions, shipped}. Bare arm = always ships. A no-LLM self-check (stub agent) verifies the {actions,shipped} shape + record schema WITHOUT spending, like recovery-runner spend-accounting-selfcheck.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "powered --run: 6 probes × bare arm × small N -> records jsonl",
+      "context": "Drive runInjectionArms (from the merged B-a1b0 driver) with the real bare arm over the 6 probes at small N; append {probe,arm,rep,outcome,costUsd,tokensSpent} to experiments/injection-probes/powered-run-records.jsonl. This produces the first REAL catch-rate numbers; report them honestly (small N, bare arm only).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

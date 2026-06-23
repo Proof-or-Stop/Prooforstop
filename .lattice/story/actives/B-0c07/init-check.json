@@ -1,0 +1,62 @@
+{
+  "storyId": "B-0c07",
+  "checkedAt": "2026-06-23T11:47:31.891Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights uses \"(INIT-001)\" parenthetically to describe why agentRun cannot be imported, but never defines that INIT-001 is a finding ID from the prior story B-a1b0 init check. A new reader sees an unexplained parenthetical identifier."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs refers to \"e8aca935 ownership\" without explaining that e8aca935 is a Lattice session ID UUID prefix (confirmed in .lattice/story/actives/B-f248/index.json and B-ebbb/index.json). A new reader cannot determine whether it is a git commit, session ID, or other identifier."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Trigger Event references \"tab:recovery\" (a LaTeX label) without explanation. A reader without access to the paper LaTeX source cannot locate this reference."
+    },
+    {
+      "id": "INIT-004",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs and index.json description mention arm labels A2-prime, A4-C, A4b-B without defining what these arm designations represent. They are excluded from scope, but a new reader has no context for the label scheme (bare/A2-prime/A4-C/A4b-B)."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T11:46:35.358Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T11:47:31.891Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights uses \"(INIT-001)\" parenthetically to describe why agentRun cannot be imported, but never defines that INIT-001 is a finding ID from the prior story B-a1b0 init check. A new reader sees an unexplained parenthetical identifier."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs refers to \"e8aca935 ownership\" without explaining that e8aca935 is a Lattice session ID UUID prefix (confirmed in .lattice/story/actives/B-f248/index.json and B-ebbb/index.json). A new reader cannot determine whether it is a git commit, session ID, or other identifier."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Trigger Event references \"tab:recovery\" (a LaTeX label) without explanation. A reader without access to the paper LaTeX source cannot locate this reference."
+        },
+        {
+          "id": "INIT-004",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs and index.json description mention arm labels A2-prime, A4-C, A4b-B without defining what these arm designations represent. They are excluded from scope, but a new reader has no context for the label scheme (bare/A2-prime/A4-C/A4b-B)."
+        }
+      ]
+    }
+  ],
+  "_hash": "eb800d77d6115533decb69999f38cf91827b9c8fc5e245c637294e228e94993e"
+}
