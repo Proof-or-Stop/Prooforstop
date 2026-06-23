@@ -52,6 +52,33 @@ export function tokensFromUsage(j) {
   return n;
 }
 
+// PURE replay of the budget loop's per-iteration accounting + hard-truncation, sharing the
+// EXACT increment-then-check-then-break ordering and the SAME budgetExceeded predicate that
+// runMain()'s real loop uses (the real loop is built from these same primitives). Each entry
+// in `calls` is a per-call spend {tokens, ms}; we increment agentCallCount, add tokens, then
+// (if budgetMode) check the cap AFTER the update and break on exceed. Returns the resulting
+// {agentCallCount, tokensSpent, truncated}. budgetMode is OFF when both budgets are null.
+// Used by the no-LLM selfcheck to verify CHK-001 counting + CHK-002 truncation without claude.
+export function replayBudgetLoop(calls, tokenBudget, wallBudgetMs) {
+  const budgetMode = tokenBudget != null || wallBudgetMs != null;
+  let agentCallCount = 0, tokensSpent = 0, elapsedMs = 0, truncated = false;
+  for (const c of (calls || [])) {
+    agentCallCount++;                              // one real LLM call (executor or reviewer)
+    tokensSpent += tokensFromUsage({ usage: { input_tokens: c.tokens || 0, output_tokens: 0 } });
+    elapsedMs += Number(c.ms) || 0;
+    if (budgetMode && budgetExceeded(tokensSpent, elapsedMs, tokenBudget, wallBudgetMs)) { truncated = true; break; }
+  }
+  return { agentCallCount, tokensSpent, truncated };
+}
+
+// PURE run-record assembler with the EXACT pre-reg §7 field names (tokensSpent, wallClockMs,
+// agentCallCount) + the truncated flag. runMain()'s real `record` literal mirrors these
+// fields; this builder lets the no-LLM selfcheck assert the schema/field-presence intents
+// (and the budget-OFF default truncated=false) without spawning claude.
+export function buildRunRecord({ tokensSpent, wallClockMs, agentCallCount, truncated = false } = {}) {
+  return { tokensSpent, wallClockMs, agentCallCount, truncated };
+}
+
 async function runMain() {
   const taskDir = resolve(arg('--task'));
   const arm = arg('--arm', 'a2prime');
@@ -225,10 +252,11 @@ async function runMain() {
     scenarioId: injId === 'none' ? null : injId, faultKind: injectionRecord?.faultKind || null, injectAfter,
     model, attempts, outcome, finalAcceptancePass: finalPass, groundTruthPass,
     reviewRounds, shipped, reviewShip: reviewVerdict ? reviewVerdict.ship : null, reviewReason: reviewVerdict ? reviewVerdict.reason : null,
-    // pre-reg §7 schema field names (EXACTLY): tokensSpent, wallClockMs, agentCallCount.
-    tokensSpent, wallClockMs: Date.now() - t0, agentCallCount,
-    // truncated: spend-budget cap fired (A2-prime hard-truncation at the ±20% upper bound).
-    truncated, costUsd: Number(totalCost.toFixed(6)),
+    // pre-reg §7 schema field names (EXACTLY): tokensSpent, wallClockMs, agentCallCount, plus
+    // truncated (A2-prime hard-truncation at the ±20% upper bound). Built by the shared
+    // buildRunRecord() so the no-LLM selfcheck verifies the SAME schema the real loop writes.
+    ...buildRunRecord({ tokensSpent, wallClockMs: Date.now() - t0, agentCallCount, truncated }),
+    costUsd: Number(totalCost.toFixed(6)),
     workspace: ws, ts: new Date().toISOString(),
   };
   appendFileSync(recordFile, JSON.stringify(record) + '\n');
