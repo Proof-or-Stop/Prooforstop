@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 // §5/§6 powered-ablation ANALYSIS script (infra-(a) piece 5).
 //
+// Design note (the §8 denominator-bias mitigation): EVERY per-arm comparison — headline
+// completion + recovery rates, the A4-vs-A2prime cluster bootstrap, the exploratory
+// per-scenario tests, AND the formal GLMM (via the matchedPrimaryH1/H2 CSV flags) — scores
+// both arms over the SAME matched (both-arms-have-data) common-cell set. An arm-only cell is
+// never counted for just one arm, so no comparison can be biased by an unmatched denominator.
+//
 // Reads the §7 run-records JSONL the driver (run-driver.mjs) emits and produces the
 // pre-registered readouts (docs/requirements/decisions/lattice-experiment-protocol.md
 // rev3.1 — the AUTHORITY). It:
