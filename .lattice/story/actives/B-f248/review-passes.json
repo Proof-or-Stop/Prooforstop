@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T12:06:55.646Z",
       "reviewRunId": "B-f248:RR-008",
       "_hash": "fc21a4a26cc52cc42a55a810dd37b877f1312e0fc194cc049d3051bf05e17d77"
+    },
+    {
+      "id": "B-f248:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): F-001/F-002/F-003 are genuinely resolved — run-driver-selfcheck.mjs lines 95-99 assert the EXACT intent params (462 cells k=2/3tasks, excluded.length===9 pre-repeat, 231 cells k=1/3tasks) and the selfcheck runs 117 assertions 0 failed. N/A=9-not-18 correction is sound: excluded[] is built at the (arm,task,scenario) level BEFORE the repeat loop (run-driver.mjs lines 166-175), so the intent note double-counted by ×k. CHK-004/CHK-005/F-004/F-005/F-006 evidence concretely maps to assertions in the CLI integration group (lines 267-284) and budget-log group (lines 219-234). Two advisory notes: (1) CHK-001:happy:1 intent text still says 18 but evidence correctly discloses correction to 9 — no coverage gap; (2) CHK-004:happy:0 note says 104 assertions but current selfcheck runs 117 — stale count, intent (exit 0) still satisfied. No blocker gaps found across all 5 CHK items (CHK-001 through CHK-005), all must-priority intents covered by non-fail evidence.",
+      "createdAt": "2026-06-23T12:18:21.531Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-007",
+      "_hash": "7c70a65b206400f35a27ed3f90a630d1fd210595dbfe436df0055204d868279d"
     }
   ]
 }
