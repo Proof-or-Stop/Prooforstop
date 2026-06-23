@@ -59,10 +59,10 @@
           "command": "node package/package-lock scope assertion",
           "result": "pass",
           "note": "Verified root package remains lattice; packages/main is @lattice/core; packages/utils is @lattice/utils; packages/lab is @lattice/lab; all three Lattice packages are version 0.3.65.",
-          "headHash": "ca6818920764f36925452257ed3e6116fb46c4c9",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:30:39.605Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -70,10 +70,10 @@
           "command": "node package/package-lock scope assertion plus dry-run installs",
           "result": "pass",
           "note": "Verified inter-package dependencies: core depends on @lattice/lab@0.3.65; utils and lab depend on @lattice/core@0.3.65; dry-run package-lock installs pass for main/lab/utils.",
-          "headHash": "ca6818920764f36925452257ed3e6116fb46c4c9",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:30:40.064Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -81,10 +81,10 @@
           "command": "npm --prefix packages/main install --package-lock-only --dry-run --ignore-scripts && npm --prefix packages/lab install --package-lock-only --dry-run --ignore-scripts && npm --prefix packages/utils install --package-lock-only --dry-run --ignore-scripts",
           "result": "pass",
           "note": "Verified package-lock metadata for main/lab/utils resolves after the @lattice rename instead of pointing to unpublished stale 0.3.1 packages.",
-          "headHash": "ca6818920764f36925452257ed3e6116fb46c4c9",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:30:40.487Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -92,10 +92,10 @@
           "command": "rg -n \"@lattice-agent|@koala-agent\" package.json package-lock.json packages/main/package.json packages/main/package-lock.json packages/utils/package.json packages/utils/package-lock.json packages/lab/package.json packages/lab/package-lock.json || true",
           "result": "pass",
           "note": "No @lattice-agent or @koala-agent residues were found in live package manifests or package locks.",
-          "headHash": "ca6818920764f36925452257ed3e6116fb46c4c9",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:30:40.902Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         }
       ]
     },
@@ -172,10 +172,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/lab run build",
           "result": "pass",
           "note": "All three TypeScript packages build under @lattice/core, @lattice/utils, and @lattice/lab; live TypeScript imports/constants compile.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -183,10 +183,10 @@
           "command": "node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Entry point verifier confirms generated local bootstrap searches node_modules/@lattice/core and rejects stale global fallback without required commands.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -194,10 +194,10 @@
           "command": "rg retired @lattice-agent runtime candidates in active src and verifier files",
           "result": "pass",
           "note": "Only anti-regression assertions remain for retired @lattice-agent/core; no live runtime candidate or bootstrap path uses it.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -205,10 +205,10 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js && node bin/lattice.js --version",
           "result": "pass",
           "note": "Runtime contract, version-bump fixture, validation-protocol runtime fixture, and local CLI version all pass with @lattice/core.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         }
       ]
     },
@@ -276,10 +276,10 @@
           "command": "node pre-push self-host package assertion",
           "result": "pass",
           "note": ".githooks/pre-push checks @lattice/core and no longer checks @koala-agent/core as the self-host package name.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -287,10 +287,10 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Runtime facts and generated bootstrap verifier pass with @lattice/core as the live global core package and no live @koala-agent/core fallback.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -298,10 +298,10 @@
           "command": "rg @koala-agent/core and @lattice-agent/core in runtime/hook/verifier files",
           "result": "pass",
           "note": "Remaining old-scope references are anti-regression assertions or a legacy symlink fixture; no live fallback candidate resolves @koala-agent/core.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -309,10 +309,10 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Verifiers explicitly fail if retired @lattice-agent/core canonical naming or @koala-agent/core dependencies/fallback are reintroduced.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         }
       ]
     },
@@ -386,10 +386,10 @@
           "command": "rg retired @lattice-agent names in active guidance; rg @lattice/core in README/CLAUDE/docs/runtime guidance",
           "result": "pass",
           "note": "Active README/CLAUDE/runtime/decision guidance names @lattice/core; no active guidance references @lattice-agent/{core,utils,lab}.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -397,10 +397,10 @@
           "command": "lattice verify_codex && node scripts/verify-codex-assets.mjs",
           "result": "pass",
           "note": "Codex verification passed 8/8; Codex and Claude hook assets resolve node_modules/@lattice/core and managed prompt assets match runtime.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -408,10 +408,10 @@
           "command": "npm link packages/main as @lattice/core; command -v lattice; npm ls -g --depth=0; lattice --version",
           "result": "pass",
           "note": "Global lattice bin points to @lattice/core and reports Lattice CLI 0.3.65. During the story it points to the B-3523 worktree; after DONE merge it must be relinked to canonical proofbound main.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -419,10 +419,10 @@
           "command": "rg active guidance for retired scope plus CHANGELOG historical scan",
           "result": "pass",
           "note": "Historical CHANGELOG entries can still mention retired package names; current execution docs and runtime guidance use @lattice/core.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -430,10 +430,10 @@
           "command": "lattice story_create from /Users/jek/Documents/Work/Orchestrate",
           "result": "pass",
           "note": "Retired Orchestrate root rejects mutating story_create and prints Use canonicalRoot: /Users/jek/Documents/Work/proofbound.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -441,10 +441,10 @@
           "command": "node scripts/verify-koala-residue.mjs && rg retired package names in active guidance",
           "result": "pass",
           "note": "Koala residue gate passes with 0 unclassified; retired @lattice-agent names remain only in anti-regression assertions or historical changelog.",
-          "headHash": "fd4c95f936fb79cfe6017621bbe1a07a293a3bac",
-          "materialHash": "41a969f24b1f737d5da914858f514a4fdc4780a8b0d3d63aaf44a063404fd997",
-          "storyFilesHash": "0b4b26c805994dd7068b031a78434f52e9f0a746d81104e64abf3f380ec2fb9f",
-          "timestamp": "2026-06-22T23:31:18.965Z"
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
         }
       ]
     }
