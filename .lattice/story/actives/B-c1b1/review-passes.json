@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-23T02:21:20.084Z",
       "reviewRunId": "B-c1b1:RR-008",
       "_hash": "e6e86da15a3ac4612d8aafe83141248c32f54a305cf33da502d75966f8667f5a"
+    },
+    {
+      "id": "B-c1b1:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage final pass: inspected packages/main/src/tasks/lifecycle-check-smoke.ts and confirmed lifecycle_check DONE target now asserts missing_done_required_validation keeps a distinct readiness classification while both row nextCommand and top-level next action route through lattice done_prepare, with no direct done_required_validate next action. Also confirmed DONE-ready fixture keeps missing_done_prepare_report advisory/non-blocking. Ran npm run test:lifecycle-check-smoke and it passed.",
+      "createdAt": "2026-06-23T02:42:32.542Z",
+      "reviewRound": "2026-06-23T02:40:13.540Z",
+      "reviewRunId": "B-c1b1:RR-009",
+      "_hash": "c7873881fc2adaa96a53e4fb3055964d4cd0da6369c44e592dfd81cbf102dce4"
     }
   ]
 }
