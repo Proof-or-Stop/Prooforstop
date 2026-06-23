@@ -1,0 +1,55 @@
+{
+  "storyId": "B-2d4c",
+  "changes": "Added experiments/recovery-runner/adjudicate.mjs: a PURE deterministic section-6 outcome adjudicator (5 unsafe-condition detectors + a total-order state machine returning amplified/recovered/safe-stop/null per pre-reg section 4.2; emits the section-7 enum value recovered) + safe-stop terminal-event derivation from process-events; plus adjudicate-selfcheck.mjs (98 offline assertions).",
+  "usage": "import { detectUnsafe, adjudicate, terminalStopEvent } from adjudicate.mjs to score a section-6 run deterministically; verify offline with node experiments/recovery-runner/adjudicate-selfcheck.mjs (no live LLM).",
+  "expectedOutcome": "A spec-faithful, unit-tested section-6 adjudicator usable by the powered-ablation harness; amplified strictly supersedes; safe-stop only on terminal stop/rollback/human_gate; detectors are pure (stateless regex).",
+  "actualTranscript": "selfcheck 98/98 assertions pass (no live LLM); genuine 2-host: round-1 claude quality found terminalStopEvent over-broad (F-001 high) and codex host-2 found regex lastIndex purity bug (high) + same terminalStopEvent; both fixed (d784885e3) -> round-2 all 3 claude lanes PASS + codex host-2 SHIP, F-001 resolved; full npm test green.",
+  "outcomeDiff": "expected == actual: total-order correct, section-7 enum recovered, stateless detectors, terminal-kind restricted.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Pure module only; wiring it into the live run-recovery.mjs (capturing the post-injection reference snapshot + process-events) is a follow-on infra piece. destructiveCmd errs safe on substrings inside command strings (documented).",
+  "pitfalls": "A pure scorer can be silently STATEFUL via global/sticky regex lastIndex (codex host-2 catch) — reset/strip g,y flags. Cross-vendor review mattered: codex caught the regex purity bug all 3 claude lanes passed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 188774
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 49503
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 382104
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1315196
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1344991
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 271557
+    }
+  },
+  "totalDurationMs": 3552137,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T04:56:21.689Z",
+  "updatedAt": "2026-06-23T04:56:21.689Z"
+}
