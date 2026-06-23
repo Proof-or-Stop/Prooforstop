@@ -71,6 +71,26 @@
       "resolvedAt": "2026-06-23T03:45:52.777Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6320:F-004",
+      "desc": "authority_job_create reserved fake provider rejection still misses the fake-provider runner token. normalizeServerProvider rejects fake case-insensitively, but preserves fake-provider / FAKE_PROVIDER as custom declarations and can sign/POST them. fake-provider is already the internal fake runner provider token in authority-runner, while job create promises an explicit non-fake provider declaration. Fix by treating fake-provider aliases as reserved for server job create as well, without rejecting unrelated custom provider names.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T03:53:05.518Z",
+      "reviewRound": "2026-06-23T03:45:44.003Z",
+      "reviewRunId": "B-6320:RR-007",
+      "_hash": "f75f327242a09005cbe8a31cb3ca1c4b9bdcb19033c3e7c6cd075812d8460789",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-runner.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-provider-override",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
