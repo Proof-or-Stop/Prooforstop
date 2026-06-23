@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d321",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-*",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-*delivery-check*result.json",
+    "lattice.config.json",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Narrow local CLI correctness fix; no deployment or remote push.",
+  "createdAt": "2026-06-23T12:21:33.347Z",
+  "updatedAt": "2026-06-23T12:21:33.347Z",
+  "_hash": "859c291504ce2dbad635dbb170aa30eba08b4b5a21fe1803acd4df6e88f3f416"
+}
