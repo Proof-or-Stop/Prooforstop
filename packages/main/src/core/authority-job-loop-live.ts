@@ -110,7 +110,7 @@ export function buildLiveRunnerOptionsFromEnv(
   if (!runnerId) throw new Error('LATTICE_AUTHORITY_RUNNER_ID is required for the live authority job loop');
   const runnerProvider = settings.runnerProvider;
   if (!settings.runnerProviderValid || !runnerProvider) {
-    throw new Error(`LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid: ${settings.runnerProviderInvalidValue ?? '(empty)'}`);
+    throw new Error(`LATTICE_AUTHORITY_RUNNER_PROVIDER could not be resolved: ${settings.runnerProviderInvalidValue ?? '(empty)'}`);
   }
   const projectId = settings.projectId;
   if (!projectId) throw new Error('LATTICE_AUTHORITY_PROJECT_ID is required for the live authority job loop');

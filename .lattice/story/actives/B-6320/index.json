@@ -4,7 +4,7 @@
   "title": "Support host-neutral Authority runner provider declarations",
   "description": "Allow Lattice CLI Authority runners to declare their host/provider identity without being limited to a small built-in enum, so Codex CLI, Claude Code/Claude CLI, Antigravity, and future agent hosts can register, heartbeat, watch SSE, claim, and handoff/takeover jobs using server policy as the authorization boundary.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-06-23",
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-06-23T02:39:35.723Z",
   "startedAt": "2026-06-23T02:39:35.723Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T04:33:05.283Z",
   "events": [
     {
       "phase": "INIT",
@@ -36,11 +36,133 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T02:46:30.387Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T02:59:46.278Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:17:34.962Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:22:48.761Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-5e0259fd2da401eb",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:28:11.885Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:39:58.631Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:45:44.003Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:53:10.629Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T03:56:19.682Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:06:20.597Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:16:54.360Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:17:45.566Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:25:09.700Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:33:05.283Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6320",
-    "branch": "story/B-6320",
-    "createdAt": "2026-06-23T02:44:13.596Z"
-  }
+  "currentReviewRound": "2026-06-23T04:17:45.566Z"
 }

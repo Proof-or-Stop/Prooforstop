@@ -25,6 +25,14 @@ function schemaDescription(command: string, key: string): string {
   return typeof schema?.description === 'string' ? schema.description : '';
 }
 
+function schemaAccepts(command: string, key: string, value: unknown): boolean {
+  const schema = findTool(command).schema[key] as { safeParse?: (input: unknown) => { success: boolean } } | undefined;
+  const safeParse = schema?.safeParse;
+  assert.equal(typeof safeParse, 'function', `${command}.${key} should expose a Zod safeParse`);
+  if (typeof safeParse !== 'function') return false;
+  return safeParse(value).success;
+}
+
 function runCli(args: string[]): string {
   const binCli = join(repoRoot, 'bin', 'lattice.js');
   const distCli = join(pkgRoot, 'dist', 'cli.js');
@@ -68,6 +76,7 @@ for (const command of [
   'story_advance',
   'validate',
   'authority_receipt_verify',
+  'authority_job_create',
   'host_runtime_list',
   'host_runtime_probe',
   'dispatch_policy_create',
@@ -75,6 +84,17 @@ for (const command of [
 ]) {
   findTool(command);
 }
+
+assert.equal(
+  schemaAccepts('authority_job_create', 'provider', 'codex-cli'),
+  true,
+  'authority_job_create.provider must accept host-neutral custom provider declarations',
+);
+assert.equal(
+  schemaAccepts('authority_job_create', 'provider', 'antigravity'),
+  true,
+  'authority_job_create.provider must accept antigravity as a host-neutral declaration',
+);
 
 const currentHostText = [
   findTool('host_runtime_list').description,

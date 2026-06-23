@@ -1,0 +1,20 @@
+{
+  "storyId": "B-6320",
+  "expected": "User sees \"runnerProvider: codex-cli\" and \"runnerProviderValid: true\" instead of \"LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid\".",
+  "actual": {
+    "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+    "exitCode": 0,
+    "stdout": "✓ authority runner client smoke passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-23T04:11:51.053Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "ee6bca5c80c1c7b9d30e276686347ff4ee9be27d",
+  "materialHash": "93a9fe8580bc4d7e3e96578c7f9ca28dc83e78503b414670c72931e748066e90"
+}
