@@ -41,10 +41,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Smoke asserts the quality reviewer prompt contains both job.metadata and linked run.metadata proof metadata review phrases.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:31.974Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -52,10 +52,10 @@
           "file": "packages/main/templates/agents/lattice-review-quality.md",
           "result": "pass",
           "note": "Guidance is narrowly scoped to proof/receipt/provider/run/job metadata semantics and framed as correctness review guidance, not broad optimization or product behavior.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:32.220Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -64,10 +64,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Smoke asserts the phrase checking only one location is insufficient, rejecting job-only or run-only review coverage.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:32.578Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         }
       ]
     },
@@ -112,10 +112,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Prompt registry smoke fails if lattice-review-quality.md omits job.metadata from the proof metadata phrase set.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:42.453Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -124,10 +124,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Prompt registry smoke fails if lattice-review-quality.md omits linked run.metadata from the proof metadata phrase set.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:42.609Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -136,10 +136,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Prompt registry smoke fails if the prompt no longer says checking only one location is insufficient.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:15:42.796Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         }
       ]
     },
@@ -183,10 +183,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
           "result": "pass",
           "note": "Result artifact names the baselineId, B-c356 story id, and proofMetadataReviewCoverage dimension; post-commit JSON parse returned pass.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:16:01.643Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -194,10 +194,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
           "result": "pass",
           "note": "Only a derived B-c356 result artifact was added; the immutable baseline JSON file was not modified.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:16:01.813Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -205,10 +205,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
           "result": "pass",
           "note": "Result artifact records claimsReceiptBackedProductionProof=false and says this is not receipt-backed production evidence.",
-          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
-          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
-          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
-          "timestamp": "2026-06-23T10:16:02.001Z"
+          "headHash": "e08b224fd6cf6f338b700f50c0ece27eef3eed92",
+          "materialHash": "91c1289cdb05f14ca8b0728af39d0f0d69d28ed5b21de1db6664f230948aae56",
+          "storyFilesHash": "ca92841daa0cf59a45d9ca8a1c94f591109248c19b474437cc251efb1365ad88",
+          "timestamp": "2026-06-23T10:25:21.112Z"
         }
       ]
     }
