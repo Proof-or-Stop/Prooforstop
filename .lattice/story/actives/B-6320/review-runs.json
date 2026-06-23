@@ -748,6 +748,83 @@
         "bindingHash": "013b9ba9e3f6786efdd6382858a36adeda1c79d08028d30e66841676cf3f209e"
       },
       "_hash": "e1e7bdd915ac4434d7951f6cdb2bb8d4a0c67a747cc6f9273d924c430ba96cfa"
+    },
+    {
+      "reviewRunId": "B-6320:RR-011",
+      "storyId": "B-6320",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-23T03:56:19.682Z",
+      "startedAt": "2026-06-23T04:03:31.896Z",
+      "headHash": "6ea647b5261ab2c078127a7b01d9d6b18571ee67",
+      "materialHash": "2be689182eed7f42ad60b5f833adad636fc89b637f84cf35fd88e7b0232676fb",
+      "storyFilesHash": "45433e85f9116068e404ab184ee11e29b43799461871b8f3e353fab29cd8a7ef",
+      "promptHash": "dabd875702c2d06643cbbba6f5e2b8f5a5d6fbaa2a7d0e0a43d931beccbd76c4",
+      "scopeBinding": {
+        "scopeContractHash": "724dc3cdc540766f7eeda67bac4f3955dc22c8161e3fc3d8f997b7471c391ac9",
+        "diffPackHash": "d18c69434fa12f040a6a440c0bfda37c7a81dce49872c64dac1dad41f79aacfd",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-job-loop-live.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "057ed2330e6464dcb27514dcb2e18bc218db7cc0a20865d77ad3794e8d816d2f",
+          "06da3ec1e99a4ab208402d02dc9d312fbe853f7bdae028e45488f91a5627bcb6",
+          "073292607e80ce54b6dc56ae10db8102fd515a07c606a0155becc11bb920ab31",
+          "0f9943a12037a9c57e9cb538f9d4785352583c9d7c247559d79c6b41b36920cd",
+          "22b847de3913d3a1843061244fb04cd74017f92667fa9ff99dcd1350d9d59a88",
+          "266db88a6750b953256fc9ee8b39e298bf82d90238d398bae383415592a1c51d",
+          "37a511fb1b114df1104008d95b46cf436c27a99c723aee6f1f4109effefbce19",
+          "41eca532aaf889a10646e1c7f1bd9e733530a1d275b6d70ff4a8f0cbf9615bcc",
+          "563a39f2ea89469da9c57da5ba2ad2f298ab24173d473f4370af4e9be5f0e6e7",
+          "599e0f6a249f92430e5d66e891b9218df77f2cb24cb081d802b22312c02bd439",
+          "66ae7f50f87a610ae397a99e7ec6c23455830025f462bfbe1889cdb2e118fdf6",
+          "6753aa59263b5673e5fd538f9a2b083851f2cffbfc8faef77960836c296ee253",
+          "6ea58499a3bcfe002549b608469d1e8b2cc4079e0026f2050de6f4211f90040b",
+          "7084f36c8001b0e8ae958c1b4c872b067ef09b69cbf27e7836e2d92021597dd7",
+          "7d80046ce1604cde4e0dd074468f725fce5ded13fdc60c5c326524fa00430719",
+          "846914e35dfd809bae09f32dc0160220845c52df767bfcdd3ad60e5d7f6ffc93",
+          "888c74bf0ed18530215df89fbc05c8997572dee25565366f8fda33f10e97bbfa",
+          "b919fc805beeb46c7bf2ed815f71345ef0c8134903c1257ebb4fadc28890740c",
+          "cc7d6e82f856be95438ac456d5681aaeb8f31f6d28d131c51d10db40df38c87e",
+          "d1a37281d18790f603f433c90a52eb28f06b65388c34ae77f4e4e9906c26621e",
+          "d68228f4201b58ec0908402e92df891aa561d8e48cf93613f6860b763f5324fb",
+          "d88a6187d2f6d69c4e7c2dea422d44e985f676fc57348b4cbf7f1b5ec4b5750f",
+          "d928465a4c5fcd713599de5cda95d9d017e0134c4f2fe8b6a69706a720785e37",
+          "dfb0c327a0c067c983fd58a015ff09b1238efabcffe9577ee6a9f4a3aef2cdef",
+          "ecf1ad88c57a64eb7e36d2961a3da0a74ec828ae9641a4fa778813b8f7191594",
+          "ed581171b8db07cb05da3b3ba4b0632a466f8365b45035d80938ad39127193a3",
+          "f8b3c87b85c745543a3c4222a45624942beac0871b4d941d6068024436f0e3eb",
+          "f9d6ef7f7e0139cea9fb791e66eefce1b073fc21d64d1f1828392a1ab98d1232"
+        ],
+        "bindingHash": "5fc1cb76325f1753977cff514db089f69bc3aae513762c37115e5d4917a9757b"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6320",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6320",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6320",
+        "workspaceMode": "story-worktree",
+        "headHash": "6ea647b5261ab2c078127a7b01d9d6b18571ee67",
+        "materialHash": "2be689182eed7f42ad60b5f833adad636fc89b637f84cf35fd88e7b0232676fb",
+        "storyFilesHash": "45433e85f9116068e404ab184ee11e29b43799461871b8f3e353fab29cd8a7ef",
+        "bindingHash": "dc3eaf41d5f7142824a3cf6ccf5408cd71e5a9e2a7bfc051a479bea547b0c2ea"
+      },
+      "_hash": "fae998d50bec55138b6af7c83d51b4ed21f92aa53dd483ad41993c0558065a37"
     }
   ]
 }
