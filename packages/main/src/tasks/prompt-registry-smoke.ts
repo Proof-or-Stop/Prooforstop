@@ -54,6 +54,14 @@ const requiredSafetyPhrases = [
   'authorityDone',
   'fullAuthorityDone',
 ];
+const qualityProofMetadataPhrases = [
+  'job.metadata',
+  'linked run.metadata',
+  'server-authored proof keys',
+  'checking only one location is insufficient',
+  'client-controlled or stale metadata cannot satisfy',
+  'not receipt-backed production proof',
+];
 
 function extractLatticeBlock(content: string): string | null {
   return content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0] ?? null;
@@ -83,13 +91,18 @@ for (const entry of registry.agents) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
   }
+  if (entry.file === 'lattice-review-quality.md') {
+    for (const phrase of qualityProofMetadataPhrases) {
+      assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
+    }
+  }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
     assert.equal(readFileSync(claudeMirrorPath, 'utf8'), source, `${entry.file} .claude mirror matches package template`);
   }
-  const codexMirrorPath = join(projectRoot, '.Codex', 'agents', entry.file);
+  const codexMirrorPath = join(projectRoot, '.lattice-codex', 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), renderCodexAgentContent(source), `${entry.file} .Codex mirror matches codex render`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), renderCodexAgentContent(source), `${entry.file} .lattice-codex mirror matches codex render`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }

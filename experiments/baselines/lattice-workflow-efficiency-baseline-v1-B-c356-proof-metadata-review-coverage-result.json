@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.workflow_efficiency_baseline_result.v1",
+  "baselineId": "lattice-workflow-efficiency-baseline-v1",
+  "story": "B-c356",
+  "baselineDimension": "proofMetadataReviewCoverage",
+  "createdAt": "2026-06-23T10:05:57Z",
+  "result": {
+    "qualityReviewerGuidanceAdded": true,
+    "requiredProofKeySurfaces": [
+      "job.metadata",
+      "linked run.metadata"
+    ],
+    "requiresBothJobAndLinkedRunMetadataReview": true,
+    "checkingOnlyOneLocationRejected": true,
+    "clientControlledOrStaleMetadataRejected": true,
+    "reviewGuidanceOnly": true,
+    "claimsReceiptBackedProductionProof": false
+  },
+  "configuration": {
+    "promptFile": "packages/main/templates/agents/lattice-review-quality.md",
+    "smokeTest": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "guidanceScope": "Only applies when a diff touches proof/receipt/provider/run/job metadata semantics.",
+    "proofBoundary": "Correctness review guidance only; not production proof and not receipt-backed production evidence."
+  },
+  "verification": [
+    {
+      "command": "npm --prefix packages/main run build",
+      "status": "PASS"
+    },
+    {
+      "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+      "status": "PASS",
+      "observed": "prompt registry smoke passed: 16 agents rendered for claude and codex"
+    },
+    {
+      "command": "node -e \"JSON.parse(require('node:fs').readFileSync('experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json', 'utf8')); console.log('json parse ok')\"",
+      "status": "PASS",
+      "observed": "json parse ok"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS"
+    }
+  ],
+  "immutableBaselineFileModified": false
+}
