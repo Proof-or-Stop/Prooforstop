@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T00:12:15.002Z",
       "reviewRunId": "B-3523:RR-015",
       "_hash": "7c5d53d43f035b4eafd245844f8560cd19d10b5e8f8c43b4171dc57408845463"
+    },
+    {
+      "id": "B-3523:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "F-002 PASS. packages/main/src/core/codex-adapter-checks.ts:59 defines local default 10s and global fallback default 30s with a scoped rationale; lines 702-717 preserve explicit options.timeoutMs override for both heartbeat paths and otherwise pass 10s only to local wrapper and 30s only to global fallback. runHeartbeat still applies the supplied timeout directly to execFileSync at line 495, so there is no arbitrary broad timeout. scripts/verify-codex-assets.mjs:54-58 asserts the documented defaults. Targeted commands passed: node scripts/verify-codex-assets.mjs; custom node --input-type=module timeout override probe for local and global heartbeats.",
+      "createdAt": "2026-06-23T00:16:07.599Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-013",
+      "_hash": "7862ffc8755133e2909e9b9c9976ed26e928403192ed34c2f5bd14a947589d6e"
     }
   ]
 }
