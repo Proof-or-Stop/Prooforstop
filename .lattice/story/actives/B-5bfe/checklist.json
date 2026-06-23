@@ -61,11 +61,110 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
-          "note": "No-LLM selfcheck asserts tokensFromUsage accumulation: 3x {in:100,out:50} => 450, cache tokens summed, missing/zero usage => 0 not NaN. Counters tokensSpent/agentCallCount incremented in agentRun() and reviewArtifact().",
-          "headHash": "5acff026aa264c2f340c92d2696286ebcebf721f",
-          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
-          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
-          "timestamp": "2026-06-23T01:46:58.889Z"
+          "note": "selfcheck \"CHK-001 h2\": tokensFromUsage({in:100,out:50})=150 and 3x accumulated=450 (input_tokens+output_tokens summed).",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h0\": replayBudgetLoop (shared increment-then-check primitive the real loop uses) counts 3 executor calls => agentCallCount 3.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h1\": every call (executor AND reviewer) increments; 2+1 calls => agentCallCount 3. reviewArtifact() increment is at run-recovery.mjs agentCallCount++ before the reviewer execFileSync.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h3\": buildRunRecord (the shared builder the real record literal spreads) carries wallClockMs as a positive number.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h4\": buildRunRecord output has the exact pre-reg section 7 names tokensSpent/wallClockMs/agentCallCount; the real record spreads buildRunRecord(...) at run-recovery.mjs.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e0\": zero usage {in:0,out:0} => tokensFromUsage 0, not NaN/undefined.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e1\": JSON with no usage field => tokensFromUsage 0 (defensive default), not NaN/throw.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e2\": single call (R=1 style) => agentCallCount 1, not 0 or 2.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 a0\": negative token counts accumulate finitely and deterministically (tokensFromUsage({in:-100,out:50})=-50); implementation-defined per the intent, never NaN/throw.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 a1\": a 1-call replay => agentCallCount 1, i.e. count reflects calls actually made not max R (real loop breaks on !a.ok before the next iteration at run-recovery.mjs infraVoid break).",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
         }
       ]
     },

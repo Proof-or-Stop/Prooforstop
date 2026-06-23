@@ -6,16 +6,19 @@
     "experiments/recovery-runner/run-ablation.mjs"
   ],
   "allowedCreate": [
-    "experiments/recovery-runner/ablation-A2prime-compute-matched.jsonl"
+    "experiments/recovery-runner/ablation-A2prime-compute-matched.jsonl",
+    "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
   ],
-  "allowedTest": [],
+  "allowedTest": [
+    "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+  ],
   "protectedFiles": [],
   "explicitExcludes": [
     "core/**",
     "packages/**"
   ],
-  "scopeChangeReason": "spend-matched A2-prime + token/wall-clock/agentCallCount accounting.",
+  "scopeChangeReason": "Add the committed no-LLM CHK-005 verification artifact (spend-accounting-selfcheck.mjs) to allowedCreate.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T01:29:40.593Z",
-  "updatedAt": "2026-06-23T01:29:40.593Z"
+  "updatedAt": "2026-06-23T01:48:35.699Z"
 }
