@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-23T00:27:47.705Z",
       "reviewRunId": "B-7b6e:RR-014",
       "_hash": "6f252d4033d4498728ce5a21bb2a49202cabf7f7c2c9a9d7ae9ea1a936d5bc52"
+    },
+    {
+      "id": "B-7b6e:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Step-1: 0 new exported symbols in diff (only canonicalResult projection change, non-exported helper). Step-2/3: checked the CHANGELOG.md B-7b6e entry paragraph (~100 lines) against gate-strength.ts. All 4 claims verified: (1) canonicalResult binds reason at line 268, comment at 266-267 accurate; (2) findings.json has exactly 8 findings F-001..F-008 all resolved+verified, F-008 agent=codex-host2 at 2026-06-23T00:28; (3) no overclaim — verifyGateStrengthResult JSDoc says full result is attested (reason now bound, so wording is accurate); (4) receipt-bundle.ts has zero commits on this branch. No inconsistencies found.",
+      "createdAt": "2026-06-23T00:29:54.850Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-016",
+      "_hash": "a96e3ddedb8414025252164eb500ddc5b55608b52a6326f5e557e87e11081c0a"
     }
   ]
 }
