@@ -199,7 +199,50 @@
       "context": "claude-md-sync.ts and cli-init.ts dual-read regexes that accept either koala or lattice markers should accept lattice markers only.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cli-init.ts INIT_DOC_SECTION_RE uses /<!--\\s*lattice:start/ (lattice-only, no koala alternation) -> confirmed; WHY: the dual-accept (?:koala|lattice) regex is collapsed to lattice-only",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn \"(?:koala|lattice)\" packages/main/src/ -> zero hits; WHY: no dual-accept regex pattern remains anywhere in product source",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "cli-init.ts section extraction with <!-- lattice:start --> marker -> correctly extracts section content; WHY: normal path works with lattice-only regex",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "cli-init.ts section extraction with <!-- koala:start --> marker in input -> does NOT match (returns no section); WHY: after collapsing to lattice-only, old koala markers must be treated as plain text, not parsed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "claude-md-sync.ts (if it had dual-accept) -> uses lattice-only markers; WHY: story context mentions claude-md-sync.ts as a dual-accept site; verify it is lattice-only post-change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a CLAUDE.md file containing <!-- koala:start -->...<!-- koala:end --> section is processed by cli-init -> the koala section is NOT extracted, NOT injected, and NOT silently dropped causing data loss; WHY: adversarial scenario where a user still has old koala-marked content — the system must not crash or silently lose that content block",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn koala packages/main/src/cli-init.ts -> zero hits except in comments or the legacy-cleanup code that CHK-003 removes; WHY: ensure no partial dual-accept survives as an orphan koala string literal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
