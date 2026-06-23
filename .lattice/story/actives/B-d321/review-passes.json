@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T12:46:01.524Z",
       "reviewRunId": "B-d321:RR-003",
       "_hash": "810690a304194646a509de031e53a98991c4fdf0de105dcc277abe453d3962a6"
+    },
+    {
+      "id": "B-d321:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed F-001 fix. Passed npm --prefix packages/main run build; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/lifecycle-check-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/done-preflight-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js. Inspected fresh fixture delivery-check records in flow-stability, lifecycle-check, review-assurance-floor, and done-preflight: each records materialHash and signs with materialHash where intended; delivery-check-freshness retains only the intentional legacy missing-materialHash negative fixture.",
+      "createdAt": "2026-06-23T13:05:32.320Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-005",
+      "_hash": "5b9b7eadfd82aaf6dae64102937f8480aa09da604b58995288f3bcae19f97742"
     }
   ]
 }
