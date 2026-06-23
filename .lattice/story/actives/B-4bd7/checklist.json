@@ -52,7 +52,7 @@
       "relatedDocs": [
         "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
       ],
-      "userSees": "Future optimization stories can compare against a stable JSON baseline instead of relying on memory.",
+      "userSees": "Terminal/final answer can say: \"Registered experiments/baselines/lattice-workflow-efficiency-baseline-v1.json with six observedBefore/targetAfter dimensions.\"",
       "excludes": [
         "Do not rewrite existing baseline files or story fixtures."
       ],
@@ -81,7 +81,14 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
