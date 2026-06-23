@@ -241,6 +241,25 @@
       "resolvedAt": "2026-06-23T20:43:30.372Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b739:F-012",
+      "desc": "All 6 verificationEvidence entries are stale: evidence headHash=43474969 but current HEAD=e19b3447 (comment-only commit landed after evidence was recorded). validate reports 0/6 covered, 6 missing-required. Evidence must be re-run and re-recorded via verification_evidence_add before this story can pass test-coverage review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T20:49:20.289Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-012",
+      "_hash": "71bdac55b92d7fd2bffeea6baf3bb542ab124dc5d5f4815c54ab05a8ddea1319",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs",
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "missing|mjs|verificationevidence-entries-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
