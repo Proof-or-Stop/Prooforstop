@@ -39,7 +39,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/real-loop-agent.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "--self-check runPowered case: a stub multi-turn agent drives all 9 scenarios via runLiveLoop and records valid outcomes — proves the real-agent contract shape + --run wiring deterministically (0 spend).",
+          "headHash": "08bf95f008de85f3380f358f9dc316e9acac164c",
+          "materialHash": "3c10b8636d2a619e5ed72f4728287c5dcc88a01beb52c6483c2cd3d8f002889b",
+          "storyFilesHash": "8a7d853bcece8260695b2d95beb5edd9d86b647e9fa6e35183fc62b04e5c8544",
+          "timestamp": "2026-06-23T20:27:04.462Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
