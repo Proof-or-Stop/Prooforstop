@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-23T19:06:19.843Z",
       "reviewRunId": "B-7036:RR-008",
       "_hash": "c684938aa4678267d6bc9aaac5af09db52979fd930ebbc47ba291d748667af40"
+    },
+    {
+      "id": "B-7036:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 56 must intents across CHK-001..CHK-005; analyze-selfcheck ran 65 assertions, 0 failed; glmm.R H1/H2 subset fix (commit 8f72d105f) and terminalStopTypeOf form coverage assertions are non-vacuous (subset(scenario!=null)/subset(scenario==null) + det3 bare-string/{kind}/{event:stop} fixture all verified); no blocker.",
+      "createdAt": "2026-06-23T19:18:33.641Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-012",
+      "_hash": "6bb06dac112c9d9bfcca00e4ae99b273af711bad3e73d4b8038c5189b8b40dc5"
     }
   ]
 }
