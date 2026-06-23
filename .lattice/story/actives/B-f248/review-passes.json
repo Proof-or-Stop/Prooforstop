@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-23T12:22:34.323Z",
       "reviewRunId": "B-f248:RR-009",
       "_hash": "74a6b7c34d0934fa66a7582da6c4dcd88a9cdaaa4b60e719e950737e6b050b3d"
+    },
+    {
+      "id": "B-f248:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3): verified all 49 must-priority verificationIntent lanes against verificationEvidence; selfcheck confirmed at 123 assertions, 0 failed (node experiments/recovery-runner/run-driver-selfcheck.mjs). One evidence note (CHK-004:happy:0) says \"104 assertions\" at headHash 544114e86 — judged non-material: bound intent is selfcheck-exits-0 / offline, not a specific count; selfcheck exits 0 at 123. New assertions 117->123 (F-007/F-008/F-009/F-011 fixes: --maxReruns wired, exhausted void via onVoid, voids/onVoid lock-step) are correctly covered under CHK-004:edge:0 and CHK-004:adversarial:0 which bound the relevant behaviors. No blocker.",
+      "createdAt": "2026-06-23T12:29:15.889Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-012",
+      "_hash": "9d20255d5f6458fcf65e4ba4b5ff148d3811fad756de87314e551298ee40a56b"
     }
   ]
 }
