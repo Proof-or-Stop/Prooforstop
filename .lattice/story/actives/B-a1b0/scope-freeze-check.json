@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a1b0",
+  "checkedAt": "2026-06-23T04:45:01.781Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "269e1663969a1ff175a5d71a07bbb27d6eac943bed4563a9df36c3dce9662f47",
+  "executionBoundaryHash": "095452f2825a50de31634fca10839f592f0f684e6ed72c93cdbd268fe8bba0da",
+  "freshnessHash": "43d03b3b136a11f17c7ac0956770bf422d1e6ad2bd7b52d771558c339b6bae43",
+  "effectiveExcludedKeywords": [
+    "any gate/core/DONE-policy change",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+    "the 6 existing probe files b1/b2/b6/b9/b11/b13 (must stay unchanged)",
+    "the 9 future probes (after pre-reg amendment)",
+    "the actual powered/real-agent run (cost-checkpointed follow-up)",
+    "the pre-registration protocol amendment"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any gate/core/DONE-policy change",
+      "source": "scopeBoundary.excluded",
+      "text": "any gate/core/DONE-policy change",
+      "excluded": true
+    },
+    {
+      "keyword": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+      "source": "scopeBoundary.excluded",
+      "text": "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+      "excluded": true
+    },
+    {
+      "keyword": "the 6 existing probe files b1/b2/b6/b9/b11/b13 (must stay unchanged)",
+      "source": "scopeBoundary.excluded",
+      "text": "the 6 existing probe files b1/b2/b6/b9/b11/b13 (must stay unchanged)",
+      "excluded": true
+    },
+    {
+      "keyword": "the 9 future probes (after pre-reg amendment)",
+      "source": "scopeBoundary.excluded",
+      "text": "the 9 future probes (after pre-reg amendment)",
+      "excluded": true
+    },
+    {
+      "keyword": "the actual powered/real-agent run (cost-checkpointed follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "the actual powered/real-agent run (cost-checkpointed follow-up)",
+      "excluded": true
+    },
+    {
+      "keyword": "the pre-registration protocol amendment",
+      "source": "scopeBoundary.excluded",
+      "text": "the pre-registration protocol amendment",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "87a58d376079d6041a6b31b34a54d9032fec748f20e63ae2ed71fc9c54821c6a"
+}
