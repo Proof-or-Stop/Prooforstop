@@ -109,6 +109,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-multi",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-007",
+      "desc": "[codex-host2 C6] infra-fail scenarios are still counted as real outcomes: runPowered sets infraFail boolean but leaves outcome=classifier output, and the --run amplified denominator includes infra-fail records -> a repeated CLI failure can report e.g. 'SAFE_STOP [infra-fail]' and stay in the tally. FIX: when infraFail, set outcome='infra-fail' and exclude infra-fails from the amplified/scored denominator.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T20:33:38.533Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "_hash": "273a889e4c93847dbf58178b3ae532735b2862134138b8c6da926234f0517374",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-infra",
+      "signatureTagSource": "auto"
     }
   ]
 }
