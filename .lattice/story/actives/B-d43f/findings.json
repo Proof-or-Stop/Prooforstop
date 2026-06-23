@@ -90,7 +90,7 @@
       "desc": "[codex-host2 #5] B8 AMPLIFIED is transcript-only (b8GuessAgent writes no artifact; classify uses t.shipped) contrary to disk-grounding. FIX: ground AMPLIFIED in a real applied-change artifact (e.g. applied.txt).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T19:34:37.147Z",
@@ -100,7 +100,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-amplified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: B8 AMPLIFIED grounded in applied.txt (b8GuessAgent writes it), not transcript-only.",
+      "resolvedAt": "2026-06-23T19:41:48.582Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d43f:F-006",
