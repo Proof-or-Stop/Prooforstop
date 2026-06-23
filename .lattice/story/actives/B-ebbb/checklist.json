@@ -50,10 +50,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc happy: acceptancePass true / hashOk true / scriptHash === computed good hash': matching SHA-256 + runAcceptance->{pass:true} => acceptancePass true, hashOk true",
-          "headHash": "2584c0402cfb9a682f69cfdd5c6ca2b5d3d50329",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:56.769Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -61,10 +61,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc happy2: acceptancePass false (script failed)': hash matches (hashOk true) but runAcceptance->{pass:false} => acceptancePass false",
-          "headHash": "b127cb6888a5597765344af71aeb3457d82270e1",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:57.286Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,10 +72,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc missing: scriptHash empty / hashOk false / acceptancePass false / runner not called': missing scriptPath does not silently pass",
-          "headHash": "e5d4c4fa00609a54177cd195643ac4dae909fa63",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:57.771Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -83,10 +83,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc empty-expected: hashOk false (empty hash matches nothing)': empty expectedHash never matches",
-          "headHash": "8d4fba351188f7afb321a5ef0c70b9ad43b1b384",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:58.284Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -94,10 +94,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc tampered: hashOk false / acceptancePass false / runAcceptance NOT called (0 calls)' + 'acc tampered2' (modified body): TAMPERED script caught, spy records 0 calls => not executed",
-          "headHash": "93e298ac55474b8b3ed46feaaf1f6761c49ddbdb",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:58.790Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -105,10 +105,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck uses scriptPath in OS tmpdir (mkdtempSync) OUTSIDE the agent-editable workspace; harness-owned-path constraint exercised — script lives in a harness dir, only its frozen hash gates execution",
-          "headHash": "7dab8767ed9b027e11e23a8bf47c95be7b0ef013",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:59.315Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -116,10 +116,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'acc tampered: runAcceptance NOT called (0 calls — hash checked before run)': hash check precedes execution so a self-overwriting script cannot retroactively pass",
-          "headHash": "e3332cdd569ff289d3911a2d3579380bd837bd3b",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:16:59.802Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         }
       ]
     },
@@ -177,10 +177,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr happy: pass true (no new failures)': baseline=[a,b] post=[a,b] => hiddenRegressionPass true, newFailures []",
-          "headHash": "3c974e1ad990e29703205f5083eb694c6e7ae87f",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:38.679Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -188,10 +188,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr new: pass false' + deepEqual newFailures==['c']: one new failure not in baseline trips the check",
-          "headHash": "4715bff594e4ce7d5f0e29ac523c79a3b91a7941",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:39.286Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -199,10 +199,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr preexisting: pass true (pre-existing failure not new)': baseline=[a] post=[a] => pass true (delta-only semantics)",
-          "headHash": "80dca7ae02d2e8e1b9ab9f3f2c3bffafc04a5736",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:39.792Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -210,10 +210,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr empty-post: pass true': empty post-state (no tests ran) => newFailures [] pass true",
-          "headHash": "ff77c09bd184dc6fbb81520fc21461d8134cfd85",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:40.537Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -221,10 +221,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr clean-baseline: pass false (any failure is new)': baseline=[] post=[x] => pass false, newFailures [x]",
-          "headHash": "f4a00de7a38ffc4c105f8f6250b36c45f3715cc6",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:41.102Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -232,10 +232,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr remove+add: pass false (new failure b reported)': baseline=[a] post=[b] — removing a test does not mask the new failure b",
-          "headHash": "8ac599a95c311200de582d9eb42b98e9c84b71bd",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:41.864Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -254,10 +254,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'hr same-id-diff-msg: pass true (keyed by id not message)': same test id w/ different error message => pre-existing, not new",
-          "headHash": "841f62d4f889fb0fad281f8160833820c95f406a",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:43.139Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         }
       ]
     },
@@ -315,10 +315,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh happy: pass true': all changed paths under allowed 'src' => diffHygienePass true, violations []",
-          "headHash": "6f2b9dd55324d0234471854a5623c09715855880",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:59.468Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -326,10 +326,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh out-of-scope: pass false' + violation lists docs/secret.md reason out-of-scope: single out-of-scope change trips check",
-          "headHash": "44b1c6863140c29321f7e670a5f0cec95a07c940",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:00.081Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -337,10 +337,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh empty-changed: pass true': empty changedPaths => no violations, pass true",
-          "headHash": "398548cc32101bf8faa8156b635fc4091248ce2f",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:00.572Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -348,10 +348,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh empty-allowed: pass false': empty allowedPaths => every change is out-of-scope",
-          "headHash": "3b0c4a80d1f9f4a44a93456f9df38cf0e0397a40",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:01.436Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -359,10 +359,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh prefix-trick: pass false (src-evil is not under src)': anchored real-segment match rejects src-evil/hack.js vs allowed src",
-          "headHash": "fe753e905e853aeee65b08a5366b32746c323e23",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:02.076Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -381,10 +381,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh traversal-escape: pass false reason path-traversal-escape': src/../../etc/passwd resolves above repo root => violation",
-          "headHash": "8afcf683efda9fe6cfa6974b060f1f685cf7992d",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:03.220Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -392,10 +392,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'dh junk-so: pass false (.so flagged as junk under allowed path)': compiled artifact (.so) under allowed path flagged as junk-artifact",
-          "headHash": "ada63eb52433856798de7245c530cc06820189d3",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:03.905Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         }
       ]
     },
@@ -437,10 +437,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck '§7: harnessAcceptance has key acceptancePass / hiddenRegression has hiddenRegressionPass / diffHygiene has diffHygienePass': each result carries its exact §7 field",
-          "headHash": "a835e7a9b1e8a9a6ae38ac7535a870ff762581a6",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:16.758Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -448,10 +448,10 @@
           "command": "grep -nE 'acceptancePass|hiddenRegressionPass|diffHygienePass' experiments/recovery-runner/checks.mjs",
           "result": "pass",
           "note": "static scan: all three §7 names appear as object keys in return statements of checks.mjs (also asserted live by the §7 selfcheck block)",
-          "headHash": "e968dc7d3a8d5ffdcdf69a277f9c17fdca4c08c7",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:17.259Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -459,10 +459,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck '§7: boolean keys = {acceptancePass,hashOk} / [hiddenRegressionPass] / [diffHygienePass] only' + 'no generic pass/result/success field': no EXTRA top-level boolean pass field beyond the three §7 names (hashOk is a distinct documented signal, not a pass alias)",
-          "headHash": "ac0932ad19912eb18879bd8bb53493f76915c310",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:17.801Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -470,10 +470,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck '§7: acceptancePass/hiddenRegressionPass/diffHygienePass is case-exact' + 'no snake_case pass key': camelCase exact, rejects acceptancepass/AcceptancePass/_pass variants",
-          "headHash": "2ac2daa6e7e82681bfb7ac04cdcf8436716e3bf2",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:18.421Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         }
       ]
     },
@@ -547,10 +547,10 @@
           "command": "node --check experiments/recovery-runner/checks.mjs",
           "result": "pass",
           "note": "ran node --check on checks.mjs => exit 0 (syntax valid main module)",
-          "headHash": "fb4e3d9033dccc40eac8635ebc41ed2a362a94d8",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:48.228Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -558,10 +558,10 @@
           "command": "node --check experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "ran node --check on checks-selfcheck.mjs => exit 0 (syntax valid selfcheck)",
-          "headHash": "e43494b180b20f7522364cb34ba299d307b51d66",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:48.762Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -569,10 +569,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "ran selfcheck => 'checks selfcheck: 99 assertions passed, no live LLM', EXIT=0; no subprocess/LLM (offline source-guard block asserts zero process-launch/network needles in both files)",
-          "headHash": "94ce6821208963f75053a3f8a90e1b1b30ebd457",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:49.253Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:3",
@@ -580,10 +580,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck PASS cases: 'acc happy: acceptancePass true', 'hr happy: pass true', 'dh happy: pass true' — each check returns its *Pass:true",
-          "headHash": "4931407d0dedae53f5af54b191b584249fffd7df",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:49.730Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:4",
@@ -591,10 +591,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck FAIL case 'acc tampered: hashOk false / acceptancePass false': hash-mismatch acceptance script",
-          "headHash": "5e1d0adde47c562c7a3b02cc0c51bd1fa524c0bb",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:50.306Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:5",
@@ -602,10 +602,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck FAIL case 'hr new: pass false': a new failing test not in baseline",
-          "headHash": "aca9b1c5e5c842c1d5e96675a77d57d395964009",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:50.802Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:happy:6",
@@ -613,10 +613,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck FAIL cases 'dh out-of-scope: pass false' + 'dh junk-*: pass false': out-of-scope diff and junk artifacts",
-          "headHash": "bee746c96de8e1ba355ae77033c054e08f986915",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:51.409Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -624,10 +624,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck '§7: harnessAcceptance has key acceptancePass / hiddenRegression has hiddenRegressionPass / diffHygiene has diffHygienePass': explicit key-presence assertions",
-          "headHash": "f8a8b45819326b7252e58fa5d8cb10399308a39b",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:20:07.148Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -635,10 +635,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck imports only node:assert/crypto/fs/os/path/url builtins + ./checks.mjs (offline guard asserts each checks.mjs import is a node: builtin); no network dep => passes in a no-network clean env, EXIT=0",
-          "headHash": "981f97a11eae5fb7b6a54b54f0f59ee45c5313ed",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:20:07.665Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -646,10 +646,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'offline guard: checks.mjs/selfcheck source has no spawn/execSync/execFile/child_process/claude/fetch(/node:http needle' — runtime-assembled needles, zero matches in both files",
-          "headHash": "337be464505b70f01a41c44e7ee9aa92342f6c89",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:20:08.187Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -657,10 +657,10 @@
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
           "note": "selfcheck 'offline guard: checks.mjs import is a node: builtin' for every import line — import graph is node builtins + local ./checks.mjs only, no transitive network/LLM module",
-          "headHash": "85ef205399ef080d3b37e212b6373e752bbda7c7",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:20:08.666Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -668,10 +668,10 @@
           "command": "perl -0pi -e 's/const hashOk = .*/const hashOk = true;/' checks.mjs && node checks-selfcheck.mjs; echo EXIT=$?",
           "result": "pass",
           "note": "negative control: forced hashOk=true in checks.mjs, ran selfcheck => 12 of 99 assertions FAILED, EXIT=1 (tamper-detection assertions caught the break); restored checks.mjs and re-ran => EXIT=0",
-          "headHash": "aa79821030b5c1ccffec20a638349fce3c4859c6",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:20:09.165Z"
+          "headHash": "d8ce77b606c2dec598d648f231ba1ca9e58d16ec",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:39:42.227Z"
         }
       ]
     }
