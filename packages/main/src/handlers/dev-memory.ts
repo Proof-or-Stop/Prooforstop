@@ -29,7 +29,6 @@ import {
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { loadConfig } from '../core/config.js';
-import { assertNoLegacyKoalaWritePath } from '../core/lattice-paths.js';
 
 // ---------------------------------------------------------------------------
 // dev_memory_capture
@@ -248,7 +247,6 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     const storyDir = args.storyDir
       ? args.storyDir
       : join(root, loadConfig(root).storyDir);
-    assertNoLegacyKoalaWritePath(storyDir, 'storyDir');
     const candidatePath = resolveStoryCandidatePath(storyDir, args.storyId);
 
     if (relevant.length === 0) {

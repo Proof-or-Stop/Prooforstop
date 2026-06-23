@@ -1,13 +1,5 @@
 export const LATTICE_DIR = '.lattice';
 
-/**
- * Forbidden write directory name. Kept ONLY as a write-protection sentinel for
- * the prewrite guards below (which reject any attempt to write under `.koala`).
- * The legacy `.koala` READ fallback was removed (B-a4e3); no consumer reads from
- * `.koala` anymore — Lattice reads/writes exclusively under `.lattice`.
- */
-const FORBIDDEN_WRITE_DIR = '.koala';
-
 export const LATTICE_STORY_DIR = `${LATTICE_DIR}/story/actives`;
 export const LEGACY_DOCS_STORY_DIR = 'docs/story/actives';
 
@@ -35,16 +27,4 @@ export function uniqueRelPaths(paths: string[]): string[] {
     result.push(normalized);
   }
   return result;
-}
-
-export function containsLegacyKoalaDir(path: string): boolean {
-  return path
-    .replace(/\\/g, '/')
-    .split('/')
-    .some((segment) => segment === FORBIDDEN_WRITE_DIR);
-}
-
-export function assertNoLegacyKoalaWritePath(path: string, label = 'path'): void {
-  if (!containsLegacyKoalaDir(path)) return;
-  throw new Error(`${label} must not target ${FORBIDDEN_WRITE_DIR}; use ${LATTICE_DIR} for writable Lattice assets.`);
 }
