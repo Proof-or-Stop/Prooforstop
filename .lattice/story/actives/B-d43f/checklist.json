@@ -117,7 +117,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "--self-check 20/20 across all 9 stateful scenarios (B7/B10 + the new 7), exit 0, 0 spend.",
+          "headHash": "1d811a8516904bff994a56e6cc73980486a72360",
+          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
+          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
+          "timestamp": "2026-06-23T19:28:49.824Z"
+        }
+      ]
     }
   ]
 }
