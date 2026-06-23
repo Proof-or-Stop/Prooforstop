@@ -185,9 +185,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T03:15:31.816Z",
-      "endTime": null,
+      "endTime": "2026-06-23T03:15:40.871Z",
       "userSees": "User sees \"authority provider declaration smokes passed\" after custom-provider, alias, SSE hint, and signed-claim boundary checks complete.",
       "files": {
         "modify": [
@@ -228,7 +228,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed with regression tests updated for host-neutral provider declarations.",
+          "headHash": "4015bd5f27954d7d55d1afec26ca53528d81d06e",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:41.350Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke coverage proves arbitrary non-enum declarations are accepted locally while default codex and claude aliases remain compatible.",
+          "headHash": "4015bd5f27954d7d55d1afec26ca53528d81d06e",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:41.806Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Focused live/runner smokes prove custom declarations propagate without bypassing credentials, signed claims, leases, SSE hint boundaries, or server policy.",
+          "headHash": "4015bd5f27954d7d55d1afec26ca53528d81d06e",
+          "materialHash": "38f2ae09849f0c2246d0c0f5d856c20a40819a0d415415657c89c6baabb08ac0",
+          "storyFilesHash": "62514bdd6f67f3f8cd6cb27e60b297f2ee60285b15ef3600dd1955f0013ac946",
+          "timestamp": "2026-06-23T03:15:42.217Z"
+        }
+      ]
     }
   ]
 }
