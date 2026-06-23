@@ -1,0 +1,39 @@
+{
+  "storyId": "B-4bd7",
+  "name": "workflow-efficiency-baseline",
+  "title": "Register a workflow-efficiency baseline for the six Lattice follow-up fixes",
+  "description": "Create the baseline reference that future Lattice workflow optimization stories must compare against before claiming improvement.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-approved baseline-first workflow on 2026-06-23",
+  "keywords": [
+    "baseline",
+    "workflow-efficiency",
+    "lattice",
+    "validation",
+    "delivery-check",
+    "done-summary"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "incident"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T03:57:40.398Z",
+  "startedAt": "2026-06-23T03:57:40.398Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T03:57:40.409Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    }
+  ]
+}
