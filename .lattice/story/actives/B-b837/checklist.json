@@ -123,7 +123,75 @@
       "context": "isLegacyKoalaWritePath / assertNoLegacyKoalaWritePath / containsLegacyKoalaDir; cli-init.ts cleanupGeneratedLegacyKoalaAgentPrompts / isGeneratedLegacyKoalaAgentPrompt / koala:internal markers / koala-*.md handling.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -r isLegacyKoalaWritePath packages/main/src/ -> zero hits; WHY: write-path detection function fully removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r assertNoLegacyKoalaWritePath packages/main/src/ -> zero hits; WHY: the assertion guard is fully removed from config.ts, dev-memory.ts, lattice-paths.ts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r containsLegacyKoalaDir packages/main/src/ -> zero hits; WHY: the helper predicate is fully removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r cleanupGeneratedLegacyKoalaAgentPrompts packages/main/src/ -> zero hits; WHY: legacy cleanup function removed from cli-init.ts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r isGeneratedLegacyKoalaAgentPrompt packages/main/src/ -> zero hits in cli-init.ts and managed-assets.ts; WHY: legacy prompt detection fully removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r koala:internal packages/main/src/ -> zero hits; WHY: legacy HTML-comment markers (koala:internal:start/end) fully removed from managed-assets.ts and cli-init.ts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "loadConfig() with a storyDir that does NOT contain .koala/ -> succeeds without error; WHY: config.ts previously called assertNoLegacyKoalaWritePath; after removal, config load must still work for valid paths",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dev-memory handler with a valid storyDir -> succeeds; WHY: dev-memory.ts also called assertNoLegacyKoalaWritePath; must still load after guard removal",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "prewrite-guard filterPrewriteViolations on paths with no .koala/ segment -> returns empty; WHY: isLegacyKoalaWritePath was used in prewrite-guard.ts filter; removal must not break the remaining filter chain",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "loadConfig() with a storyDir containing .koala/ substring -> does NOT throw (the guard is gone), loads normally or fails for a different reason; WHY: the old assertNoLegacyKoalaWritePath threw on .koala/ paths; after removal, that control-flow throw is gone and callers must not break",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "prewrite-guard with a file path containing .koala/ segment -> NOT filtered out by the koala check (filter removed); WHY: if isLegacyKoalaWritePath was also used as a block, its removal must not silently allow writes to unexpected paths — OR the blocker is confirmed redundant",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "managed-assets.ts ownedWhen callbacks no longer reference isGeneratedLegacyKoalaAgentPrompt -> confirmed; WHY: stale ownedWhen referencing a deleted function would cause a runtime ReferenceError",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
