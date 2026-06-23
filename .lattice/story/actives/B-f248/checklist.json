@@ -6,7 +6,65 @@
       "context": "For each of the 5 arms x corpus task x {ablation null-scenario + each recovery scenario B1-B15} x k repeats, emit a cell ONLY when the scenario applies to that arm (B4/B5/B10 -> exclude A1; the other 12 -> all arms). N/A cells excluded and logged, never counted as failures. Seeded randomised run order (runOrderSeed) so ordering is deterministic+reproducible.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run driver with stub engine (k=2, 3 tasks, all 5 arms) -> emits exactly (5 arms) x (3 tasks) x (1 null + applicable scenarios) x 2 repeats cells; A1 gets (1 null + 12 universal scenarios) x 3 x 2 = 78 cells, A2/A2prime/A3/A4 each get (1 null + 15 scenarios) x 3 x 2 = 96 cells; total = 78 + 4*96 = 462; WHY: proves full cross-product enumeration with applicability filtering",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "N/A cells (B4/B5/B10 for A1) are logged with reason but never appear in emitted records and are never counted as failures; selfcheck asserts naCells logged count = 3 scenarios x 3 tasks x 2 repeats = 18; WHY: confirms N/A exclusion is visible in logs, not silent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Every emitted cell has {arm, taskId, scenarioId, repeat, applicable:true} and scenarioId is null for ablation rows, non-null for recovery rows; WHY: verifies the null-ablation vs recovery scenario distinction",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "k=1 (minimum repeats) -> each cell appears exactly once; total count = (1*13*3) + (4*16*3) = 39+192 = 231 for 3 tasks; WHY: boundary on repeat count",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Corpus with exactly 1 task -> matrix shrinks proportionally; A1 gets 13 cells, each other arm 16 cells, total = 13+4*16 = 77 (k=1); WHY: single-task boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same runOrderSeed -> identical cell ordering across two separate runs; WHY: proves seeded determinism",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Different runOrderSeed -> different cell ordering (with high probability); WHY: proves seed actually controls shuffle",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a stub that tries to emit B4 for arm A1 -> driver rejects/excludes the cell and logs it as N/A, does not include it in output; WHY: adversarial probe that applicability cannot be bypassed by a rogue engine",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Corpus contains duplicate taskIds -> driver either deduplicates or errors, does not silently double-count cells; WHY: dirty input resilience",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Unknown arm name (e.g. A99) injected into arm list -> driver rejects with clear error, does not produce records for invalid arm; WHY: guards against schema drift in arm definitions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -31,6 +89,31 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Surface the A2prime per-run budget-compliance log on the canonical record",
+      "context": "Pre-reg §1 line 47 requires each A2prime run to log pass/fail against the ±20% token+wall-clock tolerance constants (token budget binds first; hard-truncation at the upper bound). The enforcement already exists (run-recovery records truncated; run-ablation computes budgetPass/tokenInBand/wallInBand vs A4 per-task median). The driver owns record canonicalization, so for A2prime runs the canonical record additionally carries {budgetPass, tokenInBand, wallInBand, truncated, tokenBudget, wallBudgetMs} (null for non-A2prime arms). This satisfies §1 without modifying the 21 required §7 fields (extra fields permitted; the 21 core fields remain present on every record).",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "userSees": "run-driver-selfcheck.mjs prints budget-log: A2prime record carries budgetPass/tokenInBand/wallInBand/truncated + budget constants; non-A2prime arms carry null ... PASS.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T11:25:31.350Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item.",
+      "addedTitle": "Surface the A2prime per-run budget-compliance log on the canonical record",
+      "addedContext": "Pre-reg §1 line 47 requires each A2prime run to log pass/fail against the ±20% token+wall-clock tolerance constants (token budget binds first; hard-truncation at the upper bound). The enforcement already exists (run-recovery records truncated; run-ablation computes budgetPass/tokenInBand/wallInBand vs A4 per-task median). The driver owns record canonicalization, so for A2prime runs the canonical record additionally carries {budgetPass, tokenInBand, wallInBand, truncated, tokenBudget, wallBudgetMs} (null for non-A2prime arms). This satisfies §1 without modifying the 21 required §7 fields (extra fields permitted; the 21 core fields remain present on every record)."
     }
   ]
 }
