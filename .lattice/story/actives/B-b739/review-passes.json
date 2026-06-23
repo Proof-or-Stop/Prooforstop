@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T20:43:24.607Z",
       "reviewRunId": "B-b739:RR-010",
       "_hash": "1cc4351ee5dae058aff2f8a086a7072ee85aa64f83a56563cf7d4884012d0fbd"
+    },
+    {
+      "id": "B-b739:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: ~27 symbols extracted. Step 2: CHANGELOG.md is the sole doc file with B-b739 refs; no README/CLAUDE.md hits for any changed symbols. Step 3 compared CHANGELOG B-b739 bullet vs real-loop-agent.mjs + live-loop-harness.mjs diff. All checks pass: (1) grep -c Experiments CHANGELOG.md==1 confirmed. (2) makeRealLoopAgent returns async agent({ws,context,signal}) -- code line 41-42 matches. (3) async execFile with {signal} -- lines 50-53 confirmed, no execFileSync in real-loop-agent.mjs. (4) parseClaudeResult via import -- lines 18+55. (5) feeds back j.result text not raw envelope -- resultText() + line 60. (6) makeStubLoopAgent lines 80-86. (7) runPowered({makeAgent,recordsFile,stamp}) line 704. (8) infra-fail excluded from scored denom lines 860-861. (9) 24/24 consistent (23 prior + 1 new runPowered stub case). (10) no edit to real-arm/probe-contract/run-recovery per diff stat. (11) live-loop-harness lines 31/60 execFileSync refs are generic contract docs for any subprocess agent, not stale claims about real-loop-agent.mjs. No doc-code drift, no overclaim, no stale execFileSync/turn mismatch in real-loop-agent.mjs. 0 blockers.",
+      "createdAt": "2026-06-23T20:46:17.482Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-011",
+      "_hash": "08b72a9296727c96aa31fcfff0da4a0cf90f3e045856b04f5616e7cb47a0d066"
     }
   ]
 }
