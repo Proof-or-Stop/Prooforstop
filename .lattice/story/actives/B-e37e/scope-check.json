@@ -1,0 +1,73 @@
+{
+  "storyId": "B-e37e",
+  "checkedAt": "2026-06-23T00:19:07.692Z",
+  "features": [
+    {
+      "feature": "SSE hint before claim",
+      "covered_by": "PLAN CHK-001 adds GET /v1/runners/{runnerId}/jobs/stream after runner heartbeat and before existing signed claim; verification asserts stream GET precedes claim and SSE alone does not set claimedJobId.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/checklist.json"
+    },
+    {
+      "feature": "fallback compatibility",
+      "covered_by": "PLAN CHK-001/CHK-002 require timeout, disconnect, empty snapshot, malformed/non-SSE, HTTP failure, and old-server paths to fall back to existing signed claim without hanging.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/decision.json"
+    },
+    {
+      "feature": "secret redaction/auth boundary",
+      "covered_by": "PLAN CHK-002 requires same customer API key source for protected reads and redacted diagnostics proving Authorization, Bearer, and raw customer key are omitted.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/checklist.json; packages/main/src/core/authority-client.ts"
+    },
+    {
+      "feature": "host-neutral provider config",
+      "covered_by": "PLAN CHK-002 requires claim envelope to keep using options.runnerProvider and avoid provider-specific shortcuts; existing runner claim path uses options.runnerProvider.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-e37e/plan.md; packages/main/src/core/authority-runner.ts"
+    },
+    {
+      "feature": "docs/canonical root",
+      "covered_by": "PLAN CHK-003 updates docs/guide.md, lattice-authority-live-integration.md, and orchestrate-retirement.md to document SSE as optional hint/fallback and proofbound as canonical active root with Orchestrate retired read-only.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-e37e/plan.md; docs/requirements/decisions/orchestrate-retirement.md"
+    },
+    {
+      "feature": "server implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story consumes the server B-24aa /jobs/stream contract from CLI only; checklist files modify only CLI client/runner/smoke and docs, not Python/server implementation.",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/checklist.json"
+    },
+    {
+      "feature": "production readiness/receipt verification from SSE",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "PLAN explicitly says jobs.available is only a notification hint and must not be treated as lease, receipt, authorityDone, fullAuthorityDone, productionDone, or receipt verification.",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/decision.json; docs/guide.md"
+    },
+    {
+      "feature": "retired Orchestrate writes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "PLAN CHK-003 only documents canonical proofbound and retired Orchestrate read-only status; no Orchestrate paths are in modify/create/test scope.",
+      "source": ".lattice/story/actives/B-e37e/plan.md; .lattice/story/actives/B-e37e/checklist.json; docs/requirements/decisions/orchestrate-retirement.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "21ba1394b610a3ae9e03394bc5d46b8587c0136ec71f8b5f6f1108993773ea25",
+  "openQuestions": []
+}

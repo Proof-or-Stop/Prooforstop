@@ -1,0 +1,35 @@
+{
+  "storyId": "B-e37e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "docs/guide.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/orchestrate-retirement.md",
+    "package.json",
+    "packages/main/package.json",
+    "package-lock.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-runner-client-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/evidence/**",
+    "clients/**",
+    ".env",
+    ".env.*"
+  ],
+  "explicitExcludes": [
+    "docs/evidence/**",
+    "clients/**",
+    ".env",
+    ".env.*"
+  ],
+  "scopeChangeReason": "Limit B-e37e to CLI Authority runner SSE hint consumption, docs, version/build metadata; server implementation and retired Orchestrate are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T00:16:48.895Z",
+  "updatedAt": "2026-06-23T00:16:48.895Z"
+}
