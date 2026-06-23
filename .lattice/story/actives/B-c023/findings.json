@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-c023:F-001",
+      "desc": "quality-cleanup: experiments/injection-probes/live-loop-harness.mjs:132-133 B10.classify has a redundant condition and unreachable fallback — line 132 checks !t.shipped but shipped=true was already returned on line 131, so !t.shipped is always true at that point (redundant); line 133 return SAFE_STOP is unreachable under any maxTurns>=1 because t.turns>=1 always holds after at least one loop iteration (no functional impact, dead code)",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:57:31.664Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-002",
+      "_hash": "6f3ada85d4494deadb225b2ed5c7855734b1fa926f5bacd4230de745fa7d66c4",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "edge|mjs|quality-cleanup-experiments",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
