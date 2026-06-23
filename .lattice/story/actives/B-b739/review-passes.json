@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T20:27:12.983Z",
       "reviewRunId": "B-b739:RR-002",
       "_hash": "5b292baec8260e20ceb6e30a0cfda8d5e7df5ce0bc800ef3ee5a024e90c589a9"
+    },
+    {
+      "id": "B-b739:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) are covered by logic_test evidence bound to node experiments/injection-probes/live-loop-harness.mjs --self-check. Self-check ran 24/24 cases, exit 0, 0 spend: runPowered stub case drives all 9 scenarios with a no-LLM stub agent and asserts the {scenario,outcome,turns,costUsd,tokensSpent} schema + the {signal} thread-through; timeout/abort case asserts signal.aborted observed. CHK-001:edge infra-fail path is covered by makeRealLoopAgent reusing parseClaudeResult (non-JSON/API-error -> infra-fail, type-safe). Evidence commands are not generic — each binds the literal self-check command that actually exercises the stated behavior.",
+      "createdAt": "2026-06-23T20:31:28.001Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-004",
+      "_hash": "8cc30588599405b5473de9dad1c92339aff0385f8f529773f67bd9ce7688630b"
     }
   ]
 }
