@@ -98,7 +98,47 @@
       "context": "Independent layer not visible to the agent (pre-reg section 4.1/threats)",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call checkDiffHygiene({changedPaths, allowedPaths}) where all changed paths are within the allowed set -> returns {diffHygienePass:true, violations:[]}; WHY: main golden-path -- clean diff confined to allowed scope",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where one path is outside allowed set -> returns {diffHygienePass:false, violations:[\"docs/secret.md\"]}; WHY: primary detection -- single out-of-scope change must trip the check",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call checkDiffHygiene with empty changedPaths -> diffHygienePass:true, violations:[]; WHY: no changes means no violations (edge: nothing changed)",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene with empty allowedPaths -> diffHygienePass:false for any change; WHY: if nothing is allowed then everything is a violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes a path that is a prefix-match trick (e.g. src-evil/hack.js does not match allowed src/) -> violation; WHY: path matching must be exact prefix not substring",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes junk/forbidden artifacts (e.g. .env, node_modules/pkg/file.js, *.pyc) even if they are technically under an allowed path -> must detect junk artifacts as violations; WHY: anti-gaming -- agent cannot hide forbidden artifacts in allowed directories",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths uses path traversal (e.g. src/../etc/passwd) -> must resolve and detect as out-of-scope; WHY: anti-gaming -- path traversal must not bypass allowed-path checks",
+            "type": "cli"
+          },
+          {
+            "desc": "Call checkDiffHygiene where changedPaths includes a binary/compiled artifact (.so, .dll, .wasm) under an allowed path -> must flag as junk; WHY: compiled artifacts are forbidden even in allowed scope",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
