@@ -214,7 +214,7 @@
       },
       "status": "done",
       "startTime": "2026-06-23T00:36:49.386Z",
-      "endTime": "2026-06-23T00:53:54.659Z",
+      "endTime": "2026-06-23T01:07:41.016Z",
       "userSees": "Docs contain \"runner jobs SSE is a notification hint\" and \"polling/signed claim fallback remains the compatibility path\", and also state canonical work continues under /Users/jek/Documents/Work/proofbound rather than retired Orchestrate.",
       "files": {
         "modify": [
@@ -233,11 +233,11 @@
           "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
           "command": "rg -n \"jobs_stream|jobs.available|notification hint|signed claim|fallback\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
           "result": "pass",
-          "note": "Docs remain accurate after bounded stream reader: CLI uses runner jobs SSE as a notification hint when supported and signed claim remains authority/fallback path.",
-          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
-          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
-          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
-          "timestamp": "2026-06-23T00:53:55.115Z"
+          "note": "Docs remain accurate: runner jobs SSE is a notification hint and signed claim remains authority/fallback path.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.346Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -246,11 +246,11 @@
           "file": "docs/requirements/decisions/orchestrate-retirement.md",
           "command": "rg -n \"proofbound|retired Orchestrate|jobs_stream\" docs/requirements/decisions/orchestrate-retirement.md",
           "result": "pass",
-          "note": "Docs still state canonical mutating work is under proofbound and new jobs_stream diagnostics must not write under retired Orchestrate.",
-          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
-          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
-          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
-          "timestamp": "2026-06-23T00:53:55.430Z"
+          "note": "Docs still keep canonical mutating workflow under proofbound and forbid new jobs_stream writes under retired Orchestrate.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.642Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -259,11 +259,11 @@
           "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
           "command": "rg -n \"not evidence of approval|not production authority|notification hint before claim|must not claim\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
           "result": "pass",
-          "note": "Docs do not overclaim jobs_stream as receipt verification, productionDone, or fullAuthorityDone.",
-          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
-          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
-          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
-          "timestamp": "2026-06-23T00:53:55.787Z"
+          "note": "Docs still do not overclaim jobs_stream as receipt verification, productionDone, or fullAuthorityDone.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.950Z"
         }
       ]
     }
