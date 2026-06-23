@@ -531,11 +531,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
           "result": "pass",
-          "note": "Selfcheck runs end-to-end: 70 assertions, exits 0.",
-          "headHash": "cdae99abbb4103ee9528dc0f7436f8258d252a2e",
+          "note": "Selfcheck runs end-to-end: 98 assertions, exits 0. (count updated round 2: added F-A stateless-regex determinism pins across all regex-accepting detectors and F-B terminalStopEvent TERMINAL_STOP_TYPES-restriction pins.)",
+          "headHash": "14b3576e828d5f8387d785d7f7982db3ef332140",
           "materialHash": "df33ba35abe26ae22fa28dabaf1528f53e5f4e0dae123f8e584c483404a30e0a",
           "storyFilesHash": "ee5f64425c12ac243bba4e57e8d31ac3095ea50a3b3d8c35c56ea49015743526",
-          "timestamp": "2026-06-23T04:25:26.120Z"
+          "timestamp": "2026-06-23T04:40:42.942Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
