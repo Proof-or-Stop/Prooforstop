@@ -31,7 +31,7 @@
       "desc": "Current CHK-004 Codex adapter verification is not re-attestable after the merge: `node bin/lattice.js verify_codex` exits 1 with hard failure `global-fallback-heartbeat`, and `node scripts/verify-codex-assets.mjs` exits 1 on the same assertion (`global fallback heartbeat should override inherited local-wrapper entrypoint`). The printed fallback heartbeat command itself succeeds when run directly but takes about 20s; `runCodexAdapterChecks` uses a 10s default timeout, so the authoritative verify command times out its embedded session_brief heartbeat. Because CHK-004 evidence explicitly depended on `lattice verify_codex && node scripts/verify-codex-assets.mjs`, test-coverage cannot mark B-3523 clean until this verification path passes or the evidence is updated with an intentional waiver. Package dry-runs, validate, done_required, quorum status, runtime fact/entrypoint/global-lab/koala-residue checks, and experiments/recovery-runner unrelatedness all passed; this finding is limited to the current Codex adapter verification failure.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T00:01:37.393Z",
@@ -44,7 +44,11 @@
         "scripts/verify-codex-assets.mjs"
       ],
       "signatureTag": "edge|ts|current-codex-adapter",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit e501cd61b: Codex adapter heartbeat defaults are split so the local wrapper remains 10s while global fallback heartbeat gets a 30s default; explicit timeoutMs still overrides both. Verified with npm --prefix packages/main run build, node bin/lattice.js verify_codex, node scripts/verify-codex-assets.mjs, node scripts/verify-entrypoints.mjs, and node scripts/verify-runtime-fact-contract.mjs.",
+      "resolvedAt": "2026-06-23T00:12:41.478Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
