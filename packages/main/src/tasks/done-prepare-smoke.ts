@@ -14,7 +14,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,10 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
+import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
+import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
+import type { HandlerContext } from '../handlers/context.js';
 import {
   upsertAuthorityGateReceiptRef,
   type AuthorityGateDecisionReceiptRef,
@@ -379,6 +383,20 @@ function assertBlocked(output: string, blockedAt: string): void {
   assert.match(output, new RegExp(`blockedAt: ${blockedAt}`));
 }
 
+function donePrepareCommand(storyId: string): string {
+  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+}
+
+function contextFor(root: string): HandlerContext {
+  const canonicalRoot = realpathSync(root);
+  return {
+    root: canonicalRoot,
+    scanRoot: join(canonicalRoot, 'packages/main'),
+    store: new StoryStore(canonicalRoot),
+    log: () => {},
+  };
+}
+
 withRepo('clean ready path prints exactly one DONE next command', { storyId: 'B-dp-clean' }, ({ worktreePath }) => {
   const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-clean', validate: false });
   assert.match(output, /DONE prepare: PASS/);
@@ -537,6 +555,49 @@ withRepo('failed DONE-required lifecycle metadata blocks DONE closure without cl
   assert.match(status(worktreePath), /done-required-evidence\.json/, 'failed metadata dirt remains for the operator to inspect');
 });
 
+withRepo('missing DONE-required evidence is produced by done_prepare validation', {
+  storyId: 'B-dp-missing-done-required',
+  doneRequiredPolicy: true,
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-missing-done-required';
+  const evidencePath = join(worktreePath, `.lattice/story/actives/${storyId}/done-required-evidence.json`);
+  assert.equal(existsSync(evidencePath), false, 'precondition: DONE-required evidence starts missing');
+
+  const output = runLattice(worktreePath, 'done_prepare', { storyId, mergeMain: false });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /DONE-required validation passed/);
+  assert.match(output, /done-required-evidence\.json/);
+  assert.doesNotMatch(output, /done-required-validation.*missing done-required-evidence\.json/);
+
+  const evidence = new StoryStore(worktreePath).readDoneRequiredEvidence(storyId);
+  assert.equal(evidence?.status, 'PASS', 'done_prepare must write PASS done-required evidence through the existing validator');
+  assert.equal(evidence?.receipts.length, 1, 'done_prepare must execute the configured DONE-required command');
+  assert.equal(evidence?.receipts[0]?.status, 'PASS');
+
+  const runbook = buildDoneClosureRunbook(contextFor(worktreePath), storyId);
+  const doneRequiredBlocker = runbook.blockers.find((row) => row.id === 'done-required-validation');
+  assert.equal(
+    doneRequiredBlocker?.status,
+    'pass',
+    `post-validation runbook sees DONE-required validation as satisfied: ${doneRequiredBlocker?.reason ?? '<missing row>'}`,
+  );
+});
+
+withRepo('failing DONE-required validation blocks done_prepare validate step', {
+  storyId: 'B-dp-missing-done-required-fail',
+  doneRequiredPolicy: true,
+  doneRequiredCommandExit: 7,
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-missing-done-required-fail';
+  const output = runLattice(worktreePath, 'done_prepare', { storyId, mergeMain: false });
+  assertBlocked(output, 'validate');
+  assert.match(output, /command-failed/);
+  assert.doesNotMatch(output, /DONE prepare: PASS/);
+
+  const evidence = new StoryStore(worktreePath).readDoneRequiredEvidence(storyId);
+  assert.equal(evidence?.status, 'FAIL', 'failed DONE-required validation evidence is still written for inspection');
+});
+
 withRepo('non-TEST phase blocks before mutation', {
   storyId: 'B-dp-dev-phase',
   phase: 'DEV',
@@ -580,6 +641,25 @@ withRepo('stale refresh disabled blocks with refresh guidance', {
   });
   assertBlocked(output, 'evidenceFreshness');
   assert.match(output, /verification_evidence_refresh_stale --storyId=B-dp-stale-disabled/);
+});
+
+withRepo('lifecycle_check maps stale DONE evidence freshness to done_prepare', {
+  storyId: 'B-dp-life-stale-evidence',
+}, ({ worktreePath }) => {
+  const storyId = 'B-dp-life-stale-evidence';
+  write(worktreePath, 'packages/main/src/stale-done-evidence.ts', 'export const staleDoneEvidence = true;\n');
+  git(worktreePath, ['add', 'packages/main/src/stale-done-evidence.ts']);
+  git(worktreePath, [...COMMIT_ENV, 'commit', '-m', 'stale done evidence material']);
+  const readiness = buildStoryReadinessReport({
+    storyId,
+    target: 'DONE',
+    store: new StoryStore(worktreePath),
+    root: worktreePath,
+    gitCwd: worktreePath,
+  });
+  const freshnessRow = readiness.readiness.find((row) => row.id === 'done.evidence-freshness');
+  assert.equal(freshnessRow?.status, 'blocked');
+  assert.equal(freshnessRow?.nextCommand, donePrepareCommand(storyId));
 });
 
 withRepo('validate fail stops before DONE guidance', {
@@ -677,6 +757,50 @@ withRepo('matching storyFilesHash command evidence survives unrelated main mater
   assert.match(output, /staleEvidenceRefresh: PASS/);
   assert.doesNotMatch(output, /stale command-backed evidence must be rerun/);
   assert.doesNotMatch(output, /npm run test:done-prepare-smoke-rerun/);
+});
+
+withRepo('DONE recovery hints route ordering-sensitive blockers through done_prepare', {
+  storyId: 'B-dp-hints',
+  doneRequiredPolicy: true,
+}, ({ root, worktreePath }) => {
+  write(root, 'main-ahead-hint.txt', 'main drift that must be synchronized before final DONE evidence\n');
+  git(root, ['add', 'main-ahead-hint.txt']);
+  git(root, [...COMMIT_ENV, 'commit', '-m', 'main drift for DONE hint']);
+
+  const rows = buildDoneChecklist('B-dp-hints', new StoryStore(worktreePath), worktreePath, { auditWriter: null });
+  const branchRow = rows.find((row) => row.id === 'branch-synced-main');
+  assert.equal(branchRow?.status, 'fail', 'branch-synced-main must fail while main is ahead');
+  assert.match(branchRow?.hint ?? '', /lattice done_prepare/);
+  assert.match(branchRow?.hint ?? '', /mergeMain/);
+  assert.doesNotMatch(branchRow?.hint ?? '', /^git merge main$/);
+
+  const doneRequiredRow = rows.find((row) => row.id === 'done-required-validation');
+  assert.equal(doneRequiredRow?.status, 'fail', 'DONE-required evidence must be missing before done_prepare runs');
+  assert.match(doneRequiredRow?.hint ?? '', /lattice done_prepare/);
+
+  const runbook = buildDoneClosureRunbook(contextFor(worktreePath), 'B-dp-hints');
+  const branchBlocker = runbook.blockers.find((row) => row.id === 'branch-synced-main');
+  assert.equal(branchBlocker?.nextCommand, donePrepareCommand('B-dp-hints'));
+  assert.notEqual(branchBlocker?.nextCommand, 'git merge main');
+  const doneRequiredBlocker = runbook.blockers.find((row) => row.id === 'done-required-validation');
+  assert.equal(doneRequiredBlocker?.nextCommand, donePrepareCommand('B-dp-hints'));
+  assert.notEqual(doneRequiredBlocker?.nextCommand, 'lattice done_required_validate --storyId=B-dp-hints');
+
+  const readiness = buildStoryReadinessReport({
+    storyId: 'B-dp-hints',
+    target: 'DONE',
+    store: new StoryStore(worktreePath),
+    root: worktreePath,
+    gitCwd: worktreePath,
+  });
+  const branchReadiness = readiness.readiness.find((row) => row.id === 'done.branch-synced-main');
+  assert.equal(branchReadiness?.nextCommand, donePrepareCommand('B-dp-hints'));
+  const doneRequiredReadiness = readiness.readiness.find((row) => row.id === 'done.done-required-validation');
+  assert.equal(doneRequiredReadiness?.nextCommand, donePrepareCommand('B-dp-hints'));
+  assert.ok(
+    readiness.next.some((action) => action.command === donePrepareCommand('B-dp-hints')),
+    'lifecycle_check next actions route ordering-sensitive DONE blockers through done_prepare',
+  );
 });
 
 withRepo('fresh review before main sync blocks after merge without verdict rebind', {

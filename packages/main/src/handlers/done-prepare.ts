@@ -6,8 +6,10 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { createChecklistHandlers } from './checklist.js';
 import { buildDoneClosureRunbook, type DoneClosureRunbook } from './done-closure.js';
+import { createDoneRequiredValidationHandlers } from './done-required-validation.js';
 import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
+import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
@@ -292,26 +294,28 @@ function asText(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
 
-function parseValidateOutput(text: string): { ok: boolean; summary: string; next: string } {
+function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): { ok: boolean; summary: string; next: string } {
   try {
     const parsed = JSON.parse(text);
+    const status = typeof parsed.status === 'string' ? parsed.status.toLowerCase() : '';
     const ok = typeof parsed.allPass === 'boolean'
       ? parsed.allPass
-      : parsed.status !== 'fail';
+      : !['fail', 'failed', 'error'].includes(status);
     const detail = [
       typeof parsed.summary === 'string' ? parsed.summary : '',
       Array.isArray(parsed.details) ? parsed.details.slice(0, 3).join('; ') : '',
+      Array.isArray(parsed.reasons) ? parsed.reasons.slice(0, 3).join('; ') : '',
     ].filter(Boolean).join(': ');
     return {
       ok,
       summary: detail || (ok ? 'validation passed' : 'validation failed'),
-      next: 'lattice validate --story=<storyId> --json',
+      next,
     };
   } catch {
     return {
       ok: !/status["']?\s*:\s*["']fail|allPass["']?\s*:\s*false|validation failed/i.test(text),
       summary: text.split('\n').find((line) => line.trim())?.trim() || 'validation output was not JSON',
-      next: 'lattice validate --story=<storyId> --json',
+      next,
     };
   }
 }
@@ -774,6 +778,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   } else {
     const verifier = createVerifierHandlers(ctx);
     let validateText = '';
+    const validationSummaries: string[] = [];
     try {
       validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true }));
     } catch (err: any) {
@@ -795,7 +800,44 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         steps,
       });
     }
-    setStep(steps, 'validate', 'pass', parsed.summary, `lattice validate --story=${storyId} --json`);
+    validationSummaries.push(parsed.summary);
+
+    const doneRequiredPolicy = resolveDoneRequiredPolicy(ctx.root);
+    if (doneRequiredPolicy.required) {
+      const doneRequiredHandlers = createDoneRequiredValidationHandlers(ctx);
+      const command = `lattice done_required_validate --storyId=${storyId}`;
+      let doneRequiredText = '';
+      try {
+        doneRequiredText = asText(await doneRequiredHandlers.done_required_validate({ storyId, json: true }));
+      } catch (err: any) {
+        setStep(steps, 'validate', 'blocked', err?.message || 'DONE-required validation failed', command);
+        return block({
+          blockedAt: 'validate',
+          reason: err?.message || 'DONE-required validation failed',
+          next: command,
+          steps,
+        });
+      }
+      const parsedDoneRequired = parseValidateOutput(doneRequiredText, command);
+      if (!parsedDoneRequired.ok) {
+        setStep(steps, 'validate', 'blocked', parsedDoneRequired.summary, command);
+        return block({
+          blockedAt: 'validate',
+          reason: parsedDoneRequired.summary,
+          next: parsedDoneRequired.next,
+          steps,
+        });
+      }
+      validationSummaries.push(`DONE-required validation passed: ${parsedDoneRequired.summary}`);
+    }
+
+    setStep(
+      steps,
+      'validate',
+      'pass',
+      validationSummaries.join('; '),
+      `lattice validate --story=${storyId} --json`,
+    );
   }
 
   const prepareMutationEndHead = currentGitHead(gitCwd);

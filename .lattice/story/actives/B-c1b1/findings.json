@@ -1,0 +1,101 @@
+{
+  "findings": [
+    {
+      "id": "B-c1b1:F-001",
+      "desc": "done_closure now classifies done-required-validation as a done_prepare recovery blocker and returns only lattice done_prepare as the nextCommand, but done_prepare never invokes the separate done_required_validate writer. Its validate step calls ordinary lattice validate, then rebuilds done_closure; missing or stale done-required-evidence.json is produced only by done_required_validate. For opted-in doneRequiredCommands this routes the operator into a loop instead of creating post-merge material/storyFilesHash-bound DONE-required evidence, so the ordering-sensitive blocker is not actually recovered by the host-neutral command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T02:02:39.217Z",
+      "reviewRound": "2026-06-23T01:58:59.962Z",
+      "reviewRunId": "B-c1b1:RR-001",
+      "_hash": "ba4b8d39371cfa1baa172d74a618facdf64a5438c1c678b7cdea4d0cf7d9e3ce",
+      "files": [
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|closure-classifies-required",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 42929151: done_prepare now invokes the existing done_required_validate handler whenever validate=true and doneRequiredCommands are configured, then fails closed on FAIL output. Verified by npm --prefix packages/main run build and node packages/main/dist/tasks/done-prepare-smoke.js, including missing DONE-required evidence is produced by done_prepare validation.",
+      "resolvedAt": "2026-06-23T02:21:29.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1b1:F-002",
+      "desc": "Test coverage does not prove the new done_prepare recovery path actually resolves missing DONE-required evidence. The new smoke scenario only builds the DONE checklist/runbook and asserts branch-synced-main plus done-required-validation nextCommand values point at lattice done_prepare; it never executes done_prepare for that missing evidence case. Existing DONE-required smoke pre-runs done_required_validate before done_prepare, so it only covers already-present evidence. Meanwhile done_closure maps done-required-validation to done_prepare, but done_prepare only runs ordinary lattice validate before rebuilding done_closure and does not invoke done_required_validate. A missing DONE-required blocker can therefore be routed to a command that rechecks and blocks again, and the current regression coverage would not catch the stale/DONE recovery loop.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T02:03:48.522Z",
+      "reviewRound": "2026-06-23T01:58:59.962Z",
+      "reviewRunId": "B-c1b1:RR-003",
+      "_hash": "272a35f1dca8f59a7099620f0ae5205f06603e1c4163a8ce4c238f0adce67631",
+      "files": [
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "coverage|done-prepare|done-required-recovery-loop",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 42929151: done-prepare-smoke now executes done_prepare with missing DONE-required evidence, asserts PASS done-required-evidence.json is written through the existing validator, and asserts failing DONE-required validation blocks at validate with FAIL evidence. Verified by node packages/main/dist/tasks/done-prepare-smoke.js.",
+      "resolvedAt": "2026-06-23T02:21:38.623Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1b1:F-003",
+      "desc": "packages/main/src/core/lifecycle-readiness.ts:509 still maps DONE evidence-freshness to lattice validate, done-required-validation to done_required_validate, and branch-synced-main to git merge main. The local branch CLI verifies this public runbook mismatch: node packages/main/dist/cli.js lifecycle_check --storyId=B-c1b1 --target=DONE --format=json emits those old nextCommand values, while node packages/main/dist/cli.js done_closure --storyId=B-c1b1 --format=json emits lattice done_prepare for the same blocker ids. This leaves lifecycle_check users on the ordering-sensitive recovery path that this story is meant to replace and can reintroduce stale evidence after main sync. Update lifecycle-readiness and coverage so exact DONE recovery blocker mapping is consistent across diagnostics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:05:31.945Z",
+      "reviewRound": "2026-06-23T01:58:59.962Z",
+      "reviewRunId": "B-c1b1:RR-002",
+      "_hash": "f0f09477f1e6d03d0dc2b9df2133f622178607c1a0865a61fb2605f0b137d181",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 42929151: lifecycle-readiness DONE nextCommand mapping now routes evidence-freshness, done-required-validation, and branch-synced-main to the same done_prepare command as done_closure, while unrelated blockers keep existing commands. Verified by done-prepare-smoke lifecycle_check maps stale DONE evidence freshness to done_prepare and DONE recovery hints route ordering-sensitive blockers through done_prepare.",
+      "resolvedAt": "2026-06-23T02:21:46.498Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1b1:F-004",
+      "desc": "lifecycle_check smoke remains stale after DONE-required recovery remap: npm run test:lifecycle-check-smoke fails at packages/main/src/tasks/lifecycle-check-smoke.ts:362-365 with AssertionError \"next actions include DONE-required guidance\". The implementation now routes done-required-validation blockers through lattice done_prepare, matching done_closure, but the smoke still only accepts done_required_validate or a reason containing missing_done_required_validation, leaving the smoke suite red.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:27:16.279Z",
+      "reviewRound": "2026-06-23T02:21:20.084Z",
+      "reviewRunId": "B-c1b1:RR-004",
+      "_hash": "014f01713552ed580a2e1aa97da8d2330d8bc45ef1bf1567f2456da682b274a1",
+      "files": [
+        "packages/main/src/tasks/lifecycle-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|lifecycle-check-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 85bdb42: lifecycle-check-smoke now expects DONE-required recovery next actions to route through lattice done_prepare while preserving the missing_done_required_validation readiness classification. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:lifecycle-check-smoke, node packages/main/dist/tasks/done-prepare-smoke.js, git diff --check, and full lattice validate --story=B-c1b1 --json passing 26 configured commands.",
+      "resolvedAt": "2026-06-23T02:40:24.681Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
