@@ -4,7 +4,7 @@
   "title": "Real-arm wiring + first powered batch for the stateless-safe injection probes",
   "description": "Build experiments/injection-probes/real-arm.mjs: a runArm(ws,{probe,arm}) that runs a REAL agent (claude -p --output-format json via execFileSync in the workspace cwd, mirroring recovery-runner's invocation but in a NEW file — never importing run-recovery.mjs), captures cost/tokens + a coarse actions log + a shipped signal, and returns {actions, shipped}. Add a --run mode to run-injection-arms.mjs (or a new run-powered.mjs) that runs the 6 probes via the real arm and appends records to a jsonl. SLICE 1 = the BARE arm (loop A) at small N to produce the FIRST genuine powered catch-rate data + prove the pipeline; the other arms (A2-prime / A4-C / A4b-B per the frozen pre-reg) and full reps are an explicit follow-up. Coordinate with the e8aca935 session (recovery-runner owner); touch none of its files.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "createdAt": "2026-06-23T11:45:30.150Z",
   "startedAt": "2026-06-23T11:45:30.150Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:48:32.107Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0c07",
+    "branch": "story/B-0c07",
+    "createdAt": "2026-06-23T11:48:31.735Z"
+  }
 }
