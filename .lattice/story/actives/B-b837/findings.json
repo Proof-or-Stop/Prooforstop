@@ -5,7 +5,7 @@
       "desc": "CHK-005:adversarial:3 command is a non-runnable placeholder: `for f in LEGACY_LOGIC_FILES; do test -f $f; done` iterates over the literal string LEGACY_LOGIC_FILES (one iteration, checks a file named LEGACY_LOGIC_FILES which does not exist) and produces no actual verification of the 11 LEGACY_LOGIC_FILES exemption entries. The intent requires confirming each of the 11 files still exists on disk so no dead exemptions mask future regressions. The note claim (missing-files=0) is factually correct but the recorded command cannot reproduce that result — this is a generic-fallback substitution violating the evidence-must-bind-literal-intent-command contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T14:14:03.521Z",
@@ -17,7 +17,11 @@
         "packages/main/src/handlers/review-preflight.ts"
       ],
       "signatureTag": "missing|mjs|adversarial-command-runnable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the placeholder command 'for f in LEGACY_LOGIC_FILES; do test -f $f; done' (which iterated the literal string and verified nothing) with a real runnable check at /tmp/b837-deadexempt-check.mjs. It parses the actual LEGACY_LOGIC_FILES Set out of scripts/verify-koala-residue.mjs (11 entries) and for each asserts the file exists on disk and still contains a koala token, failing if any allowlist path is dead. Re-bound CHK-005:adversarial:3 with command='node /tmp/b837-deadexempt-check.mjs' kind=logic_test result=pass (11 parsed, missing=0, dead=0; negative-tested to exit 1 on an injected missing path). No product code changed.",
+      "resolvedAt": "2026-06-23T14:20:40.176Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b837:F-002",
