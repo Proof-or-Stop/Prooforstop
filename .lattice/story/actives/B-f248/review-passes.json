@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-23T12:06:55.646Z",
       "reviewRunId": "B-f248:RR-007",
       "_hash": "7c70a65b206400f35a27ed3f90a630d1fd210595dbfe436df0055204d868279d"
+    },
+    {
+      "id": "B-f248:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-009 confirmed resolved: exhausted-reruns void now routed through onVoid in runDriver (both voids[] and the durable sidecar receive every void in lock-step); selfcheck asserts eq(onVoidSeen.length, res.voids.length) which would fail old code. F-010 confirmed resolved: JSDoc now lists the real return fields {ok,missing,enumOk,unsafeOk,budgetPresent,numericOk,budgetLogOk}. --maxReruns CLI binding confirmed wired: parseInt(arg(--maxReruns,3),10) passed to runDriver. Selfcheck: 123 assertions, 0 failed. New validity-group assertions are non-vacuous: onVoidSeen lock-step fails old code (not routed); void count 4 is mechanically verified (3 attempts + 1 exhausted); maxReruns=0->2 voids verified; CLI 231-row count fails old code (old default=3 gives 308). Dead code: none. Type safety: single catch block properly captures e into voidReason string (not swallowed). No I/O shell isolation issues.",
+      "createdAt": "2026-06-23T12:27:22.381Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-010",
+      "_hash": "2e2725a3eff11c43c1820d56e1a2bf5b9f18f0e24cd3d10331bc9968c531f0bf"
     }
   ]
 }
