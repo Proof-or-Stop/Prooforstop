@@ -4,7 +4,7 @@
   "title": "Force stale delivery-check when reviewed material changes",
   "description": "A delivery-check pass can remain visible after the source material it reviewed changes. This is a correctness issue in DONE readiness: delivery evidence must not keep passing over different material. Keep the fix narrow to delivery-check binding and gate/readiness classification, without changing local scheduling or weakening delivery reviewer role separation.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-requested baseline item 5 follow-up after B-4c48",
   "keywords": [
@@ -71,6 +71,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-ffd6e6dbac5a1680",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T12:57:33.948Z",
+      "branch": "story/B-d321",
+      "user": "Harmonygo",
+      "sessionId": "sess-ffd6e6dbac5a1680",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -78,5 +87,5 @@
     "branch": "story/B-d321",
     "createdAt": "2026-06-23T12:26:40.228Z"
   },
-  "currentReviewRound": "2026-06-23T12:46:01.524Z"
+  "currentReviewRound": "2026-06-23T12:57:33.948Z"
 }
