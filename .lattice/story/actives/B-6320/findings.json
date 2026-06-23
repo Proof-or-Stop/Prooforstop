@@ -5,7 +5,7 @@
       "desc": "Test coverage does not load-bear the authority_job_create provider CLI schema change. The implementation changed command-catalog provider from z.enum([codex, claude-code, gemini]) to z.string().min(1), but the added tests only call submitAuthorityJobFromPlan directly with custom provider strings and inspect signed envelopes. No command catalog or CLI surface smoke asserts that authority_job_create.provider is string/min(1) or invokes the command with a custom provider, so a regression back to the enum would still let the direct submitter tests pass while the actual CLI/tool argument boundary rejects custom provider declarations.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T03:21:16.562Z",
@@ -19,7 +19,11 @@
         "packages/main/src/tasks/cli-surface-smoke.ts"
       ],
       "signatureTag": "missing|ts|test-coverage-load",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added command-catalog-smoke schema assertions that authority_job_create.provider accepts host-neutral custom declarations codex-cli and antigravity, which would fail under z.enum([codex, claude-code, gemini]). Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:28:23.261Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6320:F-002",
