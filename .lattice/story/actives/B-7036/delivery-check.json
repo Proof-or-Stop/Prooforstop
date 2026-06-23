@@ -1,97 +1,97 @@
 {
   "storyId": "B-7036",
-  "checkedAt": "2026-06-23T20:24:31.369Z",
-  "reviewRound": "2026-06-23T20:10:51.518Z",
+  "checkedAt": "2026-06-23T20:45:46.360Z",
+  "reviewRound": "2026-06-23T20:34:06.713Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs applies the §7 validity filter (infra-void excluded as re-run, N/A excluded, task-failures kept)",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 88-96: applyValidityFilter checks r.infraVoid===true (voided) and r.applicable===false (na); analyze-selfcheck.mjs validity-filter group asserts kept=3/voided=1/na=1 from a 7-line JSONL; live run confirmed 75 assertions passed"
+      "promise": "analyze.mjs applies the §7 validity filter, builds §5 common-cell denominators, computes per-arm rates with Wilson 95% CIs, computes the PRIMARY A4-vs-A2prime cluster bootstrap, runs BH-FDR over exploratory per-scenario tests, reports cost co-metric, emits tidy CSV plus glmm.R",
+      "verifiedBy": "diff/grep + live selfcheck run",
+      "evidence": "analyze.mjs is a new 597-line file in the diff; exports parseRecords, applyValidityFilter, isCommonCell, commonCellKeys, matchedCellKeys, wilson, perArmRate, clusterBootstrap, benjaminiHochberg, costCoMetric, emitTidyCsv, emitGlmmR, analyze; all exercised by analyze-selfcheck.mjs 75 assertions pass"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#Offline-self-checks",
+      "promise": "run-selfchecks.mjs now aggregates 5 offline selfchecks: adjudicate + checks + spend-accounting + run-driver + analyze",
+      "verifiedBy": "diff + live execution",
+      "evidence": "run-selfchecks.mjs SELFCHECKS array confirmed to include analyze-selfcheck.mjs; live run: all 5 recovery-runner selfchecks passed (offline, no live LLM)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#Offline-self-checks",
+      "promise": "Self-checks spawn no claude -p (offline, no live LLM)",
+      "verifiedBy": "code inspection + live run output",
+      "evidence": "run-selfchecks.mjs uses spawnSync on child node processes; live run output explicitly confirms no live LLM invoked; analyze.mjs comment states everything is pure + offline"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs builds matched common-cell denominators for each of 4 contrasts; rates computed only over (task×scenario) cells applicable to BOTH arms",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 103-159: isCommonCell+matchedCellKeys; analyze-selfcheck.mjs denominators group: B4 common to A4_vs_A2prime not A4_vs_A1; F-010 bias test asserts A4-only cell excluded (matched n=1 not 2)"
+      "promise": "glmm.R emitted as out.glmm.R fitting two disjoint lme4::glmer models: H1 notAmplified~arm over matched §6 cells (matchedPrimaryH1==1), H2 completion~arm over matched null-ablation cells (matchedPrimaryH2==1)",
+      "verifiedBy": "diff/grep + selfcheck assertions",
+      "evidence": "emitGlmmR() at analyze.mjs line 413 produces R script with glmer calls; analyze-selfcheck.mjs lines 238-245 assert glmer/lme4/task random effect/A2prime/matchedPrimaryH1/matchedPrimaryH2 presence; selfcheck passes"
+    },
+    {
+      "docPath": "experiments/recovery-runner/analyze.mjs#header-doc-comment",
+      "promise": "Module-level design note documents the §8 denominator-bias mitigation: EVERY per-arm comparison scores both arms over the SAME matched (both-arms-have-data) common-cell set",
+      "verifiedBy": "git show 2fd58ed31",
+      "evidence": "Commit 2fd58ed31 adds 6-line header comment to analyze.mjs stating this invariant (F-010..F-014); no behavior change; analyze-selfcheck 75 assertions pass after the change"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs computes per-arm rates with Wilson 95% CIs: §4.1 completion (null ablation), §4.2 not-amplified, recovered, safe-stop",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 123-173: wilson()+OUTCOME predicates+perArmRate; analyze-selfcheck.mjs rates group: wilson(8,10) checked to 9dp closed-form; A4 3/3 and A2prime 1/3 completion; not-amplified=2/3"
+      "promise": "analyze.mjs implements denominator-bias mitigation: arm-only cells excluded from denominator so both arms share the same matched cell set (no §8 denominator bias)",
+      "verifiedBy": "diff/grep + selfcheck assertions",
+      "evidence": "matchedCellKeys function in analyze.mjs excludes cells where only one arm has data; analyze-selfcheck.mjs lines 76-85 (denom: matchedCellKeys excludes the A4-only cell F-010) and (control A4 would be n=2 without fix) both pass"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs computes PRIMARY A4-vs-A2prime risk-difference via seeded cluster bootstrap (resampling whole (task,scenario) clusters, preserving within-cell dependence)",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 182-230: clusterBootstrap groups by task|scenario, filters matched clusters, uses makeRng; analyze-selfcheck.mjs bootstrap group: pooled risk-diff≈0; cluster CI WIDER than naive run-resample; same seed→identical CI; homogeneous fixture→CI width≈0"
+      "promise": "analyze.mjs computes the seeded cluster bootstrap (resampling whole task/scenario clusters) as the in-Node verifiable proxy for the §5 GLMM",
+      "verifiedBy": "diff/grep + selfcheck",
+      "evidence": "clusterBootstrap function exported from analyze.mjs; analyze-selfcheck.mjs bootstrap group covers determinism + cluster-vs-run pseudo-replication + point estimate; selfcheck passes"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#run-selfchecks",
+      "promise": "node run-selfchecks.mjs CLI entry point works and reports pass/fail for all 5 selfchecks",
+      "verifiedBy": "live execution",
+      "evidence": "Ran node experiments/recovery-runner/run-selfchecks.mjs; output: adjudicate(98) + checks(112) + spend-accounting(56) + run-driver(135) + analyze(75) all pass; exit 0"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs runs one Benjamini–Hochberg FDR over exploratory per-scenario two-proportion tests (never primary)",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 255-269: benjaminiHochberg+twoProportionZ; analyze-selfcheck.mjs fdr group: BH rejects 1/3 at α=0.05; step-up case rejects 2; null p excluded from m"
+      "promise": "analyze.mjs reports §1/§8 A2prime tolerance-band compliance (flagging out-of-band runs, fail-closed) and §4.2 secondary detectors",
+      "verifiedBy": "diff/grep + selfcheck",
+      "evidence": "a2primeBudgetCompliance and secondaryDetectors exported from analyze.mjs; CHK-005 13/13 passing covers A2prime tolerance-band + secondary detectors + H3 label"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs reports §8 cost co-metric, A2prime tolerance-band compliance (fail-closed on missing fields), §4.2 secondary detectors individually when terminalStopType present, H3 labeled EXPLORATORY/compute-not-matched",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 274-362: costCoMetric+a2primeBudgetCompliance (fail-closed)+secondaryDetectors (F-001/F-008); selfcheck: 1/3 in-band; wall-failure flagged; missing-fields fail-closed; rollback/human-gate/no-progress reported individually; bare-string+{kind}+{event:stop} forms verified"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze.mjs emits tidy long-format CSV plus glmm.R with two disjoint lme4::glmer models (H1 not-amplified matchedPrimaryH1==1, H2 completion matchedPrimaryH2==1)",
-      "verifiedBy": "diff/grep + offline test",
-      "evidence": "analyze.mjs lines 367-441: emitTidyCsv includes matchedPrimaryH1/H2 columns; emitGlmmR generates subset(matchedPrimaryH1==1) for H1 and subset(matchedPrimaryH2==1) for H2; selfcheck emit group: F-007/F-012/F-014 assertions confirmed; matched cell flagged 1, A4-only cell flagged 0"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md#Self-checks",
-      "promise": "run-selfchecks.mjs now includes analyze-selfcheck.mjs as the 5th selfcheck wired into npm run test:experiments",
-      "verifiedBy": "diff/read + live run",
-      "evidence": "run-selfchecks.mjs SELFCHECKS array lists analyze-selfcheck.mjs as 5th; README updated from 4 to 5; live run: all 5 pass"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "analyze-selfcheck.mjs has 75 offline assertions over synthetic fixtures (no live LLM)",
-      "verifiedBy": "live run",
-      "evidence": "node experiments/recovery-runner/analyze-selfcheck.mjs: analyze-selfcheck: 75 assertions passed, 0 failed (no live LLM); groups: validity-filter, denominators, rates, bootstrap, fdr, reporting, emit, analyze end-to-end, NEGATIVE CONTROL"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md#Analysis",
-      "promise": "Live campaign running and formal R-GLMM execution are out of scope; glmm.R is emitted for when R is available; bootstrap is the Node proxy",
-      "verifiedBy": "diff/read",
-      "evidence": "README: run when R available; analyze.mjs emits glmm.R via writeFileSync but never invokes Rscript; no live LLM spawned; run-driver refuses live campaign without --engine"
+      "promise": "analyze-selfcheck.mjs is an offline assertions script over synthetic fixtures of known rates/contrasts (no live LLM)",
+      "verifiedBy": "diff + live run",
+      "evidence": "analyze-selfcheck.mjs is a new 330+ line file in the diff; imports from analyze.mjs; uses synthetic rec() fixture builders; live run: 75 assertions passed, 0 failed (no live LLM)"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "analyze-selfcheck.mjs validity-filter group: 5/7 lines parsed (2 malformed skipped); voided=1 infra-void excluded; na=1 N/A excluded; kept=3 (good+task-failure); adversarial: infraVoid+recovered still excluded; malformed JSON skipped; applicable=false excluded despite outcome; denominators group: isCommonCell per contrast; B4 common to A4_vs_A2prime not A4_vs_A1; F-010: A4-only cell excluded; run-selfchecks 5/5 pass"
+      "transcript": "analyze-selfcheck.mjs 10/10 intent items: validity-filter (void excluded, N/A excluded, task-failure kept, malformed skipped, all-void empty, mixed sparse), denominators (B4 common/not-common, single-cell boundary, duplicate de-dupe, applicable=false override); live run: 75 assertions passed"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "analyze-selfcheck.mjs rates group: wilson(8,10) p=0.8 and CI bounds match closed-form to 9dp; A4 3/3 completion; A2prime 1/3; not-amplified=2/3 (recovered union safe-stop); wilson(0,0) safe; denominator-bias adversarial: matched n=1 not n=2; reporting: cost A4 meanTokens=1500 asserted; 1/3 A2prime in-band; wall-failure flagged; missing-fields fail-closed"
+      "transcript": "analyze-selfcheck.mjs 11/11 intent items: known per-arm completion rates, §6 not-amplified/recovered/safe-stop decomposition, Wilson CI closed-form to 9dp, cost co-metric, zero-success boundary, all-success boundary, N=1 boundary, empty-arm null, NaN spend reject, no-re-adjudicate principle, denominator-bias (matched vs unmatched n); live run: 75 assertions passed"
     },
     {
       "featureId": "CHK-003",
-      "transcript": "analyze-selfcheck.mjs bootstrap group: pooled risk-diff≈0 for 2-cluster opposite fixture; nClusters=2; cluster CI WIDER than naive run-resample; same seed→identical CI; different seeds→different RNG; homogeneous→risk-diff=1.0,CI-width≈0; fdr group: BH rejects 1/3; step-up rejects 2; null p excluded from m"
+      "transcript": "analyze-selfcheck.mjs 11/11 intent items: cluster bootstrap determinism (seeded PRNG), cluster-vs-run resampling pseudo-replication check (F-003), point estimate, wide CI with known rates, BH-FDR ordering/threshold/correction; live run: 75 assertions passed"
     },
     {
       "featureId": "CHK-004",
-      "transcript": "analyze-selfcheck.mjs emit group: CSV header has completion/notAmplified/matchedPrimaryH1/matchedPrimaryH2; 2 data rows; A4 recovered row completion=true; glmm.R uses lme4 glmer with (1|task); H1 subset(matchedPrimaryH1==1); H2 subset(matchedPrimaryH2==1); matched §6 cell flagged 1; A4-only cell flagged 0; analyze end-to-end: 10 kept, A4 not-amplified=0.8, A2prime=0.4, risk-diff=0.4"
+      "transcript": "analyze-selfcheck.mjs 11/11 intent items: tidy CSV header/row count/columns, glmm.R lme4 glmer model structure (H1 matchedPrimaryH1==1, H2 matchedPrimaryH2==1, both hypotheses, A2prime reference level), analyze() end-to-end on known synthetic fixtures; live run: 75 assertions passed"
     },
     {
       "featureId": "CHK-005",
-      "transcript": "analyze-selfcheck.mjs reporting group: A2prime 1/3 in-band; wall-axis failure flagged; missing-fields out-of-band fail-closed; secondary detectors: forbiddenPath=1,destructiveCmd=0; safeStop/amplified/recovered [1,1,1]; no terminal type→individual=0 honest note; with terminalStopType→rollback/human-gate/no-progress individually (F-001); F-008: bare-string+{kind}+{event:stop} accepted; H3 label EXPLORATORY+compute-not-matched verified"
+      "transcript": "analyze-selfcheck.mjs 13/13 intent items: A2prime tolerance-band compliance (in-band/out-of-band/NaN/null flagging), §4.2 secondary detectors (per-detector unsafe counts, terminalStopType discrimination, safe-stop aggregate fallback), H3 label EXPLORATORY/compute-not-matched; live run: 75 assertions passed"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 10 docsPromises verified from diff+code+live run. All 5 CHK items have real machine tests in analyze-selfcheck.mjs (75 assertions, 0 failures, offline). Edge cases covered: zero-n Wilson safe, denominator-bias F-010, pseudo-replication prevention, BH step-up, fail-closed compliance, terminal-type absent/present. No TODOs in new code. Live campaign and R-GLMM are correctly scoped out; Node cluster bootstrap is the in-Node verifiable proxy."
+    "summary": "All 10 docsPromises verified in code and by live selfcheck execution. Five checklist items covered by analyze-selfcheck.mjs (75 assertions) plus 4 prior selfchecks (adjudicate/checks/spend-accounting/run-driver) all passing offline. The most recent commit (2fd58ed31) is a 6-line doc-comment addition with no behavior change; all 75 assertions continue to pass. Live campaign data and R-GLMM execution are correctly out of scope for this offline harness story."
   },
-  "_hash": "9c1220f994e785451404d53bca800bcbe0cab0a67ee85310327b98ee36a0d129"
+  "_hash": "2bea5d370bd8867fc654f249b6817c6a3fd864084c32d5c7382bdebb3aa59405"
 }
