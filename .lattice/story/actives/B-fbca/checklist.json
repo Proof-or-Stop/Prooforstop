@@ -31,6 +31,28 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Rename koala config fields/filenames to lattice (idleKoala, koala.config.json, koalaConfig)",
+      "context": "~25 hits: the idleKoala config field, koala.config.json filename references, koalaConfig identifiers in packages/*/src. Rename to lattice-named equivalents; under no-compat, do NOT keep a koala.config.json read-fallback — old koala-named config is not migrated (OSS users start fresh).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbca/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Rename .koala/ runtime path references to the lattice runtime dir",
+      "context": "~22 hits: .koala/ runtime path string literals/comments (e.g. tool-status.ts .koala/activity.jsonl). Point them at the lattice runtime dir (.lattice/ or the canonical path). Under no-compat, existing .koala/ data is NOT migrated (orphaned for any old install; OSS users start fresh). Verify no code still WRITES to .koala/.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbca/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
