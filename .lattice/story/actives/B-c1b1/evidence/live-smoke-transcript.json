@@ -1,0 +1,20 @@
+{
+  "storyId": "B-c1b1",
+  "expected": "Agent can point to the concrete DONE ordering: pre-DONE readiness checks and user-triggered done_prepare happen before final DONE evidence consumption, while version bump, dist build, and experience cache refresh remain post-DONE merge effects.",
+  "actual": {
+    "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.68 test:lifecycle-check-smoke\n> node dist/tasks/lifecycle-check-smoke.js\n\nlifecycle_check smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-23T02:58:18.350Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "0230f4763e32cf2390dd566091ab8baa052a58aa",
+  "materialHash": "20d57eda6887cbb90f7716fa41a4a73187c5d501ae3d1a8382e8a1a9596bc747"
+}

@@ -1,0 +1,61 @@
+{
+  "storyId": "B-c1b1",
+  "checkedAt": "2026-06-23T03:13:02.484Z",
+  "reviewRound": "2026-06-23T02:40:13.540Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json#docsPromises[0]",
+      "promise": "Agent can point to the concrete DONE ordering: pre-DONE readiness checks and user-triggered done_prepare happen before final DONE evidence consumption, while version bump, dist build, and experience cache refresh remain post-DONE merge effects.",
+      "status": "verified",
+      "verifiedBy": "manual code/docs/evidence review",
+      "evidence": "Verified in done-oracle/done-closure/lifecycle-readiness routing plus docs/requirements/decisions/done-prepare-automation-execution-plan.md: done_prepare is pre-DONE; version/package/dist finalization remains post-DONE. Fresh full validate PASS 2026-06-23T03:11:00.931Z, materialHash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json#docsPromises[1]",
+      "promise": "DONE readiness output routes ordering-sensitive blockers to one host-neutral recovery command: lattice done_prepare with mergeMain, refreshStale, and validate enabled, followed by the normal story_advance DONE path.",
+      "status": "verified",
+      "verifiedBy": "code review and smoke evidence",
+      "evidence": "done-oracle.ts, done-closure.ts, and lifecycle-readiness.ts route evidence-freshness, DONE-required validation, and branch-synced-main blockers to lattice done_prepare with mergeMain/refreshStale/validate. Full validate PASS 2026-06-23T03:11:00.931Z, materialHash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json#docsPromises[2]",
+      "promise": "The regression smoke test demonstrates that a story branch behind main and missing DONE-required evidence receives done_prepare guidance, and that raw git merge main is not emitted as the primary recovery command.",
+      "status": "verified",
+      "verifiedBy": "smoke transcript and test source review",
+      "evidence": "packages/main/src/tasks/done-prepare-smoke.ts includes DONE recovery hints route ordering-sensitive blockers through done_prepare and asserts branch blocker nextCommand is not git merge main; transcript-diff.md records no user-visible mismatch; live transcript command npm --prefix packages/main run test:lifecycle-check-smoke exited 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json#docsPromises[3]",
+      "promise": "Any updated diagnostic or runbook text stays host-neutral and says done_prepare is the pre-DONE recovery assistant; it does not move version bump, package sync, or dist sync into pre-DONE evidence creation.",
+      "status": "verified",
+      "verifiedBy": "docs/code review",
+      "evidence": "docs/requirements/decisions/done-prepare-automation-execution-plan.md says done_prepare is a local/pre-DONE readiness assistant, keeps version mutation out of done_prepare, and names post-DONE finalization separately; quorum smoke in fresh validate also asserts no authorityDone/fullAuthorityDone/productionDone overclaim."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh full lattice validate --story=B-c1b1 --json PASS at 2026-06-23T03:11:00.931Z, materialHash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25; validation output includes configured validate.commands[0] npm --prefix packages/main run build PASS and 26 configured commands allPass=true. DONE-required evidence PASS at 2026-06-23T03:07:06.298Z with packages/main build and root full test suite receipts. This supports the DONE ordering boundary and post-DONE finalization separation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Code review of packages/main/src/core/done-oracle.ts, packages/main/src/handlers/done-closure.ts, and packages/main/src/core/lifecycle-readiness.ts confirms evidence-freshness, done-required-validation, and branch-synced-main blockers route to lattice done_prepare '{\"storyId\":\"B-c1b1\",\"mergeMain\":true,\"refreshStale\":true,\"validate\":true}'. Fresh full validate PASS at 2026-06-23T03:11:00.931Z, materialHash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Regression evidence: .lattice/story/actives/B-c1b1/evidence/transcript-diff.md reports no user-visible mismatch; live-smoke-transcript.json records npm --prefix packages/main run test:lifecycle-check-smoke exitCode 0; done-prepare-smoke source asserts branch-synced-main and DONE-required blockers use done_prepare and not raw git merge main. Full validate PASS includes lifecycle_orchestrate and quorum_submit smoke passing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Docs/runbook review: docs/requirements/decisions/done-prepare-automation-execution-plan.md is host-neutral, describes done_prepare as a local/pre-DONE lifecycle assistant, and keeps version files/package/dist sync out of pre-DONE evidence creation. DONE-required evidence PASS has materialHash matching fresh validate materialHash."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the four user-visible promises against refreshed delivery context, transcript diff/live smoke, source/docs review, fresh full validate PASS at 2026-06-23T03:11:00.931Z, and DONE-required PASS at 2026-06-23T03:07:06.298Z, all bound to materialHash 677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25. This delivery check does not claim authorityDone, fullAuthorityDone, or productionDone."
+  },
+  "_hash": "eb3ce701a42460416feecca1fa1b848c75c7f1864322c63e93ffaadcbf06ea0a"
+}

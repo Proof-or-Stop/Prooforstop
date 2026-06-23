@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Follow the locked pre-registration (spend match, not call count)",
+    "Capture spend at the source (claude JSON usage), accumulate per run",
+    "Match pre-reg section 7 field names exactly",
+    "Do not regress existing arm semantics"
+  ],
+  "drivers": [
+    "Compute-confound-free A4 vs A2-prime comparison",
+    "Accurate token+wall-clock+agentCallCount accounting",
+    "Small, auditable change"
+  ],
+  "options": [
+    {
+      "name": "spend-budget-truncation",
+      "pros": [
+        "Matches pre-reg exactly (token+wall-clock, plus-or-minus 20 percent, hard-truncate)",
+        "Kills the compute confound"
+      ],
+      "cons": [
+        "Must capture tokens + add a budget loop mode"
+      ]
+    },
+    {
+      "name": "call-count-budget",
+      "pros": [
+        "Simplest"
+      ],
+      "cons": [
+        "CONTRADICTS the locked pre-reg (not call count); reintroduces the compute confound"
+      ]
+    },
+    {
+      "name": "cost-usd-only-budget",
+      "pros": [
+        "costUsd already recorded"
+      ],
+      "cons": [
+        "Pre-reg names tokens+wall-clock; cost is a proxy; record tokens to match the spec"
+      ]
+    }
+  ],
+  "chosen": "spend-budget-truncation",
+  "rationale": "The locked pre-registration defines A2-prime as token+wall-clock spend match with plus-or-minus 20 percent and hard-truncation; implementing exactly that keeps the A4 vs A2-prime comparison free of the compute confound, which call-count would reintroduce.",
+  "preMortem": [
+    {
+      "scenario": "tokensSpent not captured",
+      "trigger": "claude JSON usage shape differs / not read",
+      "consequence": "Cannot spend-match",
+      "mitigation": "Read usage tokens from the claude -p JSON (already parsed for cost); record tokensSpent; if usage absent, fall back to cost-derived note and flag"
+    },
+    {
+      "scenario": "Budget never truncates",
+      "trigger": "a2prime stops at acceptance pass before budget reached",
+      "consequence": "A2-prime spends less than A4 (under-match)",
+      "mitigation": "Record actual tokensSpent + budgetPass so any under-match is visible and bounded by the tolerance band (logged)"
+    },
+    {
+      "scenario": "Field-name mismatch with analysis",
+      "trigger": "using agentCalls instead of agentCallCount",
+      "consequence": "Analysis silently misses the field",
+      "mitigation": "Use the exact pre-reg section 7 names: tokensSpent, wallClockMs, agentCallCount"
+    }
+  ],
+  "timestamp": "2026-06-23T01:29:38.994Z"
+}

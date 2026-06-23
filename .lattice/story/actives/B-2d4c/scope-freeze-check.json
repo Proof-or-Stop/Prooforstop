@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2d4c",
+  "checkedAt": "2026-06-23T04:00:17.454Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "fa820d5cab191384be38c600a0a7c93746901e7bd8da9a1dcafb29ea274c7191",
+  "executionBoundaryHash": "e23e7b9c405a72a3fe01d80281c0b94eef9689683a65c63dd560cb62c92284d0",
+  "freshnessHash": "88a03188d3797ad06215c31bf9fe21ac84be3d3f5cc0dc2d39830a04b5152945",
+  "effectiveExcludedKeywords": [
+    "Do not run the live LLM loop",
+    "No changes to run-recovery.mjs/run-ablation.mjs in this story (wiring is a follow-on piece)",
+    "No product code (core/, bin/, packages/)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not run the live LLM loop",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run the live LLM loop",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to run-recovery.mjs/run-ablation.mjs in this story (wiring is a follow-on piece)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to run-recovery.mjs/run-ablation.mjs in this story (wiring is a follow-on piece)",
+      "excluded": true
+    },
+    {
+      "keyword": "No product code (core/, bin/, packages/)",
+      "source": "scopeBoundary.excluded",
+      "text": "No product code (core/, bin/, packages/)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f48c177fabaa9803988b9cf6340c8e7c00850fbdafd6be7a0aaebb5289960c2c"
+}

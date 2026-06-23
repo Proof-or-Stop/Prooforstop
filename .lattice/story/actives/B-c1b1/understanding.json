@@ -1,0 +1,26 @@
+{
+  "task": "Fix DONE evidence recovery ordering so agents do not repeat stale refresh loops after deterministic main sync.",
+  "outcome": "When a TEST story is near DONE and main/evidence freshness has drifted, the terminal shows a single ordered recovery command: lattice done_prepare {\"storyId\":\"B-xxxx\",\"mergeMain\":true,\"refreshStale\":true,\"validate\":true}; after that passes, the user sees the normal story_advance DONE command instead of scattered git merge, validate, and done_required_validate hints.",
+  "facts": [
+    "B-3523 lost time because DONE closure involved main/material binding drift and repeated manual evidence refresh.",
+    "done_prepare already performs the safe order: merge main first, classify/refresh stale evidence, run validate, check DONE closure, and never mutates version files before DONE.",
+    "done-effects intentionally runs version bump, packages/main build, and experience cache refresh after DONE merge on local main.",
+    "Existing docs explicitly say version mutation must stay out of done_prepare and pre-DONE readiness because it changes material hash.",
+    "Raw DONE gate hints still point to scattered commands for evidence freshness, done-required validation, and branch sync."
+  ],
+  "constraints": [
+    "Do not weaken materialHash or storyFilesHash validation.",
+    "Do not move post-DONE version bump before DONE evidence.",
+    "Do not redesign DONE lifecycle or remove existing autoSyncMain safety.",
+    "Keep workflow commands host-neutral and agent-neutral.",
+    "Only fix the real recovery-ordering issue exposed by B-3523."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-23T01:43:05.766Z"
+}

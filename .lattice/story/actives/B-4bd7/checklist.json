@@ -1,0 +1,119 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register the human-readable baseline protocol",
+      "context": "Create docs/requirements/decisions/lattice-workflow-efficiency-baseline.md with purpose, source incident, six dimensions, non-goals, and acceptance criteria.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "Future Lattice optimization tasks have a stable written protocol before any change is claimed as an improvement.",
+      "excludes": [
+        "Do not implement any of the six workflow fixes in this item."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document exists and names the experiments/baselines JSON path.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document separates observed behavior from target behavior instead of mixing baseline and implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document explicitly blocks arbitrary optimization and behavior weakening.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Register the machine-readable baseline JSON",
+      "context": "Create experiments/baselines/lattice-workflow-efficiency-baseline-v1.json with observedBefore and targetAfter entries for all six dimensions.",
+      "relatedDocs": [
+        "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+      ],
+      "userSees": "Future optimization stories can compare against a stable JSON baseline instead of relying on memory.",
+      "excludes": [
+        "Do not rewrite existing baseline files or story fixtures."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The JSON parses successfully.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All six dimensions exist in both observedBefore and targetAfter.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The JSON keeps the original baseline immutable and requires separate result artifacts for future comparisons.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify baseline registration without optimization behavior changes",
+      "context": "Run parse and invariant checks, then confirm the story made no source behavior changes for the six follow-up fixes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+      ],
+      "userSees": "The baseline is usable for future comparison while avoiding premature optimization.",
+      "excludes": [
+        "Do not claim any of the six follow-up fixes are already implemented by this story."
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "jq and a six-dimension invariant check pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The git diff contains only the baseline doc, baseline JSON, and Lattice story metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No Authority Server, provider authorization, delivery-check freshness, DONE summary, or validate timeout runtime code is changed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

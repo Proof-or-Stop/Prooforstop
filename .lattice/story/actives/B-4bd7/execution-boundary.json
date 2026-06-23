@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4bd7",
+  "allowedCommands": [
+    "git diff *",
+    "git status --short *",
+    "jq . experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice delivery_check_set *",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice summary_set *",
+    "lattice validate *",
+    "node -e *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Baseline registration only; no remote publication or optimization implementation.",
+  "createdAt": "2026-06-23T03:57:40.398Z",
+  "updatedAt": "2026-06-23T03:57:40.398Z",
+  "_hash": "87d7417efc306d4adc9ce700198965fe4d01e47022885d8b5d4c1988965f3427"
+}

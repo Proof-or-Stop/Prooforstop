@@ -287,6 +287,10 @@ function readinessCodes(report: StoryReadinessReport): Set<string> {
   return new Set(report.readiness.map((row) => row.code));
 }
 
+function expectedDonePrepareCommand(storyId = STORY_ID): string {
+  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+}
+
 function assertReportShape(report: StoryReadinessReport): void {
   assert.equal(report.storyId, STORY_ID);
   assert.equal(report.target, 'DONE');
@@ -346,6 +350,12 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
     assert.ok(codes.has('missing_story_summary'), 'missing summary is classified distinctly');
     assert.ok(codes.has('missing_done_required_validation'), 'missing done-required validation is classified distinctly');
     assert.ok(codes.has('missing_done_prepare_report'), 'missing done_prepare report is visible');
+    const doneRequiredRow = jsonReport.readiness.find((row) => row.code === 'missing_done_required_validation');
+    assert.equal(
+      doneRequiredRow?.nextCommand,
+      expectedDonePrepareCommand(),
+      'missing DONE-required validation routes through done_prepare recovery',
+    );
     assert.ok(
       jsonReport.next.some((action) => action.command === `lattice review_run_start '{"storyId":"${STORY_ID}","agent":"lattice-review-quality"}'`),
       'missing required reviewer lanes print exact review_run_start next command guidance',
@@ -360,8 +370,12 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
       'localReady is exactly the negation of blocking readiness rows',
     );
     assert.ok(
-      jsonReport.next.some((action) => action.command?.includes('done_required_validate') || action.reason.includes('missing_done_required_validation')),
-      'next actions include DONE-required guidance',
+      jsonReport.next.some((action) => action.command === expectedDonePrepareCommand()),
+      'next actions route DONE-required guidance through done_prepare',
+    );
+    assert.ok(
+      !jsonReport.next.some((action) => action.command?.includes('done_required_validate')),
+      'next actions do not route directly to done_required_validate',
     );
 
     const textReport = handler!({ storyId: STORY_ID, target: 'DONE', format: 'text' }) as string;

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4bd7",
+  "mode": "maintenance",
+  "allowed": [
+    "Record that no optimization behavior is implemented in this baseline story.",
+    "Register the machine-readable baseline JSON under experiments/baselines.",
+    "Register the workflow efficiency decision document.",
+    "Validate that the baseline JSON parses and covers all six dimensions."
+  ],
+  "excluded": [
+    "Do not deploy, push, or publish remote branches.",
+    "Do not implement Codex adapter gate behavior changes.",
+    "Do not implement delivery-check or DONE summary behavior changes.",
+    "Do not implement main merge readiness behavior changes.",
+    "Do not implement reviewer checklist or proof metadata behavior changes.",
+    "Do not implement validate timeout changes."
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved writing the baseline document first, then opening a story, and continuing until complete.",
+  "createdAt": "2026-06-23T03:57:40.398Z",
+  "updatedAt": "2026-06-23T03:57:40.398Z",
+  "_hash": "8ccc83cefbb856afa44facaf9712ef87f372e66eb923e95676e37f380e544c4c"
+}
