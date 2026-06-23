@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T19:06:19.843Z",
       "reviewRunId": "B-7036:RR-006",
       "_hash": "bd436a034f248d2ccbe843f68d4b59ce728c920df2911f39d894552fd3801ebb"
+    },
+    {
+      "id": "B-7036:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): F-001 and F-002 genuinely resolved — secondaryDetectors now reports rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present (self-check det2 fixture asserts breakdown: [2,1,1,true]); Wilson test now formula-precise vs closed-form at 9dp. analyze-selfcheck.mjs: 61 assertions, 0 failed. All 56 must-priority verificationIntents have valid verificationEvidence with specific notes (no generic pass-only notes). 5 CHK items each show 1:1 intent-to-evidence correspondence. No new findings.",
+      "createdAt": "2026-06-23T19:11:14.890Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-008",
+      "_hash": "c684938aa4678267d6bc9aaac5af09db52979fd930ebbc47ba291d748667af40"
     }
   ]
 }
