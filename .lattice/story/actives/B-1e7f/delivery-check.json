@@ -1,0 +1,61 @@
+{
+  "storyId": "B-1e7f",
+  "checkedAt": "2026-06-23T11:33:34.133Z",
+  "reviewRound": "2026-06-23T11:12:04.812Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json#docsPromises[0]",
+      "promise": "Signed runner claim payloads can include storyId/jobId without schema rejection.",
+      "status": "verified",
+      "verifiedBy": "diff inspection + authority-runner-contracts-smoke evidence",
+      "evidence": "authority-runner-contracts.ts JobClaim includes optional jobId/storyId; authority-runner-contracts-smoke asserts broad claims still parse and selected signed claims roundtrip with storyId=B-3157 and jobId=job-3157; verification coverage CHK-001 happy/edge/adversarial all pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json#docsPromises[1]",
+      "promise": "A live runner for story B-current sends claim.storyId=B-current and the stale queued job mismatch scenario is covered by regression evidence.",
+      "status": "verified",
+      "verifiedBy": "diff inspection + focused smoke evidence",
+      "evidence": "authority_enforce_runner parser/catalog smoke preserves --live --storyId=B-current; authority-runner-client-smoke asserts signed claim.storyId=B-current and no claim.jobId from SSE; authority-job-loop-live-smoke models stale B-other queued work and completes job-live-current-story for B-auto."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json#docsPromises[2]",
+      "promise": "Implementation keeps selectors inside signed claim payloads; no queue purge or retry workaround is added.",
+      "status": "verified",
+      "verifiedBy": "diff inspection + grep + adversarial smoke evidence",
+      "evidence": "claimNextAuthorityJob builds signed body claim.storyId and POSTs /jobs/claim without query selector; smokes assert URL has no selector, SSE jobIds remain advisory, and no queue purge/cancel/retry workaround is used."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1e7f/evidence/delivery-context-pack.json#docsPromises[3]",
+      "promise": "Focused smokes show claim.storyId is sent for B-current and stale other-story queued jobs are not accepted as current-story success.",
+      "status": "verified",
+      "verifiedBy": "test-evidence + live smoke transcript + lifecycle/readiness inspection",
+      "evidence": "test-evidence reports PASS with 13/13 verification intents covered; live-smoke-transcript.json records authority-enforce-runner-smoke exitCode 0; transcript-diff.md documents the public CLI parser path; lifecycle_check lists focused smoke evidence for CHK-002/CHK-004."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS evidence: node packages/main/dist/tasks/authority-runner-contracts-smoke.js. Covers JobClaim schema accepting signed storyId/jobId selectors and broad-claim compatibility."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS evidence: npm --prefix packages/main run build && node packages/main/dist/tasks/authority-enforce-runner-smoke.js && node packages/main/dist/tasks/authority-runner-client-smoke.js; plus node packages/main/dist/tasks/authority-job-loop-live-smoke.js. Covers B-current command parser path, signed claim.storyId, advisory SSE jobIds, and stale B-other queue behavior."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS evidence: npm --prefix packages/main run build && node packages/main/dist/tasks/authority-job-loop-live-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js. Covers signed payload implementation and no queue purge/retry workaround."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-runner-contracts-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js; node packages/main/dist/tasks/authority-job-loop-live-smoke.js. Full validate PASS at 2026-06-23T11:27:32.661Z; DONE-required evidence PASS at 2026-06-23T11:28:11.914Z with packages/main build and root npm test; voluntary local 3x2 quorum complete across 3 rounds."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises verified against code diff, focused smoke evidence, live-smoke transcript, transcript diff, full validation PASS, DONE-required PASS, and voluntary 3x2 review quorum. Caveat: DONE readiness still separately reports story/B-1e7f behind main by 4 commits and missing current done_prepare report; this delivery check does not claim DONE/localReady/authorityDone/fullAuthorityDone/productionDone."
+  },
+  "_hash": "71ff79c2254eb0cdc6103a9853e3b9df32996ccee44110024b0e0d911b8b2d23"
+}

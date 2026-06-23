@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b837",
+  "mode": "feature",
+  "allowed": [
+    "Affected unit and smoke tests for the above",
+    "packages/main/src product runtime code: remove legacy-koala compat/migration logic (activity-log legacy reader + lattice-paths constant, KOALA_ env-var fallbacks in dispatch-usage/writer/dispatch-runner, legacy-koala write-path detection, cli-init legacy-koala cleanup, koala-or-lattice dual-accept regexes -> lattice-only)",
+    "packages/utils/src and packages/lab/src legacy-koala compat logic if any"
+  ],
+  "excluded": [
+    "Flipping verify-koala-residue.mjs to zero-tolerance (story 4)",
+    "Renaming koala-<role> process-lane tokens to lattice-<role> (story 3)",
+    "Renaming koala.config.json (out of this story compat-logic focus)",
+    "Scrubbing docs, experiments, scripts koala references (story 4)",
+    "The .lattice/story audit-trail metadata (kept as historical record)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User confirmed 2026-06-23: delete the legacy-koala compat/migration layer; lane-token rename is story 3, docs scrub + gate flip is story 4, .lattice/story history kept.",
+  "createdAt": "2026-06-23T12:15:35.442Z",
+  "updatedAt": "2026-06-23T12:15:35.442Z",
+  "_hash": "e80e7fb2c3116c746dffd1a6fa4008853a7ed395d569c7f14c1976cac87ea10c"
+}

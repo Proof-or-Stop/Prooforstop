@@ -1,0 +1,66 @@
+{
+  "storyId": "B-4c48",
+  "checkedAt": "2026-06-23T11:42:48.966Z",
+  "features": [
+    {
+      "feature": "Early read-only main-sync readiness reporting is surfaced through lifecycle-readiness/session rendering before REVIEW or late DONE closure.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description+.lattice/story/actives/B-4c48/plan.md"
+    },
+    {
+      "feature": "Focused main-sync-readiness smoke covers behind-main, synced, read-only/non-blocking behavior and is wired into fast validate.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4c48/checklist.json+.lattice/story/actives/B-4c48/plan.md"
+    },
+    {
+      "feature": "Derived baseline item 4 result artifact is created without modifying the immutable baseline v1 artifact.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4c48/checklist.json+.lattice/story/actives/B-4c48/plan.md"
+    },
+    {
+      "feature": "Authority Server runtime, receipts, production proof, and Authority completion claims are out of scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes: Authority Server runtime or receipt contract changes; understanding constraints: Do not touch Authority Server; CHK-001 excludes Authority or production proof claims.",
+      "source": ".lattice/story/actives/B-4c48/scope-contract.json+.lattice/story/actives/B-4c48/understanding.json"
+    },
+    {
+      "feature": "DONE merge authority, DONE merge implementation rewrites, and new automatic merge paths are out of scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes: DONE merge implementation rewrite; CHK-001 excludes changing story_advance DONE merge authority or adding a merge path outside done_prepare/story_advance.",
+      "source": ".lattice/story/actives/B-4c48/scope-contract.json+.lattice/story/actives/B-4c48/checklist.json"
+    },
+    {
+      "feature": "Delivery-check freshness changes are out of scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes and plan boundaries exclude delivery-check freshness changes.",
+      "source": ".lattice/story/actives/B-4c48/scope-contract.json+.lattice/story/actives/B-4c48/plan.md"
+    },
+    {
+      "feature": "DONE summary freshness changes are out of scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes and plan boundaries exclude DONE summary freshness changes.",
+      "source": ".lattice/story/actives/B-4c48/scope-contract.json+.lattice/story/actives/B-4c48/plan.md"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "62dfb28f3e4fd06930a29d9ca355d3c3952624d75fbcfec371d413936ce586a4",
+  "openQuestions": []
+}

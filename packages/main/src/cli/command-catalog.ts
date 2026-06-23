@@ -1993,6 +1993,8 @@ Behavior:
   { name: 'authority_enforce_runner', description: 'Explicit enforce-only headless runner command. Dry-run projects register/heartbeat/claim without provider execution. Alias: lattice authority enforce runner', schema: {
     once: z.boolean().optional().describe('Claim at most one job'),
     dryRun: z.boolean().optional().describe('Project planned steps without network mutation or provider execution'),
+    live: z.boolean().optional().describe('Run the live Authority control-plane smoke instead of local projection'),
+    storyId: z.string().optional().describe('Optional story selector for scoped Authority job claims'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
     authorityMode: z.string().optional().describe('Authority mode override; runner treats missing override as enforce'),

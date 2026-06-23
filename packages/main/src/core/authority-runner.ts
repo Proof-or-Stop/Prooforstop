@@ -136,6 +136,7 @@ export interface LatticeAuthorityLiveRunnerOptions {
   sessionId: string;
   runnerProvider: AuthorityRunnerProvider;
   projectId: string;
+  storyId?: string;
   customerApiKey?: string;
   bootstrapToken?: string;
   once: boolean;
@@ -451,6 +452,7 @@ export async function runLatticeAuthorityControlPlaneOnce(
         sessionId: options.sessionId,
         provider: options.runnerProvider,
         leaseTtlSeconds: 60,
+        ...(options.storyId ? { storyId: options.storyId } : {}),
       },
     }),
   );

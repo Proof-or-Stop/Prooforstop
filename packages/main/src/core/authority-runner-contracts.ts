@@ -156,6 +156,8 @@ export interface JobClaim extends RunnerEnvelopeHeader {
   capabilities?: string[];
   /** Optional explicit job id to claim (otherwise next eligible). */
   jobId?: string;
+  /** Optional story selector to claim only jobs scoped to this story. */
+  storyId?: string;
 }
 
 export const JobClaimSchema = RunnerEnvelopeHeaderSchema.extend({
@@ -163,6 +165,7 @@ export const JobClaimSchema = RunnerEnvelopeHeaderSchema.extend({
   leaseDurationSeconds: z.number().int().positive().optional(),
   capabilities: z.array(z.string()).optional(),
   jobId: z.string().min(1).optional(),
+  storyId: z.string().min(1).optional(),
 }).passthrough();
 
 // ===========================================================================

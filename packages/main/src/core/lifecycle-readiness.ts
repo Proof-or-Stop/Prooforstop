@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
@@ -30,6 +31,14 @@ export interface StoryReadinessRow {
   code: string;
   reason: string;
   nextCommand?: string;
+}
+
+export interface MainSyncReadiness {
+  status: 'synced' | 'behind' | 'unknown';
+  storyId: string;
+  branch: string;
+  behindCount: number | null;
+  donePrepareCommand: string;
 }
 
 export interface StoryReadinessNextAction {
@@ -120,6 +129,56 @@ function storyAdvanceCommand(storyId: string, phase: LifecycleReadinessTarget): 
 
 function donePrepareCommand(storyId: string): string {
   return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+}
+
+function gitOutput(gitCwd: string, args: string[]): string | null {
+  try {
+    return execFileSync('git', args, {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function gitSucceeds(gitCwd: string, args: string[]): boolean {
+  try {
+    execFileSync('git', args, {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function buildMainSyncReadiness(input: { storyId: string; gitCwd: string }): MainSyncReadiness {
+  const { storyId, gitCwd } = input;
+  const branch = gitOutput(gitCwd, ['rev-parse', '--abbrev-ref', 'HEAD']) || `story/${storyId}`;
+  const command = donePrepareCommand(storyId);
+  if (!gitSucceeds(gitCwd, ['rev-parse', '--verify', 'main^{commit}'])) {
+    return { status: 'unknown', storyId, branch, behindCount: null, donePrepareCommand: command };
+  }
+  if (gitSucceeds(gitCwd, ['merge-base', '--is-ancestor', 'main', 'HEAD'])) {
+    return { status: 'synced', storyId, branch, behindCount: 0, donePrepareCommand: command };
+  }
+
+  const countRaw = gitOutput(gitCwd, ['rev-list', '--count', 'HEAD..main']);
+  const behindCount = countRaw === null ? null : Number.parseInt(countRaw, 10);
+  if (behindCount !== null && Number.isFinite(behindCount) && behindCount > 0) {
+    return { status: 'behind', storyId, branch, behindCount, donePrepareCommand: command };
+  }
+  return { status: 'unknown', storyId, branch, behindCount: null, donePrepareCommand: command };
+}
+
+export function renderMainSyncReadinessAdvisory(readiness: MainSyncReadiness): string | null {
+  if (readiness.status !== 'behind') return null;
+  const count = readiness.behindCount === null ? 'unknown number of' : String(readiness.behindCount);
+  return `main-sync readiness: ${readiness.branch} is behind main by ${count} commits; advisory/read-only; run ${readiness.donePrepareCommand}`;
 }
 
 function validationCommand(storyId: string): string {
@@ -639,6 +698,24 @@ function buildDoneRows(store: StoryStore, storyId: string, root: string, gitCwd:
   return rows;
 }
 
+function buildMainSyncReadinessRows(storyId: string, gitCwd: string): StoryReadinessRow[] {
+  const readiness = buildMainSyncReadiness({ storyId, gitCwd });
+  const advisory = renderMainSyncReadinessAdvisory(readiness);
+  if (!advisory) return [];
+  return [row({
+    id: 'main-sync.readiness',
+    status: 'warn',
+    source: 'storyMachine',
+    sourceRef: 'git merge-base --is-ancestor main HEAD + git rev-list --count HEAD..main',
+    owner: 'done_prepare',
+    category: 'advisory',
+    code: 'branch_behind_main_advisory',
+    reason: advisory,
+    nextCommand: readiness.donePrepareCommand,
+    blocking: false,
+  })];
+}
+
 function buildPhaseRow(storyId: string, phase: StoryPhase, target: LifecycleReadinessTarget): StoryReadinessRow {
   const currentRank = PHASE_RANK[phase] ?? -1;
   const desiredRank = targetRank(target);
@@ -759,6 +836,9 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
     buildPhaseRow(storyId, story.phase, target),
     ...buildHashRows(headHash, materialHash, storyFilesHash),
   ];
+  if (target === 'REVIEW' || target === 'TEST') {
+    readiness.push(...buildMainSyncReadinessRows(storyId, gitCwd));
+  }
   if (target === 'REVIEW' || target === 'TEST' || target === 'DONE') {
     readiness.push(...buildReviewTargetRows(store, storyId, root));
   }

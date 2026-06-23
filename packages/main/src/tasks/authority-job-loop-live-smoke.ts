@@ -12,7 +12,7 @@
  *   lease released), never claiming authority DONE;
  * - no queued job fails closed (authority-no-job), no dangling lease;
  * - a runner control-plane failure fails closed (authority-runner-failed);
- * - a story-mismatched claimed job is refused and the lease is released cleanly.
+ * - a stale queued other-story job is skipped by story-scoped signed claim.
  */
 
 import assert from 'node:assert/strict';
@@ -33,7 +33,7 @@ import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 
 const PASS_LINE =
-  '✓ authority job loop live smoke passed: live register/heartbeat/claim -> consume -> lease complete-or-release; authority DONE receipt/evidence-gated; no-job / runner-failure / story-mismatch fail closed without dangling leases';
+  '✓ authority job loop live smoke passed: live register/heartbeat/story-scoped-claim -> consume -> lease complete-or-release; authority DONE receipt/evidence-gated; no-job / runner-failure fail closed; stale other-story queue skipped';
 
 const keyPair = generateEd25519KeyPair();
 const serverKeyPair = generateEd25519KeyPair();
@@ -167,6 +167,8 @@ interface ServerScript {
   job: Record<string, unknown> | null;
   /** Optional per-claim sequence; falls back to `job` when omitted. */
   jobClaims?: (Record<string, unknown> | null)[];
+  /** Queue model that filters by signed claim.storyId before returning a job. */
+  storyFilteredQueue?: Record<string, unknown>[];
   delegatedCreateStatus?: number;
   gateDecision?: 'approve' | 'reject' | 'approve_no_receipt' | 'approve_tamper';
   evidenceBatchStatus?: number;
@@ -223,6 +225,20 @@ function receiptInputDigestFromEvaluateBody(body: { decision?: Record<string, un
   return pythonAuthorityDigest(decision);
 }
 
+function signedClaimStoryId(body: unknown): string | undefined {
+  const storyId = (body as { claim?: { storyId?: unknown } } | undefined)?.claim?.storyId;
+  return typeof storyId === 'string' && storyId.length > 0 ? storyId : undefined;
+}
+
+function storyIdFromJob(job: Record<string, unknown> | null | undefined): string | undefined {
+  if (!job || typeof job !== 'object') return undefined;
+  const spec = job.spec && typeof job.spec === 'object' ? job.spec as Record<string, unknown> : {};
+  for (const candidate of [job.storyId, spec.storyId]) {
+    if (typeof candidate === 'string' && candidate.length > 0) return candidate;
+  }
+  return undefined;
+}
+
 function makeFetch(script: ServerScript, calls: NetCall[]): typeof fetch {
   let claimIndex = 0;
   const impl = async (input: string, _init: unknown) => {
@@ -245,7 +261,14 @@ function makeFetch(script: ServerScript, calls: NetCall[]): typeof fetch {
       return json(script.registerStatus ?? 200, script.registerBody ?? {});
     }
     if (url.endsWith('/jobs/claim')) {
-      const sequenced = script.jobClaims ? script.jobClaims[Math.min(claimIndex, script.jobClaims.length - 1)] : script.job;
+      const claimStoryId = signedClaimStoryId(body);
+      const sequenced = script.storyFilteredQueue
+        ? (claimStoryId
+            ? script.storyFilteredQueue.find(job => storyIdFromJob(job) === claimStoryId) ?? null
+            : script.storyFilteredQueue[0] ?? null)
+        : script.jobClaims
+          ? script.jobClaims[Math.min(claimIndex, script.jobClaims.length - 1)]
+          : script.job;
       claimIndex += 1;
       return json(200, { job: sequenced });
     }
@@ -475,6 +498,8 @@ async function main(): Promise<void> {
   assert.equal((actorRegistration?.body as any)?.capabilities?.runnerProvider, 'antigravity', 'actor registration carries the custom runner provider nested in capabilities');
   const jobClaim = testCalls.find(call => call.path.endsWith('/jobs/claim'));
   assert.equal((jobClaim?.body as any)?.claim?.provider, 'antigravity', 'job claim routes by custom runner provider declaration');
+  assert.equal((jobClaim?.body as any)?.claim?.storyId, 'B-auto', 'job-loop live claim signs the expected story selector');
+  assert.equal(jobClaim?.path, 'https://authority.test/v1/runners/runner-live-1/jobs/claim', 'story selector is not sent as a query parameter');
   assert.ok(testCalls.every(call => call.headers.Authorization === 'Bearer customer-key-canary'), 'every mutating live call carries the customer API key');
   const jobHeartbeat = testCalls.find(call => call.path.includes('/v1/jobs/job-live-test/heartbeat'));
   assert.equal((jobHeartbeat?.body as any)?.heartbeat?.status, undefined, 'job heartbeat payload must stay Python-compatible and omit unsupported status');
@@ -745,6 +770,8 @@ async function main(): Promise<void> {
   const createIndex = delegatedPaths.findIndex(path => path.endsWith('/v1/jobs/delegated'));
   const secondClaimIndex = delegatedPaths.findIndex((path, index) => index > firstClaimIndex && path.endsWith('/jobs/claim'));
   assert.ok(firstClaimIndex >= 0 && createIndex > firstClaimIndex && secondClaimIndex > createIndex, 'delegated create call is ordered between the first empty claim and second successful claim');
+  assert.equal((delegatedCalls[firstClaimIndex]?.body as any)?.claim?.storyId, 'B-auto', 'first delegated-mode claim signs the expected story selector');
+  assert.equal((delegatedCalls[secondClaimIndex]?.body as any)?.claim?.storyId, 'B-auto', 'post-delegated-create follow-up claim signs the expected story selector');
   assert.deepEqual(delegatedClaim.networkEvents.map(event => event.step), [
     'register_actor_key',
     'register_runner',
@@ -930,23 +957,40 @@ async function main(): Promise<void> {
   assert.ok(!runnerFailedEventsJson.includes(keyPair.privateKey), 'generic live runner network events redact echoed actor private keys');
   assert.ok(runnerFailedEventsJson.includes('[REDACTED]'), 'generic live runner network events keep redacted error context');
 
-  // 11. Story-mismatched claimed job is refused and the lease released cleanly.
-  const mismatchCalls: NetCall[] = [];
-  const mismatch = await executeAutopilotLive({
+  // 11. Fixed server behavior: signed story-scoped claim skips stale other-story queue entries.
+  const staleQueueCalls: NetCall[] = [];
+  const staleOtherStoryJob = jobSpec({ jobId: 'job-live-stale-other-story', storyId: 'B-other', until: 'TEST', steps: [step('provider.fake')] });
+  const currentStoryJob = jobSpec({
+    jobId: 'job-live-current-story',
+    storyId: 'B-auto',
+    until: 'TEST',
+    steps: [
+      step('lattice.command', { args: { operation: 'story.resolve' } }),
+      step('provider.fake'),
+      step('stop.summary'),
+    ],
+  });
+  const staleSkipped = await executeAutopilotLive({
     store,
     root,
     args: { mode: 'authority', storyId: 'B-auto', until: 'TEST', maxSteps: 20 },
     env: LIVE_ENV,
     fetchImpl: makeFetch({
-      job: jobSpec({ jobId: 'job-live-mismatch', storyId: 'B-other', until: 'TEST', steps: [step('provider.fake')] }),
-    }, mismatchCalls),
+      job: null,
+      storyFilteredQueue: [staleOtherStoryJob, currentStoryJob],
+    }, staleQueueCalls),
     now: FIXED_NOW,
   });
-  assert.equal(mismatch.status, 'fail');
-  assert.equal(mismatch.stopReason, 'claimed-job-story-mismatch', 'a claimed job for another story is refused');
-  assert.equal(mismatch.claimedJobExecution, null, 'a mismatched job is never executed');
-  assert.equal(mismatch.authorityJobLoop!.disposition, 'released');
-  assert.ok(mismatch.authorityJobLoop!.networkEvents.some(e => e.step === 'release_job' && e.ok), 'a mismatched claimed job lease must be released');
+  assert.equal(staleSkipped.status, 'pass', 'story-scoped claim receives the current-story job despite stale queued work');
+  assert.equal(staleSkipped.stopReason, 'authority-job-completed');
+  assert.equal(staleSkipped.authorityJobLoop?.claimStatus, 'claimed');
+  assert.equal(staleSkipped.authorityJobLoop?.claimedJobId, 'job-live-current-story');
+  assert.equal(staleSkipped.claimedJobExecution?.jobId, 'job-live-current-story', 'stale other-story job is never consumed as current-story work');
+  assert.equal(staleSkipped.authorityJobLoop?.disposition, 'completed');
+  assert.ok(!staleSkipped.authorityJobLoop!.networkEvents.some(e => e.step === 'release_job'), 'fixed server skips stale jobs before the client leases them');
+  const staleQueueClaim = staleQueueCalls.find(call => call.path.endsWith('/jobs/claim'));
+  assert.equal((staleQueueClaim?.body as any)?.claim?.storyId, 'B-auto', 'fake server filtered the queue using the signed claim storyId');
+  assert.equal(staleQueueClaim?.path, 'https://authority.test/v1/runners/runner-live-1/jobs/claim', 'stale-queue selector is not unsigned URL state');
 
   console.log(PASS_LINE);
 }

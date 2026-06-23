@@ -1,0 +1,28 @@
+{
+  "task": "Make the Lattice CLI live Authority runner send signed story/job claim selectors so it cannot accidentally claim stale queued jobs from another story.",
+  "outcome": "After running the authority live smokes, the terminal shows JobClaim accepts storyId/jobId, autopilot authority claim bodies include claim.storyId for the requested story, authority_enforce_runner claim bodies include claim.storyId, and the stale queued other-story job regression passes instead of producing claimed-job-story-mismatch.",
+  "facts": [
+    "Server story B-28c5 already added signed storyId/jobId selector enforcement before leasing.",
+    "Current CLI live claim paths send provider/session but not storyId, so they still make broad claims.",
+    "SSE jobs.available is only an advisory hint; signed POST /jobs/claim remains the ownership boundary.",
+    "INIT reviewers required explicit stale queued job regression evidence, not only payload field assertions."
+  ],
+  "constraints": [
+    "Do not change server code in this story.",
+    "Do not add queue purge, cancel endpoints, retry loops, or multi-tenant behavior.",
+    "Keep broad generic runner claims valid where no story selector is intended.",
+    "Only fix the real claim identity mismatch and keep logic consistent with server B-28c5."
+  ],
+  "unknowns": [
+    "Exact test edits needed in existing smokes to model stale queued other-story jobs without live staging dependency."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts"
+  ],
+  "timestamp": "2026-06-23T10:37:56.937Z"
+}
