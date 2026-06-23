@@ -27,7 +27,7 @@
       "desc": "[codex-host2 #1/#2] B3 countMarkerInWorkspace is a FLAT scan but setup writes SYNTAX_ERR to src/broken.js (subdir) -> a shipped-only agent is RECOVERED while the compile error remains; subdir GARBAGE/SYNTAX_ERR also missed -> false SAFE_STOP. FIX: make the scanner RECURSIVE.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T19:34:35.360Z",
@@ -37,7 +37,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-countmarkerinworkspace",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: recursive walkFiles backs countMarkerInWorkspace + literalInFilesWithExt; subdir markers/secrets now scanned.",
+      "resolvedAt": "2026-06-23T19:41:47.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d43f:F-003",
