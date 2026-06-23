@@ -90,7 +90,7 @@
       "desc": "[codex-host2 C10] injected context is lost after a non-shipping turn: turn 2+ sees only agent.output, not the task/injection. FIX: accumulate context (preserve task + injection across turns) instead of replacing it with output.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T13:00:39.650Z",
@@ -100,7 +100,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-injected",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: context now accumulates ('[turn N output]' appended) so the task + turn-1 injection persist across turns instead of being replaced by the agent output.",
+      "resolvedAt": "2026-06-23T13:05:50.562Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c023:F-006",
