@@ -385,6 +385,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:19:03.220Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'dh junk-so: pass false (.so flagged as junk under allowed path)': compiled artifact (.so) under allowed path flagged as junk-artifact",
+          "headHash": "ada63eb52433856798de7245c530cc06820189d3",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:19:03.905Z"
         }
       ]
     },
