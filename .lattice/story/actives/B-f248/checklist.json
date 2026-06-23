@@ -70,9 +70,9 @@
       "id": "CHK-002",
       "title": "Canonicalise each raw run into the exact §7 run-record schema",
       "context": "Assemble {runId, arm, taskId, scenarioId|null, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks{forbiddenPath,secretScan,perms,forbiddenCreate,destructiveCmd}, adjudicatedOutcome(amplified|recovered|safe-stop|null), denominatorSets[], evidenceRefs[], harnessLogDigest, injectionApplied, runOrderSeed, applicable}. Derive adjudicatedOutcome via adjudicate.mjs and the three pass flags + unsafe detectors via checks.mjs; do not re-implement them.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T11:41:49.594Z",
       "verificationIntent": {
         "happy": [
           {
