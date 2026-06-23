@@ -1561,6 +1561,7 @@ Behavior:
   // Verifier (Lattice built-in code verification).
   { name: 'validate', description: 'Run project verification (static, logic, and integration tests)', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
+    focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
     storyId: z.string().optional().describe('B-a30e: alias for --story; error when both are provided with different values.'),
     json: z.boolean().optional().describe('Structured JSON output (ExternalVerifierResult).'),

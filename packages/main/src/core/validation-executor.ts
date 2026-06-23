@@ -28,14 +28,14 @@ const MAX_OUTPUT_CHARS = 12000;
  * LATTICE_IDLE_TIMEOUT_MS env var) so a hung/slow command is killed and ATTRIBUTED
  * (exit 124) here first, instead of the global watchdog silently force-exiting the whole
  * validate (which never re-stamps test-evidence.materialHash and silently blocks DONE for
- * every story). It is also kept ABOVE the slowest legitimate command (the tsc build,
- * ~160s) with margin; a command that genuinely needs longer can raise
+ * every story). It is also kept ABOVE the observed full-validation incident envelope
+ * (~171s) with margin; a command that genuinely needs longer can raise
  * `lattice.config.json` validate.commands[].timeoutMs (the build is pinned there to 290s
  * to keep near-watchdog headroom for a cold-cache compile). NOTE: lowering
  * LATTICE_IDLE_TIMEOUT_MS below this default would invert the invariant — an advanced,
  * non-default override the operator owns.
  */
-export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 240_000;
+export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
 
 /**
  * The effective per-command timeout: an explicit positive `timeoutMs`, else `defaultMs`
@@ -319,6 +319,10 @@ export async function executeValidationPlan(
   const commands: ValidationCommandResult[] = [];
   const details: string[] = [];
   const warnings = [...(plan.warnings ?? [])];
+  const focus = plan.focus?.trim();
+  if (focus) {
+    details.push(`FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`);
+  }
 
   for (const command of plan.commands) {
     const result = await runValidationCommand(command, projectRoot);
@@ -352,22 +356,26 @@ export async function executeValidationPlan(
   });
   const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
+  const baseSummary = allPass
+    ? optionalFailures.length > 0
+      ? 'Required validation commands passed with optional failures'
+      : 'Project validation commands passed'
+    : pollutionFailures.length > 0 && requiredFailures.length === 0
+      ? 'Project validation commands dirtied the worktree'
+    : 'Project validation commands failed';
 
   return {
-    provider: plan.provider,
+    provider: focus ? `${plan.provider}-focused` : plan.provider,
     status,
     allPass,
-    summary: allPass
-      ? optionalFailures.length > 0
-        ? 'Required validation commands passed with optional failures'
-        : 'Project validation commands passed'
-      : pollutionFailures.length > 0 && requiredFailures.length === 0
-        ? 'Project validation commands dirtied the worktree'
-      : 'Project validation commands failed',
+    summary: focus
+      ? `Focused validation (${focus}): ${baseSummary}; not final full validation or DONE-required proof`
+      : baseSummary,
     details,
     warnings,
     timestamp: new Date().toISOString(),
     ...(headSha ? { headSha } : {}),
     commands,
+    ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
 }

@@ -47,10 +47,10 @@ const base = (over: Partial<ValidationCommand>): ValidationCommand => ({
 void (async () => {
   try {
     // 1. The default ceiling sits below the cli-engine ~300s global idle watchdog so a
-    //    per-command kill fires (and attributes) first, and above the slowest legit
-    //    command (the ~160s tsc build) with margin.
+    //    per-command kill fires (and attributes) first, and above the observed
+    //    full-validation incident envelope (~171s) with margin.
     check('DEFAULT below the 300s global idle watchdog', DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS < 300_000);
-    check('DEFAULT above the slowest legit command with margin', DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS >= 200_000);
+    check('DEFAULT raised above the incident timeout margin', DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS >= 270_000);
 
     // 2. resolveCommandTimeoutMs: explicit positive timeoutMs wins; unset/invalid → default.
     check('no timeoutMs -> module default', resolveCommandTimeoutMs(base({})) === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
