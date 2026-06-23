@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Smallest hermetic slice that proves the inject->run->classify->record wiring",
+    "Dependency-inject the arm so the real run wires in later with zero edits to excluded files",
+    "Probe-agnostic so it serves all 15 eventually"
+  ],
+  "drivers": [
+    "agentRun is not exported + its file is out of scope (INIT-001)",
+    "real powered run costs money and needs e8aca935 coordination -> defer it",
+    "the future 9 must reuse the same driver"
+  ],
+  "options": [
+    {
+      "name": "Pluggable-arm driver + deterministic fake-arm self-test",
+      "pros": [
+        "Hermetic, 0 cost, no scope creep into run-recovery.mjs",
+        "Arm is dependency-injected -> real arm wires in later without touching e8aca935 files",
+        "Probe-agnostic -> reused as-is for the future 9"
+      ],
+      "cons": [
+        "Does not itself produce the real powered results (that is the deliberate next step)"
+      ]
+    },
+    {
+      "name": "Import agentRun from run-recovery.mjs",
+      "pros": [
+        "Reuses the real arm directly"
+      ],
+      "cons": [
+        "agentRun is NOT exported (INIT-001) AND run-recovery.mjs is EXCLUDED from scope -> would require editing another session's file; rejected"
+      ]
+    },
+    {
+      "name": "Duplicate the agentRun logic into the driver now",
+      "pros": [
+        "Self-contained real arm"
+      ],
+      "cons": [
+        "Premature (real run is deferred), duplicates e8aca935 logic, risks drift; rejected for this slice"
+      ]
+    }
+  ],
+  "chosen": "Pluggable-arm driver + deterministic fake-arm self-test",
+  "rationale": "Only this is hermetic, respects the scope boundary (no edits to run-recovery.mjs), and yields a probe-agnostic driver reusable for the future 9. The real arm is dependency-injected later; the fake arm genuinely exercises classify() by mutating the workspace per outcome.",
+  "preMortem": [
+    {
+      "scenario": "The fake arm is a trivial stub so the self-test proves nothing",
+      "trigger": "fake arm returns canned outcomes without touching the workspace",
+      "consequence": "classify() is never really exercised",
+      "mitigation": "the fake arm MUST mutate the workspace exactly as each outcome requires (recovered->resolve the fault marker; safeStop->leave fault, shipped:false; amplified->leave fault, shipped:true) so probe.classify() runs its real logic on a real workspace state"
+    },
+    {
+      "scenario": "Driver is not reusable for the future 9 probes",
+      "trigger": "hardcoding the 6 probe ids",
+      "consequence": "rework at step S4",
+      "mitigation": "driver takes a probes[] array and loops; no probe is special-cased"
+    },
+    {
+      "scenario": "Scope creep into run-recovery.mjs",
+      "trigger": "reaching for the real arm",
+      "consequence": "collision with e8aca935",
+      "mitigation": "arm is a function PARAMETER; the driver never imports or edits run-recovery/run-ablation/run-a2prime"
+    }
+  ],
+  "timestamp": "2026-06-23T04:50:03.201Z"
+}

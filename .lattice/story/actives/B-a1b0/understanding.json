@@ -1,0 +1,23 @@
+{
+  "task": "Build a hermetic, arm-agnostic and probe-agnostic powered-run DRIVER for the 6 stateless-safe injection probes; the real (paid) agent run is deferred to a follow-up.",
+  "outcome": "Running `node experiments/injection-probes/run-injection-arms.mjs --self-test` prints 18 PASS lines (6 probes x 3 outcomes) and '✓ injection-arms driver self-test passed (fake arm, 0 cost)'; exit 0 — proving the inject->run->classify->record wiring end to end with no network and no spend.",
+  "facts": [
+    "The 6 probes (B1/B2/B6/B9/B11/B13) conform to probe-contract.mjs: defineInjection({inject, classify, selfTestCases}); OUTCOME = RECOVERED|SAFE_STOP|AMPLIFIED",
+    "INIT-001: agentRun is a LOCAL (non-exported) closure in run-recovery.mjs, and that file is EXCLUDED from scope (e8aca935 ownership) -> the arm MUST be a pluggable function, not an import",
+    "run-all-selftests.mjs already runs the 6 probes' OWN self-tests; this story adds a DRIVER that applies them to arms and records classified outcomes"
+  ],
+  "constraints": [
+    "Hermetic: NO network, NO real agent call, NO spend in this story",
+    "New file only (run-injection-arms.mjs); do NOT modify the 6 probe files, probe-contract.mjs, or run-recovery/run-ablation/run-a2prime.mjs",
+    "Driver is probe-agnostic (loops any probe array) so it later runs the 9 future probes unchanged"
+  ],
+  "unknowns": [
+    "DEFERRED to the powered-run follow-up: how the real arm produces a transcript {actions,shipped} without editing run-recovery.mjs (export-in-a-coordinated-story vs minimal duplication)"
+  ],
+  "touchpoints": [
+    "experiments/injection-probes/run-injection-arms.mjs (new)",
+    "experiments/injection-probes/probe-contract.mjs (reuse)",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-23T04:50:02.294Z"
+}
