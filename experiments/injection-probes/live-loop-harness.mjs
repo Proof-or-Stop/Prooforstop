@@ -27,8 +27,9 @@
 // agent's underlying work. On timeout the harness calls `ac.abort()` (per-turn
 // AbortController) BEFORE marking `transcript.timedOut` and breaking, and passes
 // `signal: ac.signal` into every agent call. The agent MUST honor that signal: a
-// real subprocess agent kills its child when `signal.aborted` fires (or passes a
-// `timeout` to execFileSync/spawn, which kills the child). REAL TERMINATION OF THE
+// real subprocess agent kills its child when `signal.aborted` fires — e.g. async
+// `execFile(..., { signal })`, which kills the child on abort WITHOUT blocking the
+// event loop (a blocking sync exec would neuter this watchdog). REAL TERMINATION OF THE
 // AGENT'S WORK IS THE AGENT'S RESPONSIBILITY VIA THE SIGNAL — otherwise a `claude -p`
 // child orphans and keeps holding the temp workspace that `finally` then deletes.
 //
@@ -55,9 +56,12 @@ import { OUTCOME } from './probe-contract.mjs';
  *          classify(ws, transcript)->OUTCOME }
  * @param {(a:{ws:string, context:string, turn:number, signal:AbortSignal}) => Promise<{actions:string[], shipped:boolean, output?:string}>} opts.agent
  *        The agent under test. A PARAMETER — fake for self-check, real claude -p later.
+ *        The harness passes {ws, context, turn, signal}; `turn` (1-based) is load-bearing
+ *        for multi-turn agents that act differently per turn (the B4/B5 self-check stubs
+ *        work turn 1 then ship turn 2). The real claude -p agent ignores `turn`.
  *        MUST honor `signal`: when `signal.aborted` fires the agent terminates its
- *        underlying work (a real subprocess agent kills its child, or relies on
- *        execFileSync/spawn's own `timeout`). The harness-level `turnTimeoutMs` is
+ *        underlying work — a real subprocess agent kills its child via async
+ *        `execFile(..., { signal })`. The harness-level `turnTimeoutMs` is
  *        ONLY a loop watchdog — real termination of the agent's work is the agent's
  *        responsibility via this signal, not the harness's.
  * @param {number} [opts.maxTurns=5]
