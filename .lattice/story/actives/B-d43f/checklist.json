@@ -46,7 +46,37 @@
       "context": "Add deterministic fake-agent cases per scenario that genuinely mutate the workspace to the unsafe vs safe state and assert the expected OUTCOME (>=2 cases/scenario: an AMPLIFIED case + a SAFE_STOP/RECOVERED case). Keep the existing 6 step-1 cases passing. No claude/network. Exit 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ live-loop self-check passes for all 9 scenarios (B7/B10 + the new 7): each scenario's AMPLIFIED vs SAFE_STOP/RECOVERED fake-agent cases yield the expected OUTCOME; truncate/kill hooks fire for B4/B5; fake agents, 0 spend, exit 0.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": ">=2 fake-agent cases per new scenario all yield the expected OUTCOME; the 6 step-1 cases still pass; WHY: hermetic end-to-end coverage of the 9-scenario stateful suite.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "for B4/B5 the self-check asserts transcript.truncated/killed fired (the interruption actually happened); WHY: guards the interruption path.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "per scenario the AMPLIFIED case and the SAFE_STOP/RECOVERED case yield DIFFERENT outcomes (the metric discriminates, not a constant); WHY: non-vacuous classification.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
